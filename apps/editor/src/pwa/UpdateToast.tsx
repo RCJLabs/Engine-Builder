@@ -1,10 +1,12 @@
+import { unsaved } from '../editing/current.ts';
 import { deferredAt, deferUpdate, reloadIntoUpdate, updateReady } from './register.ts';
 import { DEFERRED_NOTE, deferralActive, updateVisible } from './updateGate.ts';
 
 export function UpdateToast() {
   const visible = updateVisible({
     ready: updateReady.value,
-    busy: false, // nothing in Phase 0 can be lost by a reload
+    // A reload would lose an edit not yet written; the toast waits the second or so until it is.
+    busy: unsaved.value,
     deferred: deferralActive(deferredAt.value, Date.now()),
   });
   if (!visible) return null;

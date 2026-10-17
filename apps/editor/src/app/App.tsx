@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks';
 import { buildStamp } from '../build.ts';
+import { current as openProject } from '../projects/session.ts';
 import { UpdateToast } from '../pwa/UpdateToast.tsx';
 import { CommandPalette, paletteOpen } from './CommandPalette.tsx';
 import { Console } from './Console.tsx';
@@ -7,6 +8,7 @@ import { DesktopLayout } from './DesktopLayout.tsx';
 import { CommandsIcon } from './icons.tsx';
 import { ZONES } from './layout.ts';
 import { layout } from './state.ts';
+import { UndoButtons } from './UndoButtons.tsx';
 import { Zone } from './Zone.tsx';
 
 /** Ctrl+K, or ⌘K on a Mac, opens the command palette from anywhere. */
@@ -33,10 +35,11 @@ export function App() {
           <img src={`${import.meta.env.BASE_URL}icons/icon.svg`} alt="" width="28" height="28" />
           Engine-Builder
         </h1>
-        <span class="topbar-end">
+        <span class="topbar-end" data-project={openProject.value ? 'open' : undefined}>
           <span class="stamp" title="Version and commit">
             {buildStamp()}
           </span>
+          <UndoButtons />
           <button
             type="button"
             class="icon-button"

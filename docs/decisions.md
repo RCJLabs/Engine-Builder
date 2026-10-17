@@ -411,6 +411,44 @@ The spec is [specs/editor-layout.md](specs/editor-layout.md).
 - **Two kinds of tab.** dockview's tabs show a panel on Enter, while the zones' tabs show it as the arrow keys reach it.
 - **A red `main` until the domain is set.** While Pages serves the site under `rcjlabs.github.io/Engine-Builder/`, the `/` build's scripts don't load there, and the deploy check fails. That is the live site's real state.
 
+### D30. Editing safety: a command log of file changes, saves through a journal, and one editing tab per project held by a Web Lock. LOCKED, 2026-10-17 (M2.3)
+
+**Decision.**
+- **Edits are steps of file changes**, each file's bytes before and after, kept in a command log.
+  - Undo puts the befores back, redo the afters.
+  - Steps in one field within 500 ms join. The newest 100 are kept, in the editing tab's memory.
+- **An edited JSON file keeps its own layout**: byte order mark, line ends, indentation, last newline.
+- **Autosave.** It saves 1 s after the last edit, at once when the page hides, when the project closes, and before handing over. While an edit is unsaved, or not yet even made, the update toast waits and leaving asks.
+- **Stored projects save through a journal** in the OPFS worker. A journal left by a crash is finished when the project opens; a torn one is dropped.
+- **Opened folders** save through writable streams, once a tap on Allow changes has let the editor change them.
+- **One editing tab per project**, holding a Web Lock.
+  - Other tabs open the project read only and follow its saves.
+  - Edit here asks the editing tab to save and hand over. Take over takes the lock from a tab that hasn't answered in 5 s.
+  - Deleting a project needs its lock.
+- **The deploy check needs HTTPS.**
+- **The first edits are the project's name and version.** M2.4's forms make steps the same way.
+
+The spec is [specs/editor-editing.md](specs/editor-editing.md). It also answers [editor-storage.md](specs/editor-storage.md#open-questions)'s question 1: a journal.
+
+**Why.**
+- **File changes as steps.** Every edit to come (forms, tables, renames) is a change to files, so the log never needs to know what a field is. Before and after bytes make undo exact: the git round trip shows no diff after an edit and its undo.
+- **A journal**, for three reasons:
+  - It makes a save of many files all or nothing.
+  - It doesn't lean on `move()`, which isn't atomic in Firefox.
+  - It needs only the sync access handles M2.1 already writes with in every engine.
+- **Web Locks.**
+  - The browser lets go of them when a tab closes, crashes or is discarded, so a crash never leaves a project locked.
+  - `BroadcastChannel` lets the tabs hand over politely, and stealing covers a tab frozen in the background.
+  - D25 expected this: "a Web Lock around the write", planned for the editor.
+- **HTTPS.** The first run of M2.2's check passed against `http://engine.rcjlabs.com/`, where browsers withhold the service worker and OPFS.
+
+**Cost.**
+- **Every save writes twice**, the journal and then the files: 14–20 ms for `project.json`.
+- **The history is lost** on a reload, a hand-over or a crash.
+- **Take over drops the other tab's unsaved edits**, and that tab's save already in flight can still land.
+- **A save of several files into an opened folder isn't all or nothing.**
+- **An edited file's numbers and key order** come out as `JSON.stringify` writes them.
+
 ---
 
 ## Open

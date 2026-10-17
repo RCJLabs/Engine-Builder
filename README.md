@@ -2,7 +2,7 @@
 
 A browser-based game engine and editor. Build worlds, missions, scripts, menus and UI on a PC, tablet or phone, then ship the game as a PWA on GitHub Pages or as a Play Store app (TWA).
 
-**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Editing records comes next. The engine's pure core is built, through the 3D spike:
+**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Edits save by themselves, undo and redo, and stay whole through a crash, with one editing tab per project. Forms for records come next. The engine's pure core is built, through the 3D spike:
 - seeded RNG and state hashes;
 - records, the project format and the compiler;
 - the sim kernel, conditions and time;

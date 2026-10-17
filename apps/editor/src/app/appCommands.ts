@@ -1,4 +1,5 @@
 /** The commands the palette offers right now: panels to show, project actions, and layout. */
+import { editing, redoLabel, undoLabel } from '../editing/current.ts';
 import { canOpenFolders } from '../projects/folders.ts';
 import { pickZip } from '../projects/pickZip.ts';
 import { busy, closeProject, current, exportCurrent, openFolder } from '../projects/session.ts';
@@ -65,8 +66,21 @@ function projectCommands(): Command[] {
   return commands;
 }
 
+/** Undo and redo, named for the step each would take, while there is one. */
+function historyCommands(): Command[] {
+  if (editing.access.value.kind !== 'editing') return [];
+  const commands: Command[] = [];
+  const back = undoLabel.value;
+  const again = redoLabel.value;
+  if (back)
+    commands.push({ id: 'undo', title: `Undo: ${back}`, keywords: 'back revert', run: () => void editing.undo() });
+  if (again)
+    commands.push({ id: 'redo', title: `Redo: ${again}`, keywords: 'again forward', run: () => void editing.redo() });
+  return commands;
+}
+
 export function appCommands(): Command[] {
-  const commands = [...projectCommands(), ...panelCommands()];
+  const commands = [...historyCommands(), ...projectCommands(), ...panelCommands()];
   if (layout.value === 'desktop') {
     commands.push({
       id: 'reset-layout',

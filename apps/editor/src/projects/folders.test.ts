@@ -37,6 +37,9 @@ function memoryStore(): FolderStore {
       const key = next++;
       records.set(key, { ...record, key });
     },
+    put: async (record) => {
+      records.set(record.key, record);
+    },
     remove: async (key) => {
       records.delete(key);
     },
@@ -62,6 +65,24 @@ describe('rememberFolder', () => {
     const kept = await recentFolders(store);
     expect(kept).toHaveLength(RECENT_FOLDERS);
     expect(kept[0]?.name).toBe(`f${RECENT_FOLDERS + 1}`);
+  });
+
+  it('keeps a folder’s key when it opens again, so every tab names its lock alike', async () => {
+    const store = memoryStore();
+    const first = folder('first');
+    const key = await rememberFolder(store, first, 1);
+    await rememberFolder(store, folder('second'), 2);
+    expect(await rememberFolder(store, first, 3)).toBe(key);
+    expect(key).not.toBeNull();
+  });
+
+  it('folds the copies M2.1 kept of one folder into one', async () => {
+    const store = memoryStore();
+    const first = folder('first');
+    await store.add({ name: 'first', opened: 1, handle: first });
+    await store.add({ name: 'first', opened: 2, handle: first });
+    const key = await rememberFolder(store, first, 3);
+    expect((await store.all()).map((r) => r.key)).toEqual([key]);
   });
 });
 
@@ -111,7 +132,7 @@ describe('pickFolder', () => {
 });
 
 describe('idbFolderStore', () => {
-  it('adds, lists and removes folders, keyed by the store', async () => {
+  it('adds, lists, replaces and removes folders, keyed by the store', async () => {
     const store = idbFolderStore(new IDBFactory());
     // Real handles survive a structured clone; this stand-in is plain data so the fake can clone it.
     const handle = { kind: 'directory', name: 'game' } as unknown as FolderHandle;
@@ -121,5 +142,7 @@ describe('idbFolderStore', () => {
     expect([first?.name, second?.name, first?.handle.name]).toEqual(['game', 'other', 'game']);
     await store.remove(first?.key ?? -1);
     expect((await store.all()).map((r) => r.name)).toEqual(['other']);
+    if (second) await store.put({ ...second, opened: 9 });
+    expect((await store.all()).map((r) => [r.key, r.opened])).toEqual([[second?.key, 9]]);
   });
 });

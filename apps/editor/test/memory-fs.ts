@@ -1,11 +1,38 @@
 /**
  * An in-memory file system with the File System API's shape and errors, for the editor's storage
  * tests. Folders and files are made on demand, listing follows insertion order, removal can be
- * recursive, and a sync access handle locks its file while open, as OPFS's do.
+ * recursive, a sync access handle locks its file while open, as OPFS's do, and the power can be
+ * cut part way through a write.
  */
 import type { DirectoryLike, EntryLike, FileLike } from '../src/projects/files.ts';
 
 const failure = (name: string, message: string) => new DOMException(message, name);
+
+/** What a test sees when the power goes: the operation it cut short failed. */
+export class PowerCut extends Error {}
+
+/**
+ * The power, for crash tests. Each write, truncation, flush and removal spends one unit of
+ * `budget`. The one that finds it spent is cut: it fails, and a write keeps only the first half
+ * of its bytes, as a disk can. After that the power is out and nothing changes, though writes
+ * running alongside go on asking. `spent` counts the operations, so a test can cut at each one.
+ */
+export const power = { budget: Number.POSITIVE_INFINITY, spent: 0, out: false };
+
+export function restorePower(): void {
+  Object.assign(power, { budget: Number.POSITIVE_INFINITY, spent: 0, out: false });
+}
+
+function spend(): 'on' | 'cut' | 'off' {
+  if (power.out) return 'off';
+  if (power.budget <= 0) {
+    power.out = true;
+    return 'cut';
+  }
+  power.budget--;
+  power.spent++;
+  return 'on';
+}
 
 // What browsers refuse as a name, with a TypeError, before anything else.
 function checkFsName(name: string): void {
@@ -27,25 +54,52 @@ export class MemoryFile implements FileLike {
     return new Blob([this.bytes.slice()]);
   }
 
+  /** Chrome's writable stream: writes fill a swap file, and close puts it in place whole. */
+  async createWritable() {
+    let swap = new Uint8Array();
+    return {
+      write: async (data: Uint8Array) => {
+        if (spend() !== 'on') throw new PowerCut('no power to write');
+        const grown = new Uint8Array(swap.byteLength + data.byteLength);
+        grown.set(swap);
+        grown.set(data, swap.byteLength);
+        swap = grown;
+      },
+      close: async () => {
+        if (spend() !== 'on') throw new PowerCut('no power to close');
+        this.bytes = swap;
+      },
+      abort: async () => undefined,
+    };
+  }
+
   async createSyncAccessHandle() {
     if (this.locked) throw failure('NoModificationAllowedError', `${this.name} is already open`);
     this.locked = true;
     return {
       truncate: (size: number) => {
+        if (spend() !== 'on') throw new PowerCut('no power to truncate');
         const next = new Uint8Array(size);
         next.set(this.bytes.subarray(0, size));
         this.bytes = next;
       },
-      write: (data: Uint8Array, { at }: { at: number }) => {
+      write: (whole: Uint8Array, { at }: { at: number }) => {
+        const state = spend();
+        if (state === 'off') throw new PowerCut('no power to write');
+        const cut = state === 'cut';
+        const data = cut ? whole.subarray(0, whole.byteLength >> 1) : whole;
         if (at + data.byteLength > this.bytes.byteLength) {
           const grown = new Uint8Array(at + data.byteLength);
           grown.set(this.bytes);
           this.bytes = grown;
         }
         this.bytes.set(data, at);
+        if (cut) throw new PowerCut('cut while writing');
         return data.byteLength;
       },
-      flush: () => undefined,
+      flush: () => {
+        if (spend() !== 'on') throw new PowerCut('no power to flush');
+      },
       close: () => {
         this.locked = false;
       },
@@ -102,6 +156,7 @@ export class MemoryDirectory implements DirectoryLike {
   }
 
   async removeEntry(name: string, options?: { recursive?: boolean }): Promise<void> {
+    if (spend() !== 'on') throw new PowerCut('no power to remove');
     const found = this.children.get(name);
     if (!found) throw failure('NotFoundError', `${name} not found`);
     if (found.kind === 'directory' && found.children.size > 0 && !options?.recursive) {

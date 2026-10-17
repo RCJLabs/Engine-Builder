@@ -95,7 +95,7 @@ Until GitHub sync (Phase 4), a zip export is the backup the editor can't lose. O
 
 ## Open questions
 
-1. **Safer saves.** Before M2.3 saves edits, decide how a write survives a crash: write a sibling file and `move()` it over the original (supported in all three engines, but Chrome only for files), or keep a journal.
+1. **Safer saves.** Settled by M2.3 (D30): a journal, written whole before any file is touched ([editor-editing.md](editor-editing.md#stored-projects-the-journal)).
 2. **CRC checks.** fflate doesn't check a zip's CRCs, so a damaged zip imports damaged files. A damaged record fails to parse (E007); a damaged asset would not be noticed. Check CRCs when assets arrive (M2.7)?
 3. **The compiler's weight.** It is 33.8 kB of the editor's 51.1 kB of gzipped JS, mostly zod, loaded at start so the library can read project names (Readings). Load it later, or in the worker the architecture plans for it, once the editor's start-up is measured on a phone.
 4. **Share instead of download.** On a phone, the share sheet's "Save to Files" or Drive may suit exports better than Downloads.

@@ -1,11 +1,13 @@
 /**
- * The editor's projects: what is stored, what is open, and the actions the Project panel offers.
- * One action runs at a time; each notes what happened in the console and leaves a failure in
- * `trouble` for the panel to show.
+ * The editor's projects: what is stored, what is open (opened.ts), and the actions the Project
+ * panel offers. One action runs at a time; each notes what happened in the console and leaves a
+ * failure in `trouble` for the panel to show.
  */
-import { directorySource, type ProjectSource, zipProject, zipSource } from '@eb/compiler';
+import { type ProjectSource, zipProject, zipSource } from '@eb/compiler';
 import { signal } from '@preact/signals';
 import { note } from '../app/state.ts';
+import { browserLocks, projectLockName, takeLock } from '../editing/projectLock.ts';
+import { browserTabs } from '../editing/tabs.ts';
 import { saveFile } from './download.ts';
 import type { DirectoryLike } from './files.ts';
 import { idbFolderStore } from './folderStore.ts';
@@ -19,30 +21,26 @@ import {
   rememberFolder,
 } from './folders.ts';
 import { createLibrary, type Library, type LibraryEntry, PROJECTS_DIR } from './library.ts';
-import { opfsWriter } from './opfsClient.ts';
+import { closeOpen, current, openFolderProject, openStored as openStoredIn } from './opened.ts';
+import { type OpfsWorker, opfsWorker } from './opfsClient.ts';
+import { recoverAll } from './recovery.ts';
 import { requestPersistence, type StorageState, sizeText, storageState } from './storage.ts';
 import { type ProjectSummary, summarize } from './summary.ts';
+
+export { current, type OpenProject } from './opened.ts';
 
 /** The most a zip may hold to be imported: plenty for records, bounded for a phone's memory. */
 export const ZIP_LIMITS = { maxFiles: 10_000, maxBytes: 100_000_000 } as const;
 
-export interface OpenProject {
-  readonly where: 'browser' | 'folder';
-  /** The library folder, or the opened folder's name. */
-  readonly label: string;
-  readonly source: ProjectSource;
-  readonly summary: ProjectSummary;
-}
-
 export const library = signal<readonly LibraryEntry[] | null>(null);
 export const folders = signal<readonly FolderRecord[]>([]);
-export const current = signal<OpenProject | null>(null);
 export const storage = signal<StorageState | null>(null);
 /** What is happening now, or null when the panel is free. */
 export const busy = signal<string | null>(null);
 export const trouble = signal<string | null>(null);
 
 let stored: Library | null = null;
+let worker: OpfsWorker | null = null;
 let remembered: FolderStore | null = null;
 
 const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
@@ -52,8 +50,12 @@ export async function startProjects(): Promise<void> {
   try {
     const opfs = (await navigator.storage.getDirectory()) as unknown as DirectoryLike;
     const root = await opfs.getDirectoryHandle(PROJECTS_DIR, { create: true });
-    const write = opfsWriter();
-    stored = createLibrary(root, (folder, files) => write([PROJECTS_DIR, folder], files));
+    const files = opfsWorker();
+    worker = files;
+    stored = createLibrary(root, (folder, written) => files.write([PROJECTS_DIR, folder], written));
+    await recoverAll(root, files).catch((error: unknown) =>
+      note(`A save cut short couldn’t be finished: ${message(error)}`),
+    );
   } catch (error) {
     trouble.value = `This browser can't store projects (${message(error)}). Zips and opened folders still work.`;
   }
@@ -65,6 +67,10 @@ export async function startProjects(): Promise<void> {
   await refresh().catch((error: unknown) => {
     library.value = [];
     trouble.value = `The stored projects couldn’t be listed: ${message(error)}`;
+  });
+  // Another tab saved: a renamed project shows by its new name. Only while the list is showing.
+  browserTabs().listen((said) => {
+    if (said.kind === 'saved' && current.value === null) void refresh().catch(() => undefined);
   });
 }
 
@@ -104,25 +110,26 @@ async function keep(): Promise<void> {
   }
 }
 
-async function openStored(folder: string): Promise<void> {
-  const source = await needLibrary().open(folder);
-  const summary = await summarize(source);
-  current.value = { where: 'browser', label: folder, source, summary };
-  note(`Opened ${summary.project?.name ?? folder} from this browser.`);
-}
+const openStored = (folder: string): Promise<void> => {
+  if (!worker) throw new Error('This browser can’t store projects.');
+  return openStoredIn(needLibrary(), worker, folder);
+};
 
 async function show(handle: FolderHandle): Promise<void> {
-  const source = directorySource(handle);
-  const summary = await summarize(source);
-  current.value = { where: 'folder', label: handle.name, source, summary };
-  note(`Opened the folder ${handle.name}.`);
-  // The folder is open either way; failing to remember it only costs the shortcut next time.
-  await rememberFolder(remembered ?? noStore, handle, Date.now()).catch((error: unknown) =>
-    note(`The folder list couldn’t keep ${handle.name}: ${message(error)}`),
-  );
+  // The folder opens either way; failing to remember it only costs the shortcut next time.
+  const key = await rememberFolder(remembered ?? noStore, handle, Date.now()).catch((error: unknown) => {
+    note(`The folder list couldn’t keep ${handle.name}: ${message(error)}`);
+    return null;
+  });
+  await openFolderProject(handle, key);
 }
 
-const noStore: FolderStore = { all: async () => [], add: async () => undefined, remove: async () => undefined };
+const noStore: FolderStore = {
+  all: async () => [],
+  add: async () => undefined,
+  put: async () => undefined,
+  remove: async () => undefined,
+};
 
 export const newProject = (name: string) =>
   run('Creating the project', async () => {
@@ -154,8 +161,16 @@ export const openStoredProject = (folder: string) => run('Opening the project', 
 
 export const deleteStoredProject = (folder: string) =>
   run('Deleting the project', async () => {
-    await needLibrary().remove(folder);
-    if (current.value?.where === 'browser' && current.value.label === folder) current.value = null;
+    if (current.value?.where === 'browser' && current.value.label === folder) await closeOpen();
+    // The project's lock: a project open for editing in another tab stays.
+    const locks = browserLocks();
+    const held = locks ? await takeLock(locks, projectLockName(folder), { ifAvailable: true }) : null;
+    if (locks && !held) throw new Error('It is open for editing in another tab. Close it there first.');
+    try {
+      await needLibrary().remove(folder);
+    } finally {
+      held?.release();
+    }
     note(`Deleted ${folder} from this browser.`);
     await refresh();
   });
@@ -213,7 +228,10 @@ export const copyCurrentIn = () =>
     await openStored(folder);
   });
 
+/** Saves what it can and lets the project go; the list shows any new name. */
 export function closeProject(): void {
-  current.value = null;
   trouble.value = null;
+  void closeOpen()
+    .then(refresh)
+    .catch(() => undefined);
 }
