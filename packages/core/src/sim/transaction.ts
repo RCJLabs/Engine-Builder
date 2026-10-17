@@ -1,9 +1,12 @@
+import { evaluate } from '../logic/evaluate.ts';
+import type { Condition, Truth } from '../logic/types.ts';
+import { domainProblem } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
 import { Rng } from '../rng.ts';
 import { cloneJson, freezeJson } from './json.ts';
-import type { FactArgs, ModeControl, ModuleContext } from './module.ts';
-import { KERNEL, type Registry } from './registry.ts';
-import type { Beat, Effect, GameState, ModeFrame, SimContext } from './types.ts';
+import type { FactArgs, ModeControl, ModuleContext, PreviewContext } from './module.ts';
+import { type EffectEntry, KERNEL, type Registry } from './registry.ts';
+import type { Beat, Effect, EffectPreview, GameState, ModeFrame, SimContext } from './types.ts';
 
 /** Effects that apply effects are fine; this many levels deep means one is applying itself. */
 const MAX_EFFECT_DEPTH = 64;
@@ -49,6 +52,7 @@ export class Transaction {
       read: () => this.read(module),
       write: () => this.write(module),
       fact: (id, args) => this.fact(id, args),
+      check: (condition) => this.check(condition),
       apply: (effect) => this.apply(effect),
       rng: (name) => this.stream(`${module}/${kebab(name, 'stream name')}`),
       emit: (what, data) => this.emit(`${module}/${kebab(what, 'beat name')}`, data),
@@ -66,23 +70,37 @@ export class Transaction {
   fact(id: string, args: FactArgs = {}): unknown {
     const fact = this.registry.facts.get(id);
     if (!fact) throw new Error(`Unknown fact "${id}"`);
-    return fact.read(
+    const value = fact.read(
       { state: this.read(fact.module), content: this.sim.content, fact: (i, a) => this.fact(i, a) },
       args,
     );
+    // The lint trusts a fact's domain, so an answer outside it is a bug in the module.
+    const { domain } = fact.info;
+    const problem = domain && value !== undefined && value !== null && domainProblem(value, domain, this.sim.content);
+    if (problem) throw new Error(`Fact "${id}" answered ${shown(value)}, outside its domain: ${problem}`);
+    return value;
+  }
+
+  check(condition: Condition): Truth {
+    return evaluate(condition, (test) => this.fact(test.fact, test.args));
   }
 
   apply(effect: Effect): void {
-    const handler = this.registry.effects.get(effect?.effect);
-    if (!handler) throw new Error(`Unknown effect "${String(effect?.effect)}"`);
-    if (this.depth >= MAX_EFFECT_DEPTH)
-      throw new Error(`Effects nested ${MAX_EFFECT_DEPTH} deep: is one applying itself?`);
-    this.depth++;
-    try {
-      handler.run(this.context(handler.module), effect);
-    } finally {
-      this.depth--;
-    }
+    const handler = this.handler(effect);
+    this.nested(() => handler.run(this.context(handler.module), effect));
+  }
+
+  /** What the effect would do, from this state, changing nothing. */
+  preview(effect: Effect): EffectPreview {
+    const handler = this.handler(effect);
+    const { preview } = handler;
+    if (!preview) return effect;
+    const result = {
+      ...this.nested(() => preview(this.previewContext(handler.module), effect)),
+      effect: effect.effect,
+    };
+    freezeJson(result, `(preview of ${effect.effect})`);
+    return result;
   }
 
   /** The new state: unchanged slices are shared, and everything new is checked as JSON and frozen. */
@@ -99,6 +117,34 @@ export class Transaction {
     freezeJson(nextKernel, `/${KERNEL}`);
     next[KERNEL] = nextKernel;
     return Object.freeze(next) as GameState;
+  }
+
+  private previewContext(module: string): PreviewContext<unknown> {
+    return {
+      module,
+      content: this.sim.content,
+      read: () => this.read(module),
+      fact: (id, args) => this.fact(id, args),
+      check: (condition) => this.check(condition),
+      preview: (effect) => this.preview(effect),
+    };
+  }
+
+  private handler(effect: Effect): EffectEntry {
+    const handler = this.registry.effects.get(effect?.effect);
+    if (!handler) throw new Error(`Unknown effect "${String(effect?.effect)}"`);
+    return handler;
+  }
+
+  private nested<T>(run: () => T): T {
+    if (this.depth >= MAX_EFFECT_DEPTH)
+      throw new Error(`Effects nested ${MAX_EFFECT_DEPTH} deep: is one applying itself?`);
+    this.depth++;
+    try {
+      return run();
+    } finally {
+      this.depth--;
+    }
   }
 
   private write(module: string): unknown {
@@ -150,6 +196,8 @@ export class Transaction {
     };
   }
 }
+
+const shown = (value: unknown): string => (typeof value === 'string' ? JSON.stringify(value) : String(value));
 
 function kebab(text: string, what: string): string {
   if (!isRecordId(text)) throw new Error(`"${text}" is not a valid ${what}: use kebab-case`);

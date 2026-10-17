@@ -118,10 +118,10 @@ One condition language and one effect vocabulary serve quests, dialogue, events,
 ```jsonc
 // condition: a tree, with a text form that round-trips
 { "all": [
-  { "fact": "inventory.count", "args": { "item": "medkit" }, "op": ">=", "value": 2 },
+  { "fact": "hold.count", "args": { "item": "medkit" }, "op": ">=", "value": 2 },
   { "not": { "fact": "time.night" } }
 ] }
-// text: inventory.count(medkit) >= 2 and not time.night
+// text: hold.count(medkit) >= 2 and not time.night
 
 // effects: a list; a roll picks weighted outcomes and preview() shows the exact odds
 [
@@ -134,11 +134,14 @@ One condition language and one effect vocabulary serve quests, dialogue, events,
 ]
 ```
 
-- **Facts** are registered by modules and kits (`inventory.count`, `quest.stage`, `standing`, `time.night`, `bond`…) and by project scripts. Each has a typed argument schema and a finite or bounded domain where possible.
-- **Evaluation** is three-valued. An unknown fact yields *unknown*, not *false*, following who-am-i's condition engine.
-- **`describe()`** turns a condition into readable text: "Needs 2 medkits, not at night".
-- **`preview()`** returns the exact costs and odds the sim will roll, for the UI to show.
-- **A lint** proves each condition can be true over the facts' domains (who-am-i's SAT check), and flags flags that are set but never read, or read but never set (rule-or-drool's graph rules).
+The exact rules are in [specs/conditions.md](specs/conditions.md) (M1.6).
+
+- **Facts** are registered by modules and kits (`hold.count`, `quest.stage`, `faction.standing`, `time.night`…) and later by project scripts. Each declares its arguments and its domain: bool, int, number, enum, a record reference, or text. A domain is a promise the kernel checks on every read.
+- **Evaluation** is three-valued. An unknown fact yields *unknown*, not *false*, following who-am-i's condition engine, and a gate opens only on *true*. Menus and the sim use the same check.
+- **`describeCondition()`** turns a condition into readable text: "Needs 2 medkits and not night".
+- **`game.preview()`** returns what effects would do from the current state, and the exact odds a `roll` will use, from the same table the roll reads.
+- **A lint** asks whether each condition in content can be true, and can be false, over the facts' domains (who-am-i's search). It reports W102 to W104 when a project is built.
+- **Later:** flags that are set but never read, or read but never set (rule-or-drool's graph rules). This needs effects to declare what they change, so it waits for kits.
 
 ## Logic layers
 

@@ -10,7 +10,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { compileProject, type ProjectSource, zipSource } from '@eb/compiler';
-import { canonicalJson } from '@eb/core';
+import { canonicalJson, type FactCatalog } from '@eb/core';
 import type { RecordType } from '@eb/schema';
 import { folderSource } from './folderSource.ts';
 import { formatResult } from './report.ts';
@@ -20,8 +20,9 @@ const USAGE = `Usage:
   eb build <project> [--types <module>] [--out <file>] [--json]
 
 <project> is a project folder or a .zip of one. --types names a JS or TS module whose
-recordTypes export lists the record types to check against. build writes the content pack to
---out, or to <project id>.pack.json in the current folder.`;
+recordTypes export lists the record types to check against, and whose facts export, if it has
+one, is the fact catalog to check conditions against (factCatalog(modules) in @eb/core). build
+writes the content pack to --out, or to <project id>.pack.json in the current folder.`;
 
 class UsageError extends Error {}
 
@@ -36,8 +37,8 @@ async function main(argv: readonly string[]): Promise<number> {
     throw new UsageError(USAGE);
   }
   if (command === 'validate' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
-  const types = values.types === undefined ? [] : await loadTypes(values.types);
-  const result = await compileProject(await openProject(project), types);
+  const { types, facts } = values.types === undefined ? { types: [] } : await loadTypes(values.types);
+  const result = await compileProject(await openProject(project), types, facts ? { facts } : {});
   let out: string | undefined;
   if (command === 'build' && result.pack) {
     out = values.out ?? `${result.pack.project.id}.pack.json`;
@@ -66,8 +67,8 @@ async function openProject(path: string): Promise<ProjectSource> {
   }
 }
 
-async function loadTypes(path: string): Promise<readonly RecordType[]> {
-  let loaded: { recordTypes?: unknown };
+async function loadTypes(path: string): Promise<{ types: readonly RecordType[]; facts?: FactCatalog }> {
+  let loaded: { recordTypes?: unknown; facts?: unknown };
   try {
     loaded = await import(pathToFileURL(resolve(path)).href);
   } catch (error) {
@@ -80,7 +81,12 @@ async function loadTypes(path: string): Promise<readonly RecordType[]> {
   if (!Array.isArray(types) || !types.every(isRecordType)) {
     throw new UsageError(`${path} must export recordTypes: a list of record types made by defineRecordType`);
   }
-  return types;
+  const { facts } = loaded;
+  if (facts === undefined) return { types };
+  if (typeof facts !== 'object' || facts === null || Array.isArray(facts)) {
+    throw new UsageError(`${path} exports facts, which must be a fact catalog: factCatalog(modules) from @eb/core`);
+  }
+  return { types, facts: facts as FactCatalog };
 }
 
 main(process.argv.slice(2)).then(

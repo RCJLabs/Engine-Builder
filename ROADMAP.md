@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.6.** Conditions and effects (Phase 1). M1.1 to M1.5 (RNG streams, state fingerprints, records, project format, the sim kernel) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.7.** Time (Phase 1). M1.1 to M1.6 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -80,10 +80,15 @@ How to read this file:
   - A mode stack whose modes list the actions they allow. Beats carry data, not prose, and `createSession` queues them for the stage to drain and logs accepted actions for replay.
   - Salvage run, a test-only text game, plays 1,000 seeds twice to identical hashes. Replay from the log, and a save→reload→continue run, match an uninterrupted run by hash.
   - [`docs/specs/sim.md`](docs/specs/sim.md) is the spec. Twenty-one planted bugs were each caught by the tests.
-- **M1.6 Conditions and effects.**
-  - A JSON tree, plus a text form that round-trips (property-tested).
-  - Three-valued evaluation, `describe()`, and `preview()` giving exact odds.
-  - A "can this ever be true?" lint over finite domains.
+- **M1.6 Conditions and effects.** Done 2026-10-17.
+  - A condition is a JSON tree (`all`, `any`, `not`, fact tests). Its text form, `hold.count(medkit) >= 2 and not voyage.night`, reads back as the same tree (property-tested over 500 random trees), and parse errors give a column and a hint.
+  - Evaluation is three-valued, and a gate opens only on true. Menus (`game.check`) and the sim (`ctx.check`) use the same evaluation, and `describeCondition` words a condition: "Needs 2 medkits and not night".
+  - Facts declare their arguments and a domain (bool, int, number, enum, record reference, text). The kernel throws when a fact answers outside its domain.
+  - The lint asks whether each condition in content can be true and can be false (W102 to W104), trying every combination of values up to 100,000 and seeded samples past that. A property test holds it to trying every value on small domains.
+  - Records carry conditions through `condition()` in `@eb/schema`. Validation checks them against the game's facts (E011 to E014) and adds the records they name to "used by". The compiler and `eb` take the facts from the `--types` module.
+  - `game.preview` shows what effects would do from the current state. The `roll` effect in `logicModule` reads one table for its roll and its preview, so the odds shown are the odds rolled (checked over every roll from 1 to 100).
+  - Salvage run now gates choices by condition and rolls its outcomes, and its bot offers only what `game.check` allows.
+  - [`docs/specs/conditions.md`](docs/specs/conditions.md) is the spec. Fifty-four planted bugs were each caught by the tests.
 - **M1.7 Time.** Ticks, turns, days, calendar and seasons. Offline time is settled from wall-clock deltas passed in as actions, with a cap.
 - **M1.8 Saves** (`packages/platform` for storage).
   - Snapshot plus action log; `SAVE_VERSION` and a migration registry.
@@ -119,6 +124,7 @@ How to read this file:
 - **M2.2 Layout.** dockview panels on desktop, with save and restore. On a phone: one panel, the inspector as a bottom sheet, and a command palette.
 - **M2.3 Editing safety.** Undo/redo through a command log, autosave, and a lock so two tabs can't edit one project.
 - **M2.4 Forms from schemas.** Text, number/slider, enum, a reference picker with search, list, map, colour and asset fields, with inline validation.
+  - A condition field: the text form with live errors and `describeCondition` wording (M1.6). Decide here whether record files may hold the text form too ([conditions.md](docs/specs/conditions.md#open-questions), question 1).
 - **M2.5 Records tables.** Sort, filter, search, bulk edit, duplicate, and a "used by" list.
 - **M2.6 Custom record types.** Define your own data types (players, gladiators, cards) as fields, which become a schema.
 - **M2.7 Asset browser.**
@@ -140,6 +146,7 @@ How to read this file:
 **Goal:** everything a game *does*, built in the editor without touching engine code.
 
 - **M3.1 Trigger sheets.** "When / If / Do" rows over the event catalogue and the shared conditions and effects.
+  - The flag lint from rule-or-drool: facts set but never read, or read but never set. It needs effects to declare which facts they change ([conditions.md](docs/specs/conditions.md#open-questions), question 2).
 - **M3.2 Scripts.**
   - TypeScript components edited in CodeMirror 6 and transpiled by sucrase in a worker.
   - A typed `ctx` API with autocomplete.
@@ -285,7 +292,9 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor shell JS, gzip | 12.7 kB app + 2.2 kB workbox-window | `vite build` output | 2026-10-17 | 1 build |
 | Editor shell CSS, gzip | 1.7 kB | `vite build` output | 2026-10-17 | 1 build |
 | Editor shell precache | 16 entries, 72 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
-| Sim kernel reduce, salvage run | 18.2–22.7 µs per action (median 20.0) over 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Sim kernel reduce, salvage run (M1.5 content) | 18.2–22.7 µs per action (median 20.0) over 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Sim kernel reduce, salvage run (M1.6: conditions and rolls) | 20.5–23.8 µs per action (median 21.6) over 74,658 actions. The M1.5 content on the M1.6 kernel gave 19.7–22.9 µs (median 21.4) over the same 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs each |
+| Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
 
 ## Open questions

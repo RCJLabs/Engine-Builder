@@ -35,6 +35,12 @@ export interface Effect {
   readonly [key: string]: unknown;
 }
 
+/** What an effect would do, for the stage to show: `effect` names it, and the rest is JSON from its module. */
+export interface EffectPreview {
+  readonly effect: string;
+  readonly [key: string]: unknown;
+}
+
 export interface ModeFrame {
   readonly id: string;
   readonly data?: unknown;

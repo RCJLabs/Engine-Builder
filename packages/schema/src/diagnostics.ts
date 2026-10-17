@@ -14,7 +14,14 @@ export const DIAGNOSTIC_CODES = {
   E008: "project.json is missing or doesn't match the project schema",
   E009: 'The project needs a newer engine',
   E010: 'A JSON file under records/ is not at records/<type>/<id>.json',
+  E011: 'A condition is not well formed',
+  E012: 'A condition names a fact the game does not have',
+  E013: "A condition's fact arguments are missing, unknown, or not among the argument's values",
+  E014: 'A condition tests a fact in a way its values cannot match',
   W101: 'A file under records/ that the compiler ignores',
+  W102: 'A condition can never be true',
+  W103: 'A condition can never be false',
+  W104: 'The lint could not tell whether a condition can be true',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

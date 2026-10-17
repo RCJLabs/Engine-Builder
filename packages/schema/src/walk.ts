@@ -1,5 +1,6 @@
 import { pointerSegment } from '@eb/core';
 import { z } from 'zod';
+import { isConditionSchema } from './condition.ts';
 import { type RefTarget, refTargetOf } from './refs.ts';
 import { view } from './zodView.ts';
 
@@ -10,24 +11,44 @@ export interface FoundRef {
   readonly target: RefTarget;
 }
 
+export interface FoundCondition {
+  /** JSON Pointer to the condition field. */
+  readonly path: string;
+  /** As written, sound or not: checkCondition says which. */
+  readonly value: unknown;
+}
+
+export interface Found {
+  readonly refs: FoundRef[];
+  readonly conditions: FoundCondition[];
+}
+
 /**
- * Every reference in `value`, found by walking the schema and the value together. It reads
- * values that fail the schema too, as far as their shape allows, so one bad field does not hide
- * the references around it. zod reports the failure itself.
+ * Every reference and condition in `value`, found by walking the schema and the value together.
+ * It reads values that fail the schema too, as far as their shape allows, so one bad field does
+ * not hide the references around it. zod reports the failure itself. A condition's own
+ * references are left to conditionRefs, which knows the facts' domains.
  */
-export function collectRefs(schema: z.core.$ZodType, value: unknown): FoundRef[] {
-  const found: FoundRef[] = [];
+export function scanRecord(schema: z.core.$ZodType, value: unknown): Found {
+  const found: Found = { refs: [], conditions: [] };
   walk(schema, value, '', found);
   return found;
 }
 
+export const collectRefs = (schema: z.core.$ZodType, value: unknown): FoundRef[] => scanRecord(schema, value).refs;
+
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-function walk(schema: z.core.$ZodType, value: unknown, path: string, found: FoundRef[]): void {
+function walk(schema: z.core.$ZodType, value: unknown, path: string, found: Found): void {
+  if (isConditionSchema(schema)) {
+    // Undefined is a missing field, as zod reads it: zod reports it when the field is required.
+    if (value !== undefined) found.conditions.push({ path, value });
+    return;
+  }
   const target = refTargetOf(schema);
   if (target !== undefined) {
-    if (typeof value === 'string') found.push({ path, value, target });
+    if (typeof value === 'string') found.refs.push({ path, value, target });
     return;
   }
   const shape = view(schema);

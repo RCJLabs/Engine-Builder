@@ -7,6 +7,7 @@ import {
   type RecordType,
   severityOf,
   type Usage,
+  type ValidateOptions,
   validateRecords,
 } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
@@ -35,9 +36,14 @@ interface Report {
 
 /**
  * Reads, checks and packs a project. The same files give the same diagnostics and the same pack
- * hash in the editor and in the CLI, whatever order the source lists them in.
+ * hash in the editor and in the CLI, whatever order the source lists them in. `options.facts`
+ * is the game's fact catalog, for checking the conditions in records.
  */
-export async function compileProject(source: ProjectSource, types: readonly RecordType[]): Promise<CompileResult> {
+export async function compileProject(
+  source: ProjectSource,
+  types: readonly RecordType[],
+  options: ValidateOptions = {},
+): Promise<CompileResult> {
   const diagnostics: Diagnostic[] = [];
   const report = ({ code, message, type, id, file, path }: Report) =>
     diagnostics.push({
@@ -50,7 +56,7 @@ export async function compileProject(source: ProjectSource, types: readonly Reco
     });
   const project = await readProject(source, report);
   const records = await readRecords(source, report);
-  const validation = validateRecords(types, records);
+  const validation = validateRecords(types, records, options);
   diagnostics.push(...validation.diagnostics);
   diagnostics.sort(compareDiagnostics);
   const failed = project === null || diagnostics.some((d) => d.severity === 'error');

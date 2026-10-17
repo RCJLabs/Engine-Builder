@@ -2,16 +2,28 @@
  * "Salvage run": a test-only text game for the sim kernel. A crew jumps from sector to sector,
  * meets choice events from content, loots wrecks, sells salvage and gets hurt, until the crew
  * is lost or day 30 brings them home. Three modules that only reach each other through facts
- * and effects, as kits will.
+ * and effects, as kits will, plus the logic module for rolls. Choices are locked by conditions
+ * in content, and their odds come from roll effects.
  */
-import { createRecordStore, type DeepReadonly, defineModule, type GameState, Rng } from '../src/index.ts';
+import {
+  type Condition,
+  createGame,
+  createRecordStore,
+  type DeepReadonly,
+  defineModule,
+  type Effect,
+  type GameState,
+  logicModule,
+  Rng,
+} from '../src/index.ts';
 
-interface Outcome {
-  chance: number;
-  effects: { effect: string; [key: string]: unknown }[];
+export interface Choice {
+  /** Offered, and allowed, only while this holds. */
+  when?: Condition;
+  effects: Effect[];
 }
 interface EventRecord {
-  choices: Record<string, { outcomes: Outcome[] }>;
+  choices: Record<string, Choice>;
 }
 
 export const content = createRecordStore({
@@ -28,38 +40,51 @@ export const content = createRecordStore({
     derelict: {
       choices: {
         board: {
-          outcomes: [
-            { chance: 70, effects: [{ effect: 'loot', table: 'dead-hauler' }] },
-            { chance: 30, effects: [{ effect: 'wound', hp: 3 }] },
+          effects: [
+            {
+              effect: 'roll',
+              outcomes: [
+                { chance: 70, text: 'Salvage in the hold', effects: [{ effect: 'loot', table: 'dead-hauler' }] },
+                { chance: 30, text: 'The hull gives way', effects: [{ effect: 'wound', hp: 3 }] },
+              ],
+            },
           ],
         },
-        leave: { outcomes: [{ chance: 100, effects: [] }] },
+        leave: { effects: [] },
       },
     },
     trader: {
       choices: {
-        sell: { outcomes: [{ chance: 100, effects: [{ effect: 'sell', item: 'salvage' }] }] },
-        leave: { outcomes: [{ chance: 100, effects: [] }] },
+        sell: {
+          when: { fact: 'hold.count', args: { item: 'salvage' }, op: '>=', value: 1 },
+          effects: [{ effect: 'sell', item: 'salvage' }],
+        },
+        leave: { effects: [] },
       },
     },
     raiders: {
       choices: {
         fight: {
-          outcomes: [
+          effects: [
             {
-              chance: 50,
-              effects: [
-                { effect: 'wound', hp: 2 },
-                { effect: 'loot', table: 'dead-hauler' },
+              effect: 'roll',
+              outcomes: [
+                {
+                  chance: 50,
+                  effects: [
+                    { effect: 'wound', hp: 2 },
+                    { effect: 'loot', table: 'dead-hauler' },
+                  ],
+                },
+                { chance: 50, effects: [{ effect: 'wound', hp: 4 }] },
               ],
             },
-            { chance: 50, effects: [{ effect: 'wound', hp: 4 }] },
           ],
         },
-        pay: { outcomes: [{ chance: 100, effects: [{ effect: 'credits', delta: -10 }] }] },
+        pay: { when: { fact: 'hold.credits', op: '>=', value: 10 }, effects: [{ effect: 'credits', delta: -10 }] },
       },
     },
-    'quiet-sector': { choices: { rest: { outcomes: [{ chance: 100, effects: [{ effect: 'heal', hp: 2 }] }] } } },
+    'quiet-sector': { choices: { rest: { effects: [{ effect: 'heal', hp: 2 }] } } },
   },
 });
 
@@ -101,14 +126,26 @@ const crew = defineModule<Crew>({
       member.hp = Math.max(0, member.hp - (effect.hp as number));
       ctx.emit('wounded', { member: id, hp: member.hp });
     },
-    heal(ctx, effect) {
-      for (const member of Object.values(ctx.write().members)) {
-        if (member.hp > 0) member.hp = Math.min(member.max, member.hp + (effect.hp as number));
-      }
+    heal: {
+      run(ctx, effect) {
+        for (const member of Object.values(ctx.write().members)) {
+          if (member.hp > 0) member.hp = healed(member, effect.hp as number);
+        }
+      },
+      // What each member would gain, capped at their max: Space-Wrecked's preview missed the cap.
+      preview: (ctx, effect) => ({
+        gains: Object.fromEntries(
+          Object.entries(ctx.read().members)
+            .filter(([, member]) => member.hp > 0)
+            .map(([id, member]) => [id, healed(member, effect.hp as number) - member.hp]),
+        ),
+      }),
     },
   },
-  facts: { alive: ({ state }) => living(state).length },
+  facts: { alive: { read: ({ state }) => living(state).length, domain: { type: 'int', min: 0, max: 3 } } },
 });
+
+const healed = (member: { hp: number; max: number }, hp: number) => Math.min(member.max, member.hp + hp);
 
 interface Hold {
   credits: number;
@@ -143,7 +180,15 @@ const hold = defineModule<Hold>({
       slice.credits += effect.delta as number;
     },
   },
-  facts: { credits: ({ state }) => state.credits, count: ({ state }, args) => state.items[args.item as string] ?? 0 },
+  facts: {
+    credits: { read: ({ state }) => state.credits, domain: { type: 'int', min: 0 }, label: 'credits' },
+    count: {
+      read: ({ state }, args) => state.items[args.item as string] ?? 0,
+      args: { item: { type: 'ref', to: 'item' } },
+      domain: { type: 'int', min: 0 },
+      describe: (test) => (test.op === '>=' ? `${test.value} ${test.args?.item} to sell` : undefined),
+    },
+  },
 });
 
 interface Voyage {
@@ -169,16 +214,13 @@ const voyage = defineModule<Voyage>({
     },
     choose(ctx, action) {
       const { event } = ctx.modes.current.data as { event: string };
-      const choice = ctx.content.getOrThrow<EventRecord>('event', event).choices[action.choice as string];
+      const id = action.choice as string;
+      const choice = ctx.content.getOrThrow<EventRecord>('event', event).choices[id];
       if (!choice) return ctx.refuse('no-such-choice', { event });
-      const roll = ctx.rng('outcomes').int(1, 100);
-      let total = 0;
-      const outcome = choice.outcomes.findIndex((o) => {
-        total += o.chance;
-        return roll <= total;
-      });
-      for (const effect of choice.outcomes[outcome]?.effects ?? []) ctx.apply(effect);
-      ctx.emit('chose', { event, choice: action.choice as string, outcome });
+      // The same check a menu makes to offer the choice, so what is offered is what is allowed.
+      if (choice.when && ctx.check(choice.when) !== true) return ctx.refuse('locked', { event, choice: id });
+      ctx.emit('chose', { event, choice: id });
+      for (const effect of choice.effects) ctx.apply(effect);
       ctx.modes.pop();
       const ending = (ctx.fact('crew.alive') as number) === 0 ? 'lost' : ctx.read().day >= HOME_DAY ? 'home' : null;
       if (ending) {
@@ -190,7 +232,17 @@ const voyage = defineModule<Voyage>({
   },
 });
 
-export const salvageModules = [crew, hold, voyage];
+export const salvageModules = [logicModule, crew, hold, voyage];
+export const game = createGame({ modules: salvageModules, start: 'travel' });
+
+/** The choices a menu would offer now: those whose condition holds. */
+export function offered(state: GameState, event: string): string[] {
+  const { choices } = content.getOrThrow<EventRecord>('event', event);
+  return Object.keys(choices).filter((id) => {
+    const when = choices[id]?.when;
+    return when === undefined || game.check(state, when, sim) === true;
+  });
+}
 
 /**
  * A bot that plays through `reduce` like a player would: it only offers what the mode allows,
@@ -201,8 +253,7 @@ export function botAction(state: GameState, allowed: readonly string[], rng: Rng
   if (allowed.includes('voyage/choose')) {
     const data = state.kernel.modes[state.kernel.modes.length - 1]?.data as { event: string } | undefined;
     if (!data) return null;
-    const choices = Object.keys(content.getOrThrow<EventRecord>('event', data.event).choices);
-    return { type: 'voyage/choose', choice: rng.pick(choices) };
+    return { type: 'voyage/choose', choice: rng.pick(offered(state, data.event)) };
   }
   if (allowed.length === 0) return null;
   return { type: allowed.includes('crew/rest') && rng.chance(1, 3) ? 'crew/rest' : 'voyage/jump' };
