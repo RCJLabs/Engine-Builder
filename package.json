@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "pnpm --filter @eb/editor dev",
     "eb": "node tools/cli/src/cli.ts",
-    "build": "pnpm --filter @eb/editor build",
+    "build": "pnpm --filter @eb/editor build && pnpm --filter @eb/spike-3d build",
     "typecheck": "pnpm -r --if-present typecheck && tsc -p tsconfig.tests.json",
     "lint": "biome check . && node tools/lint-boundaries/src/cli.ts",
     "format": "biome check --write .",

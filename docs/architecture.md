@@ -201,6 +201,7 @@ The mission designer shows a step list and a graph built from the transitions. V
 - Rapier for physics and the character controller; recast-navigation-js for navmeshes.
 - glTF/GLB with Draco or Meshopt, and KTX2 textures.
 - All of it is lazy-loaded: a game without a 3D scene never downloads it.
+- What the M1.10 spike found (Rapier's heightfield layout, rays on triangle edges, what Rapier weighs) is in [apps/spike-3d](../apps/spike-3d/README.md#findings-for-phase-5).
 - **Quality tiers:**
   - *Low (phones):* one shadow cascade or none, short draw distance, no post-processing.
   - *High:* cascaded shadows, SSAO, bloom.

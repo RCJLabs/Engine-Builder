@@ -90,6 +90,8 @@ Product decisions are Evan's. The others record what was chosen and why.
 
 **What would change it.** Spike readings on a mid-range phone that miss the Low-tier target.
 
+**Status, 2026-10-17 (M1.10).** The spike is built and live at `/spikes/3d/` ([apps/spike-3d](../apps/spike-3d/README.md)). It works in headless Chromium on WebGL2, and Rapier's heightfield agrees with the drawn terrain. That proves only that the stack works. D8 stays PROPOSED until a phone's reading is in ROADMAP's Readings.
+
 ### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.6, 2026-10-17
 
 - Trees in dirtbag's `TalkDef` shape for most talk; they are editable as a graph on a phone.
@@ -329,6 +331,23 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **Speed.** A sweep turn costs about 31 µs against about 25 µs for `reduce` alone, for listing options and counting beats (Readings).
 - **Golden files** churn on purpose: any change that moves a run means an update and a review of the diff.
 - **No lookahead.** A policy can't reduce, so a bot can't plan by trying moves. A planning bot would need a lookahead that doesn't reveal outcomes, which isn't built.
+
+### D27. Spikes are separate apps deployed beside the editor, outside its bundle and its offline cache. LOCKED, 2026-10-17 (M1.10)
+
+**Decision.**
+- A spike lives in `apps/spike-<name>` with its own Vite config. It builds into `apps/editor/dist/spikes/<name>/` after the editor has built, so Pages deploys it with the editor at `/Engine-Builder/spikes/<name>/`.
+- The editor's service worker lists `/spikes/` in its navigation denylist, and an e2e test proves that an installed editor leaves the spike's page alone.
+- Nothing in `packages/` imports a spike. A spike is deleted once the phase it informs has its own version of the thing measured.
+
+**Why.**
+- **The editor stays small and offline.** The precache is listed when the editor builds, before the spike's files exist. three.js and Rapier (1.9 MB gzipped) never enter the editor's download or its cache: the precache measured 16 entries and 72.10 KiB with and without the spike.
+- **One deploy.** The spike's URL is live wherever the editor is, so a phone check needs no second site.
+- **The worker would otherwise swallow it.** A navigation fallback answers any URL in its scope with the app shell. Without the denylist entry, the e2e test sees the editor where the spike should be.
+
+**Cost.**
+- **Builds and CI take longer.** `pnpm build` builds two apps, and CI draws the spike in software for its e2e tests, about a minute more.
+- **The pages are public.** They are deployed for anyone who finds the URL. They are labelled as throwaway, collect nothing and make no network calls of their own.
+- **No offline.** No cache holds a spike, so its page needs the network. That suits a measuring page; the editor and exported games still work offline.
 
 ---
 

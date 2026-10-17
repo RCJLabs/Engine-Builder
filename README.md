@@ -2,12 +2,13 @@
 
 A browser-based game engine and editor. Build worlds, missions, scripts, menus and UI on a PC, tablet or phone, then ship the game as a PWA on GitHub Pages or as a Play Store app (TWA).
 
-**Status: Phase 1, the deterministic core.** The editor is still an installable shell with placeholder panels. The engine's pure core is built up to the 3D spike:
+**Status: Phase 1, the deterministic core.** The editor is still an installable shell with placeholder panels. The engine's pure core is built, through the 3D spike:
 - seeded RNG and state hashes;
 - records, the project format and the compiler;
 - the sim kernel, conditions and time;
 - saves;
-- a headless runner, with `eb sim` for bot sweeps and golden runs.
+- a headless runner, with `eb sim` for bot sweeps and golden runs;
+- a throwaway 3D spike at [`/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/), waiting on frame rates from a real phone.
 
 [ROADMAP.md](ROADMAP.md) holds the plan, and its CURRENT MILESTONE marker says what is being built now.
 

@@ -1,0 +1,21 @@
+{
+  "name": "@eb/spike-3d",
+  "private": true,
+  "version": "0.0.1",
+  "description": "M1.10's throwaway 3D spike: three.js with WebGPU or WebGL2, a heightmap terrain, 5,000 instanced props, a skinned character and shadows, measured per quality tier. Served at /spikes/3d/.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "@eb/core": "workspace:*",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0",
+    "vite": "8.3.4"
+  }
+}

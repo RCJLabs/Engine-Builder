@@ -39,7 +39,7 @@ pnpm check        # typecheck → lint → unit tests → build → e2e (what CI
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
-pnpm build        # apps/editor/dist
+pnpm build        # apps/editor/dist, then the 3D spike into apps/editor/dist/spikes/3d
 pnpm e2e          # Playwright against `vite preview` at /Engine-Builder/
 pnpm format       # Biome autofix
 pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
@@ -56,7 +56,8 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console
   src/pwa/             service worker registration and the update gate
-  e2e/                 Playwright specs
+  e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, axe)
+apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION

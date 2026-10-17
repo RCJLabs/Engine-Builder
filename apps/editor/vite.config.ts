@@ -81,7 +81,9 @@ export default defineConfig(({ command, isPreview }) => ({
         // worker's caches apart from the games'.
         cacheId: 'eb-editor',
         cleanupOutdatedCaches: true,
-        navigateFallbackDenylist: [/\/version\.json$/],
+        // The spikes are separate pages deployed beside the editor (apps/spike-3d). Without
+        // this, an installed editor would answer /spikes/3d/ with its own index.html.
+        navigateFallbackDenylist: [/\/version\.json$/, /\/spikes\//],
       },
     }),
   ],
