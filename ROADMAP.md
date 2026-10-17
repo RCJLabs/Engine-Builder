@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.5.** Records tables (Phase 2). M2.4 (forms from type files) is done. The editor is live over HTTPS at engine.rcjlabs.com, and the deploy check confirms it. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline. Worth a look on the phone too: type in a record's form in the inspector sheet, and check the keyboard leaves the box in view ([editor-forms.md](docs/specs/editor-forms.md#open-questions), question 1).
+**CURRENT MILESTONE: M2.6.** Custom record types (Phase 2). M2.5 (records tables) is done. The editor is live over HTTPS at engine.rcjlabs.com, and the deploy check confirms it. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline. Worth a look on the phone too: type in a record's form in the inspector sheet, and check the keyboard leaves the box in view ([editor-forms.md](docs/specs/editor-forms.md#open-questions), question 1).
 
 How to read this file:
 
@@ -200,7 +200,19 @@ How to read this file:
     - a later edit as a barrier before checking a save didn't happen;
     - the undo fix;
     - dead code removed.
-- **M2.5 Records tables.** Sort, filter, search, bulk edit, duplicate, and a "used by" list.
+- **M2.5 Records tables.** Done 2026-10-17.
+  - **A Records panel** (D32) shows one type's records as a table. It leads the desktop dock's centre group and the tablet's main zone, and sits after Project on a phone, where the table scrolls sideways inside its own region with its select and record columns pinned.
+    - Sort from any column's header, search every cell (case and accents aside), and filter by rows of column, test and value. 100 rows are drawn at a time; the rest come with Show more.
+    - In the tab that edits: select rows, all the view leaves included; set or clear a field on them all with the form's own control; duplicate one under a new name; delete several. Each is one step undo takes back, and deleting warns when other records refer to them.
+  - **"Used by"** in the inspector lists what refers to a record, each a button that opens it, still listed after the record is deleted. Ref fields open what they name.
+  - **Records can have names** (`nameField` in a type file): tables, pickers and "used by" show them beside ids, and New and Duplicate fill them in.
+  - **An index of every record** backs it, from the compiler's own checks and kept up to date by file. An edit checks only the records it changed, plus those that refer to a record created or deleted. A property test holds it to an index read afresh and to the compiler. Saves now name the files they wrote, so read-only tabs re-read only those.
+  - [`docs/specs/editor-tables.md`](docs/specs/editor-tables.md) is the spec.
+  - **Found while building it:**
+    - Preact's `useId` counts per render root, and the dock renders each panel as a root of its own, so panels made the same ids: a form's Name label pointed at the table's search box. Ids now come from one counter for the page, and the shared e2e check refuses an id used twice.
+    - Words kept for screen readers inside the table, placed absolutely, widened a phone's page past its screen until the table's region was positioned.
+    - Opening a project read every file twice: once to show it, and again as editing started.
+  - PLANTED_BUGS_LINE
 - **M2.6 Custom record types.** Define your own data types (players, gladiators, cards) as fields, which become a schema.
 - **M2.7 Asset browser.**
   - Import images, audio, models and fonts; thumbnails.
@@ -209,6 +221,10 @@ How to read this file:
 - **M2.8 Problems and console panels.**
   - The CLI validates exported projects in CI.
   - `eb schemas` writes each record type's JSON Schema, plus a `.vscode/settings.json` that maps `records/<type>/*.json` to it, so hand edits get autocomplete ([project-format.md](docs/specs/project-format.md#open-questions), question 1).
+
+- **Ideas, not yet in a milestone** (from M2.5):
+  - Renaming a record and what refers to it. It needs the same record rewriting as M2.6's renamed types and fields, so the two belong together ([editor-tables.md](docs/specs/editor-tables.md#open-questions), question 1). Whether it joins M2.6 is your call.
+  - Duplicating several records at once; editing cells in the table; views kept across a reload.
 
 **Done when:**
 
@@ -393,6 +409,10 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | OPFS reads, 1,001 small files | 3,033 ms one after another, 524 ms all at once | headless Chromium 1194, cloud container, timed in the page | 2026-10-17 | 1 run each |
 | OPFS writes, 1,001 files of 190 bytes | 1,866–2,064 ms (median 1,950) through the writer worker, 16 at a time | headless Chromium 1194, cloud container, timed in the page, fresh context each | 2026-10-17 | 5 runs |
 | A 1,000-record project (1,001 files, 188 kB) through the Project panel | Import 2,355–3,174 ms (median 2,372); export 799–956 ms (median 845), down from 3,248 ms before reads ran 32 at a time. Each includes up to about 0.5 s of Playwright's polling | headless Chromium 1194 on `vite preview`, cloud container, fresh context each | 2026-10-17 | 5 runs |
+| Editor JS, gzip (M2.5) | 67.1 kB at start, up 0.6 kB from M2.4 for the Records panel's frame, the types list and the tables' state. The start is now three files, which share code with the parts loaded later. The table and its tools load with the first project opened: 6.7 kB of JS and 1.0 kB of CSS, with the record index (1.3 kB) and the checks and fields it shares with the record form (7.1 kB and 8.5 kB); the form's own part is 2.2 kB | `vite build` output; M2.4 rebuilt in a worktree and counted the same way (66.5 kB) | 2026-10-17 | 1 build each |
+| Editor precache (M2.5) | 27 entries, 782.5 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Record index and table, 2,008 records (ludus types, 2,000 gladiators) | Index built in 61.9–69.8 ms (median 64.6); one record edited 3.17–4.47 ms (median 3.92); a school that 1,000 records name deleted and restored 62.5–80.9 ms (median 65.9). 2,003 rows built 10.2–11.6 ms (median 11.1), searched 0.4–0.6 ms (median 0.5), sorted 0.9–1.0 ms (median 1.0). In memory: reading the files from OPFS in a browser adds its own time | `node apps/editor/test/index-bench.ts`, Node 22.22, cloud container, medians of 5, 50 and 20 a run | 2026-10-17 | 5 runs |
+| Records table, a 1,003-record project | Open to the table drawn, every file read from OPFS and checked: 922–1,136 ms (median 1,058). A search that leaves one row: 9–13 ms (median 10). 100 rows drawn again: 55–100 ms (median 68) as the search clears, 61–75 ms (median 65) on a sort | headless Chromium 1194 on `vite preview`, cloud container, timed in the page to the frame after the change | 2026-10-17 | 5 runs |
 | Rapier load, no phone | Headless Chromium on a page drawing nothing: import 217–233 ms (median 226), start 75–90 ms (median 79). Node: import 27–38 ms (median 30), start 90–127 ms (median 123). On the spike's page, while drawing in software: about 0.9 s and 0.45 s | Chromium 1194 (Playwright 1.56.1) on `vite preview`, a fresh context each, and Node 22.22, both in the cloud container | 2026-10-17 | 5 each |
 
 ## Open questions

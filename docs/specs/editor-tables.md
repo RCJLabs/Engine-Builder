@@ -6,7 +6,7 @@ M2.5's Records panel: a type's records as a table, to sort, search and filter, a
 
 - **Where.** It leads the desktop dock's centre group and the tablet's main zone, since the World panel waits for Phase 4. On a phone it is a tab after Project. A saved dock layout from before M2.5 gets it in its active group (M2.2's rule for panels added since).
 - **Which type.** A list at the top picks the type ("Gladiator (3)"). The Project panel lists the project's types with their counts, and a tap shows that type's table here. Each type keeps its own search, filters and sort while the project is open.
-- **Loaded late.** The table and its tools load when a project is first open, as the record form does (M2.4). The offline cache holds them like any other file.
+- **Loaded late.** The table and its tools load the first time the panel shows with a project open, as the record form loads when a record is first chosen (M2.4). The offline cache holds them like any other file.
 - **A type without a sound type file** shows its records by id, with why they can't be checked or edited here.
 
 ## The record index

@@ -5,12 +5,18 @@ import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/f
 import { readCatalog } from '../forms/catalog.ts';
 import { EMPTY_INDEX, type RecordIndex, updateIndex, usersOf } from './recordIndex.ts';
 
-/** The ludus project as files that change between reads, as a working copy's do. */
-function project() {
+/**
+ * The ludus project as files that change between reads, as a working copy's do. `reversed` lists
+ * them backwards: OPFS promises no order.
+ */
+function project(reversed = false) {
   const encoder = new TextEncoder();
   const files = new Map(Object.entries(readFixture(FIXTURE_LUDUS)).map(([path, text]) => [path, encoder.encode(text)]));
   const source: ProjectSource = {
-    files: async (dir) => [...files.keys()].filter((path) => dir === '' || path.startsWith(`${dir}/`)),
+    files: async (dir) => {
+      const found = [...files.keys()].filter((path) => dir === '' || path.startsWith(`${dir}/`));
+      return reversed ? found.reverse() : found;
+    },
     read: async (path) => files.get(path),
   };
   let index: RecordIndex = EMPTY_INDEX;
@@ -145,6 +151,43 @@ describe('updateIndex', () => {
     expect(index.records.get('weapon:net')).toMatchObject({ checked: false, problems: [] });
     // Their records still exist, so references to them resolve.
     expect(problemsOf(index, 'gladiator:flamma')).toEqual([]);
+  });
+
+  it('reads a file again when anything may have changed, though nothing names it', async () => {
+    const files = project();
+    await files.update(null);
+    // Another tab's save that named no files (an editor from before M2.5).
+    files.edit(SPICULUS, (value) => {
+      value.might = 150;
+    });
+    const { index } = await files.update(null);
+    expect(problemsOf(index, 'gladiator:spiculus')).toEqual(['E001 /might: At most 100']);
+  });
+
+  it('stops checking a type’s records when its file breaks, and checks them again when it mends', async () => {
+    const files = project();
+    await files.update(null);
+    const weapon = new TextDecoder().decode(await files.source.read('types/weapon.json'));
+    files.write('types/weapon.json', '{ "title": "" }');
+    let { index, fresh } = await files.update(['types/weapon.json']);
+    expect(index.records.get('weapon:net')).toMatchObject({ checked: false, problems: [] });
+    expect(shown(index)).toEqual(shown(fresh));
+    files.write('types/weapon.json', weapon.replace('"max": 20', '"max": 1'));
+    ({ index, fresh } = await files.update(['types/weapon.json']));
+    expect(index.records.get('weapon:net')).toMatchObject({ checked: true });
+    expect(problemsOf(index, 'weapon:trident')).toEqual(['E001 /weight: At most 1']);
+    expect(shown(index)).toEqual(shown(fresh));
+  });
+
+  it('keeps used by in order however the folder lists its files', async () => {
+    const files = project(true);
+    files.write(
+      'types/troupe.json',
+      JSON.stringify({ title: 'Troupe', fields: { schools: { kind: 'list', of: { kind: 'ref', to: 'school' } } } }),
+    );
+    files.write('records/troupe/t1.json', JSON.stringify({ schools: ['ludus-magnus'] }));
+    const { index } = await files.update(null);
+    expect(usersOf(index, 'school:ludus-magnus')).toEqual(['gladiator:priscus', 'gladiator:spiculus', 'troupe:t1']);
   });
 
   it('keeps every entry when the files read the same again', async () => {

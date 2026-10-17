@@ -135,7 +135,8 @@ describe('sortRows', () => {
 describe('viewRows', () => {
   it('keeps the rows holding every word searched for, by name, id, ref names or ref ids, accents aside', async () => {
     const { rows, columns, ids } = await table('gladiator', {
-      'records/gladiator/crixus.json': {
+      // An id that doesn't spell the name, so only the name, accents dropped, can match.
+      'records/gladiator/gaul.json': {
         name: 'Crixús',
         might: 70,
         style: 'thraex',
@@ -146,11 +147,12 @@ describe('viewRows', () => {
       },
     });
     const search = (text: string) => ids(viewRows(rows, columns, { ...DEFAULT_VIEW, search: text }));
-    expect(search('crixus')).toEqual(['crixus']);
+    expect(search('crixus')).toEqual(['gaul']);
+    expect(search('CRIXÚS')).toEqual(['gaul']);
     expect(search('MAGNUS')).toEqual(['priscus', 'spiculus']);
     expect(search('ludus-magnus')).toEqual(['priscus', 'spiculus']);
     expect(search('magnus feint')).toEqual(['spiculus']);
-    expect(search('  ')).toEqual(['crixus', 'flamma', 'priscus', 'spiculus']);
+    expect(search('  ')).toEqual(['gaul', 'flamma', 'priscus', 'spiculus']);
     expect(search('nobody')).toEqual([]);
   });
 
@@ -180,13 +182,18 @@ describe('viewRows', () => {
 
   it('finds a list’s items by what the cell shows or by what the file holds', async () => {
     const { rows, columns, ids, text } = await table('troupe', {
-      'types/troupe.json': { title: 'Troupe', fields: { schools: { kind: 'list', of: { kind: 'ref', to: 'school' } } } },
+      'types/troupe.json': {
+        title: 'Troupe',
+        fields: { schools: { kind: 'list', of: { kind: 'ref', to: 'school' } } },
+      },
       'records/troupe/t1.json': { schools: ['ludus-magnus'] },
       'records/troupe/t2.json': { schools: ['ludus-dacicus'] },
     });
     expect(text('t1', 'field:schools')).toBe('Ludus Magnus');
     const contains = (value: string) =>
-      ids(viewRows(rows, columns, { ...DEFAULT_VIEW, filters: [{ column: 'field:schools', test: 'contains', value }] }));
+      ids(
+        viewRows(rows, columns, { ...DEFAULT_VIEW, filters: [{ column: 'field:schools', test: 'contains', value }] }),
+      );
     expect(contains('magnus')).toEqual(['t1']);
     // The id, which the cell shows by name only.
     expect(contains('ludus-mag')).toEqual(['t1']);
