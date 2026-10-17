@@ -74,7 +74,7 @@ test('takes over from a tab that doesn’t answer, which then stops saving', asy
   await expect(takeOver).toBeVisible({ timeout: 8_000 });
   await takeOver.click();
   await expect(access(other)).toHaveCount(0);
-  await expect(access(page)).toContainText('Another tab took over editing.');
+  await expect(access(page)).toContainText('This tab stopped editing: another tab took over');
   await expect(nameField(page)).toHaveAttribute('readonly', '');
 });
 

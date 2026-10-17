@@ -58,8 +58,13 @@ apps/editor/           the editor PWA
                        the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show)
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
-  src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session
-  test/                memory-fs.ts (an in-memory File System API), fs-folder.ts (a disk folder behind it)
+  src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
+                       opened.ts is the open project (M2.3)
+  src/editing/         editing safety (M2.3): the command log (history.ts), layout-keeping JSON edits, the working
+                       copy, autosave, the journal, folder saves, the project lock and tab hand-over; current.ts is
+                       the app's one Editing
+  test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
+                       folder behind it), fake-locks.ts (Web Locks as the spec describes them)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
                        targets, axe at every impact)
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading

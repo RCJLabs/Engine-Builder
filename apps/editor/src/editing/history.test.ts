@@ -42,9 +42,10 @@ describe('record', () => {
     expect(record(first, step(501, 'b', 'c', 'name'), LIMITS).past).toHaveLength(2);
     expect(record(first, step(10, 'b', 'c', 'version'), LIMITS).past).toHaveLength(2);
     expect(record(first, step(10, 'b', 'c'), LIMITS).past).toHaveLength(2);
-    const two = record(first, step(600, 'b', 'c', 'name'), LIMITS);
+    // Within the delay of the step it would join, so only the undo keeps them apart.
+    const two = record(first, step(100, 'b', 'c', 'version'), LIMITS);
     const back = undo(two);
-    expect(back && record(back.history, step(610, 'b', 'x', 'name'), LIMITS).past).toHaveLength(2);
+    expect(back && record(back.history, step(200, 'b', 'x', 'name'), LIMITS).past).toHaveLength(2);
   });
 
   it('drops a step that leaves every file as it was, such as typing a name back', () => {

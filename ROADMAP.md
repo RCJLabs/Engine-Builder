@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.3.** Editing safety (Phase 2). M2.2 (layout) is done. The live editor waits on engine.rcjlabs.com's DNS record and the custom domain in the repo's Pages settings (D28); until then the deploy check fails on `main`, because the page's scripts don't load. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
+**CURRENT MILESTONE: M2.4.** Forms from schemas (Phase 2). M2.3 (editing safety) is done. The editor is live at engine.rcjlabs.com, but its last deploy reported plain `http://`, where browsers withhold storage and offline: turn on **Enforce HTTPS** in the repo's Pages settings. Until then the deploy check, which now needs HTTPS, fails on `main`. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
 
 How to read this file:
 
@@ -167,7 +167,19 @@ How to read this file:
     - the shut sheet, which built the inspector out of sight with nothing to say so;
     - the palette closing before its command runs, which nothing needed until the Show commands moved focus;
     - a second clear after a failed restore, deleted, since dockview already clears.
-- **M2.3 Editing safety.** Undo/redo through a command log, autosave, and a lock so two tabs can't edit one project.
+- **M2.3 Editing safety.** Done 2026-10-17.
+  - **Undo and redo through a command log** of file changes, each file's bytes before and after (D30). Steps in one field within 500 ms join; the newest 100 are kept.
+    - The top bar's Undo and Redo name the step. The keys are Ctrl/⌘+Z and Ctrl/⌘+Shift+Z or Ctrl+Y, and the palette offers both.
+  - **Edits save by themselves**: 1 s after the last one, at once when the page hides, on close and before a hand-over. While an edit is unsaved, or not yet even made, the update toast waits and leaving asks.
+  - **A save a crash can't tear.** Stored projects save through a journal, which is finished on the next open or dropped when torn. Tested by cutting the power at every step of a save: the files come out all old or all new.
+  - **One editing tab per project**, holding a Web Lock.
+    - Other tabs open the project read only and follow its saves.
+    - Edit here hands over, and Take over takes the lock from a tab that doesn't answer.
+    - A project open for editing elsewhere can't be deleted.
+  - **The first edits** are the project's name and version, written back in the file's own layout. Opened folders save in place after a tap on Allow changes.
+  - **The deploy check needs HTTPS**: M2.2's first run on `main` passed against `http://engine.rcjlabs.com/`.
+  - [`docs/specs/editor-editing.md`](docs/specs/editor-editing.md) is the spec. Forty-one planted bugs; the first run caught 37, three tests were sharpened, and one planted bug was redone.
+  - The research added two behaviours, and a last review found a third: saves cut short are finished before the library is listed, so a torn `project.json` never looks broken. Each has a test seen failing.
 - **M2.4 Forms from schemas.** Text, number/slider, enum, a reference picker with search, list, map, colour and asset fields, with inline validation.
   - A condition field: the text form with live errors and `describeCondition` wording (M1.6). Decide here whether record files may hold the text form too ([conditions.md](docs/specs/conditions.md#open-questions), question 1).
 - **M2.5 Records tables.** Sort, filter, search, bulk edit, duplicate, and a "used by" list.
@@ -184,7 +196,9 @@ How to read this file:
 
 - On a phone, you create a project with 20 records across 3 types (one of them custom), reload it and export a zip. [you]
 - The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. The phone-made project needs M2.6's custom types.
-- A project opened from a git folder on desktop round-trips with zero diff. [auto] M2.1's part: `apps/editor/src/projects/roundtrip.test.ts` takes a git checkout into the browser and out as a zip, and the checkout stays clean. It is re-proven when M2.3 saves into opened folders.
+- A project opened from a git folder on desktop round-trips with zero diff. [auto] `apps/editor/src/projects/roundtrip.test.ts`:
+  - M2.1: a git checkout taken into the browser and out as a zip leaves the checkout clean.
+  - M2.3: edits saved into the opened folder leave no diff once undone, and a rename changes one line, keeping the file's byte order mark and line ends.
 
 ## Phase 3: Game logic
 
@@ -351,6 +365,9 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor precache (M2.1) | 17 entries, 195.5 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
 | Editor JS, gzip (M2.2) | 53.5 kB at start, up 2.2 kB from M2.1 for the palette, the sheet and the commands. The dock adds 80.6 kB of JS and 10.9 kB of CSS (339.8 kB and 136.0 kB raw), loaded only on desktop. Its CSS carries 17 themes the editor doesn't use | `vite build` output | 2026-10-17 | 1 build |
 | Editor precache (M2.2) | 19 entries, 668.1 KiB, of which the dock's two files are 464.6 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Editor JS, gzip (M2.3) | 58.3 kB at start, up 4.8 kB for editing: the command log, journal client, lock and fields. The OPFS worker is 3.4 kB raw, up from 1.1 kB with the journal | `vite build` output | 2026-10-17 | 1 build |
+| Editor precache (M2.3) | 19 entries, 685.7 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| One save through the journal (`project.json`) | 14–20 ms (median 17) from "Saving…" to "All changes saved."; from keystroke to saved 1,027–1,044 ms (median 1,031), nearly all the 1 s wait | headless Chromium 1194 on `vite preview`, cloud container, a fresh context each, timed in the page | 2026-10-17 | 5 runs |
 | Desktop dock start | The shell renders 46–66 ms after navigation starts (median 53). The dock is up at 134–159 ms (median 148), 87–100 ms after the shell (median 90). Served from localhost, so no network time | headless Chromium 1194 on `vite preview`, cloud container, a fresh context each, timed in the page | 2026-10-17 | 5 runs |
 | OPFS reads, 1,001 small files | 3,033 ms one after another, 524 ms all at once | headless Chromium 1194, cloud container, timed in the page | 2026-10-17 | 1 run each |
 | OPFS writes, 1,001 files of 190 bytes | 1,866–2,064 ms (median 1,950) through the writer worker, 16 at a time | headless Chromium 1194, cloud container, timed in the page, fresh context each | 2026-10-17 | 5 runs |

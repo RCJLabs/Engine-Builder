@@ -88,6 +88,12 @@ test.describe('editing, desktop 1280×800', () => {
     await nameField(page).blur();
     await expect(nameField(page)).toHaveValue('Dirtbag');
     await expect(page.getByRole('button', { name: 'Undo: Change the version' })).toBeEnabled();
+    // Undo while the field holds what it can't keep: the field shows what the undo left.
+    await nameField(page).fill('Dirtbag Valley');
+    await expect(open(page).locator('.save-line')).toHaveText('All changes saved.');
+    await nameField(page).fill('');
+    await page.keyboard.press('Control+z');
+    await expect(nameField(page)).toHaveValue('Dirtbag');
   });
 
   test('saves at once when the page hides, without waiting', async ({ page }) => {
@@ -139,6 +145,33 @@ test.describe('editing, desktop 1280×800', () => {
     await rows.first().getByRole('button', { name: 'Open' }).click();
     await expect(nameField(page)).toHaveValue('Recovered');
     await expect(page.locator('.console')).toContainText('Finished a save that was cut short.');
+  });
+
+  test('finishes a save cut short before listing, so a torn project.json never looks broken', async ({ page }) => {
+    await page.goto('./');
+    await newProject(page, 'Dirtbag');
+    await open(page).getByRole('button', { name: 'Close' }).click();
+    const manifest = '{\n  "format": 1,\n  "id": "dirtbag",\n  "name": "Recovered",\n  "version": "0.1.0"\n}\n';
+    // As a crash leaves it: the journal whole, project.json cut off in the middle of being written.
+    const files = {
+      [JOURNAL]: journalText([{ path: 'project.json', bytes: new TextEncoder().encode(manifest) }]),
+      'project.json': '{\n  "format": 1,\n  "id": "dirt',
+    };
+    await page.evaluate(async (written) => {
+      const project = await (
+        await (await navigator.storage.getDirectory()).getDirectoryHandle('projects')
+      ).getDirectoryHandle('dirtbag');
+      for (const [name, text] of Object.entries(written)) {
+        const writable = await (await project.getFileHandle(name, { create: true })).createWritable();
+        await writable.write(text);
+        await writable.close();
+      }
+    }, files);
+    await page.reload();
+    const rows = page.getByRole('list', { name: 'Projects in this browser' }).getByRole('listitem');
+    await expect(rows.first()).toContainText('Recovered');
+    await expect(rows.first().getByRole('button', { name: 'Open' })).toBeVisible();
+    await expect(page.locator('.console')).toContainText('Finished a save of dirtbag that was cut short.');
   });
 });
 

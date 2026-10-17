@@ -3,7 +3,8 @@
  * the page and every file it loads (scripts, styles, the manifest, icons), plus the service
  * worker, come from the site itself, answer OK, and arrive as the type their name says. A build
  * for the wrong base path passes the first check and fails this one, as does a host that answers
- * a missing script with an HTML page.
+ * a missing script with an HTML page. And the site must be HTTPS: over plain HTTP the browser
+ * withholds the service worker and OPFS, so the editor can't work offline or keep a project.
  */
 
 const TAGS = /<(script|link)\b[^>]*>/gi;
@@ -58,15 +59,23 @@ export interface SiteReport {
   readonly failures: string[];
 }
 
+/** Browsers count these as secure without HTTPS, which is how the tests serve a site. */
+const LOCAL = new Set(['localhost', '127.0.0.1', '[::1]']);
+
 export async function checkSite(site: string, fetchFile: typeof fetch = fetch): Promise<SiteReport> {
   const root = new URL(site);
   if (!root.pathname.endsWith('/')) root.pathname += '/';
+  const failures: string[] = [];
+  if (root.protocol !== 'https:' && !LOCAL.has(root.hostname)) {
+    failures.push(
+      `${root.href} is plain HTTP, where browsers withhold service workers and storage. Turn on Enforce HTTPS in the repo's Pages settings.`,
+    );
+  }
   // A query of its own, so a CDN can't answer with the page from before this deploy, whose
   // hashed scripts the deploy has removed.
   const page = await fetchFile(new URL(`?site-check=${Date.now()}`, root));
-  if (!page.ok) return { checked: [root.pathname], failures: [`${root.href} answered ${page.status}`] };
+  if (!page.ok) return { checked: [root.pathname], failures: [...failures, `${root.href} answered ${page.status}`] };
   const checked: string[] = [];
-  const failures: string[] = [];
   for (const url of [...assetsOf(await page.text(), root), new URL('sw.js', root)]) {
     checked.push(url.pathname);
     const problem = url.origin === root.origin ? await problemWith(url, fetchFile) : 'comes from another site';

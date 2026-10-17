@@ -292,7 +292,9 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Phone: one panel at a time with a bottom tab bar, and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
-- **Editing.** Undo/redo through a command log, autosave, forms generated from schemas, reference pickers, and "used by".
+- **Editing.**
+  - Undo and redo through a command log of file changes, autosave through a journal, and one editing tab per project, held by a Web Lock (M2.3, D30, [specs/editor-editing.md](specs/editor-editing.md)).
+  - Forms generated from schemas, reference pickers, and "used by" follow (M2.4–M2.5).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.

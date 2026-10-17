@@ -164,6 +164,19 @@ describe('one editing tab per project', () => {
     expect(saved).toEqual([]);
   });
 
+  it('takes the lock back quietly when it is free again, and not while another tab holds it', async () => {
+    const { tab } = world();
+    const a = tab();
+    const b = tab();
+    await a.editing.open(a.target);
+    await b.editing.open(b.target);
+    await b.editing.retake();
+    expect(b.editing.access.value.kind).toBe('elsewhere');
+    await a.editing.close();
+    await b.editing.retake();
+    expect(b.editing.access.value.kind).toBe('editing');
+  });
+
   it('lets the lock go on close, for the next tab to take', async () => {
     const { tab, locks } = world();
     const a = tab();

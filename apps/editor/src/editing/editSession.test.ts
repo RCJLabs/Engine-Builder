@@ -24,7 +24,8 @@ function setup() {
   const name = async () =>
     (JSON.parse(new TextDecoder().decode((await copy.read('project.json')) ?? new Uint8Array())) as { name: string })
       .name;
-  const rename = (to: string, at: number) => {
+  // null for no group: undefined would take the default.
+  const rename = (to: string, at: number, group: string | null = 'name') => {
     clock = at;
     return session.edit(
       'Rename the project',
@@ -32,7 +33,7 @@ function setup() {
         const change = await manifestChange(c, 'name', to);
         return change ? [change] : [];
       },
-      'name',
+      group ?? undefined,
     );
   };
   return { copy, session, writes, told, name, rename };
@@ -59,6 +60,16 @@ describe('editSession', () => {
     expect(session.history.value.past).toHaveLength(1);
     await session.undo();
     expect(await name()).toBe('Salvage Run');
+  });
+
+  it('gives each edit the file as the edit before it left it, so undo goes back one at a time', async () => {
+    const { session, name, rename } = setup();
+    // Ungrouped: three steps, each of whose befores must be the one before's after.
+    await Promise.all([rename('D', 0, null), rename('Di', 0, null), rename('Dir', 0, null)]);
+    await session.undo();
+    expect(await name()).toBe('Di');
+    await session.undo();
+    expect(await name()).toBe('D');
   });
 
   it('keeps typing in one field as one step, and a pause as the next', async () => {

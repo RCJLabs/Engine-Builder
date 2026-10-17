@@ -111,6 +111,19 @@ describe('checkSite', () => {
     expect((await checkSite(`${origin}/`)).failures).toEqual([`${origin}/ answered 404`]);
   });
 
+  it('fails a site served over plain HTTP, but not one on this machine', async () => {
+    // Every file answers well, so only the scheme can fail it.
+    const anyFile = (async (url: URL) => {
+      const file = SITE[url.pathname];
+      return new Response(file?.[1] ?? '', { status: file ? 200 : 404, headers: { 'content-type': file?.[0] ?? '' } });
+    }) as unknown as typeof fetch;
+    expect((await checkSite('http://engine.example/', anyFile)).failures).toEqual([
+      "http://engine.example/ is plain HTTP, where browsers withhold service workers and storage. Turn on Enforce HTTPS in the repo's Pages settings.",
+    ]);
+    expect((await checkSite('https://engine.example/', anyFile)).failures).toEqual([]);
+    expect((await checkSite(`${origin}/`)).failures).toEqual([]);
+  });
+
   it('reads a site URL without its trailing slash as the folder', async () => {
     files = Object.fromEntries(Object.entries(SITE).map(([path, file]) => [`/app${path}`, file]));
     files['/app/'] = ['text/html', page('/app/')];

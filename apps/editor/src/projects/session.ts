@@ -23,6 +23,7 @@ import {
 import { createLibrary, type Library, type LibraryEntry, PROJECTS_DIR } from './library.ts';
 import { closeOpen, current, openFolderProject, openStored as openStoredIn } from './opened.ts';
 import { type OpfsWorker, opfsWorker } from './opfsClient.ts';
+import { recoverAll } from './recovery.ts';
 import { requestPersistence, type StorageState, sizeText, storageState } from './storage.ts';
 import { type ProjectSummary, summarize } from './summary.ts';
 
@@ -52,6 +53,9 @@ export async function startProjects(): Promise<void> {
     const files = opfsWorker();
     worker = files;
     stored = createLibrary(root, (folder, written) => files.write([PROJECTS_DIR, folder], written));
+    await recoverAll(root, files).catch((error: unknown) =>
+      note(`A save cut short couldn’t be finished: ${message(error)}`),
+    );
   } catch (error) {
     trouble.value = `This browser can't store projects (${message(error)}). Zips and opened folders still work.`;
   }

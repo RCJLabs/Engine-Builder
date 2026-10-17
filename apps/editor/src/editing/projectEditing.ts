@@ -54,6 +54,8 @@ export interface Editing {
   close(): Promise<void>;
   editHere(): Promise<void>;
   takeOver(): Promise<void>;
+  /** Takes the lock again if it is free, quietly: after the browser let it go (Safari's back/forward cache). */
+  retake(): Promise<void>;
   allowWriting(): Promise<void>;
   edit(label: string, make: (copy: WorkingCopy) => Promise<readonly FileChange[]>, group?: string): Promise<void>;
   undo(): Promise<Step | null>;
@@ -110,7 +112,7 @@ async function hold(state: State, open: EditTarget, held: HeldLock | null): Prom
     state.lock = null;
     end(state, {
       kind: 'elsewhere',
-      note: 'Another tab took over editing. Edits made here since the last save were not kept.',
+      note: 'This tab stopped editing: another tab took over, or the browser let it go. Edits made here since the last save were not kept.',
     });
   });
   if (((await open.recover?.()) ?? 0) > 0) state.deps.note('Finished a save that was cut short.');
@@ -218,6 +220,12 @@ export function createEditing(deps: EditingDeps): Editing {
     close,
     editHere: () => editHere(state),
     takeOver: () => takeOver(state),
+    retake: async () => {
+      const opened = state.target;
+      if (!opened || !deps.locks || state.access.value.kind !== 'elsewhere') return;
+      const held = await takeLock(deps.locks, opened.lockName, { ifAvailable: true });
+      if (held) await hold(state, opened, held);
+    },
     allowWriting: async () => {
       const opened = state.target;
       if (opened?.writable && state.access.value.kind === 'ask-to-write' && (await opened.writable.ask())) {

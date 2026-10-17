@@ -14,8 +14,9 @@ export function EditState() {
 }
 
 function SaveLine() {
-  const state = editing.session.value?.saveState.value;
-  if (!state) return null;
+  const session = editing.session.value;
+  if (!session) return null;
+  const state = session.saveState.value;
   if (state.kind === 'failed') {
     return (
       <div class="save-line trouble" role="alert">
@@ -26,8 +27,10 @@ function SaveLine() {
       </div>
     );
   }
+  // Typed but not yet made counts as unsaved, as it does for leaving the page.
+  const kind = state.kind === 'saved' && session.pending.value > 0 ? 'unsaved' : state.kind;
   // Not announced: while typing it changes every second. A failure is.
-  const said = { saved: 'All changes saved.', unsaved: 'Not saved yet.', saving: 'Saving…' }[state.kind];
+  const said = { saved: 'All changes saved.', unsaved: 'Not saved yet.', saving: 'Saving…' }[kind];
   return <p class="save-line muted">{said}</p>;
 }
 
