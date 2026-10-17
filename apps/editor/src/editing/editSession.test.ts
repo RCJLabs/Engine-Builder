@@ -78,6 +78,14 @@ describe('editSession', () => {
     expect(writes.map((files) => files.map((f) => f.path))).toEqual([['project.json']]);
   });
 
+  it('counts an edit as pending from the moment it is asked for until it is made', async () => {
+    const { session, rename } = setup();
+    const made = rename('Dirtbag', 0);
+    expect(session.pending.value).toBe(1);
+    await made;
+    expect(session.pending.value).toBe(0);
+  });
+
   it('skips an edit that changes nothing', async () => {
     const { session, rename } = setup();
     await rename('Salvage Run', 0);

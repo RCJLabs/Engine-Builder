@@ -1,5 +1,7 @@
 import { busy, closeProject, copyCurrentIn, exportCurrent, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
+import { EditState } from './EditState.tsx';
+import { ProjectFields } from './ProjectFields.tsx';
 
 /** The open project: who it is, where it lives, what it holds and what is wrong with it. */
 export function OpenProjectView({ project }: { project: OpenProject }) {
@@ -10,11 +12,11 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
     <section class="open-project" aria-label="Open project">
       <h3>{summary.project?.name ?? project.label}</h3>
       <p class="muted">{where}</p>
+      <EditState />
+      {summary.project ? <ProjectFields project={summary.project} /> : null}
       <dl class="facts">
         <dt>Id</dt>
         <dd>{summary.project?.id ?? '–'}</dd>
-        <dt>Version</dt>
-        <dd>{summary.project?.version ?? '–'}</dd>
         <dt>Files</dt>
         <dd>{summary.files}</dd>
         <dt>Records</dt>

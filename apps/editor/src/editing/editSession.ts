@@ -25,6 +25,8 @@ export interface EditSession {
   readonly copy: WorkingCopy;
   readonly history: Signal<History>;
   readonly saveState: Signal<SaveState>;
+  /** Edits, undos and redos asked for and not yet made: typed, but not yet in the files. */
+  readonly pending: Signal<number>;
   /**
    * Makes the changes `make` gives, as one step, after the edits before it. Same `group` within
    * LIMITS.groupMs joins the last step: typing in one field undoes as one.
@@ -53,12 +55,22 @@ export function editSession(options: SessionOptions): EditSession {
   const { copy, write, changed = () => undefined, now = Date.now, limits = LIMITS } = options;
   const history = signal(emptyHistory());
   const saveState = signal<SaveState>({ kind: 'saved' });
+  const pending = signal(0);
   const saver: Autosave = autosave(copy, write, (state) => (saveState.value = state), options.timers);
   let queue: Promise<unknown> = Promise.resolve();
 
-  // Each job waits for the one before, whatever became of it.
+  // Each job waits for the one before, whatever became of it. Counted from the moment it is
+  // asked for, so a page closed mid-typing still knows it has edits to lose.
   const enqueue = <T>(job: () => Promise<T>): Promise<T> => {
-    const run = queue.then(job, job);
+    pending.value++;
+    const counted = async () => {
+      try {
+        return await job();
+      } finally {
+        pending.value--;
+      }
+    };
+    const run = queue.then(counted, counted);
     queue = run.catch(() => undefined);
     return run;
   };
@@ -78,6 +90,7 @@ export function editSession(options: SessionOptions): EditSession {
     copy,
     history,
     saveState,
+    pending,
     edit: (label, make, group) =>
       enqueue(async () => {
         const changes = await make(copy);

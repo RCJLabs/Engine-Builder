@@ -40,6 +40,9 @@ export function idbFolderStore(factory: IDBFactory = indexedDB): FolderStore {
     add: async (record) => {
       await act(await open(), 'readwrite', (store) => store.add(record));
     },
+    put: async (record) => {
+      await act(await open(), 'readwrite', (store) => store.put(record));
+    },
     remove: async (key) => {
       await act(await open(), 'readwrite', (store) => store.delete(key));
     },

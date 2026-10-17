@@ -1,6 +1,7 @@
 /**
- * Phase 2's gate, for the paths M2.1 has: a project in a git checkout, copied into the browser's
- * storage and exported as a zip, unpacks over the checkout with zero diff. The files hold what
+ * Phase 2's gate. A project in a git checkout, copied into the browser's storage and exported as
+ * a zip, unpacks over the checkout with zero diff (M2.1); edited in place through an opened
+ * folder, it changes by exactly the lines edited, and by nothing once the edit is undone (M2.3). The files hold what
  * tends to get lost on the way: a byte order mark, Windows line ends, no last newline, text past
  * ASCII, tabs, a binary file, a notes file among the records, and the repo's own files around the
  * project. Python's zipfile unpacks the export, so the check doesn't lean on our own zip reader.
@@ -13,6 +14,11 @@ import { directorySource, zipProject } from '@eb/compiler';
 import { afterAll, describe, expect, it } from 'vitest';
 import { fsFolder } from '../../test/fs-folder.ts';
 import { MemoryDirectory } from '../../test/memory-fs.ts';
+import type { Timers } from '../editing/autosave.ts';
+import { editSession } from '../editing/editSession.ts';
+import { saveIntoFolder } from '../editing/folderSave.ts';
+import { manifestChange } from '../editing/projectEdits.ts';
+import { workingCopy } from '../editing/workingCopy.ts';
 import { createLibrary } from './library.ts';
 import { writeFiles } from './opfsWrite.ts';
 
@@ -37,8 +43,8 @@ const REPO: Record<string, string> = {
 const scratch = mkdtempSync(join(tmpdir(), 'eb-roundtrip-'));
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
-function checkout(): string {
-  const dir = join(scratch, 'round-trip');
+function checkout(name: string): string {
+  const dir = join(scratch, name);
   for (const [path, content] of Object.entries({ ...PROJECT, ...REPO })) {
     mkdirSync(dirname(join(dir, path)), { recursive: true });
     writeFileSync(join(dir, path), content);
@@ -56,7 +62,7 @@ function checkout(): string {
 
 describe('a git folder, into the browser and out as a zip', () => {
   it('unpacks over its checkout with zero diff, carrying only the project', async () => {
-    const dir = checkout();
+    const dir = checkout('round-trip');
     const opfs = new MemoryDirectory();
     const library = createLibrary(await opfs.getDirectoryHandle('projects', { create: true }), (folder, files) =>
       writeFiles(opfs, ['projects', folder], files),
@@ -86,5 +92,41 @@ describe('a git folder, into the browser and out as a zip', () => {
       'records',
     ]);
     expect(execFileSync('git', ['status', '--porcelain'], { cwd: dir, encoding: 'utf8' })).toBe('');
+  });
+});
+
+describe('a git folder, edited in place', () => {
+  const noTimers: Timers = { set: () => 0, clear: () => undefined };
+  const git = (dir: string, ...args: string[]) => execFileSync('git', args, { cwd: dir, encoding: 'utf8' });
+
+  it('changes by the one line edited, and by nothing once the edit is undone', async () => {
+    const dir = checkout('edited-in-place');
+    const folder = fsFolder(dir);
+    const session = editSession({
+      copy: workingCopy(directorySource(folder)),
+      write: (files) => saveIntoFolder(folder, files),
+      timers: noTimers,
+    });
+    const rename = (to: string) =>
+      session.edit('Rename the project', async (copy) => {
+        const change = await manifestChange(copy, 'name', to);
+        return change ? [change] : [];
+      });
+
+    await rename('Renamed');
+    await session.undo();
+    await session.flush();
+    expect(git(dir, 'status', '--porcelain')).toBe('');
+
+    await rename('Renamed');
+    await session.flush();
+    expect(git(dir, 'status', '--porcelain')).toBe(' M project.json\n');
+    // The byte order mark and Windows line ends stay: one line out, one line in.
+    expect(git(dir, 'diff', '--numstat')).toBe('1\t1\tproject.json\n');
+    expect(
+      git(dir, 'diff', '-U0', '--no-color')
+        .split('\n')
+        .filter((line) => /^[-+] /.test(line)),
+    ).toEqual(['-  "name": "Ünïcødé ✓",\r', '+  "name": "Renamed",\r']);
   });
 });

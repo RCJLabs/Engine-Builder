@@ -1,0 +1,77 @@
+/* M2.3's editing: the open project's fields, its save line, why a tab can't edit, and the top
+   bar's Undo and Redo. */
+
+/* A phone's top bar fits the brand and three 44 px buttons; the version stamp gives way while a
+   project is open (the console and the Project panel still say which build this is). */
+[data-layout="phone"] .topbar-end[data-project="open"] .stamp {
+  display: none;
+}
+
+.icon-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.project-fields {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.field-row {
+  display: grid;
+  gap: 4px;
+}
+
+.field-row label {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.field-row .field {
+  width: 100%;
+}
+
+.field[readonly] {
+  color: var(--muted);
+  background: var(--bg);
+}
+
+.field[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field-problem {
+  margin: 0;
+  color: var(--danger);
+}
+
+.save-line {
+  margin: 8px 0 0;
+}
+
+.save-line.trouble,
+.access-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.access-line p {
+  flex: 1 1 14rem;
+  margin: 0;
+}
+
+.save-line.trouble p {
+  flex: 1 1 14rem;
+  margin: 0;
+}
+
+.access-line {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}

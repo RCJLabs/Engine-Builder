@@ -54,6 +54,14 @@ describe('workingCopy', () => {
     expect(copy.unsaved().size).toBe(0);
   });
 
+  it('reads the stored files again once its edits are forgotten', async () => {
+    const copy = workingCopy(stored());
+    copy.apply([{ path: 'project.json', before: text('{"name":"Old"}'), after: text('{"name":"New"}') }], 'after');
+    copy.forget();
+    expect(await read(copy, 'project.json')).toBe('{"name":"Old"}');
+    expect(copy.unsaved().size).toBe(0);
+  });
+
   it('counts a removed file as saved once its removal is written', () => {
     const copy = workingCopy(stored());
     copy.apply([{ path: 'records/item/medkit.json', before: text('{}'), after: null }], 'after');

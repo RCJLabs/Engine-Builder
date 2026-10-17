@@ -25,6 +25,27 @@ export function PanelIcon({ panel }: { panel: PanelId }) {
   );
 }
 
+const ARROWS = {
+  undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  redo: 'M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
+} as const;
+
+/** Undo and redo: an arrow curling back, and its mirror. */
+export function HistoryIcon({ way }: { way: 'undo' | 'redo' }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path
+        d={ARROWS[way]}
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** The top bar's command palette button: a magnifier, the shape people look for to find a command. */
 export function CommandsIcon() {
   return (

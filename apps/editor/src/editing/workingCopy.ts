@@ -13,6 +13,8 @@ export interface WorkingCopy extends ProjectSource {
   unsaved(): ReadonlyMap<string, FileState>;
   /** Marks what a save wrote as saved, except files that changed again while it ran. */
   saved(written: ReadonlyMap<string, FileState>): void;
+  /** Drops every edit laid over the stored files, saved or not: reads go to the files again. */
+  forget(): void;
 }
 
 export function workingCopy(stored: ProjectSource): WorkingCopy {
@@ -43,6 +45,10 @@ export function workingCopy(stored: ProjectSource): WorkingCopy {
     saved(written) {
       // The same bytes object means no edit has touched the file since the save read it.
       for (const [path, state] of written) if (unsaved.get(path) === state) unsaved.delete(path);
+    },
+    forget() {
+      now.clear();
+      unsaved.clear();
     },
   };
 }
