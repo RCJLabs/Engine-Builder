@@ -22,12 +22,17 @@ describe('walkerAt', () => {
 
 describe('cameraAt', () => {
   it('circles 13 out from the character, above it and clear of the ground', () => {
-    for (const t of TIMES) {
+    let lifted = 0;
+    for (let t = 0; t < 600; t += 0.5) {
       const target = walkerAt(map, t);
       const eye = cameraAt(map, t, target);
+      const clear = heightAt(map, eye.x, eye.z) + 2.5;
       expect(Math.hypot(eye.x - target.x, eye.z - target.z)).toBeCloseTo(13, 9);
       expect(eye.y).toBeGreaterThanOrEqual(target.y + 6);
-      expect(eye.y).toBeGreaterThanOrEqual(heightAt(map, eye.x, eye.z) + 2.5);
+      expect(eye.y).toBeGreaterThanOrEqual(clear);
+      if (clear > target.y + 6) lifted++;
     }
+    // The walk passes hills where the ground under the camera, not the character, sets its height.
+    expect(lifted).toBeGreaterThan(0);
   });
 });

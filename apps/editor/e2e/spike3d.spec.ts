@@ -61,10 +61,12 @@ test.describe('3D spike, desktop 1280×800', () => {
   });
 });
 
-for (const [width, height] of [
+const PHONES: readonly (readonly [width: number, height: number])[] = [
   [390, 844],
   [844, 390],
-]) {
+];
+
+for (const [width, height] of PHONES) {
   test.describe(`3D spike, phone ${width}×${height}`, () => {
     test.use({ viewport: { width, height }, hasTouch: true, isMobile: true });
 

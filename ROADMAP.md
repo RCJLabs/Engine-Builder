@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.10.** 3D spike (Phase 1). M1.1 to M1.9 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time, saves, the headless runner) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M2.1.** Project storage (Phase 2). It starts with your call on the editor's domain (Open questions, 1). Phase 1's milestones, M1.1 to M1.10, are built, and the phase waits only on your phone: open [`/Engine-Builder/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -125,10 +125,13 @@ How to read this file:
   - **`eb sim <project> --game <module>`** compiles the project, plays it, and prints the report or JSON. `--golden` checks a golden file, and with `--update` writes it. Salvage run's content is now a project folder, and 50 golden runs of it are checked in CI.
   - **A first finding.** Resting costs salvage run no time, so a bot that rests whenever someone is hurt never loses. The game is test-only, so this is noted, not fixed.
   - [`docs/specs/runner.md`](docs/specs/runner.md) is the spec. Forty-seven planted bugs were each caught by the tests. The first run let three through, and each got a test that fails it: options listed in registration order, an empty `modules` export, and a report that printed the run count where it meant distinct endings.
-- **M1.10 3D spike** (throwaway, served at `/spikes/3d/`).
-  - three.js with WebGPU, falling back to WebGL2.
-  - A 256² heightmap terrain, 5,000 instanced props, one skinned character, shadows.
-  - Three quality tiers, an FPS overlay, and Rapier's load time.
+- **M1.10 3D spike** (throwaway, served at `/spikes/3d/`). Built 2026-10-17; its gate waits on your phone.
+  - [`apps/spike-3d`](apps/spike-3d/README.md): three.js's WebGPURenderer, which falls back to WebGL2. It draws a 256² heightmap terrain, 5,000 instanced trees, one skinned character, and a sun with shadows.
+  - **Tiers.** Low, medium and high change the pixel ratio, the shadow map, soft shadows and 4× MSAA, never the scene. An overlay shows frames per second, the median and 95th-percentile frame, draw calls, triangles, and Rapier's load time.
+  - **Measure all tiers** runs each tier on each backend, on a fresh page load per step, and ends with a reading to copy into Readings.
+  - **Physics stands on the drawn ground.** Rays on Rapier's heightfield land within 8.4e-6 of the drawn triangles, and a transposed field or the other diagonal fails the check.
+  - **Deployment.** It is built into the editor's `dist` after the editor, so it never enters the editor's bundle or offline cache. The editor's service worker leaves `/spikes/` to the network; without that, an installed editor answers the spike's URL with itself, which an e2e test shows.
+  - Thirty-four planted bugs were each caught. The first run let four through, and each got a test: a tolerance loose enough to pass the wrong diagonal, trees above the band, trees on steep ground, and a camera allowed into hills.
 
 **Done when:**
 
@@ -136,7 +139,7 @@ How to read this file:
 - Save → load → continue matches an uninterrupted run by hash. [auto] Done 2026-10-17 (M1.8): 50 seeds through save files in `packages/core/src/save/save.test.ts`, and 5 through each store in `packages/platform/src/saves.test.ts`.
 - A v1 save fixture loads after a planted v2 migration. [auto] Done 2026-10-17 (M1.8): `packages/core/test/fixtures/saves/salvage-v1.json`, with a planted v2 of the hold.
 - RNG golden vectors are frozen in the spec. [auto] Done 2026-10-17 (M1.1): [`docs/specs/rng.md`](docs/specs/rng.md), checked against `rng_oracle.py` in CI by `packages/core/src/rng.oracle.test.ts`.
-- FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you]
+- FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you] The page is live (M1.10): open [`/Engine-Builder/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/) on the phone, tap **Measure all tiers**, and send the reading it ends with.
 
 ## Phase 2: Editor foundation
 
@@ -317,7 +320,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | --- | --- | --- | --- | --- |
 | Editor shell JS, gzip | 12.7 kB app + 2.2 kB workbox-window | `vite build` output | 2026-10-17 | 1 build |
 | Editor shell CSS, gzip | 1.7 kB | `vite build` output | 2026-10-17 | 1 build |
-| Editor shell precache | 16 entries, 72 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Editor shell precache | 16 entries, 72 KiB. Re-measured at M1.10 with the 3D spike built into the same `dist`: still 16 entries, 72.10 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build each |
 | Sim kernel reduce, salvage run (M1.5 content) | 18.2–22.7 µs per action (median 20.0) over 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Sim kernel reduce, salvage run (M1.6: conditions and rolls) | 20.5–23.8 µs per action (median 21.6) over 74,658 actions. The M1.5 content on the M1.6 kernel gave 19.7–22.9 µs (median 21.4) over the same 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs each |
 | Sim kernel reduce, salvage run (M1.7: days and debts) | 23.4–26.7 µs per action (median 24.9) over 74,534 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
@@ -326,7 +329,9 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Save codes, salvage run | 679 characters a code (longest 717) for 2,694 bytes of JSON. Encode 359–391 µs (median 370), decode 897–959 µs (median 923) | `node packages/platform/test/code-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Seed sweep, salvage run | 1,000 runs with the random policy and 4 metrics, 70,106 turns: 2,131–2,233 ms (median 2,176), which is 30.4–31.8 µs a turn (median 31.0), against about 25 µs for reduce alone | `node packages/core/test/sweep-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
-| 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
+| 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay: **Measure all tiers** | | |
+| 3D spike bundle, gzip | 223.5 kB for the page and three.js (810.0 kB raw); 1,669.3 kB for Rapier (4,332.8 kB raw), whose 3.08 MB of WebAssembly is inlined as base64. A separate `.wasm` would be 1,168.7 kB at gzip -9, against 1,652.9 kB for the compat module | `vite build` output; Python's gzip for the `.wasm` comparison | 2026-10-17 | 1 build |
+| Rapier load, no phone | Headless Chromium on a page drawing nothing: import 217–233 ms (median 226), start 75–90 ms (median 79). Node: import 27–38 ms (median 30), start 90–127 ms (median 123). On the spike's page, while drawing in software: about 0.9 s and 0.45 s | Chromium 1194 (Playwright 1.56.1) on `vite preview`, a fresh context each, and Node 22.22, both in the cloud container | 2026-10-17 | 5 each |
 
 ## Open questions
 
@@ -338,3 +343,4 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 3. **Theme of proof #2.** Landnam's coast, Wasteland Protocol's desert, Dirtbag's valley, or something new?
 4. **TWA package ids.** `io.github.rcjlabs.*` and `com.rcjlabs.*` are both in use today. Pick one scheme before the first engine-built TWA.
 5. **Orientation on large screens.** A third-party report says SDK 36 apps can no longer lock orientation on screens ≥600dp. Verify before shipping a landscape-only game such as Space-Wrecked as a TWA.
+6. **Reference phone for 3D.** D8 is judged on a mid-range phone, and the 3D frame-rate targets come from its reading. Which phone is it? Decide with the first spike reading.

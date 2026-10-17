@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { extentOf, makeHeightmap } from './heightmap.ts';
+import { extentOf, type Heightmap, heightAt, makeHeightmap } from './heightmap.ts';
 import { AGREE, agrees, loadPhysics, probePoints, rapierHeights } from './physics.ts';
 
 describe('rapierHeights', () => {
@@ -33,6 +33,27 @@ describe('loadPhysics', () => {
     expect(report).toMatchObject({ importMs: 5, initMs: 5, rays: 64, misses: 0 });
     expect(report.worstError).toBeLessThan(AGREE / 10);
     expect(agrees(report)).toBe(true);
+  });
+});
+
+/** The ground's height if each cell were split on the other diagonal, from (x, z) to (x + 1, z + 1). */
+function otherSplitAt(map: Heightmap, x: number, z: number): number {
+  const extent = extentOf(map);
+  const fx = (x + extent) / map.spacing;
+  const fz = (z + extent) / map.spacing;
+  const [x0, z0] = [Math.floor(fx), Math.floor(fz)];
+  const [tx, tz] = [fx - x0, fz - z0];
+  const at = (dx: number, dz: number) => map.heights[(z0 + dz) * map.size + x0 + dx] as number;
+  return tx >= tz
+    ? at(0, 0) + (at(1, 0) - at(0, 0)) * tx + (at(1, 1) - at(1, 0)) * tz
+    : at(0, 0) + (at(1, 1) - at(0, 1)) * tx + (at(0, 1) - at(0, 0)) * tz;
+}
+
+describe('AGREE', () => {
+  it('is tight enough to tell our split from the other diagonal at the probe points', () => {
+    const map = makeHeightmap('spike-3d');
+    const gaps = probePoints(map).map(({ x, z }) => Math.abs(otherSplitAt(map, x, z) - heightAt(map, x, z)));
+    expect(Math.max(...gaps)).toBeGreaterThan(5 * AGREE);
   });
 });
 

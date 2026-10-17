@@ -49,8 +49,8 @@ export interface PhysicsReport {
 }
 
 /**
- * How near the drawn ground every ray must land. In Node they land within 7e-6; a field split on
- * the other diagonal is off by up to 0.027 at the probe points, and a transposed one by 19.
+ * How near the drawn ground every ray must land. In Node they land within 8.4e-6; a field split
+ * on the other diagonal is off by up to 0.024 at the probe points, and a transposed one by 20.
  */
 export const AGREE = 0.001;
 
