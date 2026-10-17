@@ -6,6 +6,8 @@
  * Choices are locked by conditions in content, their odds come from roll effects, and a debt
  * promised to raiders falls due three days later.
  */
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   type Condition,
   createGame,
@@ -28,76 +30,25 @@ interface EventRecord {
   choices: Record<string, Choice>;
 }
 
-export const content = createRecordStore({
-  item: { medkit: { value: 15 }, salvage: { value: 5 } },
-  'loot-table': {
-    'dead-hauler': {
-      entries: [
-        { item: 'salvage', weight: 3 },
-        { item: 'medkit', weight: 1 },
-      ],
-    },
-  },
-  event: {
-    derelict: {
-      choices: {
-        board: {
-          effects: [
-            {
-              effect: 'roll',
-              outcomes: [
-                { chance: 70, text: 'Salvage in the hold', effects: [{ effect: 'loot', table: 'dead-hauler' }] },
-                { chance: 30, text: 'The hull gives way', effects: [{ effect: 'wound', hp: 3 }] },
-              ],
-            },
-          ],
-        },
-        leave: { effects: [] },
-      },
-    },
-    trader: {
-      choices: {
-        sell: {
-          when: { fact: 'hold.count', args: { item: 'salvage' }, op: '>=', value: 1 },
-          effects: [{ effect: 'sell', item: 'salvage' }],
-        },
-        leave: { effects: [] },
-      },
-    },
-    raiders: {
-      choices: {
-        fight: {
-          effects: [
-            {
-              effect: 'roll',
-              outcomes: [
-                {
-                  chance: 50,
-                  effects: [
-                    { effect: 'wound', hp: 2 },
-                    { effect: 'loot', table: 'dead-hauler' },
-                  ],
-                },
-                { chance: 50, effects: [{ effect: 'wound', hp: 4 }] },
-              ],
-            },
-          ],
-        },
-        pay: { when: { fact: 'hold.credits', op: '>=', value: 10 }, effects: [{ effect: 'credits', delta: -10 }] },
-        // A beating now and a debt due in three days, refused then if the hold can't pay: time
-        // passes all the same.
-        promise: {
-          when: { not: { fact: 'time.pending', args: { timer: 'debt' } } },
-          effects: [
-            { effect: 'wound', hp: 3 },
-            { effect: 'schedule', timer: 'debt', after: { days: 3 }, effects: [{ effect: 'credits', delta: -15 }] },
-          ],
-        },
-      },
-    },
-    'quiet-sector': { choices: { rest: { effects: [{ effect: 'heal', hp: 2 }] } } },
-  },
-});
+/** Salvage run as a project folder: its records are the game's content, which `eb sim` plays too. */
+export const PROJECT = join(import.meta.dirname, 'fixtures/salvage-run');
+
+// records/<type>/<id>.json, as the compiler reads them, without the checks a build makes.
+function readRecords(dir: string): Record<string, Record<string, unknown>> {
+  const records: Record<string, Record<string, unknown>> = {};
+  for (const type of readdirSync(dir)) {
+    const ofType: Record<string, unknown> = {};
+    for (const file of readdirSync(join(dir, type)).filter((name) => name.endsWith('.json'))) {
+      ofType[file.slice(0, -'.json'.length)] = JSON.parse(readFileSync(join(dir, type, file), 'utf8'));
+    }
+    records[type] = ofType;
+  }
+  return records;
+}
+
+// The raiders' promise is a beating now and a debt due in three days, refused then if the hold
+// can't pay: time passes all the same.
+export const content = createRecordStore(readRecords(join(PROJECT, 'records')));
 
 export const sim = { content };
 const HOME_DAY = 30;

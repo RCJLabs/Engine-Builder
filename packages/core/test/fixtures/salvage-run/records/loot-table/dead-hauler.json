@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "item": "salvage",
+      "weight": 3
+    },
+    {
+      "item": "medkit",
+      "weight": 1
+    }
+  ]
+}

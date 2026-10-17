@@ -1,0 +1,36 @@
+{
+  "choices": {
+    "board": {
+      "effects": [
+        {
+          "effect": "roll",
+          "outcomes": [
+            {
+              "chance": 70,
+              "text": "Salvage in the hold",
+              "effects": [
+                {
+                  "effect": "loot",
+                  "table": "dead-hauler"
+                }
+              ]
+            },
+            {
+              "chance": 30,
+              "text": "The hull gives way",
+              "effects": [
+                {
+                  "effect": "wound",
+                  "hp": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "leave": {
+      "effects": []
+    }
+  }
+}

@@ -4,8 +4,9 @@
  * So far: hashing, seeded random streams (M1.1), state fingerprints (M1.2), record lookups
  * (M1.3), reading content packs (M1.4), the sim kernel: modules, reduce and sessions (M1.5),
  * conditions with their lint, plus the roll effect (M1.6), time: calendars, timers and
- * wall-clock settling (M1.7), and save files with migrations (M1.8). Next in Phase 1: the
- * headless runner (ROADMAP.md, docs/architecture.md).
+ * wall-clock settling (M1.7), save files with migrations (M1.8), and the headless runner:
+ * bot policies, seed sweeps and golden files (M1.9). Next in Phase 1: the 3D spike (ROADMAP.md,
+ * docs/architecture.md).
  */
 export { CanonicalError, canonicalJson, pointerSegment } from './canonical.ts';
 export { fnv1a32, fnv1a64, hashParts, utf8Length } from './hash.ts';
@@ -32,6 +33,7 @@ export {
   type RecordStore,
 } from './records.ts';
 export { Rng, type RngState } from './rng.ts';
+export * from './runner/index.ts';
 export * from './save/index.ts';
 export * from './sim/index.ts';
 export { type Difference, type FacetReading, firstDifference, readFacets, stateHash } from './stateHash.ts';

@@ -1,0 +1,12 @@
+{
+  "choices": {
+    "rest": {
+      "effects": [
+        {
+          "effect": "heal",
+          "hp": 2
+        }
+      ]
+    }
+  }
+}

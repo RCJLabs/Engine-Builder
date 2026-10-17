@@ -1,0 +1,659 @@
+{
+  "format": 1,
+  "game": "salvage-run",
+  "content": "4b00c30ee1256b66",
+  "policy": "steady",
+  "maxTurns": 1000,
+  "runs": {
+    "golden-0": {
+      "hash": "a841a95b412b1abf",
+      "facets": {
+        "crew": "cb81384836a8d51c",
+        "hold": "163be8c131fca717",
+        "kernel": "949b4bec6c2ff90f",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-1": {
+      "hash": "a65d56c72f07358b",
+      "facets": {
+        "crew": "4228d990667b6468",
+        "hold": "31287289c41ad06b",
+        "kernel": "7d695916baea6f58",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-2": {
+      "hash": "de0224d2b857d2f6",
+      "facets": {
+        "crew": "98b7dfe8fb79a70c",
+        "hold": "b9784e29b27860af",
+        "kernel": "13a9730ddce15a93",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-3": {
+      "hash": "f01131253ea36be4",
+      "facets": {
+        "crew": "1c244ee95b3f641c",
+        "hold": "2a3ce4161ad7a9d5",
+        "kernel": "034abf0607e9ed8d",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "golden-4": {
+      "hash": "b3647a3c31ba96d6",
+      "facets": {
+        "crew": "afc35e44fb10b257",
+        "hold": "43815f1628f2f97a",
+        "kernel": "b60e8ac770f296f4",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "golden-5": {
+      "hash": "098bd4881ab18ee3",
+      "facets": {
+        "crew": "ad41c12459100711",
+        "hold": "16e8ce5714a56ed1",
+        "kernel": "a338803d6041b264",
+        "logic": "08f44b07b5901a25",
+        "time": "5d84fc7ca9e37881",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "golden-6": {
+      "hash": "e5d8bea0d9e1a97c",
+      "facets": {
+        "crew": "2c129d3546680c85",
+        "hold": "1f322489b9bfdc3d",
+        "kernel": "060b3e93205dffb8",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "golden-7": {
+      "hash": "72cdc8abdde958b4",
+      "facets": {
+        "crew": "ac21c1b2270cd892",
+        "hold": "f8965ce330450cb8",
+        "kernel": "ce906342a4f1354e",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "golden-8": {
+      "hash": "445849ea39c0fcb6",
+      "facets": {
+        "crew": "973f7e75389cc7dd",
+        "hold": "0b94bfc12b63b3c8",
+        "kernel": "9a8e5e8cbef29922",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "golden-9": {
+      "hash": "3d89ddd2011a999f",
+      "facets": {
+        "crew": "51462dfa6a4f37b0",
+        "hold": "711d29b2e467a9bd",
+        "kernel": "052e8c64474b9fd3",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 74,
+      "end": "ended"
+    },
+    "golden-10": {
+      "hash": "d0d2c95cc85251b1",
+      "facets": {
+        "crew": "c20383e3fde62a94",
+        "hold": "5c610b29d4f61c20",
+        "kernel": "80856f7378254abc",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 74,
+      "end": "ended"
+    },
+    "golden-11": {
+      "hash": "d3ff5d043a6aa7d8",
+      "facets": {
+        "crew": "f163b90f198cd575",
+        "hold": "aed12529abdf6d60",
+        "kernel": "c74be3faf71efde6",
+        "logic": "08f44b07b5901a25",
+        "time": "b9c4abef3728fde3",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-12": {
+      "hash": "4ba9646c66ef2256",
+      "facets": {
+        "crew": "fd89d90f2d9d41ec",
+        "hold": "34f20916217cd3b4",
+        "kernel": "28afeef313b75ea3",
+        "logic": "08f44b07b5901a25",
+        "time": "22467ff55feb66c5",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-13": {
+      "hash": "a984fdec83769c6c",
+      "facets": {
+        "crew": "696c9779207bbb21",
+        "hold": "db1eb037eb1bc069",
+        "kernel": "b234af81abfe79cd",
+        "logic": "08f44b07b5901a25",
+        "time": "5d84fc7ca9e37881",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "golden-14": {
+      "hash": "32fe6b6276d30786",
+      "facets": {
+        "crew": "c8091a6109e1bdc0",
+        "hold": "e30a2b27c0cdf933",
+        "kernel": "6cb68d11d8710593",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "golden-15": {
+      "hash": "1b0cd0043f4d5fe5",
+      "facets": {
+        "crew": "e74ecada9eea6e43",
+        "hold": "b6710f13cb0d446d",
+        "kernel": "8e8af963f449568e",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "golden-16": {
+      "hash": "9c8f7365b274bd9c",
+      "facets": {
+        "crew": "8e61abfc533a24b8",
+        "hold": "387be9585aedd527",
+        "kernel": "e61d4fd3361e572f",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-17": {
+      "hash": "ec8e442c3012a528",
+      "facets": {
+        "crew": "1d48ff1d51ebc3b8",
+        "hold": "9eed1231aa17cde4",
+        "kernel": "de2316e426890a43",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "golden-18": {
+      "hash": "d8761c2587a032dc",
+      "facets": {
+        "crew": "1c244ee95b3f641c",
+        "hold": "b27c8b2d2a06f137",
+        "kernel": "089bea4b511110a9",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "golden-19": {
+      "hash": "4e493e1aa7d296fb",
+      "facets": {
+        "crew": "f5703812d0125c21",
+        "hold": "7bd24eb2eb0cd39c",
+        "kernel": "6b84f773c3350e84",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "golden-20": {
+      "hash": "f84540cffcd1e887",
+      "facets": {
+        "crew": "dc315e39b34d4544",
+        "hold": "16e8ce5714a56ed1",
+        "kernel": "a636ddf0dd827fa0",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "golden-21": {
+      "hash": "c0d387b3b8394d25",
+      "facets": {
+        "crew": "98b7dfe8fb79a70c",
+        "hold": "703f5b999269ee9b",
+        "kernel": "96a1a9d7dc3a32eb",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "golden-22": {
+      "hash": "e8a3c5e947c17ed2",
+      "facets": {
+        "crew": "b7bd57eb98477b01",
+        "hold": "5434ed57378d7c22",
+        "kernel": "4a723135e5f26f96",
+        "logic": "08f44b07b5901a25",
+        "time": "05d71135b43883c1",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "golden-23": {
+      "hash": "08f7b87dceb73ba4",
+      "facets": {
+        "crew": "6b8504fb15df8e00",
+        "hold": "e9eb0ee328b679d2",
+        "kernel": "284094482d5bd2a0",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-24": {
+      "hash": "65ec80874e5458ff",
+      "facets": {
+        "crew": "c1ba6fa7b18953f9",
+        "hold": "9571aa299dad5603",
+        "kernel": "94f956926a92cc11",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-25": {
+      "hash": "4ce0cd93bcc1a28e",
+      "facets": {
+        "crew": "442718c336c5ea01",
+        "hold": "8cdbc4319fa611fe",
+        "kernel": "2643524645b0feed",
+        "logic": "08f44b07b5901a25",
+        "time": "97ac48fb4eba1620",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "golden-26": {
+      "hash": "836190458216c9c2",
+      "facets": {
+        "crew": "6b5c618b1656ad17",
+        "hold": "f59fb0269aaf0754",
+        "kernel": "e7146c2b09453ebe",
+        "logic": "08f44b07b5901a25",
+        "time": "46c701c69ecc3449",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "golden-27": {
+      "hash": "623b58ba3b71415e",
+      "facets": {
+        "crew": "29547ad55bbd0a60",
+        "hold": "9eed1231aa17cde4",
+        "kernel": "53e14705fe7cd2fa",
+        "logic": "08f44b07b5901a25",
+        "time": "9a882f8e33dec3fb",
+        "voyage": "71027b9ab6837ea4"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "golden-28": {
+      "hash": "20097831337cfe1c",
+      "facets": {
+        "crew": "34d70f42fe9c8ce4",
+        "hold": "659732998bcf484c",
+        "kernel": "2b0160df69400ae0",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "golden-29": {
+      "hash": "518630849b344dc0",
+      "facets": {
+        "crew": "091ee48fd4616c30",
+        "hold": "0b94bfc12b63b3c8",
+        "kernel": "438d59038eef16e8",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-30": {
+      "hash": "70adc29f06005832",
+      "facets": {
+        "crew": "5c48392da37e9b4b",
+        "hold": "4de247d343eb1693",
+        "kernel": "492242d482cd7420",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-31": {
+      "hash": "f722c0140ccaca6b",
+      "facets": {
+        "crew": "e2f644a58cb560ab",
+        "hold": "0b94bfc12b63b3c8",
+        "kernel": "157128257116fd71",
+        "logic": "08f44b07b5901a25",
+        "time": "05d71135b43883c1",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-32": {
+      "hash": "43f43687b14b8ec4",
+      "facets": {
+        "crew": "17b91f13ed3c193e",
+        "hold": "52d6213568ea7173",
+        "kernel": "65693cff6c886f23",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "golden-33": {
+      "hash": "4595af17169cd999",
+      "facets": {
+        "crew": "fed2ae248a4ae260",
+        "hold": "5385e499815d8c66",
+        "kernel": "271978f390f27fd6",
+        "logic": "08f44b07b5901a25",
+        "time": "82501a7bd3042ed5",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 73,
+      "end": "ended"
+    },
+    "golden-34": {
+      "hash": "7f3425e6fce15fdc",
+      "facets": {
+        "crew": "b28838246f36fce7",
+        "hold": "0b94bfc12b63b3c8",
+        "kernel": "3e8e4cd8ecff5f14",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "golden-35": {
+      "hash": "4f43f64d6fa208a1",
+      "facets": {
+        "crew": "5cdd4f3e16a3faa0",
+        "hold": "8cdbc4319fa611fe",
+        "kernel": "b5b609add08a4249",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "golden-36": {
+      "hash": "ada645d075bb40eb",
+      "facets": {
+        "crew": "9ef4c5e7e1a91251",
+        "hold": "553174d347ad250a",
+        "kernel": "f6a5f2b4fcfaed6f",
+        "logic": "08f44b07b5901a25",
+        "time": "22467ff55feb66c5",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "golden-37": {
+      "hash": "722c39602914d1dd",
+      "facets": {
+        "crew": "b8c8147b285d4ec1",
+        "hold": "0f8ba55710d729ca",
+        "kernel": "b3c36e51ab8fe33b",
+        "logic": "08f44b07b5901a25",
+        "time": "99afac5c332c585d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-38": {
+      "hash": "bbb40bfab68977f7",
+      "facets": {
+        "crew": "ff4df3178a1d0361",
+        "hold": "3c33321625329e03",
+        "kernel": "afe4cec8171c723e",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "golden-39": {
+      "hash": "3f95b390fca22af8",
+      "facets": {
+        "crew": "12ccc2b027de1787",
+        "hold": "778d8899962a4a12",
+        "kernel": "c845b26bdd89e9aa",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 73,
+      "end": "ended"
+    },
+    "golden-40": {
+      "hash": "f093f7624bb03111",
+      "facets": {
+        "crew": "38f2bcdce9fe4e6f",
+        "hold": "7377c5357ad4061f",
+        "kernel": "9e3059e6822bdccc",
+        "logic": "08f44b07b5901a25",
+        "time": "5d84fc7ca9e37881",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "golden-41": {
+      "hash": "c3646046cfb2dbf9",
+      "facets": {
+        "crew": "80f776644ca856ad",
+        "hold": "1f322489b9bfdc3d",
+        "kernel": "ea609bc943eb1014",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "golden-42": {
+      "hash": "98ea947e9ad6f3d9",
+      "facets": {
+        "crew": "7066ac06ef12b43a",
+        "hold": "63a23429d8abe66f",
+        "kernel": "101a905247dd1d29",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "golden-43": {
+      "hash": "557f24ab2b88df0c",
+      "facets": {
+        "crew": "0a1eb3ab5b28b8d0",
+        "hold": "db1eb037eb1bc069",
+        "kernel": "25b2b52ef9909011",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "golden-44": {
+      "hash": "d340c04ef955b42b",
+      "facets": {
+        "crew": "3c6815ebd95dede7",
+        "hold": "9cbfd729a16db17a",
+        "kernel": "d2dca5ecf842edd2",
+        "logic": "08f44b07b5901a25",
+        "time": "46d3d0aa889dc624",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "golden-45": {
+      "hash": "890ea5217506b864",
+      "facets": {
+        "crew": "9ef755dd3114faab",
+        "hold": "71e9ebd358b7d43f",
+        "kernel": "3134016072b4dd31",
+        "logic": "08f44b07b5901a25",
+        "time": "d093139b1a95f83d",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "golden-46": {
+      "hash": "ec9759e4419e4e2c",
+      "facets": {
+        "crew": "8751e160166afb07",
+        "hold": "5b4c49a08dbc07cd",
+        "kernel": "1615f20615ed16eb",
+        "logic": "08f44b07b5901a25",
+        "time": "f16c7856337383b7",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "golden-47": {
+      "hash": "dc2bacc15283d07a",
+      "facets": {
+        "crew": "8925a20137161efc",
+        "hold": "d1582f3bd6833641",
+        "kernel": "5ad130c676b57f09",
+        "logic": "08f44b07b5901a25",
+        "time": "c6a57de86c20205a",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "golden-48": {
+      "hash": "f80f82f3aa5066f3",
+      "facets": {
+        "crew": "780682404b76832d",
+        "hold": "1d684acb4d7dfc70",
+        "kernel": "74aa14919a99ad95",
+        "logic": "08f44b07b5901a25",
+        "time": "2b7c83b11faf74a8",
+        "voyage": "71027b9ab6837ea4"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "golden-49": {
+      "hash": "555d56be1bd373d8",
+      "facets": {
+        "crew": "c3d196634943cb45",
+        "hold": "979eed31a6578005",
+        "kernel": "1833ad47f213dde9",
+        "logic": "08f44b07b5901a25",
+        "time": "b9c4abef3728fde3",
+        "voyage": "425ac7554e506469"
+      },
+      "turns": 72,
+      "end": "ended"
+    }
+  }
+}
