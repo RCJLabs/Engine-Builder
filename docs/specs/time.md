@@ -97,7 +97,7 @@ A test walks every tick of four years of a small calendar with a counter that ca
 - **Names.** A timer content didn't name gets `#n`, which no content name can clash with. Scheduling a name again replaces its timer, which is how a cooldown restarts.
 - **Waiting inside a timer** moves time further, firing what falls due on the way. Time never goes back: an advance ends at its target or wherever a timer's wait took it, whichever is later.
 - **A cap.** More than 10,000 firings in one advance throws, since a timer repeating every tick through a long stretch is a bug.
-- **A condition** (`when`) is checked when the timer comes due. If it doesn't hold, the timer is dropped with a `time/skipped` beat (rule-or-drool's dropped cards).
+- **A condition** (`when`) is checked when the timer comes due. If it doesn't hold, that firing is skipped with a `time/skipped` beat, as rule-or-drool drops a card whose condition no longer holds. A one-off timer is then gone; a repeating one comes round again.
 - **Sealing an outcome at launch**, as spliceworld's operations do, is content, not a feature: put the `schedule` inside a `roll`'s outcome, so the draw happens when the job starts.
 - **Daily upkeep** in a fixed order, like landnam's `passDay` or ludus's `endWeek`, is a set of repeating timers due on the same tick, scheduled in the order they must run.
 - **A trip that an event can cut short,** like landnam's road, dirtbag's multi-day trips and space-wrecked's expeditions, waits one day at a time in the game's action and stops when a consequence changes the mode. A single long `wait` fires everything due in it; the encounters it pushes queue up on the mode stack.
@@ -122,11 +122,13 @@ A test walks every tick of four years of a small calendar with a counter that ca
   - order by due tick, then scheduling;
   - the clock at each due tick;
   - repeats, cancelling from inside, and replacing by name;
+  - a firing skipped because its condition no longer holds, while the timer keeps repeating;
   - a refused consequence undone while time passes;
   - nested waits;
   - the firing cap.
 - **Wall-clock:** carry, cap, refused deltas, and the at-once-or-in-pieces property over 300 random cases.
-- **Salvage run** now counts days with the time module. A promise to raiders schedules a debt three days on. Over 100 runs the debt fell due both ways: it was paid when the hold had the credits, refused otherwise, and the day passed either way.
+- **Salvage run** now counts days with the time module. A promise to raiders schedules a debt three days on, and can't be made again while one is pending (`time.pending`). The test plays 100 runs and checks every debt that falls due: paid when the hold has 15 credits, refused otherwise, with the day passing either way. Over 1,000 runs, 1,655 debts were refused.
+- **Planted bugs:** 31, each caught by at least one test.
 - **Readings:** offline settling, in ROADMAP's Readings.
 
 ## Open questions

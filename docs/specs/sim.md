@@ -155,7 +155,7 @@ Replaying the log from the state the session began with reaches the same state.
 
 `packages/core/test/salvage.ts` is a test-only text game.
 
-- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls.
+- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls and the time module for days (M1.7, [time.md](time.md)).
 - **Content.** Choice events in the content pack. Some choices are locked by a condition, and chancy ones apply a `roll` effect (M1.6, [conditions.md](conditions.md)).
 - **The bot** plays through `reduce` and the allowed actions, as a player would. It offers only choices whose condition holds, through `game.check`. landnam's bot skipped the mode checks and made 18,733 moves its UI would have refused.
 
@@ -166,7 +166,7 @@ Replaying the log from the state the session began with reaches the same state.
 - replaying a run's log reproduces its state;
 - a run saved and reloaded halfway (a JSON round trip) ends where the uninterrupted run ends.
 
-The M1.6 tests for its conditions and previews are listed in [conditions.md](conditions.md).
+The M1.6 tests for its conditions and previews are listed in [conditions.md](conditions.md), and the M1.7 tests for its days and debts in [time.md](time.md).
 
 `node packages/core/test/salvage-bench.ts` takes the reduce timing in ROADMAP's Readings.
 
