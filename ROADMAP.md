@@ -192,7 +192,8 @@ How to read this file:
   - **Found while building it:**
     - a race that wiped a key pressed as an edit landed, in M2.3's fields too;
     - field names like `toString`, which zod reads from every object;
-    - Ctrl+Z in a form's box was the browser's own undo, not the editor's: a planted bug that survived showed it.
+    - Ctrl+Z in a form's box was the browser's own undo, not the editor's: a planted bug that survived showed it;
+    - an item added to a list lost its focus when the record took more than one render to read again (seen on CI, then reproduced by slowing the read).
   - Sixty-two planted bugs; the first runs caught 55. Each survivor changed something:
     - two tests added, for three-digit colours and record order;
     - a deterministic test for the race;

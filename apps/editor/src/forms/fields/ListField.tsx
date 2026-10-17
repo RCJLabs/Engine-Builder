@@ -6,6 +6,7 @@ import { pointerOf, useForm } from '../formContext.ts';
 import { emptyValue, moveItem, type Path } from '../values.ts';
 
 type ListDef = Extract<ValueDef, { kind: 'list' }>;
+const FOCUS_WAIT_MS = 2000;
 /** One change to the list as a step, and where focus goes once it has rendered. */
 type Change = (said: string, make: (list: unknown[]) => unknown[], focus: string) => void;
 
@@ -18,20 +19,25 @@ export function ListField({ label, def, info, path, value }: FieldProps<ListDef>
   const form = useForm();
   const id = useId();
   const box = useRef<HTMLFieldSetElement>(null);
-  const focusNext = useRef<string | null>(null);
+  const focusNext = useRef<{ selector: string; until: number } | null>(null);
   const items = Array.isArray(value) ? value : null;
   const problems = form.problemsAt(pointerOf(path));
   const full = def.max !== undefined && (items?.length ?? 0) >= def.max;
 
+  // An added item shows only once its edit has landed and the record has been read again, which
+  // can take renders: the target waits for it (seen failing on CI). An edit that never lands
+  // gives up after FOCUS_WAIT_MS, so focus can't jump into the list later.
   useEffect(() => {
-    const selector = focusNext.current;
-    if (!selector) return;
+    const next = focusNext.current;
+    if (!next) return;
+    const target = box.current?.querySelector<HTMLElement>(next.selector);
+    if (!target && performance.now() < next.until) return;
     focusNext.current = null;
-    box.current?.querySelector<HTMLElement>(selector)?.focus();
+    target?.focus();
   });
 
   const change: Change = (said, make, focus) => {
-    focusNext.current = focus;
+    focusNext.current = { selector: focus, until: performance.now() + FOCUS_WAIT_MS };
     form.update(path, (current) => make(Array.isArray(current) ? current : []), said);
   };
   const add = () =>
