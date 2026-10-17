@@ -125,13 +125,18 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 
 **Why.** These are project-ascent's measured rules (M19, M154, M302). An installed app is resumed rather than navigated, so the browser rarely checks on its own, and a forced reload loses work.
 
-### D17. RNG: sfc32 seeded by splitmix32, with fork-by-label streams; FNV-1a over UTF-8. PROPOSED until M1.1, 2026-10-17
+### D17. RNG: sfc32 seeded by splitmix32, with fork-by-label streams; FNV-1a over UTF-8. LOCKED, 2026-10-17 (M1.1)
 
 **Why.**
 - sfc32 is chooser-of-the-dead's choice. It is statistically stronger than the mulberry32 copied through the other repos.
 - Forking by label keeps a stream independent of how many numbers other systems drew.
 - FNV-1a over UTF-8 bytes, rather than UTF-16 code units (landnam), matches the published test vectors, so C++ or C# ports agree.
 - `@eb/core`'s `fnv1a32` already follows this.
+
+**As built (M1.1).**
+- The algorithm and golden vectors are in [specs/rng.md](specs/rng.md).
+- A stream's state is plain data, so it lives in game state and a reload never rerolls.
+- Changing a golden vector changes every seeded game, so it needs a new decision.
 
 ### D18. One CI workflow verifies and deploys. LOCKED, 2026-10-17
 
