@@ -205,15 +205,20 @@ facts: {
 
 `condition()` from `@eb/schema` is a field that holds a condition: `when: condition().optional()`.
 
-- **The zod schema** encodes the same shape rules as `checkCondition`; a property test holds the two together over a mix of sound and broken conditions.
-- **JSON Schema.** The export puts the tree once under `$defs["eb-condition"]`, marked `"x-eb-condition": true`, and points each field at it.
+- **Text or tree** (D31, M2.4, Evan's call). A record file may hold the condition's text, `"when": "hold.count(medkit) >= 2"`, or its tree.
+  - Validation parses the text with the game's facts, so a fact's one argument may go unnamed. Text that doesn't parse is E011, with the parser's words and column. Its other problems (E012 to E014), its references in "used by" and the lint's warnings all point at the field, since text has no places inside it.
+  - The compiler packs the tree (`packValue`), so the runtime, saves and replays only ever see trees. A project gives the same pack hash whichever form its conditions are written in.
+  - The editor keeps the form a field holds and writes text for a new one ([editor-forms.md](editor-forms.md#fields)).
+  - **The grammar is now part of the project format.** It can never change in a way that reads old text differently. Its round trip is property-tested (above).
+- **The zod schema** takes any text, or a tree with the same shape rules as `checkCondition`; a property test holds the tree's rules together with `checkCondition`'s over a mix of sound and broken conditions.
+- **JSON Schema.** The export puts the field once under `$defs["eb-condition"]` (text or `$defs["eb-condition-tree"]`), marked `"x-eb-condition": true`, and points each field at it.
 - **`validateRecords(types, records, { facts })`** handles each condition field:
   - It reports `checkCondition`'s issues (E011 to E014) at the field's path plus the issue's path, checking references against the project's records. zod's own E001 issues inside a condition are dropped, so each problem is reported once.
   - Once the shape is sound, it adds the records the condition names to "used by". These are ref arguments, and values compared with ref facts.
   - Once there are no errors at all, it runs the lint (W102 to W104).
 - **Without `facts`,** only the shape is checked. The lint still runs, with every fact treated as one with no domain, so `a.x and not a.x` is still W102.
 - **Where `facts` comes from.** `compileProject(source, types, { facts })` passes it through. The CLI's `--types` module may export `facts`, usually `factCatalog(modules)`.
-- **A union.** A condition inside a union option is found only when the option parses, so a broken one there gets zod's E001 rather than E011.
+- **A union.** A condition inside a union option is found only when the option parses, so a broken tree there gets zod's E001 rather than E011. Text always lets the option parse, so text there gets E011.
 
 ## Previews
 
@@ -260,7 +265,7 @@ The tests check that:
 
 ## Open questions
 
-1. **Text in JSON.** Should a condition field also accept the text form (`"when": "hold.count(medkit) >= 2"`), parsed when the pack is built? Hand-written content would be far shorter, and the pack would still hold trees. Decide with the condition editor (Phase 2).
+1. **Text in JSON.** Settled in M2.4 (D31, Evan's call): a condition field takes the text form or the tree, and the pack holds the tree ([Conditions in records](#conditions-in-records)).
 2. **Flag lint.** rule-or-drool reports flags that are set but never read, or read but never set. That needs effects to say which facts they change, so it waits for kits (M3) or trigger sheets.
 3. **Negated wording.** A fact's own `describe` is used for its tests, but `not` of a yes/no test always reads "not …". Facts may want a negative form ("has no medkits").
 4. **Witnesses.** The lint could show the values that make a condition true or false, for the editor to explain W102 and W103.

@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "description": "Pure simulation kernel: no DOM, no clock, no Math.random. Runs the same in every browser, Node and workers.",
   "type": "module",
+  "//sideEffects": "Nothing runs on import that a module needs from another, so a bundle keeps only what is used (M2.4: the record form loads late).",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },

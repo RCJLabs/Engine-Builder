@@ -107,3 +107,13 @@ export function WrongShape(props: { value: unknown; what: string; canEdit: boole
     </div>
   );
 }
+
+/** A fieldset's legend: a list's, a map's or a group's label, marked when optional. */
+export function Legend({ label, info }: { label: string; info: FieldInfo }) {
+  return (
+    <legend class="form-legend">
+      {label}
+      {info.optional ? <span class="form-optional"> (optional)</span> : null}
+    </legend>
+  );
+}

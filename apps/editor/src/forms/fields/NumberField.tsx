@@ -11,7 +11,7 @@ type NumberDef = Extract<ValueDef, { kind: 'int' | 'number' }>;
  * The keyboard a phone shows. A field that can be negative gets the full one: iOS's number pads
  * have no minus key (WebKit bug 193825). Otherwise digits, with a decimal point unless whole.
  */
-const inputMode = (def: NumberDef) =>
+export const inputMode = (def: NumberDef) =>
   def.min === undefined || def.min < 0 ? 'text' : def.kind === 'int' ? 'numeric' : 'decimal';
 
 /**
@@ -48,6 +48,7 @@ export function NumberField({ label, def, info, path, value, quietLabel }: Field
         type="text"
         inputMode={inputMode(def)}
         autoComplete="off"
+        data-project-field
         value={typed}
         readOnly={!form.canEdit}
         aria-invalid={shown.length > 0 ? 'true' : undefined}

@@ -1,6 +1,6 @@
 import type { ValueDef } from '@eb/schema';
 import { useId } from 'preact/hooks';
-import { FieldNotes, type FieldProps, WrongShape } from '../FieldShell.tsx';
+import { FieldNotes, type FieldProps, Legend, WrongShape } from '../FieldShell.tsx';
 import { FieldView } from '../FieldView.tsx';
 import { pointerOf, useForm } from '../formContext.ts';
 import { labelOf } from '../labels.ts';
@@ -22,10 +22,7 @@ export function GroupField({ label, def, info, path, value }: FieldProps<GroupDe
   const clear = info.optional && value !== undefined && form.canEdit;
   return (
     <fieldset class="form-group" aria-describedby={problems.length > 0 ? `${id}-problems` : undefined}>
-      <legend class="form-legend">
-        {label}
-        {info.optional ? <span class="form-optional"> (optional)</span> : null}
-      </legend>
+      <Legend label={label} info={info} />
       {value === undefined ? (
         <div class="form-actions">
           <button

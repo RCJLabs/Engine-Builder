@@ -82,6 +82,7 @@ describe('typeFromFile', () => {
     ],
     ['an unknown field in a group', { record: { wins: 1, draws: 2 } }, 'E001 /record/draws: Unknown field "draws"'],
     ['a colour without its hash', { colour: '3a7bd5' }, 'E001 /colour: Expected a colour like "#3a7bd5"'],
+    ['a colour in three digits', { colour: '#3a7' }, 'E001 /colour: Expected a colour like "#3a7bd5"'],
     [
       'an asset of the wrong kind',
       { portrait: 'portraits/spiculus.txt' },

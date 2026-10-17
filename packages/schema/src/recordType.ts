@@ -20,6 +20,12 @@ export interface RecordType<T = unknown> extends RecordTypeDefinition<T> {
   readonly targets: readonly string[];
 }
 
+/**
+ * A name every JavaScript object already has, such as `toString` or `constructor`. zod reads a
+ * field as `value[name]`, so a record that leaves such a field out would seem to hold a function.
+ */
+export const isBuiltInName = (name: string): boolean => Object.hasOwn(Object.prototype, name);
+
 /** A record type whose schema breaks the rules in docs/specs/records.md: a programmer error. */
 export class SchemaError extends Error {
   /** Where in the schema, like `effects[].item`; empty for the top level. */
@@ -68,7 +74,11 @@ function checkSchema(schema: z.core.$ZodType, at: string, check: Check): void {
   switch (shape.kind) {
     case 'object':
       if (!shape.strict) fail('objects must be z.strictObject, so a misspelled field is an error');
-      for (const [key, child] of Object.entries(shape.shape)) checkSchema(child, at ? `${at}.${key}` : key, check);
+      for (const [key, child] of Object.entries(shape.shape)) {
+        if (isBuiltInName(key))
+          fail(`a field named "${key}" would read as JavaScript's own ${key} when a record leaves it out`);
+        checkSchema(child, at ? `${at}.${key}` : key, check);
+      }
       break;
     case 'array':
       checkSchema(shape.element, `${at}[]`, check);

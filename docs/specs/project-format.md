@@ -16,10 +16,13 @@ The editor and the CLI follow it, so the same files give the same diagnostics an
 my-game/
   project.json              id, name, version
   records/<type>/<id>.json  one record per file
+  types/<type>.json         the project's own record types, as fields (M2.4)
+  assets/                   files that asset fields name (M2.4; M2.7 imports them)
 ```
 
-- **Later folders.** Later milestones add `scenes/`, `ui/`, `scripts/`, `dialogue/`, `assets/` and `locales/` ([architecture](../architecture.md#project-format)).
-- **What gets read.** The compiler reads only `project.json` and `records/`. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
+- **Later folders.** Later milestones add `scenes/`, `ui/`, `scripts/`, `dialogue/` and `locales/` ([architecture](../architecture.md#project-format)).
+- **What gets read.** The compiler reads `project.json`, `records/` and `types/`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
+- **Type files** are specified in [type-files.md](type-files.md).
 - **Hidden entries are never read.** These are names that start with `.` (`.git`, `.DS_Store`, `.gitkeep`) and the `__MACOSX` folder that macOS adds to zips.
 
 ## project.json (format 1)
@@ -75,7 +78,7 @@ The compiler reads only through a `ProjectSource`:
 
 A project travels as a zip: the editor exports one, imports one, and the CLI reads one.
 
-- **What a project carries** (`projectFiles`): project.json and every file in the project's folders (`PROJECT_FOLDERS`: `records`, `scenes`, `ui`, `scripts`, `dialogue`, `assets`, `locales`), sorted, with hidden entries left out. Anything else beside them, such as a game repo's README, `package.json` or `node_modules`, is not the project's and stays behind.
+- **What a project carries** (`projectFiles`): project.json and every file in the project's folders (`PROJECT_FOLDERS`: `records`, `types`, `scenes`, `ui`, `scripts`, `dialogue`, `assets`, `locales`), sorted, with hidden entries left out. Anything else beside them, such as a game repo's README, `package.json` or `node_modules`, is not the project's and stays behind.
 - **Export** (`zipProject(source, top)`):
   - the project's files, inside one top folder (the editor uses the project's id);
   - entries in path order, every one dated midnight, 1 January 1980, and deflated at level 6.
@@ -88,17 +91,19 @@ A project travels as a zip: the editor exports one, imports one, and the CLI rea
 
 ## Compiling
 
-`compileProject(source, types)` returns `{ diagnostics, pack, usedBy, records }`:
+`compileProject(source, types, options?)` returns `{ diagnostics, pack, usedBy, records, dataTypes }`. `types` are the game's code types, and the project's own `types/` join them:
 
 1. **project.json**:
    - missing: E008;
    - not UTF-8 JSON: E007;
    - a newer format: E009;
    - otherwise each schema problem is E008, at its field.
-2. **Record files** are sorted into records, misplaced files (E010) and ignored files (W101), then parsed (E007).
-3. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, each with its record's file.
-4. **Diagnostics** are sorted in the order records.md gives.
-5. **The pack** is built only when no diagnostic is an error. Warnings don't stop it.
+2. **Type files** in `types/` are read beside the code types: E007, E015 to E017 and W105 ([type-files.md](type-files.md#compiling)). A type whose file has problems still names its type; its records aren't checked until it is fixed.
+3. **`assets/`** is listed, for asset fields to name (E018).
+4. **Record files** are sorted into records, misplaced files (E010) and ignored files (W101), then parsed (E007).
+5. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014 and E018, each with its record's file.
+6. **Diagnostics** are sorted in the order records.md gives.
+7. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees.
 
 The result doesn't depend on the order a source lists files in, or on the files' formatting or key order (property-tested).
 
@@ -113,6 +118,8 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 | E009 | error | the project needs a newer engine | `project.json` | `/format` |
 | E010 | error | a JSON file under `records/` is not at `records/<type>/<id>.json` | the file | empty |
 | W101 | warning | a file under `records/` that the compiler ignores | the file | empty |
+
+Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)).
 
 ## Content packs (format 1)
 
@@ -151,8 +158,9 @@ pnpm eb build <project> [--types <module>] [--out <file>] [--json]
 
 - **`<project>`** is a project folder or a zip of one.
 - **`--types`** names a JS or TS module whose `recordTypes` export lists record types made by `defineRecordType`.
-  - Until kits exist (M3), this is how the CLI learns a project's types.
-  - Without it every record is E002, and the CLI says why.
+  - Since M2.4 a project's own `types/` needs no module: `eb validate` reads them as the editor does.
+  - Until kits exist (M3), a module is how the CLI learns a game's code types.
+  - When records are of types neither defines, the CLI says where types come from.
 - **Output.**
   - One line per diagnostic, `file#/json/pointer: severity code: message`, with the pointer written as a URI fragment (RFC 6901).
   - Then a summary line, with the hash when the pack builds.
@@ -170,4 +178,4 @@ pnpm eb build <project> [--types <module>] [--out <file>] [--json]
    Record files then stay pure data, with no `$schema` key for strict objects to reject. It is listed under M2.8.
 2. **Duplicate keys in a JSON file.** `JSON.parse` silently keeps the last one, and a git merge can produce duplicates. A warning would need a JSON reader that sees them.
 3. **Zip size.** Settled in M2.1: `zipSource` takes limits, and the editor's import allows 10,000 files and 100 MB ([Zips](#zips)).
-4. **Where a project's record types come from.** `project.json` gains a `modules` list with M3.3's kits, and the CLI then resolves those modules instead of taking `--types`.
+4. **Where a project's record types come from.** Its own types are in `types/` since M2.4 (D31). Code types still come from `--types`: `project.json` gains a `modules` list with M3.3's kits, and the CLI then resolves those modules instead.

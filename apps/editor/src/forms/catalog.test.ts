@@ -23,6 +23,13 @@ describe('readCatalog', () => {
     expect(catalog.broken.size).toBe(0);
   });
 
+  it('sorts records however the folder lists them', async () => {
+    const files = Object.entries(readFixture(FIXTURE_LUDUS)).reverse();
+    const catalog = await readCatalog(memorySource(Object.fromEntries(files)));
+    expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
+    expect(catalog.records.get('weapon')).toEqual(['gladius', 'net', 'trident']);
+  });
+
   it('names a type whose file has problems, with its first problem, and types only records name', async () => {
     const catalog = await readCatalog(
       ludus({
@@ -73,6 +80,9 @@ describe('routing problems to fields', () => {
     if (!gladiator) throw new Error('no gladiator type');
     const value = { skills: ['a', ''], kit: { net: 1 }, fights: { all: [{ fact: 'A' }] }, horse: 1 };
     const shown = fieldPointers(gladiator, value);
+    // Every field the type lists shows, set or not, so a problem with a missing one has a place.
+    expect(shown.has('/portrait')).toBe(true);
+    expect(shown.has('/record/wins')).toBe(true);
     expect(
       [...shown].filter((p) => p.startsWith('/skills') || p.startsWith('/kit') || p === '' || p === '/fights'),
     ).toEqual(['', '/skills', '/skills/0', '/skills/1', '/kit', '/kit/net', '/fights']);

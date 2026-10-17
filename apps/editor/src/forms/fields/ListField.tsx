@@ -1,11 +1,13 @@
 import type { ValueDef } from '@eb/schema';
 import { useEffect, useId, useRef } from 'preact/hooks';
-import { FieldNotes, type FieldProps, WrongShape } from '../FieldShell.tsx';
+import { FieldNotes, type FieldProps, Legend, WrongShape } from '../FieldShell.tsx';
 import { FieldView } from '../FieldView.tsx';
 import { pointerOf, useForm } from '../formContext.ts';
-import { emptyValue, moveItem } from '../values.ts';
+import { emptyValue, moveItem, type Path } from '../values.ts';
 
 type ListDef = Extract<ValueDef, { kind: 'list' }>;
+/** One change to the list as a step, and where focus goes once it has rendered. */
+type Change = (said: string, make: (list: unknown[]) => unknown[], focus: string) => void;
 
 /**
  * A list: its items in order, each with buttons to move it up, down or out, and one to add an
@@ -28,95 +30,30 @@ export function ListField({ label, def, info, path, value }: FieldProps<ListDef>
     box.current?.querySelector<HTMLElement>(selector)?.focus();
   });
 
-  const change = (said: string, make: (list: unknown[]) => unknown[], focus: string) => {
+  const change: Change = (said, make, focus) => {
     focusNext.current = focus;
     form.update(path, (current) => make(Array.isArray(current) ? current : []), said);
   };
-  const clear = info.optional && value !== undefined && form.canEdit;
+  const add = () =>
+    change(
+      `Add to ${label}`,
+      (list) => [...list, emptyValue(def.of)],
+      `[data-item="${items?.length ?? 0}"] :is(input, select, textarea, button)`,
+    );
   return (
     <fieldset ref={box} class="form-group" aria-describedby={problems.length > 0 ? `${id}-problems` : undefined}>
-      <legend class="form-legend">
-        {label}
-        {info.optional ? <span class="form-optional"> (optional)</span> : null}
-      </legend>
+      <Legend label={label} info={info} />
       {value !== undefined && items === null ? (
         <WrongShape value={value} what="list" canEdit={form.canEdit} replace={() => form.set(path, [], label)} />
       ) : null}
       {(items ?? []).map((item, i) => (
-        <div class="form-item" key={i} data-item={i}>
-          <div class="form-item-value">
-            <FieldView
-              label={`${label}, item ${i + 1}`}
-              def={def.of}
-              info={{}}
-              path={[...path, i]}
-              value={item}
-              quietLabel
-            />
-          </div>
-          <div class="form-item-tools">
-            <button
-              type="button"
-              class="icon-button"
-              data-move="up"
-              disabled={!form.canEdit || i === 0}
-              aria-label={`Move ${label} item ${i + 1} up`}
-              onClick={() =>
-                change(
-                  `Move in ${label}`,
-                  (list) => moveItem(list, i, i - 1),
-                  `[data-item="${i - 1}"] [data-move="up"]`,
-                )
-              }
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              class="icon-button"
-              data-move="down"
-              disabled={!form.canEdit || i === (items?.length ?? 0) - 1}
-              aria-label={`Move ${label} item ${i + 1} down`}
-              onClick={() =>
-                change(
-                  `Move in ${label}`,
-                  (list) => moveItem(list, i, i + 1),
-                  `[data-item="${i + 1}"] [data-move="down"]`,
-                )
-              }
-            >
-              ↓
-            </button>
-            <button
-              type="button"
-              class="icon-button"
-              disabled={!form.canEdit}
-              aria-label={`Remove ${label} item ${i + 1}`}
-              onClick={() => change(`Remove from ${label}`, (list) => list.filter((_, j) => j !== i), '[data-add]')}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
+        <ListItem key={i} {...{ label, i, item, path, change }} of={def.of} last={i === (items?.length ?? 0) - 1} />
       ))}
       <div class="form-actions">
-        <button
-          type="button"
-          class="button"
-          data-add
-          disabled={!form.canEdit || full}
-          onClick={() => {
-            const at = items?.length ?? 0;
-            change(
-              `Add to ${label}`,
-              (list) => [...list, emptyValue(def.of)],
-              `[data-item="${at}"] :is(input, select, textarea, button)`,
-            );
-          }}
-        >
+        <button type="button" class="button" data-add disabled={!form.canEdit || full} onClick={add}>
           Add to {label}
         </button>
-        {clear ? (
+        {info.optional && value !== undefined && form.canEdit ? (
           <button type="button" class="button" onClick={() => form.set(path, undefined, label)}>
             Clear {label}
           </button>
@@ -124,5 +61,58 @@ export function ListField({ label, def, info, path, value }: FieldProps<ListDef>
       </div>
       <FieldNotes id={id} info={info} shown={problems} />
     </fieldset>
+  );
+}
+
+function ListItem(props: {
+  label: string;
+  i: number;
+  last: boolean;
+  of: ValueDef;
+  path: Path;
+  item: unknown;
+  change: Change;
+}) {
+  const { label, i, last, of, path, item, change } = props;
+  const { canEdit } = useForm();
+  const move = (to: number, way: 'up' | 'down') =>
+    change(`Move in ${label}`, (list) => moveItem(list, i, to), `[data-item="${to}"] [data-move="${way}"]`);
+  return (
+    <div class="form-item" data-item={i}>
+      <div class="form-item-value">
+        <FieldView label={`${label}, item ${i + 1}`} def={of} info={{}} path={[...path, i]} value={item} quietLabel />
+      </div>
+      <div class="form-item-tools">
+        <button
+          type="button"
+          class="icon-button"
+          data-move="up"
+          disabled={!canEdit || i === 0}
+          aria-label={`Move ${label} item ${i + 1} up`}
+          onClick={() => move(i - 1, 'up')}
+        >
+          ↑
+        </button>
+        <button
+          type="button"
+          class="icon-button"
+          data-move="down"
+          disabled={!canEdit || last}
+          aria-label={`Move ${label} item ${i + 1} down`}
+          onClick={() => move(i + 1, 'down')}
+        >
+          ↓
+        </button>
+        <button
+          type="button"
+          class="icon-button"
+          disabled={!canEdit}
+          aria-label={`Remove ${label} item ${i + 1}`}
+          onClick={() => change(`Remove from ${label}`, (list) => list.filter((_, j) => j !== i), '[data-add]')}
+        >
+          ✕
+        </button>
+      </div>
+    </div>
   );
 }

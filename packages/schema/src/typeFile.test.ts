@@ -81,6 +81,12 @@ describe('readTypeFile', () => {
     ]);
   });
 
+  it('refuses a field name every JavaScript object already has', () => {
+    expect(problems({ title: 'T', fields: { toString: { kind: 'int', optional: true } } })).toEqual([
+      '/fields/toString: Invalid key: Every JavaScript object already has this name, so a record without the field would seem to have it',
+    ]);
+  });
+
   it('checks what the shape cannot: bounds in order, nothing twice', () => {
     expect(
       problems({

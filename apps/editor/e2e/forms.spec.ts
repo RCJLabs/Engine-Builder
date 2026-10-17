@@ -27,6 +27,11 @@ test('edits text, numbers, choices and yes or no, and keeps them through a reloa
     free: true,
     story: 'Freed by Nero.',
   });
+  // An optional text field emptied leaves the record.
+  await form.getByLabel('Story').fill('');
+  await expect.poll(async () => Object.keys((await stored(page, SPICULUS)) as object)).not.toContain('story');
+  // The phone keyboard each number asks for: digits for a whole number that can't be negative.
+  await expect(form.getByLabel('Might', { exact: true })).toHaveAttribute('inputmode', 'numeric');
   // The slider moves the same value, and the box follows it.
   await form.getByLabel('Might, slider').focus();
   await page.keyboard.press('End');
@@ -51,9 +56,14 @@ test('undoes typing in a field as one step, named for the field and the record',
   await page.keyboard.type(' II');
   await expect(page.getByRole('button', { name: 'Undo: Edit Name in spiculus' })).toBeEnabled();
   await spiculus(page).toMatchObject({ name: 'Spiculus II' });
+  // The editor's undo, not the browser's own in the box: the step goes to redo.
   await page.keyboard.press('Control+z');
   await expect(name).toHaveValue('Spiculus');
+  await expect(page.getByRole('button', { name: 'Redo: Edit Name in spiculus' })).toBeEnabled();
   await spiculus(page).toMatchObject({ name: 'Spiculus' });
+  // Redo: the form reads the file again, rather than showing what it read first.
+  await page.keyboard.press('Control+Shift+Z');
+  await expect(name).toHaveValue('Spiculus II');
 });
 
 test('chooses a record from a list it searches, and clears an optional field', async ({ page }) => {
@@ -139,7 +149,7 @@ test('shows the compiler’s problems beside their fields, and keeps what isn’
     'records/gladiator/priscus.json': JSON.stringify({
       name: 'Priscus',
       might: 65,
-      style: 'retiarius',
+      style: 'hoplomachus',
       school: 'ludus-magnus',
       free: false,
       skills: [],
@@ -148,6 +158,10 @@ test('shows the compiler’s problems beside their fields, and keeps what isn’
     }),
   });
   const form = await openRecord(page, 'Gladiator', 'priscus');
+  // A value the type doesn't list stays on show, marked, with the compiler's word on it.
+  await expect(form.getByLabel('Style')).toHaveValue('hoplomachus');
+  await expect(form.getByLabel('Style').locator('option:checked')).toHaveText('hoplomachus (not one of the choices)');
+  await expect(form).toContainText('Expected one of: retiarius, murmillo, secutor, thraex');
   await expect(form).toContainText('The type has no field “horse”.');
   await form.getByRole('button', { name: 'Remove “horse”' }).click();
   await expect
@@ -168,7 +182,11 @@ test('shows the compiler’s problems beside their fields, and keeps what isn’
   await expect(form.locator('.form-field', { has: page.getByLabel('Might', { exact: true }) })).toContainText(
     'Not a number yet',
   );
-  await expect.poll(() => stored(page, 'records/gladiator/priscus.json')).toMatchObject({ might: 150 });
+  // Saves land in order, so once a later edit is in the file, "7x" would be too had it been written.
+  await form.getByLabel('Name', { exact: true }).fill('Priscus Secundus');
+  await expect
+    .poll(() => stored(page, 'records/gladiator/priscus.json'))
+    .toMatchObject({ name: 'Priscus Secundus', might: 150 });
 });
 
 test('creates a record with its type’s fields to fill in, deletes it, and undo brings it back', async ({ page }) => {
@@ -182,6 +200,10 @@ test('creates a record with its type’s fields to fill in, deletes it, and undo
   await expect(form).toBeVisible();
   await expect(form).toContainText('Write something here');
   await expect(form).toContainText('No school chosen yet');
+  // The Project panel lists it, chosen.
+  await expect(
+    page.getByRole('region', { name: 'Records' }).getByRole('button', { name: 'carpophorus-the-bold' }),
+  ).toHaveAttribute('aria-current', 'true');
   await expect
     .poll(() => stored(page, 'records/gladiator/carpophorus-the-bold.json'))
     .toEqual({

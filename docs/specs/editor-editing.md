@@ -139,8 +139,8 @@ The Project panel's open project has **Name** and **Version** fields (`projectEd
 - **The top bar** has Undo and Redo while a project is open. They are 44 px, named for the step they would take ("Undo: Rename the project"), and disabled when there is none.
   - On a phone the version stamp gives way to them. The console and the Project panel still say which build is running.
 - **Keys.** Ctrl/⌘+Z undoes. Ctrl/⌘+Shift+Z and Ctrl+Y redo.
-  - Other text fields keep the browser's own undo: the palette's field and the new project's name.
-  - In the project's own fields, the editor's undo takes over from the keys. The browser's own undo can't step back past a value set by script, which is how the fields show the stored value, so it would lose track of the project.
+  - Other text fields keep the browser's own undo: the palette's field, a picker's search, the new project's name and a new record's name.
+  - In the project's own fields, the editor's undo takes over from the keys. Those are the project's name and version and, since M2.4, every box of a record form that writes as it is typed in (`data-project-field`). A planted bug in M2.4 found the forms' boxes left out: Ctrl+Z there typed the old text back as a new edit. The browser's own undo can't step back past a value set by script, which is how the fields show the stored value, so it would lose track of the project.
   - The Edit menu and a shake on iOS arrive as `beforeinput` events with `historyUndo` or `historyRedo`, which the editor takes over too. They fire only while the browser's own undo has typing of its own in the field, so they reach the editor's undo for the latest typing, not for every step.
 - **The palette** offers "Undo: …" and "Redo: …".
 - **The console** notes each one: "Undone: Rename the project."

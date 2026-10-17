@@ -46,6 +46,7 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
         spellcheck={false}
         autocapitalize="none"
         autoComplete="off"
+        data-project-field
         placeholder="like: arena.day and not crowd.angry"
         aria-invalid={shown.length > 0 ? 'true' : undefined}
         aria-describedby={

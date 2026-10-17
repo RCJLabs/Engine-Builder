@@ -23,13 +23,9 @@ export function emptyValue(def: ValueDef): unknown {
     case 'condition':
       return '';
     case 'int':
-    case 'number': {
-      // Zero when the bounds allow it, else the bound nearest zero.
-      const low = def.min ?? Number.NEGATIVE_INFINITY;
-      const high = def.max ?? Number.POSITIVE_INFINITY;
-      const near = Math.min(Math.max(0, low), high);
-      return def.kind === 'int' ? Math.ceil(near) : near;
-    }
+    case 'number':
+      // Zero when the bounds allow it, else the bound nearest zero (an int's bounds are whole).
+      return Math.min(Math.max(0, def.min ?? Number.NEGATIVE_INFINITY), def.max ?? Number.POSITIVE_INFINITY);
     case 'bool':
       return false;
     case 'enum':

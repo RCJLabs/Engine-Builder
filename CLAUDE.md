@@ -42,8 +42,8 @@ pnpm test         # Vitest
 pnpm build        # apps/editor/dist, then the 3D spike into apps/editor/dist/spikes/3d
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
-pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
-pnpm eb build <project> --types <module> --out <file>
+pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
+pnpm eb build <project> [--types <module>] --out <file>
 pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
 ```
 
@@ -62,11 +62,14 @@ apps/editor/           the editor PWA
                        opened.ts is the open project (M2.3)
   src/editing/         editing safety (M2.3): the command log (history.ts), layout-keeping JSON edits, the working
                        copy, autosave, the journal, folder saves, the project lock and tab hand-over; current.ts is
-                       the app's one Editing
+                       the app's one Editing; draft.ts holds typed text until its edit lands
+  src/forms/           record forms (M2.4): the catalog (types, records, assets), values.ts (paths, empty values,
+                       key order), problems.ts (the compiler's diagnostics per field), one component per field kind
+                       in fields/, the picker, RecordForm and the Project panel's RecordsBrowser
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
-                       targets, axe at every impact)
+                       targets, axe at every impact); ludus.ts brings the ludus fixture into the editor
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
@@ -78,11 +81,14 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
   test/fixtures/       salvage-run/: salvage run's content as a project folder, which eb sim plays;
                        saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
-packages/schema/       record types (strict zod), condition(), rollEffect() and the time effects,
-                       validation with E/W codes, JSON Schema export; not pure
+packages/schema/       record types (strict zod), condition(), asset(), rollEffect() and the time effects,
+                       validation with E/W codes, JSON Schema export; type files: typeFile.ts (the format) and
+                       typeSchema.ts (the zod it becomes); packValue (text conditions to trees); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
-packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs; not pure
+packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
+                       readTypes (types/ beside the code types); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
+  test/fixtures/ludus/ a project made only of data (types/, records, an asset): compiles with no --types module
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts

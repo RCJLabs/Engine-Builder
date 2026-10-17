@@ -2,7 +2,7 @@
 
 A browser-based game engine and editor. Build worlds, missions, scripts, menus and UI on a PC, tablet or phone, then ship the game as a PWA on GitHub Pages or as a Play Store app (TWA).
 
-**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Edits save by themselves, undo and redo, and stay whole through a crash, with one editing tab per project. Forms for records come next. The engine's pure core is built, through the 3D spike:
+**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Edits save by themselves, undo and redo, and stay whole through a crash, with one editing tab per project. A project's record types are data in its `types/` folder, and each record is edited in a form drawn from its type, with the compiler's problems beside each field. Records tables come next. The engine's pure core is built, through the 3D spike:
 - seeded RNG and state hashes;
 - records, the project format and the compiler;
 - the sim kernel, conditions and time;
@@ -60,8 +60,8 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 | `pnpm build` | Builds the editor into `apps/editor/dist` |
 | `pnpm e2e` | Playwright against the built editor at phone, landscape and desktop sizes, with axe checks |
 | `pnpm format` | Biome autofix |
-| `pnpm eb validate <project> --types <module>` | Checks a project folder or zip and prints its diagnostics and pack hash ([spec](docs/specs/project-format.md#the-cli)) |
-| `pnpm eb build <project> --types <module> --out <file>` | The same, then writes the content pack |
+| `pnpm eb validate <project> [--types <module>]` | Checks a project folder or zip and prints its diagnostics and pack hash ([spec](docs/specs/project-format.md#the-cli)). A project whose types are all in its `types/` needs no module |
+| `pnpm eb build <project> [--types <module>] --out <file>` | The same, then writes the content pack |
 | `pnpm --filter @eb/editor icons` | Re-renders the PWA icons from `apps/editor/public/icons/icon.svg` |
 
 ## Layout
@@ -69,7 +69,7 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 ```
 apps/editor            the editor PWA (Preact + signals, Vite, vite-plugin-pwa)
 packages/core          the pure simulation kernel (no DOM, clock or Math.random)
-packages/schema        record types as strict zod schemas, validation with coded diagnostics, JSON Schema export
+packages/schema        record types as strict zod schemas, type files, validation with coded diagnostics, JSON Schema export
 packages/compiler      reads a project (memory, OPFS, folder or zip), checks it and builds content packs
 tools/cli              eb validate and eb build
 tools/lint-boundaries  the purity lint for packages marked "eb": { "pure": true }

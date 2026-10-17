@@ -1,7 +1,7 @@
-import { type FactCatalog, formatRef, isRecordId, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
-import { z } from 'zod';
+import { type FactCatalog, formatRef, isRecordId, parseRef, type RecordIndex } from '@eb/core';
 import { checkConditionField } from './conditions.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
+import { schemaIssues } from './issues.ts';
 import type { RecordType } from './recordType.ts';
 import { type FoundRef, scanRecord } from './walk.ts';
 
@@ -178,51 +178,4 @@ function sortUsages(usages: ReadonlyMap<string, Usage[]>): ReadonlyMap<string, r
     compareText(a.from, b.from) || compareText(a.path, b.path) || compareText(a.file ?? '', b.file ?? '');
   const keys = [...usages.keys()].sort(compareText);
   return new Map(keys.map((key) => [key, Object.freeze([...(usages.get(key) ?? [])].sort(byUsage))]));
-}
-
-/** A schema problem: where it is, as a JSON Pointer, and what is wrong. */
-export interface SchemaIssue {
-  readonly path: string;
-  readonly message: string;
-}
-
-const toPointer = (path: readonly PropertyKey[]): string =>
-  path.map((key) => `/${pointerSegment(String(key))}`).join('');
-
-/**
- * zod's issues for a value, as JSON Pointer paths and messages, with a field-level entry for each
- * unknown or missing field. Records get these as E001; the compiler reuses them for project.json.
- */
-export function schemaIssues(schema: z.core.$ZodType, value: unknown): SchemaIssue[] {
-  const result = z.safeParse(schema, value);
-  if (result.success) return [];
-  return result.error.issues.flatMap((issue): SchemaIssue[] => {
-    const path = toPointer(issue.path);
-    if (issue.code === 'unrecognized_keys') {
-      return issue.keys.map((key) => ({ path: `${path}/${pointerSegment(key)}`, message: `Unknown field "${key}"` }));
-    }
-    if (issue.code === 'invalid_type' && isMissingField(value, issue.path)) {
-      return [{ path, message: `Missing field "${String(issue.path[issue.path.length - 1])}"` }];
-    }
-    if (issue.code === 'invalid_key') {
-      return [{ path, message: `Invalid key: ${issue.issues[0]?.message ?? issue.message}` }];
-    }
-    return [{ path, message: issue.message }];
-  });
-}
-
-function isMissingField(root: unknown, path: readonly PropertyKey[]): boolean {
-  let node = root;
-  for (const key of path.slice(0, -1)) {
-    if (typeof node !== 'object' || node === null) return false;
-    node = (node as Record<PropertyKey, unknown>)[key];
-  }
-  const last = path[path.length - 1];
-  return (
-    last !== undefined &&
-    typeof node === 'object' &&
-    node !== null &&
-    !Array.isArray(node) &&
-    !Object.hasOwn(node, last)
-  );
 }

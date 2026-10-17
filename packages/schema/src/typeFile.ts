@@ -6,7 +6,8 @@
 import { pointerSegment, RECORD_ID_PATTERN } from '@eb/core';
 import { z } from 'zod';
 import { ASSET_KINDS, type AssetKind } from './assets.ts';
-import { type SchemaIssue, schemaIssues } from './validate.ts';
+import { type SchemaIssue, schemaIssues } from './issues.ts';
+import { isBuiltInName } from './recordType.ts';
 
 /** The kinds a field can be. The names follow the fact domains conditions use (bool, int, enum, ref, text). */
 export const FIELD_KINDS = [
@@ -128,9 +129,15 @@ const keyDef = z.discriminatedUnion('kind', variants(['ref', 'enum'], {}), {
   error: (issue) => (issue.code === 'invalid_union' ? 'A map’s key is a ref or an enum' : undefined),
 });
 const fieldsDef = z.record(
-  z.string().regex(FIELD_NAME_PATTERN, {
-    error: 'Field names start with a letter, then letters, digits, "_" or "-", up to 64 characters',
-  }),
+  z
+    .string()
+    .regex(FIELD_NAME_PATTERN, {
+      error: 'Field names start with a letter, then letters, digits, "_" or "-", up to 64 characters',
+      abort: true,
+    })
+    .refine((name) => !isBuiltInName(name), {
+      error: 'Every JavaScript object already has this name, so a record without the field would seem to have it',
+    }),
   fieldDef,
 );
 

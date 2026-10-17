@@ -26,6 +26,7 @@ export {
   type Severity,
   severityOf,
 } from './diagnostics.ts';
+export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema } from './jsonSchema.ts';
 export { packValue } from './packValue.ts';
 export { defineRecordType, type RecordType, type RecordTypeDefinition, SchemaError } from './recordType.ts';
@@ -51,8 +52,6 @@ export {
 export { COLOUR_PATTERN, type DataType, typeFromFile } from './typeSchema.ts';
 export {
   type RecordInput,
-  type SchemaIssue,
-  schemaIssues,
   type Usage,
   type ValidateOptions,
   type Validation,

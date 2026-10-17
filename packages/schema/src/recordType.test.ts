@@ -79,6 +79,11 @@ describe('defineRecordType', () => {
       'entries[]: Record type "thing" at entries[]: objects must be z.strictObject, so a misspelled field is an error',
     ],
     [
+      'a field every JavaScript object already has',
+      z.strictObject({ stats: z.strictObject({ toString: z.string().optional() }) }),
+      'stats: Record type "thing" at stats: a field named "toString" would read as JavaScript\'s own toString when a record leaves it out',
+    ],
+    [
       'a loose object',
       z.strictObject({ extra: z.looseObject({}) }),
       'extra: Record type "thing" at extra: objects must be z.strictObject, so a misspelled field is an error',

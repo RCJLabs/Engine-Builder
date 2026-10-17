@@ -1,5 +1,6 @@
 import type { TypeFile, ValueDef } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
+import { inputMode } from './fields/NumberField.tsx';
 import {
   defAt,
   emptyValue,
@@ -161,5 +162,15 @@ describe('numbers typed and slid', () => {
     expect(sliderStep(5, 5, false)).toBe(1);
     expect(roundToStep(0.1 + 0.2, 0.01)).toBe(0.3);
     expect(roundToStep(72.4, 1)).toBe(72);
+  });
+});
+
+describe('the keyboard a number field asks a phone for', () => {
+  it('is digits for whole numbers that can’t go below zero, with a point for others, and full when negative', () => {
+    expect(inputMode({ kind: 'int', min: 0 })).toBe('numeric');
+    expect(inputMode({ kind: 'number', min: 0 })).toBe('decimal');
+    // iOS's number pads have no minus key (WebKit bug 193825).
+    expect(inputMode({ kind: 'int', min: -5 })).toBe('text');
+    expect(inputMode({ kind: 'number' })).toBe('text');
   });
 });

@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.4.** Forms from schemas (Phase 2). M2.3 (editing safety) is done. The editor is live at engine.rcjlabs.com, but its last deploy reported plain `http://`, where browsers withhold storage and offline: turn on **Enforce HTTPS** in the repo's Pages settings. Until then the deploy check, which now needs HTTPS, fails on `main`. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
+**CURRENT MILESTONE: M2.5.** Records tables (Phase 2). M2.4 (forms from type files) is done. The editor is live over HTTPS at engine.rcjlabs.com, and the deploy check confirms it. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline. Worth a look on the phone too: type in a record's form in the inspector sheet, and check the keyboard leaves the box in view ([editor-forms.md](docs/specs/editor-forms.md#open-questions), question 1).
 
 How to read this file:
 
@@ -180,8 +180,25 @@ How to read this file:
   - **The deploy check needs HTTPS**: M2.2's first run on `main` passed against `http://engine.rcjlabs.com/`.
   - [`docs/specs/editor-editing.md`](docs/specs/editor-editing.md) is the spec. Forty-one planted bugs; the first run caught 37, three tests were sharpened, and one planted bug was redone.
   - The research added two behaviours, and a last review found a third: saves cut short are finished before the library is listed, so a torn `project.json` never looks broken. Each has a test seen failing.
-- **M2.4 Forms from schemas.** Text, number/slider, enum, a reference picker with search, list, map, colour and asset fields, with inline validation.
-  - A condition field: the text form with live errors and `describeCondition` wording (M1.6). Decide here whether record files may hold the text form too ([conditions.md](docs/specs/conditions.md#open-questions), question 1).
+- **M2.4 Forms from schemas.** Done 2026-10-17.
+  - **Record types are data** (D31, your call). A project's `types/<type>.json` lists a type's fields in twelve kinds: text, int, number, bool, enum, ref, list, map, group, colour, asset and condition. The compiler builds each into the strict zod schema a code type has, so `eb validate` needs no `--types` module for them. New codes E015 to E018 and W105 ([type-files.md](docs/specs/type-files.md)).
+  - **Conditions in files may be text or tree** (D31, your call). The pack always holds the tree, and a project gives the same hash either way.
+  - **Forms in the inspector**, the sheet on a phone, from the Project panel's records list, with New and Delete as steps undo takes back ([editor-forms.md](docs/specs/editor-forms.md)).
+    - Number boxes with a slider when bounded, pickers that search for refs and assets, and lists and maps changed by buttons.
+    - A condition field that reads its condition back in words.
+    - The compiler's own problems beside each field, shown once a field is left.
+  - **A form writes what the field's JSON can hold**, valid or not, as typing it by hand would, and keeps back only what isn't a value yet.
+  - **The forms load when a record is first chosen**, so the editor's start grew 8.2 kB instead of 20.
+  - **Found while building it:**
+    - a race that wiped a key pressed as an edit landed, in M2.3's fields too;
+    - field names like `toString`, which zod reads from every object;
+    - Ctrl+Z in a form's box was the browser's own undo, not the editor's: a planted bug that survived showed it.
+  - Sixty-two planted bugs; the first runs caught 55. Each survivor changed something:
+    - two tests added, for three-digit colours and record order;
+    - a deterministic test for the race;
+    - a later edit as a barrier before checking a save didn't happen;
+    - the undo fix;
+    - dead code removed.
 - **M2.5 Records tables.** Sort, filter, search, bulk edit, duplicate, and a "used by" list.
 - **M2.6 Custom record types.** Define your own data types (players, gladiators, cards) as fields, which become a schema.
 - **M2.7 Asset browser.**
@@ -195,7 +212,7 @@ How to read this file:
 **Done when:**
 
 - On a phone, you create a project with 20 records across 3 types (one of them custom), reload it and export a zip. [you]
-- The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. The phone-made project needs M2.6's custom types.
+- The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. M2.4's part: a project edited through its forms and exported, which the CLI reads with no `--types` module to the hash of the same edits made in Node (`e2e/formsPhone.spec.ts`). A project's types are in its `types/` since M2.4 (D31), so "one of them custom" now means a type designed on the phone, which needs M2.6's designer.
 - A project opened from a git folder on desktop round-trips with zero diff. [auto] `apps/editor/src/projects/roundtrip.test.ts`:
   - M2.1: a git checkout taken into the browser and out as a zip leaves the checkout clean.
   - M2.3: edits saved into the opened folder leave no diff once undone, and a rename changes one line, keeping the file's byte order mark and line ends.
@@ -367,6 +384,9 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor precache (M2.2) | 19 entries, 668.1 KiB, of which the dock's two files are 464.6 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
 | Editor JS, gzip (M2.3) | 58.3 kB at start, up 4.8 kB for editing: the command log, journal client, lock and fields. The OPFS worker is 3.4 kB raw, up from 1.1 kB with the journal | `vite build` output | 2026-10-17 | 1 build |
 | Editor precache (M2.3) | 19 entries, 685.7 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Editor JS, gzip (M2.4) | 66.5 kB at start, up 8.2 kB for type files, the records list and the catalog. The record form and the checks it runs, 13.3 kB, load when a record is first chosen; without that split the start was 78.4 kB. The OPFS worker is 3.2 kB raw | `vite build` output; a build without the split | 2026-10-17 | 1 build each |
+| Editor precache (M2.4) | 20 entries, 750.3 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Form checks, 2,008 records (ludus types, 2,000 gladiators with text conditions) | The catalog, read after every change, 3.8–5.7 ms (median 4.3); one record checked, on every keystroke, 1.15–1.23 ms (median 1.22). In memory: OPFS listing in a browser adds its own time | `node apps/editor/test/form-bench.ts`, Node 22.22, cloud container, medians of 20 and 200 a run | 2026-10-17 | 5 runs |
 | One save through the journal (`project.json`) | 14–20 ms (median 17) from "Saving…" to "All changes saved."; from keystroke to saved 1,027–1,044 ms (median 1,031), nearly all the 1 s wait | headless Chromium 1194 on `vite preview`, cloud container, a fresh context each, timed in the page | 2026-10-17 | 5 runs |
 | Desktop dock start | The shell renders 46–66 ms after navigation starts (median 53). The dock is up at 134–159 ms (median 148), 87–100 ms after the shell (median 90). Served from localhost, so no network time | headless Chromium 1194 on `vite preview`, cloud container, a fresh context each, timed in the page | 2026-10-17 | 5 runs |
 | OPFS reads, 1,001 small files | 3,033 ms one after another, 524 ms all at once | headless Chromium 1194, cloud container, timed in the page | 2026-10-17 | 1 run each |

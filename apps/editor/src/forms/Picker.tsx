@@ -28,37 +28,15 @@ export function Picker(props: {
   const { title, choices, current, empty, choose, close } = props;
   const dialog = useRef<HTMLDialogElement>(null);
   const field = useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState('');
-  const [active, setActive] = useState(0);
   const base = useId();
+  const { query, type, matches, chosen, take, setActive, onKeyDown } = useCombo(choices, choose, () =>
+    dialog.current?.close(),
+  );
 
   useLayoutEffect(() => {
     dialog.current?.showModal();
     field.current?.focus();
   }, []);
-
-  const commands: Command[] = choices.map((choice, i) => ({
-    id: String(i),
-    title: choice.label,
-    ...(choice.keywords ? { keywords: choice.keywords } : {}),
-    run: () => choose(choice.value),
-  }));
-  const matches = matchCommands(commands, query);
-  const chosen = matches[Math.min(Math.max(active, 0), matches.length - 1)];
-  const take = (command: Command) => {
-    // Closed first, as the palette does: the dialog hands focus back to the field's button.
-    dialog.current?.close();
-    command.run();
-  };
-  const onKeyDown = (event: TargetedKeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      setActive(stepActive(matches.indexOf(chosen as Command), matches.length, event.key === 'ArrowDown' ? 1 : -1));
-    } else if (event.key === 'Enter' && chosen) {
-      event.preventDefault();
-      take(chosen);
-    }
-  };
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: the dialog's own Escape closes it from the keyboard; this click is a tap on the backdrop
@@ -91,34 +69,87 @@ export function Picker(props: {
         autoComplete="off"
         autocapitalize="none"
         value={query}
-        onInput={(event) => {
-          setQuery(event.currentTarget.value);
-          setActive(0);
-        }}
+        onInput={(event) => type(event.currentTarget.value)}
         onKeyDown={onKeyDown}
       />
-      <div id={`${base}-options`} class="palette-options" role="listbox" aria-label={title}>
-        {matches.map((command, index) => (
-          // biome-ignore lint/a11y/useFocusableInteractive: combobox pattern: focus stays in the field, which points at the chosen option with aria-activedescendant
-          // biome-ignore lint/a11y/useKeyWithClickEvents: the field drives the list from the keyboard; this click is for pointers and taps
-          <div
-            key={command.id}
-            id={`${base}-${command.id}`}
-            class="palette-option"
-            role="option"
-            aria-selected={command === chosen}
-            onClick={() => take(command)}
-            onPointerMove={() => setActive(index)}
-          >
-            {command.title}
-            {choices[Number(command.id)]?.value === current ? <span class="muted"> (chosen now)</span> : null}
-          </div>
-        ))}
-      </div>
+      <PickerList
+        {...{ base, title, matches, chosen, take, setActive }}
+        current={choices.findIndex((choice) => choice.value === current)}
+      />
       {choices.length === 0 ? <p class="muted palette-empty">{empty}</p> : null}
       {choices.length > 0 && matches.length === 0 ? (
         <p class="muted palette-empty">Nothing matches “{query}”.</p>
       ) : null}
     </dialog>
   );
+}
+
+/** The listbox: the choices that match, the one the arrows are on, and the one the field holds now. */
+function PickerList(props: {
+  base: string;
+  title: string;
+  matches: readonly Command[];
+  chosen: Command | undefined;
+  /** The index of the choice the field holds, or -1. */
+  current: number;
+  take: (command: Command) => void;
+  setActive: (index: number) => void;
+}) {
+  const { base, title, matches, chosen, current, take, setActive } = props;
+  return (
+    <div id={`${base}-options`} class="palette-options" role="listbox" aria-label={title}>
+      {matches.map((command, index) => (
+        // biome-ignore lint/a11y/useFocusableInteractive: combobox pattern: focus stays in the field, which points at the chosen option with aria-activedescendant
+        // biome-ignore lint/a11y/useKeyWithClickEvents: the field drives the list from the keyboard; this click is for pointers and taps
+        <div
+          key={command.id}
+          id={`${base}-${command.id}`}
+          class="palette-option"
+          role="option"
+          aria-selected={command === chosen}
+          onClick={() => take(command)}
+          onPointerMove={() => setActive(index)}
+        >
+          {command.title}
+          {Number(command.id) === current ? <span class="muted"> (chosen now)</span> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The combobox's state: what is typed, the choices that match, the one the arrows are on, and
+ * taking one. `shut` closes the dialog first, as the palette does, so it hands focus back to the
+ * field's button before the choice is written.
+ */
+function useCombo(choices: readonly Choice[], choose: (value: string) => void, shut: () => void) {
+  const [query, setQuery] = useState('');
+  const [active, setActive] = useState(0);
+  const commands: Command[] = choices.map((choice, i) => ({
+    id: String(i),
+    title: choice.label,
+    ...(choice.keywords ? { keywords: choice.keywords } : {}),
+    run: () => choose(choice.value),
+  }));
+  const matches = matchCommands(commands, query);
+  const chosen = matches[Math.min(Math.max(active, 0), matches.length - 1)];
+  const take = (command: Command) => {
+    shut();
+    command.run();
+  };
+  const onKeyDown = (event: TargetedKeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActive(stepActive(matches.indexOf(chosen as Command), matches.length, event.key === 'ArrowDown' ? 1 : -1));
+    } else if (event.key === 'Enter' && chosen) {
+      event.preventDefault();
+      take(chosen);
+    }
+  };
+  const type = (text: string) => {
+    setQuery(text);
+    setActive(0);
+  };
+  return { query, type, matches, chosen, take, setActive, onKeyDown };
 }

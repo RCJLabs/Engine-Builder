@@ -19,6 +19,8 @@ export function TextField({ label, def, info, path, value, quietLabel }: FieldPr
   const attrs = {
     id,
     class: 'field form-input',
+    // A field of the project: its undo keys undo the editor's steps, not the browser's text (undoKeys.ts).
+    'data-project-field': true,
     value: text,
     readOnly: !form.canEdit,
     'aria-invalid': shown.length > 0 ? ('true' as const) : undefined,
