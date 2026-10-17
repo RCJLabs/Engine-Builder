@@ -19,6 +19,7 @@ export { factCatalog } from './registry.ts';
 export { createSession, type Session } from './session.ts';
 export type {
   Action,
+  Attempt,
   Beat,
   DeepReadonly,
   Effect,

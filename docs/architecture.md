@@ -57,7 +57,7 @@ Every game splits into two halves, as dirtbag, landnam, space-wrecked, splicewor
   - a session queues beats for the stage to drain.
 - **The sim** is a pure function over serializable state.
   - It owns everything a save or a replay must reproduce: quests, inventories, stats, factions, time, world facts, and the RNG state.
-  - Its RNG comes from named streams in `ctx`, and time arrives as actions: fixed ticks for real-time play, days or turns for turn-based play, wall-clock deltas for offline timers.
+  - Its RNG comes from named streams in `ctx`, and time arrives as actions: fixed ticks for real-time play, days or turns for turn-based play, wall-clock deltas for offline timers ([specs/time.md](specs/time.md)). The sim never reads a clock.
 - **The stage** draws the state and plays the beats: animation, sound, haptics, and screen-reader text, which is a pure function of the beats (as in landnam's `announce.ts`). It turns input into actions.
 - **3D.** Physics, movement and animation run in the stage at frame rate.
   - The stage reports discrete facts to the sim as actions: *entered trigger*, *hit X with Y*, *picked up Z*.
@@ -119,9 +119,9 @@ One condition language and one effect vocabulary serve quests, dialogue, events,
 // condition: a tree, with a text form that round-trips
 { "all": [
   { "fact": "hold.count", "args": { "item": "medkit" }, "op": ">=", "value": 2 },
-  { "not": { "fact": "time.night" } }
+  { "fact": "time.phase", "op": "!=", "value": "night" }
 ] }
-// text: hold.count(medkit) >= 2 and not time.night
+// text: hold.count(medkit) >= 2 and time.phase != night
 
 // effects: a list; a roll picks weighted outcomes and preview() shows the exact odds
 [
@@ -136,7 +136,7 @@ One condition language and one effect vocabulary serve quests, dialogue, events,
 
 The exact rules are in [specs/conditions.md](specs/conditions.md) (M1.6).
 
-- **Facts** are registered by modules and kits (`hold.count`, `quest.stage`, `faction.standing`, `time.night`…) and later by project scripts. Each declares its arguments and its domain: bool, int, number, enum, a record reference, or text. A domain is a promise the kernel checks on every read.
+- **Facts** are registered by modules and kits (`hold.count`, `quest.stage`, `faction.standing`, `time.phase`…) and later by project scripts. Each declares its arguments and its domain: bool, int, number, enum, a record reference, or text. A domain is a promise the kernel checks on every read.
 - **Evaluation** is three-valued. An unknown fact yields *unknown*, not *false*, following who-am-i's condition engine, and a gate opens only on *true*. Menus and the sim use the same check.
 - **`describeCondition()`** turns a condition into readable text: "Needs 2 medkits and not night".
 - **`game.preview()`** returns what effects would do from the current state, and the exact odds a `roll` will use, from the same table the roll reads.

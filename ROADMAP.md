@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.7.** Time (Phase 1). M1.1 to M1.6 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.8.** Saves (Phase 1). M1.1 to M1.7 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -89,7 +89,14 @@ How to read this file:
   - `game.preview` shows what effects would do from the current state. The `roll` effect in `logicModule` reads one table for its roll and its preview, so the odds shown are the odds rolled (checked over every roll from 1 to 100).
   - Salvage run now gates choices by condition and rolls its outcomes, and its bot offers only what `game.check` allows.
   - [`docs/specs/conditions.md`](docs/specs/conditions.md) is the spec. Fifty-four planted bugs were each caught by the tests.
-- **M1.7 Time.** Ticks, turns, days, calendar and seasons. Offline time is settled from wall-clock deltas passed in as actions, with a cap.
+- **M1.7 Time.** Done 2026-10-17.
+  - One tick count, read through the game's own calendar: ticks per day, parts of the day, weekdays, months or a year length, seasons and a start. It is whole-number arithmetic with no `Date`, and a test walks every tick of four years against an independent counter.
+  - Time moves only by action: a game action's `wait`, `time/advance`, or `time/elapse` with wall-clock milliseconds. The cap bounds how much one elapse counts, and the part of a tick left over carries, so a stretch settled at once or in pieces gives the same state (property-tested).
+  - Timers hold absolute due ticks. They fire by due tick, then in the order scheduled, with the clock at their due tick. They can repeat without drift, carry a condition checked when due, and be replaced or cancelled by name.
+  - Each timer fires as one `ctx.attempt`, a new kernel call that undoes refused work by running the action again without it. A consequence that refuses is reported, and time still passes.
+  - Facts (`time.day`, `time.phase`, `time.season`, `time.left(timer)`…) feed conditions. Waits and schedules preview what they would fire, and `waitEffect`, `scheduleEffect` and `cancelTimerEffect` check content when a project is built.
+  - Salvage run counts its days with the time module. A debt promised to raiders falls due three days later; over 1,000 runs, 1,655 couldn't be paid, and each was refused while the day still passed.
+  - [`docs/specs/time.md`](docs/specs/time.md) is the spec. Thirty-one planted bugs were each caught by the tests.
 - **M1.8 Saves** (`packages/platform` for storage).
   - Snapshot plus action log; `SAVE_VERSION` and a migration registry.
   - Slots with summaries; bad saves quarantined, never overwritten.
@@ -294,6 +301,8 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor shell precache | 16 entries, 72 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
 | Sim kernel reduce, salvage run (M1.5 content) | 18.2–22.7 µs per action (median 20.0) over 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Sim kernel reduce, salvage run (M1.6: conditions and rolls) | 20.5–23.8 µs per action (median 21.6) over 74,658 actions. The M1.5 content on the M1.6 kernel gave 19.7–22.9 µs (median 21.4) over the same 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs each |
+| Sim kernel reduce, salvage run (M1.7: days and debts) | 23.4–26.7 µs per action (median 24.9) over 74,534 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Offline settle, 8 hours at a tick a second, 100 hourly timers | 7–12 ms (median 9) for 800 firings; 101–120 ms (median 108) when 8 timers refuse every time, re-running the action 64 times | `node packages/core/test/time-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
 

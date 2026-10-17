@@ -5,23 +5,12 @@ import { isRecordId } from '../records.ts';
 import { Rng } from '../rng.ts';
 import { cloneJson, freezeJson } from './json.ts';
 import type { FactArgs, ModeControl, ModuleContext, PreviewContext } from './module.ts';
+import { Attempts, Refusal } from './refusal.ts';
 import { type EffectEntry, KERNEL, type Registry } from './registry.ts';
 import type { Beat, Effect, EffectPreview, GameState, ModeFrame, SimContext } from './types.ts';
 
 /** Effects that apply effects are fine; this many levels deep means one is applying itself. */
 const MAX_EFFECT_DEPTH = 64;
-
-/** Thrown by ctx.refuse and caught by reduce: the action is refused, not broken. */
-export class Refusal extends Error {
-  readonly reason: string;
-  readonly data: Readonly<Record<string, unknown>>;
-  constructor(reason: string, data: Readonly<Record<string, unknown>>) {
-    super(`Refused: ${reason}`);
-    this.name = 'Refusal';
-    this.reason = reason;
-    this.data = data;
-  }
-}
 
 /**
  * One action's work. Slices are copied the first time a module writes them, and the copies,
@@ -37,11 +26,19 @@ export class Transaction {
   private readonly streams = new Map<string, Rng>();
   private modes: readonly ModeFrame[] | undefined;
   private depth = 0;
+  private readonly attempts: Attempts;
 
-  constructor(registry: Registry, state: GameState, sim: SimContext) {
+  /** `skipped` holds the attempts that refused in earlier runs of this action, by name. */
+  constructor(
+    registry: Registry,
+    state: GameState,
+    sim: SimContext,
+    skipped: ReadonlyMap<string, Refusal> = new Map(),
+  ) {
     this.registry = registry;
     this.state = state;
     this.sim = sim;
+    this.attempts = new Attempts(skipped);
   }
 
   context(module: string): ModuleContext<unknown> {
@@ -54,6 +51,7 @@ export class Transaction {
       fact: (id, args) => this.fact(id, args),
       check: (condition) => this.check(condition),
       apply: (effect) => this.apply(effect),
+      attempt: (work) => this.attempts.run(work),
       rng: (name) => this.stream(`${module}/${kebab(name, 'stream name')}`),
       emit: (what, data) => this.emit(`${module}/${kebab(what, 'beat name')}`, data),
       refuse: (reason, data = {}) => {
