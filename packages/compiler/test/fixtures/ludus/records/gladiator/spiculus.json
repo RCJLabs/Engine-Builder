@@ -1,0 +1,18 @@
+{
+  "name": "Spiculus",
+  "might": 72,
+  "style": "murmillo",
+  "school": "ludus-magnus",
+  "free": false,
+  "skills": ["feint", "shield wall"],
+  "kit": {
+    "gladius": 1
+  },
+  "record": {
+    "wins": 12,
+    "losses": 1
+  },
+  "portrait": "portraits/spiculus.svg",
+  "fights": "arena.day and not crowd.angry",
+  "story": "Nero's favourite.\nGiven a palace by the emperor."
+}

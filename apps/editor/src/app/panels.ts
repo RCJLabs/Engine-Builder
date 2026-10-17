@@ -30,7 +30,7 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     label: 'Inspector',
     phase: 'Phase 2',
     summary: 'Edit whatever is selected, with forms built from each record type’s schema.',
-    coming: ['Reference pickers with search', 'Condition and effect builders', '“Used by” for every record'],
+    coming: ['Effect builders (Phase 3)', '“Used by” for every record (M2.5)'],
   },
   logic: {
     label: 'Logic',

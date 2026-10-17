@@ -16,8 +16,10 @@ export type RefTarget = string | readonly string[];
 /** A field holding the bare id of a `type` record: `"loot": "salvage"`. */
 export function ref(type: string): z.ZodString {
   if (!isRecordId(type)) throw new RangeError(`ref(): "${type}" is not a valid record type name`);
+  // An empty ref is one not yet chosen, as a new record's are (M2.4): it gets its own words.
   return z
     .string()
+    .min(1, { error: `No ${type} chosen yet`, abort: true })
     .regex(RECORD_ID_PATTERN, { error: `Not a valid ${type} id: use lowercase words joined by hyphens` })
     .meta({ [REF_KEY]: type });
 }
@@ -33,6 +35,7 @@ export function refAny(types: readonly string[]): z.ZodString {
   // wrong type gets its own message rather than a pattern mismatch.
   return z
     .string()
+    .min(1, { error: `No record chosen yet: a ${sorted.join(' or ')}`, abort: true })
     .regex(QUALIFIED_REF_PATTERN, { error: `Expected "type:id", where type is one of: ${sorted.join(', ')}` })
     .meta({ [REF_KEY]: sorted });
 }

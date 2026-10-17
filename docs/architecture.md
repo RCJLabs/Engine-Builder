@@ -80,6 +80,7 @@ A project is a folder of git-friendly JSON, so the editor, a text editor and Cla
 my-game/
   project.json            id, name, version, modules, targets, settings
   records/<type>/<id>.json one record per file (items, actors, quests, events…)
+  types/<type>.json        the project's own record types, as fields (M2.4)
   scenes/<id>.json         3D/2D scenes: entity trees with placed references
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/*.ts             script components (sim or stage)
@@ -88,7 +89,7 @@ my-game/
   locales/<lang>.json      string tables (Phase 8)
 ```
 
-- **Format 1** (M1.4) has `project.json` with `id`, `name` and `version`, plus `records/`. The other folders, and project.json's `modules`, `targets` and `settings`, arrive with the milestones that use them ([specs/project-format.md](specs/project-format.md)).
+- **Format 1** (M1.4) has `project.json` with `id`, `name` and `version`, plus `records/`. M2.4 added `types/`, and asset fields that name files in `assets/`, without a format bump, since a project without them loads as before. The other folders, and project.json's `modules`, `targets` and `settings`, arrive with the milestones that use them ([specs/project-format.md](specs/project-format.md)).
 - **One record per file** keeps diffs small and merges clean. Big tables (cards, players) may later opt into one collection file per type.
 - **Compiling.**
   - `packages/compiler` validates a project and builds **content packs**: canonical JSON with a content hash, plus coded diagnostics.
@@ -101,7 +102,7 @@ my-game/
 Records are Bethesda's "forms": typed data with stable ids.
 
 - **Base records** come from modules and kits: item, actor, faction, loot table, event, quest, dialogue tree, location, encounter, shop, and dial (a tunable number plus the reason for it).
-- **Custom record types** are defined in the editor as fields and become a zod schema. This covers the data unique to a game: football players, gladiators, cards.
+- **Custom record types** are data: a project's `types/<type>.json` lists a type's fields by kind, and the compiler builds the same strict zod schema a code type has (M2.4, D31, [specs/type-files.md](specs/type-files.md)). This covers the data unique to a game: football players, gladiators, cards. A project made only of data needs no code at all; M2.6 adds the screens that design types in the editor.
 - **References.**
   - A record field can point at another record. It holds the bare id when the field names one type (`"drops": "dead-hauler"`), and `type:id` when it allows several (`"target": "item:medkit"`). Validation checks every reference and builds the index behind the editor's "used by" ([specs/records.md](specs/records.md)).
   - In scenes, a placed reference is an instance of a base record with overrides: position, a different inventory, a quest alias.
@@ -294,7 +295,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.**
   - Undo and redo through a command log of file changes, autosave through a journal, and one editing tab per project, held by a Web Lock (M2.3, D30, [specs/editor-editing.md](specs/editor-editing.md)).
-  - Forms generated from schemas, reference pickers, and "used by" follow (M2.4–M2.5).
+  - Forms from each record's type file in the inspector, with pickers for refs and assets, the compiler's problems beside each field, and New and Delete in the Project panel (M2.4, [specs/editor-forms.md](specs/editor-forms.md)). Tables and "used by" follow (M2.5).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.
@@ -307,7 +308,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 ```
 packages/core       pure: rng, hash, records runtime, conditions/effects, reducers, events, clock
 packages/kits       pure: stats/effects, inventory/loot, factions, economy, roster, quests, dialogue, events
-packages/schema     zod schemas for the project format and records; JSON Schema export
+packages/schema     zod schemas for the project format and records; type files (M2.4); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
 packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later

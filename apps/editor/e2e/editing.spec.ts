@@ -36,7 +36,7 @@ test.describe('editing, desktop 1280×800', () => {
     await newProject(page, 'Dirtbag');
     await typeIntoName(page, ' Valley');
     await expect(saveLine(page)).toHaveText('All changes saved.');
-    await expect(open(page).getByRole('heading')).toHaveText('Dirtbag Valley');
+    await expect(open(page).getByRole('heading', { level: 3 })).toHaveText('Dirtbag Valley');
     await page.reload();
     const rows = page.getByRole('list', { name: 'Projects in this browser' }).getByRole('listitem');
     await expect(rows.first()).toContainText('Dirtbag Valley');

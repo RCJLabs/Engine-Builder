@@ -10,6 +10,7 @@ import './styles/app.css';
 import './styles/projects.css';
 import './styles/overlays.css';
 import './styles/editing.css';
+import './styles/forms.css';
 
 watchLayout();
 watchPage();

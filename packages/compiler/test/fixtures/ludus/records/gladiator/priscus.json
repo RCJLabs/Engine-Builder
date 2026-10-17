@@ -1,0 +1,16 @@
+{
+  "name": "Priscus",
+  "might": 65,
+  "style": "retiarius",
+  "school": "ludus-magnus",
+  "free": false,
+  "skills": ["net throw"],
+  "kit": {
+    "trident": 1,
+    "net": 1
+  },
+  "record": {
+    "wins": 9,
+    "losses": 2
+  }
+}

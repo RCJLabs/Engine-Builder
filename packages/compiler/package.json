@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "description": "Reads a project (folder, OPFS or zip), validates it and builds content packs. Runs in the browser and in Node.",
   "type": "module",
+  "//sideEffects": "Nothing runs on import that a module needs from another, so a bundle keeps only what is used (M2.4: the record form loads late).",
+  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts"
   },

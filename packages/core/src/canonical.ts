@@ -24,6 +24,18 @@ export class CanonicalError extends Error {
 export const pointerSegment = (key: string | number): string => String(key).replace(/~/g, '~0').replace(/\//g, '~1');
 
 /**
+ * A JSON Pointer's keys, unescaped: `~1` back to `/` first, then `~0` back to `~`, the order RFC
+ * 6901 gives, so `~01` reads as `~1`. The empty pointer is the whole value: no keys.
+ */
+export const pointerKeys = (pointer: string): string[] =>
+  pointer === ''
+    ? []
+    : pointer
+        .slice(1)
+        .split('/')
+        .map((key) => key.replace(/~1/g, '/').replace(/~0/g, '~'));
+
+/**
  * The canonical JSON text of a value. `path` prefixes error paths when the value sits inside a
  * larger state (a facet), so an error names the whole route.
  */

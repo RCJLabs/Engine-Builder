@@ -1,8 +1,9 @@
 /**
  * Ctrl/⌘+Z undoes and Ctrl/⌘+Shift+Z or Ctrl+Y redoes, anywhere but in a text field that isn't
- * the project's own: the palette's field or the new project's name keep the browser's own undo.
- * In the project's fields the editor's undo takes over, from the keys and from the Edit menu or
- * a shake (`beforeinput`), so field and project never disagree.
+ * the project's own: the palette's field, a picker's search or the new project's name keep the
+ * browser's own undo. In the project's fields (its name and version, and since M2.4 the boxes of
+ * record forms) the editor's undo takes over, from the keys and from the Edit menu or a shake
+ * (`beforeinput`), so field and project never disagree.
  */
 import { editing } from '../editing/current.ts';
 

@@ -18,10 +18,15 @@ export const DIAGNOSTIC_CODES = {
   E012: 'A condition names a fact the game does not have',
   E013: "A condition's fact arguments are missing, unknown, or not among the argument's values",
   E014: 'A condition tests a fact in a way its values cannot match',
+  E015: "A type file doesn't match the type file format",
+  E016: 'A type file names a record type the project does not have',
+  E017: 'A type file is misplaced, misnamed, or names a type the game already defines',
+  E018: 'An asset field names a file that is not in assets/',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
   W104: 'The lint could not tell whether a condition can be true',
+  W105: 'A file under types/ that the compiler ignores',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

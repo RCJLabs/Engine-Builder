@@ -1,0 +1,15 @@
+{
+  "name": "Flamma",
+  "might": 80,
+  "style": "secutor",
+  "school": "ludus-dacicus",
+  "free": true,
+  "skills": [],
+  "record": {
+    "wins": 21,
+    "losses": 4
+  },
+  "fights": {
+    "fact": "arena.day"
+  }
+}

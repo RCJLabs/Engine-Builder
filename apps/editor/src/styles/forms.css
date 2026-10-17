@@ -1,0 +1,286 @@
+/* M2.4's forms: the records list in the Project panel, and the inspector's record form. Every
+   control is at least 44 px each way, and rows wrap rather than run past a 360 px screen. */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.records h4 {
+  margin: 16px 0 4px;
+  font-size: 1rem;
+}
+
+.type-records h5 {
+  margin: 12px 0 6px;
+  font-size: 0.95rem;
+}
+
+.record-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.record-button {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  max-width: 100%;
+  padding: 0 12px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.record-button[aria-current="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.record-button:focus-visible,
+.form-check:focus-visible,
+.form-swatch:focus-visible,
+.form-slider:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.new-record {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+
+.new-record label {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.record-form {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.record-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.record-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.record-form > .muted,
+.record-problems p {
+  margin: 0;
+}
+
+.form-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.form-label-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.form-label,
+.form-legend {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.form-optional {
+  font-weight: 400;
+}
+
+.form-input,
+.form-select,
+.form-pick {
+  width: 100%;
+}
+
+textarea.form-input {
+  padding: 10px;
+  resize: vertical;
+}
+
+.form-condition {
+  font-family: var(--mono);
+}
+
+.form-pick {
+  display: flex;
+  align-items: center;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.form-pick:disabled,
+.form-select:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.form-help,
+.form-count,
+.form-problems,
+.field-problem {
+  margin: 0;
+}
+
+.form-help,
+.form-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.form-count {
+  text-align: end;
+}
+
+.form-slider {
+  width: 100%;
+  min-height: var(--tap);
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.form-bool {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.form-bool .form-label-row {
+  flex: 1 1 10rem;
+}
+
+.form-check {
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.form-colour {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-swatch {
+  width: var(--tap);
+  height: var(--tap);
+  padding: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.form-clear {
+  min-height: var(--tap);
+  padding: 0 12px;
+  font-weight: 400;
+}
+
+.form-group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.form-legend {
+  padding: 0 4px;
+}
+
+.form-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.form-item-value {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.form-item-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.form-entry .form-key {
+  flex: 1 1 8rem;
+  width: auto;
+  min-width: 0;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-new-key .form-input {
+  flex: 1 1 10rem;
+  width: auto;
+}
+
+.form-new-key .form-problems {
+  flex-basis: 100%;
+}
+
+.form-wrong {
+  flex-basis: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.picker-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
