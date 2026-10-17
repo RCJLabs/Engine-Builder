@@ -47,8 +47,15 @@ It follows the patterns that survived in three of the existing games:
   | modes | the bare id | the game |
 
 - **Who changes what.** A module changes only its own slice. It reads other modules through their facts and changes them through their effects, so kits combine without knowing each other's insides.
+- **Facts** are a function `(view, args) => value`, or `{ read, args?, domain?, label?, describe? }` for conditions to check, lint and word ([conditions.md](conditions.md)). A fact with a domain must answer one of its values, or `undefined`/`null` for none; the kernel throws on any other answer, wherever the fact is read.
+- **Effects** are a function `(ctx, effect) => void`, or `{ run, preview? }`. A preview says what the effect would do now, without doing it.
 
-`createGame({ modules, start })` checks every name. It throws on a duplicate, an invalid name, an unknown start mode, or a mode pattern that matches no action.
+`createGame({ modules, start })` checks every name. It throws on:
+
+- a duplicate or an invalid name;
+- an unknown start mode, or a mode pattern that matches no action;
+- a fact id a condition can't write (a module id that starts with a digit);
+- a fact argument or domain that is malformed ([conditions.md](conditions.md)).
 
 ## Modes
 
@@ -87,6 +94,7 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 | `read()` | The module's slice, including this action's changes. |
 | `write()` | The slice to change. The first call in an action copies it. |
 | `fact(id, args?)` | A registered fact, seeing this action's changes so far. |
+| `check(condition)` | The condition's truth (true, false or null) through this action's changes so far. |
 | `apply(effect)` | Runs the effect's owner, with the owner's own context. Effects may apply effects, up to 64 deep. |
 | `rng(name)` | The module's stream `module/name` (below). |
 | `emit(what, data?)` | Adds the beat `module/what`. |
@@ -111,7 +119,12 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 
 ## Facts and effects outside reduce
 
-- `game.fact(state, id, args, sim)` reads a fact for the UI, conditions (M1.6) or a bot.
+None of these change the state or draw a random number.
+
+- `game.fact(state, id, args, sim)` reads a fact for the UI or a bot.
+- `game.check(state, condition, sim)` evaluates a condition the way `ctx.check` does, so a menu offers what the sim allows.
+- `game.preview(state, effects, sim)` previews each effect: its module's `preview`, or the effect as written ([conditions.md](conditions.md)).
+- `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against.
 - `game.allowedActions(state)` lists the action types the current mode allows, sorted.
 
 ## Sessions
@@ -129,9 +142,9 @@ Replaying the log from the state the session began with reaches the same state.
 
 `packages/core/test/salvage.ts` is a test-only text game.
 
-- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects.
-- **Content.** Choice events in the content pack, with weighted outcomes.
-- **The bot** plays through `reduce` and the allowed actions, as a player would. landnam's bot skipped the mode checks and made 18,733 moves its UI would have refused.
+- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls.
+- **Content.** Choice events in the content pack. Some choices are locked by a condition, and chancy ones apply a `roll` effect (M1.6, [conditions.md](conditions.md)).
+- **The bot** plays through `reduce` and the allowed actions, as a player would. It offers only choices whose condition holds, through `game.check`. landnam's bot skipped the mode checks and made 18,733 moves its UI would have refused.
 
 `packages/core/src/sim/salvage.test.ts` checks four things:
 
@@ -139,6 +152,8 @@ Replaying the log from the state the session began with reaches the same state.
 - every run ends inside a 400-action cap, and runs differ by seed;
 - replaying a run's log reproduces its state;
 - a run saved and reloaded halfway (a JSON round trip) ends where the uninterrupted run ends.
+
+The M1.6 tests for its conditions and previews are listed in [conditions.md](conditions.md).
 
 `node packages/core/test/salvage-bench.ts` takes the reduce timing in ROADMAP's Readings.
 

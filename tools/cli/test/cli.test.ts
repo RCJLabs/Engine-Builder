@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { canonicalJson, readPack } from '@eb/core';
 import { strToU8, zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import { FIXTURE_TYPES, FIXTURE_V1, readFixture } from '../../../packages/compiler/test/fixture.ts';
+import { EVENT_TYPES, FIXTURE_TYPES, FIXTURE_V1, readFixture } from '../../../packages/compiler/test/fixture.ts';
 
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const V1_HASH = '489cedf323bd33d9';
@@ -76,6 +76,28 @@ describe('eb validate', () => {
     expect(eb(['validate', zip, '--types', FIXTURE_TYPES]).out).toBe(`4 records: no problems, hash ${V1_HASH}.\n`);
   });
 
+  it("checks conditions against the types module's facts", () => {
+    const event = (when: unknown) => JSON.stringify({ choices: { go: { when, effects: [] } } });
+    const never = eb([
+      'validate',
+      project({ 'records/event/a.json': event({ fact: 'hold.credits', op: '<', value: 0 }) }),
+      '--types',
+      EVENT_TYPES,
+    ]);
+    expect(never.code).toBe(0);
+    expect(never.out).toContain(
+      'records/event/a.json#/choices/go/when: warning W102: This condition is never true, whatever its facts hold',
+    );
+    const unknown = eb([
+      'validate',
+      project({ 'records/event/a.json': event({ fact: 'hold.debt' }) }),
+      '--types',
+      EVENT_TYPES,
+    ]);
+    expect(unknown.code).toBe(1);
+    expect(unknown.out).toContain('records/event/a.json#/choices/go/when/fact: error E012: No fact "hold.debt"');
+  });
+
   it('prints JSON for machines', () => {
     const run = eb(['validate', project({ 'project.json': '{ "format": 2 }' }), '--types', FIXTURE_TYPES, '--json']);
     expect(run.code).toBe(1);
@@ -124,6 +146,8 @@ describe('usage errors', () => {
   writeFileSync(notZip, 'not a zip');
   const badTypes = join(scratch(), 'types.mjs');
   writeFileSync(badTypes, 'export const recordTypes = [{ type: "item" }];');
+  const badFacts = join(scratch(), 'facts.mjs');
+  writeFileSync(badFacts, 'export const recordTypes = []; export const facts = ["hold.count"];');
 
   it.each([
     ['no arguments', [], 'Usage:'],
@@ -139,6 +163,7 @@ describe('usage errors', () => {
       'Could not load --types nope.ts',
     ],
     ['a types module of the wrong shape', ['validate', FIXTURE_V1, '--types', badTypes], 'must export recordTypes'],
+    ['facts that are not a catalog', ['validate', FIXTURE_V1, '--types', badFacts], 'which must be a fact catalog'],
   ])('exit 2 for %s', (_name, args, message) => {
     const run = eb(args);
     expect(run.code).toBe(2);

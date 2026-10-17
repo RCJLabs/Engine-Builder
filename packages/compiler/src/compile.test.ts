@@ -2,6 +2,7 @@ import { canonicalJson, createRecordStore, readPack } from '@eb/core';
 import { DIAGNOSTIC_CODES, type Diagnostic } from '@eb/schema';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { eventTypes, facts } from '../../schema/test/events.ts';
 import { sampleTypes } from '../../schema/test/samples.ts';
 import { FIXTURE_V1, readFixture } from '../test/fixture.ts';
 import { compileProject, memorySource } from './index.ts';
@@ -204,7 +205,29 @@ describe('the code table', () => {
     const duplicate = await compile(changed({ 'records/item/salvage.json': null }));
     const newer = await compile(changed({ 'project.json': '{ "format": 9 }' }));
     const invalid = await compile(changed({ 'project.json': '{ "format": 1 }' }));
-    const seen = new Set([broken, duplicate, newer, invalid].flatMap((r) => r.diagnostics.map((d) => d.code)));
+    const when = (...conditions: unknown[]) =>
+      JSON.stringify({ choices: Object.fromEntries(conditions.map((c, i) => [`c${i}`, { when: c, effects: [] }])) });
+    const slots = Array.from({ length: 9 }, (_, i) => ({ fact: 'hold.slot', args: { i }, op: '>', value: 50 }));
+    const conditions = await compileProject(
+      memorySource(
+        changed({
+          'records/event/odd.json': when(
+            { all: [{ fact: 'voyage.night' }] },
+            { fact: 'voyage.storm' },
+            { fact: 'hold.count', args: { item: 'ghost' }, op: '>', value: 0 },
+            { fact: 'voyage.leader', op: '==', value: 'ghost' },
+            { fact: 'hold.credits', op: '<', value: 0 },
+            { fact: 'hold.credits', op: '>=', value: 0 },
+            { all: [...slots, { fact: 'hold.slot', args: { i: 0 }, op: '<', value: 10 }] },
+          ),
+        }),
+      ),
+      eventTypes,
+      { facts },
+    );
+    const seen = new Set(
+      [broken, duplicate, newer, invalid, conditions].flatMap((r) => r.diagnostics.map((d) => d.code)),
+    );
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
   });

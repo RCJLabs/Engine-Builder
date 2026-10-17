@@ -98,7 +98,7 @@ Schema locations in errors read like `effects[].item`:
 
 ## Validation
 
-`validateRecords(types, records)` takes record types and `{ type, id, file?, value }` inputs, and returns `{ diagnostics, usedBy }`.
+`validateRecords(types, records, options?)` takes record types and `{ type, id, file?, value }` inputs, and returns `{ diagnostics, usedBy }`. `options.facts` is the game's fact catalog, for condition fields (step 6).
 
 It throws only on programmer errors: two types with one name, or a type whose references name a type that isn't given.
 
@@ -114,6 +114,7 @@ Each record is checked in this order:
    - A malformed value is left to E001, which zod has already reported.
    - A qualified reference whose type the field doesn't allow is E006.
    - Otherwise, a reference to a record that doesn't exist is E005. A record that has errors of its own still exists.
+6. **Conditions** (M1.6). A field declared with `condition()` gets `checkCondition`'s codes, E011 to E014, in place of zod's E001. Once it is sound, the records it names join `usedBy` and the lint adds W102 to W104 ([conditions.md](conditions.md#conditions-in-records)).
 
 **The walk** reads the schema and the value together. It also reads values that fail the schema, as far as their shape allows, so one bad field doesn't hide the references around it.
 
@@ -121,6 +122,7 @@ Each record is checked in this order:
 - **Records:** every key, through the key schema and then the value schema.
 - **Arrays and tuples:** by index.
 - **Optional, nullable, readonly, nonoptional and lazy:** the inner schema.
+- **Condition fields** (`condition()`): the walk stops and hands the value to the condition checks. A condition's references come from its facts' domains, not from the schema.
 - **Unions:** the first option that accepts the value, which is the one zod accepted.
   - If none does, a discriminated union walks the option whose discriminator field accepts the value's discriminator.
   - A plain union that no option accepts is not walked, since there's no telling which option was meant.
@@ -150,7 +152,10 @@ A diagnostic is `{ code, severity, message, type?, id?, file?, path }`. Validati
 | E006 | error | reference to a type this field does not allow | the reference |
 
 - **Codes are a public contract**, like save keys: the editor, CLI output and people's notes refer to them. A code is never renumbered or reused, and a retired code stays in the table, marked retired.
-- **More codes.** M1.4 adds E007–E010 and the first warning, W101, for files and project.json ([project-format.md](project-format.md#diagnostics-this-adds)). Other warnings (W1xx) arrive with the milestones that need them.
+- **More codes.**
+  - M1.4 adds E007 to E010 and the first warning, W101, for files and project.json ([project-format.md](project-format.md#diagnostics-this-adds)).
+  - M1.6 adds E011 to E014 and W102 to W104 for conditions ([conditions.md](conditions.md)).
+  - Other warnings (W1xx) arrive with the milestones that need them.
 - **Messages are not part of the contract.** Codes and paths are stable; wording may improve. E001 messages are zod's, except for unknown fields, missing fields and invalid record keys.
 
 ## JSON Schema
@@ -170,5 +175,5 @@ The export is for VS Code and other tools. `validateRecords` is the authority: f
 ## Open questions
 
 1. **How record files point VS Code at their schema.** Moved to [project-format.md](project-format.md#open-questions), with a recommendation.
-2. **Plain unions that no option accepts** get zod's bare "Invalid input". Should validation report the closest option's issues instead, or should content use discriminated unions only? Decide with M1.6, whose condition trees are the main plain union.
+2. **Plain unions that no option accepts** get zod's bare "Invalid input". M1.6 settled it for condition trees, the main plain union: they report `checkCondition`'s messages (E011) instead. For other plain unions, should validation report the closest option's issues, or should content use discriminated unions only? Decide when a kit first needs one.
 3. **Record types with variants at the top level.** A discriminated union of objects is refused at the top level today. Revisit if a kit needs one.

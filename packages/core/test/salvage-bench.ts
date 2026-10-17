@@ -4,10 +4,9 @@
  *
  *   node packages/core/test/salvage-bench.ts
  */
-import { type Action, createGame, createSession } from '../src/index.ts';
-import { botAction, botFor, salvageModules, sim } from './salvage.ts';
+import { type Action, createSession } from '../src/index.ts';
+import { botAction, botFor, game, sim } from './salvage.ts';
 
-const game = createGame({ modules: salvageModules, start: 'travel' });
 let reduces = 0;
 let refused = 0;
 const started = performance.now();

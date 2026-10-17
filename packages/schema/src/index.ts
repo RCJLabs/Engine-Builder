@@ -6,6 +6,7 @@
  * Kits and games import zod from here, so every schema comes from the zod this package reads.
  */
 export { z } from 'zod';
+export { CONDITION_KEY, condition, isConditionSchema, rollEffect } from './condition.ts';
 export {
   compareDiagnostics,
   compareText,
@@ -23,7 +24,8 @@ export {
   type SchemaIssue,
   schemaIssues,
   type Usage,
+  type ValidateOptions,
   type Validation,
   validateRecords,
 } from './validate.ts';
-export { collectRefs, type FoundRef } from './walk.ts';
+export { collectRefs, type Found, type FoundCondition, type FoundRef, scanRecord } from './walk.ts';

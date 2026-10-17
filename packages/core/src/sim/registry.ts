@@ -1,8 +1,22 @@
+import type { FactCatalog, FactInfo } from '../logic/types.ts';
+import { domainError, FACT_PATTERN, NAME_PATTERN } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
-import type { Module } from './module.ts';
+import type { EffectRun, EffectSpec, FactRead, Module } from './module.ts';
 
 /** The module id the kernel's own state uses. */
 export const KERNEL = 'kernel';
+
+export interface FactEntry {
+  readonly module: string;
+  readonly read: FactRead<unknown>;
+  readonly info: FactInfo;
+}
+
+export interface EffectEntry {
+  readonly module: string;
+  readonly run: EffectRun<unknown>;
+  readonly preview?: EffectSpec<unknown>['preview'];
+}
 
 export interface Registry {
   /** In the order given, which is the order their slices are created. */
@@ -11,11 +25,8 @@ export interface Registry {
     string,
     { readonly module: string; readonly run: NonNullable<Module['actions']>[string] }
   >;
-  readonly facts: ReadonlyMap<string, { readonly module: string; readonly read: NonNullable<Module['facts']>[string] }>;
-  readonly effects: ReadonlyMap<
-    string,
-    { readonly module: string; readonly run: NonNullable<Module['effects']>[string] }
-  >;
+  readonly facts: ReadonlyMap<string, FactEntry>;
+  readonly effects: ReadonlyMap<string, EffectEntry>;
   /** Each mode's allowed action types, with its patterns already expanded. */
   readonly modes: ReadonlyMap<string, ReadonlySet<string>>;
 }
@@ -26,8 +37,8 @@ export interface Registry {
  */
 export function buildRegistry(modules: readonly Module[]): Registry {
   const actions = new Map<string, { module: string; run: NonNullable<Module['actions']>[string] }>();
-  const facts = new Map<string, { module: string; read: NonNullable<Module['facts']>[string] }>();
-  const effects = new Map<string, { module: string; run: NonNullable<Module['effects']>[string] }>();
+  const facts = new Map<string, FactEntry>();
+  const effects = new Map<string, EffectEntry>();
   const ids = new Set<string>();
   for (const module of modules) {
     name(module.id, 'module id');
@@ -37,16 +48,42 @@ export function buildRegistry(modules: readonly Module[]): Registry {
     for (const [verb, run] of Object.entries(module.actions ?? {})) {
       actions.set(`${module.id}/${name(verb, `${module.id} action`)}`, { module: module.id, run });
     }
-    for (const [fact, read] of Object.entries(module.facts ?? {})) {
-      facts.set(`${module.id}.${name(fact, `${module.id} fact`)}`, { module: module.id, read });
+    for (const [fact, def] of Object.entries(module.facts ?? {})) {
+      const id = `${module.id}.${name(fact, `${module.id} fact`)}`;
+      const { read, ...info } = typeof def === 'function' ? { read: def } : def;
+      checkFact(id, info);
+      facts.set(id, { module: module.id, read, info: Object.freeze(info) });
     }
-    for (const [effect, run] of Object.entries(module.effects ?? {})) {
+    for (const [effect, def] of Object.entries(module.effects ?? {})) {
       const owner = effects.get(name(effect, `${module.id} effect`));
       if (owner) throw new Error(`Effect "${effect}" is registered by both ${owner.module} and ${module.id}`);
-      effects.set(effect, { module: module.id, run });
+      effects.set(effect, typeof def === 'function' ? { module: module.id, run: def } : { module: module.id, ...def });
     }
   }
   return { modules, actions, facts, effects, modes: expandModes(modules, actions) };
+}
+
+/** Every fact by id, sorted, with what its module says about it: what content is checked against. */
+export function catalogOf(registry: Registry): FactCatalog {
+  const ids = [...registry.facts.keys()].sort();
+  return Object.freeze(Object.fromEntries(ids.map((id) => [id, registry.facts.get(id)?.info as FactInfo])));
+}
+
+/** A game's fact catalog from its modules alone, for tools that check content without playing. */
+export const factCatalog = (modules: readonly Module[]): FactCatalog => catalogOf(buildRegistry(modules));
+
+// A domain that is wrong would make the lint wrong about every condition that reads the fact.
+function checkFact(id: string, info: FactInfo): void {
+  if (!FACT_PATTERN.test(id)) {
+    throw new Error(`Fact "${id}" can't be named in a condition: module ids and fact names start with a letter`);
+  }
+  for (const [arg, domain] of Object.entries(info.args ?? {})) {
+    if (!NAME_PATTERN.test(arg)) throw new Error(`Fact "${id}": "${arg}" is not a valid argument name`);
+    const problem = domainError(domain);
+    if (problem) throw new Error(`Fact "${id}", argument "${arg}": ${problem}`);
+  }
+  const problem = info.domain && domainError(info.domain);
+  if (problem) throw new Error(`Fact "${id}": ${problem}`);
 }
 
 function expandModes(modules: readonly Module[], actions: ReadonlyMap<string, unknown>): Map<string, Set<string>> {

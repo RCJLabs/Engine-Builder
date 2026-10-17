@@ -57,10 +57,13 @@ apps/editor/           the editor PWA
   src/pwa/             service worker registration and the update gate
   e2e/                 Playwright specs
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
-  src/sim/             the sim kernel: defineModule, createGame (reduce), createSession
-  test/                salvage.ts (the test-only text game), salvage-bench.ts (times it), kernel-modules.ts
-packages/schema/       record types (strict zod), validation with E-codes, JSON Schema export; not pure
-  test/samples.ts      sample record types the tests share
+  src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview), createSession
+  src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
+  test/                salvage.ts (the test-only text game), salvage-bench.ts and sat-bench.ts (timings),
+                       kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
+packages/schema/       record types (strict zod), condition() and rollEffect(), validation with E/W codes,
+                       JSON Schema export; not pure
+  test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), compileProject, packs; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
 tools/cli/             eb validate | build; folderSource.ts is the Node fs source

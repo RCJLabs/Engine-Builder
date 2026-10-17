@@ -228,6 +228,33 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **Speed.** An action costs a copy plus a check-and-freeze of every slice it writes: about 20 µs per action on salvage run (Readings). A game that writes big slices every tick will feel it.
 - **Indirection.** Crossing modules only through facts and effects adds a step for code that just wants another module's number.
 
+### D23. Conditions: one JSON tree with a text form, three-valued evaluation, enforced fact domains, a sound lint, and rolls that preview their own table. LOCKED, 2026-10-17 (M1.6)
+
+**Decision** ([specs/conditions.md](specs/conditions.md)).
+- **One tree.** A condition is `all`, `any`, `not` or a fact test. Values are text, booleans, or numbers without exponents. The text form prints one way and reads back as the same tree.
+- **Three-valued evaluation** (Kleene). A fact with no value, or with a value of another type, is unknown, and a gate opens only on true. Menus (`game.check`) and the sim (`ctx.check`) share one evaluation.
+- **Facts declare domains**, and the kernel throws when a fact answers outside its domain.
+- **The lint** reports conditions in content that are never true (W102), never false (W103), or undecided after sampling (W104). It reasons over the facts' domains, leaves unknown values out, tries everything up to 100,000 combinations, and past that takes 20,000 samples from a fixed seed.
+- **Conditions in records** are reported with `checkCondition`'s codes (E011 to E014), not zod's.
+- **Rolls.** Whole-percent outcomes add up to 100 and are picked in the order written. Each roll is exactly one draw from the stream `logic/roll` and adds a `logic/rolled` beat. The preview reads the same table as the roll.
+
+**Why.**
+- **Unknown is not false.** Under two-valued logic, `not` of a fact with no value is true, so a missing fact could open a gate. who-am-i-'s condition engine is three-valued for this reason.
+- **A text form that round-trips** lets the editor show conditions as text and save trees without reshaping them. who-am-i- parsed text but never printed it.
+- **Enforced domains.** The lint is only as good as the domains it trusts. Checking every read means every bot run tests them.
+- **Unknowns left out of the lint.** Kleene's operators are monotone, so this loses nothing for "never true". It is also what makes "never false" possible, since any condition over a fact can be unknown.
+- **One draw per roll,** so changing a roll's outcomes never shifts the rolls after it.
+- **One table for the roll and its preview,** because odds on screen must be the odds rolled. Space-Wrecked's preview drifted from its outcomes when caps applied.
+
+**Cost.**
+- **Strictness.**
+  - Numbers with exponents can't be written in a condition.
+  - Module ids that register facts must start with a letter.
+  - A fact answering outside its domain throws in a shipped game too.
+- **Lint speed.** A condition at the cap costs 20 to 30 ms (Readings); most cost far less.
+- **What the lint can't see.** It treats facts as independent, so conditions that are impossible only because facts depend on each other go unreported.
+- **An empty slice.** The logic module's `{}` slice shows up in every state and hash.
+
 ---
 
 ## Open

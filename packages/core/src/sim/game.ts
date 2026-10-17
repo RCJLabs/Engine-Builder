@@ -5,12 +5,13 @@
  * landnam's mode stack.
  */
 import { canonicalJson } from '../canonical.ts';
+import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
 import { Rng } from '../rng.ts';
 import { freezeJson } from './json.ts';
 import type { FactArgs, Module } from './module.ts';
-import { buildRegistry, KERNEL } from './registry.ts';
+import { buildRegistry, catalogOf, KERNEL } from './registry.ts';
 import { Refusal, Transaction } from './transaction.ts';
-import type { Action, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
+import type { Action, Effect, EffectPreview, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
 
 export interface GameDefinition {
   readonly modules: readonly Module[];
@@ -24,6 +25,12 @@ export interface Game {
   /** The action types the current mode allows, sorted: what a bot or a menu can offer. */
   allowedActions(state: GameState): readonly string[];
   fact(state: GameState, id: string, args: FactArgs | undefined, sim: SimContext): unknown;
+  /** Every fact the modules register, by id: what conditions in content are checked against. */
+  catalog(): FactCatalog;
+  /** A condition's truth in this state, by the same evaluation the sim uses: what a menu shows as open or locked. */
+  check(state: GameState, condition: Condition, sim: SimContext): Truth;
+  /** What these effects would do in this state, without doing them: chances, costs and outcomes for the stage to show. */
+  preview(state: GameState, effects: readonly Effect[], sim: SimContext): readonly EffectPreview[];
 }
 
 /** An action the game can't take at all: not JSON, not registered. A bug, not a refusal. */
@@ -37,6 +44,7 @@ export class ActionError extends Error {
 export function createGame(definition: GameDefinition): Game {
   const registry = buildRegistry(definition.modules);
   if (!registry.modes.has(definition.start)) throw new Error(`The start mode "${definition.start}" is not registered`);
+  const catalog = catalogOf(registry);
 
   const allowedIn = (state: GameState): ReadonlySet<string> => {
     const current = state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame;
@@ -90,6 +98,15 @@ export function createGame(definition: GameDefinition): Game {
     allowedActions: (state) => [...allowedIn(state)].sort(),
 
     fact: (state, id, args, sim) => new Transaction(registry, state, sim).fact(id, args),
+
+    catalog: () => catalog,
+
+    check: (state, condition, sim) => new Transaction(registry, state, sim).check(condition),
+
+    preview(state, effects, sim) {
+      const tx = new Transaction(registry, state, sim);
+      return Object.freeze(effects.map((effect) => tx.preview(effect)));
+    },
   };
 }
 

@@ -1,8 +1,9 @@
-import { formatRef, isRecordId, parseRef, pointerSegment } from '@eb/core';
+import { type FactCatalog, formatRef, isRecordId, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import { z } from 'zod';
+import { checkConditionField } from './conditions.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import type { RecordType } from './recordType.ts';
-import { collectRefs, type FoundRef } from './walk.ts';
+import { type FoundRef, scanRecord } from './walk.ts';
 
 export interface RecordInput {
   readonly type: string;
@@ -36,21 +37,40 @@ export interface Validation {
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
 }
 
+export interface ValidateOptions {
+  /**
+   * The game's facts (factCatalog in @eb/core), to check conditions against (E012 to E014) and
+   * lint them (W102 to W104). Without it, conditions get the shape check, and the lint treats
+   * every fact as one with no domain.
+   */
+  readonly facts?: FactCatalog;
+}
+
 /**
  * Checks records against their types and against each other. The result depends only on the
  * set of records given, never on their order.
  */
-export function validateRecords(types: readonly RecordType[], records: readonly RecordInput[]): Validation {
+export function validateRecords(
+  types: readonly RecordType[],
+  records: readonly RecordInput[],
+  options: ValidateOptions = {},
+): Validation {
   const byName = indexTypes(types);
   // Records of unknown types count too; no reference can name them, since every reference
   // target is a known type.
   const counts = new Map<string, number>();
   for (const { type, id } of records) counts.set(formatRef(type, id), (counts.get(formatRef(type, id)) ?? 0) + 1);
+  const index = recordIndex(records, counts);
   const diagnostics: Diagnostic[] = [];
   const usages = new Map<string, Usage[]>();
   for (const record of records) {
     const report = (code: DiagnosticCode, path: string, message: string) =>
       diagnostics.push(diagnostic(record, code, path, message));
+    const use = (key: string, path: string) => {
+      const list = usages.get(key) ?? [];
+      list.push(usage(record, path));
+      usages.set(key, list);
+    };
     const recordType = byName.get(record.type);
     if (!recordType) {
       report('E002', '', `Unknown record type "${record.type}"`);
@@ -66,17 +86,35 @@ export function validateRecords(types: readonly RecordType[], records: readonly 
     const count = counts.get(formatRef(record.type, record.id)) ?? 0;
     if (count > 1) report('E004', '', `${count} ${record.type} records have the id "${record.id}"`);
     if (record.unreadable) continue;
-    for (const issue of schemaIssues(recordType.schema, record.value)) report('E001', issue.path, issue.message);
-    for (const found of collectRefs(recordType.schema, record.value)) {
+    const { refs, conditions } = scanRecord(recordType.schema, record.value);
+    // Conditions get checkCondition's messages (E011) rather than zod's.
+    const inCondition = (path: string) => conditions.some((c) => path === c.path || path.startsWith(`${c.path}/`));
+    for (const issue of schemaIssues(recordType.schema, record.value)) {
+      if (!inCondition(issue.path)) report('E001', issue.path, issue.message);
+    }
+    for (const found of refs) {
       const key = resolve(found, report);
       if (key === undefined) continue;
-      const list = usages.get(key) ?? [];
-      list.push(usage(record, found.path));
-      usages.set(key, list);
+      use(key, found.path);
       if (!counts.has(key)) report('E005', found.path, `No record ${key}`);
     }
+    for (const found of conditions) checkConditionField(found, { facts: options.facts, records: index, report, use });
   }
   return { diagnostics: diagnostics.sort(compareDiagnostics), usedBy: sortUsages(usages) };
+}
+
+/**
+ * The records by type, for conditions. Order doesn't matter: the lint only needs some id other
+ * than those a condition names, and every such id behaves the same.
+ */
+function recordIndex(records: readonly RecordInput[], counts: ReadonlyMap<string, number>): RecordIndex {
+  const ids = new Map<string, string[]>();
+  for (const { type, id } of records) {
+    const list = ids.get(type);
+    if (list) list.push(id);
+    else ids.set(type, [id]);
+  }
+  return { ids: (type) => ids.get(type) ?? [], has: (type, id) => counts.has(formatRef(type, id)) };
 }
 
 /** Throws on programmer errors: two types with one name, or a reference to a type nobody defined. */

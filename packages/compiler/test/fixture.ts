@@ -4,6 +4,8 @@ import { join, relative, sep } from 'node:path';
 /** A project saved by format 1. It must keep compiling, to the same hash, until a decision says otherwise. */
 export const FIXTURE_V1 = join(import.meta.dirname, 'fixtures/v1');
 export const FIXTURE_TYPES = join(import.meta.dirname, 'fixtures/types.ts');
+/** The fixture's types plus an event type with conditions, and the facts to check them against. */
+export const EVENT_TYPES = join(import.meta.dirname, 'fixtures/event-types.ts');
 
 /** A folder's files as `{ path: text }`, with `/` between folders. */
 export function readFixture(dir: string): Record<string, string> {
