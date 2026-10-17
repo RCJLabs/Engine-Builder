@@ -1,0 +1,9 @@
+{
+  "//": "The build config runs in Node; the page never sees Node types.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts"]
+}
