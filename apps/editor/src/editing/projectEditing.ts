@@ -34,8 +34,11 @@ export interface EditTarget {
   readonly recover?: () => Promise<number>;
   /** An opened folder: whether the editor may change it yet, and asking, which needs a tap. */
   readonly writable?: { readonly allowed: () => Promise<boolean>; readonly ask: () => Promise<boolean> };
-  /** After an edit or another tab's save (`changes` unknown then): re-read what shows the project. */
-  readonly changed: (changes?: readonly FileChange[]) => void;
+  /**
+   * After an edit, an undo, or another tab's save: re-read what shows the project. `paths` are the
+   * files that changed; without them, any may have.
+   */
+  readonly changed: (paths?: readonly string[]) => void;
 }
 
 export interface EditingDeps {
@@ -82,9 +85,9 @@ function begin(state: State, open: EditTarget): void {
     copy: open.copy,
     write: async (files) => {
       await open.write(files);
-      state.deps.tabs.post({ kind: 'saved', lock: open.lockName });
+      state.deps.tabs.post({ kind: 'saved', lock: open.lockName, paths: files.map((file) => file.path) });
     },
-    changed: open.changed,
+    changed: (changes) => open.changed(changes.map((change) => change.path)),
   });
   state.access.value = { kind: 'editing' };
 }
@@ -101,6 +104,8 @@ function end(state: State, next: Access): void {
   state.lock?.release();
   state.lock = null;
   state.access.value = next;
+  // The edits laid over the files are gone, so what shows the project reads the files again.
+  if (next.kind !== 'closed') state.target?.changed();
 }
 
 /** With the lock in hand (or no locks at all): finish any cut-short save, then edit. */
@@ -115,8 +120,10 @@ async function hold(state: State, open: EditTarget, held: HeldLock | null): Prom
       note: 'This tab stopped editing: another tab took over, or the browser let it go. Edits made here since the last save were not kept.',
     });
   });
-  if (((await open.recover?.()) ?? 0) > 0) state.deps.note('Finished a save that was cut short.');
-  open.changed();
+  const finished = (await open.recover?.()) ?? 0;
+  if (finished > 0) state.deps.note('Finished a save that was cut short.');
+  // Opening has just read the project; a tab taking over reads what the other tab saved last.
+  if (finished > 0 || state.access.value.kind !== 'closed') open.changed();
   if (open.writable && !(await open.writable.allowed())) state.access.value = { kind: 'ask-to-write' };
   else begin(state, open);
 }
@@ -126,7 +133,7 @@ function hear(state: State, said: TabMessage): void {
   const open = state.target;
   const now = state.access.value.kind;
   if (!open || said.lock !== open.lockName) return;
-  if (said.kind === 'saved' && now !== 'editing') open.changed();
+  if (said.kind === 'saved' && now !== 'editing') open.changed(said.paths);
   if (said.kind === 'hand-over' && now === 'ask-to-write') end(state, { kind: 'elsewhere' });
   if (said.kind === 'hand-over' && now === 'editing') {
     // Saved first, so the other tab opens the files as this tab leaves them.
@@ -225,6 +232,8 @@ export function createEditing(deps: EditingDeps): Editing {
       if (!opened || !deps.locks || state.access.value.kind !== 'elsewhere') return;
       const held = await takeLock(deps.locks, opened.lockName, { ifAvailable: true });
       if (held) await hold(state, opened, held);
+      // Still another tab's: whatever it saved while this page was away went unheard.
+      else opened.changed();
     },
     allowWriting: async () => {
       const opened = state.target;

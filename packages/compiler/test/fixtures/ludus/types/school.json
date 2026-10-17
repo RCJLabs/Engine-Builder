@@ -1,6 +1,7 @@
 {
   "title": "School",
   "description": "A gladiator school, a ludus.",
+  "nameField": "name",
   "fields": {
     "name": {
       "kind": "text",

@@ -52,7 +52,8 @@ function world() {
         timers.push(run);
       },
     });
-    let changed = 0;
+    // What each call to `changed` was told changed: paths, or undefined for "anything may have".
+    const heard: (readonly string[] | undefined)[] = [];
     const target: EditTarget = {
       lockName: 'eb-editor:project:salvage-run',
       copy: workingCopy(memorySource({ 'project.json': MANIFEST })),
@@ -61,7 +62,7 @@ function world() {
         saved.push(files);
       },
       recover: async () => options.recovered ?? 0,
-      changed: () => changed++,
+      changed: (paths) => heard.push(paths),
       ...(options.writable ? { writable: options.writable } : {}),
     };
     const rename = (to: string) =>
@@ -75,7 +76,8 @@ function world() {
       notes,
       target,
       rename,
-      changes: () => changed,
+      heard,
+      changes: () => heard.length,
       timeUp: () => {
         for (const run of timers) run();
       },
@@ -108,6 +110,20 @@ describe('one editing tab per project', () => {
     await settle();
     expect(saved).toHaveLength(1);
     expect(b.changes()).toBe(before + 1);
+    // The save names the files it wrote, so the read-only tab reads only those again.
+    expect(b.heard.at(-1)).toEqual(['project.json']);
+    expect(a.heard).toEqual([['project.json']]);
+  });
+
+  it('reads nothing again as it opens, unless a save cut short was finished', async () => {
+    const { tab } = world();
+    const a = tab();
+    await a.editing.open(a.target);
+    expect(a.heard).toEqual([]);
+    await a.editing.close();
+    const b = tab({ recovered: 1 });
+    await b.editing.open(b.target);
+    expect(b.heard).toEqual([undefined]);
   });
 
   it('hands editing over when asked: the editing tab saves first and goes read only', async () => {
@@ -124,6 +140,8 @@ describe('one editing tab per project', () => {
     expect(b.editing.access.value.kind).toBe('editing');
     // Its own edits forgotten, the tab that let go reads its files again (here, as first stored).
     expect(a.target.copy.unsaved().size).toBe(0);
+    expect(a.heard.at(-1)).toBeUndefined();
+    expect(b.heard.at(-1)).toBeUndefined();
     expect(new TextDecoder().decode(await a.target.copy.read('project.json'))).toContain('"Salvage Run"');
   });
 
@@ -170,8 +188,11 @@ describe('one editing tab per project', () => {
     const b = tab();
     await a.editing.open(a.target);
     await b.editing.open(b.target);
+    const before = b.changes();
     await b.editing.retake();
     expect(b.editing.access.value.kind).toBe('elsewhere');
+    // Back from the back/forward cache, it may have missed saves: it reads everything again.
+    expect(b.heard.slice(before)).toEqual([undefined]);
     await a.editing.close();
     await b.editing.retake();
     expect(b.editing.access.value.kind).toBe('editing');
