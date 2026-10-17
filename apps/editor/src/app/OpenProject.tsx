@@ -1,6 +1,6 @@
-import { RecordsBrowser } from '../forms/RecordsBrowser.tsx';
 import { busy, closeProject, copyCurrentIn, exportCurrent, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
+import { TypeList } from '../records/TypeList.tsx';
 import { EditState } from './EditState.tsx';
 import { ProjectFields } from './ProjectFields.tsx';
 
@@ -32,7 +32,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       ) : (
         <p class="muted">No problems found.</p>
       )}
-      <RecordsBrowser project={project} />
+      <TypeList project={project} />
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>
           Export zip

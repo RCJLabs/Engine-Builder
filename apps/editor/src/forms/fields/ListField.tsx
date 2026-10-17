@@ -1,5 +1,6 @@
 import type { ValueDef } from '@eb/schema';
-import { useEffect, useId, useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { FieldNotes, type FieldProps, Legend, WrongShape } from '../FieldShell.tsx';
 import { FieldView } from '../FieldView.tsx';
 import { pointerOf, useForm } from '../formContext.ts';
@@ -17,7 +18,7 @@ type Change = (said: string, make: (list: unknown[]) => unknown[], focus: string
  */
 export function ListField({ label, def, info, path, value }: FieldProps<ListDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const box = useRef<HTMLFieldSetElement>(null);
   const focusNext = useRef<{ selector: string; until: number } | null>(null);
   const items = Array.isArray(value) ? value : null;

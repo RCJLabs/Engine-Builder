@@ -1,5 +1,5 @@
 import type { ValueDef } from '@eb/schema';
-import { useId } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { useDraft } from '../../editing/draft.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
@@ -12,7 +12,7 @@ type TextDef = Extract<ValueDef, { kind: 'text' }>;
  */
 export function TextField({ label, def, info, path, value, quietLabel }: FieldProps<TextDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const draft = useDraft(typeof value === 'string' ? value : asWritten(value));
   const { shown, onFocus, onBlur } = useShownProblems(form.problemsAt(pointerOf(path)));
   const text = draft.shown;
@@ -20,7 +20,7 @@ export function TextField({ label, def, info, path, value, quietLabel }: FieldPr
     id,
     class: 'field form-input',
     // A field of the project: its undo keys undo the editor's steps, not the browser's text (undoKeys.ts).
-    'data-project-field': true,
+    'data-project-field': form.ownUndo ? undefined : true,
     value: text,
     readOnly: !form.canEdit,
     'aria-invalid': shown.length > 0 ? ('true' as const) : undefined,

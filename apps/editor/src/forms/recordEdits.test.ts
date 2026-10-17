@@ -4,7 +4,16 @@ import { describe, expect, it } from 'vitest';
 import type { Timers } from '../editing/autosave.ts';
 import { editSession } from '../editing/editSession.ts';
 import { workingCopy } from '../editing/workingCopy.ts';
-import { changeRecord, createRecordFile, deleteRecordFile, loadRecord, newFileText } from './recordEdits.ts';
+import {
+  changeRecord,
+  changeRecords,
+  createRecordFile,
+  deleteRecordFile,
+  deleteRecordFiles,
+  duplicateRecordFile,
+  loadRecord,
+  newFileText,
+} from './recordEdits.ts';
 import { newRecord, setIn } from './values.ts';
 
 const BOM = String.fromCharCode(0xfeff);
@@ -90,6 +99,53 @@ describe('creating and deleting records', () => {
     expect(await deleteRecordFile(copy, FILE)).toEqual([]);
     await session.undo();
     expect(text(await copy.read(FILE))).toBe(SPICULUS);
+  });
+});
+
+describe('changing, copying and deleting many records', () => {
+  const PRISCUS = 'records/gladiator/priscus.json';
+  const TWO = { [FILE]: SPICULUS, [PRISCUS]: '{\n  "name": "Priscus",\n  "might": 72\n}\n' };
+
+  it('changes many records as one step, each in its own layout, and undo takes all back', async () => {
+    const { copy, session } = setup(TWO);
+    await session.edit('Set might', (c) =>
+      changeRecords(c, [FILE, PRISCUS, 'records/gladiator/gone.json'], (v) => setIn(v, ['might'], 90, gladiator)),
+    );
+    expect(text(await copy.read(FILE))).toBe(SPICULUS.replace('"might": 72', '"might": 90'));
+    expect(text(await copy.read(PRISCUS))).toBe('{\n  "name": "Priscus",\n  "might": 90\n}\n');
+    expect(session.history.value.past).toHaveLength(1);
+    await session.undo();
+    expect(text(await copy.read(FILE))).toBe(SPICULUS);
+    expect(text(await copy.read(PRISCUS))).toBe(TWO[PRISCUS]);
+  });
+
+  it('leaves out records the change leaves as they were', async () => {
+    const { copy } = setup(TWO);
+    const changes = await changeRecords(copy, [FILE, PRISCUS], (v) => setIn(v, ['name'], 'Priscus', gladiator));
+    expect(changes.map((c) => c.path)).toEqual([FILE]);
+  });
+
+  it('deletes many as one step, passing over those already gone', async () => {
+    const { copy, session } = setup(TWO);
+    await session.edit('Delete', (c) => deleteRecordFiles(c, [FILE, 'records/gladiator/gone.json', PRISCUS]));
+    expect(await copy.read(FILE)).toBeUndefined();
+    expect(await copy.read(PRISCUS)).toBeUndefined();
+    await session.undo();
+    expect(text(await copy.read(PRISCUS))).toBe(TWO[PRISCUS]);
+  });
+
+  it('copies a record byte for byte, or with its new name in its own layout, and never over one', async () => {
+    const { copy, session } = setup(TWO);
+    const COPY = 'records/gladiator/spiculus-2.json';
+    await session.edit('Duplicate', (c) => duplicateRecordFile(c, FILE, COPY));
+    expect(await copy.read(COPY)).toEqual(await copy.read(FILE));
+    const NAMED = 'records/gladiator/spiculus-3.json';
+    await session.edit('Duplicate', (c) =>
+      duplicateRecordFile(c, FILE, NAMED, (v) => setIn(v, ['name'], 'Spiculus III', gladiator)),
+    );
+    expect(text(await copy.read(NAMED))).toBe(SPICULUS.replace('"Spiculus"', '"Spiculus III"'));
+    await expect(duplicateRecordFile(copy, FILE, PRISCUS)).rejects.toThrow(`${PRISCUS} exists already`);
+    expect(await duplicateRecordFile(copy, 'records/gladiator/gone.json', COPY)).toEqual([]);
   });
 });
 

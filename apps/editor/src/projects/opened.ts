@@ -14,6 +14,7 @@ import { type WorkingCopy, workingCopy } from '../editing/workingCopy.ts';
 import { type Catalog, readCatalog } from '../forms/catalog.ts';
 import { chosen } from '../forms/selection.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
+import { forgetTables } from '../records/viewState.ts';
 import { type FolderHandle, folderAccess } from './folders.ts';
 import { type Library, PROJECTS_DIR } from './library.ts';
 import type { OpfsWorker } from './opfsClient.ts';
@@ -76,6 +77,7 @@ function refresher(copy: WorkingCopy): Refresh {
 async function show(where: OpenProject['where'], label: string, copy: WorkingCopy, refresh: Refresh) {
   const [summary, catalog] = await Promise.all([summarize(copy), readCatalog(copy)]);
   chosen.value = null;
+  forgetTables();
   current.value = { where, label, source: copy, summary, catalog, index: null };
   refresh(null);
   return summary.project?.name;
@@ -123,5 +125,6 @@ export async function openFolderProject(handle: FolderHandle, key: number | null
 export function closeOpen(): Promise<void> {
   current.value = null;
   chosen.value = null;
+  forgetTables();
   return editing.close();
 }

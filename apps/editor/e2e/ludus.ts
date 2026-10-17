@@ -47,10 +47,32 @@ export async function showProject(page: Page): Promise<void> {
   if (await tab.isVisible()) await tab.click();
 }
 
-/** Opens a record from the Project panel's list; its form shows in the inspector. */
+/** The Records panel to the front, where tabs share a zone (phone, tablet) or a dock group (desktop). */
+export async function showRecords(page: Page): Promise<void> {
+  const tab = page.getByRole('tab', { name: 'Records' });
+  if (await tab.isVisible()) await tab.click();
+}
+
+/** The Records panel's table of a type, by the type's title ("Gladiator"). */
+export const recordsTable = (page: Page, title: string): Locator =>
+  page.getByRole('region', { name: `${title} records` });
+
+/** Shows a type's table in the Records panel (the ludus types are named for their titles). */
+export async function showTable(page: Page, title: string): Promise<Locator> {
+  await showRecords(page);
+  await page.getByLabel('Type', { exact: true }).selectOption(title.toLowerCase());
+  const table = recordsTable(page, title);
+  await expect(table).toBeVisible();
+  return table;
+}
+
+/** A record's button in its table: named by the record's name, if it has one, then its id. */
+export const recordLink = (table: Locator, id: string): Locator =>
+  table.getByRole('rowheader').getByRole('button', { name: new RegExp(`(^| )${id}$`) });
+
+/** Opens a record from the Records panel's table; its form shows in the inspector. */
 export async function openRecord(page: Page, type: string, id: string): Promise<Locator> {
-  await showProject(page);
-  await page.getByRole('region', { name: 'Records' }).getByRole('button', { name: id, exact: true }).click();
+  await recordLink(await showTable(page, type), id).click();
   const form = page.getByRole('region', { name: `${type} ${id}` });
   await expect(form).toBeVisible();
   return form;

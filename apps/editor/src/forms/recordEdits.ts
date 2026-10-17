@@ -1,9 +1,9 @@
 /**
- * Reading a record for its form, and the file changes a form makes: one record's value changed in
- * its own layout (editing/jsonText.ts), a record created, a record deleted. Each is a step the
- * command log can undo (D30).
+ * Reading a record for its form, and the file changes forms and tables make: one record's value
+ * changed in its own layout (editing/jsonText.ts), a record created, copied or deleted, and the
+ * same change to many. Each is a step the command log can undo (D30).
  */
-import { type ProjectSource, parseJsonFile } from '@eb/compiler';
+import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
 import type { FileChange } from '../editing/history.ts';
 import { editJson } from '../editing/jsonText.ts';
 
@@ -41,6 +41,50 @@ export async function createRecordFile(source: ProjectSource, file: string, valu
 }
 
 export async function deleteRecordFile(source: ProjectSource, file: string): Promise<FileChange[]> {
-  const before = await source.read(file);
-  return before === undefined ? [] : [{ path: file, before, after: null }];
+  return deleteRecordFiles(source, [file]);
+}
+
+/** Several records deleted as one step (M2.5's tables); files already gone are passed over. */
+export async function deleteRecordFiles(source: ProjectSource, files: readonly string[]): Promise<FileChange[]> {
+  const read = await readFiles(source, files);
+  return files.flatMap((path) => {
+    const before = read.get(path);
+    return before === undefined ? [] : [{ path, before, after: null }];
+  });
+}
+
+/**
+ * The same change made to several records, as one step (M2.5's bulk edits): each file in its own
+ * layout, and those the change leaves as they were left out. Read 32 at a time, as export reads.
+ */
+export async function changeRecords(
+  source: ProjectSource,
+  files: readonly string[],
+  change: (value: unknown) => unknown,
+): Promise<FileChange[]> {
+  const read = await readFiles(source, files);
+  const changes: FileChange[] = [];
+  for (const path of files) {
+    const before = read.get(path);
+    if (before === undefined) continue;
+    const after = editJson(before, change);
+    if (after !== before) changes.push({ path, before, after });
+  }
+  return changes;
+}
+
+/**
+ * A copy of the record at `from`, saved at `to`: the same bytes, in the same layout, after
+ * `change` when there is one (the copy's new name). Never overwrites a record that is there.
+ */
+export async function duplicateRecordFile(
+  source: ProjectSource,
+  from: string,
+  to: string,
+  change?: (value: unknown) => unknown,
+): Promise<FileChange[]> {
+  const bytes = await source.read(from);
+  if (bytes === undefined) return [];
+  if ((await source.read(to)) !== undefined) throw new Error(`${to} exists already`);
+  return [{ path: to, before: null, after: change ? editJson(bytes, change) : bytes }];
 }

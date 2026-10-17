@@ -1,11 +1,12 @@
 import { FIELD_NAME_PATTERN, type ValueDef } from '@eb/schema';
-import { useId, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { FieldNotes, type FieldProps, Legend, WrongShape } from '../FieldShell.tsx';
 import { FieldView } from '../FieldView.tsx';
 import { pointerOf, useForm } from '../formContext.ts';
 import { type Choice, Picker } from '../Picker.tsx';
+import { refChoices } from '../refChoices.ts';
 import { emptyValue, type Path, renameKey, withKey } from '../values.ts';
-import { refChoices } from './PickField.tsx';
 
 type MapDef = Extract<ValueDef, { kind: 'map' }>;
 
@@ -28,14 +29,14 @@ type Update = (said: string, make: (map: Record<string, unknown>) => Record<stri
  */
 export function MapField({ label, def, info, path, value }: FieldProps<MapDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const [picking, setPicking] = useState<{ rename?: string } | null>(null);
   const entries = isObject(value) ? Object.entries(value) : null;
   const taken = new Set((entries ?? []).map(([key]) => key));
   const all: Choice[] = !def.key
     ? []
     : def.key.kind === 'ref'
-      ? refChoices(def.key, form.catalog.records)
+      ? refChoices(def.key, form.catalog.records, form.names)
       : def.key.values.map((v) => ({ value: v, label: v }));
   const free = (keep?: string) => all.filter((c) => c.value === keep || !taken.has(c.value));
   const update: Update = (said, make) =>
@@ -134,7 +135,7 @@ function MapEntry(props: {
 function NameKey(props: { label: string; name?: string; taken: ReadonlySet<string>; rename: (key: string) => void }) {
   const { label, name, taken, rename } = props;
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const [typed, setTyped] = useState<string | null>(null);
   const shown = typed ?? name ?? '';
   const others = new Set([...taken].filter((k) => k !== name));

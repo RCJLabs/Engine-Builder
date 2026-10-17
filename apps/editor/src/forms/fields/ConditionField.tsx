@@ -1,5 +1,5 @@
 import { type Condition, checkCondition, describeCondition, parseCondition, printCondition } from '@eb/core';
-import { useId } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { useDraft } from '../../editing/draft.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell, type Problem } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
@@ -20,7 +20,7 @@ const asText = (value: unknown): string => {
  */
 export function ConditionField({ label, info, path, value, quietLabel }: FieldProps) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const tree = isTree(value);
   const draft = useDraft(asText(value));
   const text = draft.shown;
@@ -46,7 +46,7 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
         spellcheck={false}
         autocapitalize="none"
         autoComplete="off"
-        data-project-field
+        data-project-field={form.ownUndo ? undefined : true}
         placeholder="like: arena.day and not crowd.angry"
         aria-invalid={shown.length > 0 ? 'true' : undefined}
         aria-describedby={

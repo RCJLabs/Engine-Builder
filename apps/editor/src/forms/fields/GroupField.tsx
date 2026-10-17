@@ -1,5 +1,5 @@
 import type { ValueDef } from '@eb/schema';
-import { useId } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { FieldNotes, type FieldProps, Legend, WrongShape } from '../FieldShell.tsx';
 import { FieldView } from '../FieldView.tsx';
 import { pointerOf, useForm } from '../formContext.ts';
@@ -17,7 +17,7 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
  */
 export function GroupField({ label, def, info, path, value }: FieldProps<GroupDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const problems = form.problemsAt(pointerOf(path));
   const clear = info.optional && value !== undefined && form.canEdit;
   return (

@@ -1,6 +1,6 @@
 /** The fields picked rather than typed: one of a list, yes or no, and a colour. */
 import { COLOUR_PATTERN, type ValueDef } from '@eb/schema';
-import { useId } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { asWritten, describedBy, FieldLabel, FieldNotes, type FieldProps, FieldShell } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
 
@@ -12,7 +12,7 @@ type EnumDef = Extract<ValueDef, { kind: 'enum' }>;
  */
 export function EnumField({ label, def, info, path, value, quietLabel }: FieldProps<EnumDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const { shown, onFocus, onBlur } = useShownProblems(form.problemsAt(pointerOf(path)));
   const held = typeof value === 'string' ? value : asWritten(value);
   const stray = value !== undefined && !def.values.includes(held);
@@ -47,7 +47,7 @@ export function EnumField({ label, def, info, path, value, quietLabel }: FieldPr
 /** Yes or no: a box to tick, its label beside it, the whole row the target a thumb taps. */
 export function BoolField({ label, info, path, value, quietLabel }: FieldProps) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const { shown, onFocus, onBlur } = useShownProblems(form.problemsAt(pointerOf(path)));
   const clear =
     info.optional && value !== undefined && form.canEdit ? () => form.set(path, undefined, label) : undefined;
@@ -76,7 +76,7 @@ export function BoolField({ label, info, path, value, quietLabel }: FieldProps) 
 /** A colour from the platform's colour picker, written as the web writes it: "#" and six hex digits. */
 export function ColourField({ label, info, path, value, quietLabel }: FieldProps) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const { shown, onFocus, onBlur } = useShownProblems(form.problemsAt(pointerOf(path)));
   const held = typeof value === 'string' ? value : asWritten(value);
   const sound = COLOUR_PATTERN.test(held);

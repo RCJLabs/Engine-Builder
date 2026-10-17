@@ -28,12 +28,12 @@ for (const viewport of [
       expect(await smallTargets(page, '[data-panel="inspector"]')).toEqual([]);
       await expectNoAxeIssues(page);
 
-      await form.getByRole('button', { name: 'School ludus-magnus' }).tap();
+      await form.getByRole('button', { name: 'School Ludus Magnus ludus-magnus' }).tap();
       const picker = page.getByRole('dialog', { name: 'Choose a school' });
       await expect(picker).toBeVisible();
       await expectNothingOffscreen(page);
       expect(await smallTargets(page, 'dialog[open]')).toEqual([]);
-      await picker.getByRole('option', { name: 'ludus-dacicus' }).tap();
+      await picker.getByRole('option', { name: 'Ludus Dacicus (ludus-dacicus)' }).tap();
       await expect.poll(() => stored(page, SPICULUS)).toMatchObject({ school: 'ludus-dacicus' });
       expect(errors).toEqual([]);
     });

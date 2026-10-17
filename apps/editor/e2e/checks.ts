@@ -59,9 +59,21 @@ export function smallTargets(page: Page, scope: string): Promise<string[]> {
 
 /**
  * No axe violations of any impact. It once let moderate ones through, and a dock that repeated
- * each group's landmark passed (M2.2), so every impact counts.
+ * each group's landmark passed (M2.2), so every impact counts. Also no id on two elements: axe
+ * no longer looks, and a label pointing at a shared id names the first element that has it (M2.5:
+ * the dock's panels, each its own render root, made the same ids).
  */
 export async function expectNoAxeIssues(page: Page): Promise<void> {
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(violations.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes[0]?.target.join(' ')})`)).toEqual([]);
+  const twice = await page.evaluate(() => {
+    const seen = new Set<string>();
+    const found = new Set<string>();
+    for (const el of document.querySelectorAll('[id]')) {
+      if (seen.has(el.id)) found.add(el.id);
+      seen.add(el.id);
+    }
+    return [...found];
+  });
+  expect(twice, 'ids on more than one element').toEqual([]);
 }
