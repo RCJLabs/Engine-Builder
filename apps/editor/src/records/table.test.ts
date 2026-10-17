@@ -178,6 +178,20 @@ describe('viewRows', () => {
     expect(view(f('problems', 'none'), f('used-by', 'any'))).toEqual([]);
   });
 
+  it('finds a list’s items by what the cell shows or by what the file holds', async () => {
+    const { rows, columns, ids, text } = await table('troupe', {
+      'types/troupe.json': { title: 'Troupe', fields: { schools: { kind: 'list', of: { kind: 'ref', to: 'school' } } } },
+      'records/troupe/t1.json': { schools: ['ludus-magnus'] },
+      'records/troupe/t2.json': { schools: ['ludus-dacicus'] },
+    });
+    expect(text('t1', 'field:schools')).toBe('Ludus Magnus');
+    const contains = (value: string) =>
+      ids(viewRows(rows, columns, { ...DEFAULT_VIEW, filters: [{ column: 'field:schools', test: 'contains', value }] }));
+    expect(contains('magnus')).toEqual(['t1']);
+    // The id, which the cell shows by name only.
+    expect(contains('ludus-mag')).toEqual(['t1']);
+  });
+
   it('lets an incomplete filter through, saying why', async () => {
     const { rows, columns, column } = await table('gladiator');
     const all = rows.length;

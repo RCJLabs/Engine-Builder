@@ -59,7 +59,7 @@ test('sorts by any column, searches every cell, and filters by field', async ({ 
   await expect(page.getByRole('button', { name: 'Add a filter' })).toBeFocused();
   await expectRows(table, ['spiculus', 'priscus']);
 
-  // The Project panel's types open their tables; each keeps its own view.
+  // The Project panel's types open their tables; each keeps its own view while the project is open.
   await openProject(page).getByRole('button', { name: 'School 2 records' }).click();
   const schools = page.getByRole('region', { name: 'School records' });
   await expectRows(schools, ['ludus-dacicus', 'ludus-magnus']);
@@ -71,6 +71,12 @@ test('sorts by any column, searches every cell, and filters by field', async ({ 
   ).toHaveText('2');
   await page.getByLabel('Type', { exact: true }).selectOption('gladiator');
   await expectRows(table, ['spiculus', 'priscus']);
+  // Opened again, a project's tables start afresh.
+  await openProject(page).getByRole('button', { name: 'Close' }).click();
+  await page.getByRole('list', { name: 'Projects in this browser' }).getByRole('button', { name: 'Open' }).click();
+  await showTable(page, 'Gladiator');
+  await expectRows(table, ['flamma', 'priscus', 'spiculus']);
+  await expect(page.getByRole('list', { name: 'Filters' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -97,6 +103,15 @@ test('sets a field on the records selected, as one step undo takes back', async 
   await bulk.getByRole('button', { name: 'Set on 2 records' }).click();
   await expect(page.getByRole('button', { name: 'Edit a field' })).toBeFocused();
   await expect.poll(() => stored(page, SPICULUS)).toMatchObject({ might: 50 });
+  // Ctrl+Z in a bulk edit's box undoes its text, not the project's last step, which it never made.
+  await page.getByRole('button', { name: 'Edit a field' }).click();
+  await bulk.getByLabel('Field', { exact: true }).selectOption({ label: 'Name' });
+  await bulk.getByLabel('Name', { exact: true }).press('End');
+  await bulk.getByLabel('Name', { exact: true }).pressSequentially('X');
+  await bulk.getByLabel('Name', { exact: true }).press('Control+z');
+  await expect(page.getByRole('button', { name: 'Undo: Set Might on 2 records' })).toBeEnabled();
+  await expect.poll(() => stored(page, SPICULUS)).toMatchObject({ might: 50 });
+  await bulk.getByRole('button', { name: 'Cancel' }).click();
   await expect.poll(() => stored(page, PRISCUS)).toMatchObject({ might: 50 });
   await expect(table.getByRole('row', { name: /Flamma/ })).toContainText('80');
 
@@ -248,4 +263,29 @@ test('opens a project’s table offline: the table loads late, from the offline 
   await expect(page.getByRole('region', { name: 'Gladiator spiculus' })).toBeVisible();
   await context.setOffline(false);
   expect(errors).toEqual([]);
+});
+
+test('draws 100 rows at a time, and focus goes to the first of the last ones shown', async ({ page }) => {
+  const extra: Record<string, string> = {};
+  for (let i = 0; i < 147; i++) {
+    const record = { name: `Gladiator ${i}`, might: i % 101, style: 'murmillo', school: 'ludus-magnus', free: false };
+    extra[`records/gladiator/g${i}.json`] = JSON.stringify({ ...record, skills: [], record: { wins: 0, losses: 0 } });
+  }
+  await importLudus(page, extra);
+  const table = await showTable(page, 'Gladiator');
+  await expect(count(page)).toHaveText('150 records');
+  await expect(table.locator('tbody tr')).toHaveCount(100);
+  // Sorting and searching run over every row, not only those drawn.
+  await table.getByRole('button', { name: 'Might' }).click();
+  await table.getByRole('button', { name: 'Might' }).click();
+  await expect(table.locator('tbody .record-id').first()).toHaveText('g100');
+  // Select all takes every row the view leaves, not only the 100 drawn.
+  await table.getByRole('checkbox', { name: 'Select all 150' }).check();
+  await expect(page.getByRole('region', { name: 'Selected records' })).toContainText('150 selected');
+  await page.getByRole('button', { name: 'Clear selection' }).click();
+  await page.getByRole('button', { name: 'Show 50 more of 50' }).click();
+  await expect(table.locator('tbody tr')).toHaveCount(150);
+  await expect(table.locator('tbody .record-link').nth(100)).toBeFocused();
+  await page.getByLabel('Search Gladiator records').fill('gladiator 146');
+  await expectRows(table, ['g146']);
 });

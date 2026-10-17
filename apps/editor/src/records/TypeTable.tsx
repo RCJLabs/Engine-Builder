@@ -1,5 +1,6 @@
 import type { DataType } from '@eb/schema';
 import { useMemo, useRef, useState } from 'preact/hooks';
+import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { Catalog } from '../forms/catalog.ts';
 import { chosen } from '../forms/selection.ts';
@@ -16,7 +17,6 @@ import { type Column, columnsOf, type Row, rowsOf } from './table.ts';
 import { type View, viewRows } from './view.ts';
 import { setView, viewOf } from './viewState.ts';
 import '../styles/tables.css';
-import { useUniqueId } from '../app/ids.ts';
 
 /** Rows drawn at a time: enough to scroll through, few enough to draw at once on a phone. */
 export const PAGE = 100;
@@ -179,7 +179,20 @@ export function TypeTable({ project, type }: { project: OpenProject; type: strin
       />
       {shown.length > limit ? (
         <div class="form-actions">
-          <button type="button" class="button" onClick={() => setLimit(limit + PAGE)}>
+          <button
+            type="button"
+            class="button"
+            onClick={() => {
+              setLimit(limit + PAGE);
+              // The button stays for more, and keeps focus; the last of them takes it away, so focus
+              // goes to the first row it showed.
+              if (shown.length <= limit + PAGE) {
+                requestAnimationFrame(() =>
+                  region.current?.querySelectorAll<HTMLElement>('.record-link')[limit]?.focus(),
+                );
+              }
+            }}
+          >
             Show {Math.min(PAGE, shown.length - limit)} more of {shown.length - limit}
           </button>
         </div>

@@ -479,6 +479,36 @@ The specs are [specs/type-files.md](specs/type-files.md) and [specs/editor-forms
 - **The text grammar becomes part of the project format.** It can never change in a way that reads old text differently. Its print-then-parse round trip is already property-tested (M1.6).
 - **A text condition reads its arguments through the game's facts**: `hold.count(medkit)` names the fact's one argument without writing its name. A kit that renames that argument changes what the text means.
 
+### D32. Records tables: a Records panel over an index of every record kept up to date by file, filters as rows, bulk edits as one step, and records named by their type's `nameField`. LOCKED, 2026-10-17 (M2.5)
+
+**Decision.**
+- **A Records panel** shows one type's records as a table. It leads the desktop dock's centre group and the tablet's main zone, and sits after Project on a phone. On a phone the table scrolls sideways inside its own region, with its select and record columns pinned.
+- **An index of every record** backs it: each record's value, problems and references, and what refers to each, from the compiler's own `validateRecords`.
+  - It loads with the first project opened, outside the editor's start.
+  - It is kept up to date by file. An edit checks again the records it changed, plus those that refer to a record created or deleted. A change to the types or assets checks every record.
+  - A tab's announcement of a save names the files written, so read-only tabs re-read only those.
+- **Sort, search and filters.** Every column sorts, with `aria-sort` on the sorted header only. Search matches every word, ignoring case and accents. Filters are rows of a column, a test and a value, with the tests following the field's kind.
+- **Bulk edits** set or clear one field on the records selected, with the form's own control, as one step. Duplicate copies one record's file under a new name. Delete takes several as one step and warns when other records refer to them.
+- **"Used by"** in the inspector lists what refers to the record, and ref fields open what they name.
+- **A type may name the field that holds its records' names**: `nameField`, a text field. Tables, pickers and "used by" show names beside ids, and New and Duplicate fill the name from what was typed.
+- **Not in M2.5:** renaming a record and what refers to it. It waits for the record rewriting that M2.6's type and field renames need.
+
+The spec is [specs/editor-tables.md](specs/editor-tables.md). Type-files.md's open question 1 and editor-forms.md's open question 2 are settled.
+
+**Why.**
+- **A panel of its own.** A table needs width, and the World panel's zone has it until Phase 4. The architecture already named a Records panel.
+- **An index, not a compile per change.**
+  - Checking all 2,008 records of the bench project takes 45–123 ms in Node, and reading 1,001 files from OPFS took 524 ms in Chromium (Readings). That is too slow for every keystroke on a phone.
+  - A record's problems depend only on its own value, on which records exist, and on the types and assets. So rechecking what changed, plus the users of records created or deleted, gives the same answer as rechecking everything. A property test holds the index to that after any run of edits, and to the compiler.
+- **Filters as rows.** A row of controls says what it can test. A filter syntax ("might:>70") is shorter, but has to be learned and is slow to type on a phone.
+- **Bulk edits through the form's controls.** Each kind already has a control that checks what is typed, so bulk edits need no second set of editors.
+- **`nameField`.** Ids are made from names at creation, but names change and ids can't yet. A named field is explicit and optional; guessing from a field called "name" would be magic. Contentful's `displayField` and Airtable's primary field do the same job.
+
+**Cost.**
+- **The default desktop and tablet layouts change.** An untouched dock now opens on Records in the middle. Saved layouts get the new panel in their active group.
+- **The editor holds every record in memory**, with its problems. That is fine at thousands of records. A phone may want the checks in a worker; the open question is in the spec.
+- **`nameField` is part of the type file format.** An engine from before M2.5 reports E015 for a type file that uses it.
+
 ---
 
 ## Open

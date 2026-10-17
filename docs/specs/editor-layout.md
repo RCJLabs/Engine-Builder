@@ -15,8 +15,8 @@ The width picks the layout. The breakpoints are written once, in `layout.ts`. Th
 
 | Layout | Width | Panels |
 | --- | --- | --- |
-| Phone | under 600 px | one panel at a time with a bottom tab bar (World, Project, Logic, Play), and the inspector as a sheet |
-| Tablet | 600 to 1,023 px | two zones: World and Play; Inspector, Project and Logic. A phone on its side is usually this |
+| Phone | under 600 px | one panel at a time with a bottom tab bar (World, Project, Records, Logic, Play), and the inspector as a sheet |
+| Tablet | 600 to 1,023 px | two zones: Records, World and Play; Inspector, Project and Logic. A phone on its side is usually this |
 | Desktop | 1,024 px and up | the dock |
 
 An iPad turned from portrait to landscape crosses from tablet to desktop. The dock is built when the desktop layout appears and taken down when it goes.
@@ -26,9 +26,9 @@ An iPad turned from portrait to landscape crosses from tablet to desktop. The do
 - **dockview 8.5.1**, the framework-free package, with `dockview-core` pinned to the same release by an override in `pnpm-workspace.yaml`. Panels render with Preact into the elements dockview asks for.
 - **Loaded only on desktop.** `DesktopLayout` imports `dock/desktopDock.tsx` when it first renders, so a phone never runs dockview's 80.6 kB of gzipped JS or its 10.9 kB of CSS (Readings). The service worker still caches it, since a tablet can turn into a desktop offline.
 - **If its code can't load**, the desktop zones stand in: three fixed zones and the console strip. The console says why.
-- **The panels** are `DOCK_PANELS`: Project, Logic, World, Play, Inspector and Console. A panel's id is also its dockview component name.
+- **The panels** are `DOCK_PANELS`: Project, Logic, Records, World, Play, Inspector and Console. A panel's id is also its dockview component name. The Records panel came with M2.5 ([editor-tables.md](editor-tables.md)).
 - **The first layout:**
-  - three groups side by side: Project with Logic (280 px), World with Play, and Inspector (320 px);
+  - three groups side by side: Project with Logic (280 px), Records with World and Play, and Inspector (320 px). Records leads the middle group, and the tablet's main zone, since the World panel waits for Phase 4;
   - the console along the bottom, 150 px tall.
 - **Tabs are labels only.** dockview's own tab holds a close button inside the tab, which axe reports as nested controls (`nested-interactive`). The editor's panels are moved, never closed.
 - **Floating groups are off.** A floating group covers the panels under it, and the saved layout stays a plain grid.
@@ -53,7 +53,7 @@ An iPad turned from portrait to landscape crosses from tablet to desktop. The do
 
 ## The phone's inspector sheet
 
-- **Where.** `SHEET` in `layout.ts` puts the inspector in a sheet on a phone. The sheet sits between the panel and the tab bar, so the tab bar keeps the other four panels.
+- **Where.** `SHEET` in `layout.ts` puts the inspector in a sheet on a phone. The sheet sits between the panel and the tab bar, so the tab bar keeps the other five panels.
 - **Shut**, it is a 44 px handle: a grip and the word Inspector. The inspector isn't built while the sheet is shut, so its forms (M2.4) don't run out of sight.
 - **Open**, it takes 60% of the zone, and the panel above keeps the rest. The inspector edits what is selected above it, so that stays in view. It is not a modal.
 - **No drag.** The handle is one button with `aria-expanded`, which opens and shuts it. Escape shuts it too, unless the palette is open. Its body scrolls and takes focus.

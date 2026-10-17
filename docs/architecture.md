@@ -288,14 +288,15 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 ## Editor
 
 - **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
-  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, World, Play, Inspector and Console. Assets, Records, Outliner and Problems join as their milestones land.
+  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), World, Play, Inspector and Console. Assets, Outliner and Problems join as their milestones land.
   - Tablet: two zones.
   - Phone: one panel at a time with a bottom tab bar, and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.**
   - Undo and redo through a command log of file changes, autosave through a journal, and one editing tab per project, held by a Web Lock (M2.3, D30, [specs/editor-editing.md](specs/editor-editing.md)).
-  - Forms from each record's type file in the inspector, with pickers for refs and assets, the compiler's problems beside each field, and New and Delete in the Project panel (M2.4, [specs/editor-forms.md](specs/editor-forms.md)). Tables and "used by" follow (M2.5).
+  - Forms from each record's type file in the inspector, with pickers for refs and assets, the compiler's problems beside each field, and New and Delete (M2.4, [specs/editor-forms.md](specs/editor-forms.md)).
+  - Each type's records as a table, to sort, search and filter, and to change many at once, copy and delete; "used by" for every record; all from an index of every record kept up to date by file (M2.5, D32, [specs/editor-tables.md](specs/editor-tables.md)).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.

@@ -109,7 +109,8 @@ function SelectAll({ all, count, toggle }: { all: Picked; count: number; toggle:
       type="checkbox"
       class="pick-box"
       checked={all === 'all'}
-      aria-label={all === 'all' ? `Unselect all ${count}` : `Select all ${count}`}
+      // One name whatever its state: the box says itself whether it is ticked or mixed.
+      aria-label={`Select all ${count}`}
       onChange={toggle}
     />
   );

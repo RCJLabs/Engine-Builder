@@ -14,7 +14,7 @@ export function ludusZip(extra: Record<string, string> = {}): string {
   const path = join(scratch, `ludus-${Object.keys(extra).length}-${Date.now()}.zip`);
   const script = [
     'import json, os, sys, zipfile',
-    'src, out, extra = sys.argv[1], sys.argv[2], json.loads(sys.argv[3])',
+    'src, out, extra = sys.argv[1], sys.argv[2], json.load(sys.stdin)',
     'with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:',
     '    for base, dirs, files in os.walk(src):',
     '        for f in sorted(files):',
@@ -23,7 +23,8 @@ export function ludusZip(extra: Record<string, string> = {}): string {
     '            if rel not in extra: z.write(full, "ludus/" + rel)',
     '    for rel, text in extra.items(): z.writestr("ludus/" + rel, text)',
   ].join('\n');
-  execFileSync('python3', ['-I', '-c', script, LUDUS, path, JSON.stringify(extra)]);
+  // The extra files go in on stdin: as an argument, a thousand records pass the kernel's limit (E2BIG).
+  execFileSync('python3', ['-I', '-c', script, LUDUS, path], { input: JSON.stringify(extra) });
   return path;
 }
 

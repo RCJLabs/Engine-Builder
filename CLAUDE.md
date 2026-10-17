@@ -55,7 +55,8 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 ```
 apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console, the phone's inspector sheet,
-                       the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show)
+                       the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show),
+                       ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId)
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
@@ -65,11 +66,16 @@ apps/editor/           the editor PWA
                        the app's one Editing; draft.ts holds typed text until its edit lands
   src/forms/           record forms (M2.4): the catalog (types, records, assets), values.ts (paths, empty values,
                        key order), problems.ts (the compiler's diagnostics per field), one component per field kind
-                       in fields/, the picker, RecordForm and the Project panel's RecordsBrowser
+                       in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
+                       and tables make)
+  src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
+                       file, used by), table.ts, cells.ts, filters.ts and view.ts (columns, cells, filters, sort as
+                       plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
-                       targets, axe at every impact); ludus.ts brings the ludus fixture into the editor
+                       targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
+                       editor and opens its tables and records
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
