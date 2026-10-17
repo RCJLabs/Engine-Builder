@@ -3,7 +3,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
-import { EMPTY_INDEX, type RecordIndex, updateIndex, usersOf } from './recordIndex.ts';
+import { EMPTY_INDEX, type RecordIndex, updateIndex, usersOf, usersOutside } from './recordIndex.ts';
 
 /**
  * The ludus project as files that change between reads, as a working copy's do. `reversed` lists
@@ -188,6 +188,22 @@ describe('updateIndex', () => {
     files.write('records/troupe/t1.json', JSON.stringify({ schools: ['ludus-magnus'] }));
     const { index } = await files.update(null);
     expect(usersOf(index, 'school:ludus-magnus')).toEqual(['gladiator:priscus', 'gladiator:spiculus', 'troupe:t1']);
+  });
+
+  it('counts the users outside a set of records, which deleting them all would leave broken', async () => {
+    const files = project();
+    // A type whose records refer to each other.
+    files.write(
+      'types/troupe.json',
+      JSON.stringify({ title: 'Troupe', fields: { rival: { kind: 'ref', to: 'troupe' } } }),
+    );
+    files.write('records/troupe/t1.json', JSON.stringify({ rival: 't2' }));
+    files.write('records/troupe/t2.json', JSON.stringify({ rival: 't1' }));
+    files.write('records/troupe/t3.json', JSON.stringify({ rival: 't1' }));
+    const { index } = await files.update(null);
+    expect(usersOutside(index, new Set(['troupe:t1', 'troupe:t2']))).toEqual(['troupe:t3']);
+    expect(usersOutside(index, new Set(['troupe:t1']))).toEqual(['troupe:t2', 'troupe:t3']);
+    expect(usersOutside(index, new Set(['school:ludus-magnus']))).toEqual(['gladiator:priscus', 'gladiator:spiculus']);
   });
 
   it('keeps every entry when the files read the same again', async () => {

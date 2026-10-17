@@ -1,7 +1,7 @@
 /** M2.5's Records panel on a desktop: the table, its search, filters and sort, bulk edits, copies and "used by". */
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
-import { importLudus, openProject, openRecord, recordLink, SPICULUS, showTable, stored } from './ludus.ts';
+import { importLudus, ludusZip, openProject, openRecord, recordLink, SPICULUS, showTable, stored } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -95,6 +95,8 @@ test('sets a field on the records selected, as one step undo takes back', async 
   await expect(bulk.getByLabel('Field', { exact: true })).toBeFocused();
   await bulk.getByLabel('Field', { exact: true }).selectOption({ label: 'Might' });
   await expect(bulk).toContainText('These records hold different values for Might now.');
+  // A required field can't be taken off: every record would miss it.
+  await expect(bulk.getByRole('button', { name: /^Clear on/ })).toHaveCount(0);
   await bulk.getByLabel('Might', { exact: true }).fill('150');
   // The first record's own checks, as its form would show them, once the box is left.
   await bulk.getByLabel('Might', { exact: true }).blur();
@@ -288,4 +290,20 @@ test('draws 100 rows at a time, and focus goes to the first of the last ones sho
   await expect(table.locator('tbody .record-link').nth(100)).toBeFocused();
   await page.getByLabel('Search Gladiator records').fill('gladiator 146');
   await expectRows(table, ['g146']);
+});
+
+test('a project opened over another starts its tables afresh', async ({ page }) => {
+  await importLudus(page);
+  const table = await showTable(page, 'Gladiator');
+  await page.getByLabel('Search Gladiator records').fill('magnus');
+  await expectRows(table, ['priscus', 'spiculus']);
+  // Import a zip from the palette, with this project still open: the copy opens in its place.
+  await page.keyboard.press('Control+k');
+  await page.keyboard.type('import a zip');
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press('Enter')]);
+  await chooser.setFiles(ludusZip());
+  await expect(page.locator('.console')).toContainText('Opened Ludus from this browser.', { timeout: 15_000 });
+  await showTable(page, 'Gladiator');
+  await expect(page.getByLabel('Search Gladiator records')).toHaveValue('');
+  await expectRows(table, ['flamma', 'priscus', 'spiculus']);
 });

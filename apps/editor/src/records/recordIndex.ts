@@ -184,3 +184,13 @@ function usedByOf(records: ReadonlyMap<string, IndexedRecord>): Map<string, read
 export const usersOf = (index: RecordIndex, key: string): string[] => [
   ...new Set((index.usedBy.get(key) ?? []).map((usage) => usage.from)),
 ];
+
+/**
+ * The records outside `keys` that refer to one of them: whose references deleting them all would
+ * break. A record that refers to another being deleted with it doesn't count.
+ */
+export function usersOutside(index: RecordIndex, keys: ReadonlySet<string>): string[] {
+  const users = new Set<string>();
+  for (const key of keys) for (const user of usersOf(index, key)) if (!keys.has(user)) users.add(user);
+  return [...users].sort(compareText);
+}

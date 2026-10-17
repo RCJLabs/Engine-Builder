@@ -130,7 +130,7 @@ Labels, descriptions and lists point at elements by id. Preact's `useId` counts 
 ## Checks
 
 - **Unit:**
-  - `records/recordIndex.test.ts`: records read and checked, used by, an edit checking only what it changed, deletes and creates checking their users, types and assets checking all, E007, unchecked types, and the index after any run of edits matching one read afresh (fast-check, 60 runs) and the compiler.
+  - `records/recordIndex.test.ts`: records read and checked, used by, an edit checking only what it changed, deletes and creates checking their users, types and assets checking all, a type file breaking and mending, a read with no paths named, E007, unchecked types, used by in order however files are listed, the users outside a set (the delete warning), and the index after any run of edits matching one read afresh (fast-check, 60 runs) and the compiler.
   - `records/table.test.ts`: columns, cells of every kind, sorts, search and every filter test.
   - `records/names.test.ts`: names, copies' names, path words, ref choices with names.
   - `projects/refresh.test.ts`: reads gathered, "anything" outweighing paths, a stop, a failure, a change as a read ends.
@@ -145,8 +145,12 @@ Labels, descriptions and lists point at elements by id. Preact's `useId` counts 
   - used by, Open, and a deleted record's users;
   - a read-only tab that sorts but can't change, and follows the other tab's edits by file;
   - the table offline;
+  - paging through 150 records, and select all beyond the rows drawn;
+  - views starting afresh when the project closes and opens again, and when another opens over it;
   - on phones, the table scrolling inside its region with its columns pinned;
   - the shared checks (overflow, 44 px targets, axe at every impact, no id twice).
+
+**Planted bugs.** Sixty-two, at the unit and the UI level; the first runs caught 55. Each survivor got a test, now seen failing: a read with no paths named, a type file that breaks and mends, used by from a folder listed backwards, a name only accent folding finds, the delete warning with records that refer to each other, a project opened over another, and no Clear for a required field.
 
 ## Open questions
 

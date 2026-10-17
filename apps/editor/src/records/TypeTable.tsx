@@ -12,6 +12,7 @@ import { Filters, newFilter } from './Filters.tsx';
 import { NameRecord } from './NameRecord.tsx';
 import { copyName, namesOf } from './names.ts';
 import { type Picked, RecordsTable } from './RecordsTable.tsx';
+import { usersOutside } from './recordIndex.ts';
 import { SelectionBar } from './SelectionBar.tsx';
 import { type Column, columnsOf, type Row, rowsOf } from './table.ts';
 import { type View, viewRows } from './view.ts';
@@ -300,11 +301,5 @@ function pickedState(shown: readonly Row[], picked: ReadonlySet<string>): Picked
 }
 
 /** How many records outside the selection refer to a record in it. */
-function usedElsewhere(project: OpenProject, selected: readonly Row[]): number {
-  const keys = new Set(selected.map((row) => row.record.key));
-  const users = new Set<string>();
-  for (const key of keys) {
-    for (const usage of project.index?.usedBy.get(key) ?? []) if (!keys.has(usage.from)) users.add(usage.from);
-  }
-  return users.size;
-}
+const usedElsewhere = (project: OpenProject, selected: readonly Row[]): number =>
+  project.index ? usersOutside(project.index, new Set(selected.map((row) => row.record.key))).length : 0;
