@@ -56,7 +56,7 @@ apps/editor/           the editor PWA
   e2e/                 Playwright specs
 packages/core/         pure kernel (eb.pure)
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
-docs/                  architecture.md, decisions.md, research/
+docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```
 
 ## Writing

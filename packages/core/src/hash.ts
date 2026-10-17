@@ -32,3 +32,8 @@ export function fnv1a32(text: string): number {
   }
   return hash;
 }
+
+/** Hashes several parts with an unambiguous separator, e.g. a seed from (run seed, day, index). */
+export function hashParts(...parts: readonly (string | number)[]): number {
+  return fnv1a32(parts.join('\u001f'));
+}

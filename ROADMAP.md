@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M0.4.** CI's first run on `main` and the Pages deploy (Phase 0). M0.1–M0.3 are done on the first pull request.
+**CURRENT MILESTONE: M1.2.** Canonical state hash (Phase 1). M1.1 (RNG streams) is done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -37,17 +37,20 @@ How to read this file:
 
 - `pnpm check` passes locally and in CI. [auto]
 - Every guard has been seen failing: the purity lint on planted code, three tokenizer mutations, axe, the overflow checks, console errors. [auto] Done on the first PR.
-- The first deploy from `main` is confirmed by `version.json`. [auto]
-- You enabled Pages, opened the editor on your phone, installed it, and reopened it offline. [you]
+- The first deploy from `main` is confirmed by `version.json`. [auto] Done 2026-10-17: CI run 38995712285 saw the live site serve commit `84b8332`.
+- You enabled Pages, opened the editor on your phone, installed it, and reopened it offline. [you] Pages is enabled; the phone check is still open.
 
 ## Phase 1: Deterministic core
 
 **Goal:** the kernel every game runs on. It is pure and headless, and the same in every browser, in Node and in a worker.
 
-- **M1.1 RNG streams.**
+- **M1.1 RNG streams.** Done 2026-10-17.
   - sfc32 seeded through splitmix32, with `fork(label)` streams that don't depend on how many numbers were drawn (as in chooser-of-the-dead).
+  - A stream's state is plain data (`toState` / `fromState`), so it lives in game state.
   - Integer helpers: range, percent chance, weighted pick, shuffle.
-  - `docs/specs/rng.md` with golden vectors, so a C++ port can match it.
+  - [`docs/specs/rng.md`](docs/specs/rng.md) with golden vectors, so a C++ port can match it.
+  - An independent Python implementation, [`rng_oracle.py`](docs/specs/rng_oracle.py), runs in CI against every golden case.
+  - Seven planted bugs were each caught by the tests, and so was breaking only the oracle.
 - **M1.2 Canonical state hash.** Stable serialization (sorted keys, integers only where the sim needs them) and hashes per facet, for goldens and parity.
 - **M1.3 Records registry.**
   - Ids, references and record lookups at runtime.
