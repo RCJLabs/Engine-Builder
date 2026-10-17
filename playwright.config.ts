@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// The built editor, served the way Pages serves it: under the repo's base path.
-const BASE_URL = 'http://localhost:4173/Engine-Builder/';
+// The built editor, served the way Pages serves it: at the root of its own domain (D28).
+const BASE_URL = 'http://localhost:4173/';
 
 export default defineConfig({
   testDir: 'apps/editor/e2e',

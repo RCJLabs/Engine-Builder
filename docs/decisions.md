@@ -100,7 +100,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 
 ### D10. Editor storage: OPFS, "open folder", zip; GitHub sync in Phase 4. PROPOSED until M2.1, 2026-10-17
 
-The domain it lives on is OPEN (ROADMAP open question 1). Browser storage is per origin, so moving domains later strands projects stored in the browser.
+The domain it lives on is settled: engine.rcjlabs.com (D28). Browser storage is per origin, so moving domains later strands projects stored in the browser.
 
 ### D11. Export targets as a per-project matrix. PROPOSED until M4.8, 2026-10-17
 
@@ -335,7 +335,7 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 ### D27. Spikes are separate apps deployed beside the editor, outside its bundle and its offline cache. LOCKED, 2026-10-17 (M1.10)
 
 **Decision.**
-- A spike lives in `apps/spike-<name>` with its own Vite config. It builds into `apps/editor/dist/spikes/<name>/` after the editor has built, so Pages deploys it with the editor at `/Engine-Builder/spikes/<name>/`.
+- A spike lives in `apps/spike-<name>` with its own Vite config. It builds into `apps/editor/dist/spikes/<name>/` after the editor has built, so Pages deploys it with the editor at `/spikes/<name>/`.
 - The editor's service worker lists `/spikes/` in its navigation denylist, and an e2e test proves that an installed editor leaves the spike's page alone.
 - Nothing in `packages/` imports a spike. A spike is deleted once the phase it informs has its own version of the thing measured.
 
@@ -349,11 +349,26 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **The pages are public.** They are deployed for anyone who finds the URL. They are labelled as throwaway, collect nothing and make no network calls of their own.
 - **No offline.** No cache holds a spike, so its page needs the network. That suits a measuring page; the editor and exported games still work offline.
 
+### D28. The editor lives at engine.rcjlabs.com. LOCKED, 2026-10-17 (Evan's call, M2.1)
+
+**Decision.**
+- The editor is served at the root of `engine.rcjlabs.com`, a GitHub Pages custom domain on this repo, like `ascent.`, `spacewrecked.` and `dirtbag.rcjlabs.com`. Its base path is `/`.
+- The move happens before M2.1 stores any project, so nothing is stranded.
+
+**Why.**
+- **Its own origin.** Browser storage, quota and permissions belong to an origin. On `rcjlabs.github.io` the editor would share them with every Pages project that has no custom domain, and any of those pages could read its projects.
+- **A TWA can follow.** `assetlinks.json` must sit at the origin root, which a github.io project path can't serve.
+- **The address outlives the host.** Projects stay put if hosting ever moves off Pages, as long as the domain does.
+
+**Cost.**
+- **One-time setup:** a DNS CNAME record (`engine` to `rcjlabs.github.io`) and the custom domain in the repo's Pages settings.
+- **A short outage at the switch:** the site is broken between setting the domain and the deploy of the `/` base path.
+- **An installed copy at the old address** keeps serving its cached version, because its service worker can't update through the redirect. Reinstall from the new address.
+
 ---
 
 ## Open
 
-- **Editor domain** (ROADMAP open question 1).
 - **Engine licence** (ROADMAP open question 2).
 - **Theme of proof #2** (ROADMAP open question 3).
 - **TWA package id scheme** (ROADMAP open question 4).

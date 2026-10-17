@@ -58,7 +58,7 @@ test.describe('desktop 1280×800', () => {
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
     expect(await visiblePanels(page)).toEqual(['project', 'world', 'inspector']);
-    await expect(page.locator('.console')).toContainText('Phase 0 shell');
+    await expect(page.locator('.console')).toContainText('Engine-Builder');
 
     const project = page.getByRole('tab', { name: 'Project' });
     await project.focus();
@@ -76,7 +76,7 @@ test.describe('desktop 1280×800', () => {
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
     expect(href).toBeTruthy();
     const manifest = await (await request.get(new URL(href ?? '', page.url()).toString())).json();
-    expect(manifest.start_url).toBe('/Engine-Builder/');
+    expect(manifest.start_url).toBe('/');
     expect(manifest.icons.map((i: { sizes: string }) => i.sizes)).toEqual(['192x192', '512x512', '512x512']);
     for (const icon of manifest.icons as { src: string }[]) {
       expect((await request.get(new URL(icon.src, page.url()).toString())).ok(), icon.src).toBe(true);

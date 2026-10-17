@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.1.** Project storage (Phase 2). It starts with your call on the editor's domain (Open questions, 1). Phase 1's milestones, M1.1 to M1.10, are built, and the phase waits only on your phone: open [`/Engine-Builder/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M2.1.** Project storage (Phase 2). It starts with your call on the editor's domain (Open questions, 1). Phase 1's milestones, M1.1 to M1.10, are built, and the phase waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -139,7 +139,7 @@ How to read this file:
 - Save → load → continue matches an uninterrupted run by hash. [auto] Done 2026-10-17 (M1.8): 50 seeds through save files in `packages/core/src/save/save.test.ts`, and 5 through each store in `packages/platform/src/saves.test.ts`.
 - A v1 save fixture loads after a planted v2 migration. [auto] Done 2026-10-17 (M1.8): `packages/core/test/fixtures/saves/salvage-v1.json`, with a planted v2 of the hold.
 - RNG golden vectors are frozen in the spec. [auto] Done 2026-10-17 (M1.1): [`docs/specs/rng.md`](docs/specs/rng.md), checked against `rng_oracle.py` in CI by `packages/core/src/rng.oracle.test.ts`.
-- FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you] The page is live (M1.10): open [`/Engine-Builder/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/) on the phone, tap **Measure all tiers**, and send the reading it ends with.
+- FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you] The page is live (M1.10): open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/) on the phone, tap **Measure all tiers**, and send the reading it ends with.
 
 ## Phase 2: Editor foundation
 
@@ -335,10 +335,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 
 ## Open questions
 
-1. **Editor domain.** `rcjlabs.github.io/Engine-Builder` or a custom subdomain such as `engine.rcjlabs.com`?
-   - Browser storage is per origin. On github.io, projects share quota with every Pages game, and they don't follow a later move.
-   - A TWA needs `assetlinks.json` at the origin root, which a github.io project path can't serve.
-   - Decide before M2.1 stores projects.
+1. **Editor domain.** Settled 2026-10-17: `engine.rcjlabs.com` (D28).
 2. **Engine licence.** chooser-of-the-dead is GPL code with its story and art reserved. Pick before any outside contributions; until then the repo has no licence, which means all rights reserved.
 3. **Theme of proof #2.** Landnam's coast, Wasteland Protocol's desert, Dirtbag's valley, or something new?
 4. **TWA package ids.** `io.github.rcjlabs.*` and `com.rcjlabs.*` are both in use today. Pick one scheme before the first engine-built TWA.

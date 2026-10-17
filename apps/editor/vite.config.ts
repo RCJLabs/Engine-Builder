@@ -6,12 +6,11 @@ import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 /**
- * Where the built editor is served from. A github.io project site lives at `/<repo>/`; a
- * custom domain would serve it at `/` (ROADMAP open question: decide before Phase 2 stores
- * projects, because browser storage is per origin). Asset URLs, the manifest's scope and
- * start_url, and the service worker's navigation fallback all derive from this one value.
+ * Where the built editor is served from: the root of engine.rcjlabs.com, its own origin, so its
+ * storage is its own (D28). Asset URLs, the manifest's scope and start_url, and the service
+ * worker's navigation fallback all derive from this one value; EB_BASE overrides it.
  */
-const BASE = process.env.EB_BASE ?? '/Engine-Builder/';
+const BASE = process.env.EB_BASE ?? '/';
 
 const repoRoot = resolve(import.meta.dirname, '../..');
 // The root package.json is the one place the version is written down.
@@ -77,8 +76,8 @@ export default defineConfig(({ command, isPreview }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
-        // Every app on rcjlabs.github.io shares one origin; a prefixed cache id keeps this
-        // worker's caches apart from the games'.
+        // The editor had rcjlabs.github.io's origin, shared with the games, before it moved to
+        // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',
         cleanupOutdatedCaches: true,
         // The spikes are separate pages deployed beside the editor (apps/spike-3d). Without

@@ -8,7 +8,7 @@ A browser-based game engine and editor. Build worlds, missions, scripts, menus a
 - the sim kernel, conditions and time;
 - saves;
 - a headless runner, with `eb sim` for bot sweeps and golden runs;
-- a throwaway 3D spike at [`/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/), waiting on frame rates from a real phone.
+- a throwaway 3D spike at [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), waiting on frame rates from a real phone.
 
 [ROADMAP.md](ROADMAP.md) holds the plan, and its CURRENT MILESTONE marker says what is being built now.
 

@@ -40,7 +40,7 @@ pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
 pnpm build        # apps/editor/dist, then the 3D spike into apps/editor/dist/spikes/3d
-pnpm e2e          # Playwright against `vite preview` at /Engine-Builder/
+pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> --types <module> --out <file>
