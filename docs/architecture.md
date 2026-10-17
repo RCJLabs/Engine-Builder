@@ -292,10 +292,10 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Phone: one panel at a time with a bottom tab bar, the inspector as a bottom sheet, and a command palette.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.** Undo/redo through a command log, autosave, forms generated from schemas, reference pickers, and "used by".
-- **Storage.**
-  - OPFS everywhere.
+- **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
+  - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.
-  - Zip import and export.
+  - Zip import and export, carrying only the project's own files, the same bytes every time.
   - GitHub sync (Phase 4) is the backup and the route from a phone to a repo.
 - **Play-in-Editor.** The player runtime in an iframe, fed by the compiler in a worker. It has a state inspector, event log, time controls, quest debugger, save states and replay.
 
@@ -338,4 +338,3 @@ These are set from readings, not guesses (see ROADMAP Readings).
 
 - Whether `kits` stays one package or splits by kit once there are several. Decide at M3.3 from the import graph.
 - Whether the sim moves into a Web Worker for 3D games. The action/event boundary already allows it; decide from frame-time readings in Phase 6.
-- Where project storage lives depends on the editor's domain (ROADMAP open question 1).

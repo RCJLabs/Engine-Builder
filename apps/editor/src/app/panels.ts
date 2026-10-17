@@ -14,7 +14,7 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     label: 'Project',
     phase: 'Phase 2',
     summary: 'Create, open and back up projects. A project is a folder of git-friendly JSON files.',
-    coming: ['New project from a template', 'Records and assets browsers', 'Zip import and export, open a git folder'],
+    coming: ['New project from a template', 'Records and assets browsers'],
   },
   world: {
     label: 'World',

@@ -12,12 +12,16 @@
     "icons": "node scripts/icons.ts"
   },
   "dependencies": {
+    "@eb/compiler": "workspace:*",
+    "@eb/core": "workspace:*",
+    "@eb/platform": "workspace:*",
     "@preact/signals": "2.11.3",
     "preact": "11.0.1"
   },
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@preact/preset-vite": "2.10.6",
+    "fake-indexeddb": "6.2.5",
     "vite": "8.3.4",
     "vite-plugin-pwa": "2.0.0",
     "workbox-window": "7.4.1"

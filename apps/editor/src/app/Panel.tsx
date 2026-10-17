@@ -1,9 +1,10 @@
-import { BUILD, buildStamp } from '../build.ts';
 import type { PanelId } from './layout.ts';
+import { ProjectPanel } from './ProjectPanel.tsx';
 import { PANELS } from './panels.ts';
 
-/** A Phase 0 placeholder: what the panel will hold and which phase builds it. */
+/** A panel: the Project panel is real (M2.1); the rest still say what they will hold and which phase builds it. */
 export function Panel({ id }: { id: PanelId }) {
+  if (id === 'project') return <ProjectPanel />;
   const info = PANELS[id];
   return (
     <div class="panel" data-panel={id}>
@@ -17,14 +18,6 @@ export function Panel({ id }: { id: PanelId }) {
           <li key={item}>{item}</li>
         ))}
       </ul>
-      {id === 'project' ? (
-        <dl class="build">
-          <dt>Build</dt>
-          <dd>{buildStamp()}</dd>
-          <dt>Built</dt>
-          <dd>{BUILD.built.slice(0, 16).replace('T', ' ')} UTC</dd>
-        </dl>
-      ) : null}
     </div>
   );
 }

@@ -2,6 +2,21 @@
 export const MANIFEST_FILE = 'project.json';
 export const RECORDS_DIR = 'records';
 
+/**
+ * The folders a project owns: records/ now, and the ones later milestones fill (architecture.md,
+ * Project format). Export, import and copies take project.json and these, so a project at the root
+ * of a game's repo travels without the repo's README or node_modules.
+ */
+export const PROJECT_FOLDERS: readonly string[] = [
+  RECORDS_DIR,
+  'scenes',
+  'ui',
+  'scripts',
+  'dialogue',
+  'assets',
+  'locales',
+];
+
 export type RecordFile =
   | { readonly kind: 'record'; readonly type: string; readonly id: string }
   /** A .json file under records/ at the wrong depth: it looks like a record that would be lost. */

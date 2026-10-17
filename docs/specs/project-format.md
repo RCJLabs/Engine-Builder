@@ -66,10 +66,25 @@ The compiler reads only through a `ProjectSource`:
 | --- | --- | --- |
 | `memorySource(files)` | tests; the editor's memory | Strings are stored as UTF-8. |
 | `directorySource(handle)` | the editor: OPFS and opened folders | File System API handles. `NotFoundError` and `TypeMismatchError` mean missing; other errors are passed on. |
-| `zipSource(bytes)` | the editor and the CLI | The project may sit at the zip's root or in one top folder. `\` counts as `/`. Folder entries are skipped. Throws when the bytes aren't a zip. |
+| `zipSource(bytes, limits?)` | the editor and the CLI | The project may sit at the zip's root or in one top folder. `\` counts as `/`. Folder entries and hidden entries are skipped, never unpacked. Throws when the bytes aren't a zip, and a RangeError past `limits` ([Zips](#zips)). |
 | `folderSource(path)` | the CLI (`tools/cli`) | Node's fs. Hidden folders are never entered, and symbolic links are not followed. |
 
-`directorySource` is tested against a fake that behaves like the File System API. A type check confirms that the browser's own `FileSystemDirectoryHandle` fits it. It meets real OPFS in M2.1, when the editor starts storing projects.
+`directorySource` is tested against a fake that behaves like the File System API. A type check confirms that the browser's own `FileSystemDirectoryHandle` fits it. Since M2.1 it also runs on real OPFS, in the editor's e2e tests ([editor-storage.md](editor-storage.md)).
+
+## Zips
+
+A project travels as a zip: the editor exports one, imports one, and the CLI reads one.
+
+- **What a project carries** (`projectFiles`): project.json and every file in the project's folders (`PROJECT_FOLDERS`: `records`, `scenes`, `ui`, `scripts`, `dialogue`, `assets`, `locales`), sorted, with hidden entries left out. Anything else beside them, such as a game repo's README, `package.json` or `node_modules`, is not the project's and stays behind.
+- **Export** (`zipProject(source, top)`):
+  - the project's files, inside one top folder (the editor uses the project's id);
+  - entries in path order, every one dated midnight, 1 January 1980, and deflated at level 6.
+  - The same files therefore give the same bytes. The date is built from local parts, as zip stores local time, so the bytes don't depend on the machine's time zone either.
+- **Import** (`zipSource(bytes, limits)`):
+  - limits count files and unpacked bytes from the zip's own listing, before anything is unpacked; the editor allows 10,000 files and 100 MB;
+  - fflate unpacks no file past its declared size, so memory stays bounded;
+  - a zip that understates a size gets that file cut short, silently, because fflate checks no CRCs. A record cut that way fails to parse (E007), like a damaged one.
+- **Reading many files** (`readFiles(source, paths)`) reads 32 at a time. A browser's file system answers many reads at once far faster than one after another (Readings).
 
 ## Compiling
 
@@ -154,5 +169,5 @@ pnpm eb build <project> [--types <module>] [--out <file>] [--json]
 
    Record files then stay pure data, with no `$schema` key for strict objects to reject. It is listed under M2.8.
 2. **Duplicate keys in a JSON file.** `JSON.parse` silently keeps the last one, and a git merge can produce duplicates. A warning would need a JSON reader that sees them.
-3. **Zip size.** `zipSource` unpacks everything into memory, so a hostile zip could exhaust it. That's fine for the CLI on our own zips. The editor's zip import (M2.1) should cap the total size.
+3. **Zip size.** Settled in M2.1: `zipSource` takes limits, and the editor's import allows 10,000 files and 100 MB ([Zips](#zips)).
 4. **Where a project's record types come from.** `project.json` gains a `modules` list with M3.3's kits, and the CLI then resolves those modules instead of taking `--types`.

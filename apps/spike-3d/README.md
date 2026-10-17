@@ -2,7 +2,7 @@
 
 A throwaway page that measures what [D8](../../docs/decisions.md) assumes: that a phone can draw a small open world with three.js, on WebGPU or WebGL2, at a usable frame rate, and can load Rapier in reasonable time. Its phone readings set the 3D frame-rate targets, and Phase 5 builds on D8 only after them.
 
-It is served at [`/Engine-Builder/spikes/3d/`](https://rcjlabs.github.io/Engine-Builder/spikes/3d/), beside the editor but not part of it. Nothing in `packages/` imports it, the editor's bundle and offline cache leave it out, and Phase 5's own scenes replace it.
+It is served at [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), beside the editor but not part of it. Nothing in `packages/` imports it, the editor's bundle and offline cache leave it out, and Phase 5's own scenes replace it.
 
 ## Taking a reading on a phone
 

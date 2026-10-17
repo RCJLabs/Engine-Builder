@@ -40,7 +40,7 @@ pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
 pnpm build        # apps/editor/dist, then the 3D spike into apps/editor/dist/spikes/3d
-pnpm e2e          # Playwright against `vite preview` at /Engine-Builder/
+pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> --types <module> --out <file>
@@ -56,6 +56,8 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console
   src/pwa/             service worker registration and the update gate
+  src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session
+  test/                memory-fs.ts (an in-memory File System API), fs-folder.ts (a disk folder behind it)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, axe)
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
@@ -71,7 +73,7 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
 packages/schema/       record types (strict zod), condition(), rollEffect() and the time effects,
                        validation with E/W codes, JSON Schema export; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
-packages/compiler/     project sources (memory, directory handle, zip), compileProject, packs; not pure
+packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence

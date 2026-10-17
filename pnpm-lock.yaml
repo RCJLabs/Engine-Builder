@@ -32,6 +32,15 @@ importers:
 
   apps/editor:
     dependencies:
+      '@eb/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
+      '@eb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@eb/platform':
+        specifier: workspace:*
+        version: link:../../packages/platform
       '@preact/signals':
         specifier: 2.11.3
         version: 2.11.3(preact@11.0.1)
@@ -45,6 +54,9 @@ importers:
       '@preact/preset-vite':
         specifier: 2.10.6
         version: 2.10.6(@babel/core@7.29.7)(preact@11.0.1)(rollup@4.64.7)(vite@8.3.4(@types/node@22.20.5)(terser@5.51.2))
+      fake-indexeddb:
+        specifier: 6.2.5
+        version: 6.2.5
       vite:
         specifier: 8.3.4
         version: 8.3.4(@types/node@22.20.5)(terser@5.51.2)

@@ -1,0 +1,161 @@
+/* The Project panel (M2.1): its actions, the stored projects and recent folders, and the open
+   project. Rows wrap, so on a phone a row's buttons drop below its name instead of squeezing it. */
+
+:root {
+  --danger: #ff8a80;
+  --danger-ink: #2b0b08;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --danger: #b42318;
+    --danger-ink: #ffffff;
+  }
+}
+
+.actions,
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.actions {
+  margin: 12px 0;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.button.danger {
+  color: var(--danger-ink);
+  background: var(--danger);
+  border-color: transparent;
+}
+
+.status {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.status:empty {
+  display: none;
+}
+
+.trouble {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.trouble-text {
+  color: var(--danger);
+}
+
+.storage-line {
+  margin: 10px 0 0;
+  font-size: 13px;
+}
+
+.list-title {
+  margin: 18px 0 6px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.row-text {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.confirm-text {
+  flex-basis: 100%;
+}
+
+.new-project {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.field {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 0 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.field:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.open-project h3 {
+  margin: 12px 0 2px;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 12px 0;
+}
+
+.facts dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.types,
+.problems {
+  margin: 0 0 12px;
+  padding-left: 1.2em;
+}
+
+.problems {
+  color: var(--danger);
+}
+
+.mono {
+  font-family: var(--mono);
+}

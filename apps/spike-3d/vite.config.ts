@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
  * deployed with the editor, but never part of the editor's bundle or its offline precache: the
  * worker's file list is made before these files exist.
  */
-const BASE = `${process.env.EB_BASE ?? '/Engine-Builder/'}spikes/3d/`;
+const BASE = `${process.env.EB_BASE ?? '/'}spikes/3d/`;
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? BASE : '/',
