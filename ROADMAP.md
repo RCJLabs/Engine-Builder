@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.2.** Layout (Phase 2). M2.1 (project storage) is done, on the editor's own domain, engine.rcjlabs.com (D28). Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
+**CURRENT MILESTONE: M2.3.** Editing safety (Phase 2). M2.2 (layout) is done. The live editor waits on engine.rcjlabs.com's DNS record and the custom domain in the repo's Pages settings (D28); until then the deploy check fails on `main`, because the page's scripts don't load. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
 
 How to read this file:
 
@@ -155,7 +155,18 @@ How to read this file:
     - ids longer than 64 characters;
     - sizes counted in 1,024s;
     - the writer's worker left out of the offline cache. Playwright's offline mode doesn't reach a worker's script, so that test now reads the cache itself.
-- **M2.2 Layout.** dockview panels on desktop, with save and restore. On a phone: one panel, the inspector as a bottom sheet, and a command palette.
+- **M2.2 Layout.** Done 2026-10-17.
+  - **Desktop docks its panels** with dockview, loaded only on desktop. Tabs move between groups and split them. The layout is saved in this browser 300 ms after a change and comes back on the next visit. Nothing is saved until the first change, and "Reset the layout" forgets it, so an untouched dock follows the editor's default (D29).
+  - **On a phone, the inspector is a sheet** above the tab bar, so the panel it inspects stays in view.
+  - **A command palette** on every layout, from the top bar or Ctrl/⌘+K. It can start, import, open, export and close projects, show any panel (focus goes with it), and reset the layout.
+  - **The deploy check** now loads what the live page loads, not only `version.json` (`tools/site-check`). It was seen failing on a build for the old `/Engine-Builder/` base.
+  - **Every axe impact counts now.** The shared e2e check let moderate issues through, and the dock's repeated landmarks were moderate.
+  - [`docs/specs/editor-layout.md`](docs/specs/editor-layout.md) is the spec. Thirty-four planted bugs; the first run caught 29, and each survivor changed something:
+    - the ranking test, whose sample commands were already in ranked order;
+    - Ctrl+K, which the tests sent with a capital K, as Caps Lock does;
+    - the shut sheet, which built the inspector out of sight with nothing to say so;
+    - the palette closing before its command runs, which nothing needed until the Show commands moved focus;
+    - a second clear after a failed restore, deleted, since dockview already clears.
 - **M2.3 Editing safety.** Undo/redo through a command log, autosave, and a lock so two tabs can't edit one project.
 - **M2.4 Forms from schemas.** Text, number/slider, enum, a reference picker with search, list, map, colour and asset fields, with inline validation.
   - A condition field: the text form with live errors and `describeCondition` wording (M1.6). Decide here whether record files may hold the text form too ([conditions.md](docs/specs/conditions.md#open-questions), question 1).
@@ -338,6 +349,9 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | 3D spike bundle, gzip | 223.5 kB for the page and three.js (810.0 kB raw); 1,669.3 kB for Rapier (4,332.8 kB raw), whose 3.08 MB of WebAssembly is inlined as base64. A separate `.wasm` would be 1,168.7 kB at gzip -9, against 1,652.9 kB for the compat module | `vite build` output; Python's gzip for the `.wasm` comparison | 2026-10-17 | 1 build |
 | Editor JS, gzip (M2.1) | 51.3 kB, up from 12.7 kB at Phase 0: the compiler with zod and fflate is 33.8 kB of it, loaded at start so the library can read project names. Plus a 1.0 kB OPFS writer worker | `vite build` output; a split build for the compiler's share | 2026-10-17 | 1 build |
 | Editor precache (M2.1) | 17 entries, 195.5 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Editor JS, gzip (M2.2) | 53.5 kB at start, up 2.2 kB from M2.1 for the palette, the sheet and the commands. The dock adds 80.6 kB of JS and 10.9 kB of CSS (339.8 kB and 136.0 kB raw), loaded only on desktop. Its CSS carries 17 themes the editor doesn't use | `vite build` output | 2026-10-17 | 1 build |
+| Editor precache (M2.2) | 19 entries, 668.1 KiB, of which the dock's two files are 464.6 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Desktop dock start | The shell renders 46–66 ms after navigation starts (median 53). The dock is up at 134–159 ms (median 148), 87–100 ms after the shell (median 90). Served from localhost, so no network time | headless Chromium 1194 on `vite preview`, cloud container, a fresh context each, timed in the page | 2026-10-17 | 5 runs |
 | OPFS reads, 1,001 small files | 3,033 ms one after another, 524 ms all at once | headless Chromium 1194, cloud container, timed in the page | 2026-10-17 | 1 run each |
 | OPFS writes, 1,001 files of 190 bytes | 1,866–2,064 ms (median 1,950) through the writer worker, 16 at a time | headless Chromium 1194, cloud container, timed in the page, fresh context each | 2026-10-17 | 5 runs |
 | A 1,000-record project (1,001 files, 188 kB) through the Project panel | Import 2,355–3,174 ms (median 2,372); export 799–956 ms (median 845), down from 3,248 ms before reads ran 32 at a time. Each includes up to about 0.5 s of Playwright's polling | headless Chromium 1194 on `vite preview`, cloud container, fresh context each | 2026-10-17 | 5 runs |

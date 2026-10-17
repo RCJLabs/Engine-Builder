@@ -67,6 +67,8 @@ body {
 .shell {
   height: 100%;
   display: grid;
+  /* A set column: an auto one grows to the widest child's content (the top bar at 360 px). */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
 }

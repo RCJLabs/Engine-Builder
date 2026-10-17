@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test';
-import { expectNoSeriousAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
+import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
 
 const visiblePanels = (page: Page) =>
   page.locator('.panel').evaluateAll((els) => els.map((el) => el.getAttribute('data-panel')));
@@ -14,8 +14,9 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
     expect(await visiblePanels(page)).toEqual(['world']);
 
+    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other four.
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveCount(5);
+    await expect(tabs).toHaveText(['World', 'Project', 'Logic', 'Play']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 
@@ -29,7 +30,7 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.console')).toHaveCount(0);
 
     await expectNothingOffscreen(page);
-    await expectNoSeriousAxeIssues(page);
+    await expectNoAxeIssues(page);
     expect(errors).toEqual([]);
   });
 });
@@ -45,7 +46,7 @@ test.describe('phone landscape 844×390', () => {
     await page.getByRole('tab', { name: 'Project' }).tap();
     expect(await visiblePanels(page)).toEqual(['world', 'project']);
     await expectNothingOffscreen(page);
-    await expectNoSeriousAxeIssues(page);
+    await expectNoAxeIssues(page);
     expect(errors).toEqual([]);
   });
 });
@@ -53,21 +54,24 @@ test.describe('phone landscape 844×390', () => {
 test.describe('desktop 1280×800', () => {
   test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'light' });
 
-  test('shows three zones and the console, with keyboard tabs', async ({ page }) => {
+  test('docks the panels in three groups over the console, with keyboard tabs', async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
+    await expect(page.locator('.dock-host')).toHaveAttribute('data-dock', 'docked');
     expect(await visiblePanels(page)).toEqual(['project', 'world', 'inspector']);
     await expect(page.locator('.console')).toContainText('Engine-Builder');
 
+    // dockview's tabs activate by hand: the arrows move focus and Enter shows the panel.
     const project = page.getByRole('tab', { name: 'Project' });
     await project.focus();
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Logic' })).toBeFocused();
+    await page.keyboard.press('Enter');
     expect(await visiblePanels(page)).toEqual(['logic', 'world', 'inspector']);
 
     await expectNothingOffscreen(page);
-    await expectNoSeriousAxeIssues(page);
+    await expectNoAxeIssues(page);
     expect(errors).toEqual([]);
   });
 
@@ -99,6 +103,8 @@ test.describe('desktop 1280×800', () => {
     await context.setOffline(true);
     await page.reload();
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
+    // The dock's own chunk came from the cache too, or the fixed zones would stand in.
+    await expect(page.locator('.dock-host')).toHaveAttribute('data-dock', 'docked');
     await expect(page.getByRole('heading', { name: 'World' })).toBeVisible();
     await context.setOffline(false);
     expect(errors).toEqual([]);

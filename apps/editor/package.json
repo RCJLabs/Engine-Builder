@@ -16,6 +16,7 @@
     "@eb/core": "workspace:*",
     "@eb/platform": "workspace:*",
     "@preact/signals": "2.11.3",
+    "dockview": "8.5.1",
     "preact": "11.0.1"
   },
   "devDependencies": {

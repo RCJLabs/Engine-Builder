@@ -4,7 +4,7 @@
  * rates that count come from a phone.
  */
 import { expect, type Page, test } from '@playwright/test';
-import { expectNoSeriousAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
+import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
 
 const SPIKE = 'spikes/3d/';
 
@@ -76,7 +76,7 @@ for (const [width, height] of PHONES) {
       await expect.poll(() => framesDrawn(page), { timeout: 30_000 }).toBeGreaterThan(0);
       await expectNothingOffscreen(page);
       await expectTouchTargets(page);
-      await expectNoSeriousAxeIssues(page);
+      await expectNoAxeIssues(page);
       expect(errors).toEqual([]);
     });
   });

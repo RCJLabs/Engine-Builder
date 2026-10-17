@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { activePanel, BREAKPOINTS, layoutFor, neighbourTab, visiblePanels, ZONES } from './layout.ts';
+import {
+  activePanel,
+  BREAKPOINTS,
+  DOCK_PANELS,
+  layoutFor,
+  neighbourTab,
+  SHEET,
+  visiblePanels,
+  ZONES,
+} from './layout.ts';
 
 describe('layoutFor', () => {
   it('switches exactly at the breakpoints', () => {
@@ -13,11 +22,16 @@ describe('layoutFor', () => {
 });
 
 describe('zones', () => {
-  it('reach every panel exactly once in every layout', () => {
-    for (const zones of Object.values(ZONES)) {
-      const all = zones.flatMap((z) => z.panels).sort();
-      expect(all).toEqual(['inspector', 'logic', 'play', 'project', 'world']);
+  it('reach every panel exactly once in every layout, counting the sheet', () => {
+    for (const [layout, zones] of Object.entries(ZONES)) {
+      const sheet = SHEET[layout as keyof typeof SHEET];
+      const all = [...zones.flatMap((z) => z.panels), ...(sheet ? [sheet] : [])].sort();
+      expect(all, layout).toEqual(['inspector', 'logic', 'play', 'project', 'world']);
     }
+  });
+
+  it('dock the desktop zones’ panels and the console', () => {
+    expect(DOCK_PANELS).toEqual(['project', 'logic', 'world', 'play', 'inspector', 'console']);
   });
 
   it('show one panel per zone, defaulting to each zone first', () => {
@@ -34,6 +48,7 @@ describe('zones', () => {
   it('step through tabs and wrap at both ends', () => {
     expect(neighbourTab('phone', 'only', 'world', 1)).toBe('project');
     expect(neighbourTab('phone', 'only', 'world', -1)).toBe('play');
+    expect(neighbourTab('phone', 'only', 'project', 1)).toBe('logic');
     expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('inspector');
   });
 });

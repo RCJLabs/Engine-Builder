@@ -85,6 +85,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
       # A green deploy job only says the upload worked. This waits until the live
       # version.json names this commit, so "deployed" means people are getting it.
       - name: Live site serves this commit
@@ -101,3 +107,10 @@ jobs:
           done
           echo "::error::${SITE}version.json never showed $GITHUB_SHA (last seen: ${live:-nothing})"
           exit 1
+
+      # version.json can be right while the page can't start: a build for the wrong base path
+      # (D28) uploads fine. This loads what the live page loads, the service worker included.
+      - name: Live page loads its files
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+        run: node tools/site-check/src/cli.ts "$SITE"

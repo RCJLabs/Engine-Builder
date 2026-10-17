@@ -54,11 +54,14 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 
 ```
 apps/editor/           the editor PWA
-  src/app/             shell: layout model (layout.ts), zones, panels, console
+  src/app/             shell: layout model (layout.ts), zones, panels, console, the phone's inspector sheet,
+                       the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show)
+  src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session
   test/                memory-fs.ts (an in-memory File System API), fs-folder.ts (a disk folder behind it)
-  e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, axe)
+  e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
+                       targets, axe at every impact)
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
@@ -82,6 +85,7 @@ tools/cli/             eb validate | build | sim; folderSource.ts is the Node fs
                        --types and --game; sim.ts and simReport.ts are eb sim
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
+tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```
 

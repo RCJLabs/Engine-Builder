@@ -1,4 +1,4 @@
-/** Checks every page gets: no console errors, nothing past the device's width, no serious axe issues. */
+/** Checks every page gets: no console errors, nothing past the device's width, no axe issues. */
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 
@@ -20,7 +20,8 @@ export function watchErrors(page: Page): string[] {
  * - on a phone, content that is too wide makes the browser widen the layout viewport and zoom
  *   out, so `innerWidth` grows with the content.
  * So the width comes from the test's own viewport, and the layout viewport must not have grown.
- * An intentional horizontal scroller can opt out with `data-scroll-x`.
+ * An intentional horizontal scroller can opt out with `data-scroll-x`. A box of 1×1 px or less is
+ * the visually-hidden pattern for screen readers (dockview's live regions sit at -1 px), not content.
  */
 export async function expectNothingOffscreen(page: Page): Promise<void> {
   const width = page.viewportSize()?.width ?? 0;
@@ -30,7 +31,7 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
     for (const el of document.querySelectorAll('body *')) {
       if (el.closest('[data-scroll-x]')) continue;
       const box = el.getBoundingClientRect();
-      if (box.width === 0 || box.height === 0) continue;
+      if (box.width === 0 || box.height === 0 || (box.width <= 1 && box.height <= 1)) continue;
       if (box.right > width + 0.5 || box.left < -0.5) {
         found.push(
           `${el.tagName.toLowerCase()}.${el.getAttribute('class')} [${Math.round(box.left)}–${Math.round(box.right)}]`,
@@ -42,8 +43,25 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
   expect(offenders, 'elements outside the viewport').toEqual([]);
 }
 
-export async function expectNoSeriousAxeIssues(page: Page): Promise<void> {
+/** Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h". */
+export function smallTargets(page: Page, scope: string): Promise<string[]> {
+  const controls = 'button, input, select, textarea, a[href], [role="tab"], [role="option"]';
+  return page.locator(`${scope} :is(${controls}):visible`).evaluateAll((els) =>
+    els
+      .map((el) => ({
+        name: el.textContent?.trim() || el.getAttribute('aria-label') || el.id,
+        box: el.getBoundingClientRect(),
+      }))
+      .filter(({ box }) => box.width < 44 || box.height < 44)
+      .map(({ name, box }) => `${name} ${Math.round(box.width)}×${Math.round(box.height)}`),
+  );
+}
+
+/**
+ * No axe violations of any impact. It once let moderate ones through, and a dock that repeated
+ * each group's landmark passed (M2.2), so every impact counts.
+ */
+export async function expectNoAxeIssues(page: Page): Promise<void> {
   const { violations } = await new AxeBuilder({ page }).analyze();
-  const serious = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
-  expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  expect(violations.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes[0]?.target.join(' ')})`)).toEqual([]);
 }

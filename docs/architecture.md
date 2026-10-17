@@ -286,10 +286,11 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 
 ## Editor
 
-- **Layout.**
-  - Desktop: dockable panels (dockview) — Project/Assets, Records, Outliner, Viewport, Inspector, Logic, Console/Problems.
+- **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
+  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, World, Play, Inspector and Console. Assets, Records, Outliner and Problems join as their milestones land.
   - Tablet: two zones.
-  - Phone: one panel at a time with a bottom tab bar, the inspector as a bottom sheet, and a command palette.
+  - Phone: one panel at a time with a bottom tab bar, and the inspector as a bottom sheet.
+  - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.** Undo/redo through a command log, autosave, forms generated from schemas, reference pickers, and "used by".
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
@@ -314,6 +315,7 @@ apps/editor         the editor PWA
 apps/player         the runtime shell that exports ship                    Phase 4
 tools/cli           eb validate | build (M1.4), sim (M1.9); export | test later
 tools/lint-boundaries
+tools/site-check    the deploy check: the live page and every file it loads (M2.2)
 templates/*                                                               Phase 4+
 ```
 

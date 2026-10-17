@@ -6,6 +6,7 @@ import { startProjects } from './projects/session.ts';
 import { startPwa } from './pwa/register.ts';
 import './styles/app.css';
 import './styles/projects.css';
+import './styles/overlays.css';
 
 watchLayout();
 note(`Engine-Builder ${buildStamp()}.`);
