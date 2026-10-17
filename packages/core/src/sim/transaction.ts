@@ -111,7 +111,7 @@ export class Transaction {
     const { kernel } = this.state;
     const streams = { ...kernel.streams };
     for (const [label, rng] of this.streams) streams[label] = rng.toState();
-    const nextKernel = { seed: kernel.seed, step: kernel.step + 1, modes: this.modes ?? kernel.modes, streams };
+    const nextKernel = { ...kernel, step: kernel.step + 1, modes: this.modes ?? kernel.modes, streams };
     freezeJson(nextKernel, `/${KERNEL}`);
     next[KERNEL] = nextKernel;
     return Object.freeze(next) as GameState;

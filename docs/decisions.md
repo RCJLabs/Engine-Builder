@@ -277,6 +277,35 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **A firing cap.** More than 10,000 firings in one advance throws.
 - **One more slice,** the time module's, in every state and hash.
 
+### D25. Saves: a checksummed snapshot plus log, migrated per module without content, replayed strictly only on the same build; slots that back up, quarantine and report every failure. LOCKED, 2026-10-17 (M1.8)
+
+**Decision** ([specs/saves.md](specs/saves.md)).
+- **The file.** A save is JSON: the snapshot, the actions since it, the hash of the state they reach, the stage's info (game, edition, build, `savedAt`, a summary), and an FNV-1a 64 checksum of the rest. `SAVE_VERSION` (1) covers the file and the kernel's state.
+- **Versions.** Each module versions its slice in `kernel.versions` and migrates it one version at a time. A migration sees only its slice, never content, tuning or the clock.
+- **Loading.**
+  - A missing module starts from its init, a slice no module owns is kept, and a slice from a newer game is refused as `newer`.
+  - The log replays strictly only on the same build with nothing migrated. Otherwise refused actions are skipped and the difference is reported.
+- **Slots** (`@eb/platform`).
+  - Keys are `eb/<game>/<edition>/…`, with a summary and a backup per slot.
+  - A save that won't load, that a write would replace while in doubt (damaged, newer, written by another tab), or that an update changed is copied to quarantine first.
+  - Loading falls back to the backup, except from a `newer` save.
+  - Writes report failure in their result and to `onFailure`; nothing is thrown.
+- **Stores.** IndexedDB, then localStorage, then memory, chosen by `openStore`. Persistence is asked for on the first save.
+- **Logs** compact after a write that saved 200 actions.
+- **Codes** are `EB1.<game>.<payload>.<check>`: deflated canonical JSON in base64url, with an FNV-1a 32 check and a 4 MiB cap on unpacking.
+
+**Why.**
+- **Lost saves.** Six of the surveyed games could replace a save they failed to read. Two migrated old saves differently after each update, because their migrations read live content.
+- **Strict replay only on the same build.** There a mismatch means damage or a non-deterministic game. After an update it means a fixed bug, and refusing the save would punish the player for it.
+- **IndexedDB first.** A shared github.io origin lets any game's `localStorage.clear()` wipe the others.
+- **Compaction.** Bounded logs keep saves from growing for good, as afterglass's and spliceworld's did.
+
+**Cost.**
+- **Replay on load.** About 31 µs a logged action on salvage run, so about 2 ms per save today (Readings).
+- **Storage.** A backup doubles each slot, and quarantine is never pruned (saves.md, open question 4).
+- **History.** A compacted log loses the actions before the compaction, so a bug report holds at most the actions since then.
+- **Conflicts** between tabs are caught by checksum, not by a lock, so two tabs writing at the same moment can still race.
+
 ---
 
 ## Open

@@ -1,0 +1,10 @@
+{
+  "//": "Runs in browsers, so it has the DOM's types for IndexedDB, localStorage and navigator.storage. Its tests run in Node against fakes. Not eb.pure: it touches storage.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

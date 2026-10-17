@@ -115,6 +115,18 @@ export interface ModuleDef<S> {
   /** Registered by bare name, unique across the game, because content names them: `{ "effect": "loot" }`. */
   readonly effects?: Readonly<Record<string, EffectRun<S> | EffectSpec<S>>>;
   readonly modes?: Readonly<Record<string, ModeDef>>;
+  /**
+   * The shape of this module's slice, from 1 (the default). Bump it whenever the shape changes,
+   * with a migration to it and a fixture saved by the old version that must still load.
+   */
+  readonly version?: number;
+  /**
+   * Migrations by the version they produce: `2` turns a version 1 slice into a version 2 one.
+   * A migration sees only the slice, and writes any numbers it needs as literals: one that read
+   * today's content or tuning would migrate the same old save differently after each update,
+   * as dirtbag's and landnam's did.
+   */
+  readonly migrate?: Readonly<Record<number, (slice: unknown) => unknown>>;
 }
 
 /** A module ready for createGame. Its slice type is checked by defineModule and then erased. */
