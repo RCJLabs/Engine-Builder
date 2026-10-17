@@ -72,6 +72,29 @@ export interface PreviewContext<S> {
   preview(effect: Effect): EffectPreview;
 }
 
+/** What an action's options can read: the module's slice, facts, conditions, content, and the mode they are offered in. */
+export interface OptionsView<S> extends FactView<S> {
+  /** The current mode, with its data: an encounter's event, a shop's stock. */
+  readonly mode: ModeFrame;
+  check(condition: Condition): Truth;
+}
+
+/** The fields an option adds to its action's type: `{ choice: 'board' }` offers `{ type: 'voyage/choose', choice: 'board' }`. */
+export type ActionPayload = Readonly<Record<string, unknown>>;
+
+export type ActionRun<S> = (ctx: ModuleContext<S>, action: Action) => void;
+
+export interface ActionSpec<S> {
+  readonly run: ActionRun<S>;
+  /**
+   * Every action of this type a player could take now, as payloads, for bots and menus to offer.
+   * Each must be one `run` accepts: what is offered is what is allowed, and the runner counts
+   * any offer that is refused. An empty list offers none. Without `options`, the action is
+   * offered once, with no payload.
+   */
+  readonly options?: (view: OptionsView<S>) => readonly ActionPayload[];
+}
+
 export type FactRead<S> = (view: FactView<S>, args: FactArgs) => unknown;
 
 /** A fact, with what conditions need to know about it: its arguments, its values and its wording. */
@@ -105,8 +128,8 @@ export interface ModuleDef<S> {
   readonly id: string;
   /** The slice a new game starts with. */
   init(ctx: InitContext): S;
-  /** Registered as "id/verb". */
-  readonly actions?: Readonly<Record<string, (ctx: ModuleContext<S>, action: Action) => void>>;
+  /** Registered as "id/verb": a handler, or a handler with the options a bot or menu can offer. */
+  readonly actions?: Readonly<Record<string, ActionRun<S> | ActionSpec<S>>>;
   /**
    * Registered as "id.name". They read; they never change anything. A fact with a domain must
    * answer with one of its values, or undefined (or null) for no value: the kernel checks.
