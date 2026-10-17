@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.2.** Canonical state hash (Phase 1). M1.1 (RNG streams) is done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.3.** Records registry (Phase 1). M1.1 (RNG streams) and M1.2 (state fingerprints) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -51,7 +51,13 @@ How to read this file:
   - [`docs/specs/rng.md`](docs/specs/rng.md) with golden vectors, so a C++ port can match it.
   - An independent Python implementation, [`rng_oracle.py`](docs/specs/rng_oracle.py), runs in CI against every golden case.
   - Seven planted bugs were each caught by the tests, and so was breaking only the oracle.
-- **M1.2 Canonical state hash.** Stable serialization (sorted keys, integers only where the sim needs them) and hashes per facet, for goldens and parity.
+- **M1.2 Canonical state hash.** Done 2026-10-17.
+  - `canonicalJson` is RFC 8785. Anything a JSON save can't hold throws, with a JSON Pointer path to it.
+  - `stateHash` is FNV-1a 64.
+  - `readFacets` gives one hash and size per top-level key, with an `exclude` list for logs.
+  - `firstDifference` names the first path where two states differ.
+  - [`docs/specs/state-hash.md`](docs/specs/state-hash.md) is the spec. [`state_hash_oracle.py`](docs/specs/state_hash_oracle.py) checks it in CI against fixed values plus 300 generated ones.
+  - Eight planted bugs were each caught, including one in the oracle alone.
 - **M1.3 Records registry.**
   - Ids, references and record lookups at runtime.
   - zod schemas in `packages/schema`, exported as JSON Schema for editor autocomplete.

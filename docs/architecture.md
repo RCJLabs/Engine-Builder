@@ -253,7 +253,7 @@ Games built on the engine get these from the start; templates ship with them alr
 
 - A headless runner (Node or a worker), with bot policies written against the sim API.
 - Seed sweeps with confidence intervals, and A/B content overrides (chooser-of-the-dead's `compare.ts`).
-- Canonical state hashes and golden files.
+- Canonical state hashes, per-facet readings and first-difference paths ([specs/state-hash.md](specs/state-hash.md)), and golden files.
 - Save fixtures for every version.
 - Size and performance budgets in CI.
 
