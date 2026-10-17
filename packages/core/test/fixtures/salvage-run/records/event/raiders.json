@@ -1,0 +1,77 @@
+{
+  "choices": {
+    "fight": {
+      "effects": [
+        {
+          "effect": "roll",
+          "outcomes": [
+            {
+              "chance": 50,
+              "effects": [
+                {
+                  "effect": "wound",
+                  "hp": 2
+                },
+                {
+                  "effect": "loot",
+                  "table": "dead-hauler"
+                }
+              ]
+            },
+            {
+              "chance": 50,
+              "effects": [
+                {
+                  "effect": "wound",
+                  "hp": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "pay": {
+      "when": {
+        "fact": "hold.credits",
+        "op": ">=",
+        "value": 10
+      },
+      "effects": [
+        {
+          "effect": "credits",
+          "delta": -10
+        }
+      ]
+    },
+    "promise": {
+      "when": {
+        "not": {
+          "fact": "time.pending",
+          "args": {
+            "timer": "debt"
+          }
+        }
+      },
+      "effects": [
+        {
+          "effect": "wound",
+          "hp": 3
+        },
+        {
+          "effect": "schedule",
+          "timer": "debt",
+          "after": {
+            "days": 3
+          },
+          "effects": [
+            {
+              "effect": "credits",
+              "delta": -15
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

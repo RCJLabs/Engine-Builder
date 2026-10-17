@@ -1,0 +1,23 @@
+{
+  "choices": {
+    "sell": {
+      "when": {
+        "fact": "hold.count",
+        "args": {
+          "item": "salvage"
+        },
+        "op": ">=",
+        "value": 1
+      },
+      "effects": [
+        {
+          "effect": "sell",
+          "item": "salvage"
+        }
+      ]
+    },
+    "leave": {
+      "effects": []
+    }
+  }
+}

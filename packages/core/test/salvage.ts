@@ -6,6 +6,8 @@
  * Choices are locked by conditions in content, their odds come from roll effects, and a debt
  * promised to raiders falls due three days later.
  */
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   type Condition,
   createGame,
@@ -28,76 +30,25 @@ interface EventRecord {
   choices: Record<string, Choice>;
 }
 
-export const content = createRecordStore({
-  item: { medkit: { value: 15 }, salvage: { value: 5 } },
-  'loot-table': {
-    'dead-hauler': {
-      entries: [
-        { item: 'salvage', weight: 3 },
-        { item: 'medkit', weight: 1 },
-      ],
-    },
-  },
-  event: {
-    derelict: {
-      choices: {
-        board: {
-          effects: [
-            {
-              effect: 'roll',
-              outcomes: [
-                { chance: 70, text: 'Salvage in the hold', effects: [{ effect: 'loot', table: 'dead-hauler' }] },
-                { chance: 30, text: 'The hull gives way', effects: [{ effect: 'wound', hp: 3 }] },
-              ],
-            },
-          ],
-        },
-        leave: { effects: [] },
-      },
-    },
-    trader: {
-      choices: {
-        sell: {
-          when: { fact: 'hold.count', args: { item: 'salvage' }, op: '>=', value: 1 },
-          effects: [{ effect: 'sell', item: 'salvage' }],
-        },
-        leave: { effects: [] },
-      },
-    },
-    raiders: {
-      choices: {
-        fight: {
-          effects: [
-            {
-              effect: 'roll',
-              outcomes: [
-                {
-                  chance: 50,
-                  effects: [
-                    { effect: 'wound', hp: 2 },
-                    { effect: 'loot', table: 'dead-hauler' },
-                  ],
-                },
-                { chance: 50, effects: [{ effect: 'wound', hp: 4 }] },
-              ],
-            },
-          ],
-        },
-        pay: { when: { fact: 'hold.credits', op: '>=', value: 10 }, effects: [{ effect: 'credits', delta: -10 }] },
-        // A beating now and a debt due in three days, refused then if the hold can't pay: time
-        // passes all the same.
-        promise: {
-          when: { not: { fact: 'time.pending', args: { timer: 'debt' } } },
-          effects: [
-            { effect: 'wound', hp: 3 },
-            { effect: 'schedule', timer: 'debt', after: { days: 3 }, effects: [{ effect: 'credits', delta: -15 }] },
-          ],
-        },
-      },
-    },
-    'quiet-sector': { choices: { rest: { effects: [{ effect: 'heal', hp: 2 }] } } },
-  },
-});
+/** Salvage run as a project folder: its records are the game's content, which `eb sim` plays too. */
+export const PROJECT = join(import.meta.dirname, 'fixtures/salvage-run');
+
+// records/<type>/<id>.json, as the compiler reads them, without the checks a build makes.
+function readRecords(dir: string): Record<string, Record<string, unknown>> {
+  const records: Record<string, Record<string, unknown>> = {};
+  for (const type of readdirSync(dir)) {
+    const ofType: Record<string, unknown> = {};
+    for (const file of readdirSync(join(dir, type)).filter((name) => name.endsWith('.json'))) {
+      ofType[file.slice(0, -'.json'.length)] = JSON.parse(readFileSync(join(dir, type, file), 'utf8'));
+    }
+    records[type] = ofType;
+  }
+  return records;
+}
+
+// The raiders' promise is a beating now and a debt due in three days, refused then if the hold
+// can't pay: time passes all the same.
+export const content = createRecordStore(readRecords(join(PROJECT, 'records')));
 
 export const sim = { content };
 const HOME_DAY = 30;
@@ -107,6 +58,7 @@ interface Crew {
 }
 
 const living = (crew: DeepReadonly<Crew>) => Object.keys(crew.members).filter((id) => (crew.members[id]?.hp ?? 0) > 0);
+const isHurt = (member: { readonly hp: number; readonly max: number }) => member.hp > 0 && member.hp < member.max;
 
 const crew = defineModule<Crew>({
   id: 'crew',
@@ -120,12 +72,15 @@ const crew = defineModule<Crew>({
     return { members };
   },
   actions: {
-    rest(ctx) {
-      const members = ctx.write().members;
-      const hurt = Object.values(members).filter((m) => m.hp > 0 && m.hp < m.max);
-      if (hurt.length === 0) return ctx.refuse('no-one-hurt');
-      for (const member of hurt) member.hp += 1;
-      ctx.emit('rested', { healed: hurt.length });
+    rest: {
+      run(ctx) {
+        const hurt = Object.values(ctx.write().members).filter(isHurt);
+        if (hurt.length === 0) return ctx.refuse('no-one-hurt');
+        for (const member of hurt) member.hp += 1;
+        ctx.emit('rested', { healed: hurt.length });
+      },
+      // Offered only when it would be accepted: what a menu offers is what the sim allows.
+      options: ({ state }) => (Object.values(state.members).some(isHurt) ? [{}] : []),
     },
   },
   effects: {
@@ -209,6 +164,9 @@ interface Voyage {
 const voyage = defineModule<Voyage>({
   id: 'voyage',
   init: () => ({ ending: null }),
+  facts: {
+    ending: { read: ({ state }) => state.ending ?? undefined, domain: { type: 'enum', values: ['home', 'lost'] } },
+  },
   modes: {
     travel: { actions: ['voyage/jump', 'crew/rest'] },
     encounter: { actions: ['voyage/choose'] },
@@ -221,23 +179,34 @@ const voyage = defineModule<Voyage>({
       ctx.modes.push('encounter', { event });
       ctx.emit('arrived', { day: ctx.fact('time.day') as number, event });
     },
-    choose(ctx, action) {
-      const { event } = ctx.modes.current.data as { event: string };
-      const id = action.choice as string;
-      const choice = ctx.content.getOrThrow<EventRecord>('event', event).choices[id];
-      if (!choice) return ctx.refuse('no-such-choice', { event });
-      // The same check a menu makes to offer the choice, so what is offered is what is allowed.
-      if (choice.when && ctx.check(choice.when) !== true) return ctx.refuse('locked', { event, choice: id });
-      ctx.emit('chose', { event, choice: id });
-      for (const effect of choice.effects) ctx.apply(effect);
-      ctx.modes.pop();
-      const home = (ctx.fact('time.day') as number) >= HOME_DAY;
-      const ending = (ctx.fact('crew.alive') as number) === 0 ? 'lost' : home ? 'home' : null;
-      if (ending) {
-        ctx.write().ending = ending;
-        ctx.modes.replace('ended');
-        ctx.emit('ended', { ending });
-      }
+    choose: {
+      run(ctx, action) {
+        const { event } = ctx.modes.current.data as { event: string };
+        const id = action.choice as string;
+        const choice = ctx.content.getOrThrow<EventRecord>('event', event).choices[id];
+        if (!choice) return ctx.refuse('no-such-choice', { event });
+        // The same check a menu makes to offer the choice, so what is offered is what is allowed.
+        if (choice.when && ctx.check(choice.when) !== true) return ctx.refuse('locked', { event, choice: id });
+        ctx.emit('chose', { event, choice: id });
+        for (const effect of choice.effects) ctx.apply(effect);
+        ctx.modes.pop();
+        const home = (ctx.fact('time.day') as number) >= HOME_DAY;
+        const ending = (ctx.fact('crew.alive') as number) === 0 ? 'lost' : home ? 'home' : null;
+        if (ending) {
+          ctx.write().ending = ending;
+          ctx.modes.replace('ended');
+          ctx.emit('ended', { ending });
+        }
+      },
+      options({ mode, content, check }) {
+        const { choices } = content.getOrThrow<EventRecord>('event', (mode.data as { event: string }).event);
+        return Object.keys(choices)
+          .filter((id) => {
+            const when = choices[id]?.when;
+            return when === undefined || check(when) === true;
+          })
+          .map((choice) => ({ choice }));
+      },
     },
   },
 });

@@ -1,7 +1,7 @@
 import type { FactCatalog, FactInfo } from '../logic/types.ts';
 import { domainError, FACT_PATTERN, NAME_PATTERN } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
-import type { EffectRun, EffectSpec, FactRead, Module } from './module.ts';
+import type { ActionRun, ActionSpec, EffectRun, EffectSpec, FactRead, Module } from './module.ts';
 
 /** The module id the kernel's own state uses. */
 export const KERNEL = 'kernel';
@@ -10,6 +10,12 @@ export interface FactEntry {
   readonly module: string;
   readonly read: FactRead<unknown>;
   readonly info: FactInfo;
+}
+
+export interface ActionEntry {
+  readonly module: string;
+  readonly run: ActionRun<unknown>;
+  readonly options?: ActionSpec<unknown>['options'];
 }
 
 export interface EffectEntry {
@@ -21,10 +27,7 @@ export interface EffectEntry {
 export interface Registry {
   /** In the order given, which is the order their slices are created. */
   readonly modules: readonly Module[];
-  readonly actions: ReadonlyMap<
-    string,
-    { readonly module: string; readonly run: NonNullable<Module['actions']>[string] }
-  >;
+  readonly actions: ReadonlyMap<string, ActionEntry>;
   readonly facts: ReadonlyMap<string, FactEntry>;
   readonly effects: ReadonlyMap<string, EffectEntry>;
   /** Each mode's allowed action types, with its patterns already expanded. */
@@ -36,7 +39,7 @@ export interface Registry {
  * as an action that is quietly never allowed. Throws on a programmer error.
  */
 export function buildRegistry(modules: readonly Module[]): Registry {
-  const actions = new Map<string, { module: string; run: NonNullable<Module['actions']>[string] }>();
+  const actions = new Map<string, ActionEntry>();
   const facts = new Map<string, FactEntry>();
   const effects = new Map<string, EffectEntry>();
   const ids = new Set<string>();
@@ -46,8 +49,14 @@ export function buildRegistry(modules: readonly Module[]): Registry {
     if (ids.has(module.id)) throw new Error(`Two modules have the id "${module.id}"`);
     ids.add(module.id);
     checkVersion(module);
-    for (const [verb, run] of Object.entries(module.actions ?? {})) {
-      actions.set(`${module.id}/${name(verb, `${module.id} action`)}`, { module: module.id, run });
+    for (const [verb, def] of Object.entries(module.actions ?? {})) {
+      const type = `${module.id}/${name(verb, `${module.id} action`)}`;
+      const spec = typeof def === 'function' ? { run: def } : def;
+      if (typeof spec.run !== 'function') throw new Error(`Action "${type}" has no run function`);
+      if (spec.options !== undefined && typeof spec.options !== 'function') {
+        throw new Error(`Action "${type}": options must be a function`);
+      }
+      actions.set(type, { module: module.id, run: spec.run, ...(spec.options ? { options: spec.options } : {}) });
     }
     for (const [fact, def] of Object.entries(module.facts ?? {})) {
       const id = `${module.id}.${name(fact, `${module.id} fact`)}`;

@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.9.** Headless runner (Phase 1). M1.1 to M1.8 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time, saves) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.10.** 3D spike (Phase 1). M1.1 to M1.9 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time, saves, the headless runner) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -115,9 +115,16 @@ How to read this file:
     - persistence requests.
   - A file export is the save's own JSON. The buttons for files and codes come with the save/load screen (M4.2).
   - [`docs/specs/saves.md`](docs/specs/saves.md) is the spec. Seventy-one of 72 planted bugs were caught by the tests. The survivor removes the cap on a code's inflate buffer, which bounds memory where no test looks; the size check behind it was caught.
-- **M1.9 Headless runner.**
-  - Bot policies and seed sweeps with confidence intervals.
-  - Golden hashes, run by the CLI's `eb sim`.
+- **M1.9 Headless runner.** Done 2026-10-17.
+  - **Options.** Actions can list their options, and `game.options` gives every concrete action the current mode allows, so a bot can play any game without code of its own. What is offered must be accepted: the runner counts every refused offer, and `eb sim` fails on one.
+  - **Policies.** A bot sees what a player sees: the options, the screen, facts, conditions and previews, never the state. It draws from a stream of its own. There are three: `random`, `weighted` by action type, and `rule`, made of conditions and preferred options as data.
+  - **Sweeps.** `sweep` plays many seeds and reports ends, distinct endings, turns, metrics read from facts, and the beats reached.
+    - Every number has a 95% interval: Wilson's for shares, Student's t for means.
+    - An independent Python oracle checks the statistics in CI.
+  - **Golden files.** Each seed keeps its state hash and a hash per slice, so a run that moves names the modules where it moved.
+  - **`eb sim <project> --game <module>`** compiles the project, plays it, and prints the report or JSON. `--golden` checks a golden file, and with `--update` writes it. Salvage run's content is now a project folder, and 50 golden runs of it are checked in CI.
+  - **A first finding.** Resting costs salvage run no time, so a bot that rests whenever someone is hurt never loses. The game is test-only, so this is noted, not fixed.
+  - [`docs/specs/runner.md`](docs/specs/runner.md) is the spec. Forty-seven planted bugs were each caught by the tests. The first run let three through, and each got a test that fails it: options listed in registration order, an empty `modules` export, and a report that printed the run count where it meant distinct endings.
 - **M1.10 3D spike** (throwaway, served at `/spikes/3d/`).
   - three.js with WebGPU, falling back to WebGL2.
   - A 256² heightmap terrain, 5,000 instanced props, one skinned character, shadows.
@@ -128,7 +135,7 @@ How to read this file:
 - A test-only text game runs 1,000 seeds deterministically. [auto] Done 2026-10-17 (M1.5): salvage run in `packages/core/src/sim/salvage.test.ts`.
 - Save → load → continue matches an uninterrupted run by hash. [auto] Done 2026-10-17 (M1.8): 50 seeds through save files in `packages/core/src/save/save.test.ts`, and 5 through each store in `packages/platform/src/saves.test.ts`.
 - A v1 save fixture loads after a planted v2 migration. [auto] Done 2026-10-17 (M1.8): `packages/core/test/fixtures/saves/salvage-v1.json`, with a planted v2 of the hold.
-- RNG golden vectors are frozen in the spec. [auto]
+- RNG golden vectors are frozen in the spec. [auto] Done 2026-10-17 (M1.1): [`docs/specs/rng.md`](docs/specs/rng.md), checked against `rng_oracle.py` in CI by `packages/core/src/rng.oracle.test.ts`.
 - FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you]
 
 ## Phase 2: Editor foundation
@@ -317,6 +324,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Offline settle, 8 hours at a tick a second, 100 hourly timers | 7–12 ms (median 9) for 800 firings; 101–120 ms (median 108) when 8 timers refuse every time, re-running the action 64 times | `node packages/core/test/time-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Save and load, salvage run | 1,000 whole runs, 66.4 logged actions and 2,672 bytes a save (largest 2,931). Save 264–296 µs (median 276); load, with checksum, migration and replay, 2,015–2,226 µs (median 2,087), which is 30.4–33.5 µs per logged action (median 31.4) | `node packages/core/test/save-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Save codes, salvage run | 679 characters a code (longest 717) for 2,694 bytes of JSON. Encode 359–391 µs (median 370), decode 897–959 µs (median 923) | `node packages/platform/test/code-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Seed sweep, salvage run | 1,000 runs with the random policy and 4 metrics, 70,106 turns: 2,131–2,233 ms (median 2,176), which is 30.4–31.8 µs a turn (median 31.0), against about 25 µs for reduce alone | `node packages/core/test/sweep-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
 

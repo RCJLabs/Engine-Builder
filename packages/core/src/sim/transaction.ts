@@ -4,7 +4,7 @@ import { domainProblem } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
 import { Rng } from '../rng.ts';
 import { cloneJson, freezeJson } from './json.ts';
-import type { FactArgs, ModeControl, ModuleContext, PreviewContext } from './module.ts';
+import type { FactArgs, ModeControl, ModuleContext, OptionsView, PreviewContext } from './module.ts';
 import { Attempts, Refusal } from './refusal.ts';
 import { type EffectEntry, KERNEL, type Registry } from './registry.ts';
 import type { Beat, Effect, EffectPreview, GameState, ModeFrame, SimContext } from './types.ts';
@@ -115,6 +115,17 @@ export class Transaction {
     freezeJson(nextKernel, `/${KERNEL}`);
     next[KERNEL] = nextKernel;
     return Object.freeze(next) as GameState;
+  }
+
+  /** What an action's options read: like a fact's view, plus the current mode and conditions. */
+  optionsView(module: string): OptionsView<unknown> {
+    return {
+      state: this.read(module),
+      content: this.sim.content,
+      mode: this.state.kernel.modes[this.state.kernel.modes.length - 1] as ModeFrame,
+      fact: (id, args) => this.fact(id, args),
+      check: (condition) => this.check(condition),
+    };
   }
 
   private previewContext(module: string): PreviewContext<unknown> {

@@ -11,7 +11,7 @@ import { freezeJson } from './json.ts';
 import { type MigrationReport, migrateState } from './migrate.ts';
 import type { FactArgs, Module } from './module.ts';
 import { AttemptRefused, Refusal } from './refusal.ts';
-import { buildRegistry, catalogOf, KERNEL, type Registry, versionsOf } from './registry.ts';
+import { type ActionEntry, buildRegistry, catalogOf, KERNEL, type Registry, versionsOf } from './registry.ts';
 import { Transaction } from './transaction.ts';
 import type { Action, Effect, EffectPreview, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
 
@@ -24,8 +24,14 @@ export interface GameDefinition {
 export interface Game {
   init(seed: string, sim: SimContext): GameState;
   reduce(state: GameState, action: Action, sim: SimContext): Step;
-  /** The action types the current mode allows, sorted: what a bot or a menu can offer. */
+  /** The action types the current mode allows, sorted. */
   allowedActions(state: GameState): readonly string[];
+  /**
+   * Every concrete action the player could take now, from each allowed action's options: what a
+   * bot or a menu offers. By type, then in the order each action lists them. Reading only, it
+   * changes nothing and draws nothing.
+   */
+  options(state: GameState, sim: SimContext): readonly Action[];
   fact(state: GameState, id: string, args: FactArgs | undefined, sim: SimContext): unknown;
   /** Every fact the modules register, by id: what conditions in content are checked against. */
   catalog(): FactCatalog;
@@ -95,6 +101,18 @@ export function createGame(definition: GameDefinition): Game {
 
     allowedActions: (state) => [...allowedIn(state)].sort(),
 
+    options(state, sim) {
+      if (!Object.isFrozen(state)) freezeJson(state, '');
+      const tx = new Transaction(registry, state, sim);
+      const offered: Action[] = [];
+      for (const type of [...allowedIn(state)].sort()) {
+        const entry = registry.actions.get(type) as ActionEntry;
+        const payloads = entry.options ? entry.options(tx.optionsView(entry.module)) : [{}];
+        for (const payload of payloads) offered.push(optionOf(type, payload));
+      }
+      return Object.freeze(offered);
+    },
+
     fact: (state, id, args, sim) => new Transaction(registry, state, sim).fact(id, args),
 
     catalog: () => catalog,
@@ -112,8 +130,6 @@ export function createGame(definition: GameDefinition): Game {
 
 /** More refused attempts than this in one action means one refuses every time it runs. */
 const MAX_REFUSED_ATTEMPTS = 1000;
-
-type ActionEntry = Registry['actions'] extends ReadonlyMap<string, infer E> ? E : never;
 
 // A run that ends in a refused attempt starts again from the same state with that attempt
 // skipped, so the attempt's work leaves nothing behind (ctx.attempt in docs/specs/sim.md).
@@ -133,6 +149,17 @@ function runAction(registry: Registry, entry: ActionEntry, state: GameState, act
       skipped.set(error.id, error.refusal);
     }
   }
+}
+
+// An option a module offers is an action like any other, so it must be one a log can hold.
+function optionOf(type: string, payload: unknown): Action {
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload) || 'type' in payload) {
+    throw new ActionError(`"${type}" options must be payload objects without a type of their own`);
+  }
+  const action = { type, ...payload };
+  checkAction(action);
+  freezeJson(action, `(option of ${type})`);
+  return action;
 }
 
 function checkAction(action: Action): void {

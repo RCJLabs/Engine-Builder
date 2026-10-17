@@ -1,6 +1,9 @@
 export { ActionError, createGame, type Game, type GameDefinition } from './game.ts';
 export { MigrationError, type MigrationReport } from './migrate.ts';
 export {
+  type ActionPayload,
+  type ActionRun,
+  type ActionSpec,
   defineModule,
   type EffectRun,
   type EffectSpec,
@@ -14,6 +17,7 @@ export {
   type Module,
   type ModuleContext,
   type ModuleDef,
+  type OptionsView,
   type PreviewContext,
 } from './module.ts';
 export { factCatalog } from './registry.ts';
