@@ -1,0 +1,19 @@
+{
+  "title": "Weapon",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1
+    },
+    "weight": {
+      "kind": "number",
+      "min": 0,
+      "max": 20,
+      "description": "In Roman pounds"
+    },
+    "reach": {
+      "kind": "enum",
+      "values": ["short", "long"]
+    }
+  }
+}

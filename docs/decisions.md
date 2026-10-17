@@ -449,6 +449,36 @@ The spec is [specs/editor-editing.md](specs/editor-editing.md). It also answers 
 - **A save of several files into an opened folder isn't all or nothing.**
 - **An edited file's numbers and key order** come out as `JSON.stringify` writes them.
 
+### D31. Record types can be data: a project's `types/` folder. Condition fields take the text form or the tree. LOCKED, 2026-10-17 (Evan's calls, M2.4)
+
+**Decision.**
+- **Types as data, from M2.4.**
+  - A project keeps its own record types in `types/`, one JSON file per type listing its fields.
+  - The compiler builds each into the same strict zod schema a code type has, so a project made only of data needs no `--types` module.
+  - M2.4's forms draw from these types. M2.6 adds the screens that design them. Phase 3's kits will draw with the same forms.
+- **Conditions in record files may be text or a tree.**
+  - A condition field takes either `"hold.count(medkit) >= 2"` or the JSON tree.
+  - The compiler turns text into the tree when it builds the pack, so the runtime still sees only trees.
+  - The editor keeps whichever form a field already holds, and writes text for a new one.
+
+Evan chose both on 2026-10-17, from these options:
+- record types: types as data from M2.4, a starter kit built into the editor, or M2.6 before M2.4;
+- conditions: text or tree, or trees only.
+
+The specs are [specs/type-files.md](specs/type-files.md) and [specs/editor-forms.md](specs/editor-forms.md). Conditions.md's open question 1 is settled.
+
+**Why.**
+- **Types as data.**
+  - The editor needs types to draw forms. Until now, types existed only as TypeScript modules that the CLI loads.
+  - A starter kit would guess at Phase 3's kit design. It would also make projects depend on types bundled into the editor.
+  - Putting M2.6 first would leave its type designer, itself a form, as a plain JSON editor until M2.4.
+- **Text in files.** Hand-written content is far shorter as text, whether you write it or an agent does. Packs still hold trees, so evaluation and saves don't change.
+
+**Cost.**
+- **M2.4 grows** by the type file format and its compiler. The format is a contract from now on, like the project format.
+- **The text grammar becomes part of the project format.** It can never change in a way that reads old text differently. Its print-then-parse round trip is already property-tested (M1.6).
+- **A text condition reads its arguments through the game's facts**: `hold.count(medkit)` names the fact's one argument without writing its name. A kit that renames that argument changes what the text means.
+
 ---
 
 ## Open

@@ -1,8 +1,10 @@
 import { createPack, type Pack, type PackProject } from '@eb/core';
 import {
   compareDiagnostics,
+  type DataType,
   type Diagnostic,
   type DiagnosticCode,
+  packValue,
   type RecordInput,
   type RecordType,
   severityOf,
@@ -11,9 +13,10 @@ import {
   validateRecords,
 } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
-import { classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
+import { ASSETS_DIR, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
 import { checkManifest } from './manifest.ts';
 import type { ProjectSource } from './source.ts';
+import { readTypes } from './types.ts';
 
 export interface CompileResult {
   /** Sorted by compareDiagnostics. */
@@ -23,6 +26,8 @@ export interface CompileResult {
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
   /** How many record files the project has, including any that failed. */
   readonly records: number;
+  /** The project's own types from types/ that are sound, by name. */
+  readonly dataTypes: ReadonlyMap<string, DataType>;
 }
 
 interface Report {
@@ -36,13 +41,14 @@ interface Report {
 
 /**
  * Reads, checks and packs a project. The same files give the same diagnostics and the same pack
- * hash in the editor and in the CLI, whatever order the source lists them in. `options.facts`
- * is the game's fact catalog, for checking the conditions in records.
+ * hash in the editor and in the CLI, whatever order the source lists them in. `types` are the
+ * game's code types, which the project's own types/ join; `options.facts` is the game's fact
+ * catalog, for checking the conditions in records.
  */
 export async function compileProject(
   source: ProjectSource,
   types: readonly RecordType[],
-  options: ValidateOptions = {},
+  options: Omit<ValidateOptions, 'assets'> = {},
 ): Promise<CompileResult> {
   const diagnostics: Diagnostic[] = [];
   const report = ({ code, message, type, id, file, path }: Report) =>
@@ -55,16 +61,21 @@ export async function compileProject(
       path,
     });
   const project = await readProject(source, report);
-  const records = await readRecords(source, report);
-  const validation = validateRecords(types, records, options);
+  const known = await readTypes(source, types, report);
+  const assets = await readAssets(source);
+  const records = (await readRecords(source, report)).map((record) =>
+    known.unchecked.has(record.type) ? { ...record, unreadable: true } : record,
+  );
+  const validation = validateRecords(known.types, records, { ...options, assets });
   diagnostics.push(...validation.diagnostics);
   diagnostics.sort(compareDiagnostics);
   const failed = project === null || diagnostics.some((d) => d.severity === 'error');
   return {
     diagnostics,
-    pack: failed ? null : createPack(project, groupByType(records)),
+    pack: failed ? null : createPack(project, packRecords(records, known.types, options)),
     usedBy: validation.usedBy,
     records: records.length,
+    dataTypes: known.data,
   };
 }
 
@@ -83,6 +94,12 @@ async function readProject(source: ProjectSource, report: (r: Report) => void): 
   const { project, problems } = checkManifest(parsed.value);
   for (const problem of problems) report({ ...problem, file });
   return project;
+}
+
+/** The files under assets/, as paths inside it, for asset fields to name. */
+async function readAssets(source: ProjectSource): Promise<ReadonlySet<string>> {
+  const prefix = `${ASSETS_DIR}/`;
+  return new Set((await source.files(ASSETS_DIR)).map((path) => path.slice(prefix.length)));
 }
 
 // Any order will do: validation's output doesn't depend on it, and the pack hash is canonical.
@@ -111,12 +128,21 @@ async function readRecord(source: ProjectSource, file: string, report: (r: Repor
   return { type, id, file, value: undefined, unreadable: true };
 }
 
-/** `{ [type]: { [id]: value } }`. Only called once validation found no errors. */
-function groupByType(records: readonly RecordInput[]): Record<string, Record<string, unknown>> {
+/**
+ * `{ [type]: { [id]: value } }`, with conditions written as text turned into trees (D31). Only
+ * called once validation found no errors, so every record has a type and every text parses.
+ */
+function packRecords(
+  records: readonly RecordInput[],
+  types: readonly RecordType[],
+  options: Omit<ValidateOptions, 'assets'>,
+): Record<string, Record<string, unknown>> {
+  const byName = new Map(types.map((t) => [t.type, t]));
   const pack: Record<string, Record<string, unknown>> = {};
   for (const { type, id, value } of records) {
+    const schema = byName.get(type)?.schema;
     pack[type] ??= {};
-    pack[type][id] = value;
+    pack[type][id] = schema ? packValue(schema, value, options.facts) : value;
   }
   return pack;
 }

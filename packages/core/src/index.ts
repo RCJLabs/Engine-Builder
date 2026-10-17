@@ -8,7 +8,7 @@
  * bot policies, seed sweeps and golden files (M1.9). Next in Phase 1: the 3D spike (ROADMAP.md,
  * docs/architecture.md).
  */
-export { CanonicalError, canonicalJson, pointerSegment } from './canonical.ts';
+export { CanonicalError, canonicalJson, pointerKeys, pointerSegment } from './canonical.ts';
 export { fnv1a32, fnv1a64, hashParts, utf8Length } from './hash.ts';
 export * from './logic/index.ts';
 export {

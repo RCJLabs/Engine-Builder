@@ -2,7 +2,7 @@ import { checkCondition, FACT_PATTERN, OPS } from '@eb/core';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { event as eventType, eventTypes, facts } from '../test/events.ts';
-import { condition, type RecordInput, recordJsonSchema, validateRecords, z } from './index.ts';
+import { condition, defineRecordType, type RecordInput, recordJsonSchema, validateRecords, z } from './index.ts';
 
 const base: RecordInput[] = [
   { type: 'item', id: 'medkit', value: { name: 'Medkit', weight: 1 } },
@@ -144,6 +144,55 @@ describe('conditions in records', () => {
   });
 });
 
+describe('conditions written as text (D31)', () => {
+  it('check like trees, with problems and references at the field, which has no places inside', () => {
+    expect(lines(event('hold.count(ghost) > 0'))).toEqual(['E013 /choices/go/when: No item record "ghost"']);
+    const { diagnostics, usedBy } = run(event('hold.count(medkit) >= 1 and voyage.leader == kit'));
+    expect(diagnostics).toEqual([]);
+    expect(usedBy.get('item:medkit')).toEqual([{ from: 'event:derelict', path: '/choices/go/when' }]);
+    expect(usedBy.get('actor:kit')).toEqual([{ from: 'event:derelict', path: '/choices/go/when' }]);
+  });
+
+  it('report text that does not parse once, in the parser’s words, with its column', () => {
+    expect(lines(event('hold.count(medkit) >='))).toEqual([
+      'E011 /choices/go/when: Expected a value to compare with, but the text ended (column 22)',
+    ]);
+    expect(lines(event('voyage.night && voyage.leader == kit'))).toEqual([
+      'E011 /choices/go/when: Unexpected "&": write "and" (column 14)',
+    ]);
+  });
+
+  it('take a fact’s one argument by itself only when the facts are known', () => {
+    expect(lines(event('hold.count(medkit) >= 1'), false)).toEqual([
+      'E011 /choices/go/when: Name the argument, like hold.count(name: …) (column 11)',
+    ]);
+    expect(lines(event('hold.count(item: medkit) >= 1'), false)).toEqual([]);
+  });
+
+  it('lint like trees', () => {
+    expect(lines(event('voyage.night and not voyage.night'))).toEqual([
+      'W102 /choices/go/when: This condition is never true, whatever its facts hold',
+    ]);
+  });
+
+  it('are found inside a union option, since text lets the option parse', () => {
+    const gate = defineRecordType({
+      type: 'gate',
+      title: 'Gate',
+      description: 'Opens when its condition holds.',
+      schema: z.strictObject({
+        rule: z.union([z.strictObject({ when: condition() }), z.strictObject({ always: z.literal(true) })]),
+      }),
+    });
+    const found = validateRecords(
+      [...eventTypes, gate],
+      [...base, { type: 'gate', id: 'g', value: { rule: { when: 'voyage.storm' } } }],
+      { facts },
+    );
+    expect(found.diagnostics.map(({ code, path }) => `${code} ${path}`)).toEqual(['E012 /rule/when']);
+  });
+});
+
 describe('the condition schema', () => {
   // Sound trees, with a few leaves that each break one rule: a bad name, -0, an exponent, empty
   // args, op without value, value without op, an extra key. Groups of one or none, mixed kinds
@@ -191,13 +240,14 @@ describe('the condition schema', () => {
     ),
   })).cond;
 
-  it('accepts exactly what checkCondition finds sound, over a mix of both', () => {
+  it('accepts exactly what checkCondition finds sound, over a mix of both, and any text', () => {
     let accepted = 0;
     fc.assert(
       fc.property(near, (candidate) => {
         const ok = checkCondition(candidate).length === 0;
         if (ok) accepted++;
-        expect(z.safeParse(condition(), candidate).success).toBe(ok);
+        // Text is the condition's other form (D31): the schema takes any, and validation parses it.
+        expect(z.safeParse(condition(), candidate).success).toBe(ok || typeof candidate === 'string');
       }),
       { numRuns: 2000 },
     );

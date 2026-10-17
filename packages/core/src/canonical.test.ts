@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { CanonicalError, canonicalJson } from './canonical.ts';
+import { CanonicalError, canonicalJson, pointerKeys, pointerSegment } from './canonical.ts';
 
 /** The same value with every object's keys inserted in reverse order. */
 function reordered(value: unknown): unknown {
@@ -132,5 +132,20 @@ describe('properties', () => {
         expect(JSON.parse(canonicalJson(value))).toEqual(JSON.parse(JSON.stringify(value)));
       }),
     );
+  });
+});
+
+describe('JSON Pointers (RFC 6901)', () => {
+  it('read back the keys their segments were written from', () => {
+    fc.assert(
+      fc.property(fc.array(fc.string()), (keys) => {
+        expect(pointerKeys(keys.map((key) => `/${pointerSegment(key)}`).join(''))).toEqual(keys);
+      }),
+    );
+  });
+
+  it('unescape ~1 before ~0, so ~01 is ~1 and the empty pointer has no keys', () => {
+    expect(pointerKeys('/a~01b/~10/')).toEqual(['a~1b', '/0', '']);
+    expect(pointerKeys('')).toEqual([]);
   });
 });

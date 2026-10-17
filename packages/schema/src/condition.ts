@@ -39,17 +39,27 @@ const tree: z.ZodType<Condition> = z
     ]),
   )
   .meta({
-    id: 'eb-condition',
-    [CONDITION_KEY]: true,
+    id: 'eb-condition-tree',
     description:
-      'A condition (docs/specs/conditions.md), like {"fact": "hold.count", "args": {"item": "medkit"}, "op": ">=", "value": 2}',
+      'A condition as a tree (docs/specs/conditions.md), like {"fact": "hold.count", "args": {"item": "medkit"}, "op": ">=", "value": 2}',
   });
 
+// A file may hold the text form instead (D31). Any text passes here; validation parses it, and
+// reports what doesn't parse as E011 with the parser's words and column.
+const field = z.union([z.string(), tree]).meta({
+  id: 'eb-condition',
+  [CONDITION_KEY]: true,
+  description:
+    'A condition (docs/specs/conditions.md): text like "hold.count(medkit) >= 2 and not voyage.night", or the same as a tree',
+});
+
 /**
- * A field that holds a condition: `when: condition().optional()`. Validation checks it against
- * the game's facts (E011 to E014) and asks whether it can ever be true (W102 to W104).
+ * A field that holds a condition: `when: condition().optional()`. A file may hold its text form
+ * or its tree; the pack always holds the tree (compileProject parses the text). A record type's
+ * T describes the pack, so the field is typed as the tree. Validation checks it against the
+ * game's facts (E011 to E014) and asks whether it can ever be true (W102 to W104).
  */
-export const condition = (): z.ZodType<Condition> => tree;
+export const condition = (): z.ZodType<Condition> => field as unknown as z.ZodType<Condition>;
 
 /** Whether a schema is a condition field, through .describe() and .meta() copies too. */
 export const isConditionSchema = (schema: z.core.$ZodType): boolean =>

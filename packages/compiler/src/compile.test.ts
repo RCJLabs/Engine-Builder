@@ -225,8 +225,21 @@ describe('the code table', () => {
       eventTypes,
       { facts },
     );
+    // Type files (M2.4): one that breaks the format, one naming a type nobody has, one in a
+    // folder, a note beside them, and an asset field naming a file that isn't there.
+    const types = await compile(
+      changed({
+        'types/crate.json': '{ "title": "Crate", "fields": { "art": { "kind": "asset" }, "x": { "kind": "x" } } }',
+        'types/box.json':
+          '{ "title": "Box", "fields": { "art": { "kind": "asset" }, "of": { "kind": "ref", "to": "nothing" } } }',
+        'types/bag.json': '{ "title": "Bag", "fields": { "art": { "kind": "asset" } } }',
+        'records/bag/sack.json': '{ "art": "sack.png" }',
+        'types/old/bag.json': '{}',
+        'types/notes.md': '',
+      }),
+    );
     const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions].flatMap((r) => r.diagnostics.map((d) => d.code)),
+      [broken, duplicate, newer, invalid, conditions, types].flatMap((r) => r.diagnostics.map((d) => d.code)),
     );
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());

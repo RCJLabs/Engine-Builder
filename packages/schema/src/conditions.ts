@@ -4,6 +4,7 @@ import {
   conditionRefs,
   type FactCatalog,
   formatRef,
+  parseCondition,
   type RecordIndex,
   SAMPLES,
   satisfiability,
@@ -20,17 +21,20 @@ export interface ConditionContext {
 }
 
 /**
- * Checks one condition field: its shape, then its facts, arguments and values against the
- * catalog (E011 to E014), then, once it is sound, whether it can be true and false at all
- * (W102 to W104). Without a catalog, every fact is one with no domain.
+ * Checks one condition field: its text parses (E011), then its shape, then its facts, arguments
+ * and values against the catalog (E011 to E014), then, once it is sound, whether it can be true
+ * and false at all (W102 to W104). Without a catalog, every fact is one with no domain.
  */
 export function checkConditionField(found: FoundCondition, ctx: ConditionContext): void {
-  const issues = checkCondition(found.value, { ...(ctx.facts ? { catalog: ctx.facts } : {}), records: ctx.records });
-  for (const issue of issues) ctx.report(issue.code, `${found.path}${issue.path}`, issue.message);
+  const tree = readField(found, ctx);
+  if (tree === undefined) return;
+  // Text has no places inside it to point at, so its problems and references point at the field.
+  const at = typeof found.value === 'string' ? () => found.path : (inner: string) => `${found.path}${inner}`;
+  const issues = checkCondition(tree, { ...(ctx.facts ? { catalog: ctx.facts } : {}), records: ctx.records });
+  for (const issue of issues) ctx.report(issue.code, at(issue.path), issue.message);
   if (issues.some((issue) => issue.code === 'E011')) return;
-  const condition = found.value as Condition;
-  for (const ref of conditionRefs(condition, ctx.facts ?? {}))
-    ctx.use(formatRef(ref.type, ref.id), `${found.path}${ref.path}`);
+  const condition = tree as Condition;
+  for (const ref of conditionRefs(condition, ctx.facts ?? {})) ctx.use(formatRef(ref.type, ref.id), at(ref.path));
   if (issues.length > 0) return;
   const reach = satisfiability(condition, { ...(ctx.facts ? { catalog: ctx.facts } : {}), records: ctx.records });
   if (reach.canBeTrue === false) {
@@ -44,4 +48,13 @@ export function checkConditionField(found: FoundCondition, ctx: ConditionContext
       `Could not tell whether this condition can be true: none of ${SAMPLES} samples of its ${reach.combinations} combinations was`,
     );
   }
+}
+
+/** The field's tree: as written, or parsed from its text. Text that doesn't parse is E011, and there is no tree. */
+function readField(found: FoundCondition, ctx: ConditionContext): unknown {
+  if (typeof found.value !== 'string') return found.value;
+  const parsed = parseCondition(found.value, ctx.facts);
+  if (parsed.ok) return parsed.condition;
+  ctx.report('E011', found.path, parsed.message);
+  return undefined;
 }

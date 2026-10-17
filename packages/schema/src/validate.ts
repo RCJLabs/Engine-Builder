@@ -44,6 +44,11 @@ export interface ValidateOptions {
    * every fact as one with no domain.
    */
   readonly facts?: FactCatalog;
+  /**
+   * The files under the project's assets/ folder, as paths inside it, for asset fields to name
+   * (E018). Without it, asset fields get only the shape check.
+   */
+  readonly assets?: ReadonlySet<string>;
 }
 
 /**
@@ -86,10 +91,11 @@ export function validateRecords(
     const count = counts.get(formatRef(record.type, record.id)) ?? 0;
     if (count > 1) report('E004', '', `${count} ${record.type} records have the id "${record.id}"`);
     if (record.unreadable) continue;
-    const { refs, conditions } = scanRecord(recordType.schema, record.value);
+    const { refs, conditions, assets } = scanRecord(recordType.schema, record.value);
     // Conditions get checkCondition's messages (E011) rather than zod's.
     const inCondition = (path: string) => conditions.some((c) => path === c.path || path.startsWith(`${c.path}/`));
-    for (const issue of schemaIssues(recordType.schema, record.value)) {
+    const issues = schemaIssues(recordType.schema, record.value);
+    for (const issue of issues) {
       if (!inCondition(issue.path)) report('E001', issue.path, issue.message);
     }
     for (const found of refs) {
@@ -99,6 +105,11 @@ export function validateRecords(
       if (!counts.has(key)) report('E005', found.path, `No record ${key}`);
     }
     for (const found of conditions) checkConditionField(found, { facts: options.facts, records: index, report, use });
+    for (const found of assets) {
+      // A path zod already refused (E001) names no file to look for.
+      if (!options.assets || issues.some((issue) => issue.path === found.path)) continue;
+      if (!options.assets.has(found.value)) report('E018', found.path, `No file assets/${found.value}`);
+    }
   }
   return { diagnostics: diagnostics.sort(compareDiagnostics), usedBy: sortUsages(usages) };
 }

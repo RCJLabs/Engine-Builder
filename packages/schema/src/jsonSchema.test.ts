@@ -25,12 +25,14 @@ describe('recordJsonSchema', () => {
     const { properties } = recordJsonSchema(actor) as { properties: Record<string, Record<string, unknown>> };
     expect(properties.drops).toEqual({
       type: 'string',
+      minLength: 1,
       pattern: RECORD_ID_PATTERN.source,
       'x-eb-ref': 'loot-table',
       description: 'What a search of the body turns up',
     });
     expect(properties.carries?.propertyNames).toEqual({
       type: 'string',
+      minLength: 1,
       pattern: RECORD_ID_PATTERN.source,
       'x-eb-ref': 'item',
     });

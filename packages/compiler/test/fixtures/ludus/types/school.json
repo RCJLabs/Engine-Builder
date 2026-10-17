@@ -1,0 +1,22 @@
+{
+  "title": "School",
+  "description": "A gladiator school, a ludus.",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "max": 40
+    },
+    "colour": {
+      "kind": "colour",
+      "label": "Colours"
+    },
+    "founded": {
+      "kind": "int",
+      "min": 1,
+      "label": "Founded",
+      "description": "Year of the city",
+      "optional": true
+    }
+  }
+}

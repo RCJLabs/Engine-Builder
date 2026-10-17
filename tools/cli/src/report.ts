@@ -12,8 +12,12 @@ export function formatResult(result: CompileResult, noTypes: boolean): string[] 
   const lines = result.diagnostics.map(formatDiagnostic);
   const errors = result.diagnostics.filter((d) => d.severity === 'error').length;
   const warnings = result.diagnostics.length - errors;
-  if (noTypes && result.records > 0)
-    lines.push('No record types were given, so every record is unknown. Pass --types <module>.');
+  // Since M2.4 a project's own types/ may cover every record, so the hint waits for records of a type nobody defined.
+  if (noTypes && result.diagnostics.some((d) => d.code === 'E002')) {
+    lines.push(
+      'Some records are of types neither types/ nor a --types module defines. Pass --types <module>, or add types/<type>.json.',
+    );
+  }
   const problems =
     result.diagnostics.length === 0
       ? 'no problems'

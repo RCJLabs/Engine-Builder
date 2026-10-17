@@ -5,10 +5,17 @@ import { join, resolve } from 'node:path';
 import { canonicalJson, readPack } from '@eb/core';
 import { strToU8, zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import { EVENT_TYPES, FIXTURE_TYPES, FIXTURE_V1, readFixture } from '../../../packages/compiler/test/fixture.ts';
+import {
+  EVENT_TYPES,
+  FIXTURE_LUDUS,
+  FIXTURE_TYPES,
+  FIXTURE_V1,
+  readFixture,
+} from '../../../packages/compiler/test/fixture.ts';
 
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const V1_HASH = '489cedf323bd33d9';
+const LUDUS_HASH = '34035cc3fb5fba7a';
 
 /** Runs `eb` in `cwd` and returns its exit code and output. */
 function eb(args: readonly string[], cwd = tmpdir()) {
@@ -60,10 +67,17 @@ describe('eb validate', () => {
     expect(run.out).toContain(`4 records: 1 warning, hash ${V1_HASH}.`);
   });
 
-  it('says so when no record types were given', () => {
+  it('says where types come from when records are of types nobody defined', () => {
     const run = eb(['validate', FIXTURE_V1]);
     expect(run.code).toBe(1);
-    expect(run.out).toContain('No record types were given, so every record is unknown. Pass --types <module>.');
+    expect(run.out).toContain(
+      'Some records are of types neither types/ nor a --types module defines. Pass --types <module>, or add types/<type>.json.',
+    );
+  });
+
+  it('passes a project made only of data with no --types module (D31)', () => {
+    const run = eb(['validate', FIXTURE_LUDUS]);
+    expect(run).toEqual({ code: 0, out: `8 records: no problems, hash ${LUDUS_HASH}.\n`, err: '' });
   });
 
   it('reads a zip of the project to the same hash', () => {
@@ -125,6 +139,17 @@ describe('eb build', () => {
     const pack = readPack(JSON.parse(text));
     expect(pack.hash).toBe(V1_HASH);
     expect(text).toBe(`${canonicalJson(pack)}\n`);
+  });
+
+  it('writes conditions written as text into the pack as trees', () => {
+    const out = join(scratch(), 'ludus.pack.json');
+    expect(eb(['build', FIXTURE_LUDUS, '--out', out]).code).toBe(0);
+    const pack = readPack(JSON.parse(readFileSync(out, 'utf8')));
+    expect(pack.hash).toBe(LUDUS_HASH);
+    const spiculus = pack.records.gladiator?.spiculus as { fights: unknown } | undefined;
+    expect(spiculus?.fights).toEqual({
+      all: [{ fact: 'arena.day' }, { not: { fact: 'crowd.angry' } }],
+    });
   });
 
   it('names the pack after the project by default', () => {

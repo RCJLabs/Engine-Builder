@@ -1,0 +1,78 @@
+{
+  "title": "Gladiator",
+  "description": "A fighter of the arena.",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "max": 40
+    },
+    "might": {
+      "kind": "int",
+      "min": 0,
+      "max": 100
+    },
+    "style": {
+      "kind": "enum",
+      "values": ["retiarius", "murmillo", "secutor", "thraex"]
+    },
+    "school": {
+      "kind": "ref",
+      "to": "school"
+    },
+    "free": {
+      "kind": "bool",
+      "label": "Freed"
+    },
+    "skills": {
+      "kind": "list",
+      "of": {
+        "kind": "text",
+        "min": 1
+      },
+      "max": 6
+    },
+    "kit": {
+      "kind": "map",
+      "key": {
+        "kind": "ref",
+        "to": "weapon"
+      },
+      "of": {
+        "kind": "int",
+        "min": 1
+      },
+      "label": "Weapons carried",
+      "optional": true
+    },
+    "record": {
+      "kind": "group",
+      "label": "Wins and losses",
+      "fields": {
+        "wins": {
+          "kind": "int",
+          "min": 0
+        },
+        "losses": {
+          "kind": "int",
+          "min": 0
+        }
+      }
+    },
+    "portrait": {
+      "kind": "asset",
+      "of": "image",
+      "optional": true
+    },
+    "fights": {
+      "kind": "condition",
+      "label": "Fights when",
+      "optional": true
+    },
+    "story": {
+      "kind": "text",
+      "multiline": true,
+      "optional": true
+    }
+  }
+}

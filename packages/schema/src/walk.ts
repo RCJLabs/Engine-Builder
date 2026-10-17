@@ -1,5 +1,6 @@
 import { pointerSegment } from '@eb/core';
 import { z } from 'zod';
+import { type AssetKind, assetKindOf } from './assets.ts';
 import { isConditionSchema } from './condition.ts';
 import { type RefTarget, refTargetOf } from './refs.ts';
 import { view } from './zodView.ts';
@@ -18,19 +19,29 @@ export interface FoundCondition {
   readonly value: unknown;
 }
 
+export interface FoundAsset {
+  /** JSON Pointer to the field. */
+  readonly path: string;
+  /** The path inside assets/, as written. */
+  readonly value: string;
+  /** The kind of file the field asks for, or true for any. */
+  readonly kind: AssetKind | true;
+}
+
 export interface Found {
   readonly refs: FoundRef[];
   readonly conditions: FoundCondition[];
+  readonly assets: FoundAsset[];
 }
 
 /**
- * Every reference and condition in `value`, found by walking the schema and the value together.
- * It reads values that fail the schema too, as far as their shape allows, so one bad field does
- * not hide the references around it. zod reports the failure itself. A condition's own
- * references are left to conditionRefs, which knows the facts' domains.
+ * Every reference, condition and asset in `value`, found by walking the schema and the value
+ * together. It reads values that fail the schema too, as far as their shape allows, so one bad
+ * field does not hide the references around it. zod reports the failure itself. A condition's
+ * own references are left to conditionRefs, which knows the facts' domains.
  */
 export function scanRecord(schema: z.core.$ZodType, value: unknown): Found {
-  const found: Found = { refs: [], conditions: [] };
+  const found: Found = { refs: [], conditions: [], assets: [] };
   walk(schema, value, '', found);
   return found;
 }
@@ -49,6 +60,11 @@ function walk(schema: z.core.$ZodType, value: unknown, path: string, found: Foun
   const target = refTargetOf(schema);
   if (target !== undefined) {
     if (typeof value === 'string') found.refs.push({ path, value, target });
+    return;
+  }
+  const kind = assetKindOf(schema);
+  if (kind !== undefined) {
+    if (typeof value === 'string') found.assets.push({ path, value, kind });
     return;
   }
   const shape = view(schema);
