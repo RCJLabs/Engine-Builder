@@ -11,6 +11,8 @@ import { editing } from '../editing/current.ts';
 import { saveIntoFolder } from '../editing/folderSave.ts';
 import { folderLockName, projectLockName } from '../editing/projectLock.ts';
 import { type WorkingCopy, workingCopy } from '../editing/workingCopy.ts';
+import { type Catalog, readCatalog } from '../forms/catalog.ts';
+import { chosen } from '../forms/selection.ts';
 import { type FolderHandle, folderAccess } from './folders.ts';
 import { type Library, PROJECTS_DIR } from './library.ts';
 import type { OpfsWorker } from './opfsClient.ts';
@@ -23,9 +25,17 @@ export interface OpenProject {
   /** The project as the editor sees it, unsaved edits included. */
   readonly source: WorkingCopy;
   readonly summary: ProjectSummary;
+  /** Its types, records and assets, for forms (M2.4). */
+  readonly catalog: Catalog;
 }
 
 export const current = signal<OpenProject | null>(null);
+
+/**
+ * Counts every change to the open project's files: edits, undos, redos and other tabs' saves. A
+ * form reads its record again on each, at once, while the summary and catalog follow a moment later.
+ */
+export const revision = signal(0);
 
 let refreshing: Promise<void> | null = null;
 let again = false;
@@ -42,9 +52,9 @@ function refreshOpen(copy: WorkingCopy): void {
   refreshing = (async () => {
     do {
       again = false;
-      const summary = await summarize(copy);
+      const [summary, catalog] = await Promise.all([summarize(copy), readCatalog(copy)]);
       const open = current.value;
-      if (open?.source === copy) current.value = { ...open, summary };
+      if (open?.source === copy) current.value = { ...open, summary, catalog };
     } while (again);
   })()
     .catch((error: unknown) => note(`The project couldn’t be read again: ${String(error)}`))
@@ -54,9 +64,16 @@ function refreshOpen(copy: WorkingCopy): void {
 }
 
 async function show(where: OpenProject['where'], label: string, copy: WorkingCopy): Promise<string | undefined> {
-  const summary = await summarize(copy);
-  current.value = { where, label, source: copy, summary };
+  const [summary, catalog] = await Promise.all([summarize(copy), readCatalog(copy)]);
+  chosen.value = null;
+  current.value = { where, label, source: copy, summary, catalog };
   return summary.project?.name;
+}
+
+/** What a change to the files tells everything that shows them. */
+function changed(copy: WorkingCopy): void {
+  revision.value++;
+  refreshOpen(copy);
 }
 
 export async function openStored(library: Library, worker: OpfsWorker, folder: string): Promise<void> {
@@ -68,7 +85,7 @@ export async function openStored(library: Library, worker: OpfsWorker, folder: s
     copy,
     write: (files) => worker.save(base, files),
     recover: () => worker.recover(base),
-    changed: () => refreshOpen(copy),
+    changed: () => changed(copy),
   });
 }
 
@@ -85,12 +102,13 @@ export async function openFolderProject(handle: FolderHandle, key: number | null
       allowed: async () => (await folderAccess(handle, false, 'readwrite')) === 'granted',
       ask: async () => (await folderAccess(handle, true, 'readwrite')) === 'granted',
     },
-    changed: () => refreshOpen(copy),
+    changed: () => changed(copy),
   });
 }
 
 /** Saves what it can and lets the project go. The panel goes back to the library at once. */
 export function closeOpen(): Promise<void> {
   current.value = null;
+  chosen.value = null;
   return editing.close();
 }

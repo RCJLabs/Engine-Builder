@@ -44,6 +44,9 @@ importers:
       '@eb/platform':
         specifier: workspace:*
         version: link:../../packages/platform
+      '@eb/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       '@preact/signals':
         specifier: 2.11.3
         version: 2.11.3(preact@11.0.1)

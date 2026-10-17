@@ -1,3 +1,4 @@
+import { RecordsBrowser } from '../forms/RecordsBrowser.tsx';
 import { busy, closeProject, copyCurrentIn, exportCurrent, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
 import { EditState } from './EditState.tsx';
@@ -22,15 +23,6 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
         <dt>Records</dt>
         <dd>{recordsLine(summary)}</dd>
       </dl>
-      {summary.types.length > 0 ? (
-        <ul class="types" aria-label="Records by type">
-          {summary.types.map(({ type, records }) => (
-            <li key={type}>
-              <span class="mono">{type}</span> {records}
-            </li>
-          ))}
-        </ul>
-      ) : null}
       {summary.problems.length > 0 ? (
         <ul class="problems" aria-label="Problems">
           {summary.problems.map((problem) => (
@@ -40,6 +32,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       ) : (
         <p class="muted">No problems found.</p>
       )}
+      <RecordsBrowser project={project} />
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>
           Export zip

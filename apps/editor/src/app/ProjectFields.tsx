@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
+import { useDraft } from '../editing/draft.ts';
 import { FIELD_LABELS, type ManifestField, manifestChange, manifestProblem } from '../editing/projectEdits.ts';
 import type { ManifestProject } from '../projects/manifest.ts';
 
@@ -21,14 +21,7 @@ export function ProjectFields({ project }: { project: ManifestProject }) {
  */
 function Field(props: { field: ManifestField; label: string; stored: string; canEdit: boolean }) {
   const { field, label, stored, canEdit } = props;
-  const [draft, setDraft] = useState<string | null>(null);
-  const history = editing.session.value?.history.value;
-  // Caught up with what was typed, or moved by undo or redo (which leave the history closed). Not
-  // run on each keystroke: the first one after an undo would be wiped before its edit lands.
-  useEffect(() => {
-    if (draft === stored || (history && !history.open)) setDraft(null);
-  }, [stored, history]);
-  const shown = draft ?? stored;
+  const { shown, draft, setDraft, clear } = useDraft(stored);
   const problem = draft === null ? null : manifestProblem(field, draft);
   const id = `project-${field}`;
   return (
@@ -56,7 +49,7 @@ function Field(props: { field: ManifestField; label: string; stored: string; can
             `project.json#${field}`,
           );
         }}
-        onBlur={() => setDraft(null)}
+        onBlur={clear}
       />
       {problem ? (
         <p id={`${id}-problem`} class="field-problem">
