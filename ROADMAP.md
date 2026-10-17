@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.3.** Records registry (Phase 1). M1.1 (RNG streams) and M1.2 (state fingerprints) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.4.** Project format v1 (Phase 1). M1.1 (RNG streams), M1.2 (state fingerprints) and M1.3 (records) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -58,10 +58,13 @@ How to read this file:
   - `firstDifference` names the first path where two states differ.
   - [`docs/specs/state-hash.md`](docs/specs/state-hash.md) is the spec. [`state_hash_oracle.py`](docs/specs/state_hash_oracle.py) checks it in CI against fixed values plus 300 generated ones.
   - Eight planted bugs were each caught, including one in the oracle alone.
-- **M1.3 Records registry.**
-  - Ids, references and record lookups at runtime.
-  - zod schemas in `packages/schema`, exported as JSON Schema for editor autocomplete.
-  - Coded diagnostics (`E001…`, `W101…`) with file and field path.
+- **M1.3 Records registry.** Done 2026-10-17.
+  - Ids and type names are kebab-case, at most 64 characters, and unique per type. A field that points at one type holds a bare id; a field that allows several holds `type:id`.
+  - `createRecordStore` in `@eb/core` gives sorted, frozen lookups at runtime.
+  - `@eb/schema` defines record types as strict zod schemas and refuses defaults, transforms, `any` and `unknown` when a type is defined.
+  - `validateRecords` reports coded diagnostics E001–E006 with a file and a JSON Pointer path, plus a `usedBy` index for the editor. The output never depends on input order (property-tested).
+  - `recordJsonSchema` exports draft 2020-12 with `x-eb-ref` on reference fields.
+  - [`docs/specs/records.md`](docs/specs/records.md) is the spec. Twenty-six planted bugs were each caught by the tests.
 - **M1.4 Project format v1.**
   - A folder of JSON, one record per file.
   - A loader for a folder, OPFS or a zip.
