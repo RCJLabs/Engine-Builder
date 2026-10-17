@@ -43,7 +43,8 @@ const stall = defineModule<{ coins: number; bought: string[] }>({
   },
   modes: {
     square: { actions: ['stall/browse'] },
-    browsing: { actions: ['stall/buy', 'stall/leave', 'stall/haggle'] },
+    // Listed out of order, so only game.options' own sort puts buy before leave.
+    browsing: { actions: ['stall/leave', 'stall/haggle', 'stall/buy'] },
   },
 });
 

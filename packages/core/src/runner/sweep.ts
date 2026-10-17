@@ -50,6 +50,12 @@ export interface SweepReport {
   readonly runs: number;
   readonly policy: string;
   readonly ends: Readonly<Record<RunEnd, number>>;
+  /**
+   * How many different states the runs ended in, by the modules' slices: the kernel, which holds
+   * the seed, is left out. Far fewer than the runs means the seed hardly matters: in 2060td, 45%
+   * of matchups ended byte for byte the same over 20 seeds.
+   */
+  readonly distinct: number;
   readonly turns: NumberSummary | null;
   readonly metrics: readonly MetricReport[];
   /** Each beat type, with the share of runs that reached it at least once. */
@@ -80,6 +86,7 @@ export function sweep(
     runs: results.length,
     policy: policy.name,
     ends: { ended: 0, stopped: 0, capped: 0, ...count(results.map((r) => r.end)) },
+    distinct: new Set(runs.map(endingOf)).size,
     turns: summarize(results.map((r) => r.turns)),
     metrics: metrics.map((m, i) =>
       metricReport(m.label ?? labelOf(m.fact, m.args), catalog[m.fact]?.domain, read[i] as unknown[]),
@@ -98,6 +105,8 @@ export function sweep(
 /** `seed-0` to `seed-(n−1)`, or with another prefix: the seeds a sweep of n runs uses by default. */
 export const seedsOf = (count: number, prefix = 'seed'): string[] =>
   Array.from({ length: count }, (_, i) => `${prefix}-${i}`);
+
+const endingOf = (run: RunSummary) => canonicalJson(Object.entries(run.facets).filter(([key]) => key !== 'kernel'));
 
 function summaryOf(result: RunResult): RunSummary {
   const facets = Object.fromEntries(Object.entries(readFacets(result.state)).map(([key, f]) => [key, f.hash]));

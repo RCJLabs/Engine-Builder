@@ -30,7 +30,7 @@ export function formatSweep(project: string, report: SweepReport, maxTurns: numb
     .map((end) => `${report.ends[end]} ${ENDS[end]}`);
   const lines = [
     `${project}: ${report.runs} runs with the ${report.policy} policy, at most ${maxTurns} turns each.`,
-    `Ends: ${ends.join(', ')}.`,
+    `Ends: ${ends.join(', ')}, in ${report.distinct} different ${report.distinct === 1 ? 'state' : 'states'}.`,
   ];
   if (report.turns) lines.push(`Turns: ${numberText(report.turns)}.`);
   for (const metric of report.metrics) lines.push(`${metric.label}: ${metricText(metric)}.`);

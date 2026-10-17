@@ -25,7 +25,7 @@ describe('eb sim', () => {
     expect(run.code).toBe(0);
     const lines = run.out.trim().split('\n');
     expect(lines[0]).toBe('salvage-run: 100 runs with the random policy, at most 1000 turns each.');
-    expect(lines[1]).toBe('Ends: 100 ended.');
+    expect(lines[1]).toBe('Ends: 100 ended, in 100 different states.');
     expect(lines).toContainEqual(expect.stringMatching(/^voyage\.ending: home [\d.]+% \(95% [\d.]+% to [\d.]+%\)/));
     expect(lines).toContainEqual(expect.stringMatching(/^crew\.alive: mean [\d.]+ \(95% [\d.]+ to [\d.]+\);/));
     expect(lines.at(-1)).toBe('Refused offers: none.');
@@ -71,6 +71,13 @@ describe('eb sim', () => {
     expect(lines.at(-1)).toBe('If the change is meant, run again with --update to write the new runs.');
   });
 
+  it('says when every run ends in the same state, as with a game the seed cannot touch', () => {
+    const door = resolve(import.meta.dirname, 'fixtures/door');
+    const run = eb(['sim', door, '--game', resolve(import.meta.dirname, 'fixtures/door-game.ts'), '--seeds', '20']);
+    expect(run.code).toBe(0);
+    expect(run.out.split('\n')[1]).toBe('Ends: 20 ended, in 1 different state.');
+  });
+
   it('fails a game that offers what it then refuses', () => {
     const run = eb(['sim', PROJECT, '--game', SLOPPY, '--seeds', '10']);
     expect(run.code).toBe(1);
@@ -79,13 +86,21 @@ describe('eb sim', () => {
     );
   });
 
-  it('fails content with errors before playing it', () => {
+  it("fails content with errors before playing it, conditions checked against the game's facts", () => {
     const dir = scratch();
     cpSync(PROJECT, dir, { recursive: true });
     writeFileSync(join(dir, 'records/item/medkit.json'), '{ "value": -1 }');
+    const quiet =
+      '{ "choices": { "rest": { "when": { "fact": "hold.gold", "op": ">=", "value": 1 }, "effects": [] } } }';
+    writeFileSync(join(dir, 'records/event/quiet-sector.json'), quiet);
     const run = eb(['sim', dir, '--game', GAME]);
     expect(run.code).toBe(1);
     expect(run.out).toContain('records/item/medkit.json#/value: error E001');
+    expect(run.out).toContain(
+      'records/event/quiet-sector.json#/choices/rest/when/fact: error E012: No fact "hold.gold"',
+    );
+    // eb validate takes the facts from a game module's modules when it has no facts export.
+    expect(eb(['validate', dir, '--types', GAME]).out).toContain('error E012');
   });
 
   it.each([
@@ -111,11 +126,15 @@ describe('eb sim', () => {
       code: 2,
       err: expect.stringContaining('holds runs of "space-wrecked"'),
     });
-    const empty = join(dir, 'empty.ts');
-    writeFileSync(empty, 'export const recordTypes = [];\n');
-    expect(eb(['sim', PROJECT, '--game', empty])).toMatchObject({
-      code: 2,
-      err: expect.stringContaining('must export modules'),
-    });
+    for (const [name, text] of [
+      ['none.ts', 'export const recordTypes = [];\n'],
+      ['empty.ts', "export const recordTypes = [];\nexport const modules = [];\nexport const start = 'travel';\n"],
+    ]) {
+      writeFileSync(join(dir, name as string), text as string);
+      expect(eb(['sim', PROJECT, '--game', join(dir, name as string)])).toMatchObject({
+        code: 2,
+        err: expect.stringContaining('must export modules'),
+      });
+    }
   });
 });

@@ -5,7 +5,7 @@ import { Rng } from '../rng.ts';
 import { createGame, defineModule, type GameState } from '../sim/index.ts';
 import { stateHash } from '../stateHash.ts';
 import { playRun } from './play.ts';
-import { randomPolicy, rulePolicy, weightedPolicy } from './policy.ts';
+import { randomPolicy, rulePolicy, turnFor, weightedPolicy } from './policy.ts';
 import { seedsOf, sweep } from './sweep.ts';
 
 const cautious = weightedPolicy('cautious', { 'crew/rest': 3, 'voyage/jump': 1 });
@@ -51,6 +51,11 @@ describe('playRun', () => {
     expect(playRun(game, sim, { seed: 'd', policy: never })).toMatchObject({ end: 'stopped', turns: 0 });
   });
 
+  it('refuses a policy name a golden file could not hold', () => {
+    expect(() => weightedPolicy('Cautious Bot', {})).toThrow('"Cautious Bot" is not a policy name');
+    expect(() => rulePolicy('', [])).toThrow('is not a policy name');
+  });
+
   it('throws when a policy makes up an action it was not offered', () => {
     const cheat = { name: 'cheat', choose: () => ({ type: 'voyage/jump' }) };
     expect(() => playRun(game, sim, { seed: 'e', policy: cheat })).toThrow(
@@ -81,6 +86,15 @@ describe('playRun', () => {
       { turn: 2, action: { type: 'door/open' }, reason: 'already-open' },
     ]);
     expect(run.beats).toEqual({ rejected: 2 });
+    expect(run.log).toEqual([{ type: 'door/open' }]);
+    // Nothing in the hall depends on the seed, so every run ends the same way.
+    const { report } = sweep(
+      hall,
+      { content: createRecordStore({}) },
+      { seeds: seedsOf(6), policy: randomPolicy, maxTurns: 3 },
+    );
+    expect(report).toMatchObject({ runs: 6, distinct: 1, refused: { count: 12 } });
+    expect(report.refused.first).toHaveLength(10);
   });
 });
 
@@ -96,8 +110,7 @@ describe('rulePolicy', () => {
     const modes = [{ id: 'travel' }, { id: 'encounter', data: { event: 'raiders' } }];
     return { ...state, kernel: { ...state.kernel, modes }, hold: { credits, items: {} } } as GameState;
   };
-  const choose = (state: GameState, seed = 'r') =>
-    payer.choose({ state, options: game.options(state, sim), rng: Rng.create(seed), game, sim, turn: 0 });
+  const choose = (state: GameState, seed = 'r') => payer.choose(turnFor(game, sim, state, Rng.create(seed)));
 
   it('follows the first rule whose condition holds and that matches an offer', () => {
     expect(choose(atRaiders(20))).toEqual({ type: 'voyage/choose', choice: 'pay' });
@@ -107,6 +120,15 @@ describe('rulePolicy', () => {
     // Paying is locked under 10 credits and raiders can't be left, so the third rule picks.
     const picks = new Set(seedsOf(40).map((seed) => choose(atRaiders(5), seed)?.choice));
     expect([...picks].sort()).toEqual(['fight', 'promise']);
+  });
+
+  it('passes over a rule whose condition is false, even when its option is offered', () => {
+    const wary = rulePolicy('wary', [
+      { when: { fact: 'crew.alive', op: '<', value: 1 }, prefer: { type: 'voyage/choose', choice: 'fight' } },
+      { prefer: { type: 'voyage/choose', choice: 'promise' } },
+    ]);
+    const picks = seedsOf(20).map((seed) => wary.choose(turnFor(game, sim, atRaiders(5), Rng.create(seed)))?.choice);
+    expect(new Set(picks)).toEqual(new Set(['promise']));
   });
 
   it('plays a whole sweep without a refused offer, and never rests while it can jump', () => {
@@ -124,6 +146,7 @@ describe('sweep', () => {
 
   it('plays every seed once and says how each run ended', () => {
     expect(report).toMatchObject({ runs: 200, policy: 'reckless', ends: { ended: 200, stopped: 0, capped: 0 } });
+    expect(report.distinct).toBe(200);
     expect(runs.map((r) => r.seed)).toEqual(seedsOf(200));
     expect(report.refused).toEqual({ count: 0, first: [] });
   });
@@ -159,5 +182,50 @@ describe('sweep', () => {
 
   it('refuses a seed given twice', () => {
     expect(() => sweep(game, sim, { seeds: ['a', 'a'], policy: randomPolicy })).toThrow('seeds must be distinct');
+  });
+});
+
+describe('sweep metrics', () => {
+  // A coin that lands b two times in three, with a score that only b has.
+  const coin = defineModule<{ face: string | null }>({
+    id: 'coin',
+    init: () => ({ face: null }),
+    actions: {
+      flip(ctx) {
+        ctx.write().face = ctx.rng('flip').pick(['a', 'b', 'b']);
+        ctx.modes.replace('done');
+      },
+    },
+    facts: {
+      face: { read: ({ state }) => state.face ?? undefined, domain: { type: 'enum', values: ['a', 'b'] } },
+      score: { read: ({ state }) => (state.face === 'b' ? 1 : undefined), domain: { type: 'int', min: 0 } },
+    },
+    modes: { play: { actions: ['coin/flip'] }, done: { actions: [] } },
+  });
+  const flips = createGame({ modules: [coin], start: 'play' });
+  const { report } = sweep(
+    flips,
+    { content: createRecordStore({}) },
+    {
+      seeds: seedsOf(300),
+      policy: randomPolicy,
+      metrics: ['coin.face', 'coin.score'],
+    },
+  );
+
+  it('lists values most common first, whatever their names', () => {
+    const face = report.metrics[0];
+    const values = face?.kind === 'values' ? face.values : [];
+    expect(values.map((v) => v.value)).toEqual(['b', 'a']);
+    expect(values[0]?.runs).toBeGreaterThan(values[1]?.runs ?? 0);
+  });
+
+  it('counts the runs where a number has no value, and summarizes the rest', () => {
+    const score = report.metrics[1];
+    if (score?.kind !== 'number') throw new Error('coin.score is an int fact');
+    const a = report.metrics[0]?.kind === 'values' ? report.metrics[0].values.find((v) => v.value === 'a')?.runs : 0;
+    expect(score.none).toBe(a);
+    expect((score.summary?.n ?? 0) + score.none).toBe(300);
+    expect(score.summary).toMatchObject({ mean: 1, sd: 0, min: 1, max: 1 });
   });
 });

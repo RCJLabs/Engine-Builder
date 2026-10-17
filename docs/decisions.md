@@ -306,6 +306,30 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **History.** A compacted log loses the actions before the compaction, so a bug report holds at most the actions since then.
 - **Conflicts** between tabs are caught by checksum, not by a lock, so two tabs writing at the same moment can still race.
 
+### D26. The headless runner: actions list their options, bots see only what a player sees, sweeps report 95% intervals, and golden files keep a hash per seed and per slice. LOCKED, 2026-10-17 (M1.9)
+
+**Decision** ([specs/runner.md](specs/runner.md)).
+- **Options.** An action may list the payloads a player could send now. `game.options` gives every concrete action the current mode allows. What is offered must be accepted, and a refused offer is a bug that the runner counts and `eb sim` fails on.
+- **Policies.** A bot gets the options, the screen, facts, conditions and previews, and never the state. It draws from `Rng.create(seed).fork('bot')`. There are three policies: random, weighted by type, and rules as data.
+- **Runs** end when nothing is offered, when the policy stops, or at a turn cap. A capped run is its own kind of end, never a loss.
+- **Sweeps** read metrics from facts, typed by their domains.
+  - Shares get Wilson's 95% interval, and means Student's t, from a table to 30 degrees of freedom and the Cornish–Fisher expansion past it.
+  - Quantiles are by nearest rank.
+  - Distinct endings are counted by every slice but the kernel.
+- **Golden files** keep each seed's state hash and a hash per top-level key, plus the content hash, policy and cap. `eb sim --golden` plays the file's own settings, and only `--update` writes a file.
+
+**Why.**
+- **Legal moves only.** A bot that makes moves the interface refuses measures a game no one plays, as landnam's 18,733 refused moves showed.
+- **No hidden state.** A bot that sees hidden state or spends the game's dice measures a player who can't exist, as sandbagged's and ludus's did.
+- **Intervals, not points.** Every surveyed game with sweeps read noise as signal at least once. Point estimates invite it, and intervals don't.
+- **Per-slice goldens.** A hash per slice says where a run moved, so a failing golden starts a search instead of ending in "something changed".
+
+**Cost.**
+- **Option lists.** Every action with a payload needs an `options` function, and it must agree with `run`. The runner checks that only on the states its bots reach.
+- **Speed.** A sweep turn costs about 31 µs against about 25 µs for `reduce` alone, for listing options and counting beats (Readings).
+- **Golden files** churn on purpose: any change that moves a run means an update and a review of the diff.
+- **No lookahead.** A policy can't reduce, so a bot can't plan by trying moves. A planning bot would need a lookahead that doesn't reveal outcomes, which isn't built.
+
 ---
 
 ## Open

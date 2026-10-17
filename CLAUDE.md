@@ -44,6 +44,7 @@ pnpm e2e          # Playwright against `vite preview` at /Engine-Builder/
 pnpm format       # Biome autofix
 pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> --types <module> --out <file>
+pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
 ```
 
 - `@playwright/test` is pinned to 1.56.1 because that matches the Chromium preinstalled in Claude Code's cloud containers. CI installs its own copy.
@@ -59,11 +60,13 @@ apps/editor/           the editor PWA
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION
+  src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
   src/time/            calendars, timers and wall-clock settling: timeModule
-  test/                salvage.ts (the test-only text game); salvage-, sat-, time- and save-bench.ts (timings);
-                       kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
-  test/fixtures/saves/ salvage-v1.json: a format-1 save that must keep loading to its golden hash
+  test/                salvage.ts (the test-only text game); salvage-, sat-, time-, save- and sweep-bench.ts
+                       (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
+  test/fixtures/       salvage-run/: salvage run's content as a project folder, which eb sim plays;
+                       saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
 packages/schema/       record types (strict zod), condition(), rollEffect() and the time effects,
                        validation with E/W codes, JSON Schema export; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
@@ -72,7 +75,9 @@ packages/compiler/     project sources (memory, directory handle, zip), compileP
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
-tools/cli/             eb validate | build; folderSource.ts is the Node fs source
+tools/cli/             eb validate | build | sim; folderSource.ts is the Node fs source; modules.ts loads
+                       --types and --game; sim.ts and simReport.ts are eb sim
+  test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```

@@ -43,6 +43,19 @@ describe('golden files', () => {
     expect(result.differences.some((d) => d.facets.includes('hold'))).toBe(true);
   });
 
+  it('name exactly the slices that moved, and a run that only took other turns', () => {
+    const first = golden.runs['golden-0'] as Golden['runs'][string];
+    const moved = { ...first, hash: 'moved', facets: { ...first.facets, crew: 'moved' } };
+    const slower = { ...first, turns: first.turns + 1 };
+    const withRun = (run: Golden['runs'][string]) => ({ ...golden, runs: { ...golden.runs, 'golden-0': run } });
+    expect(compareGolden(golden, withRun(moved)).differences).toEqual([
+      { seed: 'golden-0', was: first, now: moved, facets: ['crew'] },
+    ]);
+    expect(compareGolden(golden, withRun(slower)).differences).toEqual([
+      { seed: 'golden-0', was: first, now: slower, facets: [] },
+    ]);
+  });
+
   it('refuse to compare runs played with other seeds, another policy or another cap', () => {
     const fewer = goldenOf(info, sweep(game, sim, { seeds: seeds.slice(1), policy: randomPolicy }).runs);
     expect(() => compareGolden(golden, fewer)).toThrow(GoldenError);

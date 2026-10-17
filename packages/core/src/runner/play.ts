@@ -5,7 +5,7 @@
 import { Rng } from '../rng.ts';
 import type { Game } from '../sim/game.ts';
 import type { Action, GameState, RejectedBeat, SimContext } from '../sim/types.ts';
-import type { Policy } from './policy.ts';
+import { type Policy, turnFor } from './policy.ts';
 
 /** Turns a run may take by default before it is cut off. */
 export const MAX_TURNS = 1000;
@@ -56,9 +56,10 @@ export function playRun(game: Game, sim: SimContext, options: RunOptions): RunRe
   const log: Action[] = [];
   const finish = (turns: number, end: RunEnd): RunResult => ({ seed, state, turns, end, refused, beats, log });
   for (let turn = 0; turn < maxTurns; turn++) {
-    const offered = game.options(state, sim);
+    const view = turnFor(game, sim, state, rng, turn);
+    const offered = view.options;
     if (offered.length === 0) return finish(turn, 'ended');
-    const action = policy.choose({ state, options: offered, rng, game, sim, turn });
+    const action = policy.choose(view);
     if (action === null) return finish(turn, 'stopped');
     // An action from anywhere but the options would test a move no player can make.
     if (!offered.includes(action)) throw new Error(`Policy "${policy.name}" chose an action it was not offered`);

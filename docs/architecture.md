@@ -275,13 +275,13 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
 
 Games built on the engine get these from the start; templates ship with them already wired.
 
-- A headless runner (Node or a worker), with bot policies written against the sim API.
-- Seed sweeps with confidence intervals, and A/B content overrides (chooser-of-the-dead's `compare.ts`).
-- Canonical state hashes, per-facet readings and first-difference paths ([specs/state-hash.md](specs/state-hash.md)), and golden files.
-- Save fixtures for every version.
+- A headless runner (Node or a worker), with bot policies that play only through `game.options` and `reduce`, and see only what a player sees (M1.9, [specs/runner.md](specs/runner.md)).
+- Seed sweeps with 95% intervals on every number (M1.9), and A/B content overrides later (chooser-of-the-dead's `compare.ts`, Phase 8).
+- Canonical state hashes, per-facet readings and first-difference paths ([specs/state-hash.md](specs/state-hash.md)), and golden files of whole runs, per seed and per slice (M1.9).
+- Save fixtures for every version ([specs/saves.md](specs/saves.md)).
 - Size and performance budgets in CI.
 
-The CLI exposes these as `eb sim` and `eb test`. The editor's Balance Lab (Phase 8) charts them.
+The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Balance Lab (Phase 8) charts them.
 
 ## Editor
 
@@ -311,7 +311,7 @@ packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
 apps/player         the runtime shell that exports ship                    Phase 4
-tools/cli           eb validate | build (M1.4); export | sim later
+tools/cli           eb validate | build (M1.4), sim (M1.9); export | test later
 tools/lint-boundaries
 templates/*                                                               Phase 4+
 ```

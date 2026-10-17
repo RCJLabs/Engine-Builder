@@ -48,6 +48,7 @@ It follows the patterns that survived in three of the existing games:
   | modes | the bare id | the game |
 
 - **Who changes what.** A module changes only its own slice. It reads other modules through their facts and changes them through their effects, so kits combine without knowing each other's insides.
+- **Actions** are a handler `(ctx, action) => void`, or `{ run, options? }`, whose options a bot or a menu can offer ([Options](#options)).
 - **Facts** are a function `(view, args) => value`, or `{ read, args?, domain?, label?, describe? }` for conditions to check, lint and word ([conditions.md](conditions.md)). A fact with a domain must answer one of its values, or `undefined`/`null` for none; the kernel throws on any other answer, wherever the fact is read.
 - **Effects** are a function `(ctx, effect) => void`, or `{ run, preview? }`. A preview says what the effect would do now, without doing it.
 - **Versions.** `version` (default 1) is the shape of the slice, recorded in `kernel.versions`. `migrate` turns an older slice into the current one, so old saves keep loading ([saves.md](saves.md#module-versions-and-migrations)).
@@ -58,7 +59,8 @@ It follows the patterns that survived in three of the existing games:
 - an unknown start mode, or a mode pattern that matches no action;
 - a fact id a condition can't write (a module id that starts with a digit);
 - a fact argument or domain that is malformed ([conditions.md](conditions.md));
-- a module version below 1, or a gap in its migrations ([saves.md](saves.md)).
+- a module version below 1, or a gap in its migrations ([saves.md](saves.md));
+- an action spec without a `run` function, or with `options` that isn't a function.
 
 ## Modes
 
@@ -72,6 +74,24 @@ The kernel keeps a stack of modes, `kernel.modes`. It is never empty, and its bo
   Patterns are expanded when the game is made, and a pattern that matches nothing is an error.
 - **Changing modes.** Handlers call `ctx.modes.push(id, data?)`, `pop()` or `replace(id, data?)`. Popping the last frame throws, and so does pushing an unregistered mode.
 - **The mode beat.** Each change adds the beat `{ "type": "mode", "modes": [ids, bottom first] }`.
+
+## Options
+
+`options(view)` on an action returns the payloads a player could send now. Each becomes `{ type, ...payload }`. Its view holds:
+
+- the module's slice, as `state`;
+- `content`;
+- `fact(id, args)` and `check(condition)`;
+- `mode`, the current frame with its data.
+
+It has no stream and no way to write, so listing options changes nothing.
+
+`game.options(state, sim)` lists every concrete action the current mode allows:
+
+- **The order.** Types are sorted, and each type's options keep the order its action lists them.
+- **Defaults.** An action without `options` is offered once, with no payload. One whose `options` returns an empty list is not offered.
+- **What it returns.** The actions are frozen. A payload that isn't an object, that names a `type`, or that isn't JSON throws `ActionError`.
+- **What is offered is what is allowed.** Every option must be accepted by `run`. The headless runner counts any that is refused ([runner.md](runner.md)), as a bug in that action's options.
 
 ## reduce(state, action, sim)
 
@@ -141,7 +161,7 @@ None of these change the state or draw a random number.
 - `game.check(state, condition, sim)` evaluates a condition the way `ctx.check` does, so a menu offers what the sim allows.
 - `game.preview(state, effects, sim)` previews each effect: its module's `preview`, or the effect as written ([conditions.md](conditions.md)).
 - `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against.
-- `game.allowedActions(state)` lists the action types the current mode allows, sorted.
+- `game.allowedActions(state)` lists the action types the current mode allows, sorted, and `game.options(state, sim)` the concrete actions ([Options](#options)).
 
 ## Sessions
 
@@ -162,6 +182,7 @@ Replaying the log from `start` reaches `state`, so the three are a save ([saves.
 - **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls and the time module for days (M1.7, [time.md](time.md)).
 - **Content.** Choice events in the content pack. Some choices are locked by a condition, and chancy ones apply a `roll` effect (M1.6, [conditions.md](conditions.md)).
 - **The bot** plays through `reduce` and the allowed actions, as a player would. It offers only choices whose condition holds, through `game.check`. landnam's bot skipped the mode checks and made 18,733 moves its UI would have refused.
+- **Content** is the project folder `packages/core/test/fixtures/salvage-run`, which `eb sim` plays too. Since M1.9 its actions list their options, for the headless runner's bots ([runner.md](runner.md)).
 
 `packages/core/src/sim/salvage.test.ts` checks four things:
 
@@ -177,6 +198,5 @@ The M1.6 tests for its conditions and previews are listed in [conditions.md](con
 ## Open questions
 
 1. **Action payloads.** Handlers check their own payloads today. Should actions declare a schema: zod in `@eb/schema` for the editor and CLI, plus a pure check at runtime? Decide with M3.2 scripts.
-2. **Legal actions for bots.** `allowedActions` gives types, not payloads. M1.9's bots will want each action to list its concrete options (`voyage/choose` → the event's choices).
-3. **A lint for stray streams.** Forbid `Rng.create` and `Rng.fromState` in module code, so streams only come from `ctx.rng`. This belongs with M3.2's purity lint for scripts.
-4. **State size.** The cost of an action grows with the slices it writes, which are copied, then checked and frozen. landnam's per-action copy grew from 0.045 ms to 2.2 ms when terrain lived in state. Keep derived data out of state, and measure again for the 3D spike (M1.10).
+2. **A lint for stray streams.** Forbid `Rng.create` and `Rng.fromState` in module code, so streams only come from `ctx.rng`. This belongs with M3.2's purity lint for scripts.
+3. **State size.** The cost of an action grows with the slices it writes, which are copied, then checked and frozen. landnam's per-action copy grew from 0.045 ms to 2.2 ms when terrain lived in state. Keep derived data out of state, and measure again for the 3D spike (M1.10).

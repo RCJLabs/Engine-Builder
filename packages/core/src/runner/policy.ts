@@ -1,25 +1,49 @@
 /**
  * Bot policies (docs/specs/runner.md). A policy picks one of the actions the game offers, or
- * stops. It sees what a player sees through the game's options and facts, and draws from a
- * stream of its own, so it can neither make a move a player couldn't nor peek at the game's dice.
+ * stops. It sees what a player sees, the options, the screen and the facts, and draws from a
+ * stream of its own. So it can't make a move a player couldn't, read state a player can't see,
+ * or look ahead at the game's dice: sandbagged's bot read the hidden grip on 72.2% of its
+ * decisions, and ludus's probes spent the game's own rolls.
  */
-import type { Condition } from '../logic/types.ts';
+import type { Condition, Truth } from '../logic/types.ts';
+import { isRecordId, type RecordStore } from '../records.ts';
 import type { Rng } from '../rng.ts';
 import type { Game } from '../sim/game.ts';
+import type { FactArgs } from '../sim/module.ts';
 import { matches } from '../sim/registry.ts';
-import type { Action, GameState, SimContext } from '../sim/types.ts';
+import type { Action, Effect, EffectPreview, GameState, ModeFrame, SimContext } from '../sim/types.ts';
 
 /** What a policy sees when it is its turn to choose. */
 export interface Turn {
-  readonly state: GameState;
   /** What the game offers now, from `game.options`. Never empty: a run ends when nothing is offered. */
   readonly options: readonly Action[];
+  /** The current mode, with its data: the screen the player is on. */
+  readonly mode: ModeFrame;
+  readonly content: RecordStore;
+  /** A fact of the current state, as a menu reads it. */
+  fact(id: string, args?: FactArgs): unknown;
+  /** A condition's truth in the current state, as a menu checks it. */
+  check(condition: Condition): Truth;
+  /** What effects would do now: the odds and costs a player is shown, never the outcome. */
+  preview(effects: readonly Effect[]): readonly EffectPreview[];
   /** The bot's own stream, forked from the run's seed as "bot": its draws never shift the game's. */
   readonly rng: Rng;
-  readonly game: Game;
-  readonly sim: SimContext;
   /** Turns taken before this one. */
   readonly turn: number;
+}
+
+/** The turn a policy gets in `state`: what playRun hands it, for tests and for a "suggest a move" button. */
+export function turnFor(game: Game, sim: SimContext, state: GameState, rng: Rng, turn = 0): Turn {
+  return {
+    options: game.options(state, sim),
+    mode: state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame,
+    content: sim.content,
+    fact: (id, args) => game.fact(state, id, args, sim),
+    check: (condition) => game.check(state, condition, sim),
+    preview: (effects) => game.preview(state, effects, sim),
+    rng,
+    turn,
+  };
 }
 
 export interface Policy {
@@ -38,6 +62,7 @@ export const randomPolicy: Policy = { name: 'random', choose: ({ options, rng })
  * bot stops.
  */
 export function weightedPolicy(name: string, weights: Readonly<Record<string, number>>): Policy {
+  checkName(name);
   for (const [type, weight] of Object.entries(weights)) {
     if (!Number.isSafeInteger(weight) || weight < 0) {
       throw new RangeError(`weightedPolicy(): the weight of "${type}" must be a whole number, at least 0`);
@@ -65,14 +90,15 @@ export interface PolicyRule {
 /**
  * Rules tried in order, as data like any content: the first rule whose condition holds and
  * which matches an offered action picks among its matches at random. With no rule matching, any
- * offered action. Conditions read the game through `game.check`, as a menu does.
+ * offered action. Conditions are checked as a menu checks them.
  */
 export function rulePolicy(name: string, rules: readonly PolicyRule[]): Policy {
+  checkName(name);
   return {
     name,
-    choose({ state, options, rng, game, sim }) {
+    choose({ options, rng, check }) {
       for (const rule of rules) {
-        if (rule.when !== undefined && game.check(state, rule.when, sim) !== true) continue;
+        if (rule.when !== undefined && check(rule.when) !== true) continue;
         const matching = options.filter((option) => fits(option, rule.prefer));
         if (matching.length > 0) return rng.pick(matching);
       }
@@ -85,4 +111,9 @@ function fits(option: Action, prefer: PolicyRule['prefer']): boolean {
   return Object.entries(prefer).every(([key, value]) =>
     key === 'type' ? matches(value as string, option.type) : option[key] === value,
   );
+}
+
+// Golden files and reports name the policy, and a golden file only reads kebab-case names.
+function checkName(name: string): void {
+  if (!isRecordId(name)) throw new RangeError(`"${name}" is not a policy name: use kebab-case, like "steady"`);
 }
