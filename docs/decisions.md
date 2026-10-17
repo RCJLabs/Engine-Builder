@@ -144,6 +144,23 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 
 **Why.** who-am-i- deploys the exact artifact it verified, and dirtbag confirms the live version. The plan's separate Pages workflow would have rebuilt what CI had already checked.
 
+### D19. State fingerprints: RFC 8785 canonical JSON, FNV-1a 64, facets as top-level keys. LOCKED, 2026-10-17 (M1.2)
+
+**Decision.**
+- Game state is fingerprinted as FNV-1a 64 of its RFC 8785 canonical JSON ([specs/state-hash.md](specs/state-hash.md)).
+- Facets are the state's top-level keys, each with a hash and a size, and an `exclude` list for presentation-only parts.
+- Anything a JSON save can't hold throws when hashed, naming the path to it.
+
+**Why.**
+- RFC 8785 is a published standard with implementations in many languages, which makes a port's job easier than matching landnam's custom form.
+- FNV-1a 64 is standard, has published vectors, and needs only integer math.
+- Facets and the size reading come from landnam's `src/run/parity.ts`, where a whole-state hash proved all-or-nothing.
+- Throwing rather than encoding NaN or `undefined` means a state that hashes is a state that survives a save.
+
+**Cost.** Floats print in ECMAScript's shortest round-trip form, which a port must reproduce. So keep sim state in integers wherever a port matters.
+
+**Changing a golden** changes every golden built on this format, so it needs a new decision.
+
 ---
 
 ## Open
