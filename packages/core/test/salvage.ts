@@ -2,8 +2,9 @@
  * "Salvage run": a test-only text game for the sim kernel. A crew jumps from sector to sector,
  * meets choice events from content, loots wrecks, sells salvage and gets hurt, until the crew
  * is lost or day 30 brings them home. Three modules that only reach each other through facts
- * and effects, as kits will, plus the logic module for rolls. Choices are locked by conditions
- * in content, and their odds come from roll effects.
+ * and effects, as kits will, plus the logic module for rolls and the time module for days.
+ * Choices are locked by conditions in content, their odds come from roll effects, and a debt
+ * promised to raiders falls due three days later.
  */
 import {
   type Condition,
@@ -15,6 +16,7 @@ import {
   type GameState,
   logicModule,
   Rng,
+  timeModule,
 } from '../src/index.ts';
 
 export interface Choice {
@@ -82,6 +84,15 @@ export const content = createRecordStore({
           ],
         },
         pay: { when: { fact: 'hold.credits', op: '>=', value: 10 }, effects: [{ effect: 'credits', delta: -10 }] },
+        // A beating now and a debt due in three days, refused then if the hold can't pay: time
+        // passes all the same.
+        promise: {
+          when: { not: { fact: 'time.pending', args: { timer: 'debt' } } },
+          effects: [
+            { effect: 'wound', hp: 3 },
+            { effect: 'schedule', timer: 'debt', after: { days: 3 }, effects: [{ effect: 'credits', delta: -15 }] },
+          ],
+        },
       },
     },
     'quiet-sector': { choices: { rest: { effects: [{ effect: 'heal', hp: 2 }] } } },
@@ -192,13 +203,12 @@ const hold = defineModule<Hold>({
 });
 
 interface Voyage {
-  day: number;
   ending: 'home' | 'lost' | null;
 }
 
 const voyage = defineModule<Voyage>({
   id: 'voyage',
-  init: () => ({ day: 0, ending: null }),
+  init: () => ({ ending: null }),
   modes: {
     travel: { actions: ['voyage/jump', 'crew/rest'] },
     encounter: { actions: ['voyage/choose'] },
@@ -206,11 +216,10 @@ const voyage = defineModule<Voyage>({
   },
   actions: {
     jump(ctx) {
-      const slice = ctx.write();
-      slice.day += 1;
+      ctx.apply({ effect: 'wait', days: 1 });
       const event = ctx.rng('encounters').pick(ctx.content.ids('event'));
       ctx.modes.push('encounter', { event });
-      ctx.emit('arrived', { day: slice.day, event });
+      ctx.emit('arrived', { day: ctx.fact('time.day') as number, event });
     },
     choose(ctx, action) {
       const { event } = ctx.modes.current.data as { event: string };
@@ -222,7 +231,8 @@ const voyage = defineModule<Voyage>({
       ctx.emit('chose', { event, choice: id });
       for (const effect of choice.effects) ctx.apply(effect);
       ctx.modes.pop();
-      const ending = (ctx.fact('crew.alive') as number) === 0 ? 'lost' : ctx.read().day >= HOME_DAY ? 'home' : null;
+      const home = (ctx.fact('time.day') as number) >= HOME_DAY;
+      const ending = (ctx.fact('crew.alive') as number) === 0 ? 'lost' : home ? 'home' : null;
       if (ending) {
         ctx.write().ending = ending;
         ctx.modes.replace('ended');
@@ -232,7 +242,8 @@ const voyage = defineModule<Voyage>({
   },
 });
 
-export const salvageModules = [logicModule, crew, hold, voyage];
+// A tick is a day: the voyage counts nothing smaller.
+export const salvageModules = [logicModule, timeModule({ calendar: { ticksPerDay: 1 } }), crew, hold, voyage];
 export const game = createGame({ modules: salvageModules, start: 'travel' });
 
 /** The choices a menu would offer now: those whose condition holds. */

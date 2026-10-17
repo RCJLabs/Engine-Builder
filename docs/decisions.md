@@ -255,6 +255,28 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **What the lint can't see.** It treats facts as independent, so conditions that are impossible only because facts depend on each other go unreported.
 - **An empty slice.** The logic module's `{}` slice shows up in every state and hash.
 
+### D24. Time: one tick count read through the game's own calendar, absolute timers that fire as attempts, and wall-clock time passed in with a carry and a cap. LOCKED, 2026-10-17 (M1.7)
+
+**Decision** ([specs/time.md](specs/time.md)).
+- **One count.** Time is a whole number of ticks since the game started. The game's calendar reads it: ticks per day, parts of the day, weekdays, months or a year length, seasons, and a start. There is no `Date`, no time zones and no leap years.
+- **Time moves only by action:** a game action's `wait`, `time/advance`, or `time/elapse` with wall-clock milliseconds.
+- **Timers** hold absolute due ticks. They fire by due tick, then in the order they were scheduled, with the clock at their due tick. Each fires as one attempt: a consequence that refuses is undone and reported, and time still passes.
+- **`ctx.attempt`** undoes refused work by running the action again with that attempt skipped.
+- **Wall-clock time** comes in whole milliseconds. A negative delta is refused, a delta over the cap is cut to the cap, and the part of a tick left over carries to the next elapse.
+
+**Why.**
+- **Replays and saves.** Time arriving as actions keeps them exact; the stage owns the clock, as architecture.md already said.
+- **Absolute due ticks** need no work per tick, and save as they are.
+- **Attempts.** Without them, one refusing consequence would refuse every action that moves time, for good. Undoing in place would leave handlers holding copies the undo replaced. Running the action again costs time, but can't leave stale state behind.
+- **The carry.** Rounding each elapse to whole ticks would drift.
+- **The cap.** Time that passed while the game was closed has to be bounded.
+
+**Cost.**
+- **Re-running.** Each refused attempt runs the action again. 64 refusals in 8 hours of hourly timers cost about 100 ms (Readings).
+- **No months or years as durations,** since they differ in length.
+- **A firing cap.** More than 10,000 firings in one advance throws.
+- **One more slice,** the time module's, in every state and hash.
+
 ---
 
 ## Open

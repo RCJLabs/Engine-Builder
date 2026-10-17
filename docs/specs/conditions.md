@@ -266,4 +266,4 @@ The tests check that:
 4. **Witnesses.** The lint could show the values that make a condition true or false, for the editor to explain W102 and W103.
 5. **Arguments at runtime.** Content's arguments are checked when the pack is built; `ctx.fact('hold.count')` with no arguments from module code is not checked.
 6. **Cost at the cap.** A condition at the cap costs 20 to 30 ms to lint (Readings). A project with thousands of them would take a minute, so the editor may want to cache verdicts by condition hash.
-7. **More effects.** `if` (effects by condition) and `schedule` (effects later, M1.7) belong with the logic module. Each needs a preview and a schema helper like `rollEffect`.
+7. **More effects.** `if` (effects by condition) belongs with the logic module, with a preview and a schema helper like `rollEffect`. `schedule` arrived with the time module in M1.7 ([time.md](time.md)).

@@ -7,7 +7,7 @@
 import type { Condition, FactInfo, Truth } from '../logic/types.ts';
 import type { RecordStore } from '../records.ts';
 import type { Rng } from '../rng.ts';
-import type { Action, DeepReadonly, Effect, EffectPreview, ModeFrame } from './types.ts';
+import type { Action, Attempt, DeepReadonly, Effect, EffectPreview, ModeFrame } from './types.ts';
 
 export type FactArgs = Readonly<Record<string, unknown>>;
 
@@ -35,6 +35,13 @@ export interface ModuleContext<S> {
   /** A condition's truth, read through this action's changes so far. */
   check(condition: Condition): Truth;
   apply(effect: Effect): void;
+  /**
+   * Runs `work`. If anything in it refuses, all of it is undone (its changes, draws, beats and
+   * mode changes) and the refusal comes back here instead of refusing the action. Undoing
+   * means running the action again from the start with this attempt skipped, so the work must
+   * be the same each time it runs, and handlers must not catch what ctx calls throw.
+   */
+  attempt(work: () => void): Attempt;
   /**
    * The module's stream with this name, labelled "module/name". Draws carry on across actions
    * and saves, and never shift another stream. Handlers take randomness only from here: a stream

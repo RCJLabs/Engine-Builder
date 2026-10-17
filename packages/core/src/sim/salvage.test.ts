@@ -66,7 +66,14 @@ describe('salvage run, a test-only text game', () => {
   });
 
   it('gives one facet per module, plus the kernel', () => {
-    expect(Object.keys(readFacets(play('seed-0').state))).toEqual(['crew', 'hold', 'kernel', 'logic', 'voyage']);
+    expect(Object.keys(readFacets(play('seed-0').state))).toEqual([
+      'crew',
+      'hold',
+      'kernel',
+      'logic',
+      'time',
+      'voyage',
+    ]);
   });
 
   it('tells the stage what happened in beats, with refusals among them', () => {
@@ -136,5 +143,38 @@ describe('salvage run: conditions and previews', () => {
       }
     }
     expect(checked).toBeGreaterThan(500);
+  });
+});
+
+describe('salvage run: time', () => {
+  it('refuses a debt the hold cannot pay when it falls due, and the day passes all the same', () => {
+    let refused = 0;
+    let paid = 0;
+    for (const seed of seeds.slice(0, 100)) {
+      const session = createSession(game, sim, game.init(seed, sim));
+      const bot = botFor(seed);
+      for (let n = 0; n < MAX_ACTIONS; n++) {
+        const before = session.state;
+        const action = botAction(before, game.allowedActions(before), bot);
+        if (!action) break;
+        const step = session.dispatch(action as Action);
+        const due = step.beats.find((beat) => beat.timer === 'debt' && beat.type !== 'time/scheduled');
+        if (!due) continue;
+        const credits = (state: GameState) => game.fact(state, 'hold.credits', undefined, sim) as number;
+        expect(game.fact(step.state, 'time.day', undefined, sim)).toBe(
+          (game.fact(before, 'time.day', undefined, sim) as number) + 1,
+        );
+        if (due.type === 'time/refused') {
+          expect(due.reason).toBe('no-credits');
+          expect(credits(step.state)).toBe(credits(before));
+          refused++;
+        } else {
+          expect(credits(step.state)).toBe(credits(before) - 15);
+          paid++;
+        }
+      }
+    }
+    expect(refused).toBeGreaterThan(50);
+    expect(paid).toBeGreaterThan(50);
   });
 });

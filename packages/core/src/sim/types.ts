@@ -29,6 +29,11 @@ export interface RejectedBeat extends Beat {
   readonly reason: string;
 }
 
+/** What ctx.attempt returns: whether the work went through, or the refusal that undid it. */
+export type Attempt =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly reason: string; readonly data: Readonly<Record<string, unknown>> };
+
 /** A change that content asks for by name: `{ "effect": "loot", "table": "salvage" }`. */
 export interface Effect {
   readonly effect: string;

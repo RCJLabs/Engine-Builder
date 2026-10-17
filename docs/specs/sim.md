@@ -96,11 +96,24 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 | `fact(id, args?)` | A registered fact, seeing this action's changes so far. |
 | `check(condition)` | The condition's truth (true, false or null) through this action's changes so far. |
 | `apply(effect)` | Runs the effect's owner, with the owner's own context. Effects may apply effects, up to 64 deep. |
+| `attempt(work)` | Runs `work`; if anything in it refuses, undoes all of it and returns the refusal instead of refusing the action (below). |
 | `rng(name)` | The module's stream `module/name` (below). |
 | `emit(what, data?)` | Adds the beat `module/what`. |
 | `refuse(reason, data?)` | Refuses the action (step 5). Write `return ctx.refuse(…)` so TypeScript knows the handler stops there. |
 | `modes` | The mode stack: `stack`, `current`, `push`, `pop`, `replace`. |
 | `step`, `content` | The number this action becomes if accepted, and the content pack. |
+
+## Attempts
+
+`ctx.attempt(work)` returns `{ ok: true }`, or `{ ok: false, reason, data }` when something in `work` refused. A refused attempt leaves nothing behind: no writes, draws, beats or mode changes. The action goes on from the point after the attempt. Scheduled consequences need this (M1.7): one that refuses must not stop time from passing.
+
+- **How it undoes.** `reduce` runs the action again from the same state, with the refused attempt skipped. Rolling back in place would leave handlers holding copies of slices that the undo had replaced.
+- **Names.** Attempts are named by where they sit: `"2"` is the third at the top level, `"2/0"` the first inside it. A run that skips an attempt reaches every earlier attempt in the same place, and never renumbers the ones after it.
+- **Rules for handlers.**
+  - The work must do the same thing each time it runs, which pure handlers do.
+  - Handlers must not catch what `ctx` calls throw.
+- **Cost.** Each refused attempt costs one more run of the action. More than 1,000 in one action throws.
+- **A refusal outside any attempt** still refuses the whole action.
 
 ## Random streams
 

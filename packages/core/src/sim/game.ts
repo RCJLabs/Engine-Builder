@@ -9,8 +9,9 @@ import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
 import { Rng } from '../rng.ts';
 import { freezeJson } from './json.ts';
 import type { FactArgs, Module } from './module.ts';
-import { buildRegistry, catalogOf, KERNEL } from './registry.ts';
-import { Refusal, Transaction } from './transaction.ts';
+import { AttemptRefused, Refusal } from './refusal.ts';
+import { buildRegistry, catalogOf, KERNEL, type Registry } from './registry.ts';
+import { Transaction } from './transaction.ts';
 import type { Action, Effect, EffectPreview, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
 
 export interface GameDefinition {
@@ -85,14 +86,7 @@ export function createGame(definition: GameDefinition): Game {
       if (!entry) throw new ActionError(`Unknown action "${action.type}"`);
       const mode = (state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame).id;
       if (!allowedIn(state).has(action.type)) return refused(state, action, 'mode', { mode });
-      const tx = new Transaction(registry, state, sim);
-      try {
-        entry.run(tx.context(entry.module), action);
-      } catch (error) {
-        if (error instanceof Refusal) return refused(state, action, error.reason, error.data);
-        throw error;
-      }
-      return { state: tx.commit(), beats: Object.freeze(tx.beats), accepted: true };
+      return runAction(registry, entry, state, action, sim);
     },
 
     allowedActions: (state) => [...allowedIn(state)].sort(),
@@ -108,6 +102,31 @@ export function createGame(definition: GameDefinition): Game {
       return Object.freeze(effects.map((effect) => tx.preview(effect)));
     },
   };
+}
+
+/** More refused attempts than this in one action means one refuses every time it runs. */
+const MAX_REFUSED_ATTEMPTS = 1000;
+
+type ActionEntry = Registry['actions'] extends ReadonlyMap<string, infer E> ? E : never;
+
+// A run that ends in a refused attempt starts again from the same state with that attempt
+// skipped, so the attempt's work leaves nothing behind (ctx.attempt in docs/specs/sim.md).
+function runAction(registry: Registry, entry: ActionEntry, state: GameState, action: Action, sim: SimContext): Step {
+  const skipped = new Map<string, Refusal>();
+  for (;;) {
+    const tx = new Transaction(registry, state, sim, skipped);
+    try {
+      entry.run(tx.context(entry.module), action);
+      return { state: tx.commit(), beats: Object.freeze(tx.beats), accepted: true };
+    } catch (error) {
+      if (error instanceof Refusal) return refused(state, action, error.reason, error.data);
+      if (!(error instanceof AttemptRefused)) throw error;
+      if (skipped.size >= MAX_REFUSED_ATTEMPTS) {
+        throw new Error(`More than ${MAX_REFUSED_ATTEMPTS} attempts refused in one "${action.type}" action`);
+      }
+      skipped.set(error.id, error.refusal);
+    }
+  }
 }
 
 function checkAction(action: Action): void {
