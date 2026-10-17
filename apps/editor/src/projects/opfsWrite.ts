@@ -17,17 +17,6 @@ interface SyncFileLike extends FileLike {
   createSyncAccessHandle(): Promise<SyncAccess>;
 }
 
-export interface WriteRequest {
-  readonly id: number;
-  /** Folder names from the OPFS root to where the paths start, such as ["projects", "salvage-run"]. */
-  readonly base: readonly string[];
-  readonly files: readonly ProjectFile[];
-}
-
-export type WriteReply =
-  | { readonly id: number; readonly ok: true }
-  | { readonly id: number; readonly ok: false; readonly error: string };
-
 /** Files written at once: each waits on the browser to open its handle, so many at once beats one by one. */
 const AT_ONCE = 16;
 

@@ -19,7 +19,7 @@ import {
   rememberFolder,
 } from './folders.ts';
 import { createLibrary, type Library, type LibraryEntry, PROJECTS_DIR } from './library.ts';
-import { opfsWriter } from './opfsClient.ts';
+import { opfsWorker } from './opfsClient.ts';
 import { requestPersistence, type StorageState, sizeText, storageState } from './storage.ts';
 import { type ProjectSummary, summarize } from './summary.ts';
 
@@ -52,8 +52,8 @@ export async function startProjects(): Promise<void> {
   try {
     const opfs = (await navigator.storage.getDirectory()) as unknown as DirectoryLike;
     const root = await opfs.getDirectoryHandle(PROJECTS_DIR, { create: true });
-    const write = opfsWriter();
-    stored = createLibrary(root, (folder, files) => write([PROJECTS_DIR, folder], files));
+    const worker = opfsWorker();
+    stored = createLibrary(root, (folder, files) => worker.write([PROJECTS_DIR, folder], files));
   } catch (error) {
     trouble.value = `This browser can't store projects (${message(error)}). Zips and opened folders still work.`;
   }
