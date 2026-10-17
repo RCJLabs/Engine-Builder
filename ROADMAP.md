@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.5.** Reducer and module API (Phase 1). M1.1 (RNG streams), M1.2 (state fingerprints), M1.3 (records) and M1.4 (project format) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.6.** Conditions and effects (Phase 1). M1.1 to M1.5 (RNG streams, state fingerprints, records, project format, the sim kernel) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -72,10 +72,14 @@ How to read this file:
   - `pnpm eb validate` and `pnpm eb build` take a folder or a zip, with record types from a `--types` module until kits exist. Exit codes are 0, 1 (errors) and 2 (couldn't run).
   - [`docs/specs/project-format.md`](docs/specs/project-format.md) is the spec. Twenty-two planted bugs were each caught by the tests.
   - The directory-handle source is tested against a fake; it meets real OPFS in M2.1.
-- **M1.5 Reducer and module API.**
-  - `reduce(state, action, ctx) → { state, events }`.
-  - Modules register state slices, actions, facts and effects.
-  - A mode/phase stack, and events ("beats") that a stage drains.
+- **M1.5 Reducer and module API.** Done 2026-10-17.
+  - `reduce(state, action, sim) → { state, beats, accepted }`. A refused action, whether refused by a handler or because the mode doesn't allow it, returns the same state and one `rejected` beat, and keeps none of its changes or draws.
+  - Modules register a state slice with actions (`crew/rest`), facts (`crew.alive`), effects (`wound`) and modes. A module changes only its own slice: it reads others through facts and changes them through effects.
+  - A slice is copied on its first write in an action. New state is checked as JSON and frozen, and unchanged slices are shared.
+  - RNG streams are named `module/name` and saved in the state, so draws carry on across actions and saves and never shift each other.
+  - A mode stack whose modes list the actions they allow. Beats carry data, not prose, and `createSession` queues them for the stage to drain and logs accepted actions for replay.
+  - Salvage run, a test-only text game, plays 1,000 seeds twice to identical hashes. Replay from the log, and a save→reload→continue run, match an uninterrupted run by hash.
+  - [`docs/specs/sim.md`](docs/specs/sim.md) is the spec. Twenty-one planted bugs were each caught by the tests.
 - **M1.6 Conditions and effects.**
   - A JSON tree, plus a text form that round-trips (property-tested).
   - Three-valued evaluation, `describe()`, and `preview()` giving exact odds.
@@ -97,8 +101,8 @@ How to read this file:
 
 **Done when:**
 
-- A test-only text game runs 1,000 seeds deterministically. [auto]
-- Save → load → continue matches an uninterrupted run by hash. [auto]
+- A test-only text game runs 1,000 seeds deterministically. [auto] Done 2026-10-17 (M1.5): salvage run in `packages/core/src/sim/salvage.test.ts`.
+- Save → load → continue matches an uninterrupted run by hash. [auto] The kernel's half passes (M1.5: a JSON round trip of the state mid-run). M1.8 must pass it again through real saves.
 - A v1 save fixture loads after a planted v2 migration. [auto]
 - RNG golden vectors are frozen in the spec. [auto]
 - FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you]
@@ -281,6 +285,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor shell JS, gzip | 12.7 kB app + 2.2 kB workbox-window | `vite build` output | 2026-10-17 | 1 build |
 | Editor shell CSS, gzip | 1.7 kB | `vite build` output | 2026-10-17 | 1 build |
 | Editor shell precache | 16 entries, 72 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| Sim kernel reduce, salvage run | 18.2–22.7 µs per action (median 20.0) over 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
 
 ## Open questions
