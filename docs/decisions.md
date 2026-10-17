@@ -98,9 +98,28 @@ Product decisions are Evan's. The others record what was chosen and why.
 - ink for long-form writing, with chooser-of-the-dead's stateless scene player.
 - Both use the shared conditions and effects.
 
-### D10. Editor storage: OPFS, "open folder", zip; GitHub sync in Phase 4. PROPOSED until M2.1, 2026-10-17
+### D10. Editor storage: projects in OPFS written by one worker, folders opened on desktop, zips that carry only the project; GitHub sync in Phase 4. LOCKED, 2026-10-17 (M2.1)
 
-The domain it lives on is settled: engine.rcjlabs.com (D28). Browser storage is per origin, so moving domains later strands projects stored in the browser.
+**Decision** ([specs/editor-storage.md](specs/editor-storage.md)).
+- **Projects live in OPFS**, a folder each under `projects/`, named by id (`-2`, `-3` for a second copy). Each holds the project's own files as they sit on disk.
+- **Every OPFS write goes through one worker** using sync access handles. A copy is marked `.unfinished` until its last file is written.
+- **"Open folder"** works where `showDirectoryPicker` exists. M2.1 only reads the folder. Recent folders are kept in IndexedDB (`eb-editor`, `folders`).
+- **Zips** carry only the project's own files, in one top folder, sorted and dated 1980, so the same files give the same bytes. Import is limited to 10,000 files and 100 MB.
+- **Persistence** is requested with the first stored project, and the panel says whether the browser will keep it.
+- **GitHub sync (Phase 4)** stays the backup and the route from a phone to a repo.
+- **The domain** is engine.rcjlabs.com (D28).
+
+**Why.**
+- **OPFS** is the one file store every browser has, phones included. Keeping files as they are on disk lets a project move to a folder or a zip unchanged.
+- **The worker:** sync access handles are the one OPFS write that Chrome 102, Firefox 111 and Safari 15.2 all have. `createWritable` reached Safari only in 26.
+- **Only the project's files:** a project at the root of a game's repo exports without the repo's README or `node_modules`.
+- **The same bytes:** exports can be diffed, and a round trip through the editor leaves a git checkout clean, which a test proves.
+
+**Cost.**
+- **Not atomic per file.** That's fine for copies, which the marker covers. Saving edits (M2.3) needs more (the spec's open question 1).
+- **Speed:** about 2 ms per file written in headless Chromium, so 1,000 records take about 2 s, and more on a phone (Readings).
+- **Weight:** the compiler, with zod, loads at start. It is 33.8 kB of the editor's 51.1 kB of gzipped JS.
+- **Safari** may delete a site's data after 7 days without a visit, unless the site is a Home Screen app. Zips are the backup until Phase 4.
 
 ### D11. Export targets as a per-project matrix. PROPOSED until M4.8, 2026-10-17
 

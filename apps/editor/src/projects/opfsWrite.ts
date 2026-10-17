@@ -28,7 +28,13 @@ export type WriteReply =
   | { readonly id: number; readonly ok: true }
   | { readonly id: number; readonly ok: false; readonly error: string };
 
-/** Writes each file under `base`, making folders as needed and replacing any file already there. */
+/** Files written at once: each waits on the browser to open its handle, so many at once beats one by one. */
+const AT_ONCE = 16;
+
+/**
+ * Writes each file under `base`, making folders as needed and replacing any file already there.
+ * The paths must differ, since files are written AT_ONCE at a time and a file opens only once.
+ */
 export async function writeFiles(
   root: DirectoryLike,
   base: readonly string[],
@@ -49,7 +55,7 @@ export async function writeFiles(
     return found;
   };
   const start = base.map(checkName);
-  for (const file of files) {
+  const writeOne = async (file: ProjectFile) => {
     const parts = [...start, ...pathParts(file.path)];
     const name = parts.pop() as string;
     const handle = (await (await folder(parts)).getFileHandle(name, { create: true })) as SyncFileLike;
@@ -64,5 +70,10 @@ export async function writeFiles(
     } finally {
       await access.close();
     }
-  }
+  };
+  let next = 0;
+  const writer = async () => {
+    while (next < files.length) await writeOne(files[next++] as ProjectFile);
+  };
+  await Promise.all(Array.from({ length: Math.min(AT_ONCE, files.length) }, writer));
 }

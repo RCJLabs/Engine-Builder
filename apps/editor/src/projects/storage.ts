@@ -23,5 +23,6 @@ export async function storageState(
 export function sizeText(bytes: number): string {
   if (bytes < 1000) return `${bytes} bytes`;
   const [value, unit] = bytes < 1e6 ? [bytes / 1e3, 'kB'] : bytes < 1e9 ? [bytes / 1e6, 'MB'] : [bytes / 1e9, 'GB'];
-  return `${value < 10 ? value.toFixed(1) : Math.round(value)} ${unit}`;
+  // One decimal below ten, as phones show it; 9.96 is "10", not "10.0".
+  return `${value < 9.95 ? value.toFixed(1) : Math.round(value)} ${unit}`;
 }

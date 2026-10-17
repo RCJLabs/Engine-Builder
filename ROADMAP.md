@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.1.** Project storage (Phase 2). It starts with your call on the editor's domain (Open questions, 1). Phase 1's milestones, M1.1 to M1.10, are built, and the phase waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M2.2.** Layout (Phase 2). M2.1 (project storage) is done, on the editor's own domain, engine.rcjlabs.com (D28). Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline.
 
 How to read this file:
 
@@ -145,11 +145,16 @@ How to read this file:
 
 **Goal:** make and keep a project on any device. Data editing works; logic and worlds come later.
 
-- **M2.1 Project storage.**
-  - Projects live in OPFS.
-  - "Open folder" (File System Access) on desktop Chromium, so the editor and Claude Code edit the same git checkout.
-  - Zip import and export; a persistent-storage request.
-  - Settle the editor's domain first (Open questions).
+- **M2.1 Project storage.** Done 2026-10-17.
+  - **The domain** is engine.rcjlabs.com, your call (D28). The editor's base path is `/`.
+  - **Projects live in OPFS.** The Project panel creates, lists, opens, exports and deletes them, and a reload keeps them. Every write goes through one worker's sync access handles: the one OPFS write in Chrome, Firefox and every Safari since 15.2.
+  - **"Open folder"** works on desktop Chromium. M2.1 reads the folder and can copy it in or export it; writing to it comes with editing. Recent folders are remembered, and access is asked for again when the browser wants it.
+  - **Zips** carry only a project's own files, never a repo's README or `node_modules`. The same files give the same bytes in any time zone. Import is limited to 10,000 files and 100 MB.
+  - **A persistent-storage request** goes with the first stored project, and the panel says whether the browser will keep it.
+  - [`docs/specs/editor-storage.md`](docs/specs/editor-storage.md) is the spec. Thirty-two planted bugs were each caught. The first run let three through, and each got a test:
+    - ids longer than 64 characters;
+    - sizes counted in 1,024s;
+    - the writer's worker left out of the offline cache. Playwright's offline mode doesn't reach a worker's script, so that test now reads the cache itself.
 - **M2.2 Layout.** dockview panels on desktop, with save and restore. On a phone: one panel, the inspector as a bottom sheet, and a command palette.
 - **M2.3 Editing safety.** Undo/redo through a command log, autosave, and a lock so two tabs can't edit one project.
 - **M2.4 Forms from schemas.** Text, number/slider, enum, a reference picker with search, list, map, colour and asset fields, with inline validation.
@@ -167,8 +172,8 @@ How to read this file:
 **Done when:**
 
 - On a phone, you create a project with 20 records across 3 types (one of them custom), reload it and export a zip. [you]
-- The CLI validates that zip in CI with the same content hash. [auto]
-- A project opened from a git folder on desktop round-trips with zero diff. [auto]
+- The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. The phone-made project needs M2.6's custom types.
+- A project opened from a git folder on desktop round-trips with zero diff. [auto] M2.1's part: `apps/editor/src/projects/roundtrip.test.ts` takes a git checkout into the browser and out as a zip, and the checkout stays clean. It is re-proven when M2.3 saves into opened folders.
 
 ## Phase 3: Game logic
 
@@ -331,6 +336,11 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay: **Measure all tiers** | | |
 | 3D spike bundle, gzip | 223.5 kB for the page and three.js (810.0 kB raw); 1,669.3 kB for Rapier (4,332.8 kB raw), whose 3.08 MB of WebAssembly is inlined as base64. A separate `.wasm` would be 1,168.7 kB at gzip -9, against 1,652.9 kB for the compat module | `vite build` output; Python's gzip for the `.wasm` comparison | 2026-10-17 | 1 build |
+| Editor JS, gzip (M2.1) | 51.3 kB, up from 12.7 kB at Phase 0: the compiler with zod and fflate is 33.8 kB of it, loaded at start so the library can read project names. Plus a 1.0 kB OPFS writer worker | `vite build` output; a split build for the compiler's share | 2026-10-17 | 1 build |
+| Editor precache (M2.1) | 17 entries, 195.5 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
+| OPFS reads, 1,001 small files | 3,033 ms one after another, 524 ms all at once | headless Chromium 1194, cloud container, timed in the page | 2026-10-17 | 1 run each |
+| OPFS writes, 1,001 files of 190 bytes | 1,866–2,064 ms (median 1,950) through the writer worker, 16 at a time | headless Chromium 1194, cloud container, timed in the page, fresh context each | 2026-10-17 | 5 runs |
+| A 1,000-record project (1,001 files, 188 kB) through the Project panel | Import 2,355–3,174 ms (median 2,372); export 799–956 ms (median 845), down from 3,248 ms before reads ran 32 at a time. Each includes up to about 0.5 s of Playwright's polling | headless Chromium 1194 on `vite preview`, cloud container, fresh context each | 2026-10-17 | 5 runs |
 | Rapier load, no phone | Headless Chromium on a page drawing nothing: import 217–233 ms (median 226), start 75–90 ms (median 79). Node: import 27–38 ms (median 30), start 90–127 ms (median 123). On the spike's page, while drawing in software: about 0.9 s and 0.45 s | Chromium 1194 (Playwright 1.56.1) on `vite preview`, a fresh context each, and Node 22.22, both in the cloud container | 2026-10-17 | 5 each |
 
 ## Open questions

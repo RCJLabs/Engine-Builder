@@ -16,6 +16,11 @@ describe('idFromName', () => {
     expect(idFromName('物語')).toBe('project');
   });
 
+  it('cuts a long name to 64 characters, never ending on a hyphen', () => {
+    expect(idFromName('a'.repeat(100))).toBe('a'.repeat(64));
+    expect(idFromName(`${'a'.repeat(63)} beta`)).toBe('a'.repeat(63));
+  });
+
   it('always gives a valid id of at most 64 characters', () => {
     fc.assert(
       fc.property(fc.string({ maxLength: 120, unit: 'grapheme' }), (name) => {

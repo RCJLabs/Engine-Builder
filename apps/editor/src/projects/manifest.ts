@@ -17,7 +17,7 @@ export function readManifest(bytes: Uint8Array): { project: ManifestProject | nu
 export function idFromName(name: string): string {
   const id = name
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .slice(0, 64)

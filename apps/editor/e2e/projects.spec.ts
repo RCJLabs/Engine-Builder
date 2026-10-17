@@ -4,7 +4,7 @@
  * browser context, so a fresh, empty OPFS.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
@@ -141,7 +141,9 @@ test.describe('projects, desktop 1280×800', () => {
     expect(errors).toEqual([]);
   });
 
-  test('stores a project offline, with the writer from the service worker’s cache', async ({ page, context }) => {
+  // Playwright's offline mode doesn't reach a dedicated worker's script, which loads from the
+  // server anyway (seen with the writer left out of the cache). So the cache itself is checked.
+  test('works offline: every script the build made is cached, the writer included', async ({ page, context }) => {
     const errors = watchErrors(page);
     await page.goto('./');
     await page.evaluate(async () => {
@@ -149,6 +151,17 @@ test.describe('projects, desktop 1280×800', () => {
     });
     await page.reload();
     await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+    const cached = await page.evaluate(async () => {
+      const paths: string[] = [];
+      for (const name of await caches.keys()) {
+        for (const request of await (await caches.open(name)).keys()) paths.push(new URL(request.url).pathname);
+      }
+      return paths;
+    });
+    const scripts = readdirSync(join(REPO, 'apps/editor/dist/assets')).filter((file) => file.endsWith('.js'));
+    expect(scripts.some((file) => file.startsWith('opfs.worker-'))).toBe(true);
+    for (const script of scripts) expect(cached, script).toContain(`/assets/${script}`);
+
     await context.setOffline(true);
     await page.reload();
     await createProject(page, 'Offline Project');

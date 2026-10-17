@@ -62,7 +62,10 @@ export async function startProjects(): Promise<void> {
   } catch {
     remembered = null;
   }
-  await refresh();
+  await refresh().catch((error: unknown) => {
+    library.value = [];
+    trouble.value = `The stored projects couldn’t be listed: ${message(error)}`;
+  });
 }
 
 async function refresh(): Promise<void> {
@@ -90,12 +93,15 @@ const needLibrary = (): Library => {
   return stored;
 };
 
-/** Asks the browser to keep the editor's storage, once there is something in it to keep. */
+let askedToKeep = false;
+
+/** Asks the browser to keep the editor's storage, once there is something in it to keep, once a session. */
 async function keep(): Promise<void> {
-  if (storage.value?.kept) return;
-  const answer = await requestPersistence();
-  if (answer !== 'granted')
+  if (storage.value?.kept || askedToKeep) return;
+  askedToKeep = true;
+  if ((await requestPersistence()) !== 'granted') {
     note('The browser may clear stored projects when space runs low: export zips to keep copies.');
+  }
 }
 
 async function openStored(folder: string): Promise<void> {
@@ -110,8 +116,13 @@ async function show(handle: FolderHandle): Promise<void> {
   const summary = await summarize(source);
   current.value = { where: 'folder', label: handle.name, source, summary };
   note(`Opened the folder ${handle.name}.`);
-  if (remembered) await rememberFolder(remembered, handle, Date.now());
+  // The folder is open either way; failing to remember it only costs the shortcut next time.
+  await rememberFolder(remembered ?? noStore, handle, Date.now()).catch((error: unknown) =>
+    note(`The folder list couldn’t keep ${handle.name}: ${message(error)}`),
+  );
 }
+
+const noStore: FolderStore = { all: async () => [], add: async () => undefined, remove: async () => undefined };
 
 export const newProject = (name: string) =>
   run('Creating the project', async () => {

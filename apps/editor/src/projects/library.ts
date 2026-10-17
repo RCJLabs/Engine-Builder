@@ -2,7 +2,14 @@
  * The projects stored in this browser: a folder each under OPFS's projects/, holding the project's
  * own files as they would sit on disk. Reads happen on the page; writes go through the worker.
  */
-import { directorySource, isHiddenName, MANIFEST_FILE, type ProjectSource, projectFiles } from '@eb/compiler';
+import {
+  directorySource,
+  isHiddenName,
+  MANIFEST_FILE,
+  type ProjectSource,
+  projectFiles,
+  readFiles,
+} from '@eb/compiler';
 import { type DirectoryLike, isNotFound, type ProjectFile } from './files.ts';
 import { newManifest, readManifest } from './manifest.ts';
 
@@ -63,12 +70,8 @@ async function ownFiles(from: ProjectSource): Promise<{ id: string; files: Proje
   if (manifest === undefined) throw new Error('There is no project.json, so this isn’t a project.');
   const { project, trouble } = readManifest(manifest);
   if (!project) throw new Error(trouble ?? 'project.json can’t be read.');
-  const files: ProjectFile[] = [];
-  for (const path of await projectFiles(from)) {
-    const bytes = await from.read(path);
-    if (bytes !== undefined) files.push({ path, bytes });
-  }
-  return { id: project.id, files };
+  const read = await readFiles(from, await projectFiles(from));
+  return { id: project.id, files: [...read].map(([path, bytes]) => ({ path, bytes })) };
 }
 
 async function listProjects(root: DirectoryLike): Promise<LibraryEntry[]> {

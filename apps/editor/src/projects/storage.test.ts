@@ -19,9 +19,11 @@ describe('storageState', () => {
 
 describe('sizeText', () => {
   it('uses the units phones show, with a decimal below ten', () => {
-    expect([999, 1234, 12_345, 1_234_567, 123_456_789, 1_500_000_000].map(sizeText)).toEqual([
+    expect([999, 1234, 5000, 9960, 12_345, 1_234_567, 123_456_789, 1_500_000_000].map(sizeText)).toEqual([
       '999 bytes',
       '1.2 kB',
+      '5.0 kB',
+      '10 kB',
       '12 kB',
       '1.2 MB',
       '123 MB',
