@@ -10,6 +10,11 @@ export interface RecordInput {
   readonly id: string;
   readonly file?: string;
   readonly value: unknown;
+  /**
+   * The file could not be read, and the compiler has said why. The record still exists, so
+   * references to it resolve, but its value is not checked.
+   */
+  readonly unreadable?: boolean;
 }
 
 /** One place that references a record. */
@@ -60,6 +65,7 @@ export function validateRecords(types: readonly RecordType[], records: readonly 
     }
     const count = counts.get(formatRef(record.type, record.id)) ?? 0;
     if (count > 1) report('E004', '', `${count} ${record.type} records have the id "${record.id}"`);
+    if (record.unreadable) continue;
     for (const issue of schemaIssues(recordType.schema, record.value)) report('E001', issue.path, issue.message);
     for (const found of collectRefs(recordType.schema, record.value)) {
       const key = resolve(found, report);
@@ -125,7 +131,8 @@ function sortUsages(usages: ReadonlyMap<string, Usage[]>): ReadonlyMap<string, r
   return new Map(keys.map((key) => [key, Object.freeze([...(usages.get(key) ?? [])].sort(byUsage))]));
 }
 
-interface Issue {
+/** A schema problem: where it is, as a JSON Pointer, and what is wrong. */
+export interface SchemaIssue {
   readonly path: string;
   readonly message: string;
 }
@@ -133,11 +140,14 @@ interface Issue {
 const toPointer = (path: readonly PropertyKey[]): string =>
   path.map((key) => `/${pointerSegment(String(key))}`).join('');
 
-/** zod's issues as paths and messages, with a field-level entry for each unknown or missing field. */
-function schemaIssues(schema: z.core.$ZodType, value: unknown): Issue[] {
+/**
+ * zod's issues for a value, as JSON Pointer paths and messages, with a field-level entry for each
+ * unknown or missing field. Records get these as E001; the compiler reuses them for project.json.
+ */
+export function schemaIssues(schema: z.core.$ZodType, value: unknown): SchemaIssue[] {
   const result = z.safeParse(schema, value);
   if (result.success) return [];
-  return result.error.issues.flatMap((issue): Issue[] => {
+  return result.error.issues.flatMap((issue): SchemaIssue[] => {
     const path = toPointer(issue.path);
     if (issue.code === 'unrecognized_keys') {
       return issue.keys.map((key) => ({ path: `${path}/${pointerSegment(key)}`, message: `Unknown field "${key}"` }));

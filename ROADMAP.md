@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.4.** Project format v1 (Phase 1). M1.1 (RNG streams), M1.2 (state fingerprints) and M1.3 (records) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.5.** Reducer and module API (Phase 1). M1.1 (RNG streams), M1.2 (state fingerprints), M1.3 (records) and M1.4 (project format) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -65,11 +65,13 @@ How to read this file:
   - `validateRecords` reports coded diagnostics E001–E006 with a file and a JSON Pointer path, plus a `usedBy` index for the editor. The output never depends on input order (property-tested).
   - `recordJsonSchema` exports draft 2020-12 with `x-eb-ref` on reference fields.
   - [`docs/specs/records.md`](docs/specs/records.md) is the spec. Twenty-six planted bugs were each caught by the tests.
-- **M1.4 Project format v1.**
-  - A folder of JSON, one record per file.
-  - A loader for a folder, OPFS or a zip.
-  - A compiler (`packages/compiler`) that builds content packs carrying a content hash.
-  - The CLI's `eb validate` and `eb build`.
+- **M1.4 Project format v1.** Done 2026-10-17.
+  - `project.json` (format 1: id, name, version) and `records/<type>/<id>.json`. A newer format asks for a newer engine. A v1 fixture project must keep compiling to its golden pack hash.
+  - `@eb/compiler` reads a project from memory, a File System API directory handle (OPFS or an opened folder) or a zip. It checks the files, runs record validation and builds a content pack.
+  - A pack is canonical JSON with an FNV-1a 64 content hash. The same files give the same hash whatever their order or formatting (property-tested), and the Python state-hash oracle agrees on the golden. `readPack` in `@eb/core` checks a pack's format, shape and hash before the sim uses it.
+  - `pnpm eb validate` and `pnpm eb build` take a folder or a zip, with record types from a `--types` module until kits exist. Exit codes are 0, 1 (errors) and 2 (couldn't run).
+  - [`docs/specs/project-format.md`](docs/specs/project-format.md) is the spec. Twenty-two planted bugs were each caught by the tests.
+  - The directory-handle source is tested against a fake; it meets real OPFS in M2.1.
 - **M1.5 Reducer and module API.**
   - `reduce(state, action, ctx) → { state, events }`.
   - Modules register state slices, actions, facts and effects.
@@ -119,7 +121,9 @@ How to read this file:
   - Import images, audio, models and fonts; thumbnails.
   - A provenance log per asset: source, licence, prompt, date, hand edits.
   - The licence check refuses NC, ND and SA. Stand-in art fills in until real art lands.
-- **M2.8 Problems and console panels.** The CLI validates exported projects in CI.
+- **M2.8 Problems and console panels.**
+  - The CLI validates exported projects in CI.
+  - `eb schemas` writes each record type's JSON Schema, plus a `.vscode/settings.json` that maps `records/<type>/*.json` to it, so hand edits get autocomplete ([project-format.md](docs/specs/project-format.md#open-questions), question 1).
 
 **Done when:**
 

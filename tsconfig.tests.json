@@ -2,7 +2,7 @@
   "//": "Tests run in Node and may use its APIs, so they are typechecked here rather than under the pure package configs.",
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
     "types": ["node"],
     "jsx": "react-jsx",
     "jsxImportSource": "preact"

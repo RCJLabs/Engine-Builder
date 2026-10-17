@@ -1,0 +1,18 @@
+{
+  "name": "@eb/cli",
+  "private": true,
+  "version": "0.0.1",
+  "description": "eb: validate and build projects from the command line, for CI and for agents working in a game's repo.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/compiler": "workspace:*",
+    "@eb/core": "workspace:*",
+    "@eb/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "fflate": "0.8.3"
+  }
+}

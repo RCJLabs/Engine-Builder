@@ -1,0 +1,10 @@
+{
+  "//": "Runs in the editor's worker (browser) and the CLI (Node), so it uses neither platform's types; src/globals.d.ts declares the one shared global it needs. Not eb.pure: it imports zod through @eb/schema.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

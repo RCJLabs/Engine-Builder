@@ -138,7 +138,7 @@ Each record is checked in this order:
 
 ## Diagnostics
 
-A diagnostic is `{ code, severity, message, type, id, file?, path }`. `path` is an RFC 6901 JSON Pointer into the record's value, and is empty for the record as a whole.
+A diagnostic is `{ code, severity, message, type?, id?, file?, path }`. Validation always sets the record's `type` and `id`; the compiler's diagnostics about files that aren't records leave them out ([project-format.md](project-format.md#diagnostics-this-adds)). `path` is an RFC 6901 JSON Pointer into the record's value, and is empty for the record as a whole.
 
 | Code | Severity | Meaning | Path |
 | --- | --- | --- | --- |
@@ -150,7 +150,7 @@ A diagnostic is `{ code, severity, message, type, id, file?, path }`. `path` is 
 | E006 | error | reference to a type this field does not allow | the reference |
 
 - **Codes are a public contract**, like save keys: the editor, CLI output and people's notes refer to them. A code is never renumbered or reused, and a retired code stays in the table, marked retired.
-- **Warnings** (W1xx) arrive with the milestones that need them.
+- **More codes.** M1.4 adds E007–E010 and the first warning, W101, for files and project.json ([project-format.md](project-format.md#diagnostics-this-adds)). Other warnings (W1xx) arrive with the milestones that need them.
 - **Messages are not part of the contract.** Codes and paths are stable; wording may improve. E001 messages are zod's, except for unknown fields, missing fields and invalid record keys.
 
 ## JSON Schema
@@ -169,6 +169,6 @@ The export is for VS Code and other tools. `validateRecords` is the authority: f
 
 ## Open questions
 
-1. **How record files point VS Code at their schema.** Either a `$schema` key that the compiler strips before validation, or a generated `.vscode/settings.json`. Strict objects reject an unknown `$schema` key today. M1.4 decides.
+1. **How record files point VS Code at their schema.** Moved to [project-format.md](project-format.md#open-questions), with a recommendation.
 2. **Plain unions that no option accepts** get zod's bare "Invalid input". Should validation report the closest option's issues instead, or should content use discriminated unions only? Decide with M1.6, whose condition trees are the main plain union.
 3. **Record types with variants at the top level.** A discriminated union of objects is refused at the top level today. Revisit if a kit needs one.

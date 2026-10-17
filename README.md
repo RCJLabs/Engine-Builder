@@ -52,6 +52,8 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 | `pnpm build` | Builds the editor into `apps/editor/dist` |
 | `pnpm e2e` | Playwright against the built editor at phone, landscape and desktop sizes, with axe checks |
 | `pnpm format` | Biome autofix |
+| `pnpm eb validate <project> --types <module>` | Checks a project folder or zip and prints its diagnostics and pack hash ([spec](docs/specs/project-format.md#the-cli)) |
+| `pnpm eb build <project> --types <module> --out <file>` | The same, then writes the content pack |
 | `pnpm --filter @eb/editor icons` | Re-renders the PWA icons from `apps/editor/public/icons/icon.svg` |
 
 ## Layout
@@ -60,6 +62,8 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 apps/editor            the editor PWA (Preact + signals, Vite, vite-plugin-pwa)
 packages/core          the pure simulation kernel (no DOM, clock or Math.random)
 packages/schema        record types as strict zod schemas, validation with coded diagnostics, JSON Schema export
+packages/compiler      reads a project (memory, OPFS, folder or zip), checks it and builds content packs
+tools/cli              eb validate and eb build
 tools/lint-boundaries  the purity lint for packages marked "eb": { "pure": true }
 docs/                  architecture, decisions, research
 ```

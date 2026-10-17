@@ -221,6 +221,16 @@ describe('references', () => {
     ]);
   });
 
+  it('counts an unreadable record as existing, without checking its value', () => {
+    const records = project().map((record) =>
+      record.id === 'dead-hauler' ? { ...record, value: undefined, unreadable: true } : record,
+    );
+    const { diagnostics, usedBy } = validateRecords(sampleTypes, records);
+    expect(diagnostics).toEqual([]);
+    expect(usedBy.get('loot-table:dead-hauler')).toHaveLength(1);
+    expect(usedBy.has('actor:rook')).toBe(false);
+  });
+
   it('lists references to missing records in usedBy, so deletions can be traced', () => {
     const records = withValue('actor', 'rook', rook({ drops: 'nowhere' }));
     expect(validateRecords(sampleTypes, records).usedBy.get('loot-table:nowhere')).toEqual([
@@ -230,7 +240,8 @@ describe('references', () => {
 });
 
 describe('the code table', () => {
-  it('has a test that fires every code, and every diagnostic is an error so far', () => {
+  // The compiler's tests cover the codes for files and project.json (E007 and up).
+  it('fires every code validation owns, all of them errors', () => {
     const records: RecordInput[] = [
       ...withValue('actor', 'rook', rook({ drops: 'nowhere', weight: 1 })),
       { type: 'weapon', id: 'laser', value: {} },
@@ -239,7 +250,9 @@ describe('the code table', () => {
       { type: 'loot-table', id: 'empty', value: table({ effects: [{ op: 'mark', target: 'loot-table:empty' }] }) },
     ];
     const { diagnostics } = validateRecords(sampleTypes, records);
-    expect([...new Set(diagnostics.map((d) => d.code))].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES));
+    const owned = Object.keys(DIAGNOSTIC_CODES).filter((code) => code <= 'E006');
+    expect(owned).toEqual(['E001', 'E002', 'E003', 'E004', 'E005', 'E006']);
+    expect([...new Set(diagnostics.map((d) => d.code))].sort()).toEqual(owned);
     expect(new Set(diagnostics.map((d) => d.severity))).toEqual(new Set(['error']));
   });
 });

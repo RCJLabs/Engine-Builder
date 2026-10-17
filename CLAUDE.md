@@ -42,6 +42,8 @@ pnpm test         # Vitest
 pnpm build        # apps/editor/dist
 pnpm e2e          # Playwright against `vite preview` at /Engine-Builder/
 pnpm format       # Biome autofix
+pnpm eb validate <project> --types <module>    # check a project folder or zip (paths from the repo root)
+pnpm eb build <project> --types <module> --out <file>
 ```
 
 - `@playwright/test` is pinned to 1.56.1 because that matches the Chromium preinstalled in Claude Code's cloud containers. CI installs its own copy.
@@ -54,9 +56,12 @@ apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console
   src/pwa/             service worker registration and the update gate
   e2e/                 Playwright specs
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
 packages/schema/       record types (strict zod), validation with E-codes, JSON Schema export; not pure
   test/samples.ts      sample record types the tests share
+packages/compiler/     project sources (memory, directory handle, zip), compileProject, packs; not pure
+  test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
+tools/cli/             eb validate | build; folderSource.ts is the Node fs source
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```

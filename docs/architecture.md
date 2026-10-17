@@ -83,8 +83,12 @@ my-game/
   locales/<lang>.json      string tables (Phase 8)
 ```
 
+- **Format 1** (M1.4) has `project.json` with `id`, `name` and `version`, plus `records/`. The other folders, and project.json's `modules`, `targets` and `settings`, arrive with the milestones that use them ([specs/project-format.md](specs/project-format.md)).
 - **One record per file** keeps diffs small and merges clean. Big tables (cards, players) may later opt into one collection file per type.
-- **Compiling.** `packages/compiler` validates a project and builds **content packs**: one JSON per pack, plus a content hash and coded diagnostics. It runs in the editor (in a worker) and in Node (CLI and CI). The runtime loads packs; it never reads the project folder.
+- **Compiling.**
+  - `packages/compiler` validates a project and builds **content packs**: canonical JSON with a content hash, plus coded diagnostics.
+  - It reads the project from memory, OPFS, an opened folder or a zip, in the editor (in a worker) and in Node (the CLI and CI).
+  - The runtime loads packs through `readPack`, which checks the hash. It never reads the project folder.
 - **Formatting.** Stable key order and formatting, so a save in the editor and a hand edit produce the same bytes.
 
 ## Records
@@ -290,7 +294,7 @@ packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
 apps/player         the runtime shell that exports ship                    Phase 4
-tools/cli           eb validate | build | export | sim                     Phase 1
+tools/cli           eb validate | build (M1.4); export | sim later
 tools/lint-boundaries
 templates/*                                                               Phase 4+
 ```

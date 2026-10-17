@@ -53,7 +53,12 @@ Product decisions are Evan's. The others record what was chosen and why.
 - React-compatible.
 - Already the favoured stack in chooser-of-the-dead and climbing-world-traveler.
 
-### D5. Project format: a folder of JSON, one record per file. PROPOSED until M1.4, 2026-10-17
+### D5. Project format: a folder of JSON, one record per file. LOCKED, 2026-10-17 (M1.4)
+
+**Decision** ([specs/project-format.md](specs/project-format.md)).
+- A project is a folder: `project.json` (format 1: `id`, `name`, `version`) and `records/<type>/<id>.json`. The folder names the type and the file name the id.
+- The compiler reads only the parts it knows, so a project can sit at the root of a game's repo. Hidden entries are never read.
+- `PROJECT_FORMAT` follows `SAVE_VERSION`'s rule: it goes up only when today's projects would no longer load unchanged, with a migration and a fixture of the old format that must still compile.
 
 **Why JSON rather than YAML.**
 - The editor writes these files. JSON round-trips without losing formatting or comments that the editor would never see.
@@ -181,6 +186,24 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - Renaming an id means rewriting every reference to it. The editor's rename (M2) can do that from `usedBy`.
 - Adding a field to content needs a schema change first. That is the point, but it is friction.
 - The schema walker reads zod 4.6.7's internals (`_zod.def`). zod stays pinned, and an upgrade must pass the walker's tests and the planted bugs again.
+
+### D21. Content packs: canonical JSON with an FNV-1a 64 content hash, the only thing the runtime reads. LOCKED, 2026-10-17 (M1.4)
+
+**Decision** ([specs/project-format.md](specs/project-format.md#content-packs-format-1)).
+- The compiler turns a project into a pack: `{ format: 1, project, records, hash }`, written as RFC 8785 canonical JSON.
+- The hash is `stateHash` of everything else in the pack. The runtime checks it with `readPack` before the sim reads a record.
+- Packs have their own format number, separate from the project format.
+
+**Why.**
+- The Phase 2 gate needs the editor and the CLI to agree on a project by hash. Canonical JSON and FNV-1a 64 already give the same result in every engine (D19), and the Python oracle checks the golden.
+- The hash ignores formatting, key order and file order, so reformatting a project or moving it between OPFS, a folder and a zip doesn't change it.
+- Checking the hash at load turns a hand-edited or truncated pack into one clear error at startup, instead of a missing record mid-game.
+
+**Cost.**
+- FNV-1a is a fingerprint, not a signature: it catches accidents, not tampering.
+- Hashing a pack at load costs one canonical serialisation of its content, which is not yet measured for a large pack.
+
+**Changing the golden** (`489cedf323bd33d9` for the v1 fixture) changes every pack built so far, so it needs a new decision.
 
 ---
 

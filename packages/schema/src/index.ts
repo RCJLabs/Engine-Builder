@@ -8,13 +8,22 @@
 export { z } from 'zod';
 export {
   compareDiagnostics,
+  compareText,
   DIAGNOSTIC_CODES,
   type Diagnostic,
   type DiagnosticCode,
   type Severity,
+  severityOf,
 } from './diagnostics.ts';
 export { recordJsonSchema } from './jsonSchema.ts';
 export { defineRecordType, type RecordType, type RecordTypeDefinition, SchemaError } from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
-export { type RecordInput, type Usage, type Validation, validateRecords } from './validate.ts';
+export {
+  type RecordInput,
+  type SchemaIssue,
+  schemaIssues,
+  type Usage,
+  type Validation,
+  validateRecords,
+} from './validate.ts';
 export { collectRefs, type FoundRef } from './walk.ts';
