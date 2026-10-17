@@ -5,7 +5,7 @@
  */
 import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
-import { importLudus, openProject, openRecord, SPICULUS, stored } from './ludus.ts';
+import { importLudus, openProject, openRecord, recordLink, SPICULUS, showTable, stored } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -70,15 +70,16 @@ test('chooses a record from a list it searches, and clears an optional field', a
   const errors = watchErrors(page);
   await importLudus(page);
   const form = await openRecord(page, 'Gladiator', 'spiculus');
-  await form.getByRole('button', { name: 'School ludus-magnus' }).click();
+  // The school's type names its records, so the button shows the name beside the id (M2.5).
+  await form.getByRole('button', { name: 'School Ludus Magnus ludus-magnus' }).click();
   const picker = page.getByRole('dialog', { name: 'Choose a school' });
   await expect(picker.getByRole('option')).toHaveCount(2);
   await picker.getByRole('combobox', { name: 'Search' }).fill('dac');
-  await expect(picker.getByRole('option')).toHaveText(['ludus-dacicus']);
+  await expect(picker.getByRole('option')).toHaveText(['Ludus Dacicus (ludus-dacicus)']);
   await page.keyboard.press('Enter');
   await expect(picker).toHaveCount(0);
   // Focus goes back to the field's button, which names what it now holds.
-  await expect(form.getByRole('button', { name: 'School ludus-dacicus' })).toBeFocused();
+  await expect(form.getByRole('button', { name: 'School Ludus Dacicus ludus-dacicus' })).toBeFocused();
   await spiculus(page).toMatchObject({ school: 'ludus-dacicus' });
 
   await form.getByRole('button', { name: 'Clear Portrait' }).click();
@@ -109,12 +110,12 @@ test('adds, moves and removes list items and map entries, focus following', asyn
   await form.getByRole('button', { name: 'Add to Weapons carried' }).click();
   const picker = page.getByRole('dialog', { name: 'Add to Weapons carried' });
   // Gladius is carried already, so only the others are offered.
-  await expect(picker.getByRole('option')).toHaveText(['net', 'trident']);
-  await picker.getByRole('option', { name: 'trident' }).click();
+  await expect(picker.getByRole('option')).toHaveText(['Net (net)', 'Trident (trident)']);
+  await picker.getByRole('option', { name: 'Trident (trident)' }).click();
   await form.getByLabel('Weapons carried: trident', { exact: true }).fill('2');
   await spiculus(page).toMatchObject({ kit: { gladius: 1, trident: 2 } });
   await form.getByRole('button', { name: 'Weapons carried: gladius, change the key' }).click();
-  await page.getByRole('dialog', { name: 'A key for gladius' }).getByRole('option', { name: 'net' }).click();
+  await page.getByRole('dialog', { name: 'A key for gladius' }).getByRole('option', { name: 'Net (net)' }).click();
   await expect
     .poll(async () => Object.keys(((await stored(page, SPICULUS)) as { kit: object }).kit))
     .toEqual(['net', 'trident']);
@@ -192,22 +193,22 @@ test('shows the compiler’s problems beside their fields, and keeps what isn’
 test('creates a record with its type’s fields to fill in, deletes it, and undo brings it back', async ({ page }) => {
   const errors = watchErrors(page);
   await importLudus(page);
+  const table = await showTable(page, 'Gladiator');
   await page.getByRole('button', { name: 'New gladiator' }).click();
   await page.getByLabel('Name of the new gladiator').fill('Carpophorus the Bold');
   await expect(page.getByText('Saved as records/gladiator/carpophorus-the-bold.json')).toBeVisible();
   await page.getByRole('button', { name: 'Create' }).click();
   const form = page.getByRole('region', { name: 'Gladiator carpophorus-the-bold' });
   await expect(form).toBeVisible();
-  await expect(form).toContainText('Write something here');
+  // The type names its records by "name", so what was typed fills it (M2.5); the rest is to fill in.
+  await expect(form.getByLabel('Name', { exact: true })).toHaveValue('Carpophorus the Bold');
   await expect(form).toContainText('No school chosen yet');
-  // The Project panel lists it, chosen.
-  await expect(
-    page.getByRole('region', { name: 'Records' }).getByRole('button', { name: 'carpophorus-the-bold' }),
-  ).toHaveAttribute('aria-current', 'true');
+  // The table lists it, open in the inspector.
+  await expect(recordLink(table, 'carpophorus-the-bold')).toHaveAttribute('aria-current', 'true');
   await expect
     .poll(() => stored(page, 'records/gladiator/carpophorus-the-bold.json'))
     .toEqual({
-      name: '',
+      name: 'Carpophorus the Bold',
       might: 0,
       style: 'retiarius',
       school: '',
@@ -219,7 +220,7 @@ test('creates a record with its type’s fields to fill in, deletes it, and undo
   await expect(form).toContainText('This record isn’t there any more');
   await expect.poll(() => stored(page, 'records/gladiator/carpophorus-the-bold.json')).toBeNull();
   await page.getByRole('button', { name: 'Undo: Delete carpophorus-the-bold' }).click();
-  await expect(form.getByLabel('Name', { exact: true })).toHaveValue('');
+  await expect(form.getByLabel('Name', { exact: true })).toHaveValue('Carpophorus the Bold');
   expect(errors).toEqual([]);
 });
 
@@ -230,7 +231,7 @@ test('passes the shared checks with a whole form open', async ({ page }) => {
   expect(await smallTargets(page, '[data-panel="inspector"]')).toEqual([]);
   expect(await smallTargets(page, '[data-panel="project"]')).toEqual([]);
   await expectNoAxeIssues(page);
-  await page.getByRole('button', { name: 'School ludus-magnus' }).click();
+  await page.getByRole('button', { name: 'School Ludus Magnus ludus-magnus' }).click();
   await expectNoAxeIssues(page);
 });
 

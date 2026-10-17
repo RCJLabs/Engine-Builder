@@ -105,6 +105,20 @@ describe('readTypeFile', () => {
       '/fields/d/key/to/2: "b" is listed twice',
     ]);
   });
+
+  it('takes a name field only when it is one of the type’s own text fields', () => {
+    const fields = { name: { kind: 'text', optional: true }, might: { kind: 'int' } };
+    expect(readTypeFile({ title: 'T', nameField: 'name', fields }).ok).toBe(true);
+    expect(problems({ title: 'T', nameField: 'title', fields })).toEqual(['/nameField: The type has no field "title"']);
+    expect(problems({ title: 'T', nameField: 'might', fields })).toEqual([
+      '/nameField: A record’s name is text, and "might" is of kind int',
+    ]);
+    // A name inherited from every object is not a field the type has.
+    expect(problems({ title: 'T', nameField: 'toString', fields })).toEqual([
+      '/nameField: The type has no field "toString"',
+    ]);
+    expect(problems({ title: 'T', nameField: 3, fields })).toEqual(['/nameField: Expected the name of a text field']);
+  });
 });
 
 describe('eachValue and typeRefs', () => {

@@ -1,0 +1,274 @@
+/* M2.5's Records panel. The table scrolls sideways inside its own region, so the page never does;
+   its select and record columns stay put. Every control is at least 44 px each way. */
+
+.table-type {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.table-type label {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.table-type .field {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.table-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.table-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.table-filters {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.filter-row .field {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+.filter-said {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.table-count {
+  margin: 4px 0 8px;
+}
+
+.selection-bar,
+.bulk-edit {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+
+.selection-count,
+.bulk-edit h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.bulk-edit > label {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Positioned, so the words kept for screen readers (.visually-hidden, absolutely placed) stay
+   inside it: placed against the page instead, they widened a phone's page past its screen. */
+.table-scroll {
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.table-scroll:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.records-table caption {
+  padding: 8px 10px;
+  text-align: start;
+  font-weight: 600;
+}
+
+.records-table th,
+.records-table td {
+  padding: 0 10px;
+  text-align: start;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.records-table thead th {
+  padding: 0;
+  font-weight: 600;
+  background: var(--surface-2);
+}
+
+.records-table tr.picked > * {
+  background: var(--surface-2);
+}
+
+/* The select box and the record stay at the left edge as the rest scrolls under them. */
+.records-table .pick-cell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: var(--tap);
+  padding: 0;
+}
+
+.records-table .record-cell {
+  position: sticky;
+  left: var(--tap);
+  z-index: 1;
+  padding: 0;
+  border-right: 1px solid var(--line);
+}
+
+.records-table:not(:has(.pick-cell)) .record-cell {
+  left: 0;
+}
+
+.pick-box {
+  display: block;
+  width: var(--tap);
+  height: var(--tap);
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.pick-box:focus-visible,
+.sort-button:focus-visible,
+.record-link:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 10px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.number-cell .sort-button {
+  justify-content: flex-end;
+}
+
+.sort-mark {
+  color: var(--muted);
+  font-size: 0.75em;
+}
+
+[aria-sort] .sort-mark {
+  color: var(--accent);
+}
+
+.record-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 8rem;
+  max-width: 14rem;
+  min-height: var(--tap);
+  padding: 4px 10px;
+  font: inherit;
+  color: var(--text);
+  text-align: start;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.record-link[aria-current="true"] {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+.record-name,
+.record-id {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.record-name {
+  font-weight: 600;
+}
+
+.record-name + .record-id {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.cell-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.number-cell {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.records-table td.number-cell {
+  text-align: end;
+}
+
+.cell-problem {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.swatch {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+
+/* A table wants the zone's width, not a column of reading text's. */
+.panel[data-panel="records"] {
+  max-width: none;
+}

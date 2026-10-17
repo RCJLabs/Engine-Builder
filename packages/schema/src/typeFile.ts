@@ -73,6 +73,11 @@ export type Fields = Readonly<Record<string, FieldDef>>;
 export interface TypeFile {
   readonly title: string;
   readonly description?: string;
+  /**
+   * The text field that holds each record's name, which lists and pickers show beside its id
+   * (M2.5). A record without it is known by its id alone.
+   */
+  readonly nameField?: string;
   /** In the order forms show them, and the order new keys are written in. */
   readonly fields: Fields;
 }
@@ -145,6 +150,7 @@ const fieldsDef = z.record(
 export const typeFileSchema = z.strictObject({
   title: z.string({ error: 'Expected text' }).min(1, { error: 'A type needs a title' }),
   description: z.string({ error: 'Expected text' }).optional(),
+  nameField: z.string({ error: 'Expected the name of a text field' }).optional(),
   fields: fieldsDef,
 }) as unknown as z.ZodType<TypeFile>;
 
@@ -189,9 +195,21 @@ export function typeRefs(file: TypeFile): { readonly path: string; readonly type
   return found;
 }
 
-// The rules a field's shape can't carry: bounds in order, and nothing listed twice.
+/** Why `nameField` can't name each record, or null when it can (or the type gives none). */
+function nameFieldProblem(file: TypeFile): string | null {
+  const name = file.nameField;
+  if (name === undefined) return null;
+  const field = Object.hasOwn(file.fields, name) ? file.fields[name] : undefined;
+  if (!field) return `The type has no field "${name}"`;
+  return field.kind === 'text' ? null : `A record’s name is text, and "${name}" is of kind ${field.kind}`;
+}
+
+// The rules a field's shape can't carry: bounds in order, nothing listed twice, and a name field
+// that is one of the type's text fields.
 function rulesProblems(file: TypeFile): SchemaIssue[] {
   const found: SchemaIssue[] = [];
+  const named = nameFieldProblem(file);
+  if (named) found.push({ path: '/nameField', message: named });
   const twice = (list: readonly string[], at: string) => {
     for (const [i, item] of list.entries()) {
       if (list.indexOf(item) !== i) found.push({ path: `${at}/${i}`, message: `"${item}" is listed twice` });

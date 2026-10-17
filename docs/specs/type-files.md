@@ -14,6 +14,7 @@ The code is `packages/schema/src/typeFile.ts` (the format), `typeSchema.ts` (the
 {
   "title": "Gladiator",
   "description": "A fighter of the arena.",
+  "nameField": "name",
   "fields": {
     "name": { "kind": "text", "min": 1, "max": 40 },
     "might": { "kind": "int", "min": 0, "max": 100 },
@@ -31,7 +32,8 @@ The code is `packages/schema/src/typeFile.ts` (the format), `typeSchema.ts` (the
 ```
 
 - **Where.** `types/<type>.json`. The file name is the type's name, as a record's file name is its id: kebab-case, 1 to 64 characters ([records.md](records.md#ids-and-type-names)). Its records sit in `records/<type>/`.
-- **Keys.** `title` (text, not empty), `description` (text, optional) and `fields`. The object is strict, like every object in the format: an unknown or misspelled key is a problem (E015).
+- **Keys.** `title` (text, not empty), `description` (text, optional), `nameField` (optional, below) and `fields`. The object is strict, like every object in the format: an unknown or misspelled key is a problem (E015).
+- **`nameField`** (M2.5) names the field that holds each record's name: one of the type's own top-level fields, of kind `text`, required or optional. Tables, pickers and "used by" show a record's name beside its id, and New and Duplicate fill it in from what was typed ([editor-tables.md](editor-tables.md#new-duplicate-and-names)). A record without a name, or of a type with no `nameField`, is known by its id. Naming a field the type doesn't have, or one of another kind, is E015 at `/nameField`. It is the same idea as Contentful's `displayField` and the "primary field" an Airtable table has.
 - **Fields** are in the order forms show them, and the order a form writes new keys in.
 - **Field names** start with a letter, then letters, digits, `_` or `-`, up to 64 characters, so camel, snake and kebab case all fit. A name every JavaScript object already has (`toString`, `constructor`, `valueOf`…) is refused: zod reads a field as `value[name]`, so a record without that field would seem to hold a function.
 
@@ -135,11 +137,12 @@ Diagnostics about type files carry no record type or id.
 
 - **No project format bump.** `types/` is new, and a project without it loads as before. An engine from before M2.4 reports E002 for records of a project's own types, and E011 for conditions written as text: loud, never silently wrong.
 - **Adding to the format** (a kind, an option) needs no new format, as for project.json ([project-format.md](project-format.md#projectjson-format-1)). A change that would read an existing type file differently does.
-- **The fixture.** [`packages/compiler/test/fixtures/ludus`](../../packages/compiler/test/fixtures/ludus) is a project made only of data: three types that between them use every kind, a condition as text and one as a tree, and an asset. It compiles to `34035cc3fb5fba7a` with no `--types` module.
+- **`nameField`** (M2.5) was added this way: an engine from before it reports E015 for a type file that uses it.
+- **The fixture.** [`packages/compiler/test/fixtures/ludus`](../../packages/compiler/test/fixtures/ludus) is a project made only of data: three types that between them use every kind, each naming its records by `name`, a condition as text and one as a tree, and an asset. It compiles to `34035cc3fb5fba7a` with no `--types` module; `nameField` changed nothing in its pack, which holds records only.
 
 ## Open questions
 
-1. **A record's name in lists.** Lists and pickers show ids. A type could name the field that names its records (`"label": "name"`). Decide with M2.5's tables.
+1. **A record's name in lists.** Settled in M2.5: `nameField` (above, D32).
 2. **Colours with alpha.** The platform's colour picker has none, so `colour` is six hex digits. Add `#rrggbbaa` when a game needs see-through colours.
 3. **A required field added to a type** leaves every existing record missing it: an E001 on each. With no defaults, M2.6's type designer should offer to fill existing records when it adds one.
 4. **Renaming a type or a field** moves nothing: records keep the old key, which forms offer to remove. M2.6 decides whether renames rewrite records.

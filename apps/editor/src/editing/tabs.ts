@@ -5,7 +5,8 @@
  * refusal when the editing tab can't save first.
  */
 export type TabMessage =
-  | { readonly kind: 'saved'; readonly lock: string }
+  /** `paths` are the files the save wrote; an editor from before M2.5 leaves them out. */
+  | { readonly kind: 'saved'; readonly lock: string; readonly paths?: readonly string[] }
   | { readonly kind: 'hand-over'; readonly lock: string }
   | { readonly kind: 'refused'; readonly lock: string; readonly reason: string };
 

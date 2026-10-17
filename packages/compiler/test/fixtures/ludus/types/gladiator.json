@@ -1,6 +1,7 @@
 {
   "title": "Gladiator",
   "description": "A fighter of the arena.",
+  "nameField": "name",
   "fields": {
     "name": {
       "kind": "text",

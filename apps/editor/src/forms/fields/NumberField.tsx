@@ -1,5 +1,5 @@
 import type { ValueDef } from '@eb/schema';
-import { useId } from 'preact/hooks';
+import { useUniqueId } from '../../app/ids.ts';
 import { useDraft } from '../../editing/draft.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell, type Problem } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
@@ -21,7 +21,7 @@ export const inputMode = (def: NumberDef) =>
  */
 export function NumberField({ label, def, info, path, value, quietLabel }: FieldProps<NumberDef>) {
   const form = useForm();
-  const id = useId();
+  const id = useUniqueId();
   const draft = useDraft(typeof value === 'number' ? String(value) : asWritten(value));
   const typed = draft.shown;
   const empty = typed.trim() === '';
@@ -48,7 +48,7 @@ export function NumberField({ label, def, info, path, value, quietLabel }: Field
         type="text"
         inputMode={inputMode(def)}
         autoComplete="off"
-        data-project-field
+        data-project-field={form.ownUndo ? undefined : true}
         value={typed}
         readOnly={!form.canEdit}
         aria-invalid={shown.length > 0 ? 'true' : undefined}

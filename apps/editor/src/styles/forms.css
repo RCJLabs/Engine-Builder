@@ -284,3 +284,32 @@ textarea.form-input {
   font-size: 1.05rem;
   overflow-wrap: anywhere;
 }
+
+/* M2.5: a ref field's Open beside its picker button. */
+.form-pick-row {
+  display: flex;
+  gap: 6px;
+}
+
+.form-pick-row .form-pick {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.form-open {
+  flex: none;
+}
+
+/* M2.5: what refers to the record, below its fields. */
+.used-by h4 {
+  margin: 4px 0 6px;
+  font-size: 1rem;
+}
+
+.used-by-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

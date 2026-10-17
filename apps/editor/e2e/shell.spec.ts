@@ -14,9 +14,9 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
     expect(await visiblePanels(page)).toEqual(['world']);
 
-    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other four.
+    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other five.
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveText(['World', 'Project', 'Logic', 'Play']);
+    await expect(tabs).toHaveText(['World', 'Project', 'Records', 'Logic', 'Play']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 
@@ -42,9 +42,10 @@ test.describe('phone landscape 844×390', () => {
     const errors = watchErrors(page);
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'tablet');
-    expect(await visiblePanels(page)).toEqual(['world', 'inspector']);
+    // The Records panel leads the main zone (M2.5); the World panel waits for Phase 4.
+    expect(await visiblePanels(page)).toEqual(['records', 'inspector']);
     await page.getByRole('tab', { name: 'Project' }).tap();
-    expect(await visiblePanels(page)).toEqual(['world', 'project']);
+    expect(await visiblePanels(page)).toEqual(['records', 'project']);
     await expectNothingOffscreen(page);
     await expectNoAxeIssues(page);
     expect(errors).toEqual([]);
@@ -59,7 +60,7 @@ test.describe('desktop 1280×800', () => {
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
     await expect(page.locator('.dock-host')).toHaveAttribute('data-dock', 'docked');
-    expect(await visiblePanels(page)).toEqual(['project', 'world', 'inspector']);
+    expect(await visiblePanels(page)).toEqual(['project', 'records', 'inspector']);
     await expect(page.locator('.console')).toContainText('Engine-Builder');
 
     // dockview's tabs activate by hand: the arrows move focus and Enter shows the panel.
@@ -68,7 +69,7 @@ test.describe('desktop 1280×800', () => {
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Logic' })).toBeFocused();
     await page.keyboard.press('Enter');
-    expect(await visiblePanels(page)).toEqual(['logic', 'world', 'inspector']);
+    expect(await visiblePanels(page)).toEqual(['logic', 'records', 'inspector']);
 
     await expectNothingOffscreen(page);
     await expectNoAxeIssues(page);
@@ -105,7 +106,7 @@ test.describe('desktop 1280×800', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
     // The dock's own chunk came from the cache too, or the fixed zones would stand in.
     await expect(page.locator('.dock-host')).toHaveAttribute('data-dock', 'docked');
-    await expect(page.getByRole('heading', { name: 'World' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Records' })).toBeVisible();
     await context.setOffline(false);
     expect(errors).toEqual([]);
   });

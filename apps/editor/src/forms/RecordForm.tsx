@@ -1,8 +1,12 @@
 import { pointerSegment } from '@eb/core';
 import type { DataType, Diagnostic } from '@eb/schema';
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { type OpenProject, revision } from '../projects/opened.ts';
+import { duplicateRecord } from '../records/actions.ts';
+import { NameRecord } from '../records/NameRecord.tsx';
+import { copyName, nameIn, namesOf } from '../records/names.ts';
+import { UsedBy } from '../records/UsedBy.tsx';
 import { recordFile } from './catalog.ts';
 import { FieldView } from './FieldView.tsx';
 import { type FormApi, FormContext, pointerOf } from './formContext.ts';
@@ -36,7 +40,7 @@ export function RecordForm({ project, type, id }: { project: OpenProject; type: 
   const broken = project.catalog.broken.get(type);
   if (!data) {
     return (
-      <Notice title={type} id={id} file={file}>
+      <Notice project={project} type={type} title={type} id={id} file={file}>
         {broken
           ? `Its type file has a problem, so it can’t be edited here until that is fixed: ${broken.file}: ${broken.message}`
           : `There is no types/${type}.json, so this record can’t be checked or edited here.`}
@@ -46,14 +50,14 @@ export function RecordForm({ project, type, id }: { project: OpenProject; type: 
   if (loaded === null) return null;
   if (loaded.kind === 'missing') {
     return (
-      <Notice title={data.file.title} id={id}>
+      <Notice project={project} type={type} title={data.file.title} id={id}>
         This record isn’t there any more: it was undone or deleted.
       </Notice>
     );
   }
   if (loaded.kind === 'unreadable') {
     return (
-      <Notice title={data.file.title} id={id} file={file}>
+      <Notice project={project} type={type} title={data.file.title} id={id} file={file}>
         {`${file} can’t be read, so it can’t be edited here: ${loaded.message}`}
       </Notice>
     );
@@ -61,33 +65,80 @@ export function RecordForm({ project, type, id }: { project: OpenProject; type: 
   return <Form project={project} data={data} id={id} value={loaded.value} />;
 }
 
-function Notice(props: { title: string; id: string; file?: string; children: string }) {
+function Notice(props: {
+  project: OpenProject;
+  type: string;
+  title: string;
+  id: string;
+  file?: string;
+  children: string;
+}) {
+  const { project, type, title, id, file, children } = props;
   return (
-    <section class="record-form" aria-label={`${props.title} ${props.id}`}>
-      <RecordHead title={`${props.title}: ${props.id}`} id={props.id} file={props.file} />
-      <p class="muted">{props.children}</p>
+    <section class="record-form" aria-label={`${title} ${id}`}>
+      <RecordHead title={`${title}: ${id}`} id={id} file={file} />
+      <p class="muted">{children}</p>
+      {/* A record that is gone may still be referred to: its users are where to look. */}
+      <UsedBy project={project} type={type} id={id} />
     </section>
   );
 }
 
-/** The record's name, and Delete: a step like any edit, which undo brings back. */
-function RecordHead({ title, id, file }: { title: string; id: string; file?: string | undefined }) {
+/**
+ * The record's name, Duplicate (M2.5) and Delete: each a step like any edit, which undo takes
+ * back. Duplicate asks for the copy's name, as New does.
+ */
+function RecordHead(props: { title: string; id: string; file?: string | undefined; copy?: Copying }) {
+  const { title, id, file, copy } = props;
   const canEdit = editing.access.value.kind === 'editing';
+  const [naming, setNaming] = useState(false);
+  const duplicate = useRef<HTMLButtonElement>(null);
   return (
-    <header class="record-head">
-      <h3>{title}</h3>
-      {file ? (
-        <button
-          type="button"
-          class="button danger"
-          disabled={!canEdit}
-          onClick={() => void editing.edit(`Delete ${id}`, (copy) => deleteRecordFile(copy, file))}
-        >
-          Delete
-        </button>
+    <>
+      <header class="record-head">
+        <h3>{title}</h3>
+        {copy && canEdit ? (
+          <button ref={duplicate} type="button" class="button" onClick={() => setNaming(true)}>
+            Duplicate
+          </button>
+        ) : null}
+        {file ? (
+          <button
+            type="button"
+            class="button danger"
+            disabled={!canEdit}
+            onClick={() => void editing.edit(`Delete ${id}`, (c) => deleteRecordFile(c, file))}
+          >
+            Delete
+          </button>
+        ) : null}
+      </header>
+      {naming && copy ? (
+        <NameRecord
+          type={copy.data.type}
+          ids={copy.ids}
+          label={`Name of the copy of ${id}`}
+          action="Duplicate"
+          initial={copyName(copy.name ?? id, copy.ids)}
+          done={(to, typed) => {
+            setNaming(false);
+            duplicateRecord(copy.data, id, to, typed);
+          }}
+          cancel={() => {
+            setNaming(false);
+            duplicate.current?.focus();
+          }}
+        />
       ) : null}
-    </header>
+    </>
   );
+}
+
+/** What Duplicate needs: the record's type, the ids taken, and its name, if it has one. */
+interface Copying {
+  readonly data: DataType;
+  readonly ids: readonly string[];
+  readonly name: string | undefined;
 }
 
 function Form({ project, data, id, value }: { project: OpenProject; data: DataType; id: string; value: unknown }) {
@@ -103,6 +154,7 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   const api: FormApi = {
     canEdit,
     catalog,
+    names: namesOf(project.index, catalog),
     typeFile,
     id,
     problemsAt: (pointer) => routed.get(pointer) ?? [],
@@ -128,7 +180,12 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   return (
     <FormContext.Provider value={api}>
       <section class="record-form" aria-label={`${typeFile.title} ${id}`}>
-        <RecordHead title={`${typeFile.title}: ${id}`} id={id} file={file} />
+        <RecordHead
+          title={`${typeFile.title}: ${id}`}
+          id={id}
+          file={file}
+          copy={{ data, ids: catalog.records.get(type) ?? [], name: nameIn(typeFile, value) }}
+        />
         {typeFile.description ? <p class="muted">{typeFile.description}</p> : null}
         <RecordProblems
           problems={top}
@@ -146,6 +203,7 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
             value={typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined}
           />
         ))}
+        <UsedBy project={project} type={type} id={id} />
       </section>
     </FormContext.Provider>
   );

@@ -16,6 +16,12 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     summary: 'Create, open and back up projects. A project is a folder of git-friendly JSON files.',
     coming: ['New project from a template', 'Records and assets browsers'],
   },
+  records: {
+    label: 'Records',
+    phase: 'Phase 2',
+    summary: 'Every record of a type in a table: sort, search, filter, and change many at once.',
+    coming: ['Renaming a record and what refers to it'],
+  },
   world: {
     label: 'World',
     phase: 'Phases 4–7',
@@ -30,7 +36,7 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     label: 'Inspector',
     phase: 'Phase 2',
     summary: 'Edit whatever is selected, with forms built from each record type’s schema.',
-    coming: ['Effect builders (Phase 3)', '“Used by” for every record (M2.5)'],
+    coming: ['Effect builders (Phase 3)'],
   },
   logic: {
     label: 'Logic',

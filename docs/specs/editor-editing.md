@@ -121,6 +121,9 @@ Folders open to be read (M2.1). Changing one waits for a tap on **Allow changes*
   - That tab's lock request fails with an `AbortError`, so it stops saving and drops its unsaved edits, and says so when it wakes.
   - Stealing can't be combined with taking a lock only if it is free, which is why Take over is a second step, never the first.
 - **Read-only tabs follow** each save the editing tab announces. This comes from who-am-i-'s answers store, which reloads when another tab says it changed the data.
+  - Since M2.5 the announcement names the files the save wrote, so a read-only tab reads only those again: its record index re-reads a few files, not every record ([editor-tables.md](editor-tables.md#the-record-index)). One from an older editor names none, and the tab reads everything.
+  - A tab reads everything again when it stops editing and drops its unsaved edits, when it takes over, and when it comes back from the back/forward cache with another tab still editing, since saves made while it was away went unheard.
+  - Opening reads the project once: the editing layer asks for another read as it starts only when it finished a save cut short.
 - **Deleting** a project needs its lock, so a project open for editing elsewhere stays.
 - **Without Web Locks**, editing works without the guard, and the console says so.
 

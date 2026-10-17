@@ -1,6 +1,7 @@
 import type { TargetedKeyboardEvent } from 'preact';
-import { useId, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { type Command, matchCommands, stepActive } from '../app/commands.ts';
+import { useUniqueId } from '../app/ids.ts';
 
 export interface Choice {
   /** What choosing it writes. */
@@ -28,7 +29,7 @@ export function Picker(props: {
   const { title, choices, current, empty, choose, close } = props;
   const dialog = useRef<HTMLDialogElement>(null);
   const field = useRef<HTMLInputElement>(null);
-  const base = useId();
+  const base = useUniqueId();
   const { query, type, matches, chosen, take, setActive, onKeyDown } = useCombo(choices, choose, () =>
     dialog.current?.close(),
   );

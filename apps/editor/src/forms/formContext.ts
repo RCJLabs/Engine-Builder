@@ -13,7 +13,14 @@ import type { Path } from './values.ts';
 
 export interface FormApi {
   readonly canEdit: boolean;
+  /**
+   * The value is the form's own, in no file yet, as a bulk edit's is (M2.5): its boxes keep the
+   * browser's undo for their text, since the editor's would undo a step the form never made.
+   */
+  readonly ownUndo?: boolean;
   readonly catalog: Catalog;
+  /** Records' names by "type:id", for pickers to show beside ids (M2.5). */
+  readonly names?: (key: string) => string | undefined;
   readonly typeFile: TypeFile;
   readonly id: string;
   problemsAt(pointer: string): readonly Diagnostic[];
