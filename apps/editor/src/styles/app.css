@@ -1,0 +1,369 @@
+/* Engine-Builder editor shell. Layout keys off [data-layout], which src/app/layout.ts sets from
+   its breakpoints, so there is one source for where phone, tablet and desktop begin. */
+
+:root {
+  color-scheme: dark light;
+  --bg: #14161a;
+  --surface: #1d2026;
+  --surface-2: #262a31;
+  --line: #343a43;
+  --text: #e8eaed;
+  --muted: #a9b0ba;
+  --accent: #6cb4ff;
+  --accent-ink: #0b1a2b;
+  --focus: #ffd166;
+  --radius: 10px;
+  --tap: 44px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  font:
+    15px / 1.45 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface-2: #eceef2;
+    --line: #d3d8de;
+    --text: #16181d;
+    --muted: #4a515c;
+    --accent: #0b5fc1;
+    --accent-ink: #ffffff;
+    --focus: #a34f00;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* The page never scrolls; each zone scrolls on its own. */
+body {
+  overflow: hidden;
+}
+
+#app {
+  height: 100dvh;
+}
+
+.shell {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.stamp {
+  font: 12px / 1 var(--mono);
+  color: var(--muted);
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.zones {
+  min-height: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+}
+
+[data-layout="desktop"] .zones {
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(260px, 320px);
+}
+
+[data-layout="tablet"] .zones {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+}
+
+[data-layout="phone"] .zones {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.zone {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.zone-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.tab {
+  min-height: var(--tap);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tab-icon {
+  flex: none;
+}
+
+[data-layout="desktop"] .tab-icon,
+[data-layout="tablet"] .tab-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Phone: the one zone's tabs become a bottom bar, icon over label, clear of the home indicator. */
+[data-layout="phone"] .zone[data-zone="only"] .tabs {
+  order: 2;
+  gap: 0;
+  padding: 4px 4px calc(4px + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+  overflow: visible;
+}
+
+[data-layout="phone"] .tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 56px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 2px;
+  font-size: 12px;
+}
+
+[data-layout="phone"] .tab[aria-selected="true"] {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.tab:focus-visible,
+.button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.panel {
+  max-width: 62ch;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.badge {
+  padding: 3px 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.coming {
+  padding-left: 1.2em;
+  color: var(--muted);
+}
+
+.coming li {
+  margin: 4px 0;
+}
+
+.build {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 20px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.build dt {
+  font-weight: 600;
+}
+
+.build dd {
+  margin: 0;
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.console {
+  display: flex;
+  flex-direction: column;
+  max-height: 132px;
+  padding-bottom: var(--safe-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+/* A phone on its side has little height to spare. */
+@media (max-height: 500px) {
+  .console {
+    max-height: 84px;
+  }
+}
+
+.console-title {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.console-lines {
+  margin: 0;
+  padding: 0 12px 8px;
+  overflow: auto;
+  list-style: none;
+  font: 12px / 1.5 var(--mono);
+}
+
+.console-lines time {
+  margin-right: 6px;
+  color: var(--muted);
+}
+
+.toast {
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  bottom: calc(16px + var(--safe-bottom));
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 24px));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+}
+
+[data-layout="phone"] .toast {
+  bottom: calc(76px + var(--safe-bottom));
+}
+
+.toast p {
+  flex: 1 1 240px;
+  margin: 0;
+}
+
+.toast-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.button {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 16px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.button.primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tab,
+  .button {
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+}

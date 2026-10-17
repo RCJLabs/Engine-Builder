@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Engine-Builder</title>
+  <rect width="512" height="512" rx="96" fill="#14161a"/>
+  <g transform="translate(256 256)">
+    <polygon points="0,-150 130,-75 0,0 -130,-75" fill="#8cc6ff"/>
+    <polygon points="-130,-75 0,0 0,150 -130,75" fill="#3d7fd1"/>
+    <polygon points="130,-75 0,0 0,150 130,75" fill="#24508a"/>
+    <path d="M-130,-75 L0,0 L130,-75 M0,0 L0,150" fill="none" stroke="#14161a" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

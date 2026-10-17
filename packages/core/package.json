@@ -1,0 +1,16 @@
+{
+  "name": "@eb/core",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Pure simulation kernel: no DOM, no clock, no Math.random. Runs the same in every browser, Node and workers.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "eb": {
+    "pure": true
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}
