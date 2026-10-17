@@ -1,0 +1,10 @@
+{
+  "//": "Runs in the editor (browser) and the CLI (Node), so it uses neither platform's types. Not eb.pure: it imports zod.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

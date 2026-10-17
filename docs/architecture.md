@@ -94,10 +94,13 @@ Records are Bethesda's "forms": typed data with stable ids.
 - **Base records** come from modules and kits: item, actor, faction, loot table, event, quest, dialogue tree, location, encounter, shop, and dial (a tunable number plus the reason for it).
 - **Custom record types** are defined in the editor as fields and become a zod schema. This covers the data unique to a game: football players, gladiators, cards.
 - **References.**
-  - A record field can point at another record (`{ "ref": "item.medkit" }`). The compiler checks every reference, and the editor shows "used by".
+  - A record field can point at another record. It holds the bare id when the field names one type (`"drops": "dead-hauler"`), and `type:id` when it allows several (`"target": "item:medkit"`). Validation checks every reference and builds the index behind the editor's "used by" ([specs/records.md](specs/records.md)).
   - In scenes, a placed reference is an instance of a base record with overrides: position, a different inventory, a quest alias.
 - **Text fields** hold the default-language string. Phase 8 extracts them into string tables keyed by record path, so nobody manages string keys by hand.
-- **Schemas and diagnostics.** Schemas are zod in `packages/schema` and are exported as JSON Schema for autocomplete. Diagnostics carry a code (`E001`, `W101`), the file and the field path.
+- **Schemas and diagnostics.**
+  - Schemas are strict zod in `packages/schema`, mirroring types declared in pure code, and are exported as JSON Schema for autocomplete.
+  - Diagnostics carry a code (`E001`, later `W101`), the file and a JSON Pointer to the field.
+  - At runtime the sim reads compiled records through `@eb/core`'s record store and never imports zod.
 
 ## Conditions and effects
 

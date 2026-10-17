@@ -161,6 +161,27 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 
 **Changing a golden** changes every golden built on this format, so it needs a new decision.
 
+### D20. Records: kebab-case ids unique per type, bare or qualified references, strict zod schemas, stable diagnostic codes. LOCKED, 2026-10-17 (M1.3)
+
+**Decision.**
+- Record ids and type names are kebab-case and 1 to 64 characters long. An id is unique within its type, and a record's JSON doesn't repeat its own id or type ([specs/records.md](specs/records.md)).
+- A field that points at one type holds the bare id (`"drops": "dead-hauler"`). A field that allows several types holds `"type:id"`.
+- Record types are TypeScript types in pure code. Their schemas are zod in `@eb/schema`, annotated `z.ZodType<T>`, and the sim never imports zod.
+- Every object in a record schema is strict. Defaults, transforms, `any` and `unknown` are refused when a type is defined.
+- Diagnostic codes are never renumbered or reused.
+
+**Why.**
+- Kebab-case ids are safe file names on every OS and in URLs, and they read cleanly in hand-written JSON and in text forms such as `inventory.count(medkit)`.
+- Bare ids keep the common case short. The qualified form is needed only where a field allows several types.
+- Mirroring pure types as `z.ZodType<T>` comes from chooser-of-the-dead: drift between the two is a type error. Strict objects, JSON Schema export and coded diagnostics come from who-am-i-.
+- A strict object turns a misspelled field into an error instead of dropping it silently.
+- The editor, CLI output and people's notes refer to the codes, so the codes behave like save keys.
+
+**Cost.**
+- Renaming an id means rewriting every reference to it. The editor's rename (M2) can do that from `usedBy`.
+- Adding a field to content needs a schema change first. That is the point, but it is friction.
+- The schema walker reads zod 4.6.7's internals (`_zod.def`). zod stays pinned, and an upgrade must pass the walker's tests and the planted bugs again.
+
 ---
 
 ## Open

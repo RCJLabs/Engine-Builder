@@ -1,0 +1,17 @@
+{
+  "name": "@eb/schema",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Record types: zod schemas, validation with coded diagnostics, and JSON Schema export.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*",
+    "zod": "4.6.7"
+  }
+}

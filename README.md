@@ -59,6 +59,7 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 ```
 apps/editor            the editor PWA (Preact + signals, Vite, vite-plugin-pwa)
 packages/core          the pure simulation kernel (no DOM, clock or Math.random)
+packages/schema        record types as strict zod schemas, validation with coded diagnostics, JSON Schema export
 tools/lint-boundaries  the purity lint for packages marked "eb": { "pure": true }
 docs/                  architecture, decisions, research
 ```

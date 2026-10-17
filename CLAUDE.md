@@ -54,7 +54,9 @@ apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console
   src/pwa/             service worker registration and the update gate
   e2e/                 Playwright specs
-packages/core/         pure kernel (eb.pure)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store
+packages/schema/       record types (strict zod), validation with E-codes, JSON Schema export; not pure
+  test/samples.ts      sample record types the tests share
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```
