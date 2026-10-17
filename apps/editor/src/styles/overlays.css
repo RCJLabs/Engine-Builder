@@ -1,0 +1,154 @@
+/* M2.2's overlays: the top bar's palette button, the command palette, and the phone's inspector
+   sheet. They load with the shell on every layout, since the palette works everywhere. */
+
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* At 360 px the stamp gives way first, so the brand and the palette button always fit. */
+.topbar-end .stamp {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon-button {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.icon-button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The palette sits near the top, where a phone's on-screen keyboard is least likely to cover it. */
+.palette {
+  width: min(560px, calc(100% - 24px));
+  max-width: none;
+  max-height: min(480px, calc(100% - 72px - var(--safe-top)));
+  margin: calc(56px + var(--safe-top)) auto auto;
+  padding: 12px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.45);
+}
+
+/* Set only when open, or the closed dialog would show: the browser hides it with display none. */
+.palette[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.palette::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.palette-field {
+  flex: none;
+  width: 100%;
+}
+
+.palette-options {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.palette-option {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 12px;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.palette-option[aria-selected="true"] {
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+.palette-empty {
+  margin: 4px 12px 8px;
+}
+
+/* Phone: the inspector's sheet sits between the panel and the tab bar. Shut, it is its 44 px
+   handle; open, it takes most of the zone and the panel above keeps a strip. */
+.sheet {
+  order: 1;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -6px 20px rgb(0 0 0 / 0.25);
+}
+
+.sheet[data-open="true"] {
+  flex-basis: 60%;
+}
+
+.sheet-handle {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: 12px 12px 0 0;
+  cursor: pointer;
+}
+
+.sheet-handle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.sheet-grip {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--muted);
+}
+
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 16px 16px;
+}
+
+.sheet-body:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}

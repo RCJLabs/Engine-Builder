@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  dockview-core: 8.5.1
+
 importers:
 
   .:
@@ -44,6 +47,9 @@ importers:
       '@preact/signals':
         specifier: 2.11.3
         version: 2.11.3(preact@11.0.1)
+      dockview:
+        specifier: 8.5.1
+        version: 8.5.1
       preact:
         specifier: 11.0.1
         version: 11.0.1
@@ -139,6 +145,8 @@ importers:
         version: 0.8.3
 
   tools/lint-boundaries: {}
+
+  tools/site-check: {}
 
 packages:
 
@@ -1414,6 +1422,12 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
+
+  dockview-core@8.5.1:
+    resolution: {integrity: sha512-lUNJj4uvE36ks59pMeLeinzvVr0EVkGiA/c1kuUdR2V49CAIGx+bhiu0FuZNh8iqcggu/5h1v1U0KC0JrUuPSw==}
+
+  dockview@8.5.1:
+    resolution: {integrity: sha512-ThlNLXBHP1TBMlsAXTWvoJl17nPYVO8WTtUMyoGf15K6DBCRnoKPzIcISlWben9XBx99txUfSjkVBZ9szGA9iQ==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -3720,6 +3734,12 @@ snapshots:
       object-keys: 1.1.1
 
   detect-libc@2.1.2: {}
+
+  dockview-core@8.5.1: {}
+
+  dockview@8.5.1:
+    dependencies:
+      dockview-core: 8.5.1
 
   dom-serializer@2.0.0:
     dependencies:

@@ -5,6 +5,8 @@
  */
 export type Layout = 'phone' | 'tablet' | 'desktop';
 export type PanelId = 'project' | 'world' | 'inspector' | 'logic' | 'play';
+/** Desktop docks the console too; tablet shows it as a strip and a phone leaves it out. */
+export type DockPanelId = PanelId | 'console';
 export type ZoneId = 'left' | 'center' | 'right' | 'main' | 'side' | 'only';
 
 /** Widths in CSS pixels at which the next layout starts. */
@@ -24,10 +26,20 @@ export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly Pan
     { zone: 'main', panels: ['world', 'play'] },
     { zone: 'side', panels: ['inspector', 'project', 'logic'] },
   ],
-  phone: [{ zone: 'only', panels: ['world', 'project', 'inspector', 'logic', 'play'] }],
+  phone: [{ zone: 'only', panels: ['world', 'project', 'logic', 'play'] }],
 };
 
+/** The panel each layout shows in a bottom sheet over its zones: on a phone, the inspector, so it sits over what it inspects. */
+export const SHEET: Record<Layout, PanelId | null> = { desktop: null, tablet: null, phone: 'inspector' };
+
+/** Desktop's dock: the zones' groups side by side, then the console along the bottom (M2.2). */
+export const DOCK_PANELS: readonly DockPanelId[] = [...ZONES.desktop.flatMap((zone) => zone.panels), 'console'];
+
 export type ActiveTabs = Partial<Record<ZoneId, PanelId>>;
+
+/** The page ids of a zone's tab and tab panel, shared by the zone and the palette's Show commands. */
+export const zoneTabId = (zone: ZoneId, panel: PanelId) => `tab-${zone}-${panel}`;
+export const zonePanelId = (zone: ZoneId, panel: PanelId) => `panel-${zone}-${panel}`;
 
 /** The panel showing in a zone: the one chosen there, else the zone's first. */
 export function activePanel(layout: Layout, zone: ZoneId, active: ActiveTabs): PanelId {

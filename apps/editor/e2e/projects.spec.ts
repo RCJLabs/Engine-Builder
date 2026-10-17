@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
 import { readFixture } from '../../../packages/compiler/test/fixture.ts';
-import { expectNoSeriousAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
+import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 
 const REPO = resolve(import.meta.dirname, '../../..');
 const FIXTURE = join(REPO, 'packages/compiler/test/fixtures/v1');
@@ -49,6 +49,12 @@ async function createProject(page: Page, name: string): Promise<void> {
   await expect(page.getByRole('region', { name: 'Open project' }).getByRole('heading', { name })).toBeVisible();
 }
 
+/** Answers the browser's file picker, opened by the Import button or the palette, with a file. */
+async function pickFile(page: Page, path: string, open: () => Promise<void>): Promise<void> {
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), open()]);
+  await chooser.setFiles(path);
+}
+
 const rows = (page: Page) => page.getByRole('list', { name: 'Projects in this browser' }).getByRole('listitem');
 
 test.describe('projects, desktop 1280×800', () => {
@@ -72,7 +78,7 @@ test.describe('projects, desktop 1280×800', () => {
   test('imports a zip and exports the same files, which the CLI reads to the same hash', async ({ page }) => {
     const errors = watchErrors(page);
     await page.goto('./');
-    await page.getByLabel('Zip to import').setInputFiles(osZip());
+    await pickFile(page, osZip(), () => page.getByRole('button', { name: 'Import zip' }).click());
     const open = page.getByRole('region', { name: 'Open project' });
     await expect(open.getByRole('heading', { name: 'Salvage Run' })).toBeVisible();
     await expect(open).toContainText('4 records in 3 types');
@@ -94,12 +100,20 @@ test.describe('projects, desktop 1280×800', () => {
     expect(errors).toEqual([]);
   });
 
-  test('says so when a file isn’t a zip', async ({ page }) => {
+  test('says so when a file isn’t a zip, picked from the palette', async ({ page }) => {
     await page.goto('./');
     const notZip = join(scratch, 'notes.zip');
     writeFileSync(notZip, 'not a zip at all');
-    await page.getByLabel('Zip to import').setInputFiles(notZip);
-    await expect(page.getByRole('alert')).toHaveText('notes.zip isn’t a zip this editor can read.');
+    // The palette closes before the picker opens: a modal dialog leaves the input outside it inert.
+    await pickFile(page, notZip, async () => {
+      await page.keyboard.press('Control+k');
+      await page.keyboard.type('import zip');
+      await page.keyboard.press('Enter');
+    });
+    // Scoped to the panel: on desktop the dock keeps a live region of its own with the alert role.
+    await expect(page.locator('[data-panel="project"]').getByRole('alert')).toHaveText(
+      'notes.zip isn’t a zip this editor can read.',
+    );
     await expect(page.getByText('No projects yet.')).toBeVisible();
   });
 
@@ -189,14 +203,8 @@ for (const [width, height] of [
       await rows(page).first().getByRole('button', { name: 'Delete' }).tap();
       await expect(page.getByRole('button', { name: 'Keep' })).toBeVisible();
       await expectNothingOffscreen(page);
-      const small = await page.locator('[data-panel="project"] :is(button, input):visible').evaluateAll((els) =>
-        els
-          .map((el) => ({ name: el.textContent || el.id, box: el.getBoundingClientRect() }))
-          .filter(({ box }) => box.width < 44 || box.height < 44)
-          .map(({ name, box }) => `${name} ${Math.round(box.width)}×${Math.round(box.height)}`),
-      );
-      expect(small, 'touch targets under 44 px').toEqual([]);
-      await expectNoSeriousAxeIssues(page);
+      expect(await smallTargets(page, '[data-panel="project"]'), 'touch targets under 44 px').toEqual([]);
+      await expectNoAxeIssues(page);
       expect(errors).toEqual([]);
     });
   });

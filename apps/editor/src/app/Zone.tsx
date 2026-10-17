@@ -1,12 +1,19 @@
 import type { TargetedKeyboardEvent } from 'preact';
+import { InspectorSheet } from './InspectorSheet.tsx';
 import { PanelIcon } from './icons.tsx';
-import { activePanel, neighbourTab, type PanelId, ZONES, type ZoneId } from './layout.ts';
+import {
+  activePanel,
+  neighbourTab,
+  type PanelId,
+  zonePanelId as panelId,
+  SHEET,
+  zoneTabId as tabId,
+  ZONES,
+  type ZoneId,
+} from './layout.ts';
 import { Panel } from './Panel.tsx';
 import { PANELS } from './panels.ts';
 import { activeTabs, layout } from './state.ts';
-
-const tabId = (zone: ZoneId, panel: PanelId) => `tab-${zone}-${panel}`;
-const panelId = (zone: ZoneId, panel: PanelId) => `panel-${zone}-${panel}`;
 
 /** One zone of the shell: a tab strip (when it holds more than one panel) and the active panel. */
 export function Zone({ zone }: { zone: ZoneId }) {
@@ -55,6 +62,8 @@ export function Zone({ zone }: { zone: ZoneId }) {
       </div>
     ) : null;
 
+  // A layout with a sheet keeps it in its first zone, between the panel and the tab bar.
+  const sheet = SHEET[current] && ZONES[current][0]?.zone === zone ? <InspectorSheet /> : null;
   return (
     <div class="zone" data-zone={zone}>
       {tabs}
@@ -75,6 +84,7 @@ export function Zone({ zone }: { zone: ZoneId }) {
           <Panel id={active} />
         </section>
       )}
+      {sheet}
     </div>
   );
 }

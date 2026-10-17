@@ -384,6 +384,33 @@ Its JSON events, quests and contracts are the cleanest existing content data, so
 - **A short outage at the switch:** the site is broken between setting the domain and the deploy of the `/` base path.
 - **An installed copy at the old address** keeps serving its cached version, because its service worker can't update through the redirect. Reinstall from the new address.
 
+### D29. Editor layout: dockview on desktop only, a saved layout that follows the default until changed, the phone's inspector in a sheet, and one command palette. LOCKED, 2026-10-17 (M2.2)
+
+**Decision.**
+- **Desktop (1,024 px and up) docks its panels with dockview 8.5.1**, the framework-free package. `dockview-core` is pinned to the same release by an override. It loads when the desktop layout first renders, and if it can't load, the fixed desktop zones stand in.
+- **The layout is saved per browser** in `localStorage` under `eb-editor:dock-layout`, as `{format: 1, layout}`, 300 ms after a change.
+  - Nothing is saved until the first change, and Reset forgets the saved layout, so an untouched dock follows the editor's default.
+  - A layout that can't be given back whole is passed over for the default, never repaired.
+- **On a phone, the inspector is a sheet** between the panel and the tab bar, not a tab. Shut, it is a 44 px handle; open, it takes 60% of the zone.
+- **One command palette** on every layout: a native modal `<dialog>` with the WAI-ARIA combobox pattern, opened by a 44 px top-bar button or Ctrl/⌘+K.
+- **The deploy check loads the live page's files**, not only `version.json` (`tools/site-check`).
+
+The spec is [specs/editor-layout.md](specs/editor-layout.md).
+
+**Why.**
+- **dockview has no dependencies** and brings its own keyboard and ARIA support: labelled regions, tablists and live announcements. With label-only tabs and plain panel bodies, axe finds nothing on the dock at any impact.
+- **Desktop only, loaded late.** A phone never runs the dock's 80.6 kB of gzipped JS and 10.9 kB of CSS, which is more than the rest of the editor (53.5 kB).
+- **Following the default** lets a better default reach everyone who never moved a panel. Saving the first layout would freeze it.
+- **A sheet keeps the thing being inspected in view.** A tab would replace it.
+- **A palette** reaches every command from the keyboard and from a thumb. Later milestones add commands to it instead of adding buttons.
+- **The deploy check** catches what `version.json` can't: a page whose scripts don't load, such as a build for the wrong base path (D28).
+
+**Cost.**
+- **Size.** Every install caches the dock, phones included (about 92 kB gzipped), because a tablet can turn into a desktop while offline. The precache grew from 195.5 KiB to 668.1 KiB, raw.
+- **A dependency** at the centre of the editor's desktop. The override keeps its upgrades deliberate.
+- **Two kinds of tab.** dockview's tabs show a panel on Enter, while the zones' tabs show it as the arrow keys reach it.
+- **A red `main` until the domain is set.** While Pages serves the site under `rcjlabs.github.io/Engine-Builder/`, the `/` build's scripts don't load there, and the deploy check fails. That is the live site's real state.
+
 ---
 
 ## Open

@@ -24,3 +24,19 @@ export function PanelIcon({ panel }: { panel: PanelId }) {
     </svg>
   );
 }
+
+/** The top bar's command palette button: a magnifier, the shape people look for to find a command. */
+export function CommandsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path
+        d="M10.5 4a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM15.2 15.2 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}

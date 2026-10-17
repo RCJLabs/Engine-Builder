@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { canOpenFolders } from '../projects/folders.ts';
 import type { LibraryEntry } from '../projects/library.ts';
+import { pickZip } from '../projects/pickZip.ts';
 import {
   busy,
   deleteStoredProject,
   exportStoredProject,
   folders,
   forgetFolder,
-  importZip,
   library,
   newProject,
   openFolder,
@@ -16,20 +16,26 @@ import {
   storage,
 } from '../projects/session.ts';
 import { sizeText } from '../projects/storage.ts';
+import { naming } from './projectUi.ts';
 
 /** What is stored in this browser and the folders opened lately, with the ways to add more. */
 export function ProjectLibrary() {
-  const [naming, setNaming] = useState(false);
-  const zipInput = useRef<HTMLInputElement>(null);
   const idle = busy.value === null;
   return (
     <>
       <StorageLine />
       <div class="actions">
-        <button type="button" class="button primary" disabled={!idle} onClick={() => setNaming(true)}>
+        <button
+          type="button"
+          class="button primary"
+          disabled={!idle}
+          onClick={() => {
+            naming.value = true;
+          }}
+        >
           New project
         </button>
-        <button type="button" class="button" disabled={!idle} onClick={() => zipInput.current?.click()}>
+        <button type="button" class="button" disabled={!idle} onClick={pickZip}>
           Import zip
         </button>
         {canOpenFolders() ? (
@@ -37,20 +43,14 @@ export function ProjectLibrary() {
             Open folder
           </button>
         ) : null}
-        <input
-          ref={zipInput}
-          type="file"
-          accept=".zip,application/zip"
-          hidden
-          aria-label="Zip to import"
-          onChange={(event) => {
-            const file = event.currentTarget.files?.[0];
-            event.currentTarget.value = '';
-            if (file) void importZip(file);
+      </div>
+      {naming.value ? (
+        <NewProjectForm
+          done={() => {
+            naming.value = false;
           }}
         />
-      </div>
-      {naming ? <NewProjectForm done={() => setNaming(false)} /> : null}
+      ) : null}
       <h3 class="list-title">In this browser</h3>
       {library.value === null ? (
         <p class="muted">Looking…</p>
@@ -107,6 +107,9 @@ function StorageLine() {
 
 function NewProjectForm({ done }: { done: () => void }) {
   const [name, setName] = useState('');
+  const field = useRef<HTMLInputElement>(null);
+  // Whether it came from the button or the palette, the next thing to do is type a name.
+  useEffect(() => field.current?.focus(), []);
   return (
     <form
       class="new-project"
@@ -117,6 +120,7 @@ function NewProjectForm({ done }: { done: () => void }) {
     >
       <label for="new-project-name">Name</label>
       <input
+        ref={field}
         id="new-project-name"
         class="field"
         value={name}

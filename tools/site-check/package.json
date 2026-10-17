@@ -1,0 +1,10 @@
+{
+  "name": "@eb/site-check",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Checks a deployed editor: its page and every file the page loads come from the site, load, and are the right type.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

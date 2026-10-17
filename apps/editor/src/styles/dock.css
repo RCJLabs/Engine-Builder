@@ -1,0 +1,68 @@
+/* The desktop dock (M2.2): dockview's theme variables set from the editor's own colours, so the
+   dock follows the light and dark themes. Loaded with the dock, so only on desktop. */
+
+.dock-host {
+  min-height: 0;
+  height: 100%;
+}
+
+.dockview-theme-eb {
+  --dv-group-view-background-color: var(--bg);
+  --dv-tabs-and-actions-container-background-color: var(--surface);
+  --dv-tabs-and-actions-container-height: var(--tap);
+  --dv-tabs-and-actions-container-font-size: 14px;
+  --dv-activegroup-visiblepanel-tab-background-color: var(--bg);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--surface);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--bg);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--surface);
+  --dv-activegroup-visiblepanel-tab-color: var(--text);
+  --dv-activegroup-hiddenpanel-tab-color: var(--muted);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--text);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--muted);
+  --dv-tab-divider-color: var(--line);
+  --dv-separator-border: var(--line);
+  --dv-paneview-header-border-color: var(--line);
+  --dv-paneview-active-outline-color: var(--accent);
+  --dv-drag-over-background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  --dv-drag-over-border-color: var(--accent);
+  --dv-icon-hover-background-color: var(--surface-2);
+  --dv-sash-color: transparent;
+  --dv-active-sash-color: var(--accent);
+  --dv-tabs-container-scrollbar-color: var(--line);
+  color: var(--text);
+}
+
+.dock-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.dockview-theme-eb .dv-tab:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.dock-panel {
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+}
+
+.dock-panel:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+/* The console fills its panel edge to edge instead of keeping the tablet strip's height. */
+.dock-console {
+  padding: 0;
+  overflow: hidden;
+}
+
+.dock-console .console {
+  max-height: none;
+  height: 100%;
+  border-top: 0;
+}

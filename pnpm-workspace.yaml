@@ -2,3 +2,8 @@ packages:
   - packages/*
   - apps/*
   - tools/*
+
+# dockview asks for dockview-core ^x; pinned to the same release so the docking engine changes
+# only when this file says so.
+overrides:
+  dockview-core: 8.5.1

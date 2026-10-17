@@ -91,7 +91,7 @@ Until GitHub sync (Phase 4), a zip export is the backup the editor can't lose. O
   - a non-zip is refused;
   - a folder opens (the picker is replaced, since a native dialog can't be driven), is copied in, and is remembered after a reload;
   - every script the build made is in the service worker's cache, the writer's worker included, and a project can be stored offline. Playwright's offline mode doesn't reach a dedicated worker's script, which loaded from the server even when left out of the cache, so the test reads the cache itself;
-  - the panel fits 360, 390 and 844 px wide, with 44 px targets and no serious axe issues.
+  - the panel fits 360, 390 and 844 px wide, with 44 px targets and no axe issues (serious ones only, until M2.2 counted every impact).
 
 ## Open questions
 
