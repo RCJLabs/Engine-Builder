@@ -1,0 +1,6 @@
+{
+  "name": "Rook",
+  "carries": { "medkit": 2 },
+  "drops": "dead-hauler",
+  "hands": [null, "salvage"]
+}

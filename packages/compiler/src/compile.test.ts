@@ -1,0 +1,211 @@
+import { canonicalJson, createRecordStore, readPack } from '@eb/core';
+import { DIAGNOSTIC_CODES, type Diagnostic } from '@eb/schema';
+import fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
+import { sampleTypes } from '../../schema/test/samples.ts';
+import { FIXTURE_V1, readFixture } from '../test/fixture.ts';
+import { compileProject, memorySource } from './index.ts';
+
+// The v1 fixture's pack hash, which docs/specs/state_hash_oracle.py also computes from the
+// fixture's files. A change here changes every pack built so far, so it needs a decision.
+const V1_HASH = '489cedf323bd33d9';
+
+const fixture = () => readFixture(FIXTURE_V1);
+const compile = (files: Record<string, string | Uint8Array>) => compileProject(memorySource(files), sampleTypes);
+const brief = (diagnostics: readonly Diagnostic[]) =>
+  diagnostics.map(({ code, file, path, message }) => ({ code, file, path, message }));
+
+/** The fixture with some files replaced or added; `null` removes one. */
+function changed(changes: Record<string, string | Uint8Array | null>): Record<string, string | Uint8Array> {
+  const files: Record<string, string | Uint8Array> = fixture();
+  for (const [path, content] of Object.entries(changes)) {
+    if (content === null) delete files[path];
+    else files[path] = content;
+  }
+  return files;
+}
+
+describe('the v1 fixture', () => {
+  it('compiles to its golden hash with no diagnostics', async () => {
+    const result = await compile(fixture());
+    expect(result.diagnostics).toEqual([]);
+    expect(result.records).toBe(4);
+    expect(result.pack?.project).toEqual({ id: 'salvage-run', name: 'Salvage Run', version: '0.1.0' });
+    expect(result.pack?.hash).toBe(V1_HASH);
+  });
+
+  it('gives a pack the runtime can read back from a file', async () => {
+    const { pack } = await compile(fixture());
+    const store = createRecordStore(readPack(JSON.parse(canonicalJson(pack))).records);
+    expect(store.types()).toEqual(['actor', 'item', 'loot-table']);
+    expect(store.getOrThrow('actor', 'rook')).toMatchObject({ drops: 'dead-hauler' });
+  });
+
+  it('hashes the same whatever the file order, key order or formatting', async () => {
+    const reverseKeys = (value: unknown): unknown =>
+      Array.isArray(value)
+        ? value.map(reverseKeys)
+        : typeof value === 'object' && value !== null
+          ? Object.fromEntries(
+              Object.entries(value)
+                .reverse()
+                .map(([k, v]) => [k, reverseKeys(v)]),
+            )
+          : value;
+    const styles = [
+      (v: unknown) => JSON.stringify(v),
+      (v: unknown) => JSON.stringify(v, null, 4),
+      (v: unknown) => `﻿${JSON.stringify(reverseKeys(v), null, '\t')}\n`,
+    ];
+    const entries = Object.entries(fixture());
+    await fc.assert(
+      fc.asyncProperty(
+        fc.shuffledSubarray(entries, { minLength: entries.length }),
+        fc.array(fc.nat(styles.length - 1), { minLength: entries.length, maxLength: entries.length }),
+        async (shuffled, picks) => {
+          const files = Object.fromEntries(
+            shuffled.map(([path, text], i) => [path, (styles[picks[i] ?? 0] ?? JSON.stringify)(JSON.parse(text))]),
+          );
+          const result = await compile(files);
+          expect(result.diagnostics).toEqual([]);
+          expect(result.pack?.hash).toBe(V1_HASH);
+        },
+      ),
+      { numRuns: 30 },
+    );
+  });
+
+  it('hashes differently when a record or the project changes', async () => {
+    const edited = await compile(changed({ 'records/item/salvage.json': '{ "name": "Salvage", "weight": 4 }' }));
+    const renamed = await compile(
+      changed({ 'project.json': fixture()['project.json']?.replace('0.1.0', '0.1.1') ?? '' }),
+    );
+    expect(edited.pack?.hash).not.toBe(V1_HASH);
+    expect(renamed.pack?.hash).not.toBe(V1_HASH);
+    expect(edited.pack?.hash).not.toBe(renamed.pack?.hash);
+  });
+});
+
+describe('project.json', () => {
+  const manifest = (value: unknown) => changed({ 'project.json': JSON.stringify(value) });
+  const base = { format: 1, id: 'salvage-run', name: 'Salvage Run', version: '0.1.0' };
+
+  it.each([
+    ['missing', changed({ 'project.json': null }), 'E008', '', 'Missing project.json'],
+    ['not JSON', changed({ 'project.json': '{ "format": 1,' }), 'E007', '', 'Not valid JSON: '],
+    ['not an object', manifest([1]), 'E008', '', 'Invalid input: expected object, received array'],
+    ['with an unknown field', manifest({ ...base, author: 'x' }), 'E008', '/author', 'Unknown field "author"'],
+    ['without a name', manifest({ ...base, name: undefined }), 'E008', '/name', 'Missing field "name"'],
+    ['with a bad id', manifest({ ...base, id: 'Salvage Run' }), 'E008', '/id', 'Not a valid project id'],
+    ['with a bad version', manifest({ ...base, version: 'v1' }), 'E008', '/version', 'Expected a version like'],
+    ['from an older or odd format', manifest({ ...base, format: 0 }), 'E008', '/format', 'Invalid input: expected 1'],
+    ['from a newer format', manifest({ ...base, format: 2 }), 'E009', '/format', 'This project is format 2'],
+  ])('reports project.json %s, and builds no pack', async (_name, files, code, path, message) => {
+    const result = await compile(files);
+    expect(brief(result.diagnostics)).toEqual([
+      { code, file: 'project.json', path, message: expect.stringContaining(message) },
+    ]);
+    expect(result.pack).toBeNull();
+  });
+
+  it('accepts a pre-release version', async () => {
+    expect((await compile(manifest({ ...base, version: '1.0.0-beta.2' }))).pack).not.toBeNull();
+  });
+});
+
+describe('record files', () => {
+  it('reports a record that is not JSON once, without failing the references to it', async () => {
+    const result = await compile(changed({ 'records/item/medkit.json': '{ "name": "Medkit", }' }));
+    expect(result.diagnostics.map(({ code, type, id, file }) => ({ code, type, id, file }))).toEqual([
+      { code: 'E007', type: 'item', id: 'medkit', file: 'records/item/medkit.json' },
+    ]);
+    expect(result.pack).toBeNull();
+  });
+
+  it('reports bytes that are not UTF-8, and reads a byte order mark', async () => {
+    const result = await compile(
+      changed({
+        'records/item/medkit.json': new Uint8Array([0x7b, 0xff, 0x7d]),
+        'records/item/salvage.json': '﻿{ "name": "Salvage", "weight": 3 }',
+      }),
+    );
+    expect(brief(result.diagnostics)).toEqual([
+      { code: 'E007', file: 'records/item/medkit.json', path: '', message: 'Not valid UTF-8' },
+    ]);
+  });
+
+  it('reports JSON files at the wrong depth as errors, and other files as warnings', async () => {
+    const result = await compile(
+      changed({
+        'records/medkit.json': '{}',
+        'records/item/spare/medkit.json': '{}',
+        'records/item/notes.md': 'Medkits heal 2.',
+      }),
+    );
+    expect(brief(result.diagnostics)).toEqual([
+      {
+        code: 'W101',
+        file: 'records/item/notes.md',
+        path: '',
+        message: 'Ignored: record files are records/<type>/<id>.json',
+      },
+      {
+        code: 'E010',
+        file: 'records/item/spare/medkit.json',
+        path: '',
+        message: 'A record file must sit at records/<type>/<id>.json',
+      },
+      {
+        code: 'E010',
+        file: 'records/medkit.json',
+        path: '',
+        message: 'A record file must sit at records/<type>/<id>.json',
+      },
+    ]);
+  });
+
+  it('still builds the pack when there are only warnings', async () => {
+    const result = await compile(changed({ 'records/item/notes.md': 'Medkits heal 2.' }));
+    expect(result.diagnostics.map((d) => d.severity)).toEqual(['warning']);
+    expect(result.pack?.hash).toBe(V1_HASH);
+  });
+
+  it("names the file in validation's diagnostics, with types from folders and ids from file names", async () => {
+    const result = await compile(
+      changed({
+        'records/item/medkit.json': '{ "name": "Medkit", "weight": "light" }',
+        'records/item/Big Gun.json': '{ "name": "Big Gun", "weight": 9 }',
+        'records/weapon/laser.json': '{}',
+      }),
+    );
+    expect(result.diagnostics.map(({ code, type, id, file, path }) => ({ code, type, id, file, path }))).toEqual([
+      { code: 'E003', type: 'item', id: 'Big Gun', file: 'records/item/Big Gun.json', path: '' },
+      { code: 'E001', type: 'item', id: 'medkit', file: 'records/item/medkit.json', path: '/weight' },
+      { code: 'E002', type: 'weapon', id: 'laser', file: 'records/weapon/laser.json', path: '' },
+    ]);
+  });
+});
+
+describe('the code table', () => {
+  it('has a compile that fires every code', async () => {
+    const broken = await compile(
+      changed({
+        'records/item/medkit.json': '{ "name": "Medkit", "weight": "light" }',
+        'records/weapon/laser.json': '{}',
+        'records/item/Big Gun.json': '{ "name": "Big Gun", "weight": 9 }',
+        'records/actor/rook.json': '{ "name": "Rook", "drops": "nowhere" }',
+        'records/loot-table/odd.json':
+          '{ "rolls": [1, 1], "entries": [], "effects": [{ "op": "mark", "target": "loot-table:odd" }] }',
+        'records/item/spare.json': '{',
+        'records/medkit.json': '{}',
+        'records/item/notes.md': '',
+      }),
+    );
+    const duplicate = await compile(changed({ 'records/item/salvage.json': null }));
+    const newer = await compile(changed({ 'project.json': '{ "format": 9 }' }));
+    const invalid = await compile(changed({ 'project.json': '{ "format": 1 }' }));
+    const seen = new Set([broken, duplicate, newer, invalid].flatMap((r) => r.diagnostics.map((d) => d.code)));
+    // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
+    expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
+  });
+});

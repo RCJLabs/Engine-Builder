@@ -1,0 +1,6 @@
+{
+  "rolls": [1, 2],
+  "entries": [{ "item": "salvage", "weight": 3 }, { "item": "medkit", "weight": 1 }],
+  "when": { "all": [{ "flag": "met-rook" }, { "has": "medkit" }] },
+  "effects": [{ "op": "spawn", "actor": "rook" }, { "op": "mark", "target": "item:salvage" }]
+}
