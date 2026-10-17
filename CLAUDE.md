@@ -57,6 +57,8 @@ apps/editor/           the editor PWA
   src/pwa/             service worker registration and the update gate
   e2e/                 Playwright specs
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
+  src/sim/             the sim kernel: defineModule, createGame (reduce), createSession
+  test/                salvage.ts (the test-only text game), salvage-bench.ts (times it), kernel-modules.ts
 packages/schema/       record types (strict zod), validation with E-codes, JSON Schema export; not pure
   test/samples.ts      sample record types the tests share
 packages/compiler/     project sources (memory, directory handle, zip), compileProject, packs; not pure

@@ -44,16 +44,21 @@ Every game splits into two halves, as dirtbag, landnam, space-wrecked, splicewor
    │                                                         ▼
 ┌──┴───────────────────────────┐            ┌────────────────────────────────┐
 │ STAGE (impure)               │            │ SIM (pure, eb.pure packages)   │
-│ DOM UI · 2D/3D scene ·       │  events    │ reduce(state, action, ctx)     │
-│ physics · audio · haptics ·  │◀───────────│   → { state, events }          │
-│ input · screen reader        │  ("beats") │ rng streams · content · clock  │
+│ DOM UI · 2D/3D scene ·       │  beats     │ reduce(state, action, sim)     │
+│ physics · audio · haptics ·  │◀───────────│   → { state, beats, accepted } │
+│ input · screen reader        │            │ rng streams · content · clock  │
 └──────────────────────────────┘            └────────────────────────────────┘
 ```
 
+- **The kernel** (M1.5, [specs/sim.md](specs/sim.md)):
+  - a game is a list of modules, each owning one slice of state and registering actions, facts, effects and modes;
+  - a refused action returns the same state and one `rejected` beat;
+  - a mode stack says which actions are allowed;
+  - a session queues beats for the stage to drain.
 - **The sim** is a pure function over serializable state.
   - It owns everything a save or a replay must reproduce: quests, inventories, stats, factions, time, world facts, and the RNG state.
   - Its RNG comes from named streams in `ctx`, and time arrives as actions: fixed ticks for real-time play, days or turns for turn-based play, wall-clock deltas for offline timers.
-- **The stage** draws the state and plays the events: animation, sound, haptics, and screen-reader text, which is a pure function of the events (as in landnam's `announce.ts`). It turns input into actions.
+- **The stage** draws the state and plays the beats: animation, sound, haptics, and screen-reader text, which is a pure function of the beats (as in landnam's `announce.ts`). It turns input into actions.
 - **3D.** Physics, movement and animation run in the stage at frame rate.
   - The stage reports discrete facts to the sim as actions: *entered trigger*, *hit X with Y*, *picked up Z*.
   - The sim resolves what they mean, for example damage from stats, effects and an RNG roll.
