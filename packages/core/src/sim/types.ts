@@ -59,6 +59,11 @@ export interface KernelState {
   readonly modes: readonly ModeFrame[];
   /** Each RNG stream's position by label ("crew/wound"), so draws carry on across actions and saves. */
   readonly streams: { readonly [label: string]: RngState };
+  /**
+   * The version of each module's slice, so a save says what shape it holds (docs/specs/saves.md).
+   * A slice whose module the game no longer has keeps its entry.
+   */
+  readonly versions: { readonly [module: string]: number };
 }
 
 /** The kernel's own state under `kernel`, and each module's slice under its id. */

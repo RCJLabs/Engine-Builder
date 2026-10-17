@@ -110,6 +110,7 @@ A test walks every tick of four years of a small calendar with a counter that ca
 - **The cap.** At most `maxElapseMs` counts; the rest is dropped, with a `time/capped` beat. An idle game caps offline time at hours; a real-time game that pauses when hidden caps it near one frame.
 - **The carry.** Milliseconds short of a whole tick carry over to the next elapse, so many short elapses add up to exactly one long one. A property test settles random stretches, with timers and dice, at once and in pieces, and gets the same state.
 - **Where the clock is read.** The stage reads `Date.now()` and passes the difference. The sim never sees a timestamp, so a replay of the log reaches the same state whenever it runs. Epoch milliseconds don't change with time zones or daylight saving.
+- **Time away.** A save keeps `savedAt` beside the state, not in it ([saves.md](saves.md)). After a load, the stage passes `time/elapse` with now − `savedAt`. A migration gets no clock, so it can never seed a field with the current time, which spliceworld's had to do because an empty one read as 1970.
 
 ## Schemas
 
@@ -133,10 +134,8 @@ A test walks every tick of four years of a small calendar with a counter that ca
 
 ## Open questions
 
-1. **The time of the last save.** Offline settling needs the wall-clock time the game was last open. Saves (M1.8) should store it beside the state, not in it, and the stage should pass the difference on load.
-2. **The cost of a refused attempt.** Each one runs the action again, so offline settling with many refusing timers costs refusals × firings. The bench shows 64 refusals in 8 hours of hourly timers take about 100 ms. Savepoints would be cheaper, at the price of stale references (sim.md).
-3. **Absolute schedules.** "At the start of next spring" or "every Monday" needs `at:` rather than `after:`. Add it with the kits that need it (M3.4).
-4. **Game speed.** Pausing and fast-forward belong to the stage, which scales or stops the milliseconds it passes. A sim-side speed setting would need to be in the state to replay.
-5. **A frame helper.** Real-time play wants a stage-side loop that sends frame time and stops sending while hidden. It belongs with the player runtime (Phase 4).
-6. **Dailies by real date.** A daily challenge keyed by the real calendar is a stage feature, and the games disagree on it. 2060td, sandbagged, rule-or-drool and wasteland-protocol use UTC days, and rule-or-drool's players in the Americas lost streaks without missing a local day. project-ascent, chooser-of-the-dead and afterglass use local dates, and afterglass's daily is "someone's today for about 50 hours". Decide when the first daily arrives.
-7. **Clock fields added by an update.** spliceworld's migrations had to seed new clock fields with the current time, because an empty one read as 1970. M1.8's migrations need the same care for the last-save time.
+1. **The cost of a refused attempt.** Each one runs the action again, so offline settling with many refusing timers costs refusals × firings. The bench shows 64 refusals in 8 hours of hourly timers take about 100 ms. Savepoints would be cheaper, at the price of stale references (sim.md).
+2. **Absolute schedules.** "At the start of next spring" or "every Monday" needs `at:` rather than `after:`. Add it with the kits that need it (M3.4).
+3. **Game speed.** Pausing and fast-forward belong to the stage, which scales or stops the milliseconds it passes. A sim-side speed setting would need to be in the state to replay.
+4. **A frame helper.** Real-time play wants a stage-side loop that sends frame time and stops sending while hidden. It belongs with the player runtime (Phase 4).
+5. **Dailies by real date.** A daily challenge keyed by the real calendar is a stage feature, and the games disagree on it. 2060td, sandbagged, rule-or-drool and wasteland-protocol use UTC days, and rule-or-drool's players in the Americas lost streaks without missing a local day. project-ascent, chooser-of-the-dead and afterglass use local dates, and afterglass's daily is "someone's today for about 50 hours". Decide when the first daily arrives.

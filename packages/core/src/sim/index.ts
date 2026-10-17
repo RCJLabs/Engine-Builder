@@ -1,4 +1,5 @@
 export { ActionError, createGame, type Game, type GameDefinition } from './game.ts';
+export { MigrationError, type MigrationReport } from './migrate.ts';
 export {
   defineModule,
   type EffectRun,

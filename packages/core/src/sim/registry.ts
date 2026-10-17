@@ -45,6 +45,7 @@ export function buildRegistry(modules: readonly Module[]): Registry {
     if (module.id === KERNEL) throw new Error(`"${KERNEL}" is the kernel's own state; pick another module id`);
     if (ids.has(module.id)) throw new Error(`Two modules have the id "${module.id}"`);
     ids.add(module.id);
+    checkVersion(module);
     for (const [verb, run] of Object.entries(module.actions ?? {})) {
       actions.set(`${module.id}/${name(verb, `${module.id} action`)}`, { module: module.id, run });
     }
@@ -63,6 +64,10 @@ export function buildRegistry(modules: readonly Module[]): Registry {
   return { modules, actions, facts, effects, modes: expandModes(modules, actions) };
 }
 
+/** Each module's slice version, by module id in sorted order. */
+export const versionsOf = (registry: Registry): Record<string, number> =>
+  Object.fromEntries(registry.modules.map((m) => [m.id, m.version ?? 1] as const).sort(([a], [b]) => (a < b ? -1 : 1)));
+
 /** Every fact by id, sorted, with what its module says about it: what content is checked against. */
 export function catalogOf(registry: Registry): FactCatalog {
   const ids = [...registry.facts.keys()].sort();
@@ -71,6 +76,26 @@ export function catalogOf(registry: Registry): FactCatalog {
 
 /** A game's fact catalog from its modules alone, for tools that check content without playing. */
 export const factCatalog = (modules: readonly Module[]): FactCatalog => catalogOf(buildRegistry(modules));
+
+// A gap in the migrations would leave saves from the version before it unable to load.
+function checkVersion(module: Module): void {
+  const version = module.version ?? 1;
+  if (!Number.isSafeInteger(version) || version < 1)
+    throw new Error(`Module "${module.id}": version must be a whole number, at least 1`);
+  for (const key of Object.keys(module.migrate ?? {})) {
+    const to = Number(key);
+    if (!Number.isSafeInteger(to) || to < 2 || to > version) {
+      throw new Error(`Module "${module.id}" has a migration to ${key}, but its versions run from 1 to ${version}`);
+    }
+  }
+  for (let to = 2; to <= version; to++) {
+    if (typeof module.migrate?.[to] !== 'function') {
+      throw new Error(
+        `Module "${module.id}" is version ${version} but has no migration to ${to}: saves of version ${to - 1} could not load`,
+      );
+    }
+  }
+}
 
 // A domain that is wrong would make the lint wrong about every condition that reads the fact.
 function checkFact(id: string, info: FactInfo): void {

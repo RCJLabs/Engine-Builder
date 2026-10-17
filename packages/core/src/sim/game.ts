@@ -8,9 +8,10 @@ import { canonicalJson } from '../canonical.ts';
 import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
 import { Rng } from '../rng.ts';
 import { freezeJson } from './json.ts';
+import { type MigrationReport, migrateState } from './migrate.ts';
 import type { FactArgs, Module } from './module.ts';
 import { AttemptRefused, Refusal } from './refusal.ts';
-import { buildRegistry, catalogOf, KERNEL, type Registry } from './registry.ts';
+import { buildRegistry, catalogOf, KERNEL, type Registry, versionsOf } from './registry.ts';
 import { Transaction } from './transaction.ts';
 import type { Action, Effect, EffectPreview, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
 
@@ -32,6 +33,8 @@ export interface Game {
   check(state: GameState, condition: Condition, sim: SimContext): Truth;
   /** What these effects would do in this state, without doing them: chances, costs and outcomes for the stage to show. */
   preview(state: GameState, effects: readonly Effect[], sim: SimContext): readonly EffectPreview[];
+  /** A state from an older version of this game, brought up to date. Throws MigrationError when it can't be. */
+  migrate(state: unknown, sim: SimContext): { readonly state: GameState; readonly report: MigrationReport };
 }
 
 /** An action the game can't take at all: not JSON, not registered. A bug, not a refusal. */
@@ -73,6 +76,7 @@ export function createGame(definition: GameDefinition): Game {
         step: 0,
         modes: [{ id: definition.start }],
         streams: Object.fromEntries([...streams].map(([label, rng]) => [label, rng.toState()])),
+        versions: versionsOf(registry),
       };
       freezeJson(kernel, `/${KERNEL}`);
       return Object.freeze({ [KERNEL]: kernel, ...slices }) as GameState;
@@ -101,6 +105,8 @@ export function createGame(definition: GameDefinition): Game {
       const tx = new Transaction(registry, state, sim);
       return Object.freeze(effects.map((effect) => tx.preview(effect)));
     },
+
+    migrate: (state, sim) => migrateState(registry, state, sim),
   };
 }
 

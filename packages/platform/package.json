@@ -1,0 +1,20 @@
+{
+  "name": "@eb/platform",
+  "private": true,
+  "version": "0.0.1",
+  "description": "The browser's side of a game: save slots in IndexedDB, localStorage or memory, quarantine, save codes and storage persistence. Not pure.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*",
+    "fflate": "0.8.3"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.5"
+  }
+}

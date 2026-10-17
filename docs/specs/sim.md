@@ -16,7 +16,8 @@ It follows the patterns that survived in three of the existing games:
     "seed": "run-1",
     "step": 12,
     "modes": [{ "id": "travel" }, { "id": "encounter", "data": { "event": "derelict" } }],
-    "streams": { "crew/wound": { "seed": "run-1\u001fcrew/wound", "s": [1, 2, 3, 4] } }
+    "streams": { "crew/wound": { "seed": "run-1\u001fcrew/wound", "s": [1, 2, 3, 4] } },
+    "versions": { "crew": 1, "hold": 1 }
   },
   "crew": { "members": { "rook": { "hp": 5, "max": 7 } } },
   "hold": { "credits": 20, "items": {} }
@@ -27,13 +28,13 @@ It follows the patterns that survived in three of the existing games:
 - **Everything is JSON**, by canonicalJson's rules ([state-hash.md](state-hash.md)): finite numbers, plain objects, dense arrays, no cycles. `undefined` is allowed only as an object property, which a save leaves out.
 - **States are frozen.**
   - `init` and `reduce` return deep-frozen states.
-  - A state read back from a save is checked and frozen by the first `reduce` that receives it.
+  - A state read back from a save is checked, brought up to date and frozen by `game.migrate` ([saves.md](saves.md)). Any other state is checked and frozen by the first `reduce` that receives it.
   - Mutating a state throws.
 - **No content in state.** Records stay in the content pack and are read through `sim.content`. State holds what changed, so a content update reaches existing games.
 
 ## Modules
 
-`defineModule({ id, init, actions, facts, effects, modes })`:
+`defineModule({ id, init, actions, facts, effects, modes, version, migrate })`:
 
 - **Names.** The `id` is kebab-case, unique, and not `kernel`. Every other name is kebab-case too.
 - **`init(ctx)`** returns the module's first slice. Its `ctx` has `content` and `rng(name)`. Modules start in the order the game lists them.
@@ -49,13 +50,15 @@ It follows the patterns that survived in three of the existing games:
 - **Who changes what.** A module changes only its own slice. It reads other modules through their facts and changes them through their effects, so kits combine without knowing each other's insides.
 - **Facts** are a function `(view, args) => value`, or `{ read, args?, domain?, label?, describe? }` for conditions to check, lint and word ([conditions.md](conditions.md)). A fact with a domain must answer one of its values, or `undefined`/`null` for none; the kernel throws on any other answer, wherever the fact is read.
 - **Effects** are a function `(ctx, effect) => void`, or `{ run, preview? }`. A preview says what the effect would do now, without doing it.
+- **Versions.** `version` (default 1) is the shape of the slice, recorded in `kernel.versions`. `migrate` turns an older slice into the current one, so old saves keep loading ([saves.md](saves.md#module-versions-and-migrations)).
 
 `createGame({ modules, start })` checks every name. It throws on:
 
 - a duplicate or an invalid name;
 - an unknown start mode, or a mode pattern that matches no action;
 - a fact id a condition can't write (a module id that starts with a digit);
-- a fact argument or domain that is malformed ([conditions.md](conditions.md)).
+- a fact argument or domain that is malformed ([conditions.md](conditions.md));
+- a module version below 1, or a gap in its migrations ([saves.md](saves.md)).
 
 ## Modes
 
@@ -147,9 +150,10 @@ None of these change the state or draw a random number.
 - `dispatch(action)` reduces and returns the result;
 - `drain()` hands over the beats queued since the last drain, refusals included;
 - `log` holds the accepted actions as frozen copies;
-- `state` is the current state.
+- `state` is the current state;
+- `start` is the state the log starts from, and `compact()` makes the current state the new start and empties the log.
 
-Replaying the log from the state the session began with reaches the same state.
+Replaying the log from `start` reaches `state`, so the three are a save ([saves.md](saves.md)). `writeSession` compacts the session after a write that saved 200 actions or more.
 
 ## Proof: salvage run
 
@@ -176,4 +180,3 @@ The M1.6 tests for its conditions and previews are listed in [conditions.md](con
 2. **Legal actions for bots.** `allowedActions` gives types, not payloads. M1.9's bots will want each action to list its concrete options (`voyage/choose` → the event's choices).
 3. **A lint for stray streams.** Forbid `Rng.create` and `Rng.fromState` in module code, so streams only come from `ctx.rng`. This belongs with M3.2's purity lint for scripts.
 4. **State size.** The cost of an action grows with the slices it writes, which are copied, then checked and frozen. landnam's per-action copy grew from 0.045 ms to 2.2 ms when terrain lived in state. Keep derived data out of state, and measure again for the 3D spike (M1.10).
-5. **Older states.** A state from an earlier version of a game may lack a slice or name a mode that no longer exists. That is M1.8's migrations.

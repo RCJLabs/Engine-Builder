@@ -1,0 +1,103 @@
+{
+  "format": 1,
+  "game": "salvage-run",
+  "edition": "test",
+  "build": "fixture-v1",
+  "savedAt": 1760700000000,
+  "summary": {
+    "day": 17
+  },
+  "snapshot": {
+    "kernel": {
+      "seed": "fixture",
+      "step": 35,
+      "modes": [
+        {
+          "id": "travel"
+        },
+        {
+          "id": "encounter",
+          "data": {
+            "event": "derelict"
+          }
+        }
+      ],
+      "streams": {
+        "crew/roster": {
+          "seed": "fixture\u001fcrew/roster",
+          "s": [1404535972, 2693917618, 1209285185, 2207340176]
+        },
+        "voyage/encounters": {
+          "seed": "fixture\u001fvoyage/encounters",
+          "s": [1443074167, 3047121448, 2168594013, 3782298300]
+        },
+        "logic/roll": {
+          "seed": "fixture\u001flogic/roll",
+          "s": [2676500955, 40440961, 1869567050, 3193650654]
+        },
+        "crew/wound": {
+          "seed": "fixture\u001fcrew/wound",
+          "s": [662825112, 3863113019, 2187939813, 1704477271]
+        },
+        "hold/loot": {
+          "seed": "fixture\u001fhold/loot",
+          "s": [3694950895, 3124423365, 2872557801, 3478025477]
+        }
+      },
+      "versions": {
+        "crew": 1,
+        "hold": 1,
+        "logic": 1,
+        "time": 1,
+        "voyage": 1
+      }
+    },
+    "logic": {},
+    "time": {
+      "tick": 17,
+      "carry": 0,
+      "next": 3,
+      "timers": [
+        {
+          "id": "debt",
+          "due": 19,
+          "effects": [
+            {
+              "effect": "credits",
+              "delta": -15
+            }
+          ],
+          "seq": 2
+        }
+      ]
+    },
+    "crew": {
+      "members": {
+        "kit": {
+          "hp": 3,
+          "max": 6
+        },
+        "mara": {
+          "hp": 8,
+          "max": 8
+        },
+        "rook": {
+          "hp": 2,
+          "max": 8
+        }
+      }
+    },
+    "hold": {
+      "credits": 0,
+      "items": {
+        "salvage": 1
+      }
+    },
+    "voyage": {
+      "ending": null
+    }
+  },
+  "log": [],
+  "hash": "94b566fe492a48eb",
+  "check": "5f5e2b73b54bd8ee"
+}

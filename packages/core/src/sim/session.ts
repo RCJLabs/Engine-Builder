@@ -4,28 +4,40 @@ import type { Action, Beat, GameState, SimContext, Step } from './types.ts';
 
 /**
  * A running game for a stage to drive: it holds the current state, queues beats until the
- * stage drains them, and logs accepted actions. Replaying the log from the state the session
- * began with reaches the same state, so the log plus a snapshot is a save (M1.8).
+ * stage drains them, and logs accepted actions. Replaying the log from `start` reaches `state`,
+ * so the two are a save (createSaveFile, docs/specs/saves.md).
  */
 export interface Session {
+  /** The state the log starts from: where the session began, or its last compaction. */
+  readonly start: GameState;
   readonly state: GameState;
-  /** Accepted actions since the session began, oldest first. Refused ones are not logged. */
+  /** Accepted actions since `start`, oldest first. Refused ones are not logged. */
   readonly log: readonly Action[];
   dispatch(action: Action): Step;
   /** The beats since the last drain, oldest first. */
   drain(): readonly Beat[];
+  /** Makes the current state the new start and empties the log, so saves stop growing. */
+  compact(): void;
 }
 
-export function createSession(game: Game, sim: SimContext, start: GameState): Session {
-  let state = start;
-  const log: Action[] = [];
+export function createSession(game: Game, sim: SimContext, from: GameState): Session {
+  let start = from;
+  let state = from;
+  let log: Action[] = [];
   let queue: Beat[] = [];
   return {
+    get start() {
+      return start;
+    },
     get state() {
       return state;
     },
     get log() {
       return log;
+    },
+    compact() {
+      start = state;
+      log = [];
     },
     dispatch(action) {
       const step = game.reduce(state, action, sim);

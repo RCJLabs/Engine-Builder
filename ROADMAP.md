@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M1.8.** Saves (Phase 1). M1.1 to M1.7 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
+**CURRENT MILESTONE: M1.9.** Headless runner (Phase 1). M1.1 to M1.8 (RNG streams, state fingerprints, records, project format, the sim kernel, conditions and effects, time, saves) are done. Phase 0 waits only on your phone check: install the editor from Pages and reopen it offline.
 
 How to read this file:
 
@@ -97,12 +97,24 @@ How to read this file:
   - Facts (`time.day`, `time.phase`, `time.season`, `time.left(timer)`…) feed conditions. Waits and schedules preview what they would fire, and `waitEffect`, `scheduleEffect` and `cancelTimerEffect` check content when a project is built.
   - Salvage run counts its days with the time module. A debt promised to raiders falls due three days later; over 1,000 runs, 1,655 couldn't be paid, and each was refused while the day still passed.
   - [`docs/specs/time.md`](docs/specs/time.md) is the spec. Thirty-one planted bugs were each caught by the tests.
-- **M1.8 Saves** (`packages/platform` for storage).
-  - Snapshot plus action log; `SAVE_VERSION` and a migration registry.
-  - Slots with summaries; bad saves quarantined, never overwritten.
-  - File and text-code export with a checksum.
-  - IndexedDB, localStorage and memory adapters.
-  - Storage keys namespaced by game and edition.
+- **M1.8 Saves.** Done 2026-10-17.
+  - A save is JSON: a snapshot, the actions since it, the hash of the state they reach, the stage's info (game, edition, build, `savedAt`, a summary) and an FNV-1a 64 checksum. `SAVE_VERSION` 1 covers the file and the kernel's state.
+  - Each module versions its slice in `kernel.versions` and migrates it one version at a time. A migration sees only its slice: no content, tuning or clock.
+  - Loading old states:
+    - a module the save lacks starts from its init, drawing as a new game would;
+    - a slice no module owns is kept;
+    - a slice from a newer game is refused as `newer`.
+  - `loadSave` replays the log strictly on the same build with nothing migrated. After an update it replays leniently, skipping refused actions and reporting the difference, so an update never costs a player their save.
+  - `@eb/platform`:
+    - IndexedDB, localStorage and memory stores with atomic multi-key writes;
+    - slots under `eb/<game>/<edition>/`, each with a summary and a backup;
+    - a quarantined copy before anything could lose a save, and a fallback to the backup on load;
+    - one write gate that reports every failure;
+    - `writeSession` compaction at 200 actions;
+    - `EB1` save codes with a 4 MiB unpacking cap;
+    - persistence requests.
+  - A file export is the save's own JSON. The buttons for files and codes come with the save/load screen (M4.2).
+  - [`docs/specs/saves.md`](docs/specs/saves.md) is the spec. Seventy-one of 72 planted bugs were caught by the tests. The survivor removes the cap on a code's inflate buffer, which bounds memory where no test looks; the size check behind it was caught.
 - **M1.9 Headless runner.**
   - Bot policies and seed sweeps with confidence intervals.
   - Golden hashes, run by the CLI's `eb sim`.
@@ -114,8 +126,8 @@ How to read this file:
 **Done when:**
 
 - A test-only text game runs 1,000 seeds deterministically. [auto] Done 2026-10-17 (M1.5): salvage run in `packages/core/src/sim/salvage.test.ts`.
-- Save → load → continue matches an uninterrupted run by hash. [auto] The kernel's half passes (M1.5: a JSON round trip of the state mid-run). M1.8 must pass it again through real saves.
-- A v1 save fixture loads after a planted v2 migration. [auto]
+- Save → load → continue matches an uninterrupted run by hash. [auto] Done 2026-10-17 (M1.8): 50 seeds through save files in `packages/core/src/save/save.test.ts`, and 5 through each store in `packages/platform/src/saves.test.ts`.
+- A v1 save fixture loads after a planted v2 migration. [auto] Done 2026-10-17 (M1.8): `packages/core/test/fixtures/saves/salvage-v1.json`, with a planted v2 of the hold.
 - RNG golden vectors are frozen in the spec. [auto]
 - FPS per tier for the 3D spike, from your phone, is recorded in Readings. [you]
 
@@ -303,6 +315,8 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Sim kernel reduce, salvage run (M1.6: conditions and rolls) | 20.5–23.8 µs per action (median 21.6) over 74,658 actions. The M1.5 content on the M1.6 kernel gave 19.7–22.9 µs (median 21.4) over the same 80,911 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs each |
 | Sim kernel reduce, salvage run (M1.7: days and debts) | 23.4–26.7 µs per action (median 24.9) over 74,534 actions | `node packages/core/test/salvage-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Offline settle, 8 hours at a tick a second, 100 hourly timers | 7–12 ms (median 9) for 800 firings; 101–120 ms (median 108) when 8 timers refuse every time, re-running the action 64 times | `node packages/core/test/time-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Save and load, salvage run | 1,000 whole runs, 66.4 logged actions and 2,672 bytes a save (largest 2,931). Save 264–296 µs (median 276); load, with checksum, migration and replay, 2,015–2,226 µs (median 2,087), which is 30.4–33.5 µs per logged action (median 31.4) | `node packages/core/test/save-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
+| Save codes, salvage run | 679 characters a code (longest 717) for 2,694 bytes of JSON. Encode 359–391 µs (median 370), decode 897–959 µs (median 923) | `node packages/platform/test/code-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | Condition lint at its caps | 20–30 ms (median 25) to try all 100,000 combinations; 17–25 ms (median 20) for 20,000 samples | `node packages/core/test/sat-bench.ts`, Node 22.22, cloud container | 2026-10-17 | 5 runs |
 | 3D spike FPS per tier, your phone | not taken yet | M1.10 overlay | | |
 

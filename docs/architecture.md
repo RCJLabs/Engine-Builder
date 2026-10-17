@@ -224,16 +224,25 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 
 ## Saves
 
-The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld and dirtbag:
+The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, dirtbag, rule-or-drool, 2060td and space-wrecked. [docs/specs/saves.md](specs/saves.md) is the spec.
 
-- **Contents.** A snapshot plus an action log. A snapshot holds changes against the authored content, as Bethesda's change forms do, so a content update reaches existing saves.
-- **Versioning.** `SAVE_VERSION` with a migration registry, and a fixture from every past version that must still load.
-- **Slots.** Each slot has a summary: name, day, playtime, location.
-- **Bad saves** are quarantined and kept, never overwritten.
-- **Export and import.** A file, or a text code with a checksum (2060td's codec).
+- **Contents.** A snapshot of the sim state plus the actions since it, with a checksum.
+  - The state holds ids into content, not copies of it, so a content update reaches existing saves.
+  - Worlds will save placed references as changes against the authored content (M5.8), as Bethesda's change forms do.
+- **Loading.** On the same build the log must replay to exactly the saved state. After an update it replays under the new rules, and what changed is reported rather than refused.
+- **Versioning.**
+  - `SAVE_VERSION` covers the file and the kernel's state.
+  - Each module versions its own slice and migrates it without reading content.
+  - Every past version keeps a fixture that must still load.
+- **Slots** live in `@eb/platform`.
+  - Each slot has a summary, so a list doesn't read the saves.
+  - Each slot keeps a backup: the save its last write replaced.
+  - A save that won't load, that a write would destroy, or that an update changed is copied to quarantine first, and is never overwritten.
+  - Logs stop growing: `writeSession` compacts the session at 200 actions.
+- **Export and import.** The save file is JSON, and a text code (`EB1.<game>.<payload>.<check>`) carries it deflated. The buttons are the save/load screen's (M4.2).
 - **Storage.**
-  - IndexedDB by default; localStorage and memory adapters; a file adapter for Electron.
-  - A persistent-storage request.
+  - IndexedDB by default, then localStorage, then memory. A file adapter for Electron comes with Phase 8's desktop export.
+  - A persistent-storage request on the first save.
   - Every write goes through one gate that reports failure to the player (rule-or-drool's `meta/storage.ts`).
 - **Namespaces.** Keys are namespaced by game id and edition. All github.io projects share one origin, so two games, or a demo and a full build, must never collide.
 
@@ -297,7 +306,7 @@ packages/kits       pure: stats/effects, inventory/loot, factions, economy, rost
 packages/schema     zod schemas for the project format and records; JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
 packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
-packages/platform   storage adapters, SW/update gate, haptics, wake lock, share codes
+packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
