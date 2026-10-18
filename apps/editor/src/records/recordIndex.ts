@@ -10,15 +10,16 @@
  * which "used by" already knows, references to missing records included; and a change to the
  * types or the assets checks them all. Flags are the exception (M3.1): a flag's lint reads every
  * record that names it, and a set-flag's check reads the flag, so a change to any record that
- * names a flag checks all of them again (flagRelated). The game's facts, events and effects
- * (M3.2) are grounds like the types: a script that changes what the game declares checks them all.
+ * names a flag checks all of them again (flagRelated), and so do loot tables and shops (M3.3,
+ * lootRelated). The game's facts, events and effects (M3.2) are grounds like the types: a script
+ * that changes what the game declares checks them all.
  */
 import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
 import { formatRef } from '@eb/core';
 import { compareText, type Diagnostic, type RecordInput, type Usage, validateRecords } from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
 import type { GameChecks } from '../scripts/gameState.ts';
-import { flagRelated } from './flagRelated.ts';
+import { flagRelated, lootRelated } from './flagRelated.ts';
 
 /** A reference out of a record: the "type:id" it names, and where in the record. */
 export interface Ref {
@@ -62,8 +63,8 @@ export interface RecordIndex {
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };
 
 /**
- * What a record's checks depend on besides the records: the sound types' fields, the assets and
- * the game's checks. What only names things (a type's title and description, its name field, a
+ * What a record's checks depend on besides the records: the sound types' fields, the assets, the
+ * kits and the game's checks. What only names things (a type's title and description, its name field, a
  * field's label and help) changes no check, so typing a label in the type designer (M2.6) checks
  * nothing again, and nor does a script edit that leaves what the game declares as it was.
  */
@@ -71,6 +72,8 @@ const groundsOf = (catalog: Catalog, game: GameChecks): string =>
   JSON.stringify([
     [...catalog.types].map(([type, data]) => [type, checked(data.file.fields)]),
     catalog.assets,
+    // A kit brings facts, events and effects as well as types (M3.3).
+    catalog.kits,
     [game.facts ?? null, game.events ?? null, game.effectNames ?? null],
   ]);
 
@@ -165,10 +168,10 @@ export async function updateIndex(
   const checking = grounds === before.grounds ? dirty : new Set(records.keys());
   check(records, checking, catalog, game);
   // Read after the check, so the records just checked count by what they name now.
-  const changed = [...checking, ...went].some(
-    (key) => flagRelated(records.get(key)) || flagRelated(before.records.get(key)),
-  );
-  const more = changed ? [...records.values()].filter((r) => flagRelated(r) && !checking.has(r.key)) : [];
+  const touched = (related: (r: IndexedRecord | undefined) => boolean) =>
+    [...checking, ...went].some((key) => related(records.get(key)) || related(before.records.get(key)));
+  const widen = [flagRelated, lootRelated].filter(touched);
+  const more = [...records.values()].filter((r) => widen.some((related) => related(r)) && !checking.has(r.key));
   if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog, game);
   return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };
 }
@@ -195,6 +198,7 @@ function check(
   }
   const { diagnostics, usedBy, assetsUsedBy } = validateRecords(catalog.recordTypes, inputs, {
     ...game,
+    kits: catalog.kits,
     assets: new Set(catalog.assets),
   });
   const problems = new Map<string, Diagnostic[]>();

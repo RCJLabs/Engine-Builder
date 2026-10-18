@@ -157,3 +157,24 @@ fieldset.type-fields,
   flex: 1 1 10rem;
   min-width: 0;
 }
+
+/* A kit's own fields (M3.3): shown above the project's, not changed. */
+.kit-fields {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.kit-fields h4 {
+  margin: 0 0 4px;
+}
+
+.kit-field-list {
+  margin: 4px 0 0;
+  padding-left: 1.2rem;
+}
+
+.kit-field-list li {
+  overflow-wrap: anywhere;
+}

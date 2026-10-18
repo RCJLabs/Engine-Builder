@@ -1,4 +1,4 @@
-import { isEngineType } from '@eb/schema';
+import { isEngineType, kitOf } from '@eb/schema';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
@@ -29,9 +29,11 @@ export function NewType({ project }: { project: OpenProject }) {
         ? 'Use letters or digits'
         : isEngineType(type)
           ? `${type} is one of the engine’s own types`
-          : taken
-            ? `There is a type ${type} already`
-            : null;
+          : kitOf(type, catalog.kits) !== undefined
+            ? `${type} is the ${kitOf(type, catalog.kits)} kit’s type: Edit type adds fields to it`
+            : taken
+              ? `There is a type ${type} already`
+              : null;
   const said =
     type === ''
       ? 'Lowercase words joined by hyphens make its name.'

@@ -3,7 +3,7 @@
  * the deepest place the type designer shows: the file's own keys, each def, each def's options.
  */
 import { pointerSegment } from '@eb/core';
-import { type Diagnostic, readTypeFile, typeRefs } from '@eb/schema';
+import { type Diagnostic, joinKitType, readTypeFile, type TypeFile, typeRefs } from '@eb/schema';
 import { routeProblems } from '../forms/problems.ts';
 import { eachDef } from './defPaths.ts';
 
@@ -17,7 +17,7 @@ const OPTIONS: Record<string, readonly string[]> = {
   asset: ['of'],
 };
 
-const issue = (code: 'E015' | 'E016', file: string, path: string, message: string): Diagnostic => ({
+const issue = (code: 'E015' | 'E016' | 'E037', file: string, path: string, message: string): Diagnostic => ({
   code,
   severity: 'error',
   message,
@@ -28,11 +28,21 @@ const issue = (code: 'E015' | 'E016', file: string, path: string, message: strin
 /**
  * The type file's problems: its shape and rules (E015), then, once those are sound, refs to types
  * the project has no type file for (E016), as the compiler checks them. `types` are the names of
- * the project's type files, sound or not.
+ * the project's type files, sound or not. For a kit's type (M3.3, D41), `kitFile` is the kit's,
+ * which the file is joined to first, as the compiler joins them: a field of the kit's name is E037.
  */
-export function typeProblems(json: unknown, types: readonly string[], file: string): Diagnostic[] {
-  const read = readTypeFile(json);
-  if (!read.ok) return read.issues.map(({ path, message }) => issue('E015', file, path, message));
+export function typeProblems(json: unknown, types: readonly string[], file: string, kitFile?: TypeFile): Diagnostic[] {
+  const joined = kitFile ? joinKitType(kitFile, json) : { joined: json, clashes: [] };
+  const clashes = joined.clashes.map((name) =>
+    issue(
+      'E037',
+      file,
+      `/fields/${pointerSegment(name)}`,
+      `The kit already has a field "${name}": name yours otherwise`,
+    ),
+  );
+  const read = readTypeFile(joined.joined);
+  if (!read.ok) return [...clashes, ...read.issues.map(({ path, message }) => issue('E015', file, path, message))];
   return typeRefs(read.file)
     .filter((ref) => !types.includes(ref.type))
     .map((ref) =>
@@ -42,7 +52,8 @@ export function typeProblems(json: unknown, types: readonly string[], file: stri
         ref.path,
         `No record type "${ref.type}": add types/${ref.type}.json, or name a type the project has`,
       ),
-    );
+    )
+    .concat(clashes);
 }
 
 /** Every pointer the designer shows a place for, in the type file. */
@@ -62,5 +73,9 @@ export function shownPointers(json: unknown): Set<string> {
 }
 
 /** The problems by the pointer that shows them. */
-export const routedProblems = (json: unknown, types: readonly string[], file: string): Map<string, Diagnostic[]> =>
-  routeProblems(typeProblems(json, types, file), shownPointers(json));
+export const routedProblems = (
+  json: unknown,
+  types: readonly string[],
+  file: string,
+  kitFile?: TypeFile,
+): Map<string, Diagnostic[]> => routeProblems(typeProblems(json, types, file, kitFile), shownPointers(json));

@@ -5,7 +5,7 @@
  * once the browser lets the editor change it. Its scripts are checked, and run when it is
  * trusted, in the script worker (M3.2, D38).
  */
-import { directorySource } from '@eb/compiler';
+import { directorySource, MANIFEST_FILE } from '@eb/compiler';
 import { SCRIPTS_DIR } from '@eb/script';
 import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
@@ -90,7 +90,8 @@ function refresher(copy: WorkingCopy): Refresh {
       if (open?.source !== copy) return false;
       current.value = { ...open, summary, catalog };
       let { game } = open;
-      if (paths === null || paths.some(isScriptPath)) {
+      // project.json too: its kits join the game the scripts make (M3.3).
+      if (paths === null || paths.some((path) => isScriptPath(path) || path === MANIFEST_FILE)) {
         checker ??= scriptWorker();
         game = await readGameState(copy, checker, trust.trusted(open.trustKey));
         open = current.value;

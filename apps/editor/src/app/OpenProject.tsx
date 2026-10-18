@@ -3,6 +3,7 @@ import { recordsLine } from '../projects/summary.ts';
 import { TypeList } from '../records/TypeList.tsx';
 import { EditState } from './EditState.tsx';
 import { ProjectFields } from './ProjectFields.tsx';
+import { ProjectKits } from './ProjectKits.tsx';
 
 /** The open project: who it is, where it lives, what it holds and what is wrong with it. */
 export function OpenProjectView({ project }: { project: OpenProject }) {
@@ -32,6 +33,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       ) : (
         <p class="muted">No problems found.</p>
       )}
+      {summary.project ? <ProjectKits on={summary.project.kits ?? []} /> : null}
       <TypeList project={project} />
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>

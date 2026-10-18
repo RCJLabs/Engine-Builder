@@ -22,6 +22,11 @@ export async function createType(type: string, title: string, file?: unknown): P
   showPanel('inspector');
 }
 
+/** A kit's type given a file for fields of the project's own (M3.3, D41), the designer staying on it. */
+export async function addOwnFields(type: string, title: string): Promise<void> {
+  await step(`Add fields to ${title}`, (copy) => createTypeFile(copy, type, title, { title, fields: {} }));
+}
+
 /** A table's view moved to the type's new name, or forgotten with it. */
 function moveView(from: string, to: string | null): void {
   const view = views.value.get(from);

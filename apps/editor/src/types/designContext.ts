@@ -23,6 +23,11 @@ export interface Design {
   readonly json: unknown;
   /** The type's title, or its name when it has none. */
   readonly title: string;
+  /**
+   * A kit's type (M3.3, D41): the kit, and its type file, whose fields come first and stay as they
+   * are. The file the designer edits then holds only the project's own fields.
+   */
+  readonly kit?: { readonly id: string; readonly file: TypeFile };
   readonly canEdit: boolean;
   /** The type file's problems at a pointer the designer shows. */
   problemsAt(pointer: string): readonly Diagnostic[];

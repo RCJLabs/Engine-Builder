@@ -21,14 +21,18 @@ function target(def: RefDef, value: unknown, records: ReadonlyMap<string, readon
 
 export function RefField(props: FieldProps<RefDef>) {
   const { catalog, names = noNames } = useForm();
-  const noun = typeof props.def.to === 'string' ? props.def.to : 'record';
+  // The type's title as a person reads it: "loot table" for loot-table.
+  const noun =
+    typeof props.def.to === 'string'
+      ? (catalog.types.get(props.def.to)?.file.title ?? props.def.to).toLowerCase()
+      : 'record';
   const types = typeof props.def.to === 'string' ? props.def.to : props.def.to.join(' or ');
   const named = target(props.def, props.value, catalog.records);
   return (
     <PickField
       {...props}
       choices={refChoices(props.def, catalog.records, names)}
-      title={`Choose a ${noun}`}
+      title={`Choose ${/^[aeiou]/.test(noun) ? 'an' : 'a'} ${noun}`}
       empty={`There are no ${types} records yet.`}
       shownName={named ? names(`${named.type}:${named.id}`) : undefined}
       open={named ? () => openRecord(named.type, named.id) : undefined}
