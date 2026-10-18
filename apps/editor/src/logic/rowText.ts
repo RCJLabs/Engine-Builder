@@ -84,6 +84,38 @@ function kitEffectText(effect: Record<string, unknown>): string | undefined {
     case 'open-shop':
       return `open ${named(effect.shop, 'a shop')}`;
     default:
+      return statEffectText(effect);
+  }
+}
+
+// "ana’s health", or "health of an actor not yet chosen".
+const whose = (actor: unknown, of: unknown, what: string) =>
+  typeof actor === 'string' && actor !== '' && typeof of === 'string' && of !== ''
+    ? `${actor}’s ${of}`
+    : `${named(of, what)} of ${named(actor, 'an actor')}`;
+
+/** The stats and gear kits' effects (M3.4): "damage ana’s health by 3", "add 2 × bleeding to bo". */
+function statEffectText(effect: Record<string, unknown>): string | undefined {
+  const stat = whose(effect.actor, effect.stat, 'a stat');
+  const actor = named(effect.actor, 'an actor');
+  switch (effect.effect) {
+    case 'add-to-stat':
+      return typeof effect.by === 'number' && effect.by < 0
+        ? `take ${-effect.by} from ${stat}`
+        : `add ${written(effect.by)} to ${stat}`;
+    case 'damage-stat':
+      return `damage ${stat} by ${written(effect.by)}`;
+    case 'heal-stat':
+      return effect.by === undefined ? `heal all of ${stat}` : `heal ${stat} by ${written(effect.by)}`;
+    case 'add-status':
+      return `add ${times(effect.stacks)}${named(effect.status, 'a status')} to ${actor}`;
+    case 'remove-status':
+      return `remove ${times(effect.stacks)}${named(effect.status, 'a status')} from ${actor}`;
+    case 'equip':
+      return `equip ${actor} with ${named(effect.item, 'an item')}`;
+    case 'unequip':
+      return `unequip ${whose(effect.actor, effect.slot, 'a slot')}`;
+    default:
       return undefined;
   }
 }

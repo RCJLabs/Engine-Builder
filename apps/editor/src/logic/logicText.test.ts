@@ -88,6 +88,32 @@ describe('sheet edits', () => {
     expect(forEvent('sheet/fired')).toEqual({ event: 'sheet/fired' });
   });
 
+  it('says the stats and gear kits’ effects in a few words, whose first', () => {
+    expect(
+      doText([
+        { effect: 'add-to-stat', actor: 'ana', stat: 'aim', by: 2 },
+        { effect: 'add-to-stat', actor: 'ana', stat: 'aim', by: -1 },
+        { effect: 'damage-stat', actor: 'ana', stat: 'health', by: 3 },
+        { effect: 'heal-stat', actor: 'ana', stat: 'health' },
+        { effect: 'heal-stat', actor: 'ana', stat: 'health', by: 5 },
+        { effect: 'add-status', actor: 'bo', status: 'bleeding', stacks: 2 },
+        { effect: 'remove-status', actor: 'bo', status: 'bleeding' },
+        { effect: 'equip', actor: 'bo', item: 'rifle' },
+        { effect: 'unequip', actor: 'bo', slot: 'hand' },
+      ]),
+    ).toBe(
+      'Do: add 2 to ana’s aim, then take 1 from ana’s aim, then damage ana’s health by 3, then heal all of ' +
+        'ana’s health, then heal ana’s health by 5, then add 2 × bleeding to bo, then remove bleeding from bo, ' +
+        'then equip bo with rifle, then unequip bo’s hand',
+    );
+    expect(effectText({ effect: 'damage-stat', stat: 'health', by: 2 })).toBe(
+      'damage health of an actor not yet chosen by 2',
+    );
+    expect(effectText({ effect: 'add-status', actor: '' })).toBe(
+      'add a status not yet chosen to an actor not yet chosen',
+    );
+  });
+
   it('offers a kit’s effect only with its kit on', () => {
     expect(kitEffectFile('give-item', ['inventory'])?.kit).toBe('inventory');
     expect(kitEffectFile('pay-cost', ['inventory'])).toBeUndefined();
