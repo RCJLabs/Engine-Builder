@@ -107,6 +107,20 @@ describe('import', () => {
     await expect(twice).rejects.toThrow('assets/UI/A.png is there already');
   });
 
+  it('compares with the files there case aside, capitals on either side', async () => {
+    const own = { licence: 'own', source: 'Drawn', date: '2026-10-18' };
+    const t = setup({
+      ...readFixture(FIXTURE_LUDUS),
+      'assets/ui/Button.png': 'png',
+      'assets/assets.json': JSON.stringify({ files: { 'portraits/spiculus.svg': own, 'ui/Button.png': own } }),
+    });
+    await expect(importAssets(t.copy, [{ path: 'ui/button.png', bytes: PNG }], CC0)).rejects.toThrow(
+      'assets/ui/button.png is there already',
+    );
+    await expect(renameAsset(t.copy, 'portraits/spiculus.svg', 'UI/BUTTON.svg')).resolves.toHaveLength(4);
+    await expect(renameAsset(t.copy, 'portraits/spiculus.svg', 'ui/button.PNG')).rejects.toThrow('is there already');
+  });
+
   it('refuses to change a log that isn’t JSON, and changes nothing', async () => {
     const t = setup({ ...readFixture(FIXTURE_LUDUS), 'assets/assets.json': '{ "files": ' });
     await expect(importAssets(t.copy, [{ path: 'ui/a.png', bytes: PNG }], CC0)).rejects.toThrow(

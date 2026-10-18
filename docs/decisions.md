@@ -572,6 +572,7 @@ The spec is [specs/editor-assets.md](specs/editor-assets.md).
 - **Every project with assets needs the log.** The ludus fixture gains one; its content hash is unchanged, since packs hold records only.
 - **Generated art passes on its tool's terms.** The log records the tool and prompt; it can't say whether a tool's terms allow a use.
 - **The list will need additions** as real assets arrive: each is a change to the engine, not a choice in a project.
+- **Big files are capped, for the save journal's sake** (not one of the calls above; a reading). A stored project's save carries its files whole in the journal (D30), about five times their size in memory while it is built, and an import is one save: 25 MB a file and 50 MB an import, not yet tried on a phone (ROADMAP.md, Readings).
 
 ---
 

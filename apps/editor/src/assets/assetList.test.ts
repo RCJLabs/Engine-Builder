@@ -50,6 +50,13 @@ describe('the assets’ problems', () => {
     expect(problems.byAsset.get('portraits/spiculus.svg')?.map((d) => d.code)).toEqual(['W107']);
   });
 
+  it('lists an entry for a gone file once, whatever else is wrong with it', async () => {
+    const gone = { 'gone.png': { ...CC0, licence: 'CC-BY-NC-4.0', colour: 'red' } };
+    const problems = assetProblems(await readCatalog(project({ files: { ...LOG.files, ...gone } })));
+    expect(problems.orphans).toEqual(['gone.png']);
+    expect([...problems.byAsset.keys()]).not.toContain('gone.png');
+  });
+
   it('says once when the log can’t be read, and what is wrong with it as a whole', async () => {
     const broken = assetProblems(await readCatalog(project('{ "files": ')));
     expect(broken.log.map((d) => d.code)).toEqual(['E007']);

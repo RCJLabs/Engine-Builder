@@ -70,6 +70,9 @@ describe('model summaries', () => {
     );
     expect(modelSummary('a.gltf', encode('{'), new Set())).toBe('Its JSON can’t be read');
     expect(modelSummary('a.gltf', encode('[]'), new Set())).toBe('Its JSON isn’t a glTF object');
+    const binFirst = glb(SHIP);
+    new DataView(binFirst.buffer).setUint32(16, 0x004e4942, true);
+    expect(modelSummary('a.glb', binFirst, new Set())).toBe('Its JSON chunk is missing');
     const cut = glb(SHIP).subarray(0, 40);
     expect(modelSummary('a.glb', cut, new Set())).toBe('Its JSON chunk is missing');
   });

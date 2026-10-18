@@ -18,10 +18,12 @@ my-game/
   records/<type>/<id>.json  one record per file
   types/<type>.json         the project's own record types, as fields (M2.4)
   assets/                   files that asset fields name (M2.4; M2.7 imports them)
+  assets/assets.json        every asset's provenance: licence, source, date (M2.7)
 ```
 
 - **Later folders.** Later milestones add `scenes/`, `ui/`, `scripts/`, `dialogue/` and `locales/` ([architecture](../architecture.md#project-format)).
-- **What gets read.** The compiler reads `project.json`, `records/` and `types/`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
+- **What gets read.** The compiler reads `project.json`, `records/`, `types/` and `assets/assets.json`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
+- **The provenance log** is specified in [editor-assets.md](editor-assets.md#the-provenance-log) (D34).
 - **Type files** are specified in [type-files.md](type-files.md).
 - **Hidden entries are never read.** These are names that start with `.` (`.git`, `.DS_Store`, `.gitkeep`) and the `__MACOSX` folder that macOS adds to zips.
 
@@ -99,7 +101,7 @@ A project travels as a zip: the editor exports one, imports one, and the CLI rea
    - a newer format: E009;
    - otherwise each schema problem is E008, at its field.
 2. **Type files** in `types/` are read beside the code types: E007, E015 to E017 and W105 ([type-files.md](type-files.md#compiling)). A type whose file has problems still names its type; its records aren't checked until it is fixed.
-3. **`assets/`** is listed, for asset fields to name (E018).
+3. **`assets/`** is listed, for asset fields to name (E018), the log left out. Then the log is read and checked against the list (D34): E007 when it isn't JSON, otherwise E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)).
 4. **Record files** are sorted into records, misplaced files (E010) and ignored files (W101), then parsed (E007).
 5. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014 and E018, each with its record's file.
 6. **Diagnostics** are sorted in the order records.md gives.
@@ -119,7 +121,7 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 | E010 | error | a JSON file under `records/` is not at `records/<type>/<id>.json` | the file | empty |
 | W101 | warning | a file under `records/` that the compiler ignores | the file | empty |
 
-Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)).
+Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)).
 
 ## Content packs (format 1)
 

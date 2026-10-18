@@ -74,6 +74,12 @@ describe('checkProvenance', () => {
     expect(said(undefined, [])).toEqual([]);
   });
 
+  it('gives an entry for a gone stand-in W106 alone: there is nothing to replace', () => {
+    expect(said(files({ 'stand-ins/gone.svg': { ...ok, standIn: true } }), [])).toEqual([
+      'W106 /files/stand-ins~1gone.svg: No file assets/stand-ins/gone.svg: the entry can go',
+    ]);
+  });
+
   it('checks each entry’s licence and what it asks for', () => {
     const log = files({
       'nc.png': { ...ok, licence: 'CC-BY-NC-4.0' },

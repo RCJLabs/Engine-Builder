@@ -72,13 +72,19 @@ apps/editor/           the editor PWA
                        file, used by), table.ts, cells.ts, filters.ts and view.ts (columns, cells, filters, sort as
                        plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts,
                        RenameRecord (M2.6)
+  src/assets/          the asset browser (M2.7): assetLog.ts (the provenance log's JSON), assetPaths.ts (names and
+                       free paths), assetEdits.ts (steps over the working copy), assetList.ts (rows and the
+                       compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
+                       check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
+                       inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
   src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
                        rewrites.ts (what a change does to a record), typeFileChanges.ts and fieldEdits.ts (what it
                        does to the type file), typeEdits.ts (steps over the working copy), typeActions.ts, the
                        designer's components (TypeDesigner, FieldList, FieldEditor, ValueOptions, AddField…)
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
-                       and a project that reach every place a value can sit), *-bench.ts (timings)
+                       and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
+                       is the save journal with big files)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
                        targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records
@@ -95,12 +101,14 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
 packages/schema/       record types (strict zod), condition(), asset(), rollEffect() and the time effects,
                        validation with E/W codes, JSON Schema export; type files: typeFile.ts (the format) and
-                       typeSchema.ts (the zod it becomes); packValue (text conditions to trees); not pure
+                       typeSchema.ts (the zod it becomes); provenance.ts (the assets' log, its licences and
+                       checks, M2.7); packValue (text conditions to trees); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
-  test/fixtures/ludus/ a project made only of data (types/, records, an asset): compiles with no --types module
+  test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
+                       with no --types module
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
