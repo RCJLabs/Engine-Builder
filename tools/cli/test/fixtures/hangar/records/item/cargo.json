@@ -1,0 +1,11 @@
+{
+  "name": "Cargo hold",
+  "value": 60,
+  "tags": ["part"],
+  "category": "cargo",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 3
+  }
+}

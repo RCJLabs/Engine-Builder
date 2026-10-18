@@ -1,0 +1,13 @@
+{
+  "name": "Redistribution: pay",
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 30,
+        "max": 50
+      }
+    }
+  ]
+}

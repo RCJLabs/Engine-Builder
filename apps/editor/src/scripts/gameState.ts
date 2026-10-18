@@ -3,7 +3,7 @@
  * what scripts/game.ts declares once it has run. The script worker reads them again after each
  * change under scripts/; a project with no scripts never starts the worker.
  */
-import { gameOptions, type ProjectSource, readFiles } from '@eb/compiler';
+import { gameOptions, MANIFEST_FILE, type ProjectSource, readFiles } from '@eb/compiler';
 import { type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
 import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, scriptPath } from '@eb/script';
 import type { CheckResult, SentFile } from './protocol.ts';
@@ -36,9 +36,12 @@ export const NO_SCRIPTS: GameState = { ids: [], status: 'none', problems: [], ca
 
 export const isScriptPath = (path: string): boolean => path === SCRIPTS_DIR || path.startsWith(`${SCRIPTS_DIR}/`);
 
-/** Every file under scripts/, as the worker reads them. */
+/**
+ * Every file under scripts/, as the worker reads them, and project.json, whose kits join the game
+ * its scripts make (M3.3, D41).
+ */
 export async function scriptFiles(source: ProjectSource): Promise<SentFile[]> {
-  return [...(await readFiles(source, await source.files(SCRIPTS_DIR)))];
+  return [...(await readFiles(source, [MANIFEST_FILE, ...(await source.files(SCRIPTS_DIR))]))];
 }
 
 export function stateOf(result: CheckResult, run: boolean): GameState {
@@ -61,7 +64,7 @@ export function stateOf(result: CheckResult, run: boolean): GameState {
 /** The game's state as the scripts are now; `run` when the project is trusted. */
 export async function readGameState(source: ProjectSource, worker: ScriptWorker, run: boolean): Promise<GameState> {
   const files = await scriptFiles(source);
-  if (files.length === 0) return NO_SCRIPTS;
+  if (!files.some(([path]) => isScriptPath(path))) return NO_SCRIPTS;
   try {
     return stateOf(await worker.check(files, run), run);
   } catch (error) {

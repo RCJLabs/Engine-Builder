@@ -1,0 +1,11 @@
+{
+  "name": "Corridor",
+  "value": 10,
+  "tags": ["part"],
+  "category": "utility",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

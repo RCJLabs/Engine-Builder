@@ -1,0 +1,10 @@
+{
+  "name": "Redistribution: drops",
+  "entries": [
+    {
+      "table": "supplies-parts",
+      "weight": 60
+    }
+  ],
+  "nothing": 40
+}

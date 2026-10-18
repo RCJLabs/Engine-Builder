@@ -1,0 +1,11 @@
+{
+  "name": "Airlock",
+  "value": 40,
+  "tags": ["part"],
+  "category": "utility",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

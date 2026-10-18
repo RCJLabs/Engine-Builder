@@ -1,9 +1,11 @@
 /**
  * A project's game (D38): what scripts/game.ts exports, read as `eb sim --game` reads its module.
  * The engine's own modules (logic, flag, sheet) join any the game doesn't name, first, so a
- * project's flags and sheets work whatever its game lists; a game that names one places it.
+ * project's flags and sheets work whatever its game lists; a game that names one places it. The
+ * kits its project lists join next, the same way (M3.3, D41).
  */
 import { createGame, engineModules, isRecordId, type MetricSpec, type Module, type Policy } from '@eb/core';
+import { kitModules } from '@eb/kits';
 
 export interface ProjectGame {
   readonly modules: readonly Module[];
@@ -41,8 +43,8 @@ const shapeProblem = (what: string): GameRead => ({
   problem: { code: 'E032', message: `scripts/game.ts must export ${what}`, script: 'game' },
 });
 
-/** The game in game.ts's exports, the engine's modules joined, checked by making it once. */
-export function readGame(exports: Readonly<Record<string, unknown>>): GameRead {
+/** The game in game.ts's exports, the engine's modules and the kits' joined, checked by making it once. */
+export function readGame(exports: Readonly<Record<string, unknown>>, kits: readonly string[] = []): GameRead {
   const { modules, start, policies = [], metrics = [] } = exports;
   if (!Array.isArray(modules) || modules.length === 0 || !modules.every(isModule)) {
     return shapeProblem('modules: a list of modules made by defineModule');
@@ -54,8 +56,14 @@ export function readGame(exports: Readonly<Record<string, unknown>>): GameRead {
   if (!Array.isArray(metrics) || !metrics.every(isMetric)) {
     return shapeProblem('metrics, if any: fact ids, or { fact, args, label }');
   }
+  const kitted = kitModules(kits);
+  const clash = modules.find((m) => kitted.some((kit) => kit.id === m.id && kit !== m));
+  if (clash) {
+    const message = `Its module "${clash.id}" has the id of the ${clash.id} kit, which project.json lists: name it otherwise`;
+    return { ok: false, problem: { code: 'E031', message, script: 'game' } };
+  }
   const named = new Set(modules.map((m) => m.id));
-  const all = [...engineModules.filter((m) => !named.has(m.id)), ...modules];
+  const all = [...[...engineModules, ...kitted].filter((m) => !named.has(m.id)), ...modules];
   try {
     createGame({ modules: all, start });
   } catch (error) {

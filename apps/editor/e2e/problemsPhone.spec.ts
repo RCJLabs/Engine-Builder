@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
-import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
+import { expectNoAxeIssues, expectNothingOffscreen, offlineSaved, smallTargets, watchErrors } from './checks.ts';
 import { importLudus, LUDUS, PNG, SPICULUS, showAssets } from './ludus.ts';
 
 const spiculus = JSON.parse(readFileSync(join(LUDUS, SPICULUS), 'utf8'));
@@ -63,6 +63,8 @@ for (const viewport of [
     test('a refused step shows as a toast in reach, and its line stays in the console', async ({ page }) => {
       const errors = watchErrors(page);
       await importLudus(page, { 'assets/assets.json': '{ "files": ' });
+      // The two refusals below must be the console's last lines, one after the other.
+      await offlineSaved(page);
       const panel = await showAssets(page);
       const [chooser] = await Promise.all([
         page.waitForEvent('filechooser'),

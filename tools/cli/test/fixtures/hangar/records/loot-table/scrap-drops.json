@@ -1,0 +1,10 @@
+{
+  "name": "Scrap run: drops",
+  "entries": [
+    {
+      "table": "scrap-parts",
+      "weight": 80
+    }
+  ],
+  "nothing": 20
+}

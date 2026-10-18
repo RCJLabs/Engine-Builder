@@ -5,7 +5,7 @@
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { compileProject, type ProjectSource } from '@eb/compiler';
+import { compileProject, type ProjectSource, readKits } from '@eb/compiler';
 import {
   compareGolden,
   createGame,
@@ -22,6 +22,7 @@ import {
   seedsOf,
   sweep,
 } from '@eb/core';
+import { kitModules } from '@eb/kits';
 import { type GameModule, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
 import { formatGolden } from './simReport.ts';
@@ -39,10 +40,14 @@ export interface SimFlags {
 /** 0 when the runs are fine, 1 when the content has errors, an offer was refused or a golden differs. */
 export async function runSim(source: ProjectSource, loaded: GameModule, flags: SimFlags): Promise<number> {
   if (flags.update && !flags.golden) throw new UsageError('--update needs --golden <file>');
+  // The kits the project lists join a --game module's game as they join a project's own (D41),
+  // unless it names them; a project game's already have.
+  const kits = kitModules(await readKits(source)).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
+  const modules = [...kits, ...loaded.modules];
   // The game's modules are all it has, so content may name no other fact or event.
   const compiled = await compileProject(source, loaded.recordTypes, {
-    facts: factCatalog(loaded.modules),
-    events: eventCatalog(loaded.modules),
+    facts: factCatalog(modules),
+    events: eventCatalog(modules),
     ...(loaded.effects ? { effects: loaded.effects } : {}),
     ...(loaded.effectNames ? { effectNames: loaded.effectNames } : {}),
   });
@@ -56,7 +61,7 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const policies = new Map([randomPolicy, ...loaded.policies].map((p) => [p.name, p]));
   const policy = policies.get(settings.policy);
   if (!policy) throw new UsageError(`No policy "${settings.policy}": this game has ${[...policies.keys()].join(', ')}`);
-  const game = createGame({ modules: loaded.modules, start: loaded.start });
+  const game = createGame({ modules, start: loaded.start });
   const sim = { content: createRecordStore(pack.records) };
   const { maxTurns } = settings;
   const { report, runs } = sweep(game, sim, { seeds: settings.seeds, policy, maxTurns, metrics: loaded.metrics });

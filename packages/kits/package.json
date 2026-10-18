@@ -1,0 +1,20 @@
+{
+  "name": "@eb/kits",
+  "private": true,
+  "version": "0.0.1",
+  "description": "The engine's kits (M3.3, D41): pure modules for what most games share, switched on in project.json. So far the inventory and the economy.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "eb": {
+    "pure": true
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*"
+  }
+}

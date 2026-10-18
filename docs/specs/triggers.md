@@ -184,5 +184,5 @@ The engine's effect schemas (`setFlagEffect()`, `addToFlagEffect()`, `rollEffect
 3. **Renamed once rows.** They run again in older saves. The editor could warn when a once row's id changes, or a sheet could keep the ids its rows had.
 4. **Flags read by code.** A flag only a game's code reads warns W108. A module could declare the flags it reads.
 5. **Flags that outlive a run,** such as rule-or-drool's legacies, belong with saves and slots (Phase 4).
-6. **What a game's own effects change.** The lint knows set-flag and add-to-flag. A kit's facts set by its effects (M3.3) would need effects to say what they change, conditions.md's question 2 in its wider form.
+6. **What a game's own effects change.** The lint knows set-flag and add-to-flag. A kit's facts set by its effects would need effects to say what they change, conditions.md's question 2 in its wider form. M3.3's kits don't say it yet: a condition on `inventory.count(medkit)` is never linted as unreachable.
 7. **Rows on mode changes.** The kernel's own `mode` beat isn't an event yet.

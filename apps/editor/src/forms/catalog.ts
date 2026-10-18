@@ -8,7 +8,7 @@ import { type ProjectSource, RECORDS_DIR, readProjectFiles, type TypeReport } fr
 import { type DataType, type Diagnostic, isEngineType, type RecordType } from '@eb/schema';
 
 export interface Catalog {
-  /** The project's types whose files are sound, by name, and the engine's flag and sheet (D36). */
+  /** The project's types whose files are sound, by name, the engine's flag and sheet (D36) and the kits' (D41). */
   readonly types: ReadonlyMap<string, DataType>;
   /** What is wrong with each type file that has problems, by type: its first problem. */
   readonly broken: ReadonlyMap<string, TypeReport>;
@@ -26,6 +26,8 @@ export interface Catalog {
   readonly logProblem?: string;
   /** Every type for validation, stand-ins for broken ones included. */
   readonly recordTypes: readonly RecordType[];
+  /** The kits project.json turns on (M3.3, D41), in the engine's order. */
+  readonly kits: readonly string[];
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log. The record index has the rest.
@@ -41,6 +43,7 @@ export const EMPTY_CATALOG: Catalog = {
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
+  kits: [],
   problems: [],
 };
 
@@ -76,6 +79,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
+    kits: read.kits,
     problems: read.diagnostics,
   };
 }

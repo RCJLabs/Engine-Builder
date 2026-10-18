@@ -1,0 +1,17 @@
+{
+  "name": "Claim jumpers: parts",
+  "entries": [
+    {
+      "item": "corridor",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 1
+    },
+    {
+      "item": "pointdefense",
+      "weight": 1
+    }
+  ]
+}

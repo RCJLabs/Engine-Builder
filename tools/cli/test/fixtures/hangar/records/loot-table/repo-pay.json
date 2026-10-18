@@ -1,0 +1,13 @@
+{
+  "name": "Repossession: pay",
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 20,
+        "max": 40
+      }
+    }
+  ]
+}

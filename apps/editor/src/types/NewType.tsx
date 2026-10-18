@@ -1,11 +1,26 @@
-import { isEngineType } from '@eb/schema';
+import { isEngineType, kitOf } from '@eb/schema';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
+import type { Catalog } from '../forms/catalog.ts';
 import { slugify } from '../forms/labels.ts';
 import { chosen } from '../forms/selection.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { createType } from './typeActions.ts';
+
+/** Whether the type is one the project has already: its own, the engine's or a kit's. */
+const isTaken = (catalog: Catalog, type: string) => catalog.types.has(type) || catalog.broken.has(type);
+
+/** Why the name typed can't be a new type's, or null when it can (or nothing is typed yet). */
+export function newTypeProblem(typed: string, catalog: Catalog): string | null {
+  const type = slugify(typed);
+  const kit = kitOf(type, catalog.kits);
+  if (typed.trim() === '') return null;
+  if (type === '') return 'Use letters or digits';
+  if (isEngineType(type)) return `${type} is one of the engine’s own types`;
+  if (kit !== undefined) return `${type} is the ${kit} kit’s type: Edit type adds fields to it`;
+  return isTaken(catalog, type) ? `There is a type ${type} already` : null;
+}
 
 /**
  * Naming a new type (M2.6): what is typed is its title, and makes its name ("Chariot Team" is
@@ -20,18 +35,9 @@ export function NewType({ project }: { project: OpenProject }) {
   useLayoutEffect(() => box.current?.focus(), []);
   const canEdit = editing.access.value.kind === 'editing';
   const type = slugify(typed);
-  const taken = catalog.types.has(type) || catalog.broken.has(type);
+  const taken = isTaken(catalog, type);
   const waiting = catalog.records.get(type)?.length ?? 0;
-  const problem =
-    typed.trim() === ''
-      ? null
-      : type === ''
-        ? 'Use letters or digits'
-        : isEngineType(type)
-          ? `${type} is one of the engine’s own types`
-          : taken
-            ? `There is a type ${type} already`
-            : null;
+  const problem = newTypeProblem(typed, catalog);
   const said =
     type === ''
       ? 'Lowercase words joined by hyphens make its name.'

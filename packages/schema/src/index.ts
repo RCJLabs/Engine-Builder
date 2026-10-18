@@ -50,6 +50,19 @@ export {
 } from './engineTypes.ts';
 export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema, typeFileJsonSchema } from './jsonSchema.ts';
+export { KitChecks } from './kitCheck.ts';
+export { type EffectFile, effectSchema, KIT_EFFECT_FILES, kitEffectFiles, kitEffectSchemas } from './kitEffects.ts';
+export {
+  ITEM_TYPE_FILE,
+  isKitType,
+  joinKitType,
+  kitClash,
+  kitDataTypes,
+  kitOf,
+  kitTypeFiles,
+  RESOURCE_TYPE_FILE,
+  SHOP_TYPE_FILE,
+} from './kitTypes.ts';
 export { ENGINE_EVENTS, ENGINE_FACTS, type Known, type KnownOptions, knownFrom } from './known.ts';
 export { packValue } from './packValue.ts';
 export {
@@ -88,7 +101,7 @@ export {
   typeRefs,
   type ValueDef,
 } from './typeFile.ts';
-export { COLOUR_PATTERN, type DataType, typeFromFile } from './typeSchema.ts';
+export { COLOUR_PATTERN, type DataType, fieldShape, typeFromFile } from './typeSchema.ts';
 export {
   type RecordInput,
   type Usage,

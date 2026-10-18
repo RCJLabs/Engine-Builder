@@ -7,22 +7,25 @@ import { stateHash } from './stateHash.ts';
 
 /**
  * The newest format this engine reads and writes. Format 2 (M3.2) adds the project's scripts as
- * JavaScript. A pack without scripts is still written as format 1, so an older engine reads it and
- * its hash stays what it was.
+ * JavaScript; format 3 (M3.3) the kits its project lists, scripts or none. A pack is written in
+ * the lowest format that holds it, so one without scripts or kits is still format 1, an older
+ * engine reads it and its hash stays what it was.
  */
-export const PACK_FORMAT = 2;
+export const PACK_FORMAT = 3;
 
 export interface PackProject {
   readonly id: string;
   readonly name: string;
   readonly version: string;
+  /** Format 3 only: the kits the project lists, in the engine's order (M3.3, D41). */
+  readonly kits?: readonly string[];
 }
 
 export interface Pack {
-  readonly format: 1 | 2;
+  readonly format: 1 | 2 | 3;
   readonly project: PackProject;
   readonly records: RecordPack;
-  /** Format 2 only: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
+  /** Format 2, and 3 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
   readonly scripts?: Readonly<Record<string, string>>;
   /** FNV-1a 64 of the canonical JSON of the rest of the pack: the same content gives the same hash anywhere. */
   readonly hash: string;
@@ -36,16 +39,20 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
     ...(pack.scripts !== undefined ? { scripts: pack.scripts } : {}),
   });
 
-/** A pack of the records, and of the scripts when there are any (format 2). */
+/** A pack of the records, with the scripts when there are any (format 2) and the kits when the project lists any (format 3). */
 export function createPack(
   project: PackProject,
   records: RecordPack,
   scripts?: Readonly<Record<string, string>>,
 ): Pack {
+  const scripted = scripts !== undefined && Object.keys(scripts).length > 0;
+  const { kits, ...plain } = project;
   const content =
-    scripts !== undefined && Object.keys(scripts).length > 0
-      ? ({ format: 2, project, records, scripts } as const)
-      : ({ format: 1, project, records } as const);
+    kits !== undefined && kits.length > 0
+      ? ({ format: 3, project: { ...plain, kits }, records, ...(scripted ? { scripts } : {}) } as const)
+      : scripted
+        ? ({ format: 2, project: plain, records, scripts } as const)
+        : ({ format: 1, project: plain, records } as const);
   return { ...content, hash: packHash(content) };
 }
 
@@ -65,18 +72,18 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (value.format !== 1 && value.format !== 2) {
+  if (value.format !== 1 && value.format !== 2 && value.format !== 3) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
         : `Unknown pack format: ${JSON.stringify(value.format)}`,
     );
   }
-  const scripted = value.format === 2;
-  checkKeys(value, ['format', 'project', 'records', ...(scripted ? ['scripts'] : []), 'hash'], 'pack');
-  checkProject(value.project);
+  const { format } = value;
+  checkKeys(value, ['format', 'project', 'records', ...(format >= 2 ? ['scripts'] : []), 'hash'], 'pack');
+  checkProject(value.project, format === 3);
   checkRecords(value.records);
-  if (scripted) checkScripts(value.scripts);
+  if (format === 2 || value.scripts !== undefined) checkScripts(value.scripts, format);
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;
   const actual = packHash(pack);
@@ -90,17 +97,23 @@ function checkKeys(value: Readonly<Record<string, unknown>>, allowed: readonly s
   if (extra.length > 0) throw new PackError(`Unknown ${what} fields: ${extra.join(', ')}`);
 }
 
-function checkProject(project: unknown): void {
+function checkProject(project: unknown, kitted: boolean): void {
   if (!isObject(project)) throw new PackError('The pack has no project');
-  checkKeys(project, ['id', 'name', 'version'], 'pack project');
+  checkKeys(project, ['id', 'name', 'version', ...(kitted ? ['kits'] : [])], 'pack project');
   if (!isRecordId(project.id)) throw new PackError('The pack project has no valid id');
   for (const key of ['name', 'version'] as const) {
     if (typeof project[key] !== 'string') throw new PackError(`The pack project has no ${key}`);
   }
+  if (!kitted) return;
+  const { kits } = project;
+  if (!Array.isArray(kits) || kits.length === 0 || !kits.every(isRecordId)) {
+    throw new PackError('A format 3 pack lists its kits');
+  }
 }
 
-function checkScripts(scripts: unknown): void {
-  if (!isObject(scripts) || Object.keys(scripts).length === 0) throw new PackError('A format 2 pack has no scripts');
+function checkScripts(scripts: unknown, format: number): void {
+  if (!isObject(scripts) || Object.keys(scripts).length === 0)
+    throw new PackError(`A format ${format} pack has no scripts`);
   for (const [id, js] of Object.entries(scripts)) {
     if (!isRecordId(id)) throw new PackError(`"${id}" is not a valid script name`);
     if (typeof js !== 'string') throw new PackError(`The pack's script "${id}" is not text`);

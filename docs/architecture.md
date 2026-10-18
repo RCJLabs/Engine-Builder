@@ -127,9 +127,9 @@ One condition language and one effect vocabulary serve quests, dialogue, events,
 
 // effects: a list; a roll picks weighted outcomes and preview() shows the exact odds
 [
-  { "effect": "resource", "id": "credits", "delta": -20 },
+  { "effect": "pay-cost", "cost": { "credits": 20 } },
   { "effect": "roll", "outcomes": [
-    { "chance": 70, "text": "The crate comes back.", "effects": [{ "effect": "loot", "table": "salvage" }] },
+    { "chance": 70, "text": "The crate comes back.", "effects": [{ "effect": "roll-loot", "table": "salvage" }] },
     { "chance": 30, "text": "A door gives way.",     "effects": [{ "effect": "wound", "hp": 3 }] }
   ] },
   { "effect": "schedule", "after": { "days": 3 }, "effects": [{ "effect": "event", "id": "debt-collector" }] }
@@ -146,6 +146,7 @@ The exact rules are in [specs/conditions.md](specs/conditions.md) (M1.6).
 - **Flags** (M3.1, D36) are what content remembers: declared records, on or off or a whole number with bounds. `set-flag` and `add-to-flag` change them, `flag.on` and `flag.number` read them, and a lint warns of flags set but never read, read but never set, or never named (rule-or-drool's graph rules), [specs/triggers.md](specs/triggers.md).
 - **Effect fields.** `effect()` marks a field that holds an effect, checked against the effects known: the engine's own, or a game's when `--types` or its scripts/game.ts give them (M3.2).
 - **Scripts** (M3.2, D38) are `scripts/<id>.ts`, checked without running (E028 to E030, W111, W112) and packed as JavaScript, pack format 2, once game.ts reaches them ([specs/scripts.md](specs/scripts.md)).
+- **Kits** (M3.3, D41) are the engine's modules for what most games share, listed in `project.json`: the inventory kit (items, the party's bag, loot tables) and the economy kit (resources, shops). A kit that is on brings its record types, as type files a project can add fields to, its facts, events and effects, and its module, which joins the game. Every price a shop shows or charges comes from one quote, exact in BigInt ([specs/kits.md](specs/kits.md)). M3.4 adds the stats kit.
 
 ## Logic layers
 
@@ -304,6 +305,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Assets in their own panel, each with its provenance in `assets/assets.json`: imported with a licence from a fixed list, previewed, renamed or replaced with the records that name them, and stand-ins drawn until the art is ready. A file with no provenance stops the build (M2.7, D34, [specs/editor-assets.md](specs/editor-assets.md)).
   - A Problems panel listing what `eb validate` would say, from the same reading of the project's files, each problem a way to where it is fixed; a console that marks errors, with a toast for each on every layout; and `eb schemas`, so VS Code checks records edited by hand (M2.8, D35, [specs/editor-problems.md](specs/editor-problems.md)).
   - A Logic panel listing each trigger sheet with its rows as cards and each flag with what the lint says, and a sheet editor in the inspector: When from the engine's events, If as a condition, Do as a list of effects with forms for the engine's own and JSON for a game's (M3.1, D36, [specs/editor-logic.md](specs/editor-logic.md)).
+  - Kits turned on in the Project panel, their types among the project's, their effects in a row's Do with forms drawn from their fields, and a kit's type in the designer with its fields locked and the project's own after them (M3.3, D41, [specs/editor-kits.md](specs/editor-kits.md)).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.
@@ -315,7 +317,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 
 ```
 packages/core       pure: rng, hash, records runtime, conditions/effects, reducers, events, clock, flags and trigger sheets (M3.1)
-packages/kits       pure: stats/effects, inventory/loot, factions, economy, roster, quests, dialogue, events
+packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats, factions, roster later
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
 packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
@@ -349,5 +351,5 @@ These are set from readings, not guesses (see ROADMAP Readings).
 
 ## Open questions
 
-- Whether `kits` stays one package or splits by kit once there are several. Decide at M3.3 from the import graph.
+- Whether `kits` stays one package or splits by kit. Settled for now at M3.3: one package, a folder each, the kits reaching each other only through facts and effects and sharing only the loot draw, so a split later costs little.
 - Whether the sim moves into a Web Worker for 3D games. The action/event boundary already allows it; decide from frame-time readings in Phase 6.

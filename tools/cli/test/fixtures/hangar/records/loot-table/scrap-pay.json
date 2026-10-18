@@ -1,0 +1,13 @@
+{
+  "name": "Scrap run: pay",
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 40,
+        "max": 60
+      }
+    }
+  ]
+}

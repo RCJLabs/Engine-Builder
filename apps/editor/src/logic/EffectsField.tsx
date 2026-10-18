@@ -5,15 +5,17 @@
  * picks its kind first.
  */
 import type { Effect } from '@eb/core';
+import { kitEffectFiles } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { FieldNotes } from '../forms/FieldShell.tsx';
 import { FieldView } from '../forms/FieldView.tsx';
 import { pointerOf, useForm } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
-import { openGame, ownEffectsOf } from '../scripts/known.ts';
+import { openGame, openKits, ownEffectsOf } from '../scripts/known.ts';
 import { FlagSelect, flagOf, OnOffSelect } from './choices.tsx';
 import { JsonField } from './JsonField.tsx';
+import { KitEffect, kitEffectFile, newKitEffect } from './KitEffect.tsx';
 import { effectText } from './rowText.ts';
 import { moved, NEW_EFFECTS, type NewEffect, newEffect, without } from './sheetEdits.ts';
 
@@ -74,6 +76,7 @@ function EffectItem(props: {
   const { path, value, number, up, down, remove } = props;
   const form = useForm();
   const kind = isObject(value) ? value.effect : undefined;
+  const kit = kitEffectFile(kind, openKits());
   const title = `${number}. ${effectText(value)}`;
   return (
     <div class="logic-effect-body" data-at={pointerOf(path)}>
@@ -114,6 +117,8 @@ function EffectItem(props: {
         </>
       ) : kind === 'roll' ? (
         <Roll path={path} value={value as Record<string, unknown>} />
+      ) : kit ? (
+        <KitEffect file={kit} path={path} value={value as Record<string, unknown>} />
       ) : (
         <JsonField label="Effect" path={path} value={value} />
       )}
@@ -203,8 +208,9 @@ function Roll({ path, value }: { path: Path; value: Record<string, unknown> }) {
   );
 }
 
-/** A select's value for one of the game's own effects. */
+/** A select's value for one of the game's own effects, and for a kit's. */
 const GAME_EFFECT = 'game:';
+const KIT_EFFECT = 'kit:';
 
 /** The kind of effect to add, then Add: a select alone would add on every arrow key in some browsers. */
 function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string) => void }) {
@@ -213,12 +219,15 @@ function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string
   const [kind, setKind] = useState('set-flag');
   if (!form.canEdit) return null;
   const engine = (Object.keys(NEW_EFFECTS) as NewEffect[]).filter((k) => k !== 'other');
+  const kits = kitEffectFiles(openKits());
   const own = ownEffectsOf(openGame());
   const pick = () => {
     if (kind.startsWith(GAME_EFFECT)) {
       const name = kind.slice(GAME_EFFECT.length);
       return add({ effect: name }, name);
     }
+    const kit = kitEffectFile(kind.slice(KIT_EFFECT.length), openKits());
+    if (kind.startsWith(KIT_EFFECT) && kit) return add(newKitEffect(kit), kit.label.toLowerCase());
     const known = kind as NewEffect;
     add(newEffect(known), NEW_EFFECTS[known].label.toLowerCase());
   };
@@ -231,6 +240,11 @@ function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string
         {engine.map((k) => (
           <option key={k} value={k}>
             {NEW_EFFECTS[k].label}
+          </option>
+        ))}
+        {kits.map((file) => (
+          <option key={file.effect} value={`${KIT_EFFECT}${file.effect}`}>
+            {file.label}
           </option>
         ))}
         {own.map((name) => (

@@ -1,0 +1,53 @@
+{
+  "name": "Dutch's stock",
+  "picks": {
+    "min": 4
+  },
+  "unique": true,
+  "entries": [
+    {
+      "item": "engine",
+      "weight": 9
+    },
+    {
+      "item": "reactor",
+      "weight": 1
+    },
+    {
+      "item": "quarters",
+      "weight": 1
+    },
+    {
+      "item": "lifesupport",
+      "weight": 1
+    },
+    {
+      "item": "corridor",
+      "weight": 2
+    },
+    {
+      "item": "airlock",
+      "weight": 1
+    },
+    {
+      "item": "cargo",
+      "weight": 2
+    },
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 1
+    },
+    {
+      "item": "weapon",
+      "weight": 1
+    },
+    {
+      "item": "shield",
+      "weight": 1
+    }
+  ]
+}

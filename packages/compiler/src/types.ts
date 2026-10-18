@@ -12,6 +12,10 @@ import {
   ENGINE_TYPES,
   FLAG_TYPE,
   isEngineType,
+  joinKitType,
+  kitClash,
+  kitOf,
+  kitTypeFiles,
   type RecordType,
   readTypeFile,
   SHEET_DATA,
@@ -32,33 +36,48 @@ export interface TypeReport {
 }
 
 export interface ProjectTypes {
-  /** The engine's types, the code types, the data types, and a stand-in for each type file that has problems. */
+  /** The engine's types, the kits', the code types, the data types, and a stand-in for each type file that has problems. */
   readonly types: readonly RecordType[];
   /** The types whose files have problems: their records aren't checked. */
   readonly unchecked: ReadonlySet<string>;
-  /** The data types that are sound, by name, for forms: the engine's flag and sheet (D36) among them. */
+  /** The data types that are sound, by name, for forms: the engine's flag and sheet (D36) and the kits' (D41) among them. */
   readonly data: ReadonlyMap<string, DataType>;
 }
 
 const typeFile = (type: string) => `${TYPES_DIR}/${type}.json`;
 
+/**
+ * The project's types, with the kits on (M3.3, D41): a kit's type is the engine's, and a
+ * project's types/<type>.json for it adds fields after the kit's. Throws on a programmer error:
+ * a game's code defining a type a kit that is on has.
+ */
 export async function readTypes(
   source: ProjectSource,
   code: readonly RecordType[],
   report: (r: TypeReport) => void,
+  kits: readonly string[] = [],
 ): Promise<ProjectTypes> {
+  const kitFiles = kitTypeFiles(kits);
+  for (const t of code) {
+    if (kitFiles.has(t.type)) {
+      throw new Error(
+        `The game's code defines "${t.type}", which the ${kitOf(t.type, kits)} kit has (D41): name yours otherwise`,
+      );
+    }
+  }
   const taken = new Set([...ENGINE_TYPES, ...code].map((t) => t.type));
   const files = new Map<string, TypeFile | null>();
   for (const path of [...(await source.files(TYPES_DIR))].sort()) {
-    const found = await readOne(source, path, taken, report);
+    const found = await readOne(source, path, { taken, kits, kitFiles }, report);
     if (found) files.set(found.type, found.file);
   }
   // Every type there is, sound or not, so a ref to a type whose file has problems isn't one more.
-  const known = new Set([...taken, ...files.keys()]);
+  const known = new Set([...taken, ...kitFiles.keys(), ...files.keys()]);
   const data = new Map<string, DataType>([
     [FLAG_TYPE.type, FLAG_TYPE],
     [SHEET_DATA.type, SHEET_DATA],
   ]);
+  for (const [type, file] of kitFiles) if (!files.has(type)) data.set(type, kitType(type, file, kits));
   for (const [type, file] of files) {
     if (file === null) continue;
     const unknown = typeRefs(file).filter((r) => !known.has(r.type));
@@ -66,7 +85,7 @@ export async function readTypes(
       const message = `No record type "${r.type}": add ${typeFile(r.type)}, or name a type the project has`;
       report({ code: 'E016', message, file: typeFile(type), path: r.path });
     }
-    if (unknown.length === 0) data.set(type, typeFromFile(type, file));
+    if (unknown.length === 0) data.set(type, kitFiles.has(type) ? kitType(type, file, kits) : typeFromFile(type, file));
   }
   const unchecked = new Set([...files.keys()].filter((type) => !data.has(type)));
   const standIns = [...unchecked].map((type) => standIn(type));
@@ -74,11 +93,23 @@ export async function readTypes(
   return { types: [...ENGINE_TYPES, ...code, ...own, ...standIns], unchecked, data };
 }
 
+/** A kit's type, its own fields marked so the type designer keeps them as they are. */
+function kitType(type: string, file: TypeFile, kits: readonly string[]): DataType {
+  const fields = Object.keys(kitTypeFiles(kits).get(type)?.fields ?? {});
+  return { ...typeFromFile(type, file), kit: { id: kitOf(type, kits) as string, fields } };
+}
+
+interface Taken {
+  readonly taken: ReadonlySet<string>;
+  readonly kits: readonly string[];
+  readonly kitFiles: ReadonlyMap<string, TypeFile>;
+}
+
 /** One file under types/: its type and field model, null for a type whose file has problems, or nothing. */
 async function readOne(
   source: ProjectSource,
   path: string,
-  taken: ReadonlySet<string>,
+  { taken, kits, kitFiles }: Taken,
   report: (r: TypeReport) => void,
 ): Promise<{ type: string; file: TypeFile | null } | undefined> {
   const role = classifyTypeFile(path);
@@ -112,7 +143,11 @@ async function readOne(
     report({ code: 'E007', message: parsed.message, file: path, path: '' });
     return { type, file: null };
   }
-  const read = readTypeFile(parsed.value);
+  const kitFile = kitFiles.get(type);
+  const joined = kitFile ? joinKitType(kitFile, parsed.value) : { joined: parsed.value, clashes: [] };
+  const kit = kitOf(type, kits) ?? '';
+  for (const name of joined.clashes) report({ code: 'E037', ...kitClash(kit, type, name), file: path });
+  const read = readTypeFile(joined.joined);
   if (read.ok) return { type, file: read.file };
   for (const issue of read.issues) report({ code: 'E015', ...issue, file: path });
   return { type, file: null };

@@ -4,7 +4,7 @@
  */
 import { formatRef, pointerSegment } from '@eb/core';
 import { type Diagnostic, type RecordInput, type TypeFile, type ValueDef, validateRecords } from '@eb/schema';
-import { flagRelated } from '../records/flagRelated.ts';
+import { flagRelated, lootRelated } from '../records/flagRelated.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import type { Catalog } from './catalog.ts';
 
@@ -26,7 +26,8 @@ export function checkRecord(
     for (const each of ids) {
       if (other === type && each === id) continue;
       const known = index?.records.get(formatRef(other, each));
-      const read = known && flagRelated(known) && known.unreadable === undefined && !catalog.broken.has(other);
+      const related = known && (flagRelated(known) || lootRelated(known));
+      const read = related && known.unreadable === undefined && !catalog.broken.has(other);
       records.push(
         read
           ? { type: other, id: each, value: known.value }
@@ -35,7 +36,7 @@ export function checkRecord(
     }
   }
   const assets = new Set(catalog.assets);
-  return validateRecords(catalog.recordTypes, records, { assets }).diagnostics.filter(
+  return validateRecords(catalog.recordTypes, records, { assets, kits: catalog.kits }).diagnostics.filter(
     (d) => d.type === type && d.id === id,
   );
 }

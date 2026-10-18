@@ -1,0 +1,11 @@
+{
+  "name": "Life support",
+  "value": 90,
+  "tags": ["part"],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

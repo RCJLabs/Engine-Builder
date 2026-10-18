@@ -1,0 +1,11 @@
+{
+  "name": "Engine",
+  "value": 200,
+  "tags": ["part"],
+  "category": "engines",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

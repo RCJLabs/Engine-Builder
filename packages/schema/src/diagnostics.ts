@@ -36,6 +36,11 @@ export const DIAGNOSTIC_CODES = {
   E030: 'A script imports something other than "eb" and other scripts, or is misplaced or misnamed',
   E031: 'The game fails when its scripts run: a script throws as it loads, or the game it makes is refused',
   E032: "scripts/game.ts doesn't export what a game needs",
+  E033: 'project.json names a kit the engine does not have, or one twice',
+  E034: 'A kit needs another that project.json leaves out',
+  E035: "A record of a kit's type doesn't hold together",
+  E036: 'Loot tables nest in a loop',
+  E037: "A project's fields for a kit's type name one of the kit's own",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -48,6 +53,7 @@ export const DIAGNOSTIC_CODES = {
   W110: 'Nothing sets or reads a flag',
   W111: 'A file under scripts/ that the compiler ignores',
   W112: "A script scripts/game.ts doesn't import, directly or through another",
+  W113: 'A shop stocks again every few days in a game without time.day',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

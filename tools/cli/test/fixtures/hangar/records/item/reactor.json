@@ -1,0 +1,11 @@
+{
+  "name": "Reactor",
+  "value": 200,
+  "tags": ["part"],
+  "category": "power",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 3
+  }
+}

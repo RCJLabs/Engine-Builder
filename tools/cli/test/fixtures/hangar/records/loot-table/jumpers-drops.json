@@ -1,0 +1,10 @@
+{
+  "name": "Claim jumpers: drops",
+  "entries": [
+    {
+      "table": "jumpers-parts",
+      "weight": 40
+    }
+  ],
+  "nothing": 60
+}

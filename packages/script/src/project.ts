@@ -13,7 +13,7 @@ export type LoadedGame =
   | { readonly ok: false; readonly problem: GameProblem };
 
 /** `compiled` holds each script's JavaScript by id; scripts/game.ts must be among them. */
-export function loadProjectGame(compiled: ReadonlyMap<string, string>): LoadedGame {
+export function loadProjectGame(compiled: ReadonlyMap<string, string>, kits: readonly string[] = []): LoadedGame {
   let exports: Readonly<Record<string, unknown>>;
   try {
     exports = loadScripts(compiled, GAME_SCRIPT);
@@ -29,7 +29,7 @@ export function loadProjectGame(compiled: ReadonlyMap<string, string>): LoadedGa
       },
     };
   }
-  const read = readGame(exports);
+  const read = readGame(exports, kits);
   if (!read.ok) return read;
   return { ok: true, game: read.game, catalog: gameCatalog(read.game) };
 }

@@ -303,8 +303,27 @@ describe('the code table', () => {
         'scripts/notes.md': '',
       }),
     );
+    // Kits (M3.3): one the engine doesn't have, one whose need is left out, a resource that starts
+    // below its lowest, a table in a loop, a project's field with a kit field's name, and a shop
+    // that stocks again in a game without days.
+    const kitted = (kits: string[], files: Record<string, string>) =>
+      compileProject(
+        memorySource({
+          'project.json': JSON.stringify({ format: 1, id: 'kits', name: 'Kits', version: '0.1.0', kits }),
+          ...files,
+        }),
+        [],
+        { facts: ENGINE_FACTS },
+      );
+    const kits = await kitted(['inventory', 'economy', 'magic'], {
+      'records/resource/credits.json': '{ "start": -1 }',
+      'records/loot-table/a.json': '{ "entries": [{ "table": "a", "weight": 1 }] }',
+      'records/shop/yard.json': '{ "currency": "credits", "stock": { "every": { "days": 2 } } }',
+      'types/item.json': '{ "fields": { "value": { "kind": "text" } } }',
+    });
+    const needs = await kitted(['economy'], {});
     const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts].flatMap((r) =>
+      [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs].flatMap((r) =>
         r.diagnostics.map((d) => d.code),
       ),
     );

@@ -1,4 +1,5 @@
 import { compileProject, memorySource } from '@eb/compiler';
+import { ITEM_TYPE_FILE } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { arena, FIGHTER } from '../../test/fighter.ts';
 import { routedProblems, typeProblems } from './designProblems.ts';
@@ -58,6 +59,40 @@ describe('the designer’s problems', () => {
     ]);
     const refs = { ...sound, nameField: 'name', fields: { ...sound.fields, style: { kind: 'enum', values: ['a'] } } };
     expect([...routedProblems(refs, TYPES, 'types/fighter.json').keys()]).toEqual(['/fields/rival/to/1']);
+  });
+});
+
+describe('the designer’s problems for a kit’s type', () => {
+  /** The arena with the inventory kit on and `json` as the fields of its own on the kit's item. */
+  const withItem = (json: unknown) => ({
+    ...arena(),
+    'project.json': JSON.stringify({ format: 1, id: 'arena', name: 'Arena', version: '0.1.0', kits: ['inventory'] }),
+    'types/item.json': JSON.stringify(json),
+  });
+  const kitTypes = [...TYPES, 'item', 'loot-table'];
+  const ITEM = { id: 'inventory', type: 'item', file: ITEM_TYPE_FILE };
+
+  it.each([
+    ['a field with a kit field’s name', { title: 'Item', fields: { value: { kind: 'int' }, maker: { kind: 'text' } } }],
+    ['a name field of the kit’s', { title: 'Part', nameField: 'name', fields: { maker: { kind: 'text' } } }],
+    ['a ref to a kit’s type', { title: 'Item', fields: { drops: { kind: 'ref', to: 'loot-table' } } }],
+    ['a misspelled key', { title: 'Item', fields: { maker: { kind: 'text', optinal: true } } }],
+    ['a ref to a type with no file', { title: 'Item', fields: { maker: { kind: 'ref', to: 'guild' } } }],
+  ])('are the compiler’s for %s, joined to the kit’s first', async (_name, json) => {
+    const { diagnostics } = await compileProject(memorySource(withItem(json)), []);
+    const compiled = diagnostics
+      .filter((d) => d.file === 'types/item.json')
+      .map((d) => `${d.code} ${d.path}: ${d.message}`);
+    const shown = typeProblems(json, kitTypes, 'types/item.json', ITEM).map((d) => `${d.code} ${d.path}: ${d.message}`);
+    expect(shown).toEqual(compiled);
+  });
+
+  it('says a field with a kit field’s name is the kit’s, at that field', () => {
+    const json = { title: 'Item', fields: { value: { kind: 'int' } } };
+    expect(typeProblems(json, kitTypes, 'types/item.json', ITEM).map((d) => `${d.code} ${d.path}`)).toEqual([
+      'E037 /fields/value',
+    ]);
+    expect([...routedProblems(json, kitTypes, 'types/item.json', ITEM).keys()]).toEqual(['/fields/value']);
   });
 });
 

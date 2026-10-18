@@ -6,9 +6,12 @@ import { RenameForm } from './RenameForm.tsx';
 import { deleteTypeAction, renameTypeAction } from './typeActions.ts';
 import { refersTo } from './typeFileChanges.ts';
 
-/** The type's name and file, with Rename and Delete: each one step, which undo takes back. */
+/**
+ * The type's name and file, with Rename and Delete: each one step, which undo takes back. A kit's
+ * type (M3.3) has neither: its name is the kit's, and turning the kit off is how it goes.
+ */
 export function TypeHead() {
-  const { type, title, file, canEdit, project } = useDesign();
+  const { type, title, file, canEdit, project, kit } = useDesign();
   const [doing, setDoing] = useState<'rename' | 'delete' | null>(null);
   const rename = useRef<HTMLButtonElement>(null);
   const del = useRef<HTMLButtonElement>(null);
@@ -21,7 +24,7 @@ export function TypeHead() {
     <>
       <header class="record-head">
         <h3>Type: {title}</h3>
-        {canEdit ? (
+        {canEdit && !kit ? (
           <>
             <button ref={rename} type="button" class="button" onClick={() => setDoing('rename')}>
               Rename

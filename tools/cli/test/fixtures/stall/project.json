@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "stall",
+  "name": "The stall",
+  "version": "0.1.0",
+  "kits": ["inventory"]
+}

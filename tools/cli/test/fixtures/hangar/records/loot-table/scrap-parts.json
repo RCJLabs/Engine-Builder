@@ -1,0 +1,25 @@
+{
+  "name": "Scrap run: parts",
+  "entries": [
+    {
+      "item": "cargo",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 1
+    },
+    {
+      "item": "shield",
+      "weight": 1
+    },
+    {
+      "item": "corridor",
+      "weight": 1
+    },
+    {
+      "item": "engine",
+      "weight": 1
+    }
+  ]
+}

@@ -14,7 +14,7 @@ The editor and the CLI follow it, so the same files give the same diagnostics an
 
 ```
 my-game/
-  project.json              id, name, version
+  project.json              id, name, version, and the kits it uses (M3.3)
   records/<type>/<id>.json  one record per file; records/flag/ and records/sheet/ are the engine's (M3.1)
   types/<type>.json         the project's own record types, as fields (M2.4)
   assets/                   files that asset fields name (M2.4; M2.7 imports them)
@@ -28,6 +28,7 @@ my-game/
 - **Type files** are specified in [type-files.md](type-files.md).
 - **Flags and trigger sheets** are records of the engine's own types, `flag` and `sheet`, which every project has ([triggers.md](triggers.md), D36).
 - **Scripts** are specified in [scripts.md](scripts.md) (D38).
+- **Kits** are specified in [kits.md](kits.md) (D41): a kit `project.json` lists brings its record types, and `types/<type>.json` for one of them adds fields after the kit's.
 - **Hidden entries are never read.** These are names that start with `.` (`.git`, `.DS_Store`, `.gitkeep`) and the `__MACOSX` folder that macOS adds to zips.
 
 ## project.json (format 1)
@@ -38,8 +39,9 @@ my-game/
 | `id` | a record id: kebab-case, 1 to 64 characters (`salvage-run`) |
 | `name` | text, not empty |
 | `version` | a semantic version, `MAJOR.MINOR.PATCH` with an optional pre-release (`1.2.0-beta.1`) |
+| `kits` | optional (M3.3): a list of kit ids, each once, such as `["inventory", "economy"]`. A kit the engine doesn't have, or one listed twice, is E033; one whose need is left out, E034. Neither stops `project.json` being read: that kit is off ([kits.md](kits.md)). |
 
-The object is strict, so an unknown field is an error (E008).
+The object is strict, so an unknown field is an error (E008). `kits` came without a new format: a project without it reads as before, though an engine from before M3.3 refuses one with it.
 
 **Format numbers.** `PROJECT_FORMAT` is 1, and it follows the same rule as `SAVE_VERSION`:
 
@@ -131,7 +133,7 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 
 Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)). Trigger sheets, effects and flags add E022 to E027 and W108 to W110 ([triggers.md](triggers.md#codes)). Scripts add E028 to E032, W111 and W112, with a line ([scripts.md](scripts.md)).
 
-## Content packs (formats 1 and 2)
+## Content packs (formats 1 to 3)
 
 ```json
 {
@@ -143,18 +145,19 @@ Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](typ
 ```
 
 - **Format 2** (M3.2) adds `"scripts": { "<id>": "<JavaScript>" }`: game.ts and every script it reaches, compiled by sucrase. A pack without scripts is still format 1, so its hash and its bytes are what they were, and an older engine reads it.
+- **Format 3** (M3.3) adds `project.kits`, the kits the project lists in the engine's order, with `scripts` or without. A pack is written in the lowest format that holds it, so one whose project lists no kits keeps its format 1 or 2, and its hash.
 - **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`, with `scripts` beside them in format 2. That is `stateHash` ([state-hash.md](state-hash.md)).
   - The same content gives the same hash in the editor and in the CLI, whatever the files' formatting, key order or listing order.
   - It is a fingerprint, not a signature.
 - **Bytes.** Packs are written as canonical JSON plus a newline, so the same content gives the same bytes too.
-- **The pack's own format.** `PACK_FORMAT` is 2, and it is separate from the project format: the runtime reads packs and never reads projects.
+- **The pack's own format.** `PACK_FORMAT` is 3, and it is separate from the project format: the runtime reads packs and never reads projects.
 - **The golden.** The v1 fixture's pack hash is `489cedf323bd33d9`, and [`state_hash_oracle.py`](state_hash_oracle.py) computes the same hash from the fixture's files. A change to it changes every pack built so far, so it needs a decision.
 
 `readPack(value)` throws a `PackError` unless all of these hold:
 
-- the format is 1 or 2, and a newer format asks for a newer engine;
-- the pack has exactly `format`, `project`, `records` and `hash`, and `scripts` in format 2: at least one, each a valid id with its JavaScript as text;
-- the project has exactly a valid `id`, a `name` and a `version`;
+- the format is 1, 2 or 3, and a newer format asks for a newer engine;
+- the pack has exactly `format`, `project`, `records` and `hash`, and `scripts` in format 2, and in format 3 when there are any: at least one, each a valid id with its JavaScript as text;
+- the project has exactly a valid `id`, a `name` and a `version`, and in format 3 `kits`, at least one, each a valid id;
 - `records` maps valid type names to objects keyed by valid ids;
 - the hash matches the content.
 
@@ -173,7 +176,7 @@ pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] …
 - **`--types`** names a JS or TS module whose `recordTypes` export lists record types made by `defineRecordType`.
   - Since M2.4 a project's own `types/` needs no module: `eb validate` reads them as the editor does.
   - Its `facts`, `events` and `effects` exports, or a `modules` export for the first two, are what conditions, rows and effect fields are checked against; without them, the engine's own, and any other name taken as written (M3.1, D36).
-  - Until kits exist (M3), a module is how the CLI learns a game's code types.
+  - A module is how the CLI learns a game's code types; the kits a project lists come from `project.json` (M3.3), and a code type with a kit's name, with that kit on, stops the CLI.
   - When records are of types neither defines, the CLI says where types come from.
 - **Without `--types`** (M3.2), a project with `scripts/game.ts` is checked against its own game: `eb` runs game.ts as it would a `--game` module, and `eb sim` plays it with no `--game` ([scripts.md](scripts.md#eb)).
 - **A script's problem** prints its line: `scripts/hold.ts:15: error E029: …`.
@@ -191,4 +194,4 @@ pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] …
 1. **VS Code and record schemas.** Settled in M2.8: `eb schemas` writes them into `.vscode/eb-schemas/` and maps them in `.vscode/settings.json` (D35, [editor-problems.md](editor-problems.md#eb-schemas)). Record files stay pure data, with no `$schema` key for strict objects to reject.
 2. **Duplicate keys in a JSON file.** `JSON.parse` silently keeps the last one, and a git merge can produce duplicates. A warning would need a JSON reader that sees them.
 3. **Zip size.** Settled in M2.1: `zipSource` takes limits, and the editor's import allows 10,000 files and 100 MB ([Zips](#zips)).
-4. **Where a project's record types come from.** Its own types are in `types/` since M2.4 (D31). Code types still come from `--types`: `project.json` gains a `modules` list with M3.3's kits, and the CLI then resolves those modules instead.
+4. **Where a project's record types come from.** Settled in M3.3 (D41): its own are in `types/` (D31), the engine's are flags and sheets (D36), and its kits' come with the `kits` it lists, with any fields it adds in `types/`. `--types` remains for a game whose code defines types.

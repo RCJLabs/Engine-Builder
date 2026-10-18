@@ -53,7 +53,38 @@ export function effectText(effect: unknown): string {
       return chances.length > 0 ? `roll ${chances.join(' / ')}` : 'roll';
     }
     default:
-      return effect.effect;
+      return kitEffectText(effect) ?? effect.effect;
+  }
+}
+
+// `what` with its article: "an item", "a shop".
+const named = (value: unknown, what: string) =>
+  typeof value === 'string' && value !== '' ? value : `${what} not yet chosen`;
+const times = (count: unknown) => (typeof count === 'number' && count !== 1 ? `${count} × ` : '');
+
+/** The kits' effects in a few words (M3.3): "give 2 × medkit", "pay 10 credits", "open dutch-yard". */
+function kitEffectText(effect: Record<string, unknown>): string | undefined {
+  switch (effect.effect) {
+    case 'give-item':
+      return `give ${times(effect.count)}${named(effect.item, 'an item')}`;
+    case 'take-item':
+      return `take ${times(effect.count)}${named(effect.item, 'an item')}`;
+    case 'roll-loot':
+      return `roll ${named(effect.table, 'a loot table')}`;
+    case 'add-resource':
+      return typeof effect.by === 'number' && effect.by < 0
+        ? `take ${-effect.by} ${named(effect.resource, 'a resource')}`
+        : `add ${written(effect.by)} ${named(effect.resource, 'a resource')}`;
+    case 'pay-cost': {
+      const cost = isObject(effect.cost) ? Object.entries(effect.cost) : [];
+      return cost.length === 0
+        ? 'pay a cost not yet set'
+        : `pay ${cost.map(([id, n]) => `${written(n)} ${id}`).join(' and ')}`;
+    }
+    case 'open-shop':
+      return `open ${named(effect.shop, 'a shop')}`;
+    default:
+      return undefined;
   }
 }
 

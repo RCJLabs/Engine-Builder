@@ -33,12 +33,26 @@ describe('createPack', () => {
   it('carries scripts as format 2, hashing them too (M3.2)', () => {
     const scripts = { game: 'exports.start = "play";' };
     const pack = createPack(project, records, scripts);
-    expect(pack.format).toBe(PACK_FORMAT);
+    expect(pack.format).toBe(2);
     expect(pack.scripts).toEqual(scripts);
     expect(pack.hash).not.toBe(createPack(project, records).hash);
     expect(createPack(project, records, { game: 'exports.start = "sail";' }).hash).not.toBe(pack.hash);
     // No scripts at all is a pack without them.
     expect(createPack(project, records, {})).toEqual(createPack(project, records));
+  });
+
+  it('carries the kits as format 3, scripts or none, hashing them too (M3.3)', () => {
+    const kitted = createPack({ ...project, kits: ['inventory'] }, records);
+    expect(kitted.format).toBe(PACK_FORMAT);
+    expect(kitted.project.kits).toEqual(['inventory']);
+    expect(kitted.scripts).toBeUndefined();
+    expect(kitted.hash).not.toBe(createPack(project, records).hash);
+    expect(createPack({ ...project, kits: ['inventory', 'economy'] }, records).hash).not.toBe(kitted.hash);
+    const both = createPack({ ...project, kits: ['inventory'] }, records, { game: 'exports.start = "play";' });
+    expect(both.format).toBe(3);
+    expect(both.scripts).toEqual({ game: 'exports.start = "play";' });
+    // No kits at all is the format a pack had before.
+    expect(createPack({ ...project, kits: [] }, records)).toEqual(createPack(project, records));
   });
 });
 
@@ -60,9 +74,25 @@ describe('readPack', () => {
     expect(pack.scripts).toEqual({ game: 'exports.start = "play";' });
   });
 
+  it('reads a format 3 pack, with its kits and with or without scripts', () => {
+    const kitted = readPack(reloaded(createPack({ ...project, kits: ['inventory', 'economy'] }, records)));
+    expect(kitted.format).toBe(3);
+    expect(kitted.project.kits).toEqual(['inventory', 'economy']);
+    const both = readPack(reloaded(createPack({ ...project, kits: ['inventory'] }, records, { game: 'x' })));
+    expect(both.scripts).toEqual({ game: 'x' });
+  });
+
+  it('refuses kits outside format 3, and a format 3 pack without them', () => {
+    const plain = reloaded(createPack(project, records));
+    expect(() => readPack({ ...plain, project: { ...project, kits: ['inventory'] } })).toThrow(
+      'Unknown pack project fields: kits',
+    );
+    expect(() => readPack({ ...plain, format: 3 })).toThrow('A format 3 pack lists its kits');
+  });
+
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 3 })).toThrow(
-      'This pack is format 3; this engine reads formats 1 to 2. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 4 })).toThrow(
+      'This pack is format 4; this engine reads formats 1 to 3. Update the engine.',
     );
   });
 

@@ -83,3 +83,15 @@ export async function expectNoAxeIssues(page: Page): Promise<void> {
   });
   expect(twice, 'ids on more than one element').toEqual([]);
 }
+
+/**
+ * Waits for the service worker's first install. The editor says "Offline copy saved" as it ends,
+ * once the precache is in (1.8 MB since M3.2), and the line once landed between two refused
+ * imports a test expected in a row (M3.3's check). A test whose console lines must follow each
+ * other waits for it first.
+ */
+export async function offlineSaved(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+}

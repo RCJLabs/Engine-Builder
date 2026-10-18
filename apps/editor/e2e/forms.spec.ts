@@ -242,6 +242,9 @@ test('opens read only in a second tab, which follows the first tab’s edits', a
   await other.goto('./');
   await other.getByRole('list', { name: 'Projects in this browser' }).getByRole('button', { name: 'Open' }).click();
   await expect(openProject(other)).toContainText('open for editing in another tab');
+  // Its kits can't be turned on or off from here either (M3.3).
+  const kits = openProject(other).getByRole('group', { name: 'Kits' });
+  await expect(kits.getByLabel('Inventory', { exact: true })).toBeDisabled();
   const otherForm = await openRecord(other, 'Gladiator', 'spiculus');
   await expect(otherForm.getByLabel('Name', { exact: true })).toHaveAttribute('readonly', '');
   await expect(otherForm.getByLabel('Style')).toBeDisabled();

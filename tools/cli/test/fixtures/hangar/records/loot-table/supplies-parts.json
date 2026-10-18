@@ -1,0 +1,13 @@
+{
+  "name": "Redistribution: parts",
+  "entries": [
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "lifesupport",
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Repossession: drops",
+  "entries": [
+    {
+      "table": "repo-parts",
+      "weight": 100
+    }
+  ]
+}
