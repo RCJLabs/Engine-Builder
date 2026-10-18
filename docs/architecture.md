@@ -11,6 +11,7 @@ How Engine-Builder fits together. This is design intent: each section is settled
   - card and choice games, tower defense, builders;
   - and, new here, Bethesda-style 3D worlds.
 - Edit on a PC, tablet or phone. Every panel works on touch; the layout is tuned for PC and tablet.
+- Make a whole game in the editor alone, art and sound included, by following a tutorial: the editor's own painter, rig, music and mesh tools, and the engine's bundled OFL fonts (D40, Phase 10).
 - Ship as a PWA on GitHub Pages, a single HTML file, an itch.io build, and a Play TWA, plus Electron/Steam later.
 - Keep what the existing games already prove works:
   - a deterministic sim;

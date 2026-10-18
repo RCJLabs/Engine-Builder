@@ -684,6 +684,46 @@ The specs are [specs/scripts.md](specs/scripts.md) and [specs/editor-scripts.md]
 - **The install grows:** CodeMirror and the script worker, 263.5 kB gzipped (871.6 kB raw), precached so the editor works offline from the first visit, whether or not scripts are ever opened (ROADMAP.md's Readings).
 - **Trust is not a sandbox.** A trusted script that sets out to escape the worker may; mods will need a separate origin.
 
+### D39. A session takes as many milestones as it has time for, one at a time, and merges each on green. LOCKED, 2026-10-18 (Evan's calls)
+
+**Decision.**
+- **No limit of one milestone a session** (Evan's call, 2026-10-18: "we'll do as many as we can per session"). CLAUDE.md's rule is gone.
+- **Still one at a time, in ROADMAP order.** A milestone is done, its gates passing and its marker, Readings and decisions updated, before the next one starts, as CLAUDE.md's other session rules already say.
+- **Merge on green and go on** (Evan's call). When a milestone's PR is green, Claude merges it with a merge commit, confirms the deploy, and starts the next milestone. Product calls still go to Evan, each with a recommendation, and a session stops at a milestone whose gate needs his phone.
+
+Evan chose on 2026-10-18 between merging on green and going on, and waiting for his word on each PR.
+
+**Why.** The gates, not the session, say when a milestone is done. The rule had also stopped a session with time left after a milestone merged, and waiting for a word on each green PR would stop the next one the same way.
+
+**Cost.**
+- **More lands between Evan's looks**, and on the live editor before he has seen it. Each milestone's product calls still wait on him, so a session can queue questions while it builds what doesn't depend on them.
+- **A long session's context is summarized** along the way, and a summary can drop detail. What carries a milestone is in the repo (ROADMAP's marker, its specs and decisions), not in the session's memory.
+
+### D40. The roadmap ends with art tools and a new small game made only in the editor, by following a tutorial. LOCKED, 2026-10-18 (Evan's calls)
+
+**Decision.**
+- **A demo of the editor: a new small game made only in it** (Evan's call). An original short game, designed around a tutorial, is built from an empty project by following that tutorial: Proof #4, the roadmap's last milestone (Phase 10). Dirtbag and Space-Wrecked stay proven as far as the existing proofs go: Space-Wrecked's acts 1–2 (Proof #1) and its ship builder and boarding fight (Proof #3).
+- **What "made here" allows** (Evan's call):
+  - art and sound from the editor's own tools, or drawn by code written in its script editor;
+  - a few OFL fonts that ship with the engine and count as its own;
+  - store builds (the Play package, Steam's) in a GitHub workflow the editor writes (M4.8), since Bubblewrap, the Android SDK and Electron can't run in a browser.
+- **The art tools come in one phase, before the demo** (Evan's call): Phase 10's painter, icons and type, figures and portraits, music and mesh kit. The proofs before it may draw their art in code written in the script editor, as Dirtbag and Space-Wrecked draw theirs now.
+- **Importing stays.** M2.7's asset import and M5.5's glTF import and CC0 kit are there for games that want outside art; Proof #4 uses none of them.
+
+Evan chose on 2026-10-18, from these options:
+- the demo: a Dirtbag slice rebuilt by following a tutorial, with Space-Wrecked's proofs made in the editor too; a new small game with a tutorial; or Space-Wrecked's proofs alone, made in the editor;
+- outside assets: editor-made plus bundled fonts; strictly nothing, fonts included; or editor-made plus a CC0 starter kit that ships with the engine;
+- the art tools: with the phase that first needs each (a painter, icons and a figure rig in Phase 4, a mesh kit in Phase 5), or in one phase before the demo.
+
+**Why.**
+- **The gap is drawing, not importing.** Dirtbag and Space-Wrecked already ship with no outside art or sound, but their art is code: 10.4k lines of Canvas2D painters in Dirtbag, 6.6k lines in Space-Wrecked for 3D, portraits and icons. Dirtbag synthesizes its 50 sounds and its music in six moods. Their only outside assets are Dirtbag's three OFL fonts; Space-Wrecked uses the system's. So making such a game without writing code needs tools that draw. The roadmap had none: no painter, rig, music or mesh tool, and M5.5 planned 3D from glTF files and a CC0 kit.
+- **A tutorial** turns "very easy instructions" into something to follow and check, rather than a hope.
+
+**Cost.**
+- **Proofs #1 to #3 come before the tools.** Their art is drawn in code, as the games do now, so they prove the engine, not yet the route to art without code.
+- **The roadmap grows by a phase** of six milestones.
+- **Store builds keep one outside step:** GitHub Actions runs Bubblewrap, the Android SDK and Electron, with the signing keys in its secrets.
+
 ---
 
 ## Open
@@ -691,3 +731,4 @@ The specs are [specs/scripts.md](specs/scripts.md) and [specs/editor-scripts.md]
 - **Engine licence** (ROADMAP open question 2).
 - **Theme of proof #2** (ROADMAP open question 3).
 - **TWA package id scheme** (ROADMAP open question 4).
+- **Theme and genre of proof #4** (ROADMAP open question 7).
