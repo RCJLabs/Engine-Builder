@@ -4,7 +4,7 @@
  * attribute, so CSS and code can never disagree about which layout is showing.
  */
 export type Layout = 'phone' | 'tablet' | 'desktop';
-export type PanelId = 'project' | 'records' | 'world' | 'inspector' | 'logic' | 'play';
+export type PanelId = 'project' | 'records' | 'assets' | 'world' | 'inspector' | 'logic' | 'play';
 /** Desktop docks the console too; tablet shows it as a strip and a phone leaves it out. */
 export type DockPanelId = PanelId | 'console';
 export type ZoneId = 'left' | 'center' | 'right' | 'main' | 'side' | 'only';
@@ -17,19 +17,20 @@ export const layoutFor = (width: number): Layout =>
 
 /**
  * Zones in display order, each with its panels in tab order. The first panel is the default. The
- * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4.
+ * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4; the Assets
+ * panel (M2.7) sits beside it.
  */
 export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly PanelId[] }[]> = {
   desktop: [
     { zone: 'left', panels: ['project', 'logic'] },
-    { zone: 'center', panels: ['records', 'world', 'play'] },
+    { zone: 'center', panels: ['records', 'assets', 'world', 'play'] },
     { zone: 'right', panels: ['inspector'] },
   ],
   tablet: [
-    { zone: 'main', panels: ['records', 'world', 'play'] },
+    { zone: 'main', panels: ['records', 'assets', 'world', 'play'] },
     { zone: 'side', panels: ['inspector', 'project', 'logic'] },
   ],
-  phone: [{ zone: 'only', panels: ['world', 'project', 'records', 'logic', 'play'] }],
+  phone: [{ zone: 'only', panels: ['world', 'project', 'records', 'assets', 'logic', 'play'] }],
 };
 
 /** The panel each layout shows in a bottom sheet over its zones: on a phone, the inspector, so it sits over what it inspects. */

@@ -5,31 +5,11 @@
  * rename that would lose data) changes nothing and says why.
  */
 import { showPanel } from '../app/panelControl.ts';
-import { note } from '../app/state.ts';
-import { editing } from '../editing/current.ts';
-import type { FileChange } from '../editing/history.ts';
-import type { WorkingCopy } from '../editing/workingCopy.ts';
+import { step } from '../editing/step.ts';
 import { chosen } from '../forms/selection.ts';
 import { tableType, views } from '../records/viewState.ts';
 import type { FieldChange } from './fieldEdits.ts';
 import { changeType, createTypeFile, deleteType, renameRecord, renameType } from './typeEdits.ts';
-
-const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
-
-/** One step, or a note of why it couldn't be made. Resolves to whether it was. */
-async function step(
-  label: string,
-  make: (copy: WorkingCopy) => Promise<readonly FileChange[]>,
-  group?: string,
-): Promise<boolean> {
-  try {
-    await editing.edit(label, make, group);
-    return true;
-  } catch (error) {
-    note(`Couldn’t ${label.charAt(0).toLowerCase()}${label.slice(1)}: ${message(error)}.`);
-    return false;
-  }
-}
 
 export const changeTypeStep = (type: string, label: string, change: FieldChange, group?: string) =>
   step(label, (copy) => changeType(copy, type, change), group);

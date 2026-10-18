@@ -26,12 +26,12 @@ describe('zones', () => {
     for (const [layout, zones] of Object.entries(ZONES)) {
       const sheet = SHEET[layout as keyof typeof SHEET];
       const all = [...zones.flatMap((z) => z.panels), ...(sheet ? [sheet] : [])].sort();
-      expect(all, layout).toEqual(['inspector', 'logic', 'play', 'project', 'records', 'world']);
+      expect(all, layout).toEqual(['assets', 'inspector', 'logic', 'play', 'project', 'records', 'world']);
     }
   });
 
   it('dock the desktop zones’ panels and the console', () => {
-    expect(DOCK_PANELS).toEqual(['project', 'logic', 'records', 'world', 'play', 'inspector', 'console']);
+    expect(DOCK_PANELS).toEqual(['project', 'logic', 'records', 'assets', 'world', 'play', 'inspector', 'console']);
   });
 
   it('show one panel per zone, defaulting to each zone first', () => {
@@ -50,7 +50,8 @@ describe('zones', () => {
     expect(neighbourTab('phone', 'only', 'world', 1)).toBe('project');
     expect(neighbourTab('phone', 'only', 'world', -1)).toBe('play');
     expect(neighbourTab('phone', 'only', 'project', 1)).toBe('records');
-    expect(neighbourTab('phone', 'only', 'records', 1)).toBe('logic');
+    expect(neighbourTab('phone', 'only', 'records', 1)).toBe('assets');
+    expect(neighbourTab('phone', 'only', 'assets', 1)).toBe('logic');
     expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('inspector');
   });
 });

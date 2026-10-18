@@ -14,13 +14,19 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     label: 'Project',
     phase: 'Phase 2',
     summary: 'Create, open and back up projects. A project is a folder of git-friendly JSON files.',
-    coming: ['New project from a template', 'Records and assets browsers'],
+    coming: ['New project from a template'],
   },
   records: {
     label: 'Records',
     phase: 'Phase 2',
     summary: 'Every record of a type in a table: sort, search, filter, and change many at once.',
-    coming: ['Renaming a record and what refers to it'],
+    coming: [],
+  },
+  assets: {
+    label: 'Assets',
+    phase: 'Phase 2',
+    summary: 'Images, sounds, 3D models and fonts, each with where it came from and its licence.',
+    coming: [],
   },
   world: {
     label: 'World',

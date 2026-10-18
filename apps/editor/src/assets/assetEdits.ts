@@ -1,7 +1,7 @@
 /**
- * The Assets panel's steps as file changes (M2.7): files imported with their provenance, an entry
- * changed, an asset renamed or moved with every asset field that names it, replaced, deleted, and
- * a stand-in made. Each reads what it changes from the working copy as the step runs, and is one
+ * The Assets panel's steps as file changes (M2.7): files imported with their provenance, entries
+ * logged or changed, an asset renamed or moved with every asset field that names it, replaced,
+ * deleted, and a stand-in made. Each reads what it changes from the working copy as the step runs, and is one
  * step of the command log (D30): undo takes back the files and the log together.
  */
 import { ASSETS_DIR, ASSETS_LOG, type ProjectSource, readFiles } from '@eb/compiler';
@@ -9,7 +9,7 @@ import { ASSET_PATH_PATTERN, type Provenance } from '@eb/schema';
 import type { FileChange } from '../editing/history.ts';
 import { editJson } from '../editing/jsonText.ts';
 import { newFileText } from '../forms/recordEdits.ts';
-import type { Path } from '../forms/values.ts';
+import { getIn, type Path } from '../forms/values.ts';
 import { assetSites, compose, renameAssetRefs } from '../types/rewrites.ts';
 import { move, recordFilesOf, rewriteFiles, typeFiles } from '../types/typeEdits.ts';
 import { movedEntry, setInLog, withEntry } from './assetLog.ts';
@@ -82,9 +82,21 @@ export async function importAssets(
   return [...made, ...log];
 }
 
-/** One key of an entry set, or taken out when `value` is undefined: what the provenance form writes. */
+/** Entries for files already in assets/, each with the same provenance: for files added by hand or by zip. */
+export const logProvenance = (source: ProjectSource, paths: readonly string[], entry: Provenance) =>
+  logChange(source, (now) => paths.reduce((acc, path) => withEntry(acc, path, entry), now));
+
+/**
+ * The value at `path` in the log (starting with 'files') replaced by what `make` makes of it, or
+ * taken out when that is undefined: what the provenance form writes. It reads the log as the step
+ * runs, so a list's item added or removed works on the list as it is then.
+ */
+export const updateProvenance = (source: ProjectSource, path: Path, make: (now: unknown) => unknown) =>
+  logChange(source, (log) => setInLog(log, path, make(getIn(log, path))));
+
+/** One key of an entry set, or taken out when `value` is undefined. */
 export const setProvenance = (source: ProjectSource, path: Path, value: unknown): Promise<FileChange[]> =>
-  logChange(source, (log) => setInLog(log, path, value));
+  updateProvenance(source, path, () => value);
 
 /** Every asset field in every record that names `from`, made to name `to`. */
 async function moveRefs(source: ProjectSource, from: string, to: string): Promise<FileChange[]> {

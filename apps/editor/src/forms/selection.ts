@@ -1,10 +1,14 @@
 import { signal } from '@preact/signals';
 
-/** What the inspector shows: a record's form, a type's designer (M2.6), or the form that names a new type. */
+/**
+ * What the inspector shows: a record's form, a type's designer (M2.6), the form that names a new
+ * type, or an asset (M2.7), by its path inside assets/.
+ */
 export type Chosen =
   | { readonly kind: 'record'; readonly type: string; readonly id: string }
   | { readonly kind: 'type'; readonly type: string }
-  | { readonly kind: 'new-type' };
+  | { readonly kind: 'new-type' }
+  | { readonly kind: 'asset'; readonly path: string };
 
 /** A project opening or closing clears it. */
 export const chosen = signal<Chosen | null>(null);

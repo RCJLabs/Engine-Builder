@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { entryOf, logEntries, movedEntry, setInLog, withEntry } from './assetLog.ts';
-import { cleanFolder, cleanName, fileName, folderOf, freePath } from './assetPaths.ts';
+import { cleanFolder, cleanName, fileName, folderOf, freePath, movePathProblem } from './assetPaths.ts';
 import { standInPath, standInSvg } from './standIn.ts';
 
 const entry = { licence: 'CC0-1.0', source: 'kenney.nl', date: '2026-10-18' };
@@ -56,6 +56,19 @@ describe('paths', () => {
     expect(freePath('images', 'hero.png', ['images/HERO.png', 'images/hero-2.png'])).toBe('images/hero-3.png');
     expect(freePath('', 'readme', ['readme'])).toBe('readme-2');
     expect(freePath('', '.png', [])).toBe('png');
+  });
+
+  it('says why a move can’t be made before the step refuses it', () => {
+    const taken = ['portraits/hero.png', 'portraits/villain.png'];
+    const problem = (to: string) => movePathProblem(to, 'portraits/hero.png', taken);
+    expect(problem('heroes/hero.png')).toBeNull();
+    expect(problem('portraits/hero.png')).toBeNull();
+    expect(problem('portraits/Villain.png')).toBe('assets/portraits/Villain.png is there already');
+    expect(problem('portraits/Hero.png')).toContain('Only its case changes');
+    expect(problem('portraits/hero.jpg')).toBe('Keep its extension, .png: a new name doesn’t convert the file');
+    expect(problem('a:b.png')).toBe('Write a path inside assets/, with "/" between folders');
+    expect(problem('/hero.png')).toBe('Write a path inside assets/, with "/" between folders');
+    expect(movePathProblem('Assets.json', 'notes.json', [])).toBe('assets.json is the provenance log’s name');
   });
 
   it('splits a path into its folder and name', () => {

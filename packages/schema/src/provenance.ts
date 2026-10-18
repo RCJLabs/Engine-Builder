@@ -151,19 +151,22 @@ export interface ProvenanceIssue {
 
 const at = (file: string, key?: string) => `/files/${pointerSegment(file)}${key ? `/${key}` : ''}`;
 
-/** What one entry's licence asks for and the entry doesn't give, beside the licence itself. */
+/**
+ * What one entry's licence asks for and the entry doesn't give, beside the licence itself. Each is
+ * reported at the key it asks for, so the editor shows it on that box.
+ */
 function entryProblems(file: string, entry: Provenance): ProvenanceIssue[] {
   const found: ProvenanceIssue[] = [];
   const problem = licenceProblem(entry.licence, file);
   if (problem) found.push({ code: 'E020', path: at(file, 'licence'), message: problem });
   const licence = licenceOf(entry.licence);
   if (licence?.credit && entry.author === undefined) {
-    found.push({ code: 'E020', path: at(file), message: `${licence.name} asks for credit: say who made it` });
+    found.push({ code: 'E020', path: at(file, 'author'), message: `${licence.name} asks for credit: say who made it` });
   }
   if (entry.licence === 'generated') {
     for (const key of ['tool', 'prompt'] as const) {
       if (entry[key] === undefined) {
-        found.push({ code: 'E020', path: at(file), message: `Generated art logs its ${key}: add it` });
+        found.push({ code: 'E020', path: at(file, key), message: `Generated art logs its ${key}: add it` });
       }
     }
   }

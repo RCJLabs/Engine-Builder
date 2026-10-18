@@ -6,7 +6,16 @@ import type { Timers } from '../editing/autosave.ts';
 import { editSession } from '../editing/editSession.ts';
 import type { FileChange } from '../editing/history.ts';
 import { workingCopy } from '../editing/workingCopy.ts';
-import { createStandIn, deleteAssets, importAssets, renameAsset, replaceAsset, setProvenance } from './assetEdits.ts';
+import {
+  createStandIn,
+  deleteAssets,
+  importAssets,
+  logProvenance,
+  renameAsset,
+  replaceAsset,
+  setProvenance,
+  updateProvenance,
+} from './assetEdits.ts';
 
 const noTimers: Timers = { set: () => 0, clear: () => undefined };
 const decode = (bytes: Uint8Array | undefined) => (bytes ? new TextDecoder().decode(bytes) : undefined);
@@ -107,6 +116,25 @@ describe('import', () => {
 });
 
 describe('provenance', () => {
+  it('logs files added by hand, and the project builds', async () => {
+    const t = setup({ ...readFixture(FIXTURE_LUDUS), 'assets/ui/a.png': PNG, 'assets/ui/b.png': PNG });
+    expect(await t.problems()).toEqual(['E019 assets/ui/a.png', 'E019 assets/ui/b.png']);
+    await t.step((c) => logProvenance(c, ['ui/a.png', 'ui/b.png'], CC0));
+    expect(await t.problems()).toEqual([]);
+  });
+
+  it('adds to a list and takes from it as it is when the step runs', async () => {
+    const t = setup();
+    const edits = ['files', 'portraits/spiculus.svg', 'edits'];
+    await t.step((c) => updateProvenance(c, edits, (now) => [...(Array.isArray(now) ? now : []), 'Cropped']));
+    await t.step((c) => updateProvenance(c, edits, (now) => [...(Array.isArray(now) ? now : []), 'Recoloured']));
+    expect((await t.json('assets/assets.json')).files['portraits/spiculus.svg'].edits).toEqual([
+      'Cropped',
+      'Recoloured',
+    ]);
+    expect(await t.problems()).toEqual([]);
+  });
+
   it('sets a key where the format lists it, keeps the file’s layout, and takes a key out', async () => {
     const t = setup();
     await t.step((c) => setProvenance(c, ['files', 'portraits/spiculus.svg', 'author'], 'Evan'));

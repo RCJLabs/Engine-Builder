@@ -82,9 +82,9 @@ describe('checkProvenance', () => {
       'font.png': { ...ok, licence: 'OFL-1.1', author: 'x' },
     });
     expect(said(log, ['nc.png', 'by.png', 'gen.png', 'font.png'])).toEqual([
-      'E020 /files/by.png: CC BY 4.0 asks for credit: say who made it',
+      'E020 /files/by.png/author: CC BY 4.0 asks for credit: say who made it',
       'E020 /files/font.png/licence: SIL Open Font License 1.1 is for font files and their notices',
-      'E020 /files/gen.png: Generated art logs its prompt: add it',
+      'E020 /files/gen.png/prompt: Generated art logs its prompt: add it',
       'E020 /files/nc.png/licence: Refused: NonCommercial (NC) forbids selling the game',
     ]);
   });

@@ -54,6 +54,15 @@ export async function showRecords(page: Page): Promise<void> {
   if (await tab.isVisible()) await tab.click();
 }
 
+/** The Assets panel to the front (M2.7), where tabs share a zone or a dock group. */
+export async function showAssets(page: Page): Promise<Locator> {
+  const tab = page.getByRole('tab', { name: 'Assets' });
+  if (await tab.isVisible()) await tab.click();
+  const panel = page.locator('[data-panel="assets"]');
+  await expect(panel.getByRole('heading', { name: 'Assets' })).toBeVisible();
+  return panel;
+}
+
 /** The Records panel's table of a type, by the type's title ("Gladiator"). */
 export const recordsTable = (page: Page, title: string): Locator =>
   page.getByRole('region', { name: `${title} records` });
@@ -99,3 +108,9 @@ export function stored(page: Page, path: string): Promise<unknown> {
 }
 
 export const SPICULUS = 'records/gladiator/spiculus.json';
+
+/** A 1×1 PNG, real enough for the browser to draw (M2.7's asset tests). */
+export const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+  'base64',
+);
