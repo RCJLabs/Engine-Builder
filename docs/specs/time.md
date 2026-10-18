@@ -122,7 +122,7 @@ From M3.5 (D43), the time module says as each day, week, month, season and year 
 - **The game's first day raises nothing:** the game starts within it.
 - **A day's pass** is a sheet's rows on `time/day-started`, run in row order (Landnam's `passDay`). A dated event is a row with a condition on the date: Ludus's Floralia is `time.day-of-year == 28`; Dirtbag's bills are `time.weekday == sun`. Matching an argument picks one boundary: `{ "event": "time/season-started", "season": "winter" }`.
 - **The kits' own upkeep** at a day's start (the stats kit's statuses ending, the factions kit's drift) comes after the rows, since listeners hear in module order and the engine's sheet module comes before the kits.
-- **The cap:** these attempts count with the timers' toward the 10,000 firings in one advance.
+- **A cap of their own:** more than 100,000 days in one advance throws, since a wait that long is a typo. They don't count toward the timers' 10,000 firings, which guard against a timer that keeps firing itself.
 - **State and saves** are unchanged: the events read the tick, and nothing is stored. A game's beats gain them; its state, and so its golden runs, don't change.
 
 ## The time kit

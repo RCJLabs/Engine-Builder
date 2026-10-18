@@ -1,6 +1,8 @@
 import type { Condition } from '../logic/types.ts';
 import type { ModuleContext } from '../sim/module.ts';
 import type { DeepReadonly, Effect } from '../sim/types.ts';
+import type { Calendar } from './calendar.ts';
+import { MAX_DAYS, nextDayStart, startsAt } from './starts.ts';
 
 /** Timers one advance may fire before it is taken for a timer that keeps firing itself. */
 export const MAX_FIRINGS = 10_000;
@@ -40,17 +42,29 @@ export function insert(slice: TimeSlice, timer: Timer): void {
 const comesAfter = (a: Timer, b: Timer) => a.due > b.due || (a.due === b.due && a.seq > b.seq);
 
 /**
- * Moves time on to `target`, firing every timer due by then in order. Each timer's effects run
- * as one attempt, so a consequence that refuses is dropped with a "refused" beat rather than
- * stopping time from passing. A repeating timer is put back before it fires, so its own effects
- * can cancel it. Effects that wait move time on further, and time never goes back.
+ * Moves time on to `target`, starting each day on the way and firing every timer due by then, in
+ * tick order, a day's start before the timers due at its tick. Each day's start and each timer's
+ * effects run as one attempt, heard with the clock at its tick, so a consequence that refuses is
+ * dropped with a "refused" beat rather than stopping time from passing. A repeating timer is put
+ * back before it fires, so its own effects can cancel it. Effects that wait move time on further,
+ * and time never goes back.
  */
-export function advanceTo(ctx: ModuleContext<TimeSlice>, target: number): void {
+export function advanceTo(ctx: ModuleContext<TimeSlice>, calendar: Calendar, target: number): void {
   const from = ctx.read().tick;
-  for (let fired = 0; ; fired++) {
+  let days = 0;
+  for (let fired = 0; ; ) {
     const first = ctx.read().timers[0] as DeepReadonly<Timer> | undefined;
+    const dayStart = nextDayStart(calendar, ctx.read().tick);
+    if (dayStart <= target && (first === undefined || dayStart <= first.due)) {
+      if (++days > MAX_DAYS) throw new Error(`More than ${MAX_DAYS} days started in one advance: is a wait that long?`);
+      ctx.write().tick = dayStart;
+      ctx.attempt(() => {
+        for (const [event, args] of startsAt(calendar, dayStart)) ctx.emit(event, args);
+      });
+      continue;
+    }
     if (first === undefined || first.due > target) break;
-    if (fired === MAX_FIRINGS)
+    if (fired++ === MAX_FIRINGS)
       throw new Error(`More than ${MAX_FIRINGS} timers fired in one advance: is one repeating every tick?`);
     const slice = ctx.write();
     const timer = slice.timers.shift() as Timer;
