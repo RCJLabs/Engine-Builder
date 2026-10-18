@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { firstModuleTemplate, gameTemplate } from '../src/scripts/templates.ts';
 import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
-import { openProject, REPO, scratch, showProject } from './ludus.ts';
+import { importLudus, openProject, REPO, scratch, showProject } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 900 } });
 
@@ -234,6 +234,16 @@ test('an imported project’s scripts run only once allowed, and the answer is k
   await expect(libraryRow(page, 'Hold')).toHaveCount(0);
   await importHold(page);
   await expect((await showLogic(page)).getByText(/^This project came from a zip or a folder/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('a project imported with no scripts runs the first ones made in it, without asking', async ({ page }) => {
+  const errors = watchErrors(page);
+  await importLudus(page);
+  const panel = await showLogic(page);
+  await panel.getByRole('button', { name: 'Start a game' }).click();
+  await expect(panel.getByText('The game: main, starting in play; 2 actions; bots worker.')).toBeVisible();
+  await expect(panel.getByText(/^This project came from a zip or a folder/)).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

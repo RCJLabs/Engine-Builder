@@ -135,8 +135,6 @@ const noStore: FolderStore = {
 export const newProject = (name: string) =>
   run('Creating the project', async () => {
     const folder = await needLibrary().create(name);
-    // Made here, so its scripts are its author's: they run at once (D38).
-    trust.trust(libraryKey(folder));
     await keep();
     await refresh();
     await openStored(folder);
