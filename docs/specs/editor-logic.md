@@ -40,7 +40,7 @@ A sheet's form is its record form, laid out from the sheet's layout type file (`
 ## On a phone
 
 - Six tabs fit a 360 px phone, each at least 44 px each way.
-- The sheet editor sits in the inspector's sheet. Its controls are at least 44 px, and its rows' groups wrap rather than run past the screen.
+- The sheet editor sits in the inspector's sheet. Its controls are at least 44 px, and its rows' groups and an effect's Up, Down and Remove wrap rather than run past the screen.
 - **The page never scrolls as a whole.** The words kept for screen readers are placed against each panel's scroll box, not the page: placed against the page, a long form made the page itself scroll, taking the top bar off a phone's screen. The e2e checks hold every page to the screen's height.
 
 ## Checks

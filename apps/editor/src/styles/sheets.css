@@ -43,6 +43,12 @@
   overflow-wrap: anywhere;
 }
 
+/* An effect inside a roll's outcome is narrow in the tablet's inspector, and in a wide font
+   Up, Down and Remove in one row ran past the screen at 740 px (CI's DejaVu Sans, M3.1). */
+.logic-effect-head .form-item-tools {
+  flex-wrap: wrap;
+}
+
 .logic-roll {
   display: grid;
   gap: 8px;

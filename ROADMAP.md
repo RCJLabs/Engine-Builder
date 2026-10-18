@@ -300,6 +300,7 @@ How to read this file:
     - the condition field read text without the engine's facts, so `flag.on(met-trader)` needed its argument's name;
     - `eb schemas` wrote the engine types' schemas into every project, records of them or not;
     - `layout.test.ts` still held a phone to five tabs after Logic joined them. The full check caught it; the planted-bug run, which reads only whether tests fail, had not.
+    - in CI's fallback font, DejaVu Sans, wider than this container's Inter, an effect's Up, Down and Remove ran past the screen in the tablet's inspector at 740 px. CI caught it; a font config preferring DejaVu Sans reproduced it here, and the buttons wrap now.
   - **106 planted bugs**, at the unit and the UI level. The first run caught 99, once the 46 that ran the editor's unit tests were run again: a stale layout test had failed each of those runs, counting every one as caught. Each of the seven survivors got a check, now seen failing:
     - in the kernel: the catalogue sorted when neither the order declared nor its reverse is, and events raised in one piece of work heard in the order raised;
     - in the compiler: `types/flag.json` and `types/sheet.json` are E017;
