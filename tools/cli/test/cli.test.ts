@@ -124,8 +124,12 @@ describe('eb validate', () => {
     };
     const typed = eb(['validate', salvage(), '--types', SALVAGE_GAME]);
     expect(typed.code).toBe(1);
-    expect(typed.out).toContain('records/sheet/typos.json#/rows/0/when/event: error E022: No event "voyage/arived" in this game');
-    expect(typed.out).toContain('records/sheet/typos.json#/rows/0/do/0/effect: error E025: No effect "lot" in this game');
+    expect(typed.out).toContain(
+      'records/sheet/typos.json#/rows/0/when/event: error E022: No event "voyage/arived" in this game',
+    );
+    expect(typed.out).toContain(
+      'records/sheet/typos.json#/rows/0/do/0/effect: error E025: No effect "lot" in this game',
+    );
     // Without --types, a game's own names can't be told from typos: taken as written.
     const open = eb(['validate', salvage()]);
     expect(open.out).not.toContain('E022');
