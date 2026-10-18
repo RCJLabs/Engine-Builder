@@ -1,11 +1,11 @@
 /**
  * What the Logic panel lists (M3.1, D36): each trigger sheet with its rows as cards in the order
- * they run, and each flag with what it holds and what the lint says of it. A card opens the sheet
- * in the inspector at its row; New sheet and New flag name a record as New does in the Records
- * panel.
+ * they run, each flag with what it holds and what the lint says of it, and the project's scripts
+ * (M3.2). A card opens the sheet in the inspector at its row; New sheet and New flag name a record
+ * as New does in the Records panel.
  */
-import { FLAG, type FlagRecord, formatRef, SHEET } from '@eb/core';
-import { type Diagnostic, ENGINE_EVENTS, ENGINE_FACTS, FLAG_TYPE, SHEET_DATA } from '@eb/schema';
+import { type EventCatalog, type FactCatalog, FLAG, type FlagRecord, formatRef, SHEET } from '@eb/core';
+import { type Diagnostic, FLAG_TYPE, SHEET_DATA } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
@@ -16,7 +16,9 @@ import { createRecord, openRecord } from '../records/actions.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
 import type { IndexedRecord } from '../records/recordIndex.ts';
+import { eventsOf, factsOf } from '../scripts/known.ts';
 import { doText, ifText, whenText } from './rowText.ts';
+import { ScriptsSection } from './ScriptsSection.tsx';
 import '../styles/logic.css';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -31,94 +33,133 @@ function openRow(sheet: string, row: number): void {
   openRecord(SHEET, sheet);
 }
 
+/** What a section shows of a record: its name and id, and the index's reading of it. */
+interface Shown {
+  readonly label: (type: string, id: string) => string;
+  readonly record: (type: string, id: string) => IndexedRecord | undefined;
+}
+
 export function LogicBrowser({ project }: { project: OpenProject }) {
   const { catalog, index } = project;
   const names = namesOf(index, catalog);
-  const [naming, setNaming] = useState<'sheet' | 'flag' | null>(null);
-  const canEdit = editing.access.value.kind === 'editing';
-  const sheets = catalog.records.get(SHEET) ?? [];
-  const flags = catalog.records.get(FLAG) ?? [];
-  const sheetsHeading = useUniqueId();
-  const flagsHeading = useUniqueId();
-  const record = (type: string, id: string) => index?.records.get(formatRef(type, id));
-  const label = (type: string, id: string) => {
-    const name = names(formatRef(type, id));
-    return name ? `${name} (${id})` : id;
+  const shown: Shown = {
+    record: (type, id) => index?.records.get(formatRef(type, id)),
+    label: (type, id) => {
+      const name = names(formatRef(type, id));
+      return name ? `${name} (${id})` : id;
+    },
   };
   return (
     <div class="logic-browser">
-      <section class="logic-section" aria-labelledby={sheetsHeading}>
-        <div class="logic-head">
-          <h3 id={sheetsHeading}>Trigger sheets</h3>
-          {canEdit ? (
-            <button type="button" class="button" onClick={() => setNaming('sheet')}>
-              New sheet
-            </button>
-          ) : null}
-        </div>
-        {naming === 'sheet' ? (
-          <NameRecord
-            type={SHEET}
-            ids={sheets}
-            label="Name of the new sheet"
-            action="Create"
-            done={(id, typed) => {
-              setNaming(null);
-              createRecord(SHEET_DATA, id, typed);
-            }}
-            cancel={() => setNaming(null)}
-          />
-        ) : null}
-        {sheets.length === 0 ? (
-          <p class="muted">
-            No sheets yet. A sheet’s rows say what happens: When an event is raised, If a condition holds, Do these
-            effects.
-          </p>
-        ) : (
-          <ul class="logic-list">
-            {sheets.map((id) => (
-              <SheetCard key={id} id={id} label={label(SHEET, id)} record={record(SHEET, id)} />
-            ))}
-          </ul>
-        )}
-      </section>
-      <section class="logic-section" aria-labelledby={flagsHeading}>
-        <div class="logic-head">
-          <h3 id={flagsHeading}>Flags</h3>
-          {canEdit ? (
-            <button type="button" class="button" onClick={() => setNaming('flag')}>
-              New flag
-            </button>
-          ) : null}
-        </div>
-        {naming === 'flag' ? (
-          <NameRecord
-            type={FLAG}
-            ids={flags}
-            label="Name of the new flag"
-            action="Create"
-            done={(id, typed) => {
-              setNaming(null);
-              createRecord(FLAG_TYPE, id, typed);
-            }}
-            cancel={() => setNaming(null)}
-          />
-        ) : null}
-        {flags.length === 0 ? (
-          <p class="muted">No flags yet. A flag is something the game remembers: rows set it, conditions read it.</p>
-        ) : (
-          <ul class="logic-list">
-            {flags.map((id) => (
-              <FlagCard key={id} id={id} label={label(FLAG, id)} record={record(FLAG, id)} />
-            ))}
-          </ul>
-        )}
-      </section>
+      <SheetsSection project={project} shown={shown} />
+      <FlagsSection project={project} shown={shown} />
+      <ScriptsSection project={project} />
     </div>
   );
 }
 
-function SheetCard({ id, label, record }: { id: string; label: string; record: IndexedRecord | undefined }) {
+function SheetsSection({ project, shown }: { project: OpenProject; shown: Shown }) {
+  const [naming, setNaming] = useState(false);
+  const heading = useUniqueId();
+  const canEdit = editing.access.value.kind === 'editing';
+  const sheets = project.catalog.records.get(SHEET) ?? [];
+  const facts = factsOf(project.game);
+  const events = eventsOf(project.game);
+  return (
+    <section class="logic-section" aria-labelledby={heading}>
+      <div class="logic-head">
+        <h3 id={heading}>Trigger sheets</h3>
+        {canEdit ? (
+          <button type="button" class="button" onClick={() => setNaming(true)}>
+            New sheet
+          </button>
+        ) : null}
+      </div>
+      {naming ? (
+        <NameRecord
+          type={SHEET}
+          ids={sheets}
+          label="Name of the new sheet"
+          action="Create"
+          done={(id, typed) => {
+            setNaming(false);
+            createRecord(SHEET_DATA, id, typed);
+          }}
+          cancel={() => setNaming(false)}
+        />
+      ) : null}
+      {sheets.length === 0 ? (
+        <p class="muted">
+          No sheets yet. A sheet’s rows say what happens: When an event is raised, If a condition holds, Do these
+          effects.
+        </p>
+      ) : (
+        <ul class="logic-list">
+          {sheets.map((id) => (
+            <SheetCard
+              key={id}
+              id={id}
+              label={shown.label(SHEET, id)}
+              record={shown.record(SHEET, id)}
+              facts={facts}
+              events={events}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function FlagsSection({ project, shown }: { project: OpenProject; shown: Shown }) {
+  const [naming, setNaming] = useState(false);
+  const heading = useUniqueId();
+  const canEdit = editing.access.value.kind === 'editing';
+  const flags = project.catalog.records.get(FLAG) ?? [];
+  return (
+    <section class="logic-section" aria-labelledby={heading}>
+      <div class="logic-head">
+        <h3 id={heading}>Flags</h3>
+        {canEdit ? (
+          <button type="button" class="button" onClick={() => setNaming(true)}>
+            New flag
+          </button>
+        ) : null}
+      </div>
+      {naming ? (
+        <NameRecord
+          type={FLAG}
+          ids={flags}
+          label="Name of the new flag"
+          action="Create"
+          done={(id, typed) => {
+            setNaming(false);
+            createRecord(FLAG_TYPE, id, typed);
+          }}
+          cancel={() => setNaming(false)}
+        />
+      ) : null}
+      {flags.length === 0 ? (
+        <p class="muted">No flags yet. A flag is something the game remembers: rows set it, conditions read it.</p>
+      ) : (
+        <ul class="logic-list">
+          {flags.map((id) => (
+            <FlagCard key={id} id={id} label={shown.label(FLAG, id)} record={shown.record(FLAG, id)} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function SheetCard(props: {
+  id: string;
+  label: string;
+  record: IndexedRecord | undefined;
+  facts: FactCatalog;
+  events: EventCatalog;
+}) {
+  const { id, label, record, facts, events } = props;
   const value = record?.value;
   const rows = isObject(value) && Array.isArray(value.rows) ? value.rows : [];
   const problems = record?.problems ?? [];
@@ -135,7 +176,7 @@ function SheetCard({ id, label, record }: { id: string; label: string; record: I
             const at = `/rows/${i}`;
             const own = problems.filter((d) => d.path === at || d.path.startsWith(`${at}/`));
             const when = isObject(row) ? row.when : undefined;
-            const said = isObject(row) ? ifText(row.if, ENGINE_FACTS) : undefined;
+            const said = isObject(row) ? ifText(row.if, facts) : undefined;
             return (
               // Keyed by place: two rows can share an id until E024 is fixed.
               <li key={i}>
@@ -144,7 +185,7 @@ function SheetCard({ id, label, record }: { id: string; label: string; record: I
                     {`${i + 1}. ${isObject(row) && typeof row.id === 'string' ? row.id : 'a row'}`}
                     {isObject(row) && row.once === true ? ' · once' : ''}
                   </span>
-                  <span>{whenText(when, ENGINE_EVENTS)}</span>
+                  <span>{whenText(when, events)}</span>
                   {said ? <span>{said}</span> : null}
                   <span>{doText(isObject(row) ? row.do : undefined)}</span>
                   {own.length > 0 ? <span class="logic-problem">{problemsText(own)}</span> : null}

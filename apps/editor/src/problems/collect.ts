@@ -1,17 +1,19 @@
 /**
  * The Problems panel's list (M2.8): every problem `eb validate` gives for the open project, from
  * what the editor keeps up to date already. The catalog has the files' own, read as the compiler
- * reads them (readProjectFiles); the record index has each record's, from the compiler's checks.
- * A test holds the two together to compileProject's list.
+ * reads them (readProjectFiles); the record index has each record's, from the compiler's checks;
+ * the game has its scripts' (M3.2), from the script worker. A test holds the three together to
+ * the list `eb validate` gives.
  */
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
+import type { GameState } from '../scripts/gameState.ts';
 
-/** Every problem, sorted as the compiler sorts them. Until the index is read, the files' alone. */
-export function projectProblems(catalog: Catalog, index: RecordIndex | null): Diagnostic[] {
+/** Every problem, sorted as the compiler sorts them. Until the index is read, the files' and the scripts' alone. */
+export function projectProblems(catalog: Catalog, index: RecordIndex | null, game?: GameState): Diagnostic[] {
   // A record that isn't JSON has its E007 among its problems (the index's own).
-  const found: Diagnostic[] = [...catalog.problems];
+  const found: Diagnostic[] = [...catalog.problems, ...(game?.problems ?? [])];
   for (const record of index?.records.values() ?? []) found.push(...record.problems);
   return found.sort(compareDiagnostics);
 }
@@ -27,7 +29,7 @@ export const countProblems = (problems: readonly Diagnostic[]): ProblemCounts =>
 };
 
 /** The project's problems counted without listing them, for the Problems tab's badge after every change. */
-export function tally(catalog: Catalog, index: RecordIndex | null): ProblemCounts {
+export function tally(catalog: Catalog, index: RecordIndex | null, game?: GameState): ProblemCounts {
   let errors = 0;
   let warnings = 0;
   const add = (problem: Diagnostic) => {
@@ -35,6 +37,7 @@ export function tally(catalog: Catalog, index: RecordIndex | null): ProblemCount
     else warnings++;
   };
   catalog.problems.forEach(add);
+  game?.problems.forEach(add);
   for (const record of index?.records.values() ?? []) record.problems.forEach(add);
   return { errors, warnings };
 }

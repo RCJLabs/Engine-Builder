@@ -12,7 +12,9 @@ const reloaded = (value: unknown): Record<string, unknown> => JSON.parse(canonic
 describe('createPack', () => {
   it('hashes the format, project and records, whatever their key order', () => {
     const pack = createPack(project, records);
-    expect(pack.format).toBe(PACK_FORMAT);
+    // No scripts: format 1, which every engine since M1.4 reads, its hash what it always was.
+    expect(pack.format).toBe(1);
+    expect(pack).not.toHaveProperty('scripts');
     expect(pack.hash).toMatch(/^[0-9a-f]{16}$/);
     const reordered = createPack(
       { version: '0.1.0', name: 'Salvage Run', id: 'salvage-run' },
@@ -25,7 +27,18 @@ describe('createPack', () => {
     const base = createPack(project, records).hash;
     expect(createPack({ ...project, version: '0.1.1' }, records).hash).not.toBe(base);
     expect(createPack(project, { ...records, item: { medkit: { name: 'Medkit', weight: 2 } } }).hash).not.toBe(base);
-    expect(packHash({ format: 2 as 1, project, records })).not.toBe(base);
+    expect(packHash({ format: 2, project, records })).not.toBe(base);
+  });
+
+  it('carries scripts as format 2, hashing them too (M3.2)', () => {
+    const scripts = { game: 'exports.start = "play";' };
+    const pack = createPack(project, records, scripts);
+    expect(pack.format).toBe(PACK_FORMAT);
+    expect(pack.scripts).toEqual(scripts);
+    expect(pack.hash).not.toBe(createPack(project, records).hash);
+    expect(createPack(project, records, { game: 'exports.start = "sail";' }).hash).not.toBe(pack.hash);
+    // No scripts at all is a pack without them.
+    expect(createPack(project, records, {})).toEqual(createPack(project, records));
   });
 });
 
@@ -41,9 +54,15 @@ describe('readPack', () => {
     expect(() => readPack(pack)).toThrow(/^The pack's hash is [0-9a-f]{16}, but its content hashes to [0-9a-f]{16}$/);
   });
 
+  it('reads a format 2 pack and its scripts', () => {
+    const pack = readPack(reloaded(createPack(project, records, { game: 'exports.start = "play";' })));
+    expect(pack.format).toBe(2);
+    expect(pack.scripts).toEqual({ game: 'exports.start = "play";' });
+  });
+
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 2 })).toThrow(
-      'This pack is format 2; this engine reads format 1. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 3 })).toThrow(
+      'This pack is format 3; this engine reads formats 1 to 2. Update the engine.',
     );
   });
 
@@ -64,6 +83,11 @@ describe('readPack', () => {
     ['a type that is not an object', { records: { item: [] } }, "The pack's item records are not an object"],
     ['an invalid id', { records: { item: { 'Big Gun': {} } } }, '"item:Big Gun" does not have a valid record id'],
     ['no hash', { hash: 5 }, 'The pack has no hash'],
+    ['scripts in a format 1 pack', { scripts: { game: '' } }, 'Unknown pack fields: scripts'],
+    ['a format 2 pack without scripts', { format: 2 }, 'A format 2 pack has no scripts'],
+    ['a format 2 pack with none in its scripts', { format: 2, scripts: {} }, 'A format 2 pack has no scripts'],
+    ['a script with a bad name', { format: 2, scripts: { Game: '' } }, '"Game" is not a valid script name'],
+    ['a script that is not text', { format: 2, scripts: { game: 1 } }, 'The pack\'s script "game" is not text'],
   ])('rejects %s', (_name, change, message) => {
     const pack = Array.isArray(change) ? change : { ...reloaded(createPack(project, records)), ...change };
     expect(() => readPack(pack)).toThrow(new PackError(message));

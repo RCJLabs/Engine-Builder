@@ -656,6 +656,34 @@ The spec is [specs/editor-layout.md](specs/editor-layout.md).
 - **Console, World and Play are a tap further away** than a tab, and the row's name is the whole row read aloud ("Console What the editor did…"), since a name of the label alone would hide visible words from speech input (WCAG 2.5.3).
 - **World and Play are still placeholders.** On a phone they now show what is coming and when, as they do on desktop and tablet.
 
+### D38. A project's game is its scripts/game.ts; completion comes from the engine's API list; a project from elsewhere asks once before its scripts run; scripts are re-checked as you type, and Run plays them. LOCKED, 2026-10-18 (Evan's calls, M3.2)
+
+**Decision.**
+- **`scripts/game.ts` is the game** (Evan's call). It exports what `eb sim --game` reads: modules, the start mode, bots and metrics, importing the project's other scripts. With it, `eb validate`, `eb build` and `eb sim` need no `--types` or `--game`, content is checked against the game's own facts, events and effects, and the editor's pickers offer them. Scripts are `scripts/<id>.ts`, TypeScript that imports `"eb"` and each other; the purity rules the sim keeps read them as `tools/lint-boundaries` reads the engine (now from `packages/purity`, shared). A pack carries the scripts game.ts reaches, as format 2; a pack without scripts stays format 1, its hash unchanged.
+- **Completion from a list of the engine's API** (Evan's call): what `"eb"` gives, a handler's `ctx`, an rng stream, defineModule's parts, and the project's own names in strings, each with its signature and a line on what it is for. Type errors come from `eb validate`'s parse and VS Code, not as you type.
+- **A project you didn't make asks once before its scripts run** (Evan's call). One imported from a zip or opened from a folder shows its scripts and their problems, and runs none until you say you trust it, as VS Code does; a project made here runs its scripts at once. The answer is kept per project. Since the purity rules are a check, not a wall, the worker that runs scripts also takes the network and storage off its global first: best effort, not a sandbox.
+- **Re-check and Run** (Evan's call). As you type, the scripts compile in a worker and the project is checked again against the game; a Run button plays 20 seeds with a bot in a worker and shows `eb sim`'s report, word for word.
+
+Evan chose on 2026-10-18, from these options:
+- completion: the engine's API list (about 20 to 30 kB), TypeScript's language service in a worker (1.64 MB gzipped, 9.1 MB raw, slow to start on a phone; TypeScript 7 has no browser API yet), or highlighting only;
+- trust: ask once per project, run every script (as the architecture said, with a sandbox only for Phase 9's mods), or a sandbox now (a separate origin with no storage, and M3.2 growing by the messaging);
+- the game: scripts/game.ts, or every script's modules joining the game in file-name order with the start mode in project.json;
+- hot reload: re-check and Run, or re-check only, with playing waiting for Play-in-Editor (Phase 4).
+
+The specs are [specs/scripts.md](specs/scripts.md) and [specs/editor-scripts.md](specs/editor-scripts.md).
+
+**Why.**
+- **game.ts.** One file says what the game is, as `--game` already did, so the CLI, the editor and a game's CI read the same thing, and content can be checked against what the game declares rather than taken as written (D36). File-name order would make renaming a script reorder the game.
+- **The list.** TypeScript's service would cost a phone 1.64 MB and seconds to start for every install, most of whose users write content, not code. The API is small and the engine's own, so a list covers what a script calls; tests hold it to `"eb"`, `ctx` and the module's parts.
+- **Asking.** A script runs with the editor's origin, so it could read every project in the browser. A project made here holds only its author's code; one from a zip may hold anyone's.
+- **Run.** A broken game shows in the editor, in the same words `eb sim` prints, without the CLI.
+
+**Cost.**
+- **No type errors as you type.** A wrong argument shows when the game loads or plays, or in VS Code.
+- **A tap before an imported project's game runs**, and until then its content is checked as if it had no game.
+- **The install grows:** CodeMirror and the script worker, 263.5 kB gzipped (871.6 kB raw), precached so the editor works offline from the first visit, whether or not scripts are ever opened (ROADMAP.md's Readings).
+- **Trust is not a sandbox.** A trusted script that sets out to escape the worker may; mods will need a separate origin.
+
 ---
 
 ## Open

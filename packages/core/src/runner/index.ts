@@ -19,6 +19,7 @@ export {
   turnFor,
   weightedPolicy,
 } from './policy.ts';
+export { formatSweep } from './report.ts';
 export { type Interval, type NumberSummary, nearestRank, summarize, t95, wilson, Z95 } from './stats.ts';
 export {
   type MetricReport,

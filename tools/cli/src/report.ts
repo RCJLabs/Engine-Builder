@@ -1,9 +1,12 @@
 import type { CompileResult } from '@eb/compiler';
 import type { Diagnostic } from '@eb/schema';
 
-/** `file#/json/pointer: severity code: message`, the pointer written as a URI fragment (RFC 6901). */
+/**
+ * `file#/json/pointer: severity code: message`, the pointer written as a URI fragment (RFC 6901);
+ * a script's problem is `file:line`, as compilers write it.
+ */
 export const formatDiagnostic = (d: Diagnostic): string =>
-  `${d.file ?? '(project)'}${d.path === '' ? '' : `#${d.path}`}: ${d.severity} ${d.code}: ${d.message}`;
+  `${d.file ?? '(project)'}${d.line === undefined ? '' : `:${d.line}`}${d.path === '' ? '' : `#${d.path}`}: ${d.severity} ${d.code}: ${d.message}`;
 
 const count = (n: number, word: string): string => `${n} ${word}${n === 1 ? '' : 's'}`;
 

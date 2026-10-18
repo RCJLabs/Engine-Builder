@@ -204,7 +204,7 @@ test('deletes an asset, saying which records will show a problem, and undo bring
   await expect(shown).toContainText('1 record uses it, and will show a problem until it names another file.');
   await shown.getByRole('button', { name: 'Delete spiculus.svg' }).click();
   await expect(tile(panel, 'spiculus.svg')).toHaveCount(0);
-  await expect(page.getByText('Choose a record, a type or an asset to edit it here.')).toBeVisible();
+  await expect(page.getByText('Choose a record, a type, an asset or a script to edit it here.')).toBeVisible();
   await expect.poll(() => log(page)).toEqual({});
   const spiculus = await openRecord(page, 'Gladiator', 'spiculus');
   await expect(spiculus.getByRole('button', { name: /^Portrait/ })).toHaveAccessibleDescription(

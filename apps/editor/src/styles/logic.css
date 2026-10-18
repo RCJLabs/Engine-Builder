@@ -82,3 +82,40 @@
 .logic-warning {
   color: var(--warning);
 }
+
+/* M3.2's scripts: the trust question, the game in a sentence, and Run's report, which wraps
+   rather than scroll sideways on a phone. */
+
+.logic-trust {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--warning);
+  border-radius: var(--radius);
+}
+
+.logic-trust p,
+.logic-game {
+  margin: 0;
+}
+
+.logic-run {
+  display: grid;
+  gap: 8px;
+}
+
+.logic-run .form-actions {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.logic-report {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

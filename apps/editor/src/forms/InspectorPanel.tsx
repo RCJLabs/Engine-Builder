@@ -6,9 +6,9 @@ import { chosen } from './selection.ts';
 
 /**
  * A part of the inspector that loads when first wanted, as the dock loads only on desktop (M2.2):
- * the record form (M2.4), the type designer (M2.6) and the asset inspector (M2.7), each with the
- * checks it runs, are more than the editor's start should carry (Readings). The offline cache
- * holds them like any other file.
+ * the record form (M2.4), the type designer (M2.6), the asset inspector (M2.7) and the script
+ * editor with CodeMirror (M3.2), each with the checks it runs, are more than the editor's start
+ * should carry (Readings). The offline cache holds them like any other file.
  */
 function later<T>(load: () => Promise<T>, what: string): { module: Signal<T | null>; load: () => void } {
   const module = signal<T | null>(null);
@@ -34,14 +34,16 @@ function later<T>(load: () => Promise<T>, what: string): { module: Signal<T | nu
 const forms = later(() => import('./RecordForm.tsx'), 'The record form');
 const designer = later(() => import('../types/TypeDesigner.tsx'), 'The type designer');
 const assets = later(() => import('../assets/AssetInspector.tsx'), 'The asset inspector');
+const scripts = later(() => import('../scripts/ScriptEditor.tsx'), 'The script editor');
 
-/** The Inspector panel: the form for the record chosen, the designer for the type, or the asset. */
+/** The Inspector panel: the form for the record chosen, the designer for the type, the asset, or the script. */
 export function InspectorPanel() {
   const project = current.value;
   const pick = chosen.value;
   useEffect(() => {
     if (pick?.kind === 'record') forms.load();
     else if (pick?.kind === 'asset') assets.load();
+    else if (pick?.kind === 'script') scripts.load();
     else if (pick) designer.load();
   }, [pick]);
   return (
@@ -50,9 +52,9 @@ export function InspectorPanel() {
         <h2>Inspector</h2>
       </header>
       {!project ? (
-        <p class="muted">Open a project to edit its records, types and assets here.</p>
+        <p class="muted">Open a project to edit its records, types, assets and scripts here.</p>
       ) : !pick ? (
-        <p class="muted">Choose a record, a type or an asset to edit it here.</p>
+        <p class="muted">Choose a record, a type, an asset or a script to edit it here.</p>
       ) : (
         <Chosen />
       )}
@@ -79,6 +81,14 @@ function Chosen() {
       <AssetInspector key={pick.path} project={project} path={pick.path} />
     ) : (
       <p class="muted">Opening {pick.path}…</p>
+    );
+  }
+  if (pick.kind === 'script') {
+    const ScriptEditor = scripts.module.value?.ScriptEditor;
+    return ScriptEditor ? (
+      <ScriptEditor key={pick.id} project={project} id={pick.id} />
+    ) : (
+      <p class="muted">Opening scripts/{pick.id}.ts…</p>
     );
   }
   const loaded = designer.module.value;

@@ -33,8 +33,11 @@ export function ProblemBrowser({ project }: { project: OpenProject }) {
   const search = useUniqueId();
   const severity = useUniqueId();
   const [limit, setLimit] = useState(PAGE);
-  const { catalog, index } = project;
-  const groups = useMemo(() => groupProblems(projectProblems(catalog, index), catalog, index), [catalog, index]);
+  const { catalog, index, game } = project;
+  const groups = useMemo(
+    () => groupProblems(projectProblems(catalog, index, game), catalog, index),
+    [catalog, index, game],
+  );
   const now = view.value;
   const shown = useMemo(() => shownGroups(groups, now, catalog), [groups, now, catalog]);
   const set = (next: Partial<ProblemView>) => {

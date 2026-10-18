@@ -1,8 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { checkPureSource, scan } from '@eb/purity';
 import { describe, expect, it } from 'vitest';
-import { checkPureSource } from '../src/rules.ts';
-import { scan } from '../src/scan.ts';
 import { sourceFiles, workspacePackages } from '../src/workspace.ts';
 
 const PURE = new Set(['@eb/core']);
@@ -44,8 +43,9 @@ describe('pure rules', () => {
     expect(rules("import { z } from 'zod';")).toEqual([
       '1:pure code may import only its own files and pure packages (found "zod")',
     ]);
+    // A dynamic import breaks two rules: what it imports, and code chosen at run time.
     expect(lines("import 'side-effect';\nconst m = await import('node:fs');\nimport type { T } from 'three';")).toEqual(
-      [1, 2, 3],
+      [1, 2, 2, 3],
     );
   });
 });

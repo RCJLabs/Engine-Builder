@@ -293,12 +293,24 @@ describe('the code table', () => {
       eventTypes,
       { facts: { ...facts, ...ENGINE_FACTS }, events: ENGINE_EVENTS, effects: [setFlagEffect(), addToFlagEffect()] },
     );
+    // Scripts (M3.2): one that doesn't parse, one that breaks a purity rule and imports what it
+    // may not, a misplaced one, a note beside them, and none of them reached from a game.ts.
+    const scripts = await compile(
+      changed({
+        'scripts/broken.ts': 'const a = ;',
+        'scripts/impure.ts': "import { z } from 'zod';\nexport const r = Math.random();",
+        'scripts/old/game.ts': '',
+        'scripts/notes.md': '',
+      }),
+    );
     const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions, types, assets, sheets].flatMap((r) =>
+      [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts].flatMap((r) =>
         r.diagnostics.map((d) => d.code),
       ),
     );
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
-    expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
+    // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
+    // tests fire them (load.test.ts).
+    expect([...seen, 'E004', 'E031', 'E032'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
   });
 });

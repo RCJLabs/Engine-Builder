@@ -34,11 +34,26 @@ const PURE_PATTERNS: readonly PatternRule[] = [
       /(?<![.\w$])(setTimeout|setInterval|setImmediate|queueMicrotask|requestAnimationFrame|performance)\b(?!\s*\??:)/,
   },
   {
+    rule: 'no eval, Function or import() (code made at run time is code no rule has read)',
+    pattern: /(?<![.\w$])(eval|Function)\s*\(|(?<![.\w$])import\s*\(/,
+  },
+  {
     rule: 'no DOM or host globals',
     pattern:
       /(?<![.\w$])(window|document|navigator|localStorage|sessionStorage|indexedDB|globalThis|process|require|fetch|crypto)\b(?!\s*\??:)/,
   },
 ];
+
+/** The pattern rules' findings in code already scanned (scan's `code`), one per rule and line. */
+export function patternViolations(file: string, code: string): Violation[] {
+  const out: Violation[] = [];
+  code.split('\n').forEach((text, i) => {
+    for (const { rule, pattern } of PURE_PATTERNS) {
+      if (pattern.test(text)) out.push({ file, line: i + 1, rule });
+    }
+  });
+  return out;
+}
 
 /**
  * Checks one source file of a pure package. `pureNames` lists the workspace packages that are
@@ -47,12 +62,7 @@ const PURE_PATTERNS: readonly PatternRule[] = [
  */
 export function checkPureSource(file: string, source: string, pureNames: ReadonlySet<string>): Violation[] {
   const { code, imports } = scan(source);
-  const out: Violation[] = [];
-  code.split('\n').forEach((text, i) => {
-    for (const { rule, pattern } of PURE_PATTERNS) {
-      if (pattern.test(text)) out.push({ file, line: i + 1, rule });
-    }
-  });
+  const out = patternViolations(file, code);
   for (const { spec, line } of imports) {
     const pkg = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : (spec.split('/')[0] ?? spec);
     if (!spec.startsWith('.') && !pureNames.has(pkg)) {

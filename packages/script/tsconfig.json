@@ -1,0 +1,10 @@
+{
+  "//": "Runs in the CLI (Node) and the editor's script worker, so it uses neither platform's types. Not eb.pure: it loads code with new Function, and imports sucrase.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

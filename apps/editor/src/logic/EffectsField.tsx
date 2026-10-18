@@ -1,14 +1,17 @@
 /**
  * A list of effects (M3.1, D36): a row's Do, or a roll outcome's. The engine's own effects each
- * get a form (set-flag, add-to-flag, roll, whose outcomes hold lists of their own); any other is
- * edited as JSON. Each can be moved and taken out; adding one picks its kind first.
+ * get a form (set-flag, add-to-flag, roll, whose outcomes hold lists of their own); any other, the
+ * game's own among them (M3.2), is edited as JSON. Each can be moved and taken out; adding one
+ * picks its kind first.
  */
+import type { Effect } from '@eb/core';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { FieldNotes } from '../forms/FieldShell.tsx';
 import { FieldView } from '../forms/FieldView.tsx';
 import { pointerOf, useForm } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
+import { openGame, ownEffectsOf } from '../scripts/known.ts';
 import { FlagSelect, flagOf, OnOffSelect } from './choices.tsx';
 import { JsonField } from './JsonField.tsx';
 import { effectText } from './rowText.ts';
@@ -54,10 +57,7 @@ export function EffectsField({ label, path, value }: { label: string; path: Path
           ))}
         </ol>
       ) : null}
-      <AddEffect
-        to={label}
-        add={(kind) => change(`Add ${NEW_EFFECTS[kind].label.toLowerCase()}`, (l) => [...l, newEffect(kind)])}
-      />
+      <AddEffect to={label} add={(effect, said) => change(`Add ${said}`, (l) => [...l, effect])} />
       <FieldNotes id={id} info={{}} shown={problems} />
     </fieldset>
   );
@@ -203,30 +203,44 @@ function Roll({ path, value }: { path: Path; value: Record<string, unknown> }) {
   );
 }
 
+/** A select's value for one of the game's own effects. */
+const GAME_EFFECT = 'game:';
+
 /** The kind of effect to add, then Add: a select alone would add on every arrow key in some browsers. */
-function AddEffect({ to, add }: { to: string; add: (kind: NewEffect) => void }) {
+function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string) => void }) {
   const form = useForm();
   const id = useUniqueId();
-  const [kind, setKind] = useState<NewEffect>('set-flag');
+  const [kind, setKind] = useState('set-flag');
   if (!form.canEdit) return null;
+  const engine = (Object.keys(NEW_EFFECTS) as NewEffect[]).filter((k) => k !== 'other');
+  const own = ownEffectsOf(openGame());
+  const pick = () => {
+    if (kind.startsWith(GAME_EFFECT)) {
+      const name = kind.slice(GAME_EFFECT.length);
+      return add({ effect: name }, name);
+    }
+    const known = kind as NewEffect;
+    add(newEffect(known), NEW_EFFECTS[known].label.toLowerCase());
+  };
   return (
     <div class="form-actions logic-add-effect">
       <label class="visually-hidden" for={id}>
         {`Effect to add to ${to}`}
       </label>
-      <select
-        id={id}
-        class="field form-select"
-        value={kind}
-        onChange={(e) => setKind(e.currentTarget.value as NewEffect)}
-      >
-        {(Object.keys(NEW_EFFECTS) as NewEffect[]).map((k) => (
+      <select id={id} class="field form-select" value={kind} onChange={(e) => setKind(e.currentTarget.value)}>
+        {engine.map((k) => (
           <option key={k} value={k}>
             {NEW_EFFECTS[k].label}
           </option>
         ))}
+        {own.map((name) => (
+          <option key={name} value={`${GAME_EFFECT}${name}`}>
+            {`${name} (this game’s)`}
+          </option>
+        ))}
+        <option value="other">{NEW_EFFECTS.other.label}</option>
       </select>
-      <button type="button" class="button" onClick={() => add(kind)} aria-label={`Add effect to ${to}`}>
+      <button type="button" class="button" onClick={pick} aria-label={`Add effect to ${to}`}>
         Add effect
       </button>
     </div>

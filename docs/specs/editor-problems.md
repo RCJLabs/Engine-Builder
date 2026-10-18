@@ -8,10 +8,11 @@ M2.8's three ways of seeing what is wrong: the Problems panel, which lists what 
 
 - **What `eb validate` would say, with no `--types` module.** Two parts the editor keeps up to date already:
   - the catalog's problems, from `readProjectFiles`: project.json, the type files, which files under `records/` are records, and the provenance log (E007 to E010, E015 to E017, E019 to E021, W101, W105 to W107);
-  - the record index's, from the compiler's checks of each record (E001 to E007, E011 to E014, E018).
+  - the record index's, from the compiler's checks of each record (E001 to E007, E011 to E014, E018);
+  - since M3.2, the scripts', from the script worker (E028 to E032, W111, W112), each at its line, and the records checked against the game's facts, events and effects once it has run ([editor-scripts.md](editor-scripts.md#the-game-through-the-editor)).
 - **The same code.** `compileProject` is `readProjectFiles`, then the records' checks, then the pack, so a check added to the compiler reaches the panel without a second copy.
 - **Held together by tests:** a property test over random subsets of sixteen planted problems (40 runs) compares the panel's list with `compileProject`'s, and an e2e test compares it with `eb validate --json` on a zip of the same files.
-- **Not the game's facts.** A `--types` module can give the CLI a fact catalogue, and then conditions are checked against it (E012, W102). The editor has no facts until Phase 3, so those problems are the CLI's alone.
+- **The game's facts.** A `--types` module can give the CLI a fact catalogue, and then conditions are checked against it (E012, W102); the editor has no `--types`, so those problems are the CLI's alone. A project's own scripts/game.ts gives both the same catalogue (M3.2).
 - **Until the index is read**, the panel shows the files' problems and says "Checking the records…".
 
 ### The list

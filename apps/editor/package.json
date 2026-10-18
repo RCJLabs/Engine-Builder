@@ -12,10 +12,19 @@
     "icons": "node scripts/icons.ts"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "6.20.3",
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/lang-javascript": "6.2.5",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/lint": "6.9.7",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.14",
     "@eb/compiler": "workspace:*",
     "@eb/core": "workspace:*",
     "@eb/platform": "workspace:*",
     "@eb/schema": "workspace:*",
+    "@eb/script": "workspace:*",
+    "@lezer/highlight": "1.2.5",
     "@preact/signals": "2.11.3",
     "dockview": "8.5.1",
     "preact": "11.0.1"

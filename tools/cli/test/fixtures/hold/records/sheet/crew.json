@@ -1,0 +1,18 @@
+{
+  "name": "The crew",
+  "rows": [
+    {
+      "id": "full",
+      "when": { "event": "hold/looted", "args": { "count": 10 } },
+      "do": [{ "effect": "set-flag", "flag": "full", "to": true }],
+      "once": true
+    },
+    {
+      "id": "stash",
+      "note": "A crate found on the way, while there is room",
+      "when": { "event": "hold/looted" },
+      "if": "hold.count < 10 and not flag.on(full)",
+      "do": [{ "effect": "stash" }]
+    }
+  ]
+}

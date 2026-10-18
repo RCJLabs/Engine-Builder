@@ -1,0 +1,102 @@
+/* M3.2's script editor: CodeMirror in the inspector, coloured from the app's tokens, wrapping
+   long lines rather than scrolling sideways, with the script's problems below. */
+
+:root {
+  --code-keyword: #c792ea;
+  --code-string: #c3e88d;
+  --code-number: #f78c6c;
+  --code-comment: #8a93a0;
+  --code-type: #ffcb6b;
+  --code-name: #82aaff;
+  --code-property: #89ddff;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --code-keyword: #7a2fb0;
+    --code-string: #2f6f12;
+    --code-number: #a14100;
+    --code-comment: #5c636e;
+    --code-type: #845c00;
+    --code-name: #0b56b3;
+    --code-property: #00657a;
+  }
+}
+
+.script-editor {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.script-editor .form-help,
+.script-editor > .muted {
+  margin: 0;
+}
+
+.script-code {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.script-code .cm-editor {
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.script-code .cm-editor.cm-focused {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.script-code .cm-content,
+.script-code .cm-gutters {
+  font-family: var(--mono);
+}
+
+.script-code .cm-content {
+  caret-color: var(--text);
+  min-height: 12rem;
+}
+
+.script-code .cm-gutters {
+  background: var(--surface-2);
+  color: var(--muted);
+  border-right: 1px solid var(--line);
+}
+
+.script-code .cm-activeLine,
+.script-code .cm-activeLineGutter {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.script-code .cm-selectionBackground,
+.script-code .cm-focused .cm-selectionBackground {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Below 16 px, iOS zooms the page in on focus. */
+@media (pointer: coarse) {
+  .script-code .cm-editor {
+    font-size: 16px;
+  }
+}
+
+.script-problems {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.script-problems li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
