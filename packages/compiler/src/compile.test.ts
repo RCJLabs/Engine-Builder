@@ -305,7 +305,7 @@ describe('the code table', () => {
     );
     // Kits (M3.3): one the engine doesn't have, one whose need is left out, a resource that starts
     // below its lowest, a table in a loop, a project's field with a kit field's name, and a shop
-    // that stocks again in a game without days.
+    // that stocks again in a game without days; and (M3.4) a status that lasts days there too.
     const kitted = (kits: string[], files: Record<string, string>) =>
       compileProject(
         memorySource({
@@ -315,7 +315,8 @@ describe('the code table', () => {
         [],
         { facts: ENGINE_FACTS },
       );
-    const kits = await kitted(['inventory', 'economy', 'magic'], {
+    const kits = await kitted(['inventory', 'economy', 'stats', 'magic'], {
+      'records/status/bleeding.json': '{ "lasts": { "days": 3 } }',
       'records/resource/credits.json': '{ "start": -1 }',
       'records/loot-table/a.json': '{ "entries": [{ "table": "a", "weight": 1 }] }',
       'records/shop/yard.json': '{ "currency": "credits", "stock": { "every": { "days": 2 } } }',

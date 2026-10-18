@@ -19,6 +19,7 @@ import {
 import { compareText, type DiagnosticCode } from './diagnostics.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
+import { StatChecks } from './statCheck.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
 
@@ -78,15 +79,18 @@ export class KitChecks {
   private readonly known: Known;
   private readonly tables = new Map<string, Seen<LootTableRecord>>();
   private readonly shops = new Map<string, Seen<ShopRecord>>();
+  private readonly stats: StatChecks;
 
   constructor(on: readonly string[], known: Known) {
     this.on = on;
     this.known = known;
+    this.stats = new StatChecks(on, known);
   }
 
   /** One record that passed its type's schema. */
   record(type: string, id: string, value: unknown, report: Report): void {
     if (!isKitType(type, this.on)) return;
+    this.stats.record(type, id, value, report);
     if (type === LOOT_TABLE) {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
@@ -109,6 +113,7 @@ export class KitChecks {
   /** What needs every loot table: loops (E036), and stock tables that give a resource (E035). */
   finish(): void {
     this.loops();
+    this.stats.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

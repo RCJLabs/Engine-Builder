@@ -1,0 +1,12 @@
+{
+  "name": "Galea",
+  "value": 40,
+  "slot": "helm",
+  "modifiers": [
+    {
+      "stat": "vitality",
+      "add": 10
+    }
+  ],
+  "tags": ["gear"]
+}

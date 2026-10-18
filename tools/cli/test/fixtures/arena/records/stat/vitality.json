@@ -1,0 +1,7 @@
+{
+  "name": "Vitality",
+  "description": "What a bout takes from: at 0, the bout is lost.",
+  "min": 0,
+  "max": 200,
+  "start": 60
+}

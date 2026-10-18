@@ -54,6 +54,7 @@ export const DIAGNOSTIC_CODES = {
   W111: 'A file under scripts/ that the compiler ignores',
   W112: "A script scripts/game.ts doesn't import, directly or through another",
   W113: 'A shop stocks again every few days in a game without time.day',
+  W114: 'A status lasts days or ticks in a game without the time module',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

@@ -1,0 +1,12 @@
+{
+  "name": "Flamma",
+  "stats": {
+    "might": 46,
+    "agility": 55,
+    "vitality": 70
+  },
+  "statuses": ["quick"],
+  "wears": {
+    "weapon": "gladius"
+  }
+}

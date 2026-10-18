@@ -3,7 +3,7 @@
  * give both its schema, which content is checked against as the engine's own effects are (E001,
  * E025), and the form the editor draws for it, so the two can't drift apart.
  */
-import { ECONOMY, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP } from '@eb/kits';
+import { ACTOR, ECONOMY, GEAR, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP, SLOT, STAT, STATS, STATUS } from '@eb/kits';
 import { z } from 'zod';
 import { named } from './effect.ts';
 import type { Fields } from './typeFile.ts';
@@ -20,6 +20,9 @@ export interface EffectFile {
 }
 
 const COUNT = { kind: 'int', min: 1, optional: true, label: 'Count', description: '1 when left out' } as const;
+const WHO = { kind: 'ref', to: ACTOR, label: 'Actor' } as const;
+const WHICH_STAT = { kind: 'ref', to: STAT, label: 'Stat' } as const;
+const WHICH_STATUS = { kind: 'ref', to: STATUS, label: 'Status' } as const;
 
 const FILES: EffectFile[] = [
   {
@@ -74,6 +77,79 @@ const FILES: EffectFile[] = [
     kit: ECONOMY,
     label: 'Open a shop',
     fields: { shop: { kind: 'ref', to: SHOP, label: 'Shop' } },
+  },
+  {
+    effect: 'add-to-stat',
+    kit: STATS,
+    label: 'Add to a stat’s base',
+    fields: {
+      actor: WHO,
+      stat: WHICH_STAT,
+      by: { kind: 'int', label: 'By', description: 'Below 0 takes away: for good, as a level or a scar does' },
+    },
+  },
+  {
+    effect: 'damage-stat',
+    kit: STATS,
+    label: 'Damage a stat',
+    fields: {
+      actor: WHO,
+      stat: WHICH_STAT,
+      by: { kind: 'int', min: 1, label: 'By', description: 'It never leaves less than the stat’s Lowest' },
+    },
+  },
+  {
+    effect: 'heal-stat',
+    kit: STATS,
+    label: 'Heal a stat',
+    fields: {
+      actor: WHO,
+      stat: WHICH_STAT,
+      by: { kind: 'int', min: 1, optional: true, label: 'By', description: 'All the damage when left out' },
+    },
+  },
+  {
+    effect: 'add-status',
+    kit: STATS,
+    label: 'Add a status',
+    fields: {
+      actor: WHO,
+      status: WHICH_STATUS,
+      stacks: { ...COUNT, label: 'Stacks', description: '1 when left out; never past its Most stacks' },
+    },
+  },
+  {
+    effect: 'remove-status',
+    kit: STATS,
+    label: 'Remove a status',
+    fields: {
+      actor: WHO,
+      status: WHICH_STATUS,
+      stacks: { ...COUNT, label: 'Stacks', description: 'All of them when left out' },
+    },
+  },
+  {
+    effect: 'equip',
+    kit: GEAR,
+    label: 'Equip an item',
+    fields: {
+      actor: WHO,
+      item: {
+        kind: 'ref',
+        to: ITEM,
+        label: 'Item',
+        description: 'Taken from the party’s bag; what its slot wore goes back',
+      },
+    },
+  },
+  {
+    effect: 'unequip',
+    kit: GEAR,
+    label: 'Unequip a slot',
+    fields: {
+      actor: WHO,
+      slot: { kind: 'ref', to: SLOT, label: 'Slot', description: 'Its item goes back to the bag' },
+    },
   },
 ];
 

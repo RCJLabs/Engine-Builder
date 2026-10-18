@@ -1,0 +1,10 @@
+{
+  "name": "Stoic",
+  "description": "Takes a beating.",
+  "modifiers": [
+    {
+      "stat": "vitality",
+      "add": 10
+    }
+  ]
+}

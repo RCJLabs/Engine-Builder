@@ -1,0 +1,20 @@
+{
+  "name": "Manica",
+  "value": 45,
+  "slot": "armor",
+  "modifiers": [
+    {
+      "stat": "might",
+      "add": 2
+    },
+    {
+      "stat": "agility",
+      "percent": -5
+    },
+    {
+      "stat": "vitality",
+      "add": 5
+    }
+  ],
+  "tags": ["gear"]
+}

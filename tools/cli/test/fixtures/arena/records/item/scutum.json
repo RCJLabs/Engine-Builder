@@ -1,0 +1,12 @@
+{
+  "name": "Scutum",
+  "value": 50,
+  "slot": "offhand",
+  "modifiers": [
+    {
+      "stat": "vitality",
+      "add": 15
+    }
+  ],
+  "tags": ["gear"]
+}

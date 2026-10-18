@@ -1,0 +1,16 @@
+{
+  "name": "Spear",
+  "value": 75,
+  "slot": "weapon",
+  "modifiers": [
+    {
+      "stat": "might",
+      "add": 4
+    },
+    {
+      "stat": "agility",
+      "add": 4
+    }
+  ],
+  "tags": ["gear"]
+}

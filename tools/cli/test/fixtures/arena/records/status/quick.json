@@ -1,0 +1,9 @@
+{
+  "name": "Quick",
+  "modifiers": [
+    {
+      "stat": "agility",
+      "percent": 10
+    }
+  ]
+}
