@@ -3,6 +3,7 @@ import { editing, redoLabel, undoLabel } from '../editing/current.ts';
 import { canOpenFolders } from '../projects/folders.ts';
 import { pickZip } from '../projects/pickZip.ts';
 import { busy, closeProject, current, exportCurrent, openFolder } from '../projects/session.ts';
+import { startNewType } from '../types/open.ts';
 import type { Command } from './commands.ts';
 import { DOCK_PANELS, type DockPanelId, type PanelId } from './layout.ts';
 import { resetLayout, showPanel } from './panelControl.ts';
@@ -62,6 +63,14 @@ function projectCommands(): Command[] {
       },
       { id: 'close-project', title: `Close ${name}`, keywords: 'project', run: closeProject },
     );
+    if (editing.access.value.kind === 'editing') {
+      commands.push({
+        id: 'new-type',
+        title: 'New record type',
+        keywords: 'create make design schema fields kind',
+        run: startNewType,
+      });
+    }
   }
   return commands;
 }

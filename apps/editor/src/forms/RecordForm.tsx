@@ -1,41 +1,26 @@
 import { pointerSegment } from '@eb/core';
 import type { DataType, Diagnostic } from '@eb/schema';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useMemo, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
-import { type OpenProject, revision } from '../projects/opened.ts';
+import type { OpenProject } from '../projects/opened.ts';
 import { duplicateRecord } from '../records/actions.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { copyName, nameIn, namesOf } from '../records/names.ts';
+import { RenameRecord } from '../records/RenameRecord.tsx';
 import { UsedBy } from '../records/UsedBy.tsx';
 import { recordFile } from './catalog.ts';
 import { FieldView } from './FieldView.tsx';
 import { type FormApi, FormContext, pointerOf } from './formContext.ts';
 import { labelOf } from './labels.ts';
 import { checkRecord, fieldPointers, routeProblems } from './problems.ts';
-import { changeRecord, deleteRecordFile, type LoadedRecord, loadRecord } from './recordEdits.ts';
+import { changeRecord, deleteRecordFile } from './recordEdits.ts';
+import { useFile } from './useFile.ts';
 import { getIn, setIn } from './values.ts';
-
-/** The record's file as it is now: read again after every change, and when this tab starts or stops editing. */
-function useLoaded(project: OpenProject, file: string): LoadedRecord | null {
-  const [loaded, setLoaded] = useState<LoadedRecord | null>(null);
-  const changes = revision.value;
-  const access = editing.access.value.kind;
-  useEffect(() => {
-    let live = true;
-    void loadRecord(project.source, file).then((read) => {
-      if (live) setLoaded(read);
-    });
-    return () => {
-      live = false;
-    };
-  }, [project.source, file, changes, access]);
-  return loaded;
-}
 
 /** The inspector's form for one record, or what stands in the way of one. */
 export function RecordForm({ project, type, id }: { project: OpenProject; type: string; id: string }) {
   const file = recordFile(type, id);
-  const loaded = useLoaded(project, file);
+  const loaded = useFile(project, file);
   const data = project.catalog.types.get(type);
   const broken = project.catalog.broken.get(type);
   if (!data) {
@@ -85,22 +70,32 @@ function Notice(props: {
 }
 
 /**
- * The record's name, Duplicate (M2.5) and Delete: each a step like any edit, which undo takes
- * back. Duplicate asks for the copy's name, as New does.
+ * The record's name, Duplicate (M2.5), Rename (M2.6) and Delete: each a step like any edit, which
+ * undo takes back. Duplicate asks for the copy's name, as New does; Rename for the new id.
  */
 function RecordHead(props: { title: string; id: string; file?: string | undefined; copy?: Copying }) {
   const { title, id, file, copy } = props;
   const canEdit = editing.access.value.kind === 'editing';
-  const [naming, setNaming] = useState(false);
+  const [doing, setDoing] = useState<'duplicate' | 'rename' | null>(null);
   const duplicate = useRef<HTMLButtonElement>(null);
+  const rename = useRef<HTMLButtonElement>(null);
+  const close = (focus: HTMLButtonElement | null) => {
+    setDoing(null);
+    focus?.focus();
+  };
   return (
     <>
       <header class="record-head">
         <h3>{title}</h3>
         {copy && canEdit ? (
-          <button ref={duplicate} type="button" class="button" onClick={() => setNaming(true)}>
-            Duplicate
-          </button>
+          <>
+            <button ref={duplicate} type="button" class="button" onClick={() => setDoing('duplicate')}>
+              Duplicate
+            </button>
+            <button ref={rename} type="button" class="button" onClick={() => setDoing('rename')}>
+              Rename
+            </button>
+          </>
         ) : null}
         {file ? (
           <button
@@ -113,7 +108,7 @@ function RecordHead(props: { title: string; id: string; file?: string | undefine
           </button>
         ) : null}
       </header>
-      {naming && copy ? (
+      {doing === 'duplicate' && copy ? (
         <NameRecord
           type={copy.data.type}
           ids={copy.ids}
@@ -121,21 +116,22 @@ function RecordHead(props: { title: string; id: string; file?: string | undefine
           action="Duplicate"
           initial={copyName(copy.name ?? id, copy.ids)}
           done={(to, typed) => {
-            setNaming(false);
+            setDoing(null);
             duplicateRecord(copy.data, id, to, typed);
           }}
-          cancel={() => {
-            setNaming(false);
-            duplicate.current?.focus();
-          }}
+          cancel={() => close(duplicate.current)}
         />
+      ) : null}
+      {doing === 'rename' && copy ? (
+        <RenameRecord project={copy.project} type={copy.data.type} id={id} close={() => close(rename.current)} />
       ) : null}
     </>
   );
 }
 
-/** What Duplicate needs: the record's type, the ids taken, and its name, if it has one. */
+/** What Duplicate and Rename need: the project, the record's type, the ids taken, and its name, if it has one. */
 interface Copying {
+  readonly project: OpenProject;
   readonly data: DataType;
   readonly ids: readonly string[];
   readonly name: string | undefined;
@@ -184,7 +180,7 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
           title={`${typeFile.title}: ${id}`}
           id={id}
           file={file}
-          copy={{ data, ids: catalog.records.get(type) ?? [], name: nameIn(typeFile, value) }}
+          copy={{ project, data, ids: catalog.records.get(type) ?? [], name: nameIn(typeFile, value) }}
         />
         {typeFile.description ? <p class="muted">{typeFile.description}</p> : null}
         <RecordProblems

@@ -2,7 +2,9 @@ import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { note } from '../app/state.ts';
+import { editing } from '../editing/current.ts';
 import { current } from '../projects/opened.ts';
+import { designType, startNewType } from '../types/open.ts';
 import { tableType } from './viewState.ts';
 
 type TableModule = typeof import('./TypeTable.tsx');
@@ -38,6 +40,7 @@ export function RecordsPanel() {
   const names = project?.catalog.names ?? [];
   const type = tableType.value !== null && names.includes(tableType.value) ? tableType.value : names[0];
   const TypeTable = tableModule.value?.TypeTable;
+  const canEdit = editing.access.value.kind === 'editing';
   return (
     <div class="panel" data-panel="records">
       <header class="panel-head">
@@ -46,9 +49,14 @@ export function RecordsPanel() {
       {!project ? (
         <p class="muted">Open a project to see its records here.</p>
       ) : type === undefined ? (
-        <p class="muted">
-          No record types yet. A type is a file in the project’s types/ folder; designing them here comes with M2.6.
-        </p>
+        <>
+          <p class="muted">No record types yet. A type is a kind of record, like players, gladiators or cards.</p>
+          {canEdit ? (
+            <button type="button" class="button primary" onClick={startNewType}>
+              New type
+            </button>
+          ) : null}
+        </>
       ) : (
         <>
           <div class="table-type">
@@ -67,6 +75,14 @@ export function RecordsPanel() {
                 </option>
               ))}
             </select>
+            <button type="button" class="button" onClick={() => designType(type)}>
+              Edit type
+            </button>
+            {canEdit ? (
+              <button type="button" class="button" onClick={startNewType}>
+                New type
+              </button>
+            ) : null}
           </div>
           {TypeTable ? (
             // Keyed by the type, so one type's selection and paging never carry into another's.

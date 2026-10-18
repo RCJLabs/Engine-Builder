@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { Catalog } from '../forms/catalog.ts';
-import { chosen } from '../forms/selection.ts';
+import { chosenRecord } from '../forms/selection.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { createRecord, deleteRecords, duplicateRecord, openRecord, setField } from './actions.ts';
 import { BulkEdit } from './BulkEdit.tsx';
@@ -36,6 +36,7 @@ export function TypeTable({ project, type }: { project: OpenProject; type: strin
   const title = data?.file.title ?? type;
   const canEdit = editing.access.value.kind === 'editing';
   const view = viewOf(type);
+  const shownRecord = chosenRecord();
   const ids = catalog.records.get(type) ?? [];
   const nameOf = useMemo(() => namesOf(index, catalog), [index, catalog]);
   const columns = useMemo(() => columnsOf(data?.file), [data]);
@@ -161,7 +162,7 @@ export function TypeTable({ project, type }: { project: OpenProject; type: strin
         sort={view.sort}
         sortBy={sortBy}
         open={(id) => openRecord(type, id)}
-        current={chosen.value?.type === type ? `${type}:${chosen.value.id}` : null}
+        current={shownRecord?.type === type ? `${type}:${shownRecord.id}` : null}
         region={region}
         pick={
           canEdit && data

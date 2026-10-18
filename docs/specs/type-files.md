@@ -2,7 +2,7 @@
 
 A project can define its own record types as data, in `types/` (D31, Evan's call). Each file lists a type's fields by kind. The compiler builds it into the same strict zod schema a code type has, so validation, references, "used by" and the condition lint treat both alike ([records.md](records.md)). The editor's forms draw from the same files ([editor-forms.md](editor-forms.md)).
 
-The code is `packages/schema/src/typeFile.ts` (the format), `typeSchema.ts` (the schema it becomes), `assets.ts` (asset fields) and `packages/compiler/src/types.ts` (reading `types/`).
+The code is `packages/schema/src/typeFile.ts` (the format), `typeSchema.ts` (the schema it becomes), `assets.ts` (asset fields) and `packages/compiler/src/types.ts` (reading `types/`). The editor designs them in the inspector (M2.6, [editor-types.md](editor-types.md)).
 
 **Prior art.**
 - **CastleDB**, the JSON database behind Dead Cells and Northgard: its sheets' column types are id, text, bool, int, float, enum, ref (to another sheet), list (a sub-sheet), color, file and image, among others. The kinds here are close to that set.
@@ -35,7 +35,7 @@ The code is `packages/schema/src/typeFile.ts` (the format), `typeSchema.ts` (the
 - **Keys.** `title` (text, not empty), `description` (text, optional), `nameField` (optional, below) and `fields`. The object is strict, like every object in the format: an unknown or misspelled key is a problem (E015).
 - **`nameField`** (M2.5) names the field that holds each record's name: one of the type's own top-level fields, of kind `text`, required or optional. Tables, pickers and "used by" show a record's name beside its id, and New and Duplicate fill it in from what was typed ([editor-tables.md](editor-tables.md#new-duplicate-and-names)). A record without a name, or of a type with no `nameField`, is known by its id. Naming a field the type doesn't have, or one of another kind, is E015 at `/nameField`. It is the same idea as Contentful's `displayField` and the "primary field" an Airtable table has.
 - **Fields** are in the order forms show them, and the order a form writes new keys in.
-- **Field names** start with a letter, then letters, digits, `_` or `-`, up to 64 characters, so camel, snake and kebab case all fit. A name every JavaScript object already has (`toString`, `constructor`, `valueOf`…) is refused: zod reads a field as `value[name]`, so a record without that field would seem to hold a function.
+- **Field names** start with a letter, then letters, digits, `_` or `-`, up to 64 characters, so camel, snake and kebab case all fit. A name every JavaScript object already has (`toString`, `constructor`, `valueOf`…) is refused: zod reads a field as `value[name]`, so a record without that field would seem to hold a function. `fieldNameProblem` gives the same rule, in the same words, to the type designer.
 
 ## Fields and values
 
@@ -144,6 +144,6 @@ Diagnostics about type files carry no record type or id.
 
 1. **A record's name in lists.** Settled in M2.5: `nameField` (above, D32).
 2. **Colours with alpha.** The platform's colour picker has none, so `colour` is six hex digits. Add `#rrggbbaa` when a game needs see-through colours.
-3. **A required field added to a type** leaves every existing record missing it: an E001 on each. With no defaults, M2.6's type designer should offer to fill existing records when it adds one.
-4. **Renaming a type or a field** moves nothing: records keep the old key, which forms offer to remove. M2.6 decides whether renames rewrite records.
+3. **A required field added to a type.** Settled in M2.6: the type designer fills it in on the records there are with a value chosen as it adds the field, and offers the same for a field some records leave out ([editor-types.md](editor-types.md#changes-that-carry-the-records)).
+4. **Renaming a type or a field.** Settled in M2.6 (D33, Evan's call): renames rewrite every record and reference to match, as one step undo takes back ([editor-types.md](editor-types.md#changes-that-carry-the-records)).
 5. **Kits drawn with the same forms** (Phase 3). Kits are code types; M3.3 maps their zod schemas to these kinds. Tuples, plain unions and discriminated unions (effects) have no kind yet.

@@ -2,7 +2,7 @@
 
 **One-liner:** a browser engine and editor for the games RCJ Labs makes. You put in records, missions, scripts, worlds and screens, and the engine does the rest. It runs on a PC, tablet or phone and ships as a PWA or a Play TWA.
 
-**CURRENT MILESTONE: M2.6.** Custom record types (Phase 2). M2.5 (records tables) is done. The editor is live over HTTPS at engine.rcjlabs.com, and the deploy check confirms it. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline. Worth a look on the phone too: type in a record's form in the inspector sheet, and check the keyboard leaves the box in view ([editor-forms.md](docs/specs/editor-forms.md#open-questions), question 1).
+**CURRENT MILESTONE: M2.7.** Asset browser (Phase 2). M2.6 (custom record types) is done. The editor is live over HTTPS at engine.rcjlabs.com, and the deploy check confirms it. Phase 2's own gate is now yours to try on your phone: create a project with 20 records across 3 types, one of them designed there, reload it and export a zip. Phase 1 waits only on your phone: open [`engine.rcjlabs.com/spikes/3d/`](https://engine.rcjlabs.com/spikes/3d/), tap **Measure all tiers**, and send the reading. Phase 0 waits only on your phone check: install the editor from engine.rcjlabs.com and reopen it offline. Worth a look on the phone too: type in a record's form in the inspector sheet, and check the keyboard leaves the box in view ([editor-forms.md](docs/specs/editor-forms.md#open-questions), question 1).
 
 How to read this file:
 
@@ -216,7 +216,23 @@ How to read this file:
     - four for the index and search: a read with no paths named, a type file that breaks and mends, a folder that lists its files backwards, and a name only accent folding finds;
     - one for the delete warning, whose count moved into the index, with records that refer to each other;
     - one for a project opened over another, and one that a required field offers no Clear.
-- **M2.6 Custom record types.** Define your own data types (players, gladiators, cards) as fields, which become a schema.
+- **M2.6 Custom record types.** Done 2026-10-18.
+  - **A type designer in the inspector**, the sheet on a phone. New type takes a name in words ("Chariot Team" is `types/chariot-team.json`) and starts with a name field. The designer edits a type's title, description and name field, and its fields: name, kind, label, help, optional, and what each kind holds, nested lists, maps and groups included. Fields move up and down. Problems show where they are, in the compiler's words, so a broken type file is fixed in the same place.
+  - **Renames carry the records** (D33, your calls). Renaming a field, a choice, a type or a record rewrites every record and reference to match, as one step undo takes back. Removing a field takes its values out, and a required field added, or left out by some records, is filled in with a value chosen. A ref changed between one type and several keeps naming the same records.
+    - Nothing is lost quietly: a rename onto a name some records hold is refused, and a type others refer to can't be deleted.
+    - Not rewritten: conditions, until the editor knows the game's facts (Phase 3). A record's rename lists the conditions that mention its id.
+    - A change of kind converts nothing: the designer says how many records don't fit.
+  - **The gate's automatic half for M2.6:** a type designed on a phone, a record made of it and the project exported; the CLI reads the zip with no `--types` module to the hash of the same files made in Node.
+  - **Labels and help don't recheck the records.** The record index leaves out what only names things, so typing a label on a phone doesn't recheck every record on each key.
+  - [`docs/specs/editor-types.md`](docs/specs/editor-types.md) is the spec.
+  - **Found while building it:**
+    - each keystroke in a type's title read every record of the type, though only renames and fills need them;
+    - the new choice's box and button overflowed a 360 px phone inside a map's fieldsets (the shared overflow check).
+  - Seventy-eight planted bugs, at the unit and the UI level; the first run caught 63. Each survivor got a test, now seen failing:
+    - for the rewrites: a record that refers to itself (its rename rewrote its old file as well as the moved one), a ref to a list of one type, one type becoming several with the old type not first, a new field placed before keys the type doesn't list, a fill counted in the group's objects, copies of a fill value, and a clash only when both names are there;
+    - for the index: whether a field is optional, changed on its own;
+    - in the designer: an optional new field fills nothing, rows say whether they are open, a fill value shows its problems, the palette offers New record type, and each box's typing is a step of its own;
+    - a planted bug that read every record on every change was too weak (it listed them without reading) and was planted again; the bench then showed renames reading each record twice, now once.
 - **M2.7 Asset browser.**
   - Import images, audio, models and fonts; thumbnails.
   - A provenance log per asset: source, licence, prompt, date, hand edits.
@@ -225,14 +241,14 @@ How to read this file:
   - The CLI validates exported projects in CI.
   - `eb schemas` writes each record type's JSON Schema, plus a `.vscode/settings.json` that maps `records/<type>/*.json` to it, so hand edits get autocomplete ([project-format.md](docs/specs/project-format.md#open-questions), question 1).
 
-- **Ideas, not yet in a milestone** (from M2.5):
-  - Renaming a record and what refers to it. It needs the same record rewriting as M2.6's renamed types and fields, so the two belong together ([editor-tables.md](docs/specs/editor-tables.md#open-questions), question 1). Whether it joins M2.6 is your call.
-  - Duplicating several records at once; editing cells in the table; views kept across a reload.
+- **Ideas, not yet in a milestone:**
+  - From M2.5: duplicating several records at once; editing cells in the table; views kept across a reload.
+  - From M2.6 ([editor-types.md](docs/specs/editor-types.md#open-questions)): a type's fields guessed from records that have no type file; conversions on a change of kind (whole numbers to numbers, text to a choice); a warning before a rename of hundreds of files in an opened folder.
 
 **Done when:**
 
 - On a phone, you create a project with 20 records across 3 types (one of them custom), reload it and export a zip. [you]
-- The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. M2.4's part: a project edited through its forms and exported, which the CLI reads with no `--types` module to the hash of the same edits made in Node (`e2e/formsPhone.spec.ts`). A project's types are in its `types/` since M2.4 (D31), so "one of them custom" now means a type designed on the phone, which needs M2.6's designer.
+- The CLI validates that zip in CI with the same content hash. [auto] M2.1's part: an e2e test imports a zip, exports it, and the CLI reads the export to the fixture's hash. M2.4's part: a project edited through its forms and exported, which the CLI reads with no `--types` module to the hash of the same edits made in Node (`e2e/formsPhone.spec.ts`). A project's types are in its `types/` since M2.4 (D31), so "one of them custom" means a type designed on the phone. M2.6's part: on a phone, a type designed in the inspector's sheet and a record made of it, exported and read by the CLI to the hash of the same files made in Node (`e2e/typesPhone.spec.ts`).
 - A project opened from a git folder on desktop round-trips with zero diff. [auto] `apps/editor/src/projects/roundtrip.test.ts`:
   - M2.1: a git checkout taken into the browser and out as a zip leaves the checkout clean.
   - M2.3: edits saved into the opened folder leave no diff once undone, and a rename changes one line, keeping the file's byte order mark and line ends.
@@ -416,6 +432,10 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | Editor precache (M2.5) | 27 entries, 782.4 KiB | vite-plugin-pwa build log | 2026-10-17 | 1 build |
 | Record index and table, 2,008 records (ludus types, 2,000 gladiators) | Index built in 61.9–69.8 ms (median 64.6); one record edited 3.17–4.47 ms (median 3.92); a school that 1,000 records name deleted and restored 62.5–80.9 ms (median 65.9). 2,003 rows built 10.2–11.6 ms (median 11.1), searched 0.4–0.6 ms (median 0.5), sorted 0.9–1.0 ms (median 1.0). In memory: reading the files from OPFS in a browser adds its own time | `node apps/editor/test/index-bench.ts`, Node 22.22, cloud container, medians of 5, 50 and 20 a run | 2026-10-17 | 5 runs |
 | Records table, a 1,003-record project | Open to the table drawn, every file read from OPFS and checked: 922–1,136 ms (median 1,058). A search that leaves one row: 9–13 ms (median 10). 100 rows drawn again: 55–100 ms (median 68) as the search clears, 61–75 ms (median 65) on a sort | headless Chromium 1194 on `vite preview`, cloud container, timed in the page to the frame after the change | 2026-10-17 | 5 runs |
+| Editor JS, gzip (M2.6) | 67.5 kB at start, up 0.4 kB from M2.5 for New type, Edit type and the inspector's choice of form or designer. The type designer loads when a type is first shown: 8.9 kB of JS and 0.7 kB of CSS (27.1 kB and 1.7 kB raw), sharing the checks and fields the record form and the table load | `vite build` output | 2026-10-18 | 1 build |
+| Editor precache (M2.6) | 31 entries, 824.6 KiB | vite-plugin-pwa build log | 2026-10-18 | 1 build |
+| Type designer, 2,008 records (ludus types, 2,000 gladiators, half at each school) | A label typed: 0.0–0.1 ms, the type file alone read. A field renamed in every record: 23.2–25.7 ms (median 24.3), 2,004 files changed, each read once. The type renamed: 8.9–10.0 ms (median 9.4), 2,004 files moved. A school that 1,002 records name renamed: 12.3–14.5 ms (median 13.1), 1,004 files changed. The index after a label: 2.9–4.8 ms (median 3.0), nothing checked again; after a bound: 93.7–116.6 ms (median 99.3), everything. In memory: OPFS in a browser adds its own time | `node apps/editor/test/types-bench.ts`, Node 22.22, cloud container, medians of 21 and 5 a run | 2026-10-18 | 5 runs |
+| A field renamed over a 1,003-record project | From the tap on Rename to the step made (every record read from OPFS and rewritten): 541–661 ms (median 575). Its save through the journal, 1,004 files: 1,660–1,812 ms (median 1,762), from "Saving…" to "All changes saved." | headless Chromium 1194 on `vite preview`, cloud container, timed in the page with a MutationObserver, a fresh context each | 2026-10-18 | 5 runs |
 | Rapier load, no phone | Headless Chromium on a page drawing nothing: import 217–233 ms (median 226), start 75–90 ms (median 79). Node: import 27–38 ms (median 30), start 90–127 ms (median 123). On the spike's page, while drawing in software: about 0.9 s and 0.45 s | Chromium 1194 (Playwright 1.56.1) on `vite preview`, a fresh context each, and Node 22.22, both in the cloud container | 2026-10-17 | 5 each |
 
 ## Open questions

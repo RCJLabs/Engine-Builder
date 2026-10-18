@@ -13,7 +13,7 @@ import { newRecord, setIn } from '../forms/values.ts';
 
 /** Shows the record in the inspector: the dock's or the zone's, or the sheet on a phone. */
 export function openRecord(type: string, id: string): void {
-  chosen.value = { type, id };
+  chosen.value = { kind: 'record', type, id };
   showPanel('inspector');
 }
 

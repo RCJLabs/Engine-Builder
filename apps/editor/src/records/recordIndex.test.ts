@@ -132,6 +132,40 @@ describe('updateIndex', () => {
     expect(shown(index)).toEqual(shown(fresh));
   });
 
+  it('checks nothing again for a change that only names things: titles, labels, help, the name field', async () => {
+    const files = project();
+    const { index: before } = await files.update(null);
+    files.edit('types/gladiator.json', (type) => {
+      type.title = 'Fighter';
+      type.description = 'Of the arena';
+      delete type.nameField;
+      const fields = type.fields as Record<string, Record<string, unknown>>;
+      (fields.might as Record<string, unknown>).label = 'Power';
+      (
+        (fields.record as { fields: Record<string, Record<string, unknown>> }).fields.wins as Record<string, unknown>
+      ).description = 'Bouts won';
+    });
+    const { index } = await files.update(['types/gladiator.json']);
+    for (const key of before.records.keys()) expect(index.records.get(key)).toBe(before.records.get(key));
+    // A field named "label" is a field, not a label: changing it checks everything again.
+    files.edit('types/gladiator.json', (type) => {
+      (type.fields as Record<string, unknown>).label = { kind: 'text' };
+    });
+    const { index: after } = await files.update(['types/gladiator.json']);
+    expect(problemsOf(after, 'gladiator:spiculus')).toEqual(['E001 /label: Missing field "label"']);
+    // Whether a field may be left out changes the checks: flamma has no portrait.
+    files.edit('types/gladiator.json', (type) => {
+      delete (type.fields as Record<string, unknown>).label;
+    });
+    await files.update(['types/gladiator.json']);
+    files.edit('types/gladiator.json', (type) => {
+      delete ((type.fields as Record<string, Record<string, unknown>>).portrait as Record<string, unknown>).optional;
+    });
+    const { index: required, fresh } = await files.update(['types/gladiator.json']);
+    expect(problemsOf(required, 'gladiator:flamma')).toEqual(['E001 /portrait: Missing field "portrait"']);
+    expect(shown(required)).toEqual(shown(fresh));
+  });
+
   it('keeps a record whose file is not JSON, with the compiler’s E007, and its users’ references resolve', async () => {
     const files = project();
     await files.update(null);

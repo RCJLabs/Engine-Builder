@@ -1,10 +1,13 @@
 import { showPanel } from '../app/panelControl.ts';
+import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { startNewType } from '../types/open.ts';
 import { tableType } from './viewState.ts';
 
 /**
  * The open project's record types, in the Project panel, each with its count: a tap shows its
- * records in the Records panel's table (M2.5), where they are opened, made and changed.
+ * records in the Records panel's table (M2.5), where they are opened, made and changed. New type
+ * opens the type designer (M2.6).
  */
 export function TypeList({ project }: { project: OpenProject }) {
   const { catalog } = project;
@@ -12,9 +15,7 @@ export function TypeList({ project }: { project: OpenProject }) {
     <section class="records" aria-label="Record types">
       <h4>Records</h4>
       {catalog.names.length === 0 ? (
-        <p class="muted">
-          No record types yet. A type is a file in the project’s types/ folder; designing them here comes with M2.6.
-        </p>
+        <p class="muted">No record types yet. A type is a kind of record, like players, gladiators or cards.</p>
       ) : (
         <ul class="record-list">
           {catalog.names.map((type) => (
@@ -22,6 +23,11 @@ export function TypeList({ project }: { project: OpenProject }) {
           ))}
         </ul>
       )}
+      {editing.access.value.kind === 'editing' ? (
+        <button type="button" class="button" onClick={startNewType}>
+          New type
+        </button>
+      ) : null}
     </section>
   );
 }

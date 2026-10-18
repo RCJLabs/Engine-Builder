@@ -52,9 +52,30 @@ export interface RecordIndex {
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), grounds: '' };
 
-/** What a record's checks depend on besides the records: the sound types' files and the assets. */
+/**
+ * What a record's checks depend on besides the records: the sound types' fields and the assets.
+ * What only names things (a type's title and description, its name field, a field's label and
+ * help) changes no check, so typing a label in the type designer (M2.6) checks nothing again.
+ */
 const groundsOf = (catalog: Catalog): string =>
-  JSON.stringify([[...catalog.types].map(([type, data]) => [type, data.file]), catalog.assets]);
+  JSON.stringify([[...catalog.types].map(([type, data]) => [type, checked(data.file.fields)]), catalog.assets]);
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** Fields without their labels and help, all the way down: what checks a record. */
+function checked(fields: unknown): unknown {
+  if (!isObject(fields)) return fields;
+  const bare = (def: unknown): unknown => {
+    if (!isObject(def)) return def;
+    const { label: _label, description: _help, ...rest } = def;
+    if (rest.of !== undefined) rest.of = bare(rest.of);
+    if (rest.key !== undefined) rest.key = bare(rest.key);
+    if (rest.fields !== undefined) rest.fields = checked(rest.fields);
+    return rest;
+  };
+  return Object.fromEntries(Object.entries(fields).map(([name, def]) => [name, bare(def)]));
+}
 
 const sameBytes = (a: Uint8Array, b: Uint8Array): boolean => {
   if (a === b) return true;

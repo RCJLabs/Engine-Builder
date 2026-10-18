@@ -94,4 +94,4 @@ When another tab edits the project, or an opened folder isn't writable yet (M2.3
 
 1. **A phone's keyboard over the sheet.** The inspector sheet sits at the bottom of the screen, where the keyboard opens. Browsers pan the page to keep the box typed in visible, but this is untested on a real phone. `interactive-widget=resizes-content` would shrink the page instead, on Android only.
 2. **A record's name in lists.** Settled in M2.5: `nameField` ([type-files.md](type-files.md#the-file), D32).
-3. **Renaming a record** with what refers to it. M2.5 added Open on ref fields and "used by"; renaming waits for the rewriting M2.6 needs for renamed types and fields ([editor-tables.md](editor-tables.md#open-questions), question 1).
+3. **Renaming a record** with what refers to it. Settled in M2.6: Rename on the form's head ([editor-types.md](editor-types.md#changes-that-carry-the-records), D33).

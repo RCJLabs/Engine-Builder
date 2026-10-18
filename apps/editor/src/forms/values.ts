@@ -79,13 +79,17 @@ export function getIn(root: unknown, path: Path): unknown {
  * it among the keys that are, or last when the type doesn't say.
  */
 export function setIn(root: unknown, path: Path, next: unknown, file: TypeFile): unknown {
-  return place(root, path, next, (at) => {
+  return setInOrder(root, path, next, (at) => {
     const def = defAt(file, at);
     return def?.kind === 'group' ? Object.keys(def.fields) : [];
   });
 }
 
-function place(
+/**
+ * setIn for any JSON: a key that isn't there yet goes where `order` ranks it among the keys of
+ * the object at `at`, or last. Type files (M2.6) rank theirs by the format's own key order.
+ */
+export function setInOrder(
   node: unknown,
   path: Path,
   next: unknown,
@@ -96,13 +100,13 @@ function place(
   const [key, ...rest] = path as [string | number, ...(string | number)[]];
   if (typeof key === 'number') {
     const list = Array.isArray(node) ? [...node] : [];
-    const value = place(list[key], rest, next, order, [...at, key]);
+    const value = setInOrder(list[key], rest, next, order, [...at, key]);
     if (value === undefined && rest.length === 0) list.splice(key, 1);
     else list[key] = value;
     return list;
   }
   const object = isObject(node) ? node : {};
-  const value = place(object[key], rest, next, order, [...at, key]);
+  const value = setInOrder(object[key], rest, next, order, [...at, key]);
   return withKey(object, key, value, order(at));
 }
 

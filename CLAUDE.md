@@ -70,9 +70,15 @@ apps/editor/           the editor PWA
                        and tables make)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
                        file, used by), table.ts, cells.ts, filters.ts and view.ts (columns, cells, filters, sort as
-                       plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts
+                       plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts,
+                       RenameRecord (M2.6)
+  src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
+                       rewrites.ts (what a change does to a record), typeFileChanges.ts and fieldEdits.ts (what it
+                       does to the type file), typeEdits.ts (steps over the working copy), typeActions.ts, the
+                       designer's components (TypeDesigner, FieldList, FieldEditor, ValueOptions, AddField…)
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
-                       folder behind it), fake-locks.ts (Web Locks as the spec describes them)
+                       folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
+                       and a project that reach every place a value can sit), *-bench.ts (timings)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
                        targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records

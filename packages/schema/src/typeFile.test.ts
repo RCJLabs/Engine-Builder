@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { eachValue, readTypeFile, type TypeFile, typeFileSchema, typeRefs, z } from './index.ts';
+import { eachValue, fieldNameProblem, readTypeFile, type TypeFile, typeFileSchema, typeRefs, z } from './index.ts';
 
 const gladiator: TypeFile = {
   title: 'Gladiator',
@@ -85,6 +85,14 @@ describe('readTypeFile', () => {
     expect(problems({ title: 'T', fields: { toString: { kind: 'int', optional: true } } })).toEqual([
       '/fields/toString: Invalid key: Every JavaScript object already has this name, so a record without the field would seem to have it',
     ]);
+  });
+
+  it('says why a name can’t name a field in the words the file’s problems use', () => {
+    for (const name of ['__proto__x', 'toString', '9lives', 'a b', 'x'.repeat(65), 'hitPoints', 'hit_points', 'a-1']) {
+      const said = fieldNameProblem(name);
+      const read = problems({ title: 'T', fields: { [name]: { kind: 'bool' } } });
+      expect(said === null ? [] : [`/fields/${name}: Invalid key: ${said}`]).toEqual(read);
+    }
   });
 
   it('checks what the shape cannot: bounds in order, nothing twice', () => {

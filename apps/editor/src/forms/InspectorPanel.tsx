@@ -1,56 +1,80 @@
-import { signal } from '@preact/signals';
+import { type Signal, signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { note } from '../app/state.ts';
 import { current } from '../projects/opened.ts';
 import { chosen } from './selection.ts';
 
-type FormModule = typeof import('./RecordForm.tsx');
-
 /**
- * The record form loads when a record is first chosen, as the dock loads only on desktop (M2.2):
- * with the checks it runs it is 13 kB gzipped the editor's start needn't carry (Readings). The
- * offline cache holds it like any other file.
+ * A part of the inspector that loads when first wanted, as the dock loads only on desktop (M2.2):
+ * the record form (M2.4) and the type designer (M2.6), each with the checks it runs, are more than
+ * the editor's start should carry (Readings). The offline cache holds them like any other file.
  */
-const formModule = signal<FormModule | null>(null);
-let loading = false;
-
-function loadForm(): void {
-  if (loading) return;
-  loading = true;
-  import('./RecordForm.tsx').then(
-    (module) => {
-      formModule.value = module;
+function later<T>(load: () => Promise<T>, what: string): { module: Signal<T | null>; load: () => void } {
+  const module = signal<T | null>(null);
+  let loading = false;
+  return {
+    module,
+    load() {
+      if (loading) return;
+      loading = true;
+      load().then(
+        (loaded) => {
+          module.value = loaded;
+        },
+        (error: unknown) => {
+          loading = false;
+          note(`${what} couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
+        },
+      );
     },
-    (error: unknown) => {
-      loading = false;
-      note(`The record form couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
-    },
-  );
+  };
 }
 
-/** The Inspector panel (M2.4): the form for the record chosen in the Project panel. */
+const forms = later(() => import('./RecordForm.tsx'), 'The record form');
+const designer = later(() => import('../types/TypeDesigner.tsx'), 'The type designer');
+
+/** The Inspector panel: the form for the record chosen, or the designer for the type chosen. */
 export function InspectorPanel() {
   const project = current.value;
   const pick = chosen.value;
   useEffect(() => {
-    if (pick) loadForm();
+    if (pick?.kind === 'record') forms.load();
+    else if (pick) designer.load();
   }, [pick]);
-  const RecordForm = formModule.value?.RecordForm;
   return (
     <div class="panel" data-panel="inspector">
       <header class="panel-head">
         <h2>Inspector</h2>
       </header>
       {!project ? (
-        <p class="muted">Open a project to edit its records here.</p>
+        <p class="muted">Open a project to edit its records and types here.</p>
       ) : !pick ? (
-        <p class="muted">Choose a record in the Project panel to edit it here.</p>
-      ) : !RecordForm ? (
-        <p class="muted">Opening {pick.id}…</p>
+        <p class="muted">Choose a record or a type to edit it here.</p>
       ) : (
-        // Keyed by the record, so one record's typing never shows in the next one's fields.
-        <RecordForm key={`${pick.type}/${pick.id}`} project={project} type={pick.type} id={pick.id} />
+        <Chosen />
       )}
     </div>
+  );
+}
+
+function Chosen() {
+  const project = current.value;
+  const pick = chosen.value;
+  if (!project || !pick) return null;
+  if (pick.kind === 'record') {
+    const RecordForm = forms.module.value?.RecordForm;
+    // Keyed by the record, so one record's typing never shows in the next one's fields.
+    return RecordForm ? (
+      <RecordForm key={`${pick.type}/${pick.id}`} project={project} type={pick.type} id={pick.id} />
+    ) : (
+      <p class="muted">Opening {pick.id}…</p>
+    );
+  }
+  const loaded = designer.module.value;
+  if (!loaded) return <p class="muted">Opening the type designer…</p>;
+  return pick.kind === 'type' ? (
+    <loaded.TypeDesigner key={pick.type} project={project} type={pick.type} />
+  ) : (
+    <loaded.NewType project={project} />
   );
 }

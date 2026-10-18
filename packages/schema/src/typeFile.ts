@@ -133,16 +133,21 @@ const fieldDef = z.discriminatedUnion('kind', variants(FIELD_KINDS, INFO), { err
 const keyDef = z.discriminatedUnion('kind', variants(['ref', 'enum'], {}), {
   error: (issue) => (issue.code === 'invalid_union' ? 'A map’s key is a ref or an enum' : undefined),
 });
+const NAME_RULE = 'Field names start with a letter, then letters, digits, "_" or "-", up to 64 characters';
+const BUILT_IN_RULE =
+  'Every JavaScript object already has this name, so a record without the field would seem to have it';
+
+/** Why `name` can't name a field, or null when it can: E015's rule, for the type designer (M2.6). */
+export function fieldNameProblem(name: string): string | null {
+  if (!FIELD_NAME_PATTERN.test(name)) return NAME_RULE;
+  return isBuiltInName(name) ? BUILT_IN_RULE : null;
+}
+
 const fieldsDef = z.record(
   z
     .string()
-    .regex(FIELD_NAME_PATTERN, {
-      error: 'Field names start with a letter, then letters, digits, "_" or "-", up to 64 characters',
-      abort: true,
-    })
-    .refine((name) => !isBuiltInName(name), {
-      error: 'Every JavaScript object already has this name, so a record without the field would seem to have it',
-    }),
+    .regex(FIELD_NAME_PATTERN, { error: NAME_RULE, abort: true })
+    .refine((name) => !isBuiltInName(name), { error: BUILT_IN_RULE }),
   fieldDef,
 );
 
