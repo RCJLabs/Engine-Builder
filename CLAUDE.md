@@ -5,7 +5,8 @@ A browser game engine and editor. The plan is [ROADMAP.md](ROADMAP.md), the desi
 ## Sessions
 
 - **Start at the CURRENT MILESTONE marker** in ROADMAP.md, and work only on that milestone. Ideas outside it go under that phase in ROADMAP.md, not into code.
-- **One milestone per session.** Before changes that span several files, say what you plan to do.
+- **As many milestones in a session as it has time for** (D39), one at a time and in ROADMAP order: each is done before the next starts. Before changes that span several files, say what you plan to do.
+- **Merge on green and go on** (D39). When a milestone's PR is green, merge it with a merge commit, confirm the deploy, and start the next. Stop at a milestone whose gate needs Evan's phone.
 - **Done means the milestone's gates pass**, not that its scope list is ticked. Update the marker, the Readings table and any decision you made, in the same change.
 - **Decisions are Evan's** when they shape the product: build order, scope, tone, licences, domains, store listings. Put each one to Evan with a recommendation. Record the answer in docs/decisions.md with the date.
 
