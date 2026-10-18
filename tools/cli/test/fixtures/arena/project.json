@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "arena",
+  "name": "The arena",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "stats", "gear"]
+}

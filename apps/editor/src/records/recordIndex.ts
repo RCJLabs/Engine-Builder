@@ -11,7 +11,7 @@
  * types or the assets checks them all. Flags are the exception (M3.1): a flag's lint reads every
  * record that names it, and a set-flag's check reads the flag, so a change to any record that
  * names a flag checks all of them again (flagRelated), and so do loot tables and shops (M3.3,
- * lootRelated). The game's facts, events and effects (M3.2) are grounds like the types: a script
+ * lootRelated), and stats, actors and, with gear, items (M3.4, statRelated, wornRelated). The game's facts, events and effects (M3.2) are grounds like the types: a script
  * that changes what the game declares checks them all.
  */
 import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
@@ -19,7 +19,7 @@ import { formatRef } from '@eb/core';
 import { compareText, type Diagnostic, type RecordInput, type Usage, validateRecords } from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
 import type { GameChecks } from '../scripts/gameState.ts';
-import { flagRelated, lootRelated } from './flagRelated.ts';
+import { relatedFor } from './flagRelated.ts';
 
 /** A reference out of a record: the "type:id" it names, and where in the record. */
 export interface Ref {
@@ -170,7 +170,7 @@ export async function updateIndex(
   // Read after the check, so the records just checked count by what they name now.
   const touched = (related: (r: IndexedRecord | undefined) => boolean) =>
     [...checking, ...went].some((key) => related(records.get(key)) || related(before.records.get(key)));
-  const widen = [flagRelated, lootRelated].filter(touched);
+  const widen = relatedFor(catalog.kits).filter(touched);
   const more = [...records.values()].filter((r) => widen.some((related) => related(r)) && !checking.has(r.key));
   if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog, game);
   return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };

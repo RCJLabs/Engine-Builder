@@ -1,0 +1,9 @@
+{
+  "name": "Spiculus",
+  "stats": {
+    "might": 52,
+    "agility": 44,
+    "vitality": 80
+  },
+  "statuses": ["stoic"]
+}

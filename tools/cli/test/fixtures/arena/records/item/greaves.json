@@ -1,0 +1,12 @@
+{
+  "name": "Greaves",
+  "value": 55,
+  "slot": "armor",
+  "modifiers": [
+    {
+      "stat": "vitality",
+      "add": 12
+    }
+  ],
+  "tags": ["gear"]
+}

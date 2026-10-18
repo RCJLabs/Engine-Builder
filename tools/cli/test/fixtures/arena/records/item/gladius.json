@@ -1,0 +1,12 @@
+{
+  "name": "Gladius",
+  "value": 60,
+  "slot": "weapon",
+  "modifiers": [
+    {
+      "stat": "might",
+      "add": 6
+    }
+  ],
+  "tags": ["gear"]
+}

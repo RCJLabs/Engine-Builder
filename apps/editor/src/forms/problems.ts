@@ -4,7 +4,7 @@
  */
 import { formatRef, pointerSegment } from '@eb/core';
 import { type Diagnostic, type RecordInput, type TypeFile, type ValueDef, validateRecords } from '@eb/schema';
-import { flagRelated, lootRelated } from '../records/flagRelated.ts';
+import { relatedFor } from '../records/flagRelated.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import type { Catalog } from './catalog.ts';
 
@@ -21,13 +21,14 @@ export function checkRecord(
   value: unknown,
   index?: RecordIndex,
 ): Diagnostic[] {
+  const related = relatedFor(catalog.kits);
   const records: RecordInput[] = [{ type, id, value }];
   for (const [other, ids] of catalog.records) {
     for (const each of ids) {
       if (other === type && each === id) continue;
       const known = index?.records.get(formatRef(other, each));
-      const related = known && (flagRelated(known) || lootRelated(known));
-      const read = related && known.unreadable === undefined && !catalog.broken.has(other);
+      const read =
+        known && related.some((r) => r(known)) && known.unreadable === undefined && !catalog.broken.has(other);
       records.push(
         read
           ? { type: other, id: each, value: known.value }

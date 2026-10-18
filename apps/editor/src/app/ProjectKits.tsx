@@ -11,6 +11,8 @@ import { kitsChange, kitsStep, kitsWith } from '../editing/projectEdits.ts';
 export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonly brings: string }>> = {
   inventory: { name: 'Inventory', brings: 'Items, the party’s bag and loot tables.' },
   economy: { name: 'Economy', brings: 'Resources such as credits, and shops. Needs Inventory.' },
+  stats: { name: 'Stats', brings: 'Actors, their stats and the damage they take, and statuses.' },
+  gear: { name: 'Gear', brings: 'Slots, and items actors wear in them. Needs Stats and Inventory.' },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

@@ -2,7 +2,7 @@
 
 This is how kits work: the engine's own modules for what most games share, with their record types, facts, events and effects (M3.3, [D41](../decisions.md)). The modules are in `packages/kits`, pure; their types, effect schemas and checks are in `@eb/schema`. A port must follow it to hold the same state, draw the same numbers and charge the same prices.
 
-M3.3 builds the economy half of Kits I: the inventory kit (items, the party's bag, loot tables) and the economy kit (resources, shops). M3.4 adds the stats kit (actors, stats, pools, statuses, equipment).
+M3.3 builds the economy half of Kits I: the inventory kit (items, the party's bag, loot tables) and the economy kit (resources, shops). M3.4 adds the stats kit (actors, stats, statuses) and the gear kit (slots, worn items): [stats.md](stats.md).
 
 It follows the games that came before:
 

@@ -39,6 +39,12 @@ describe('kitsWith', () => {
     expect(kitsWith(['economy'], 'inventory', true)).toEqual(['inventory', 'economy']);
   });
 
+  it('turns on both of gear’s needs, and turns gear off with either', () => {
+    expect(kitsWith([], 'gear', true)).toEqual(['inventory', 'stats', 'gear']);
+    expect(kitsWith(['inventory', 'stats', 'gear'], 'stats', false)).toEqual(['inventory']);
+    expect(kitsWith(['inventory', 'economy', 'stats', 'gear'], 'inventory', false)).toEqual(['stats']);
+  });
+
   it('turns off what needs a kit with it, and nothing it needs', () => {
     expect(kitsWith(['inventory', 'economy'], 'inventory', false)).toEqual([]);
     expect(kitsWith(['inventory', 'economy'], 'economy', false)).toEqual(['inventory']);

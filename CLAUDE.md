@@ -76,7 +76,8 @@ apps/editor/           the editor PWA
                        in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
                        and tables make); focusField.ts (opening a form at a field, M2.8)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
-                       file, used by; flag-related records checked together, flagRelated.ts, M3.1), table.ts,
+                       file, used by; records whose checks read each other checked together, flagRelated.ts:
+                       flags (M3.1), loot tables and shops (M3.3), stats, actors and items (M3.4)), table.ts,
                        cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
                        (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
@@ -106,10 +107,10 @@ apps/editor/           the editor PWA
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
-                       is the save journal with big files; loot-bench.ts the index with kits)
+                       is the save journal with big files; loot-bench.ts and stats-bench.ts the index with kits)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
-                       editor and opens its tables and records
+                       editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 3)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions,
@@ -134,7 +135,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        the effects inside it), sheetCheck.ts and flagCheck.ts (the sheets' and flags' checks and
                        the lint); time.ts (the time effects); M3.3: kitTypes.ts (the kits' type files, a project's
                        fields joined to them), kitEffects.ts (the kits' effects as fields, their schemas made from
-                       them), kitCheck.ts (loot loops, shops' stock: E035, E036, W113); not pure
+                       them), kitCheck.ts (loot loops, shops' stock: E035, E036, W113); M3.4: statTypes.ts (stat,
+                       actor, status, slot, and gear's fields on items and actors), statCheck.ts (E035, W114),
+                       kitFields.ts; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -146,9 +149,11 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        with no --types module
 packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its types: inventory/ (items, the bag, give
                        and take), loot/draw.ts (loot tables rolled), economy/ (resources, quote.ts's prices, shops);
-                       kits.ts (KITS, kitsOn: what project.json's kits turn on), modules.ts (kitModules, apart
-                       from the list so reading it costs no sim code)
-  test/                market.ts: the items, resources and shops the kit tests share
+                       M3.4 (D42): stats/ (values.ts: a value and its parts; pools.ts: damage, healing, bases;
+                       statuses.ts: stacks and time; state.ts; module.ts, built knowing whether gear is on) and
+                       gear/ (worn.ts, module.ts: equip and unequip); kits.ts (KITS, kitsOn: what project.json's kits
+                       turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
+  test/                market.ts and barracks.ts: the records and games the kit tests share
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -163,7 +168,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
-                       join (M3.3); hangar-bench.ts
+                       join (M3.3); hangar-bench.ts; arena/, a slice of Ludus made with all four kits, and
+                       arena-lanista.golden.json (M3.4)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

@@ -76,3 +76,38 @@ describe('the index as kits turn on', () => {
     expect(shown(index)).toEqual(shown(fresh));
   });
 });
+
+describe('the index with stats and gear', () => {
+  /** Ludus with the stats and gear kits on: health to 100, a hand, a rifle for it, and Ana wearing it. */
+  function soldiers() {
+    const files = project();
+    files.edit('project.json', (manifest) => {
+      manifest.kits = ['inventory', 'stats', 'gear'];
+    });
+    files.write('records/stat/health.json', '{ "max": 100 }');
+    files.write('records/slot/hand.json', '{}');
+    files.write('records/slot/body.json', '{}');
+    files.write('records/item/rifle.json', '{ "slot": "hand" }');
+    files.write('records/actor/ana.json', '{ "stats": { "health": 90 }, "wears": { "hand": "rifle" } }');
+    return files;
+  }
+
+  it('checks every actor again when a stat changes, so a base outside its new bounds shows', async () => {
+    const files = soldiers();
+    let { index, fresh } = await files.update(null);
+    expect(problemsOf(index, 'actor:ana')).toEqual([]);
+    files.write('records/stat/health.json', '{ "max": 50 }');
+    ({ index, fresh } = await files.update(['records/stat/health.json']));
+    expect(problemsOf(index, 'actor:ana')).toEqual(["E035 /stats/health: 90 is outside health's 0 to 50"]);
+    expect(shown(index)).toEqual(shown(fresh));
+  });
+
+  it('checks every actor again when an item changes, so gear in the wrong slot shows', async () => {
+    const files = soldiers();
+    let { index, fresh } = await files.update(null);
+    files.write('records/item/rifle.json', '{ "slot": "body" }');
+    ({ index, fresh } = await files.update(['records/item/rifle.json']));
+    expect(problemsOf(index, 'actor:ana')).toEqual(['E035 /wears/hand: rifle is worn in body, not hand']);
+    expect(shown(index)).toEqual(shown(fresh));
+  });
+});

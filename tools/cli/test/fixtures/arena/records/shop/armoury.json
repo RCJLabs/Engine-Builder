@@ -1,0 +1,24 @@
+{
+  "name": "The armoury",
+  "description": "Sells arms by the day's stock, and buys back for half.",
+  "currency": "denarii",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": ["gear"]
+  },
+  "stock": {
+    "items": [
+      {
+        "item": "gladius"
+      },
+      {
+        "item": "scutum"
+      }
+    ],
+    "table": "armoury-stock",
+    "every": {
+      "days": 3
+    }
+  }
+}

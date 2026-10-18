@@ -1,0 +1,14 @@
+{
+  "name": "Bruised",
+  "modifiers": [
+    {
+      "stat": "agility",
+      "add": -4
+    }
+  ],
+  "lasts": {
+    "days": 2
+  },
+  "stacks": 3,
+  "tags": ["injury"]
+}

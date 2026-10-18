@@ -1,0 +1,17 @@
+{
+  "name": "Cracked ribs",
+  "modifiers": [
+    {
+      "stat": "might",
+      "percent": -15
+    },
+    {
+      "stat": "vitality",
+      "add": -10
+    }
+  ],
+  "lasts": {
+    "days": 6
+  },
+  "tags": ["injury"]
+}

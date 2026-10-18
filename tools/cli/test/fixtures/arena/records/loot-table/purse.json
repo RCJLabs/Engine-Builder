@@ -1,0 +1,13 @@
+{
+  "name": "A winner's purse",
+  "entries": [
+    {
+      "resource": "denarii",
+      "weight": 1,
+      "count": {
+        "min": 20,
+        "max": 40
+      }
+    }
+  ]
+}

@@ -4,13 +4,12 @@
  * after a kit's. With a kit off, its type names are free for a project's own types.
  */
 import { pointerSegment } from '@eb/core';
-import { ECONOMY, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP } from '@eb/kits';
+import { ACTOR, ECONOMY, GEAR, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP, SLOT, STAT, STATS, STATUS } from '@eb/kits';
+import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
+import { actorTypeFile, SLOT_TYPE_FILE, STAT_TYPE_FILE, STATUS_TYPE_FILE, WORN_ITEM_FIELDS } from './statTypes.ts';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
 
-const NAME: FieldDef = { kind: 'text', optional: true, label: 'Name' };
-const DESCRIPTION: FieldDef = { kind: 'text', multiline: true, optional: true, label: 'Description' };
-const TAGS: FieldDef = { kind: 'list', min: 1, of: { kind: 'text', min: 1 }, optional: true, label: 'Tags' };
 // Weights stay well under the 2^32 a draw can add up to, however many entries a table has.
 const WEIGHT = 1_000_000;
 
@@ -186,10 +185,18 @@ export const SHOP_TYPE_FILE: TypeFile = {
   },
 };
 
-/** Each kit's types, by name, as the type files it has with the kits on. */
+/** An item that can be worn, with the gear kit on (M3.4). */
+const WORN_ITEM_TYPE_FILE: TypeFile = { ...ITEM_TYPE_FILE, fields: { ...ITEM_TYPE_FILE.fields, ...WORN_ITEM_FIELDS } };
+
+/** Each kit's types, by name, as the type files it has with the kits on: gear adds to items and actors. */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
-  [INVENTORY]: (on) => ({ [ITEM]: ITEM_TYPE_FILE, [LOOT_TABLE]: lootTableFile(on.includes(ECONOMY)) }),
+  [INVENTORY]: (on) => ({
+    [ITEM]: on.includes(GEAR) ? WORN_ITEM_TYPE_FILE : ITEM_TYPE_FILE,
+    [LOOT_TABLE]: lootTableFile(on.includes(ECONOMY)),
+  }),
   [ECONOMY]: () => ({ [RESOURCE]: RESOURCE_TYPE_FILE, [SHOP]: SHOP_TYPE_FILE }),
+  [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on.includes(GEAR)), [STATUS]: STATUS_TYPE_FILE }),
+  [GEAR]: () => ({ [SLOT]: SLOT_TYPE_FILE }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

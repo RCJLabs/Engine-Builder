@@ -1,0 +1,26 @@
+{
+  "name": "The armoury's stock",
+  "picks": {
+    "min": 2,
+    "max": 3
+  },
+  "unique": true,
+  "entries": [
+    {
+      "item": "spear",
+      "weight": 2
+    },
+    {
+      "item": "galea",
+      "weight": 3
+    },
+    {
+      "item": "manica",
+      "weight": 3
+    },
+    {
+      "item": "greaves",
+      "weight": 2
+    }
+  ]
+}
