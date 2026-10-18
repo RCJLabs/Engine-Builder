@@ -20,9 +20,26 @@ export class ScriptError extends Error {
   }
 }
 
-// What V8's new Function puts above the body: "function anonymous(require,exports,module", ") {".
-const HEADER_LINES = 2;
 const FRAME = new RegExp(`\\b${SCRIPTS_DIR}/([a-z0-9-]+)\\.ts:(\\d+):\\d+`);
+
+let header: number | undefined;
+
+/**
+ * How many lines an engine's new Function puts above a body: two in V8 ("function
+ * anonymous(require,exports,module" and ") {"). Measured once rather than assumed, as Firefox's
+ * and Safari's engines need not agree.
+ */
+function headerLines(): number {
+  if (header !== undefined) return header;
+  header = 2;
+  try {
+    new Function(`throw new Error('probe');\n//# sourceURL=${SCRIPTS_DIR}/header-probe.ts`)();
+  } catch (error) {
+    const line = Number(/header-probe\.ts:(\d+)/.exec(error instanceof Error ? (error.stack ?? '') : '')?.[1]);
+    if (Number.isSafeInteger(line) && line >= 1) header = line - 1;
+  }
+  return header;
+}
 
 /** The script and line an error was thrown at, from its stack, when it came from a script. */
 export function scriptLocation(error: unknown): { script: string; line?: number } | undefined {
@@ -32,7 +49,7 @@ export function scriptLocation(error: unknown): { script: string; line?: number 
   const stack = error instanceof Error ? error.stack : undefined;
   const match = stack ? FRAME.exec(stack) : null;
   if (!match) return undefined;
-  const line = Number(match[2]) - HEADER_LINES;
+  const line = Number(match[2]) - headerLines();
   return { script: match[1] as string, ...(line > 0 ? { line } : {}) };
 }
 

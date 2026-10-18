@@ -140,6 +140,11 @@ test('a game started, scripted and run in the editor, exported and played by eb 
   const when = row.getByRole('group', { name: 'When' });
   await when.getByLabel('Event', { exact: true }).selectOption({ label: 'A day ends' });
   await when.getByLabel(/^Day/).fill('5');
+  // A condition on the game's own fact, read with its label. Rows run once the action is done, when
+  // the day has moved on to 6, so every game gets the bonus; `main.day >= 1` would be W103, never
+  // false within the fact's values.
+  await row.getByLabel(/^If/).fill('main.day >= 5');
+  await expect(row.getByText('Reads: the day is at least 5.')).toBeVisible();
   const does = row.getByRole('group', { name: 'Do' });
   await does.getByLabel('Effect to add to Do').selectOption({ label: 'bonus (this game’s)' });
   await does.getByRole('button', { name: 'Add effect to Do' }).click();
@@ -147,9 +152,19 @@ test('a game started, scripted and run in the editor, exported and played by eb 
     .poll(async () => JSON.parse((await storedText(page, 'payday', 'records/sheet/payday.json')) ?? 'null'))
     .toEqual({
       name: 'Payday',
-      rows: [{ id: 'row-1', when: { event: 'main/day-ended', args: { day: 5 } }, do: [{ effect: 'bonus' }] }],
+      rows: [
+        {
+          id: 'row-1',
+          when: { event: 'main/day-ended', args: { day: 5 } },
+          if: 'main.day >= 5',
+          do: [{ effect: 'bonus' }],
+        },
+      ],
     });
   await expect(page.getByRole('tab', { name: 'Problems', exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /^1\. row-1/ })).toContainText(
+    'When a day ends (day: 5)If the day is at least 5Do: bonus',
+  );
 
   // Every game reaches day 5, and the bonus draws nothing: each ends five coins richer.
   const after = await runGames(panel);
@@ -195,6 +210,11 @@ test('an imported project’s scripts run only once allowed, and the answer is k
   await expect(banner).toHaveCount(0);
   await expect(panel.getByText('The game: hold, starting in sea; 2 actions; bots greedy.')).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Problems (1)' })).toBeVisible();
+  // Run plays what eb sim would, so it waits for the error to go.
+  await expect(panel.getByRole('button', { name: 'Run 20 games' })).toBeDisabled();
+  await expect(
+    panel.getByText('Run plays what eb sim would, so it waits until the project’s error is fixed.'),
+  ).toBeVisible();
 
   // Kept through a reload.
   await showProject(page);
@@ -244,6 +264,17 @@ test('a script’s problems at their lines, typing undone by the editor’s undo
   await expect(code(main)).toContainText("ctx.rng('pay').int(1, 3)");
   await expect.poll(() => storedText(page, 'broken', 'scripts/main.ts')).toBe(firstModuleTemplate('main'));
   await expect(page.getByRole('tab', { name: 'Problems', exact: true })).toBeVisible();
+
+  // Completion offers a handler's ctx after "ctx.", from the engine's API list.
+  await code(main).click();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.type('\nctx.');
+  const offered = page.locator('.cm-tooltip-autocomplete');
+  await expect(offered).toContainText('rng');
+  await expect(offered).toContainText('emit');
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect.poll(() => storedText(page, 'broken', 'scripts/main.ts')).toBe(firstModuleTemplate('main'));
 
   // The worker has no network or storage to give a script that goes looking.
   await showLogic(page);

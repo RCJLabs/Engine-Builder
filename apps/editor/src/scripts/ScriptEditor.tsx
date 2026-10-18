@@ -13,6 +13,7 @@ import { editing } from '../editing/current.ts';
 import { chosen } from '../forms/selection.ts';
 import { type OpenProject, revision } from '../projects/opened.ts';
 import { type CodeEditor, codeEditor } from './codeEditor.ts';
+import { projectNames } from './known.ts';
 import { lineToFocus } from './open.ts';
 import { deleteScript, setScriptText } from './scriptEdits.ts';
 import '../styles/scripts.css';
@@ -70,6 +71,7 @@ export function ScriptEditor({ project, id }: { project: OpenProject; id: string
       readOnly: !canEdit,
       label: path,
       type: (text) => editing.edit(`Edit ${path}`, (copy) => setScriptText(copy, id, text), `script:${id}`),
+      names: projectNames,
     });
   }, [ready]);
   useEffect(() => () => code.current?.destroy(), []);

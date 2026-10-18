@@ -86,3 +86,25 @@ describe('a project’s problems with its scripts', () => {
     expect(e030 && placeOf(e030, catalog)).toBeNull();
   });
 });
+
+describe('the record index and the game', () => {
+  it('checks every record again when what the game declares changes, and nothing when it doesn’t', async () => {
+    const source = memorySource(broken());
+    const catalog = await readCatalog(source);
+    const unrun = await updateIndex(EMPTY_INDEX, source, catalog, null);
+    const odd = 'sheet:odd';
+    expect(unrun.records.get(odd)?.problems).toEqual([]);
+    const game = stateOf(await checkJob(await scriptFiles(source), true), true);
+    // Only a script changed: no record is named, but the game's checks are new grounds.
+    const run = await updateIndex(unrun, source, catalog, ['scripts/hold.ts'], gameChecks(game));
+    expect(
+      run.records
+        .get(odd)
+        ?.problems.map((d) => d.code)
+        .sort(),
+    ).toEqual(['E022', 'E025']);
+    // The same game again, as after an edit inside a function's body: every record kept as checked.
+    const again = await updateIndex(run, source, catalog, ['scripts/hold.ts'], gameChecks(game));
+    for (const [key, record] of again.records) expect(record, key).toBe(run.records.get(key));
+  });
+});

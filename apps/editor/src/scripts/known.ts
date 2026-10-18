@@ -6,6 +6,7 @@
 import type { EventCatalog, FactCatalog } from '@eb/core';
 import { ENGINE_EFFECTS, ENGINE_EVENTS, ENGINE_FACTS } from '@eb/schema';
 import { current } from '../projects/opened.ts';
+import type { ProjectNames } from './completions.ts';
 import type { GameState } from './gameState.ts';
 
 export function factsOf(game: GameState | undefined): FactCatalog {
@@ -22,3 +23,15 @@ export const ownEffectsOf = (game: GameState | undefined): readonly string[] =>
 
 /** The open project's game, for a field reading it as it renders. */
 export const openGame = (): GameState | undefined => current.value?.game;
+
+/** The names a script may write in a string (completions.ts): the game's, or the engine's until it has run. */
+export function projectNames(): ProjectNames {
+  const open = current.value;
+  const game = open?.game.catalog;
+  return {
+    facts: Object.keys(game?.facts ?? ENGINE_FACTS),
+    events: Object.keys(game?.events ?? ENGINE_EVENTS),
+    effects: game?.effects ?? [...ENGINE_EFFECTS.schemas.keys()],
+    records: open?.catalog.records ?? new Map(),
+  };
+}

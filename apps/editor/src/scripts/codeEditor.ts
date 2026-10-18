@@ -1,18 +1,10 @@
 /**
- * The script editor's CodeMirror 6 (M3.2, D38): TypeScript's colours, the engine's API offered as
- * you type (a list, not TypeScript's language service), the script's problems in the gutter, and
+ * The script editor's CodeMirror 6 (M3.2, D38): TypeScript's colours, the engine's API and the
+ * project's names offered as you type (completions.ts), the script's problems in the gutter, and
  * no history of its own: typing becomes the editor's steps, which its undo takes back (D30). Tab
  * indents; Escape then Tab moves on, as CodeMirror has it.
  */
-import {
-  autocompletion,
-  type Completion,
-  type CompletionContext,
-  type CompletionResult,
-  closeBrackets,
-  closeBracketsKeymap,
-  completionKeymap,
-} from '@codemirror/autocomplete';
+import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { javascript, localCompletionSource } from '@codemirror/lang-javascript';
 import { bracketMatching, HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language';
@@ -20,35 +12,12 @@ import { type Diagnostic as CodeProblem, lintGutter, setDiagnostics } from '@cod
 import { Annotation, Compartment, EditorState, type Text } from '@codemirror/state';
 import { drawSelection, EditorView, highlightActiveLine, keymap, lineNumbers } from '@codemirror/view';
 import type { Diagnostic } from '@eb/schema';
-import { type ApiEntry, CTX_API, EB_API, RNG_API } from '@eb/script';
 import { tags } from '@lezer/highlight';
+import { type ProjectNames, scriptCompletions } from './completions.ts';
+import { typedAhead } from './typedAhead.ts';
 
 /** Marks a change that comes from the file, which isn't typing to send back. */
 const fromFile = Annotation.define<boolean>();
-
-const option = (entry: ApiEntry): Completion => ({
-  label: entry.name,
-  type: entry.kind === 'function' ? 'function' : 'variable',
-  detail: entry.detail,
-  info: entry.info,
-});
-
-/** The engine's API: `ctx.` and an rng stream's members after their dot, the "eb" names anywhere else. */
-export function engineCompletions(context: CompletionContext): CompletionResult | null {
-  const member = context.matchBefore(/\bctx\.\w*$/);
-  if (member) return { from: member.from + 'ctx.'.length, options: CTX_API.map(option), validFor: /^\w*$/ };
-  const stream = context.matchBefore(/\.rng\([^()]*\)\.\w*$/);
-  if (stream) {
-    const from = stream.from + stream.text.lastIndexOf('.') + 1;
-    return { from, options: RNG_API.map(option), validFor: /^\w*$/ };
-  }
-  const word = context.matchBefore(/[\w$]+$/);
-  if (!word && !context.explicit) return null;
-  const from = word?.from ?? context.pos;
-  // After a dot it is something else's member, which the list doesn't know.
-  if (context.state.sliceDoc(from - 1, from) === '.') return null;
-  return { from, options: EB_API.map(option), validFor: /^[\w$]*$/ };
-}
 
 // Colours from the app's tokens (scripts.css), so they follow its light and dark themes.
 const colours = HighlightStyle.define([
@@ -98,12 +67,12 @@ export interface CodeOptions {
   readonly label: string;
   /** Writes typed text into the file; settles once that edit has been made. */
   readonly type: (text: string) => Promise<void>;
+  /** The project's names, as completion offers them in a string. */
+  readonly names: () => ProjectNames;
 }
 
 export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEditor {
-  // Texts typed and sent, oldest first, until their edits land: a file that reads as one of
-  // them is the editor's own typing arriving, and one that reads older is about to be overtaken.
-  const sent: { readonly text: string }[] = [];
+  const typing = typedAhead();
   const readOnly = new Compartment();
   const view = new EditorView({
     parent,
@@ -118,7 +87,7 @@ export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEdito
         closeBrackets(),
         javascript({ typescript: true }),
         syntaxHighlighting(colours),
-        autocompletion({ override: [engineCompletions, localCompletionSource] }),
+        autocompletion({ override: [scriptCompletions(options.names), localCompletionSource] }),
         lintGutter(),
         keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...completionKeymap, indentWithTab]),
         EditorView.lineWrapping,
@@ -129,23 +98,15 @@ export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEdito
     dispatchTransactions(transactions, editor) {
       editor.update(transactions);
       if (!transactions.some((t) => t.docChanged && !t.annotation(fromFile))) return;
-      const entry = { text: editor.state.doc.toString() };
-      sent.push(entry);
-      void options.type(entry.text).finally(() => {
-        // An edit that changed nothing is never read back: it leaves the list once made.
-        const i = sent.indexOf(entry);
-        if (i >= 0) sent.splice(i, 1);
-      });
+      const text = editor.state.doc.toString();
+      // Counted as in flight before the edit is asked for, so its arrival is known for ours.
+      const landed = typing.send(text);
+      void options.type(text).finally(landed);
     },
   });
   return {
     sync(text) {
-      const i = sent.findIndex((entry) => entry.text === text);
-      if (i >= 0) {
-        sent.splice(0, i + 1);
-        return;
-      }
-      if (sent.length > 0) return;
+      if (typing.read(text) !== 'show') return;
       const doc = view.state.doc.toString();
       if (doc === text) return;
       // Undo, redo, or another tab's save: the file wins, the cursor kept where it maps.

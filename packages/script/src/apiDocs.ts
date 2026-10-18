@@ -79,6 +79,28 @@ export const CTX_API: readonly ApiEntry[] = [
   value('step', 'number', 'The step this action becomes if it is accepted.'),
 ];
 
+/** The parts of the definition defineModule takes (ModuleDef), for completion inside its braces. */
+export const MODULE_API: readonly ApiEntry[] = [
+  value('id', 'string', 'The module’s id, kebab-case: its actions are "id/verb", its facts "id.name".'),
+  fn('init', '(ctx: { content, rng }) => State', 'The slice a new game starts with.'),
+  value('actions', '{ verb: (ctx, action) => void }', 'What the player can do: each a handler, or { run, options }.'),
+  value(
+    'facts',
+    '{ name: { read, domain?, label? } }',
+    'What content can read: each read from the slice, never changing it.',
+  ),
+  value('effects', '{ name: (ctx, effect) => void }', 'What content can do: { "effect": "name" } in a row or a roll.'),
+  value('events', '{ name: { args?, label? } }', 'The beats trigger rows can react to, raised with ctx.emit.'),
+  value('on', '{ "module/event": (ctx, event) => void }', 'What the module does when an event is raised.'),
+  value('modes', '{ name: { actions: ["id/*"] } }', 'The modes the game moves through, and the actions each allows.'),
+  value(
+    'version',
+    'number',
+    'The slice’s shape, from 1: bump it with a migration and an old save that must still load.',
+  ),
+  value('migrate', '{ 2: (slice) => slice }', 'Migrations by the version they make.'),
+];
+
 /** What an rng stream offers (Rng). */
 export const RNG_API: readonly ApiEntry[] = [
   fn('int', '(min: number, max: number) => number', 'A whole number from min to max, both included.'),

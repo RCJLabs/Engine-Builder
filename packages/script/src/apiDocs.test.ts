@@ -1,7 +1,7 @@
-import { createGame, createRecordStore, defineModule, type ModuleContext } from '@eb/core';
+import { createGame, createRecordStore, defineModule, type ModuleContext, type ModuleDef } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { EB_MODULE } from './api.ts';
-import { CTX_API, EB_API, RNG_API } from './apiDocs.ts';
+import { CTX_API, EB_API, MODULE_API, RNG_API } from './apiDocs.ts';
 
 describe('the API completion offers', () => {
   it('names what "eb" gives, in its order, functions as functions', () => {
@@ -9,6 +9,23 @@ describe('the API completion offers', () => {
     for (const entry of EB_API) {
       expect(entry.kind === 'function', entry.name).toBe(typeof EB_MODULE[entry.name] === 'function');
     }
+  });
+
+  it("names every part of a module's definition, and nothing else", () => {
+    // Typed so a part added to ModuleDef, or one named here that it lacks, fails the typecheck.
+    const parts: Record<keyof ModuleDef<unknown>, true> = {
+      id: true,
+      init: true,
+      actions: true,
+      facts: true,
+      effects: true,
+      events: true,
+      on: true,
+      modes: true,
+      version: true,
+      migrate: true,
+    };
+    expect(MODULE_API.map((entry) => entry.name)).toEqual(Object.keys(parts));
   });
 
   it("names what a handler's ctx and an rng stream have", () => {
