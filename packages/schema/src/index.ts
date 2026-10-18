@@ -82,7 +82,8 @@ export {
 } from './provenance.ts';
 export { defineRecordType, type RecordType, type RecordTypeDefinition, SchemaError } from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
-export { cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';
+export { calendarSchema, cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';
+export { timeEffectFiles } from './timeEffects.ts';
 export {
   type EnumDef,
   eachValue,

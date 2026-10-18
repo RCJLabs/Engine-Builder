@@ -805,7 +805,7 @@ Also settled, as the session's calls:
 - the start-of events are the time module's own, so a game.ts's time module raises them too. At a tick, the boundaries come before the timers due there, the largest first (year, season, month, week, day);
 - the kits' own upkeep at a day's start (statuses ending, drift) comes after the rows on `time/day-started`, since listeners hear in module order and the engine's sheets come first;
 - the stats kit's timed statuses end as the day that ends them starts, not only once the action that passed the time is done. Before, a status that ran out during a wait still stacked with the same status applied after the wait in that action;
-- a calendar no time module reads (the kit off, or a game with its own) is a warning, W116, not an error;
+- a calendar given while the time kit is off is a warning, W116, not an error: nothing reads it. With the kit on, a game.ts naming a module `time` of its own is E031, as for any kit;
 - real time (`time/elapse`) for a project made of data waits for Phase 4's stage.
 
 The specs are [specs/factions.md](specs/factions.md) and [specs/time.md](specs/time.md#the-time-kit), and the survey behind them [research/kits-ii.md](research/kits-ii.md).

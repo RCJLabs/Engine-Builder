@@ -19,7 +19,13 @@ export {
   type TypeFileRole,
 } from './layout.ts';
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
-export { type ListedRecord, type ProjectFilesRead, readKits, readProjectFiles } from './projectCheck.ts';
+export {
+  type KitSettings,
+  type ListedRecord,
+  type ProjectFilesRead,
+  readKitSettings,
+  readProjectFiles,
+} from './projectCheck.ts';
 export { compileWithGame, gameOf, gameOptions, projectGame, type ScriptedGame } from './projectGame.ts';
 export { projectFiles, readFiles, zipProject } from './projectZip.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';

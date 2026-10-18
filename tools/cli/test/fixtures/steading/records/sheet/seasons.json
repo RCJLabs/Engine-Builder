@@ -1,0 +1,101 @@
+{
+  "name": "The seasons",
+  "description": "What each season brings, and who comes raiding.",
+  "rows": [
+    {
+      "id": "winter-cold",
+      "note": "Winter comes to a steading with less than 5 firewood: three days' hunger",
+      "when": {
+        "event": "time/season-started",
+        "args": {
+          "season": "winter"
+        }
+      },
+      "if": "inventory.count(firewood) < 5",
+      "do": [
+        {
+          "effect": "add-to-flag",
+          "flag": "hunger",
+          "by": 3
+        }
+      ]
+    },
+    {
+      "id": "winter-fire",
+      "note": "Winter burns 5 firewood: refused when there is less",
+      "when": {
+        "event": "time/season-started",
+        "args": {
+          "season": "winter"
+        }
+      },
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "firewood",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "id": "grimsgarth-raids",
+      "note": "As each season starts, Grimsgarth raids the steading if hostile",
+      "when": {
+        "event": "time/season-started"
+      },
+      "if": "factions.band(grimsgarth) == hostile",
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "fish",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "ketilstead-raids",
+      "note": "As each season starts, Ketilstead raids the steading if hostile",
+      "when": {
+        "event": "time/season-started"
+      },
+      "if": "factions.band(ketilstead) == hostile",
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "fish",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "reed-camp-raids",
+      "note": "As each season starts, The Reed Camp raids the steading if hostile",
+      "when": {
+        "event": "time/season-started"
+      },
+      "if": "factions.band(reed-camp) == hostile",
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "fish",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "sealwatch-raids",
+      "note": "As each season starts, Sealwatch raids the steading if hostile",
+      "when": {
+        "event": "time/season-started"
+      },
+      "if": "factions.band(sealwatch) == hostile",
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "fish",
+          "count": 3
+        }
+      ]
+    }
+  ]
+}

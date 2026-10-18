@@ -1,0 +1,25 @@
+{
+  "name": "Grimsgarth's hall",
+  "currency": "hacksilver",
+  "faction": "grimsgarth",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": ["goods"]
+  },
+  "stock": {
+    "items": [
+      {
+        "item": "iron",
+        "count": 2
+      },
+      {
+        "item": "firewood",
+        "count": 10
+      }
+    ],
+    "every": {
+      "days": 8
+    }
+  }
+}

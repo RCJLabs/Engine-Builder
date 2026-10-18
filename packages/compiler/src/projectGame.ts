@@ -8,7 +8,7 @@
 import { compareDiagnostics, type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
 import { type GameCatalog, loadProjectGame, type ProjectGame, scriptPath } from '@eb/script';
 import { type CompileResult, compileProject } from './compile.ts';
-import { readKits } from './projectCheck.ts';
+import { type KitSettings, readKitSettings } from './projectCheck.ts';
 import { readScripts, type ScriptsRead } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
 
@@ -21,11 +21,11 @@ export type ScriptedGame =
   | { readonly kind: 'failed'; readonly diagnostic: Diagnostic }
   | { readonly kind: 'loaded'; readonly game: ProjectGame; readonly catalog: GameCatalog };
 
-/** The game that scripts already read make, run, with the kits the project lists joined (D41). */
-export function gameOf(scripts: ScriptsRead, kits: readonly string[] = []): ScriptedGame {
+/** The game that scripts already read make, run, with the kits the project lists joined (D41), the time kit's with its calendar. */
+export function gameOf(scripts: ScriptsRead, settings: KitSettings = { kits: [] }): ScriptedGame {
   if (!scripts.hasGame) return { kind: 'none' };
   if (scripts.compiled.size === 0) return { kind: 'broken' };
-  const loaded = loadProjectGame(scripts.compiled, kits);
+  const loaded = loadProjectGame(scripts.compiled, settings.kits, settings.calendar);
   if (loaded.ok) return { kind: 'loaded', game: loaded.game, catalog: loaded.catalog };
   const { code, message, script = 'game', line } = loaded.problem;
   const diagnostic: Diagnostic = {
@@ -40,7 +40,7 @@ export function gameOf(scripts: ScriptsRead, kits: readonly string[] = []): Scri
 }
 
 export async function projectGame(source: ProjectSource): Promise<ScriptedGame> {
-  return gameOf(await readScripts(source), await readKits(source));
+  return gameOf(await readScripts(source), await readKitSettings(source));
 }
 
 /** What content is checked against once the game has run: its facts, events and effects, and nothing else. */

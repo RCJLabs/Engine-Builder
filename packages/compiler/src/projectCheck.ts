@@ -4,7 +4,7 @@
  * log. The editor reads the same (forms/catalog.ts) and adds its record index's checks, so its
  * Problems panel and `eb validate` give the same list.
  */
-import type { PackProject } from '@eb/core';
+import type { CalendarDef, PackProject } from '@eb/core';
 import { checkProvenance, type Diagnostic, type DiagnosticCode, type RecordType, severityOf } from '@eb/schema';
 import { type ParsedFile, parseJsonFile } from './decode.ts';
 import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
@@ -43,6 +43,8 @@ export interface ProjectFilesRead {
   readonly project: PackProject | null;
   /** The kits on (M3.3, D41), in the engine's order: none when project.json is unsound. */
   readonly kits: readonly string[];
+  /** project.json's calendar, with the time kit on and the calendar sound (M3.5, D43). */
+  readonly calendar?: CalendarDef;
   readonly types: ProjectTypes;
   /** The record files, as the source lists them. Their contents aren't read. */
   readonly recordFiles: readonly ListedRecord[];
@@ -70,12 +72,20 @@ export async function readProjectFiles(
   const assets = await readAssets(source);
   const assetsLog = await checkAssetsLog(source, assets, report);
   const recordFiles = await listRecords(source, report);
-  return { project, kits, types, recordFiles, assets, assetsLog, diagnostics };
+  const calendar = project?.calendar;
+  return { project, kits, ...(calendar ? { calendar } : {}), types, recordFiles, assets, assetsLog, diagnostics };
 }
 
-/** The kits project.json turns on, for a caller that reads nothing else: none when it is missing or unsound. */
-export async function readKits(source: ProjectSource): Promise<readonly string[]> {
-  return (await readManifestFile(source, () => {}))?.kits ?? [];
+/** What a game's kits are built from: the kits on, and the time kit's calendar. */
+export interface KitSettings {
+  readonly kits: readonly string[];
+  readonly calendar?: CalendarDef;
+}
+
+/** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
+export async function readKitSettings(source: ProjectSource): Promise<KitSettings> {
+  const project = await readManifestFile(source, () => {});
+  return { kits: project?.kits ?? [], ...(project?.calendar ? { calendar: project.calendar } : {}) };
 }
 
 async function readManifestFile(source: ProjectSource, report: (r: Report) => void): Promise<PackProject | null> {

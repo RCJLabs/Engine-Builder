@@ -3,9 +3,28 @@
  * give both its schema, which content is checked against as the engine's own effects are (E001,
  * E025), and the form the editor draws for it, so the two can't drift apart.
  */
-import { ACTOR, ECONOMY, GEAR, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP, SLOT, STAT, STATS, STATUS } from '@eb/kits';
+import type { CalendarDef } from '@eb/core';
+import {
+  ACTOR,
+  DEFAULT_CALENDAR,
+  ECONOMY,
+  FACTION,
+  FACTIONS,
+  GEAR,
+  INVENTORY,
+  ITEM,
+  LOOT_TABLE,
+  RESOURCE,
+  SHOP,
+  SLOT,
+  STAT,
+  STATS,
+  STATUS,
+  TIME,
+} from '@eb/kits';
 import { z } from 'zod';
 import { named } from './effect.ts';
+import { timeEffectFiles, timeEffectSchemas } from './timeEffects.ts';
 import type { Fields } from './typeFile.ts';
 import { fieldShape } from './typeSchema.ts';
 
@@ -151,6 +170,15 @@ const FILES: EffectFile[] = [
       slot: { kind: 'ref', to: SLOT, label: 'Slot', description: 'Its item goes back to the bag' },
     },
   },
+  {
+    effect: 'change-standing',
+    kit: FACTIONS,
+    label: 'Change a standing',
+    fields: {
+      faction: { kind: 'ref', to: FACTION, label: 'Faction' },
+      by: { kind: 'int', label: 'By', description: 'Below 0 takes away; it stops at the faction’s bounds' },
+    },
+  },
 ];
 
 export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);
@@ -159,12 +187,16 @@ export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);
 export const effectSchema = (file: EffectFile) =>
   named(file.effect, z.strictObject({ effect: z.literal(file.effect), ...fieldShape(file.fields) }));
 
-/** The effects of the kits on, in the kits' order. */
-export const kitEffectFiles = (on: readonly string[]): EffectFile[] =>
-  on.flatMap((kit) => KIT_EFFECT_FILES.filter((file) => file.kit === kit));
+/** The effects of the kits on that have forms, in the kits' order; the time kit's in the calendar's units. */
+export const kitEffectFiles = (on: readonly string[], calendar: CalendarDef = DEFAULT_CALENDAR): EffectFile[] =>
+  on.flatMap((kit) => (kit === TIME ? timeEffectFiles(calendar) : KIT_EFFECT_FILES.filter((file) => file.kit === kit)));
 
 const SCHEMAS = new Map(KIT_EFFECT_FILES.map((file) => [file.effect, effectSchema(file)]));
 
-/** The schemas of the kits' effects that are on, made once. */
-export const kitEffectSchemas = (on: readonly string[]): z.core.$ZodType[] =>
-  kitEffectFiles(on).map((file) => SCHEMAS.get(file.effect) as z.core.$ZodType);
+/** The schemas of the kits' effects that are on, made once; the time kit's, schedule among them, for the calendar. */
+export const kitEffectSchemas = (on: readonly string[], calendar: CalendarDef = DEFAULT_CALENDAR): z.core.$ZodType[] =>
+  on.flatMap((kit) =>
+    kit === TIME
+      ? [...timeEffectSchemas(calendar, effectSchema)]
+      : KIT_EFFECT_FILES.filter((file) => file.kit === kit).map((file) => SCHEMAS.get(file.effect) as z.core.$ZodType),
+  );

@@ -1,4 +1,5 @@
 import {
+  type CalendarDef,
   type EventCatalog,
   type FactCatalog,
   FLAG,
@@ -79,6 +80,8 @@ export interface ValidateOptions {
    * name (the compiler's, with a project's own fields), and their records get the kits' checks.
    */
   readonly kits?: readonly string[];
+  /** project.json's calendar (M3.5, D43): the time kit's facts, events and effects follow it. */
+  readonly calendar?: CalendarDef;
 }
 
 /**
@@ -137,7 +140,10 @@ export function validateRecords(
         listUsage(assetUsages, value, usage(record, path));
         if (options.assets && !options.assets.has(value)) report('E018', path, `No file assets/${value}`);
       },
-      condition: (path, sound) => flags.condition({ from, path, report }, sound, known.facts),
+      condition: (path, sound) => {
+        flags.condition({ from, path, report }, sound, known.facts);
+        kits.condition(report, sound);
+      },
       effect: (path, value) => flags.effect({ from, path, report }, value),
     };
     const sound = checkPart(recordType.schema, record.value, '', ctx);

@@ -1,0 +1,70 @@
+{
+  "name": "The day",
+  "description": "Each day's pass, in order: the ship's stores on the first, who goes hungry, the eating, and a neighbour's pity.",
+  "rows": [
+    {
+      "id": "stores",
+      "note": "The first morning, the ship's stores come ashore",
+      "when": {
+        "event": "time/day-started"
+      },
+      "do": [
+        {
+          "effect": "give-item",
+          "item": "fish",
+          "count": 30
+        },
+        {
+          "effect": "give-item",
+          "item": "firewood",
+          "count": 8
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "hungry",
+      "note": "No fish in the stores: a day gone hungry",
+      "when": {
+        "event": "time/day-started"
+      },
+      "if": "inventory.count(fish) == 0",
+      "do": [
+        {
+          "effect": "add-to-flag",
+          "flag": "hunger",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "eat",
+      "note": "The household eats a fish a day: refused when there is none",
+      "when": {
+        "event": "time/day-started"
+      },
+      "do": [
+        {
+          "effect": "take-item",
+          "item": "fish"
+        }
+      ]
+    },
+    {
+      "id": "pity",
+      "note": "Once, the Reed Camp feeds a hungry steading it is friendly with",
+      "when": {
+        "event": "time/day-started"
+      },
+      "if": "flag.number(hunger) >= 3 and factions.reached(faction: reed-camp, band: friendly)",
+      "do": [
+        {
+          "effect": "give-item",
+          "item": "fish",
+          "count": 4
+        }
+      ],
+      "once": true
+    }
+  ]
+}

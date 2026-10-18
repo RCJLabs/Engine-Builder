@@ -1,0 +1,45 @@
+{
+  "name": "The Reed Camp",
+  "description": "The people already here have no quarrel until you give them one.",
+  "min": -100,
+  "max": 100,
+  "start": 10,
+  "bands": [
+    {
+      "id": "hostile",
+      "name": "Hostile",
+      "description": "They have people who will not say your name."
+    },
+    {
+      "id": "cold",
+      "name": "Cold",
+      "from": -35,
+      "description": "They would not spit on you if you were burning.",
+      "price": 150
+    },
+    {
+      "id": "wary",
+      "name": "Wary",
+      "from": -10,
+      "description": "They watch the ridge when you come."
+    },
+    {
+      "id": "friendly",
+      "name": "Friendly",
+      "from": 25,
+      "description": "They will deal, and they will deal fairly.",
+      "price": 85
+    },
+    {
+      "id": "sworn",
+      "name": "Sworn",
+      "from": 60,
+      "description": "There are oaths between you now.",
+      "price": 70
+    }
+  ],
+  "drift": {
+    "every": 8,
+    "toward": 0
+  }
+}

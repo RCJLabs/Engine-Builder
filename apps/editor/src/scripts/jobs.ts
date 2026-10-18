@@ -4,7 +4,7 @@
  * when asked, runs game.ts as `eb validate` runs it; play compiles the project with its game and
  * plays it as `eb sim --seeds <n> --policy <name>` plays it, so the report says the same.
  */
-import { compileWithGame, gameOf, memorySource, projectGame, readKits, readScripts } from '@eb/compiler';
+import { compileWithGame, gameOf, memorySource, projectGame, readKitSettings, readScripts } from '@eb/compiler';
 import { createGame, createRecordStore, formatSweep, MAX_TURNS, randomPolicy, seedsOf, sweep } from '@eb/core';
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
 import type { GameCatalog } from '@eb/script';
@@ -19,7 +19,7 @@ export async function checkJob(files: readonly SentFile[], run: boolean): Promis
   let game: GameCatalog | null = null;
   const ran = run && read.hasGame && read.compiled.size > 0;
   if (ran) {
-    const scripted = gameOf(read, await readKits(source));
+    const scripted = gameOf(read, await readKitSettings(source));
     if (scripted.kind === 'loaded') game = scripted.catalog;
     if (scripted.kind === 'failed') diagnostics.push(scripted.diagnostic);
   }

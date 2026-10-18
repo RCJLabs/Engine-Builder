@@ -80,7 +80,7 @@ A gain with one faction and a loss with another are two effects, as in every gam
 | `factions.reached(faction, band)` | bool: standing is at or above where the band begins |
 | `factions.price(faction)` | int from 0: the band's price share, 100 with no bands |
 
-`factions.reached(guild, friendly)` reads "friendly or better", which a comparison of the band can't. A band the faction doesn't have throws, and validation stops it in content (E039).
+`factions.reached(faction: guild, band: friendly)` reads "friendly or better", which a comparison of the band can't. With two arguments, a condition names them; with one, it needn't: `factions.band(guild) == friendly`. A band the faction doesn't have throws, and validation stops it in content (E039).
 
 ## Events
 
@@ -114,7 +114,7 @@ With the economy kit on, a shop may name a faction:
   - `min` above `max`; a `start` or a drift's `toward` outside them;
   - a band after the first with no `from`; bands whose `from` doesn't rise; a band beginning outside the bounds;
   - a band id twice.
-- **E039:** a condition naming a band its faction doesn't have, in `factions.reached(faction, band)` or compared with `factions.band(faction)`, with the faction's bands listed.
+- **E039:** a condition naming a band its faction doesn't have, in `factions.reached(faction: …, band: …)` or compared with `factions.band(faction)`, with the faction's bands listed.
 - **W115:** a faction that drifts in a game without `time/day-started`.
 
 ## Proof

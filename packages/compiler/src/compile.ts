@@ -46,7 +46,7 @@ export async function compileProject(
   const records = (await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))).map(
     (record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record),
   );
-  const kitted = { ...options, kits: files.kits };
+  const kitted = { ...options, kits: files.kits, ...(files.calendar ? { calendar: files.calendar } : {}) };
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics);
   diagnostics.sort(compareDiagnostics);

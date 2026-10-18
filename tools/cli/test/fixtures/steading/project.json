@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "id": "steading",
+  "name": "The steading",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "factions", "time"],
+  "calendar": {
+    "ticksPerDay": 1,
+    "daysPerYear": 96,
+    "seasons": [
+      {
+        "id": "summer",
+        "from": 0
+      },
+      {
+        "id": "autumn",
+        "from": 24
+      },
+      {
+        "id": "winter",
+        "from": 48
+      },
+      {
+        "id": "spring",
+        "from": 72
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Ketilstead's hall",
+  "currency": "hacksilver",
+  "faction": "ketilstead",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": ["goods"]
+  },
+  "stock": {
+    "items": [
+      {
+        "item": "iron",
+        "count": 1
+      },
+      {
+        "item": "fish",
+        "count": 6
+      }
+    ],
+    "every": {
+      "days": 8
+    }
+  }
+}

@@ -136,11 +136,11 @@ From M3.5 (D43), a project made only of data can keep time. The time module is a
 ```
 
 - **`calendar`** is a calendar as above, `{ "ticksPerDay": 1 }` when left out. The editor's Project panel edits it.
-- **The kit's module** is `timeModule({ calendar })`, joining the game after the other kits. A game that names a module `time` itself keeps its own ([kits.md](kits.md#switching-kits-on)).
+- **The kit's module** is `timeModule({ calendar })`, joining the game after the other kits. A `--game` module that names a module `time` keeps its own; a project's game.ts that does is E031, as for any kit ([kits.md](kits.md#switching-kits-on)).
 - **Its effects** (`wait`, `schedule`, `cancel-timer`), facts and events join the project's catalogue as other kits' do, with the calendar's units in their durations and its names in their domains.
 - **Packs** carry the calendar in `project.calendar` (format 3).
 - **E038:** a calendar that doesn't hold together, with `calendarOf`'s words, at `/calendar`.
-- **W116:** a calendar no time module reads: the time kit is off, or the game keeps a time module of its own.
+- **W116:** a calendar given while the time kit is off: nothing reads it.
 - **Real time** (`time/elapse`) for a project made of data waits for Phase 4's stage, which sends it.
 
 ## Wall-clock time
