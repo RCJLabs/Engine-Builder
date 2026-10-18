@@ -4,6 +4,7 @@ import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/f
 import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
 import { readCatalog } from './catalog.ts';
 import { checkRecord, fieldPointers, routeProblems } from './problems.ts';
+import { chooseTitle } from './refChoices.ts';
 
 const ludus = (changes: Record<string, string | null> = {}) => {
   const files: Record<string, string> = readFixture(FIXTURE_LUDUS);
@@ -13,6 +14,43 @@ const ludus = (changes: Record<string, string | null> = {}) => {
   }
   return memorySource(files);
 };
+
+/** Ludus with these kits listed in its project.json, and other files changed. */
+const kitted = (kits: unknown[], changes: Record<string, string | null> = {}) => {
+  const manifest = JSON.parse(readFixture(FIXTURE_LUDUS)['project.json'] as string);
+  return ludus({ 'project.json': JSON.stringify({ ...manifest, kits }), ...changes });
+};
+
+describe('readCatalog with kits (M3.3)', () => {
+  it('lists the kits’ types, a project’s own fields joined after a kit’s', async () => {
+    const own = { title: 'Part', fields: { maker: { kind: 'text', optional: true } } };
+    const catalog = await readCatalog(kitted(['inventory', 'economy'], { 'types/item.json': JSON.stringify(own) }));
+    expect(catalog.kits).toEqual(['inventory', 'economy']);
+    expect([...catalog.types.keys()]).toEqual(
+      expect.arrayContaining(['flag', 'sheet', 'item', 'loot-table', 'resource', 'shop', 'gladiator']),
+    );
+    const item = catalog.types.get('item');
+    expect(item?.file.title).toBe('Part');
+    expect(Object.keys(item?.file.fields ?? {})).toEqual(['name', 'description', 'value', 'max', 'tags', 'maker']);
+    expect(item?.kit).toEqual({ id: 'inventory', fields: ['name', 'description', 'value', 'max', 'tags'] });
+    expect(catalog.problems).toEqual([]);
+  });
+
+  it('titles a record picker by its type’s title, with its article', async () => {
+    const { types } = await readCatalog(kitted(['inventory']));
+    expect(chooseTitle({ kind: 'ref', to: 'item' }, types)).toBe('Choose an item');
+    expect(chooseTitle({ kind: 'ref', to: 'loot-table' }, types)).toBe('Choose a loot table');
+    expect(chooseTitle({ kind: 'ref', to: ['item', 'school'] }, types)).toBe('Choose a record');
+    expect(chooseTitle({ kind: 'ref', to: 'guild' }, types)).toBe('Choose a guild');
+  });
+
+  it('turns on no kit whose need is off, and says so at project.json', async () => {
+    const catalog = await readCatalog(kitted(['economy']));
+    expect(catalog.kits).toEqual([]);
+    expect(catalog.types.has('shop')).toBe(false);
+    expect(catalog.problems.map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual(['E034 project.json /kits/0']);
+  });
+});
 
 describe('readCatalog', () => {
   it('lists the types, their records and the assets, sorted', async () => {
@@ -115,6 +153,36 @@ describe('checkRecord with flags (M3.1)', () => {
     // The sheet's form: its set-flag reads the flag's kind.
     expect(checkRecord(catalog, 'sheet', 's', sheet, index).map((d) => `${d.code} ${d.path}`)).toEqual([
       'E026 /rows/0/do/0/to',
+    ]);
+  });
+});
+
+describe('checkRecord with loot tables and shops (M3.3)', () => {
+  it('reads the other tables and the shops from the index, as the loop and stock checks need them', async () => {
+    const nests = (table: string) => ({ entries: [{ table, weight: 1 }] });
+    const source = kitted(['inventory', 'economy'], {
+      'records/loot-table/a.json': JSON.stringify(nests('b')),
+      'records/loot-table/b.json': JSON.stringify(nests('a')),
+      'records/resource/credits.json': '{}',
+    });
+    const catalog = await readCatalog(source);
+    const index = await updateIndex(EMPTY_INDEX, source, catalog, null);
+    // a's own form: the loop runs through b, which only the index has.
+    expect(checkRecord(catalog, 'loot-table', 'a', nests('b'), index).map((d) => `${d.code} ${d.path}`)).toEqual([
+      'E036 /entries/0/table',
+    ]);
+    // A shop's form: its stock table gives a resource a table down, which only the index has.
+    const shop = { currency: 'credits', stock: { table: 'a' } };
+    const shopped = kitted(['inventory', 'economy'], {
+      'records/loot-table/a.json': JSON.stringify(nests('b')),
+      'records/loot-table/b.json': JSON.stringify({ entries: [{ resource: 'credits', weight: 1 }] }),
+      'records/resource/credits.json': '{}',
+      'records/shop/yard.json': JSON.stringify(shop),
+    });
+    const giving = await readCatalog(shopped);
+    const read = await updateIndex(EMPTY_INDEX, shopped, giving, null);
+    expect(checkRecord(giving, 'shop', 'yard', shop, read).map((d) => `${d.code} ${d.path}`)).toEqual([
+      'E035 /stock/table',
     ]);
   });
 });

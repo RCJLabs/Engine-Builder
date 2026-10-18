@@ -56,6 +56,7 @@ export {
   ITEM_TYPE_FILE,
   isKitType,
   joinKitType,
+  kitClash,
   kitDataTypes,
   kitOf,
   kitTypeFiles,

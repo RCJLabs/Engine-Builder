@@ -19,13 +19,14 @@ The engine's flag is a type file (`FLAG_TYPE_FILE`), so a flag's form is a recor
 
 A sheet's form is its record form, laid out from the sheet's layout type file (`SHEET_TYPE_FILE`): Name and Description as fields, then its rows, each a group headed by its number and id.
 
-- **When.** The event, from a list of the engine's own ("A flag changes", "A row runs"), and the game's once its scripts have run (M3.2), or "Another event, written by hand". For one of the engine's, a field per argument, each optional, empty meaning any: a list of the records an argument names, a list for a choice or yes or no, a box for text and numbers. For another event, its id and its arguments as JSON. Choosing another event clears the arguments, which were the old event's.
+- **When.** The event, from a list of the engine's own ("A flag changes", "A row runs"), the kits' that are on ("A shop opens", M3.3), and the game's once its scripts have run (M3.2), or "Another event, written by hand". For one of the engine's, a field per argument, each optional, empty meaning any: a list of the records an argument names, a list for a choice or yes or no, a box for text and numbers. For another event, its id and its arguments as JSON. Choosing another event clears the arguments, which were the old event's.
 - **If.** The condition field (M2.4), which reads text with the engine's facts, as `eb validate` does without `--types`: `flag.on(met)` needs no argument name, and the field says it in words below ("Reads: met is on.").
 - **Do.** The row's effects in order, each a block with Up, Down and Remove:
   - **Set a flag:** the flag, then To: On or Off for an on/off flag, a whole number for a number flag;
   - **Add to a flag:** the flag, and By, below 0 to take away;
   - **Roll:** its outcomes, each a chance, an optional text and effects of its own, with the total of the chances shown. Outcomes are added and removed; a roll keeps at least one;
-  - **anything else,** a game's own effect, as JSON, written once it parses (D36). Once the game's scripts have run, Add effect offers its own effects by name (M3.2).
+  - **a kit's effect** (M3.3), with a form drawn from its fields: Give an item, Take an item, Roll a loot table, Add to a resource, Pay a cost, Open a shop ([editor-kits.md](editor-kits.md));
+  - **anything else,** a game's own effect, as JSON, written once it parses (D36). Once the game's scripts have run, Add effect offers its own effects by name (M3.2). A kit's effect whose kit is off is edited this way too.
   - "Add effect" adds the kind chosen beside it, at the end.
 - **Once, Note and Row id.** The row id's help says what renaming it does to a once row in older saves.
 - **Rows** are added at the end ("Add a row", named row-1, row-2…, starting as "When a flag changes", doing nothing) and moved and removed with their own buttons.

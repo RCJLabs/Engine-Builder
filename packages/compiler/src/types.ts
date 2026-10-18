@@ -13,6 +13,7 @@ import {
   FLAG_TYPE,
   isEngineType,
   joinKitType,
+  kitClash,
   kitOf,
   kitTypeFiles,
   type RecordType,
@@ -67,7 +68,7 @@ export async function readTypes(
   const taken = new Set([...ENGINE_TYPES, ...code].map((t) => t.type));
   const files = new Map<string, TypeFile | null>();
   for (const path of [...(await source.files(TYPES_DIR))].sort()) {
-    const found = await readOne(source, path, { taken, kitFiles }, report);
+    const found = await readOne(source, path, { taken, kits, kitFiles }, report);
     if (found) files.set(found.type, found.file);
   }
   // Every type there is, sound or not, so a ref to a type whose file has problems isn't one more.
@@ -100,6 +101,7 @@ function kitType(type: string, file: TypeFile, kits: readonly string[]): DataTyp
 
 interface Taken {
   readonly taken: ReadonlySet<string>;
+  readonly kits: readonly string[];
   readonly kitFiles: ReadonlyMap<string, TypeFile>;
 }
 
@@ -107,7 +109,7 @@ interface Taken {
 async function readOne(
   source: ProjectSource,
   path: string,
-  { taken, kitFiles }: Taken,
+  { taken, kits, kitFiles }: Taken,
   report: (r: TypeReport) => void,
 ): Promise<{ type: string; file: TypeFile | null } | undefined> {
   const role = classifyTypeFile(path);
@@ -143,10 +145,8 @@ async function readOne(
   }
   const kitFile = kitFiles.get(type);
   const joined = kitFile ? joinKitType(kitFile, parsed.value) : { joined: parsed.value, clashes: [] };
-  for (const name of joined.clashes) {
-    const message = `The kit's ${type} already has a field "${name}" (D41): name yours otherwise`;
-    report({ code: 'E037', message, file: path, path: `/fields/${name}` });
-  }
+  const kit = kitOf(type, kits) ?? '';
+  for (const name of joined.clashes) report({ code: 'E037', ...kitClash(kit, type, name), file: path });
   const read = readTypeFile(joined.joined);
   if (read.ok) return { type, file: read.file };
   for (const issue of read.issues) report({ code: 'E015', ...issue, file: path });

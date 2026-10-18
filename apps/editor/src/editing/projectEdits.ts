@@ -3,6 +3,7 @@
  * build steps the same way, for records. Since M3.3, its kits too (D41).
  */
 import { MANIFEST_FILE, type ProjectSource, projectSchema } from '@eb/compiler';
+import { KITS } from '@eb/kits';
 import type { FileChange } from './history.ts';
 import { editJson } from './jsonText.ts';
 
@@ -51,4 +52,31 @@ export async function kitsChange(source: ProjectSource, kits: readonly string[])
     return kits.length === 0 ? rest : { ...(manifest as object), kits: [...kits] };
   });
   return after === before ? null : { path: MANIFEST_FILE, before, after };
+}
+
+/** The kits on once `kit` is turned on or off, in the engine's order. */
+export function kitsWith(on: readonly string[], kit: string, wanted: boolean): string[] {
+  const next = new Set(on);
+  if (wanted) {
+    const add = (id: string): void => {
+      next.add(id);
+      for (const need of KITS.find((k) => k.id === id)?.needs ?? []) add(need);
+    };
+    add(kit);
+  } else {
+    const drop = (id: string): void => {
+      next.delete(id);
+      for (const other of KITS) if (other.needs.includes(id) && next.has(other.id)) drop(other.id);
+    };
+    drop(kit);
+  }
+  return KITS.map((k) => k.id).filter((id) => next.has(id));
+}
+
+/** "Turn on the economy kit, with inventory" or "Turn off the inventory kit, with economy". */
+export function kitsStep(kit: string, wanted: boolean, before: readonly string[], after: readonly string[]): string {
+  const also = wanted
+    ? after.filter((id) => id !== kit && !before.includes(id))
+    : before.filter((id) => id !== kit && !after.includes(id));
+  return `Turn ${wanted ? 'on' : 'off'} the ${kit} kit${also.length > 0 ? `, with ${also.join(' and ')}` : ''}`;
 }

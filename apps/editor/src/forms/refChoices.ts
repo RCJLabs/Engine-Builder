@@ -1,7 +1,16 @@
-import type { ValueDef } from '@eb/schema';
+import type { DataType, ValueDef } from '@eb/schema';
 import type { Choice } from './Picker.tsx';
 
 type RefDef = Extract<ValueDef, { kind: 'ref' }>;
+
+/**
+ * The picker's title: one type by its title as a person reads it, with its article ("Choose an
+ * item", "Choose a loot table"); several, a record.
+ */
+export function chooseTitle(def: RefDef, types: ReadonlyMap<string, DataType>): string {
+  const noun = typeof def.to === 'string' ? (types.get(def.to)?.file.title ?? def.to).toLowerCase() : 'record';
+  return `Choose ${/^[aeiou]/.test(noun) ? 'an' : 'a'} ${noun}`;
+}
 
 /** Records' names by "type:id", where their types name them. */
 export type Names = (key: string) => string | undefined;

@@ -1,5 +1,6 @@
-import { ENGINE_EVENTS, ENGINE_FACTS } from '@eb/schema';
+import { ENGINE_EVENTS, ENGINE_FACTS, KIT_EFFECT_FILES } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
+import { kitEffectFile, newKitEffect } from './KitEffect.tsx';
 import { holdsText } from './LogicBrowser.tsx';
 import { doText, effectText, ifText, whenText } from './rowText.ts';
 import { forEvent, moved, newEffect, newRow, newRowId, withArg, without } from './sheetEdits.ts';
@@ -35,6 +36,27 @@ describe('a row in words', () => {
     expect(doText([])).toBe('Does nothing yet');
   });
 
+  it('says a kit’s effects in a few words, and what isn’t chosen yet', () => {
+    expect(
+      doText([
+        { effect: 'give-item', item: 'medkit', count: 2 },
+        { effect: 'take-item', item: 'fuse' },
+        { effect: 'roll-loot', table: 'wreck' },
+        { effect: 'add-resource', resource: 'credits', by: 15 },
+        { effect: 'add-resource', resource: 'fuel', by: -3 },
+        { effect: 'pay-cost', cost: { credits: 10, fuel: 2 } },
+        { effect: 'open-shop', shop: 'dutch-yard' },
+      ]),
+    ).toBe(
+      'Do: give 2 × medkit, then take fuse, then roll wreck, then add 15 credits, then take 3 fuel, ' +
+        'then pay 10 credits and 2 fuel, then open dutch-yard',
+    );
+    expect(effectText({ effect: 'give-item', item: '' })).toBe('give an item not yet chosen');
+    expect(effectText({ effect: 'roll-loot' })).toBe('roll a loot table not yet chosen');
+    expect(effectText({ effect: 'pay-cost', cost: {} })).toBe('pay a cost not yet set');
+    expect(effectText({ effect: 'open-shop', shop: '' })).toBe('open a shop not yet chosen');
+  });
+
   it('says what a flag holds', () => {
     expect(holdsText({ name: 'Met' })).toBe('On or off: starts off');
     expect(holdsText({ number: { min: 0, max: 10, start: 2 } })).toBe('A number from 0 to 10: starts at 2');
@@ -64,6 +86,22 @@ describe('sheet edits', () => {
     expect(withArg(set, 'flag', undefined)).toEqual({ event: 'flag/changed' });
     expect(when).toEqual({ event: 'flag/changed' });
     expect(forEvent('sheet/fired')).toEqual({ event: 'sheet/fired' });
+  });
+
+  it('offers a kit’s effect only with its kit on', () => {
+    expect(kitEffectFile('give-item', ['inventory'])?.kit).toBe('inventory');
+    expect(kitEffectFile('pay-cost', ['inventory'])).toBeUndefined();
+    expect(kitEffectFile('pay-cost', ['inventory', 'economy'])?.kit).toBe('economy');
+    expect(kitEffectFile('set-flag', ['inventory', 'economy'])).toBeUndefined();
+  });
+
+  it('makes a new kit effect as a new record is made: what must be filled in, empty', () => {
+    const give = kitEffectFile('give-item', ['inventory']);
+    expect(give && newKitEffect(give)).toEqual({ effect: 'give-item', item: '' });
+    for (const file of KIT_EFFECT_FILES) {
+      const required = Object.entries(file.fields).filter(([, def]) => !def.optional);
+      expect(Object.keys(newKitEffect(file))).toEqual(['effect', ...required.map(([name]) => name)]);
+    }
   });
 
   it('makes each new effect a copy of its own', () => {

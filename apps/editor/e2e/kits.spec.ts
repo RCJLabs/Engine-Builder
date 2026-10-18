@@ -221,5 +221,10 @@ test('the hangar’s game runs in the editor with its kits joined, as eb sim pla
     encoding: 'utf8',
   });
   expect(`${await report.textContent()}\n`).toBe(cli);
+  // project.json is the game's too: a kit turned off runs the game again without it.
+  await showProject(page);
+  await kitsBox(page).getByLabel('Economy', { exact: true }).uncheck();
+  await showLogic(page);
+  await expect(panel.getByText(/^The game: inventory, time, hangar, starting in hangar/)).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -3,6 +3,7 @@
  * tables work as a project's own types do, and a project's `types/<type>.json` can add fields
  * after a kit's. With a kit off, its type names are free for a project's own types.
  */
+import { pointerSegment } from '@eb/core';
 import { ECONOMY, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP } from '@eb/kits';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -238,3 +239,13 @@ export function joinKitType(
   const added = clashes.length > 0 ? {} : ownFields;
   return { joined: { ...base, ...own, fields: { ...kitFile.fields, ...added } }, clashes };
 }
+
+/** E037 for a field of the project's with a kit field's name: the compiler's and the type designer's. */
+export const kitClash = (
+  kit: string,
+  type: string,
+  name: string,
+): { readonly path: string; readonly message: string } => ({
+  path: `/fields/${pointerSegment(name)}`,
+  message: `The ${kit} kit's ${type} already has a field "${name}" (D41): name yours otherwise`,
+});

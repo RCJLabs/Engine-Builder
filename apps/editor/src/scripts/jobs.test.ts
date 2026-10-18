@@ -7,6 +7,7 @@ import type { SentFile } from './protocol.ts';
 
 const ROOT = resolve(import.meta.dirname, '../../../..');
 const HOLD = join(ROOT, 'tools/cli/test/fixtures/hold');
+const HANGAR = join(ROOT, 'tools/cli/test/fixtures/hangar');
 const CLI = join(ROOT, 'tools/cli/src/cli.ts');
 
 /** A folder's files as the page sends them, paths from its root. */
@@ -71,6 +72,15 @@ describe('Run in the worker', () => {
     const played = await playJob(hold({ 'records/sheet/odd.json': sheet }), 20, 'random');
     expect(played.kind).toBe('refused');
     expect(played.kind === 'refused' && brief(played.errors)).toEqual(['E022 records/sheet/odd.json']);
+  });
+
+  it('plays a game with kits as eb sim does, the kits joined from project.json (M3.3)', async () => {
+    const played = await playJob(folderFiles(HANGAR), 20, 'worker');
+    const cli = spawnSync(process.execPath, [CLI, 'sim', HANGAR, '--seeds', '20', '--policy', 'worker'], {
+      encoding: 'utf8',
+    });
+    expect(cli.status).toBe(0);
+    expect(played).toEqual({ kind: 'played', ok: true, lines: cli.stdout.trimEnd().split('\n') });
   });
 
   it('names the bots there are when asked for another', async () => {

@@ -36,3 +36,28 @@ describe('what forms offer from the game', () => {
     expect(ownEffectsOf(loaded)).toEqual(['stash']);
   });
 });
+
+describe('what forms offer with kits on', () => {
+  it('adds the kits’ facts and events to the engine’s until the game has run', () => {
+    const kits = ['inventory', 'economy'];
+    const facts = factsOf(undefined, kits);
+    expect(Object.keys(facts)).toEqual(expect.arrayContaining(['flag.on', 'inventory.count', 'economy.price']));
+    expect(facts['inventory.count']?.label).toBe('carried');
+    expect(eventsOf(undefined, kits)['economy/opened']?.label).toBe('A shop opens');
+    expect(factsOf(undefined, ['inventory'])['economy.price']).toBeUndefined();
+    expect(factsOf(undefined, [])).toBe(ENGINE_FACTS);
+  });
+
+  it('keeps a kit’s wording in the game’s, and never offers a kit’s effect as the game’s own', () => {
+    const kitted: GameState = {
+      ...loaded,
+      catalog: {
+        ...(loaded.catalog as NonNullable<GameState['catalog']>),
+        facts: { 'inventory.count': { args: {} } },
+        effects: ['give-item', 'set-flag', 'stash'],
+      },
+    };
+    expect(factsOf(kitted, ['inventory'])['inventory.count']?.label).toBe('carried');
+    expect(ownEffectsOf(kitted)).toEqual(['stash']);
+  });
+});

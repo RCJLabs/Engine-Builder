@@ -53,6 +53,14 @@ describe('the open project’s game', () => {
     expect(loaded.catalog?.actions).toEqual(['hold/loot']);
   });
 
+  it('joins the kits project.json lists to the game its scripts make (M3.3)', async () => {
+    const manifest = { format: 1, id: 'hold', name: 'Hold', version: '0.1.0', kits: ['inventory'] };
+    const files = { 'project.json': JSON.stringify(manifest), 'scripts/game.ts': GAME, 'scripts/hold.ts': MODULE };
+    const loaded = await readGameState(memorySource(files), inProcess(), true);
+    expect(loaded.catalog?.modules).toEqual(['logic', 'flag', 'sheet', 'inventory', 'hold']);
+    expect(loaded.catalog?.effects).toContain('give-item');
+  });
+
   it('counts a game that never finishes loading as failed (E031)', async () => {
     const hung: ScriptWorker = {
       check: () => Promise.reject(new ScriptTimeout(CHECK_MS)),

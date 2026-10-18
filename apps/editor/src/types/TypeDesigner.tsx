@@ -1,4 +1,4 @@
-import { type Diagnostic, kitOf, kitTypeFiles, type TypeFile } from '@eb/schema';
+import { type Diagnostic, kitOf, kitTypeFiles } from '@eb/schema';
 import { useMemo } from 'preact/hooks';
 import { showPanel } from '../app/panelControl.ts';
 import { editing } from '../editing/current.ts';
@@ -10,7 +10,7 @@ import type { OpenProject } from '../projects/opened.ts';
 import { setView, tableType } from '../records/viewState.ts';
 import { isObject } from './defPaths.ts';
 import { type Design, DesignContext, designForm, useDesign } from './designContext.ts';
-import { routedProblems } from './designProblems.ts';
+import { type KitTypeOf, routedProblems } from './designProblems.ts';
 import { FieldList } from './FieldList.tsx';
 import { KitFields } from './KitFields.tsx';
 import { TypeHead } from './TypeHead.tsx';
@@ -21,14 +21,14 @@ import '../styles/types.css';
 export { NewType } from './NewType.tsx';
 
 /** The inspector's designer for one type (M2.6): its file, its fields and its records, or what stands in the way. */
-type Kit = { readonly id: string; readonly file: TypeFile };
+type Kit = KitTypeOf;
 
 /** The kit whose type this is, with the kits the project lists (M3.3, D41), and the kit's own type file. */
 function kitFor(project: OpenProject, type: string): Kit | undefined {
   const { kits } = project.catalog;
   const id = kitOf(type, kits);
   const file = kitTypeFiles(kits).get(type);
-  return id !== undefined && file !== undefined ? { id, file } : undefined;
+  return id !== undefined && file !== undefined ? { id, type, file } : undefined;
 }
 
 export function TypeDesigner({ project, type }: { project: OpenProject; type: string }) {
@@ -106,7 +106,7 @@ function Designer(props: { project: OpenProject; type: string; file: string; jso
   const { catalog, index } = project;
   const canEdit = editing.access.value.kind === 'editing';
   const types = useMemo(() => [...new Set([...catalog.types.keys(), ...catalog.broken.keys()])].sort(), [catalog]);
-  const routed = useMemo(() => routedProblems(json, types, file, kit?.file), [json, types, file, kit]);
+  const routed = useMemo(() => routedProblems(json, types, file, kit), [json, types, file, kit]);
   const records = useMemo(
     () => (index ? [...index.records.values()].filter((record) => record.type === type) : []),
     [index, type],

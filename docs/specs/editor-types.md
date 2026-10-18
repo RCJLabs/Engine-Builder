@@ -10,6 +10,7 @@ M2.6's type designer: a project's record types ([type-files.md](type-files.md)) 
   - New type, in the Records panel, the Project panel's list of types, and the command palette ("New record type").
 - **Loaded late.** The designer loads the first time a type is shown, as the record form loads when a record is first chosen (M2.4). The offline cache holds it like any other file.
 - **A tab that only reads** shows the designer with nothing it can change: no Rename, Delete, Add, Move or Remove, and its boxes read only.
+- **A kit's type** (M3.3) shows the kit's fields first, locked, and has no Rename or Delete; the project's own fields come after them ([editor-kits.md](editor-kits.md)).
 
 ## A new type
 
