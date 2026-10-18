@@ -4,7 +4,8 @@ import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import type { Catalog } from '../forms/catalog.ts';
 import { FormContext } from '../forms/formContext.ts';
-import { entryProblems, localForm, ProvenanceFields } from './ProvenanceFields.tsx';
+import { entryProblems } from './entries.ts';
+import { localForm, ProvenanceFields } from './ProvenanceFields.tsx';
 
 /**
  * A provenance entry written before it goes into the log (D34): for files being imported, files
