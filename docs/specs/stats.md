@@ -103,7 +103,7 @@ Each has a preview: the value, current amount or stacks before and after.
 **Time.** A status that `lasts` gets an `until`: the day it ends (`time.day` + days) or the tick (`time.tick` + ticks).
 
 - **Applied again,** it takes the later of its `until` and the new one. A status that has stacks and no `until` lasts until removed, which outlasts any time.
-- **The kit hears time pass** (`time/passed`, through a `*` listener, since it can't name an event a game may not have). Then every status whose `until` has come loses all its stacks, raising `stats/status-removed` with 0 left.
+- **The kit hears time pass** (through a `*` listener, since it can't name an event a game may not have): as each day starts (`time/day-started`, M3.5), and once an advance is done (`time/passed`), for a status that ends on a tick within a day. Then every status whose `until` has come loses all its stacks, raising `stats/status-removed` with 0 left. Ending as the day starts, a status that ran out during a wait doesn't stack with one applied after the wait in the same action, and the rows of the days after it don't see it ([time.md](time.md#start-of-events)).
 - **A status the actor's record lists** lasts until removed, whatever its `lasts`: it was never applied, so it has no time.
 - **A timed status needs the time module.** Without one, `add-status` throws reading `time.day` or `time.tick`; W114 says so first.
 

@@ -804,6 +804,7 @@ Evan chose on 2026-10-18, from these options:
 Also settled, as the session's calls:
 - the start-of events are the time module's own, so a game.ts's time module raises them too. At a tick, the boundaries come before the timers due there, the largest first (year, season, month, week, day);
 - the kits' own upkeep at a day's start (statuses ending, drift) comes after the rows on `time/day-started`, since listeners hear in module order and the engine's sheets come first;
+- the stats kit's timed statuses end as the day that ends them starts, not only once the action that passed the time is done. Before, a status that ran out during a wait still stacked with the same status applied after the wait in that action;
 - a calendar no time module reads (the kit off, or a game with its own) is a warning, W116, not an error;
 - real time (`time/elapse`) for a project made of data waits for Phase 4's stage.
 
@@ -818,7 +819,7 @@ The specs are [specs/factions.md](specs/factions.md) and [specs/time.md](specs/t
 **Cost.**
 - **Drift is in whole points:** Landnam's 0.12 a day becomes a point every 8 days.
 - **No relations:** a game where standing with one faction moves its allies writes the second effect each time.
-- **Every game with a time module raises the new events,** so its beats change. Its state doesn't, so neither do its golden runs.
+- **Every game with a time module raises the new events,** so its beats change. The events alone change no state, so salvage run's and the hangar's golden runs hold. The arena's were taken again, since its statuses now end as the day starts.
 - **The roster waits a milestone,** and recruits with it.
 
 ---

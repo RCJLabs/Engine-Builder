@@ -55,6 +55,8 @@ export interface ShopRecord {
     readonly every?: { readonly days: number };
   };
   readonly rules?: readonly PriceRule[];
+  /** With the factions kit on, the faction whose band sets a share of what it charges (M3.5, D43). */
+  readonly faction?: string;
 }
 
 export interface ShelfItem {
