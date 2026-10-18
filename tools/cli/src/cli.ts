@@ -14,11 +14,13 @@ import { canonicalJson } from '@eb/core';
 import { folderSource } from './folderSource.ts';
 import { loadGame, loadTypes, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
+import { runSchemas } from './schemas.ts';
 import { runSim } from './sim.ts';
 
 const USAGE = `Usage:
   eb validate <project> [--types <module>] [--json]
   eb build <project> [--types <module>] [--out <file>] [--json]
+  eb schemas <folder> [--types <module>] [--json]
   eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--prefix <text>]
          [--max-turns <n>] [--golden <file> [--update]] [--json]
 
@@ -26,6 +28,10 @@ const USAGE = `Usage:
 recordTypes export lists the record types to check against, and whose facts export (or modules
 export) gives the facts to check conditions against. build writes the content pack to --out, or
 to <project id>.pack.json in the current folder.
+
+schemas writes each record type's JSON Schema into the folder's .vscode/eb-schemas/ and maps
+records/<type>/*.json to them in .vscode/settings.json, so an editor checks records edited by
+hand. Run it again after changing a type.
 
 sim plays the project with a bot, one run per seed (100 seeds, seed-0 on, by default), and
 reports how the runs went. --game names a module exporting recordTypes, modules and start, and
@@ -52,7 +58,7 @@ async function main(argv: readonly string[]): Promise<number> {
     },
   });
   const [command, project, ...extra] = positionals;
-  if (!['validate', 'build', 'sim'].includes(command ?? '') || project === undefined || extra.length > 0) {
+  if (!['validate', 'build', 'schemas', 'sim'].includes(command ?? '') || project === undefined || extra.length > 0) {
     throw new UsageError(USAGE);
   }
   if (command === 'sim') {
@@ -63,7 +69,8 @@ async function main(argv: readonly string[]): Promise<number> {
   }
   const misplaced = SIM_ONLY.find((flag) => values[flag] !== undefined);
   if (misplaced) throw new UsageError(`--${misplaced} only applies to eb sim`);
-  if (command === 'validate' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
+  if (command !== 'build' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
+  if (command === 'schemas') return runSchemas(project, values);
   const { types, facts } = values.types === undefined ? { types: [] } : await loadTypes(values.types);
   const result = await compileProject(await openProject(project), types, facts ? { facts } : {});
   let out: string | undefined;
