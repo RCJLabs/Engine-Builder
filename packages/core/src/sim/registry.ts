@@ -1,7 +1,8 @@
 import type { FactCatalog, FactInfo } from '../logic/types.ts';
 import { domainError, FACT_PATTERN, NAME_PATTERN } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
-import type { ActionRun, ActionSpec, EffectRun, EffectSpec, FactRead, Module } from './module.ts';
+import { type EventCatalog, type EventInfo, eventInfoError } from './events.ts';
+import type { ActionRun, ActionSpec, EffectRun, EffectSpec, FactRead, Listener, Module } from './module.ts';
 
 /** The module id the kernel's own state uses. */
 export const KERNEL = 'kernel';
@@ -24,12 +25,25 @@ export interface EffectEntry {
   readonly preview?: EffectSpec<unknown>['preview'];
 }
 
+export interface EventEntry {
+  readonly module: string;
+  readonly info: EventInfo;
+}
+
+export interface ListenerEntry {
+  readonly module: string;
+  readonly run: Listener<unknown>;
+}
+
 export interface Registry {
   /** In the order given, which is the order their slices are created. */
   readonly modules: readonly Module[];
   readonly actions: ReadonlyMap<string, ActionEntry>;
   readonly facts: ReadonlyMap<string, FactEntry>;
   readonly effects: ReadonlyMap<string, EffectEntry>;
+  readonly events: ReadonlyMap<string, EventEntry>;
+  /** Each event's listeners, in module order: a module's own entry for it, or else its "*". */
+  readonly listeners: ReadonlyMap<string, readonly ListenerEntry[]>;
   /** Each mode's allowed action types, with its patterns already expanded. */
   readonly modes: ReadonlyMap<string, ReadonlySet<string>>;
 }
@@ -42,6 +56,7 @@ export function buildRegistry(modules: readonly Module[]): Registry {
   const actions = new Map<string, ActionEntry>();
   const facts = new Map<string, FactEntry>();
   const effects = new Map<string, EffectEntry>();
+  const events = new Map<string, EventEntry>();
   const ids = new Set<string>();
   for (const module of modules) {
     name(module.id, 'module id');
@@ -69,8 +84,34 @@ export function buildRegistry(modules: readonly Module[]): Registry {
       if (owner) throw new Error(`Effect "${effect}" is registered by both ${owner.module} and ${module.id}`);
       effects.set(effect, typeof def === 'function' ? { module: module.id, run: def } : { module: module.id, ...def });
     }
+    for (const [event, info] of Object.entries(module.events ?? {})) {
+      const id = `${module.id}/${name(event, `${module.id} event`)}`;
+      const problem = eventInfoError(info);
+      if (problem) throw new Error(`Event "${id}": ${problem}`);
+      events.set(id, { module: module.id, info: Object.freeze({ ...info }) });
+    }
   }
-  return { modules, actions, facts, effects, modes: expandModes(modules, actions) };
+  const listeners = listenersOf(modules, events);
+  return { modules, actions, facts, effects, events, listeners, modes: expandModes(modules, actions) };
+}
+
+// A listener for an event nobody declares would never run, which is a typo found too late.
+function listenersOf(modules: readonly Module[], events: ReadonlyMap<string, EventEntry>) {
+  const listeners = new Map<string, ListenerEntry[]>([...events.keys()].map((id) => [id, []]));
+  for (const module of modules) {
+    const on = module.on ?? {};
+    for (const [key, run] of Object.entries(on)) {
+      if (key !== '*' && !events.has(key))
+        throw new Error(`Module "${module.id}" listens for "${key}", which no module declares`);
+      if (typeof run !== 'function')
+        throw new Error(`Module "${module.id}": its listener for "${key}" must be a function`);
+    }
+    for (const [id, list] of listeners) {
+      const run = on[id] ?? on['*'];
+      if (run) list.push({ module: module.id, run });
+    }
+  }
+  return listeners;
 }
 
 /** Each module's slice version, by module id in sorted order. */
@@ -85,6 +126,15 @@ export function catalogOf(registry: Registry): FactCatalog {
 
 /** A game's fact catalog from its modules alone, for tools that check content without playing. */
 export const factCatalog = (modules: readonly Module[]): FactCatalog => catalogOf(buildRegistry(modules));
+
+/** Every event by id, sorted, with its arguments: what rows' When is checked against. */
+export function eventsOf(registry: Registry): EventCatalog {
+  const ids = [...registry.events.keys()].sort();
+  return Object.freeze(Object.fromEntries(ids.map((id) => [id, registry.events.get(id)?.info as EventInfo])));
+}
+
+/** A game's event catalog from its modules alone, as factCatalog is for facts. */
+export const eventCatalog = (modules: readonly Module[]): EventCatalog => eventsOf(buildRegistry(modules));
 
 // A gap in the migrations would leave saves from the version before it unable to load.
 function checkVersion(module: Module): void {

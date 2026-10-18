@@ -3,6 +3,7 @@ import type { Condition, Truth } from '../logic/types.ts';
 import { domainProblem } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
 import { Rng } from '../rng.ts';
+import { eventDataProblem } from './events.ts';
 import { cloneJson, freezeJson } from './json.ts';
 import type { FactArgs, ModeControl, ModuleContext, OptionsView, PreviewContext } from './module.ts';
 import { Attempts, Refusal } from './refusal.ts';
@@ -11,6 +12,8 @@ import type { Beat, Effect, EffectPreview, GameState, ModeFrame, SimContext } fr
 
 /** Effects that apply effects are fine; this many levels deep means one is applying itself. */
 const MAX_EFFECT_DEPTH = 64;
+/** Listeners whose answers raise events are fine; this many deep means one is raising what it hears. */
+export const MAX_EVENT_DEPTH = 64;
 
 /**
  * One action's work. Slices are copied the first time a module writes them, and the copies,
@@ -26,6 +29,9 @@ export class Transaction {
   private readonly streams = new Map<string, Rng>();
   private modes: readonly ModeFrame[] | undefined;
   private depth = 0;
+  private hearing = 0;
+  /** The events raised in each piece of work still running, innermost last (scope). */
+  private readonly raised: Beat[][] = [];
   private readonly attempts: Attempts;
 
   /** `skipped` holds the attempts that refused in earlier runs of this action, by name. */
@@ -51,7 +57,7 @@ export class Transaction {
       fact: (id, args) => this.fact(id, args),
       check: (condition) => this.check(condition),
       apply: (effect) => this.apply(effect),
-      attempt: (work) => this.attempts.run(work),
+      attempt: (work) => this.attempts.run(() => this.scope(work)),
       rng: (name) => this.stream(`${module}/${kebab(name, 'stream name')}`),
       emit: (what, data) => this.emit(`${module}/${kebab(what, 'beat name')}`, data),
       refuse: (reason, data = {}) => {
@@ -99,6 +105,23 @@ export class Transaction {
     };
     freezeJson(result, `(preview of ${effect.effect})`);
     return result;
+  }
+
+  /**
+   * Runs work, then hands each event it raised to its listeners, in the order raised: the action's
+   * handler, each attempt and each listener is such a piece of work. So a timer's events are heard
+   * at its tick, and a listener's consequences come before the next listener hears anything.
+   */
+  scope(work: () => void): void {
+    const raised: Beat[] = [];
+    this.raised.push(raised);
+    try {
+      work();
+      // Listeners run in scopes of their own, so nothing more joins this list while it is read.
+      for (const event of raised) this.deliver(event);
+    } finally {
+      this.raised.pop();
+    }
   }
 
   /** The new state: unchanged slices are shared, and everything new is checked as JSON and frozen. */
@@ -172,9 +195,36 @@ export class Transaction {
   }
 
   private emit(type: string, data: Readonly<Record<string, unknown>> = {}): void {
+    const event = this.registry.events.get(type);
+    // Rows match on an event's arguments, so a wrong one is a bug in the module that raised it.
+    const problem = event && eventDataProblem(event.info, data, this.sim.content);
+    if (problem) throw new Error(`Event "${type}": ${problem}`);
     const beat = { ...data, type };
     freezeJson(beat, `(beat ${type})`);
     this.beats.push(beat);
+    if (event) this.current().push(beat);
+  }
+
+  private current(): Beat[] {
+    const raised = this.raised[this.raised.length - 1];
+    if (!raised) throw new Error('An event was raised outside an action');
+    return raised;
+  }
+
+  private deliver(event: Beat): void {
+    const listeners = this.registry.listeners.get(event.type) ?? [];
+    if (listeners.length === 0) return;
+    if (this.hearing >= MAX_EVENT_DEPTH) {
+      throw new Error(
+        `Events raised ${MAX_EVENT_DEPTH} deep, at "${event.type}": is a listener raising what it hears?`,
+      );
+    }
+    this.hearing++;
+    try {
+      for (const listener of listeners) this.scope(() => listener.run(this.context(listener.module), event));
+    } finally {
+      this.hearing--;
+    }
   }
 
   private modeControl(): ModeControl {

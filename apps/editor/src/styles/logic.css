@@ -1,0 +1,84 @@
+/* M3.1's Logic panel: each sheet with its rows as cards in the order they run, then the flags.
+   Every card is a button at least 44 px tall that opens the record in the inspector. */
+
+.panel[data-panel="logic"] {
+  max-width: none;
+}
+
+.logic-browser {
+  display: grid;
+  gap: 18px;
+}
+
+.logic-section {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.logic-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.logic-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.logic-list {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logic-sheet {
+  display: grid;
+  gap: 6px;
+}
+
+.logic-rows {
+  padding-inline-start: 14px;
+  border-inline-start: 2px solid var(--line);
+}
+
+.logic-card {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--tap);
+  margin: 0;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--text);
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.logic-card:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.logic-title,
+.logic-row-id {
+  font-weight: 600;
+}
+
+.logic-problem {
+  color: var(--danger);
+}
+
+.logic-warning {
+  color: var(--warning);
+}

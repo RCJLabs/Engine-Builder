@@ -25,6 +25,12 @@ export const DIAGNOSTIC_CODES = {
   E019: 'A file under assets/ has no provenance in assets/assets.json',
   E020: "An asset's licence isn't one the engine accepts, or what it asks for isn't logged",
   E021: "assets/assets.json doesn't match the provenance log's format",
+  E022: 'A row names an event the game does not have',
+  E023: "A row's event arguments are unknown, or not among the argument's values",
+  E024: 'Two rows of a sheet have the same id',
+  E025: 'An effect the game does not have',
+  E026: 'A flag is set or read as the other kind, or set outside its bounds',
+  E027: "A flag's start lies outside its bounds, or its lowest is above its highest",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -32,6 +38,9 @@ export const DIAGNOSTIC_CODES = {
   W105: 'A file under types/ that the compiler ignores',
   W106: 'assets/assets.json logs a file that is not in assets/',
   W107: 'A stand-in made by the editor is still in assets/',
+  W108: 'A flag is set, but nothing reads it',
+  W109: 'A flag is read, but nothing sets it',
+  W110: 'Nothing sets or reads a flag',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

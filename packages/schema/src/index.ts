@@ -16,7 +16,7 @@ export {
   assetKindOf,
   isAssetOf,
 } from './assets.ts';
-export { CONDITION_KEY, condition, isConditionSchema, rollEffect } from './condition.ts';
+export { CONDITION_KEY, condition, isConditionSchema, valueSchema } from './condition.ts';
 export {
   compareDiagnostics,
   compareText,
@@ -26,8 +26,31 @@ export {
   type Severity,
   severityOf,
 } from './diagnostics.ts';
+export {
+  addToFlagEffect,
+  EFFECT_KEY,
+  type EffectCatalog,
+  ENGINE_EFFECTS,
+  effect,
+  effectCatalog,
+  effectMark,
+  isEffectShape,
+  rollEffect,
+  setFlagEffect,
+} from './effect.ts';
+export {
+  ENGINE_TYPES,
+  FLAG_TYPE,
+  FLAG_TYPE_FILE,
+  isEngineType,
+  SHEET_DATA,
+  SHEET_TYPE,
+  SHEET_TYPE_FILE,
+  withEngineTypes,
+} from './engineTypes.ts';
 export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema, typeFileJsonSchema } from './jsonSchema.ts';
+export { ENGINE_EVENTS, ENGINE_FACTS, type Known, type KnownOptions, knownFrom } from './known.ts';
 export { packValue } from './packValue.ts';
 export {
   checkProvenance,
@@ -73,4 +96,12 @@ export {
   type Validation,
   validateRecords,
 } from './validate.ts';
-export { collectRefs, type Found, type FoundAsset, type FoundCondition, type FoundRef, scanRecord } from './walk.ts';
+export {
+  collectRefs,
+  type Found,
+  type FoundAsset,
+  type FoundCondition,
+  type FoundEffect,
+  type FoundRef,
+  scanRecord,
+} from './walk.ts';

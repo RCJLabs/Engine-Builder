@@ -1,12 +1,4 @@
-import {
-  type Condition,
-  type Effect,
-  FACT_PATTERN,
-  isPrintableNumber,
-  NAME_PATTERN,
-  OPS,
-  type RollEffect,
-} from '@eb/core';
+import { type Condition, FACT_PATTERN, isPrintableNumber, NAME_PATTERN, OPS } from '@eb/core';
 import { z } from 'zod';
 
 /**
@@ -20,6 +12,8 @@ const value = z.union([
   z.boolean(),
   z.number().refine(isPrintableNumber, { error: 'A number without an exponent' }),
 ]);
+/** A value a condition compares a fact with or passes as an argument, as a row's When passes one too. */
+export const valueSchema = value;
 const args = z
   .record(z.string().regex(NAME_PATTERN), value)
   .refine((given) => Object.keys(given).length > 0, { error: 'Leave args out when there are none' });
@@ -64,25 +58,3 @@ export const condition = (): z.ZodType<Condition> => field as unknown as z.ZodTy
 /** Whether a schema is a condition field, through .describe() and .meta() copies too. */
 export const isConditionSchema = (schema: z.core.$ZodType): boolean =>
   z.globalRegistry.get(schema)?.[CONDITION_KEY] === true;
-
-/**
- * The roll effect's schema, for a game's union of effects: whole-percent chances that add up to
- * 100, each with the effects it applies (`effect` is that union, for rolls inside rolls).
- */
-export function rollEffect(effect: z.ZodType<Effect>) {
-  const outcome = z.strictObject({
-    chance: z.int().min(1).max(100),
-    text: z.string().min(1).optional(),
-    effects: z.array(effect),
-  });
-  // A concrete object schema, so it can join a discriminated union on "effect".
-  return z.strictObject({
-    effect: z.literal('roll'),
-    outcomes: z
-      .array(outcome)
-      .min(1)
-      .refine((outcomes) => outcomes.reduce((sum, o) => sum + o.chance, 0) === 100, {
-        error: "A roll's chances add up to 100",
-      }),
-  }) satisfies z.ZodType<RollEffect>;
-}

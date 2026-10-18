@@ -57,3 +57,9 @@ export function view(schema: z.core.$ZodType): SchemaView {
         : { kind: 'unsupported', type: def.type, why: WHY[def.type] ?? 'it is not JSON data' };
   }
 }
+
+/** A literal schema's values, or undefined for any other kind: how an effect schema says its name. */
+export function literalValues(schema: z.core.$ZodType): readonly unknown[] | undefined {
+  const def = (schema as z.core.$ZodTypes)._zod.def;
+  return def.type === 'literal' ? def.values : undefined;
+}

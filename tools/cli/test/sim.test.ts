@@ -86,19 +86,24 @@ describe('eb sim', () => {
     );
   });
 
-  it("fails content with errors before playing it, conditions checked against the game's facts", () => {
+  it("fails content with errors before playing it, checked against the game's facts and events", () => {
     const dir = scratch();
     cpSync(PROJECT, dir, { recursive: true });
     writeFileSync(join(dir, 'records/item/medkit.json'), '{ "value": -1 }');
     const quiet =
       '{ "choices": { "rest": { "when": { "fact": "hold.gold", "op": ">=", "value": 1 }, "effects": [] } } }';
     writeFileSync(join(dir, 'records/event/quiet-sector.json'), quiet);
+    writeFileSync(
+      join(dir, 'records/sheet/typo.json'),
+      '{ "rows": [{ "id": "r", "when": { "event": "voyage/docked" }, "do": [] }] }',
+    );
     const run = eb(['sim', dir, '--game', GAME]);
     expect(run.code).toBe(1);
     expect(run.out).toContain('records/item/medkit.json#/value: error E001');
     expect(run.out).toContain(
       'records/event/quiet-sector.json#/choices/rest/when/fact: error E012: No fact "hold.gold"',
     );
+    expect(run.out).toContain('records/sheet/typo.json#/rows/0/when/event: error E022: No event "voyage/docked"');
     // eb validate takes the facts from a game module's modules when it has no facts export.
     expect(eb(['validate', dir, '--types', GAME]).out).toContain('error E012');
   });

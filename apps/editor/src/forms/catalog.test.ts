@@ -1,6 +1,7 @@
 import { memorySource } from '@eb/compiler';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
+import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
 import { readCatalog } from './catalog.ts';
 import { checkRecord, fieldPointers, routeProblems } from './problems.ts';
 
@@ -16,7 +17,8 @@ const ludus = (changes: Record<string, string | null> = {}) => {
 describe('readCatalog', () => {
   it('lists the types, their records and the assets, sorted', async () => {
     const catalog = await readCatalog(ludus());
-    expect([...catalog.types.keys()]).toEqual(['gladiator', 'school', 'weapon']);
+    // The engine's flag and sheet come first, with forms of their own (D36).
+    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school', 'weapon']);
     expect(catalog.names).toEqual(['gladiator', 'school', 'weapon']);
     expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
     expect(catalog.assets).toEqual(['portraits/spiculus.svg']);
@@ -50,7 +52,7 @@ describe('readCatalog', () => {
         'records/horse/bucephalus.json': '{}',
       }),
     );
-    expect([...catalog.types.keys()]).toEqual(['gladiator', 'school']);
+    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school']);
     // Its first problem in the file's own order: the title comes before the fields.
     expect(catalog.broken.get('weapon')).toMatchObject({ code: 'E015', file: 'types/weapon.json', path: '/title' });
     expect(catalog.names).toEqual(['gladiator', 'horse', 'school', 'weapon']);
@@ -88,6 +90,31 @@ describe('checkRecord', () => {
       'E001 /kit/net',
       'E018 /portrait',
       'E005 /school',
+    ]);
+  });
+});
+
+describe('checkRecord with flags (M3.1)', () => {
+  it('reads the flags and the records that name them from the index, as the lint and set-flag need them', async () => {
+    const sheet = {
+      rows: [
+        {
+          id: 'a',
+          when: { event: 'flag/changed' },
+          if: 'flag.on(met)',
+          do: [{ effect: 'set-flag', flag: 'met', to: 3 }],
+        },
+      ],
+    };
+    const source = ludus({ 'records/flag/met.json': '{}', 'records/sheet/s.json': JSON.stringify(sheet) });
+    const catalog = await readCatalog(source);
+    const index = await updateIndex(EMPTY_INDEX, source, catalog, null);
+    // The flag's own form: set and read by the sheet, so no lint; without the index it would be W110.
+    expect(checkRecord(catalog, 'flag', 'met', {}, index)).toEqual([]);
+    expect(checkRecord(catalog, 'flag', 'met', {}).map((d) => d.code)).toEqual(['W110']);
+    // The sheet's form: its set-flag reads the flag's kind.
+    expect(checkRecord(catalog, 'sheet', 's', sheet, index).map((d) => `${d.code} ${d.path}`)).toEqual([
+      'E026 /rows/0/do/0/to',
     ]);
   });
 });

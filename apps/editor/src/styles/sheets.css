@@ -1,0 +1,69 @@
+/* M3.1's sheet editor in the inspector: rows of When, If, Do and Once, each effect a block that
+   can be moved and taken out. Controls are at least 44 px each way, as everywhere. */
+
+.logic-rows-form {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logic-rows-form > h4 {
+  margin: 0;
+}
+
+.logic-effect-list {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logic-effect-body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.logic-effect-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.logic-effect-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* An effect inside a roll's outcome is narrow in the tablet's inspector, and in a wide font
+   Up, Down and Remove in one row ran past the screen at 740 px (CI's DejaVu Sans, M3.1). */
+.logic-effect-head .form-item-tools {
+  flex-wrap: wrap;
+}
+
+.logic-roll {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.logic-roll > .form-help {
+  margin: 0;
+}
+
+.logic-add-effect .form-select {
+  flex: 1 1 10rem;
+  width: auto;
+}
+
+.logic-json {
+  font-size: 0.9rem;
+}

@@ -1,6 +1,7 @@
 import { type CalendarDef, calendarOf, type Effect, NAME_PATTERN } from '@eb/core';
 import { z } from 'zod';
 import { condition } from './condition.ts';
+import { named } from './effect.ts';
 
 /**
  * Schemas for the time module's effects, for a game's union of effects (docs/specs/time.md).
@@ -21,22 +22,26 @@ const atLeastATick = (duration: Readonly<Record<string, number | undefined>>) =>
 
 /** `{ "effect": "wait", "hours": 8 }` */
 export const waitEffect = (calendar: CalendarDef) =>
-  z.strictObject({ effect: z.literal('wait'), ...durationShape(calendar) });
+  named('wait', z.strictObject({ effect: z.literal('wait'), ...durationShape(calendar) }));
 
 /** `{ "effect": "schedule", "after": { "days": 3 }, "every"?: …, "timer"?: "debt", "when"?: condition, "effects": [...] }` */
 export function scheduleEffect(effect: z.ZodType<Effect>, calendar: CalendarDef) {
   const duration = z
     .strictObject(durationShape(calendar))
     .refine(atLeastATick, { error: 'A length of at least one tick' });
-  return z.strictObject({
-    effect: z.literal('schedule'),
-    after: duration,
-    every: duration.optional(),
-    timer: timerName.optional(),
-    when: condition().optional(),
-    effects: z.array(effect),
-  });
+  return named(
+    'schedule',
+    z.strictObject({
+      effect: z.literal('schedule'),
+      after: duration,
+      every: duration.optional(),
+      timer: timerName.optional(),
+      when: condition().optional(),
+      effects: z.array(effect),
+    }),
+  );
 }
 
 /** `{ "effect": "cancel-timer", "timer": "debt" }` */
-export const cancelTimerEffect = () => z.strictObject({ effect: z.literal('cancel-timer'), timer: timerName });
+export const cancelTimerEffect = () =>
+  named('cancel-timer', z.strictObject({ effect: z.literal('cancel-timer'), timer: timerName }));

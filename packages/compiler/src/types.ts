@@ -9,8 +9,12 @@ import {
   type DataType,
   type DiagnosticCode,
   defineRecordType,
+  ENGINE_TYPES,
+  FLAG_TYPE,
+  isEngineType,
   type RecordType,
   readTypeFile,
+  SHEET_DATA,
   type TypeFile,
   typeFromFile,
   typeRefs,
@@ -28,11 +32,11 @@ export interface TypeReport {
 }
 
 export interface ProjectTypes {
-  /** The code types, the data types, and a stand-in for each type file that has problems. */
+  /** The engine's types, the code types, the data types, and a stand-in for each type file that has problems. */
   readonly types: readonly RecordType[];
   /** The types whose files have problems: their records aren't checked. */
   readonly unchecked: ReadonlySet<string>;
-  /** The data types that are sound, by name, for forms. */
+  /** The data types that are sound, by name, for forms: the engine's flag and sheet (D36) among them. */
   readonly data: ReadonlyMap<string, DataType>;
 }
 
@@ -43,7 +47,7 @@ export async function readTypes(
   code: readonly RecordType[],
   report: (r: TypeReport) => void,
 ): Promise<ProjectTypes> {
-  const taken = new Set(code.map((t) => t.type));
+  const taken = new Set([...ENGINE_TYPES, ...code].map((t) => t.type));
   const files = new Map<string, TypeFile | null>();
   for (const path of [...(await source.files(TYPES_DIR))].sort()) {
     const found = await readOne(source, path, taken, report);
@@ -51,7 +55,10 @@ export async function readTypes(
   }
   // Every type there is, sound or not, so a ref to a type whose file has problems isn't one more.
   const known = new Set([...taken, ...files.keys()]);
-  const data = new Map<string, DataType>();
+  const data = new Map<string, DataType>([
+    [FLAG_TYPE.type, FLAG_TYPE],
+    [SHEET_DATA.type, SHEET_DATA],
+  ]);
   for (const [type, file] of files) {
     if (file === null) continue;
     const unknown = typeRefs(file).filter((r) => !known.has(r.type));
@@ -63,7 +70,8 @@ export async function readTypes(
   }
   const unchecked = new Set([...files.keys()].filter((type) => !data.has(type)));
   const standIns = [...unchecked].map((type) => standIn(type));
-  return { types: [...code, ...[...data.values()].map((d) => d.recordType), ...standIns], unchecked, data };
+  const own = [...data.values()].filter((d) => !isEngineType(d.type)).map((d) => d.recordType);
+  return { types: [...ENGINE_TYPES, ...code, ...own, ...standIns], unchecked, data };
 }
 
 /** One file under types/: its type and field model, null for a type whose file has problems, or nothing. */
@@ -85,6 +93,11 @@ async function readOne(
   const { type } = role;
   if (!isRecordId(type)) {
     const message = `"${type}" is not a valid type name: use lowercase words joined by hyphens, at most 64 characters`;
+    report({ code: 'E017', message, file: path, path: '' });
+    return undefined;
+  }
+  if (isEngineType(type)) {
+    const message = `"${type}" is one of the engine's own types (D36), so this file is ignored: name yours otherwise`;
     report({ code: 'E017', message, file: path, path: '' });
     return undefined;
   }

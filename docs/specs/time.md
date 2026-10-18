@@ -85,6 +85,8 @@ A test walks every tick of four years of a small calendar with a counter that ca
 
 **Beats:** `time/passed { from, to }` once per advance; `time/fired { timer, at }` before a timer's own beats; `time/refused { timer, at, reason }`; `time/skipped { timer, at }`; `time/scheduled { timer, due }`; `time/cancelled { timer }`; `time/capped { ms, counted }`.
 
+**Events** (M3.1, [triggers.md](triggers.md)): `time/passed` and `time/fired` are declared, so trigger rows can react to them. `time/fired` is raised inside the timer's attempt, so a row hears it at the timer's tick, not at the end of the wait that reached it, and never for a firing that refused.
+
 **Modes.** Each mode lists the actions it allows, `time/advance` and `time/elapse` included. A game whose time runs while a menu is open lists `time/elapse` in that menu's mode too; otherwise the stage's elapse is refused there.
 
 ## Timers

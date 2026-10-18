@@ -1,5 +1,12 @@
 import { canonicalJson, createRecordStore, readPack } from '@eb/core';
-import { DIAGNOSTIC_CODES, type Diagnostic } from '@eb/schema';
+import {
+  addToFlagEffect,
+  DIAGNOSTIC_CODES,
+  type Diagnostic,
+  ENGINE_EVENTS,
+  ENGINE_FACTS,
+  setFlagEffect,
+} from '@eb/schema';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { eventTypes, facts } from '../../schema/test/events.ts';
@@ -255,8 +262,41 @@ describe('the code table', () => {
         }),
       }),
     );
+    // Sheets and flags (M3.1), with a game's catalogue, so an event or effect it lacks is an error:
+    // a flag whose bounds cross, one set but never read, one read but never set, one never named;
+    // an unknown event, an argument the event lacks, two rows with one id, an unknown effect, and
+    // an on/off flag set to a number.
+    const sheets = await compileProject(
+      memorySource(
+        changed({
+          'records/flag/met.json': '{}',
+          'records/flag/raids.json': '{ "number": { "min": 5, "max": 1 } }',
+          'records/flag/set-only.json': '{}',
+          'records/flag/read-only.json': '{}',
+          'records/sheet/trader.json': JSON.stringify({
+            rows: [
+              { id: 'a', when: { event: 'nobody/heard' }, do: [] },
+              {
+                id: 'a',
+                when: { event: 'flag/changed', args: { flag: 'met', loud: true } },
+                do: [
+                  { effect: 'nothing' },
+                  { effect: 'set-flag', flag: 'met', to: 3 },
+                  { effect: 'set-flag', flag: 'set-only', to: true },
+                ],
+              },
+              { id: 'b', when: { event: 'flag/changed' }, if: 'flag.on(read-only)', do: [] },
+            ],
+          }),
+        }),
+      ),
+      eventTypes,
+      { facts: { ...facts, ...ENGINE_FACTS }, events: ENGINE_EVENTS, effects: [setFlagEffect(), addToFlagEffect()] },
+    );
     const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions, types, assets].flatMap((r) => r.diagnostics.map((d) => d.code)),
+      [broken, duplicate, newer, invalid, conditions, types, assets, sheets].flatMap((r) =>
+        r.diagnostics.map((d) => d.code),
+      ),
     );
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());

@@ -1,3 +1,4 @@
+import { isEngineType } from '@eb/schema';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
@@ -26,9 +27,11 @@ export function NewType({ project }: { project: OpenProject }) {
       ? null
       : type === ''
         ? 'Use letters or digits'
-        : taken
-          ? `There is a type ${type} already`
-          : null;
+        : isEngineType(type)
+          ? `${type} is one of the engine’s own types`
+          : taken
+            ? `There is a type ${type} already`
+            : null;
   const said =
     type === ''
       ? 'Lowercase words joined by hyphens make its name.'

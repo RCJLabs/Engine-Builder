@@ -1,11 +1,21 @@
 /**
- * Loading the JS or TS modules that tell `eb` about a game: `--types` for record types and facts,
- * `--game` for everything `eb sim` needs to play it.
+ * Loading the JS or TS modules that tell `eb` about a game: `--types` for record types and the
+ * facts, events and effects content is checked against, `--game` for everything `eb sim` needs
+ * to play it.
  */
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { type FactCatalog, factCatalog, isRecordId, type MetricSpec, type Module, type Policy } from '@eb/core';
-import type { RecordType } from '@eb/schema';
+import {
+  type EventCatalog,
+  eventCatalog,
+  type FactCatalog,
+  factCatalog,
+  isRecordId,
+  type MetricSpec,
+  type Module,
+  type Policy,
+} from '@eb/core';
+import { effectCatalog, type RecordType, type z } from '@eb/schema';
 
 export class UsageError extends Error {}
 
@@ -16,6 +26,16 @@ export interface GameModule {
   readonly start: string;
   readonly policies: readonly Policy[];
   readonly metrics: readonly MetricSpec[];
+  /** The schemas of every effect the game has (M3.1), when it says: content may then name no other. */
+  readonly effects?: readonly z.core.$ZodType[];
+}
+
+/** What `--types` gives: the record types, and the catalogues a game's content is checked against. */
+export interface TypesModule {
+  readonly types: readonly RecordType[];
+  readonly facts?: FactCatalog;
+  readonly events?: EventCatalog;
+  readonly effects?: readonly z.core.$ZodType[];
 }
 
 async function importModule(path: string, flag: string): Promise<Record<string, unknown>> {
@@ -41,23 +61,51 @@ const isMetric = (value: unknown): value is MetricSpec =>
   (typeof value === 'object' && value !== null && typeof (value as { fact?: unknown }).fact === 'string');
 
 /**
- * `--types`: a module whose recordTypes export lists the record types, and whose facts export is
- * the fact catalog conditions are checked against, or whose modules export gives one.
+ * `--types`: a module whose recordTypes export lists the record types; whose facts and events
+ * exports are the catalogues conditions and rows are checked against, or whose modules export
+ * gives them; and whose effects export, if any, lists every effect's schema (M3.1).
  */
-export async function loadTypes(path: string): Promise<{ types: readonly RecordType[]; facts?: FactCatalog }> {
+export async function loadTypes(path: string): Promise<TypesModule> {
   const loaded = await importModule(path, '--types');
   const types = loaded.recordTypes;
   if (!Array.isArray(types) || !types.every(isRecordType)) {
     throw new UsageError(`${path} must export recordTypes: a list of record types made by defineRecordType`);
   }
-  const { facts, modules } = loaded;
-  if (facts === undefined) {
-    return Array.isArray(modules) && modules.every(isModule) ? { types, facts: factCatalog(modules) } : { types };
+  const { facts, events, modules } = loaded;
+  const fromModules = Array.isArray(modules) && modules.every(isModule) ? (modules as Module[]) : undefined;
+  const catalog = (value: unknown, name: string, made: string) => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      throw new UsageError(`${path} exports ${name}, which must be ${made} from @eb/core`);
+    }
+    return value;
+  };
+  const effects = effectsOf(loaded.effects, path);
+  return {
+    types,
+    ...(facts !== undefined
+      ? { facts: catalog(facts, 'facts', 'a fact catalog: factCatalog(modules)') as FactCatalog }
+      : fromModules
+        ? { facts: factCatalog(fromModules) }
+        : {}),
+    ...(events !== undefined
+      ? { events: catalog(events, 'events', 'an event catalog: eventCatalog(modules)') as EventCatalog }
+      : fromModules
+        ? { events: eventCatalog(fromModules) }
+        : {}),
+    ...(effects ? { effects } : {}),
+  };
+}
+
+/** An effects export: each effect's schema, checked as validation will read them. */
+function effectsOf(effects: unknown, path: string): readonly z.core.$ZodType[] | undefined {
+  if (effects === undefined) return undefined;
+  if (!Array.isArray(effects)) throw new UsageError(`${path} exports effects, which must be a list of effect schemas`);
+  try {
+    effectCatalog(effects, true);
+  } catch (error) {
+    throw new UsageError(`${path} exports effects: ${(error as Error).message}`);
   }
-  if (typeof facts !== 'object' || facts === null || Array.isArray(facts)) {
-    throw new UsageError(`${path} exports facts, which must be a fact catalog: factCatalog(modules) from @eb/core`);
-  }
-  return { types, facts: facts as FactCatalog };
+  return effects;
 }
 
 /** `--game`: recordTypes, modules and start, and policies and metrics if it has them. */
@@ -67,6 +115,7 @@ export async function loadGame(path: string): Promise<GameModule> {
     throw new UsageError(`${path} must export ${what}`);
   };
   const { recordTypes, modules, start, policies = [], metrics = [] } = loaded;
+  const effects = effectsOf(loaded.effects, path);
   if (!Array.isArray(recordTypes) || !recordTypes.every(isRecordType))
     fail('recordTypes: record types made by defineRecordType');
   if (!Array.isArray(modules) || modules.length === 0 || !modules.every(isModule))
@@ -75,5 +124,5 @@ export async function loadGame(path: string): Promise<GameModule> {
   if (!Array.isArray(policies) || !policies.every(isPolicy))
     fail('policies, if any: policies such as weightedPolicy(...)');
   if (!Array.isArray(metrics) || !metrics.every(isMetric)) fail('metrics, if any: fact ids, or { fact, args, label }');
-  return { recordTypes, modules, start, policies, metrics } as GameModule;
+  return { recordTypes, modules, start, policies, metrics, ...(effects ? { effects } : {}) } as GameModule;
 }

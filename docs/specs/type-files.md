@@ -114,6 +114,7 @@ The JSON Schema of the format itself is `typeFileJsonSchema()`, for editing type
    - a `.json` file in a folder below `types/` is E017, and any other file is W105, ignored;
    - a name that isn't a type name is E017;
    - a name the game's code already defines is E017, and the code's type stands;
+   - `flag` or `sheet`, the engine's own types (M3.1, D36), is E017, and the engine's type stands;
    - bytes that aren't UTF-8 JSON are E007;
    - a shape or rule problem is E015, at its pointer in the type file.
 2. **Refs between types.** Every `to` must name a type the project has: a code type, or any file in `types/`, sound or not. A ref to a type with problems is not one more problem. Otherwise E016, at the `to`.

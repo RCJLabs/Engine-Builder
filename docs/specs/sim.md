@@ -34,7 +34,7 @@ It follows the patterns that survived in three of the existing games:
 
 ## Modules
 
-`defineModule({ id, init, actions, facts, effects, modes, version, migrate })`:
+`defineModule({ id, init, actions, facts, effects, modes, events, on, version, migrate })`:
 
 - **Names.** The `id` is kebab-case, unique, and not `kernel`. Every other name is kebab-case too.
 - **`init(ctx)`** returns the module's first slice. Its `ctx` has `content` and `rng(name)`. Modules start in the order the game lists them.
@@ -46,11 +46,13 @@ It follows the patterns that survived in three of the existing games:
   | facts | `"id.name"` | the module |
   | effects | the bare name, because content names them (`{ "effect": "loot" }`) | the game |
   | modes | the bare id | the game |
+  | events | `"id/name"` | the module |
 
 - **Who changes what.** A module changes only its own slice. It reads other modules through their facts and changes them through their effects, so kits combine without knowing each other's insides.
 - **Actions** are a handler `(ctx, action) => void`, or `{ run, options? }`, whose options a bot or a menu can offer ([Options](#options)).
 - **Facts** are a function `(view, args) => value`, or `{ read, args?, domain?, label?, describe? }` for conditions to check, lint and word ([conditions.md](conditions.md)). A fact with a domain must answer one of its values, or `undefined`/`null` for none; the kernel throws on any other answer, wherever the fact is read.
 - **Effects** are a function `(ctx, effect) => void`, or `{ run, preview? }`. A preview says what the effect would do now, without doing it.
+- **Events** are the beats content may react to, each with its arguments, and **listeners** (`on`) are what a module does when one is raised: by event id, or `"*"` for every event it has no entry for (M3.1, [triggers.md](triggers.md)).
 - **Versions.** `version` (default 1) is the shape of the slice, recorded in `kernel.versions`. `migrate` turns an older slice into the current one, so old saves keep loading ([saves.md](saves.md#module-versions-and-migrations)).
 
 `createGame({ modules, start })` checks every name. It throws on:
@@ -60,7 +62,8 @@ It follows the patterns that survived in three of the existing games:
 - a fact id a condition can't write (a module id that starts with a digit);
 - a fact argument or domain that is malformed ([conditions.md](conditions.md));
 - a module version below 1, or a gap in its migrations ([saves.md](saves.md));
-- an action spec without a `run` function, or with `options` that isn't a function.
+- an action spec without a `run` function, or with `options` that isn't a function;
+- an event declared with a malformed argument or label, or a listener for an event no module declares ([triggers.md](triggers.md)).
 
 ## Modes
 
@@ -100,7 +103,7 @@ It returns `{ state, beats, accepted }`, in these steps:
 1. **Check the state.** A state that isn't frozen is checked as JSON and frozen.
 2. **Check the action.** It must be an object with a string `type`, and JSON, because it goes into the replay log. Otherwise, or if no module registers the type, `reduce` throws an `ActionError`. That is a bug, not a refusal.
 3. **Check the mode.** If the current mode doesn't allow the action, it is refused with `reason: "mode"` and `mode: <id>`.
-4. **Run the handler** with its module's context, in a transaction.
+4. **Run the handler** with its module's context, in a transaction. Once it returns, the events it raised are heard by the modules listening, each in a piece of work of its own ([triggers.md](triggers.md#listeners)); an attempt's events are heard as it finishes.
 5. **A refusal.** If the handler, or any effect it applied, calls `ctx.refuse(reason, data?)`, the transaction is dropped. `reduce` returns the same state, `accepted: false` and exactly one beat, `{ "type": "rejected", "action", "reason", ...data }`. Nothing the action did is kept, including its beats and its draws.
 6. **Any other exception** propagates, and the state passed in is untouched.
 7. **Commit.**
@@ -121,7 +124,7 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 | `apply(effect)` | Runs the effect's owner, with the owner's own context. Effects may apply effects, up to 64 deep. |
 | `attempt(work)` | Runs `work`; if anything in it refuses, undoes all of it and returns the refusal instead of refusing the action (below). |
 | `rng(name)` | The module's stream `module/name` (below). |
-| `emit(what, data?)` | Adds the beat `module/what`. |
+| `emit(what, data?)` | Adds the beat `module/what`. When the module declares `what` as an event, the data must be its arguments, and listeners hear it ([triggers.md](triggers.md)). |
 | `refuse(reason, data?)` | Refuses the action (step 5). Write `return ctx.refuse(…)` so TypeScript knows the handler stops there. |
 | `modes` | The mode stack: `stack`, `current`, `push`, `pop`, `replace`. |
 | `step`, `content` | The number this action becomes if accepted, and the content pack. |
@@ -151,7 +154,7 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 - **Shape.** `{ "type": "module/what", ...data }`. The data is JSON, and it can't override `type`.
 - **The kernel's own beats** are `mode` and `rejected`. They have no `/`, so they can't clash with a module's beats.
 - **Content.** Beats carry ids and numbers, never prose: the stage writes the words, so rewording or translating never touches the sim. They are not saved.
-- **"Beat", not "event",** because events are also a kind of content record.
+- **Events** are the beats a module declares for content to react to, with typed arguments (M3.1). A beat that isn't declared is for the stage alone. "Beat" stays the general word, since choice events are also a kind of content record.
 
 ## Facts and effects outside reduce
 
@@ -160,7 +163,7 @@ None of these change the state or draw a random number.
 - `game.fact(state, id, args, sim)` reads a fact for the UI or a bot.
 - `game.check(state, condition, sim)` evaluates a condition the way `ctx.check` does, so a menu offers what the sim allows.
 - `game.preview(state, effects, sim)` previews each effect: its module's `preview`, or the effect as written ([conditions.md](conditions.md)).
-- `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against.
+- `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against. `game.events()` and `eventCatalog(modules)` do the same for events.
 - `game.allowedActions(state)` lists the action types the current mode allows, sorted, and `game.options(state, sim)` the concrete actions ([Options](#options)).
 
 ## Sessions
@@ -179,7 +182,7 @@ Replaying the log from `start` reaches `state`, so the three are a save ([saves.
 
 `packages/core/test/salvage.ts` is a test-only text game.
 
-- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls and the time module for days (M1.7, [time.md](time.md)).
+- **Modules.** `crew`, `hold` and `voyage`, which reach each other only through facts and effects, plus `logicModule` for rolls, the time module for days (M1.7, [time.md](time.md)), and since M3.1 the flag and sheet modules, with a trigger sheet that reacts to the voyage's events ([triggers.md](triggers.md)).
 - **Content.** Choice events in the content pack. Some choices are locked by a condition, and chancy ones apply a `roll` effect (M1.6, [conditions.md](conditions.md)).
 - **The bot** plays through `reduce` and the allowed actions, as a player would. It offers only choices whose condition holds, through `game.check`. landnam's bot skipped the mode checks and made 18,733 moves its UI would have refused.
 - **Content** is the project folder `packages/core/test/fixtures/salvage-run`, which `eb sim` plays too. Since M1.9 its actions list their options, for the headless runner's bots ([runner.md](runner.md)).

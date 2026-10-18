@@ -47,12 +47,8 @@ export const PANELS: Record<PanelId, PanelInfo> = {
   logic: {
     label: 'Logic',
     phase: 'Phase 3',
-    summary: 'Missions, dialogue and game logic, written without code or in TypeScript.',
-    coming: [
-      'Mission designer: steps, objectives, branches',
-      'Dialogue trees and ink scenes',
-      'Trigger sheets: When / If / Do, plus scripts',
-    ],
+    summary: 'Trigger sheets (When / If / Do) and the flags they set, written without code.',
+    coming: ['Scripts (M3.2)', 'Mission designer: steps, objectives, branches', 'Dialogue trees and ink scenes'],
   },
   problems: {
     label: 'Problems',

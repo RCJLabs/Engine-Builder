@@ -300,3 +300,37 @@ describe("the schemas in VS Code's JSON language service", () => {
     expect(offered?.sort()).toEqual(FIELD_KINDS.map((kind) => `"${kind}"`).sort());
   });
 });
+
+describe("the engine's flag and sheet (M3.1, D36)", () => {
+  const sheet = {
+    name: 'The arena',
+    rows: [
+      {
+        id: 'cheer',
+        when: { event: 'flag/changed', args: { flag: 'raids' } },
+        if: 'flag.on(met)',
+        do: [{ effect: 'roll', outcomes: [{ chance: 100, effects: [{ effect: 'crowd', loud: true }] }] }],
+        once: true,
+      },
+    ],
+  };
+  const dir = ludus({
+    'records/flag/raids.json': JSON.stringify({ number: { max: 5 } }),
+    'records/flag/met.json': '{}',
+    'records/sheet/arena.json': JSON.stringify(sheet),
+  });
+
+  it('get schemas once the project has their records, and none before', async () => {
+    expect(eb(['schemas', ludus()]).out).toBe(`${WROTE} and mapped them in ${SETTINGS}.\n`);
+    expect(eb(['schemas', dir]).out).toBe(
+      `Wrote the schemas of type files and of 5 record types (flag, gladiator, school, sheet, weapon) to ${SCHEMAS}/ and mapped them in ${SETTINGS}.\n`,
+    );
+    const code = vscode(dir);
+    expect(await code.problems('records/sheet/arena.json')).toEqual([]);
+    expect(await code.problems('records/flag/raids.json')).toEqual([]);
+    // A row's misspelled field, and an effect that doesn't name itself: VS Code marks a missing
+    // field at its object's opening brace.
+    const bad = { rows: [{ ...sheet.rows[0], onse: true, do: [{ flag: 'met' }] }] };
+    expect((await code.problems('records/sheet/bad.json', JSON.stringify(bad))).sort()).toEqual(['"onse"', '{'].sort());
+  });
+});

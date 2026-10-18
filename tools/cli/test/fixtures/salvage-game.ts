@@ -4,22 +4,37 @@
  * measuring. A game's own repo would hold a file like this one.
  */
 import { type Effect, weightedPolicy } from '@eb/core';
-import { condition, defineRecordType, ref, rollEffect, scheduleEffect, z } from '@eb/schema';
+import {
+  addToFlagEffect,
+  cancelTimerEffect,
+  condition,
+  defineRecordType,
+  effect,
+  ref,
+  rollEffect,
+  scheduleEffect,
+  setFlagEffect,
+  waitEffect,
+  z,
+} from '@eb/schema';
 import { salvageModules } from '../../../../packages/core/test/salvage.ts';
 
 const calendar = { ticksPerDay: 1 };
 
-const effect: z.ZodType<Effect> = z.lazy(() =>
-  z.discriminatedUnion('effect', [
-    rollEffect(effect),
-    scheduleEffect(effect, calendar),
-    z.strictObject({ effect: z.literal('loot'), table: ref('loot-table') }),
-    z.strictObject({ effect: z.literal('wound'), hp: z.int().min(1) }),
-    z.strictObject({ effect: z.literal('heal'), hp: z.int().min(1) }),
-    z.strictObject({ effect: z.literal('sell'), item: ref('item') }),
-    z.strictObject({ effect: z.literal('credits'), delta: z.int() }),
-  ]),
-);
+/** Every effect the game has (M3.1): content may name no other, and each is checked by its schema. */
+export const effects = [
+  rollEffect(effect()),
+  waitEffect(calendar),
+  scheduleEffect(effect(), calendar),
+  cancelTimerEffect(),
+  setFlagEffect(),
+  addToFlagEffect(),
+  z.strictObject({ effect: z.literal('loot'), table: ref('loot-table') }),
+  z.strictObject({ effect: z.literal('wound'), hp: z.int().min(1) }),
+  z.strictObject({ effect: z.literal('heal'), hp: z.int().min(1) }),
+  z.strictObject({ effect: z.literal('sell'), item: ref('item') }),
+  z.strictObject({ effect: z.literal('credits'), delta: z.int() }),
+];
 
 const item = defineRecordType<{ value: number }>({
   type: 'item',
@@ -46,7 +61,7 @@ const event = defineRecordType<{ choices: Record<string, { when?: unknown; effec
       z.string(),
       z.strictObject({
         when: condition().describe('Offered only while this holds').optional(),
-        effects: z.array(effect),
+        effects: z.array(effect()),
       }),
     ),
   }),

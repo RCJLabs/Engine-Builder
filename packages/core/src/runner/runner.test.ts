@@ -173,7 +173,16 @@ describe('sweep', () => {
   it('keeps for each run the hashes golden files need', () => {
     const run = playRun(game, sim, { seed: 'seed-7', policy: reckless });
     expect(runs[7]).toMatchObject({ seed: 'seed-7', hash: stateHash(run.state), turns: run.turns, end: 'ended' });
-    expect(Object.keys(runs[7]?.facets ?? {}).sort()).toEqual(['crew', 'hold', 'kernel', 'logic', 'time', 'voyage']);
+    expect(Object.keys(runs[7]?.facets ?? {}).sort()).toEqual([
+      'crew',
+      'flag',
+      'hold',
+      'kernel',
+      'logic',
+      'sheet',
+      'time',
+      'voyage',
+    ]);
   });
 
   it('gives the same report every time', () => {

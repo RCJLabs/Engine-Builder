@@ -1,3 +1,4 @@
+import { isEngineType } from '@eb/schema';
 import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
@@ -75,9 +76,12 @@ export function RecordsPanel() {
                 </option>
               ))}
             </select>
-            <button type="button" class="button" onClick={() => designType(type)}>
-              Edit type
-            </button>
+            {/* The engine's flag and sheet (D36) have no type file to edit. */}
+            {isEngineType(type) ? null : (
+              <button type="button" class="button" onClick={() => designType(type)}>
+                Edit type
+              </button>
+            )}
             {canEdit ? (
               <button type="button" class="button" onClick={startNewType}>
                 New type

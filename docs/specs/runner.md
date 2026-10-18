@@ -186,7 +186,7 @@ eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--prefix <text
 - 1: content errors, any refused offer, or runs that differ from the golden file.
 - 2: the command couldn't run.
 
-**In CI.** `tools/cli/test/fixtures/salvage-steady.golden.json` holds 50 runs of salvage run with the `steady` bot. `tools/cli/test/sim.test.ts` checks it in CI, so a change to the engine or to salvage run that moves a run fails until the file is updated on purpose.
+**In CI.** `tools/cli/test/fixtures/salvage-steady.golden.json` holds 50 runs of salvage run with the `steady` bot. `tools/cli/test/sim.test.ts` checks it in CI, so a change to the engine or to salvage run that moves a run fails until the file is updated on purpose. M3.1 did so once: salvage run gained flags and a trigger sheet, and the check named the slices each run moved in (flag, sheet, and the hold, crew and time where the rows changed them) before the file was written again.
 
 ## Proof
 

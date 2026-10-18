@@ -15,7 +15,7 @@ The editor and the CLI follow it, so the same files give the same diagnostics an
 ```
 my-game/
   project.json              id, name, version
-  records/<type>/<id>.json  one record per file
+  records/<type>/<id>.json  one record per file; records/flag/ and records/sheet/ are the engine's (M3.1)
   types/<type>.json         the project's own record types, as fields (M2.4)
   assets/                   files that asset fields name (M2.4; M2.7 imports them)
   assets/assets.json        every asset's provenance: licence, source, date (M2.7)
@@ -25,6 +25,7 @@ my-game/
 - **What gets read.** The compiler reads `project.json`, `records/`, `types/` and `assets/assets.json`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
 - **The provenance log** is specified in [editor-assets.md](editor-assets.md#the-provenance-log) (D34).
 - **Type files** are specified in [type-files.md](type-files.md).
+- **Flags and trigger sheets** are records of the engine's own types, `flag` and `sheet`, which every project has ([triggers.md](triggers.md), D36).
 - **Hidden entries are never read.** These are names that start with `.` (`.git`, `.DS_Store`, `.gitkeep`) and the `__MACOSX` folder that macOS adds to zips.
 
 ## project.json (format 1)
@@ -93,19 +94,19 @@ A project travels as a zip: the editor exports one, imports one, and the CLI rea
 
 ## Compiling
 
-`compileProject(source, types, options?)` returns `{ diagnostics, pack, usedBy, records, dataTypes }`. `types` are the game's code types, and the project's own `types/` join them:
+`compileProject(source, types, options?)` returns `{ diagnostics, pack, usedBy, records, dataTypes }`. `types` are the game's code types; the engine's `flag` and `sheet` and the project's own `types/` join them. `options` are the game's facts, events and effects, each optional ([triggers.md](triggers.md#checks)):
 
 1. **project.json**:
    - missing: E008;
    - not UTF-8 JSON: E007;
    - a newer format: E009;
    - otherwise each schema problem is E008, at its field.
-2. **Type files** in `types/` are read beside the code types: E007, E015 to E017 and W105 ([type-files.md](type-files.md#compiling)). A type whose file has problems still names its type; its records aren't checked until it is fixed.
+2. **Type files** in `types/` are read beside the code types: E007, E015 to E017 and W105 ([type-files.md](type-files.md#compiling)). A type whose file has problems still names its type; its records aren't checked until it is fixed. A type file named for one of the engine's types is E017.
 3. **`assets/`** is listed, for asset fields to name (E018), the log left out. Then the log is read and checked against the list (D34): E007 when it isn't JSON, otherwise E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)).
 4. **Record files** are sorted into records, misplaced files (E010) and ignored files (W101), then parsed (E007).
-5. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014 and E018, each with its record's file.
+5. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014, E018 and, since M3.1, E022–E027 and W108–W110, each with its record's file.
 6. **Diagnostics** are sorted in the order records.md gives.
-7. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees.
+7. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees, inside the effects the catalogue knows too.
 
 Steps 1 to 4, short of parsing the records, are `readProjectFiles(source, types)` (M2.8). The editor's catalog runs the same function, and its record index the records' checks, so the Problems panel lists what `eb validate` says ([editor-problems.md](editor-problems.md)).
 
@@ -123,7 +124,7 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 | E010 | error | a JSON file under `records/` is not at `records/<type>/<id>.json` | the file | empty |
 | W101 | warning | a file under `records/` that the compiler ignores | the file | empty |
 
-Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)).
+Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)). Trigger sheets, effects and flags add E022 to E027 and W108 to W110 ([triggers.md](triggers.md#codes)).
 
 ## Content packs (format 1)
 
@@ -164,6 +165,7 @@ pnpm eb schemas <folder> [--types <module>] [--json]
 - **`<project>`** is a project folder or a zip of one.
 - **`--types`** names a JS or TS module whose `recordTypes` export lists record types made by `defineRecordType`.
   - Since M2.4 a project's own `types/` needs no module: `eb validate` reads them as the editor does.
+  - Its `facts`, `events` and `effects` exports, or a `modules` export for the first two, are what conditions, rows and effect fields are checked against; without them, the engine's own, and any other name taken as written (M3.1, D36).
   - Until kits exist (M3), a module is how the CLI learns a game's code types.
   - When records are of types neither defines, the CLI says where types come from.
 - **Output.**

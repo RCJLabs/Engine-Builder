@@ -1,4 +1,5 @@
 import { type Condition, checkCondition, describeCondition, parseCondition, printCondition } from '@eb/core';
+import { ENGINE_FACTS } from '@eb/schema';
 import { useUniqueId } from '../../app/ids.ts';
 import { useDraft } from '../../editing/draft.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell, type Problem } from '../FieldShell.tsx';
@@ -6,10 +7,14 @@ import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
 
 const isTree = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value);
 
+// The facts validation reads conditions with when no game's are known (D36): the engine's own,
+// so "flag.on(met-trader)" parses, prints and reads as it does in eb validate.
+const facts = ENGINE_FACTS;
+
 /** A tree as text to edit: its canonical print when it is sound, else its JSON, to type over. */
 const asText = (value: unknown): string => {
   if (typeof value === 'string') return value;
-  if (isTree(value) && checkCondition(value).length === 0) return printCondition(value as Condition);
+  if (isTree(value) && checkCondition(value).length === 0) return printCondition(value as Condition, facts);
   return asWritten(value);
 };
 
@@ -24,7 +29,7 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
   const tree = isTree(value);
   const draft = useDraft(asText(value));
   const text = draft.shown;
-  const parsed = text.trim() === '' ? null : parseCondition(text);
+  const parsed = text.trim() === '' ? null : parseCondition(text, facts);
   // Text the file holds gets its parse error from validation (E011); a tree's draft can't be written yet.
   const local: Problem[] = tree && draft.draft !== null && parsed && !parsed.ok ? [{ message: parsed.message }] : [];
   const { shown, onFocus, onBlur } = useShownProblems([...local, ...form.problemsAt(pointerOf(path))]);
@@ -32,7 +37,7 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
     draft.setDraft(typed);
     if (typed.trim() === '' && info.optional) return form.set(path, undefined, label);
     if (!tree) return form.set(path, typed, label);
-    const read = parseCondition(typed);
+    const read = parseCondition(typed, facts);
     if (read.ok) form.set(path, read.condition, label);
   };
   return (
@@ -62,7 +67,7 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
       />
       {parsed?.ok ? (
         <p id={`${id}-words`} class="form-help">
-          Reads: {describeCondition(parsed.condition)}.
+          Reads: {describeCondition(parsed.condition, facts)}.
         </p>
       ) : null}
     </FieldShell>

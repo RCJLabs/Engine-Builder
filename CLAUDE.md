@@ -71,9 +71,12 @@ apps/editor/           the editor PWA
                        in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
                        and tables make); focusField.ts (opening a form at a field, M2.8)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
-                       file, used by), table.ts, cells.ts, filters.ts and view.ts (columns, cells, filters, sort as
-                       plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts,
-                       RenameRecord (M2.6)
+                       file, used by; flag-related records checked together, flagRelated.ts, M3.1), table.ts,
+                       cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
+                       (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
+  src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
+                       changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
+                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form
   src/assets/          the asset browser (M2.7): assetLog.ts (the provenance log's JSON), assetPaths.ts (names and
                        free paths), assetEdits.ts (steps over the working copy), assetList.ts (rows and the
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
@@ -90,24 +93,31 @@ apps/editor/           the editor PWA
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
                        is the save journal with big files)
-  e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow, 44 px
-                       targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
+  e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
+                       44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
-  src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions
+  src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions,
+                       events and listeners (events.ts, M3.1)
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION
   src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
   src/time/            calendars, timers and wall-clock settling: timeModule
-  test/                salvage.ts (the test-only text game); salvage-, sat-, time-, save- and sweep-bench.ts
+  src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
+                       the engine's own modules (logic, flag, sheet)
+  test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
+                       salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
   test/fixtures/       salvage-run/: salvage run's content as a project folder, which eb sim plays;
                        saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
-packages/schema/       record types (strict zod), condition(), asset(), rollEffect() and the time effects,
-                       validation with E/W codes, JSON Schema export; type files: typeFile.ts (the format) and
-                       typeSchema.ts (the zod it becomes); provenance.ts (the assets' log, its licences and
-                       checks, M2.7); packValue (text conditions to trees); not pure
+packages/schema/       record types (strict zod), condition(), asset(), validation with E/W codes, JSON Schema
+                       export; type files: typeFile.ts (the format) and typeSchema.ts (the zod it becomes);
+                       provenance.ts (the assets' log, its licences and checks, M2.7); packValue (text conditions to
+                       trees); M3.1: effect.ts (effect(), the engine's effect schemas, rollEffect), engineTypes.ts
+                       (flag and sheet), known.ts (the engine's catalogue, or a game's), checkValue.ts (a value and
+                       the effects inside it), sheetCheck.ts and flagCheck.ts (the sheets' and flags' checks and
+                       the lint); time.ts (the time effects); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject

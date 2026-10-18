@@ -2,6 +2,7 @@ import { pointerSegment } from '@eb/core';
 import { z } from 'zod';
 import { type AssetKind, assetKindOf } from './assets.ts';
 import { isConditionSchema } from './condition.ts';
+import { effectMark } from './effect.ts';
 import { type RefTarget, refTargetOf } from './refs.ts';
 import { view } from './zodView.ts';
 
@@ -28,20 +29,35 @@ export interface FoundAsset {
   readonly kind: AssetKind | true;
 }
 
+export interface FoundEffect {
+  /** JSON Pointer to the effect. */
+  readonly path: string;
+  /** As written, sound or not. */
+  readonly value: unknown;
+  /**
+   * True for an effect() field, which zod only checked names itself: the effect check looks its
+   * schema up. False for one of the engine's effect schemas inside a game's own union, which zod
+   * checked with the record, and whose fields the walk went on into.
+   */
+  readonly open: boolean;
+}
+
 export interface Found {
   readonly refs: FoundRef[];
   readonly conditions: FoundCondition[];
   readonly assets: FoundAsset[];
+  readonly effects: FoundEffect[];
 }
 
 /**
- * Every reference, condition and asset in `value`, found by walking the schema and the value
- * together. It reads values that fail the schema too, as far as their shape allows, so one bad
- * field does not hide the references around it. zod reports the failure itself. A condition's
- * own references are left to conditionRefs, which knows the facts' domains.
+ * Every reference, condition, asset and effect in `value`, found by walking the schema and the
+ * value together. It reads values that fail the schema too, as far as their shape allows, so one
+ * bad field does not hide the references around it. zod reports the failure itself. A condition's
+ * own references are left to conditionRefs, which knows the facts' domains, and an effect() field's
+ * contents to the effect check, which knows the effect's schema.
  */
 export function scanRecord(schema: z.core.$ZodType, value: unknown): Found {
-  const found: Found = { refs: [], conditions: [], assets: [] };
+  const found: Found = { refs: [], conditions: [], assets: [], effects: [] };
   walk(schema, value, '', found);
   return found;
 }
@@ -57,6 +73,9 @@ function walk(schema: z.core.$ZodType, value: unknown, path: string, found: Foun
     if (value !== undefined) found.conditions.push({ path, value });
     return;
   }
+  const mark = effectMark(schema);
+  if (mark !== undefined && value !== undefined) found.effects.push({ path, value, open: mark === true });
+  if (mark === true) return;
   const target = refTargetOf(schema);
   if (target !== undefined) {
     if (typeof value === 'string') found.refs.push({ path, value, target });

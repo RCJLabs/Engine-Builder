@@ -132,7 +132,11 @@ body {
   background: var(--bg);
 }
 
+/* Positioned, as every panel's scroll box is, so the words kept for screen readers
+   (.visually-hidden, absolutely placed) scroll with it: placed against the page instead, a long
+   form made the page itself scroll, taking the top bar off a phone's screen (M3.1). */
 .zone-body {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;

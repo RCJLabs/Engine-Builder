@@ -44,7 +44,9 @@
   outline-offset: -3px;
 }
 
+/* Positioned, as .zone-body is: see there. */
 .dock-panel {
+  position: relative;
   height: 100%;
   overflow: auto;
   padding: 16px;

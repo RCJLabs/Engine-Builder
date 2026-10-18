@@ -25,7 +25,7 @@ One condition language serves quests, dialogue, events, triggers and UI bindings
 - **Values** are text, `true`/`false`, or numbers that print without an exponent: finite, not `-0`, and `String(n)` matches `-?\d+(\.\d+)?`. So `1e21` and `1e-7` are out, and every number reads back exactly.
 - **One kind per node.** A node with two of `all`, `any`, `not` and `fact`, or an unknown key, is an error.
 
-`checkCondition(condition, { catalog?, records? })` returns every problem at a JSON Pointer inside the condition. It checks the shape first, and only a sound test goes on to the catalog:
+`checkCondition(condition, { catalog?, records?, open? })` returns every problem at a JSON Pointer inside the condition. It checks the shape first, and only a sound test goes on to the catalog. With `open`, the catalog is the engine's own facts and not every fact there is, so a fact it doesn't list is taken as written rather than E012 (M3.1, [triggers.md](triggers.md#checks)):
 
 | Code | When |
 | --- | --- |
@@ -206,7 +206,7 @@ facts: {
 `condition()` from `@eb/schema` is a field that holds a condition: `when: condition().optional()`.
 
 - **Text or tree** (D31, M2.4, Evan's call). A record file may hold the condition's text, `"when": "hold.count(medkit) >= 2"`, or its tree.
-  - Validation parses the text with the game's facts, so a fact's one argument may go unnamed. Text that doesn't parse is E011, with the parser's words and column. Its other problems (E012 to E014), its references in "used by" and the lint's warnings all point at the field, since text has no places inside it.
+  - Validation parses the text with the game's facts, or without `--types` the engine's own (M3.1), so a fact's one argument may go unnamed: `flag.on(met-trader)`. Text that doesn't parse is E011, with the parser's words and column. Its other problems (E012 to E014), its references in "used by" and the lint's warnings all point at the field, since text has no places inside it.
   - The compiler packs the tree (`packValue`), so the runtime, saves and replays only ever see trees. A project gives the same pack hash whichever form its conditions are written in.
   - The editor keeps the form a field holds and writes text for a new one ([editor-forms.md](editor-forms.md#fields)).
   - **The grammar is now part of the project format.** It can never change in a way that reads old text differently. Its round trip is property-tested (above).
@@ -266,7 +266,7 @@ The tests check that:
 ## Open questions
 
 1. **Text in JSON.** Settled in M2.4 (D31, Evan's call): a condition field takes the text form or the tree, and the pack holds the tree ([Conditions in records](#conditions-in-records)).
-2. **Flag lint.** rule-or-drool reports flags that are set but never read, or read but never set. That needs effects to say which facts they change, so it waits for kits (M3) or trigger sheets.
+2. **Flag lint.** Settled in M3.1 (D36, Evan's call): flags are declared records, and the lint reads set-flag and add-to-flag where content sets them, and conditions and rows' When where it reads them (W108 to W110, [triggers.md](triggers.md#checks)). What a game's own effects change, for a kit's facts, waits for the kits (M3.3).
 3. **Negated wording.** A fact's own `describe` is used for its tests, but `not` of a yes/no test always reads "not …". Facts may want a negative form ("has no medkits").
 4. **Witnesses.** The lint could show the values that make a condition true or false, for the editor to explain W102 and W103.
 5. **Arguments at runtime.** Content's arguments are checked when the pack is built; `ctx.fact('hold.count')` with no arguments from module code is not checked.

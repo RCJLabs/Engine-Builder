@@ -19,6 +19,8 @@ const options = { game: 'salvage-run', build: 'test' };
 const info = { game: 'salvage-run', edition: 'test', build: 'test', savedAt: 1 };
 
 const withModules = (modules: readonly Module[]) => createGame({ modules, start: 'travel' });
+// The modules the fixture was saved with: salvage run before it gained flags and sheets (M3.1).
+const savedWith = salvageModules.filter((m) => m.id !== 'flag' && m.id !== 'sheet');
 const swap = (id: string, module: Module) => salvageModules.map((m) => (m.id === id ? module : m));
 const hold = salvageModules.find((m) => m.id === 'hold') as Module;
 // The hold at version 2, migrated by `migrate`: a planted change of shape.
@@ -49,11 +51,30 @@ function playOn(state: GameState, seed: string, g = game, limit = 400) {
 }
 
 describe('the v1 fixture', () => {
-  it('loads to the state it was saved with, and plays on to an ending', () => {
-    const loaded = loadSave(game, FIXTURE, sim, options);
+  it('loads to the state it was saved with, in the game that saved it', () => {
+    const loaded = loadSave(withModules(savedWith), FIXTURE, sim, options);
     if (!loaded.ok) throw new Error(loaded.message);
     expect(stateHash(loaded.state)).toBe(FIXTURE_HASH);
     expect(loaded.report).toEqual({ migrated: [], added: [], kept: [], replayed: 0, skipped: 0, differs: false });
+  });
+
+  it('loads in today’s game, which starts the flags and sheets it lacks, and plays on to an ending', () => {
+    const loaded = loadSave(game, FIXTURE, sim, options);
+    if (!loaded.ok) throw new Error(loaded.message);
+    expect(loaded.report).toEqual({
+      migrated: [],
+      added: ['flag', 'sheet'],
+      kept: [],
+      replayed: 0,
+      skipped: 0,
+      // Not the state saved, since it gained two slices: what sends a copy to quarantine (saves.md).
+      differs: true,
+    });
+    const { kernel, ...slices } = FIXTURE.snapshot as GameState;
+    for (const [id, slice] of Object.entries(slices)) expect(loaded.state[id]).toEqual(slice);
+    expect(loaded.state.flag).toEqual({ values: {} });
+    expect(loaded.state.sheet).toEqual({ fired: [] });
+    expect(loaded.state.kernel).toEqual({ ...kernel, versions: { ...kernel.versions, flag: 1, sheet: 1 } });
     const ending = (playOn(loaded.state, 'fixture').state.voyage as { ending: string | null }).ending;
     expect(['home', 'lost']).toContain(ending);
   });
@@ -85,7 +106,7 @@ describe('the v1 fixture', () => {
   it('starts a module the save lacks, and keeps a slice no module owns', () => {
     const logBook = defineModule<{ entries: string[] }>({ id: 'log-book', init: () => ({ entries: [] }) });
     const loaded = loadSave(
-      withModules([...salvageModules.filter((m) => m.id !== 'logic'), logBook]),
+      withModules([...savedWith.filter((m) => m.id !== 'logic'), logBook]),
       FIXTURE,
       sim,
       options,

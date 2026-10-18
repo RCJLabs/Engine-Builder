@@ -21,8 +21,16 @@ describe('zones', () => {
     const every = ['assets', 'console', 'inspector', 'logic', 'play', 'problems', 'project', 'records', 'world'];
     expect(panelsOf('desktop').sort()).toEqual(every);
     expect(panelsOf('tablet').sort()).toEqual(every);
-    // D35: World, Logic and Play join a phone's bar when their phases build them.
-    expect(panelsOf('phone').sort()).toEqual(['assets', 'console', 'inspector', 'problems', 'project', 'records']);
+    // D35: World and Play join a phone's bar when their phases build them; Logic joined with M3.1 (D36).
+    expect(panelsOf('phone').sort()).toEqual([
+      'assets',
+      'console',
+      'inspector',
+      'logic',
+      'problems',
+      'project',
+      'records',
+    ]);
   });
 
   it('dock the desktop zones’ panels, then the console and problems along the bottom', () => {
@@ -48,7 +56,7 @@ describe('zones', () => {
 
   it('ignore a choice that belongs to another layout', () => {
     expect(activePanel('phone', 'only', { only: 'problems' })).toBe('problems');
-    expect(activePanel('phone', 'only', { only: 'logic' })).toBe('project');
+    expect(activePanel('phone', 'only', { only: 'world' })).toBe('project');
     expect(activePanel('tablet', 'main', { main: 'inspector' })).toBe('records');
   });
 
@@ -56,7 +64,8 @@ describe('zones', () => {
     expect(neighbourTab('phone', 'only', 'project', 1)).toBe('records');
     expect(neighbourTab('phone', 'only', 'project', -1)).toBe('console');
     expect(neighbourTab('phone', 'only', 'records', 1)).toBe('assets');
-    expect(neighbourTab('phone', 'only', 'assets', 1)).toBe('problems');
+    expect(neighbourTab('phone', 'only', 'assets', 1)).toBe('logic');
+    expect(neighbourTab('phone', 'only', 'logic', 1)).toBe('problems');
     expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('inspector');
   });
 });

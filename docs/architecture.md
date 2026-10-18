@@ -142,11 +142,12 @@ The exact rules are in [specs/conditions.md](specs/conditions.md) (M1.6).
 - **`describeCondition()`** turns a condition into readable text: "Needs 2 medkits and not night".
 - **`game.preview()`** returns what effects would do from the current state, and the exact odds a `roll` will use, from the same table the roll reads.
 - **A lint** asks whether each condition in content can be true, and can be false, over the facts' domains (who-am-i's search). It reports W102 to W104 when a project is built.
-- **Later:** flags that are set but never read, or read but never set (rule-or-drool's graph rules). This needs effects to declare what they change, so it waits for kits.
+- **Flags** (M3.1, D36) are what content remembers: declared records, on or off or a whole number with bounds. `set-flag` and `add-to-flag` change them, `flag.on` and `flag.number` read them, and a lint warns of flags set but never read, read but never set, or never named (rule-or-drool's graph rules), [specs/triggers.md](specs/triggers.md).
+- **Effect fields.** `effect()` marks a field that holds an effect, checked against the effects known: the engine's own, or a game's when `--types` gives them.
 
 ## Logic layers
 
-1. **Trigger sheets.** Rows of *When* (an event) / *If* (conditions) / *Do* (effects), attached to a project, a scene, an entity or a quest. They cover most mission and level logic with no code.
+1. **Trigger sheets** (M3.1, D36, [specs/triggers.md](specs/triggers.md)). Records of rows: *When* (an event, with argument values to match) / *If* (a condition) / *Do* (effects), run in the order written, each row as one attempt. Events are beats modules declare with typed arguments; listeners hear them when the work that raised them finishes, so a timer's consequences land at its tick. Sheets are records of their own today; a scene, an entity or a quest may carry rows later. They cover most mission and level logic with no code.
 2. **TypeScript script components**, with a typed `ctx` API.
    - *Sim scripts* register facts, effects, reducers and bot policies, and are linted with the same purity rules as `eb.pure` packages.
    - *Stage scripts* drive visuals and movement and are unrestricted.
@@ -290,7 +291,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 - **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
   - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), Assets (M2.7), World, Play and Inspector, with Console and Problems (M2.8) along the bottom. The Outliner joins with M5.1.
   - Tablet: two zones, and the console as a strip along the bottom.
-  - Phone: one panel at a time with a bottom tab bar (Project, Records, Assets, Problems, Console: D35), and the inspector as a bottom sheet.
+  - Phone: one panel at a time with a bottom tab bar (Project, Records, Assets, Logic, Problems, Console: D35, D36), and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.**
@@ -300,6 +301,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Types designed in the inspector: fields of every kind, nested ones included. Renaming a field, a choice, a type or a record rewrites every record and reference to match, as one step undo takes back (M2.6, D33, [specs/editor-types.md](specs/editor-types.md)).
   - Assets in their own panel, each with its provenance in `assets/assets.json`: imported with a licence from a fixed list, previewed, renamed or replaced with the records that name them, and stand-ins drawn until the art is ready. A file with no provenance stops the build (M2.7, D34, [specs/editor-assets.md](specs/editor-assets.md)).
   - A Problems panel listing what `eb validate` would say, from the same reading of the project's files, each problem a way to where it is fixed; a console that marks errors, with a toast for each on every layout; and `eb schemas`, so VS Code checks records edited by hand (M2.8, D35, [specs/editor-problems.md](specs/editor-problems.md)).
+  - A Logic panel listing each trigger sheet with its rows as cards and each flag with what the lint says, and a sheet editor in the inspector: When from the engine's events, If as a condition, Do as a list of effects with forms for the engine's own and JSON for a game's (M3.1, D36, [specs/editor-logic.md](specs/editor-logic.md)).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.
@@ -310,9 +312,9 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 ## Packages
 
 ```
-packages/core       pure: rng, hash, records runtime, conditions/effects, reducers, events, clock
+packages/core       pure: rng, hash, records runtime, conditions/effects, reducers, events, clock, flags and trigger sheets (M3.1)
 packages/kits       pure: stats/effects, inventory/loot, factions, economy, roster, quests, dialogue, events
-packages/schema     zod schemas for the project format and records; type files (M2.4); JSON Schema export
+packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
 packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later

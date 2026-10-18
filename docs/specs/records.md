@@ -64,6 +64,7 @@ A reference can sit anywhere in a record:
 - **Where types live.** The TypeScript type lives in pure code. The schema is annotated `z.ZodType<Item>`, so the two can't drift apart without a type error, and the sim never imports zod (as chooser-of-the-dead does).
 - **Which zod.** Kits import `z` from `@eb/schema`, so every schema comes from the zod that this package reads.
 - **Types written as data** (M2.4, D31). A project's `types/<type>.json` lists a type's fields by kind, and `typeFromFile` builds the same kind of strict schema from it, with refs, assets and conditions marked the same way. Validation can't tell the two apart. [type-files.md](type-files.md) is the format.
+- **The engine's own types** (M3.1, D36). `flag` and `sheet` join every project's types, with or without a game's code, and no project's `types/` or game's code may define a type of either name ([triggers.md](triggers.md#checks)). `validateRecords` adds them to the types it is given.
 
 Breaking any of these rules throws a `SchemaError` when the type is defined, naming where in the schema it happened:
 
@@ -100,7 +101,7 @@ Schema locations in errors read like `effects[].item`:
 
 ## Validation
 
-`validateRecords(types, records, options?)` takes record types and `{ type, id, file?, value }` inputs, and returns `{ diagnostics, usedBy }`. `options.facts` is the game's fact catalog, for condition fields (step 6).
+`validateRecords(types, records, options?)` takes record types and `{ type, id, file?, value }` inputs, and returns `{ diagnostics, usedBy }`. `options.facts` is the game's fact catalog, for condition fields (step 6); `options.events` and `options.effects` are its events and effects' schemas, for sheets and effect fields (step 8). Each left out, the engine's own are used, and any other name is taken as written (D36).
 
 It throws only on programmer errors: two types with one name, or a type whose references name a type that isn't given.
 
@@ -118,6 +119,7 @@ Each record is checked in this order:
    - Otherwise, a reference to a record that doesn't exist is E005. A record that has errors of its own still exists.
 6. **Conditions** (M1.6). A field declared with `condition()` gets `checkCondition`'s codes, E011 to E014, in place of zod's E001. Once it is sound, the records it names join `usedBy` and the lint adds W102 to W104 ([conditions.md](conditions.md#conditions-in-records)). Since M2.4 the field may hold the condition's text instead of its tree: text that doesn't parse is E011, with the parser's words and column.
 7. **Assets** (M2.4). A field declared with `asset()` names a file inside the project's `assets/` folder. When `options.assets` lists the files there, a path to none of them is E018. A path zod already refused (E001) isn't looked for.
+8. **Effects, sheets and flags** (M3.1). A field declared with `effect()` is checked against the effect's own schema, steps 4 to 8 again at places inside it, or is E025 when a game's catalogue lacks it. A sheet's rows are checked against the events (E022 to E024), and the flags against the records that set and read them (E026, E027, W108 to W110). [triggers.md](triggers.md#checks) has the rules.
 
 **The walk** reads the schema and the value together. It also reads values that fail the schema, as far as their shape allows, so one bad field doesn't hide the references around it.
 
@@ -127,6 +129,7 @@ Each record is checked in this order:
 - **Optional, nullable, readonly, nonoptional and lazy:** the inner schema.
 - **Condition fields** (`condition()`): the walk stops and hands the value to the condition checks. A condition's references come from its facts' domains, not from the schema.
 - **Asset fields** (`asset()`): the walk stops and hands a string value to the asset check.
+- **Effect fields** (`effect()`): the walk stops and hands the value to the effect check, which walks the effect's own schema. One of the engine's effect schemas inside a game's own union is noted, and walked into.
 - **Unions:** the first option that accepts the value, which is the one zod accepted.
   - If none does, a discriminated union walks the option whose discriminator field accepts the value's discriminator.
   - A plain union that no option accepts is not walked, since there's no telling which option was meant.
@@ -160,6 +163,8 @@ A diagnostic is `{ code, severity, message, type?, id?, file?, path }`. Validati
   - M1.4 adds E007 to E010 and the first warning, W101, for files and project.json ([project-format.md](project-format.md#diagnostics-this-adds)).
   - M1.6 adds E011 to E014 and W102 to W104 for conditions ([conditions.md](conditions.md)).
   - M2.4 adds E015 to E017 and W105 for type files ([type-files.md](type-files.md#diagnostics)), and E018 for asset fields.
+  - M2.7 adds E019 to E021, W106 and W107 for the assets' provenance ([editor-assets.md](editor-assets.md)).
+  - M3.1 adds E022 to E027 and W108 to W110 for trigger sheets, effects and flags ([triggers.md](triggers.md#codes)).
   - Other warnings (W1xx) arrive with the milestones that need them.
 - **Messages are not part of the contract.** Codes and paths are stable; wording may improve. E001 messages are zod's, except for unknown fields, missing fields and invalid record keys, and the ones a schema gives its checks. A type file's fields give messages written for people ("At most 100", "No school chosen yet"), and so does an empty ref or asset from any type.
 
@@ -175,6 +180,7 @@ A diagnostic is `{ code, severity, message, type?, id?, file?, path }`. Validati
 - Reference keys appear under `propertyNames`.
 - An asset field carries `"x-eb-asset"`: its kind, or `true` for any file.
 - A condition field is `{ "$ref": "#/$defs/eb-condition" }`, which takes text or the tree (`eb-condition-tree`).
+- An effect field is `{ "$ref": "#/$defs/eb-effect" }`: an object that names its `effect`, marked `"x-eb-effect": true`, its other fields any JSON (`eb-json`).
 - A type file's labels and help become each field's `title` and `description`.
 - Lazy recursion becomes `$defs`.
 
