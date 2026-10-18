@@ -112,6 +112,33 @@ describe('loot tables', () => {
     expect(bag(state)).toEqual({ airlock: 1, medkit: 1 });
   });
 
+  it('roll a table inside one as many times as its entry’s count draws', () => {
+    const tables = {
+      ...RECORDS['loot-table'],
+      twice: { entries: [{ table: 'one', weight: 1, count: { min: 2, max: 2 } }] },
+      one: { entries: [{ item: 'corridor', weight: 1 }] },
+    };
+    const content = createRecordStore({ ...RECORDS, 'loot-table': tables });
+    const result = game.reduce(
+      start(),
+      { type: 'town/do', effects: [{ effect: 'roll-loot', table: 'twice' }] },
+      { content },
+    );
+    expect(bag(result.state)).toEqual({ corridor: 2 });
+  });
+
+  it('stop at 16 tables deep, which content checked by validation never reaches (E036)', () => {
+    const tables = {
+      ...RECORDS['loot-table'],
+      ping: { entries: [{ table: 'pong', weight: 1 }] },
+      pong: { entries: [{ table: 'ping', weight: 1 }] },
+    };
+    const content = createRecordStore({ ...RECORDS, 'loot-table': tables });
+    expect(() =>
+      game.reduce(start(), { type: 'town/do', effects: [{ effect: 'roll-loot', table: 'ping' }] }, { content }),
+    ).toThrow('roll-loot: tables nest more than 16 deep at "pong"');
+  });
+
   it('preview the odds the roll reads: the entries in the roll, their weights and the total', () => {
     const [scrap] = game.preview(start(), [{ effect: 'roll-loot', table: 'scrap' }], sim);
     expect(scrap).toEqual({

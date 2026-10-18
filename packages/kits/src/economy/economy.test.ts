@@ -44,6 +44,15 @@ describe('resources', () => {
     ]);
   });
 
+  it('pay a cost of all the party holds, down to the lowest exactly', () => {
+    const paid = apply(start(), { effect: 'pay-cost', cost: { credits: 60, fuel: 3 } });
+    expect(amount(paid, 'credits')).toBe(0);
+    expect(amount(paid, 'fuel')).toBe(0);
+    expect(game.preview(start(), [{ effect: 'pay-cost', cost: { credits: 60 } }], sim)).toEqual([
+      { effect: 'pay-cost', cost: { credits: 60 }, afford: true },
+    ]);
+  });
+
   it('read within today’s bounds, so a content update to them reaches a save', () => {
     const rich = apply(start(), { effect: 'add-resource', resource: 'credits', by: 100 });
     const capped = createRecordStore({

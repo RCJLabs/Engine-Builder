@@ -15,6 +15,8 @@ import { folderSource } from '../src/folderSource.ts';
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const HANGAR = resolve(import.meta.dirname, 'fixtures/hangar');
 const GOLDEN = resolve(import.meta.dirname, 'fixtures/hangar-worker.golden.json');
+const STALL = resolve(import.meta.dirname, 'fixtures/stall');
+const STALL_GAME = resolve(import.meta.dirname, 'fixtures/stall-game.ts');
 
 function eb(args: readonly string[]) {
   const run = spawnSync(process.execPath, [CLI, ...args], { cwd: tmpdir(), encoding: 'utf8' });
@@ -31,6 +33,14 @@ describe('eb with kits', () => {
     const pack = readPack(JSON.parse(readFileSync(out, 'utf8')));
     expect(pack.format).toBe(3);
     expect(pack.project.kits).toEqual(['inventory', 'economy']);
+  });
+
+  it('joins the kits project.json lists to a --game module’s game that names none', () => {
+    const run = eb(['sim', STALL, '--game', STALL_GAME, '--seeds', '5']);
+    expect(run.code, run.out + run.err).toBe(0);
+    // Three ropes given and two kept: the kit's item limit holds.
+    expect(run.out).toContain('rope: mean 2 (95% 2 to 2)');
+    expect(run.out).toContain('Refused offers: none.');
   });
 
   it('plays the hangar to its golden runs, with no offer refused', () => {

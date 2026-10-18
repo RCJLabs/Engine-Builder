@@ -33,5 +33,6 @@ export {
   type Range,
   rangeOf,
 } from './inventory/types.ts';
-export { KIT_IDS, KITS, type Kit, type KitProblem, kitModules, kitsOn } from './kits.ts';
+export { KIT_IDS, KITS, type Kit, type KitProblem, kitsOn } from './kits.ts';
 export { type Drawn, draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from './loot/draw.ts';
+export { kitModules } from './modules.ts';

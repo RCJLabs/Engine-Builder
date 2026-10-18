@@ -106,7 +106,7 @@ apps/editor/           the editor PWA
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
-                       is the save journal with big files)
+                       is the save journal with big files; loot-bench.ts the index with kits)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records
@@ -146,7 +146,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        with no --types module
 packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its types: inventory/ (items, the bag, give
                        and take), loot/draw.ts (loot tables rolled), economy/ (resources, quote.ts's prices, shops);
-                       kits.ts (KITS, kitsOn: what project.json's kits turn on, kitModules)
+                       kits.ts (KITS, kitsOn: what project.json's kits turn on), modules.ts (kitModules, apart
+                       from the list so reading it costs no sim code)
   test/                market.ts: the items, resources and shops the kit tests share
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
@@ -161,7 +162,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        and simReport.ts are eb sim
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
-                       kits, and hangar-worker.golden.json (M3.3)
+                       kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
+                       join (M3.3); hangar-bench.ts
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

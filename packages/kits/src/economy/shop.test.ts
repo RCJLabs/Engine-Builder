@@ -26,6 +26,38 @@ describe('shops', () => {
     const again = game.reduce(state, { type: 'economy/buy', item: 'nothing' }, sim);
     expect(again.accepted).toBe(false);
     expect(game.allowedActions(state)).toEqual(['economy/buy', 'economy/leave', 'economy/sell']);
+    // An effect that opens a second while one is open is refused, naming the open one.
+    const twice = game.reduce(
+      start(),
+      {
+        type: 'town/do',
+        effects: [
+          { effect: 'open-shop', shop: 'dutch' },
+          { effect: 'open-shop', shop: 'picky' },
+        ],
+      },
+      sim,
+    );
+    expect(twice.accepted).toBe(false);
+    expect(twice.beats[0]).toMatchObject({ reason: 'already-shopping', shop: 'dutch' });
+  });
+
+  it('put a second draw of an item with the first on the shelf, as one more of it', () => {
+    const records = {
+      ...RECORDS,
+      'loot-table': { ...RECORDS['loot-table'], medkits: { entries: [{ item: 'medkit', weight: 1 }] } },
+      shop: {
+        ...RECORDS.shop,
+        clinic: { currency: 'credits', stock: { items: [{ item: 'medkit', count: 2 }], table: 'medkits' } },
+      },
+    };
+    const content = createRecordStore(records);
+    const opened = game.reduce(
+      start(),
+      { type: 'town/do', effects: [{ effect: 'open-shop', shop: 'clinic' }] },
+      { content },
+    ).state;
+    expect(game.fact(opened, 'economy.stock', { shop: 'clinic', item: 'medkit' }, { content })).toBe(3);
   });
 
   it('keep their shelf between visits, and stock again once `every` days have passed', () => {

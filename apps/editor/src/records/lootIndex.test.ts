@@ -3,6 +3,7 @@
  * stock check reads every table under its stock, so an edit to one table is an edit to the
  * others' problems too, and to the shops'.
  */
+import { kitTypeFiles } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { problemsOf, project, shown } from '../../test/index-files.ts';
 
@@ -53,6 +54,25 @@ describe('the index with loot tables and shops', () => {
     expect(problemsOf(index, 'shop:yard')).toEqual([
       'E035 /stock/table: Its stock table gives credits (in b): a shelf holds items only',
     ]);
+    expect(shown(index)).toEqual(shown(fresh));
+  });
+});
+
+describe('the index as kits turn on', () => {
+  it('checks every record again, even when the project’s types were the kit’s to the letter', async () => {
+    const files = project();
+    // The project's own item and loot table, field for field the kit's: only the kits differ.
+    for (const [type, file] of kitTypeFiles(['inventory'])) files.write(`types/${type}.json`, JSON.stringify(file));
+    const gifts = { rows: [{ id: 'a', when: { event: 'flag/changed' }, do: [{ effect: 'give-item' }] }] };
+    files.write('records/sheet/gifts.json', JSON.stringify(gifts));
+    let { index, fresh } = await files.update(null);
+    // With no kit on, give-item is a game's own effect, kept as written.
+    expect(problemsOf(index, 'sheet:gifts')).toEqual([]);
+    files.edit('project.json', (manifest) => {
+      manifest.kits = ['inventory'];
+    });
+    ({ index, fresh } = await files.update(['project.json']));
+    expect(problemsOf(index, 'sheet:gifts')).not.toEqual([]);
     expect(shown(index)).toEqual(shown(fresh));
   });
 });

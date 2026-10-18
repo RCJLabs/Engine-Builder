@@ -152,6 +152,10 @@ test('kits turned on, their records made with forms, a row giving an item, and t
   await expect(design.getByRole('region', { name: 'The inventory kit’s fields' })).toContainText('Most carried');
   await expect(design.getByRole('button', { name: 'Rename' })).toHaveCount(0);
   await design.getByRole('button', { name: 'Add fields of your own' }).click();
+  // With a file of its own, still the kit's to name: no Rename or Delete.
+  await expect(design.getByRole('button', { name: 'Add a field' }).last()).toBeVisible();
+  await expect(design.getByRole('button', { name: 'Rename' })).toHaveCount(0);
+  await expect(design.getByRole('button', { name: 'Delete' })).toHaveCount(0);
   await design.getByRole('button', { name: 'Add a field' }).last().click();
   const add = design.getByRole('form', { name: 'New field' });
   await add.getByLabel('Name of the new field').fill('maker');

@@ -1,7 +1,9 @@
 import { ENGINE_EVENTS, ENGINE_FACTS } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
-import type { GameState } from './gameState.ts';
-import { eventsOf, factsOf, ownEffectsOf } from './known.ts';
+import { EMPTY_CATALOG } from '../forms/catalog.ts';
+import { current, type OpenProject } from '../projects/opened.ts';
+import { type GameState, NO_SCRIPTS } from './gameState.ts';
+import { eventsOf, factsOf, ownEffectsOf, projectNames } from './known.ts';
 
 const loaded: GameState = {
   ids: ['game'],
@@ -59,5 +61,20 @@ describe('what forms offer with kits on', () => {
     };
     expect(factsOf(kitted, ['inventory'])['inventory.count']?.label).toBe('carried');
     expect(ownEffectsOf(kitted)).toEqual(['stash']);
+  });
+});
+
+describe('the names a script is offered', () => {
+  it('are the engine’s and the kits’ before the game has run', () => {
+    const before = current.value;
+    current.value = { catalog: { ...EMPTY_CATALOG, kits: ['inventory'] }, game: NO_SCRIPTS } as unknown as OpenProject;
+    try {
+      const names = projectNames();
+      expect(names.facts).toEqual(expect.arrayContaining(['flag.on', 'inventory.count']));
+      expect(names.events).toEqual(expect.arrayContaining(['flag/changed', 'inventory/gained']));
+      expect(names.effects).toEqual(expect.arrayContaining(['set-flag', 'give-item']));
+    } finally {
+      current.value = before;
+    }
   });
 });

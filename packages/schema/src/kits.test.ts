@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 import type { Diagnostic } from './diagnostics.ts';
 import { kitEffectFiles } from './kitEffects.ts';
 import { isKitType, joinKitType, kitOf, kitTypeFiles } from './kitTypes.ts';
 import { ENGINE_FACTS, knownFrom } from './known.ts';
+import { defineRecordType } from './recordType.ts';
 import { readTypeFile } from './typeFile.ts';
 import { type RecordInput, validateRecords } from './validate.ts';
 
@@ -111,6 +113,58 @@ describe('records of the kits’ types', () => {
     ]);
   });
 
+  it('hold together on the line: equal ends are sound, one past them is not', () => {
+    const level = [
+      record('loot-table', 'even', { picks: { min: 2, max: 2 }, entries: [{ item: 'reactor', weight: 1 }] }),
+      record('resource', 'flat', { min: 3, max: 3, start: 3 }),
+      record('shop', 'fair', { currency: 'credits', 'sells-at': 100, 'buys-at': 100 }),
+    ];
+    expect(check([...SOUND, ...level])).toEqual([]);
+    const past = [
+      record('loot-table', 'tight', { picks: { min: 2, max: 1 }, entries: [{ item: 'reactor', weight: 1 }] }),
+      record('resource', 'narrow', { min: 3, max: 2, start: 3 }),
+      record('resource', 'brim', { start: 4, max: 3 }),
+      record('shop', 'kind', { currency: 'credits', 'sells-at': 100, 'buys-at': 101 }),
+    ];
+    expect(codes(check([...SOUND, ...past]))).toEqual([
+      'E035 tight /picks/max',
+      'E035 brim /start',
+      'E035 narrow /max',
+      'E035 kind /buys-at',
+    ]);
+  });
+
+  it('report the shortest way round each loop, breadth first', () => {
+    const diagnostics = check([
+      ...SOUND,
+      record('loot-table', 'a', {
+        entries: [
+          { table: 'c', weight: 1 },
+          { table: 'b', weight: 1 },
+        ],
+      }),
+      record('loot-table', 'b', { entries: [{ table: 'd', weight: 1 }] }),
+      record('loot-table', 'c', { entries: [{ table: 'a', weight: 1 }] }),
+      record('loot-table', 'd', { entries: [{ table: 'a', weight: 1 }] }),
+    ]);
+    expect(diagnostics.map(({ id, path, message }) => `${id} ${path}: ${message}`)).toEqual([
+      'a /entries/0/table: Loot tables nest in a loop: a → c → a',
+      'b /entries/0/table: Loot tables nest in a loop: b → d → a → b',
+    ]);
+  });
+
+  it('leave a project’s own type with a kit’s name alone while the kit is off', () => {
+    const own = defineRecordType({
+      type: 'resource',
+      title: 'Resource',
+      description: 'The project’s own, the economy kit off',
+      schema: z.strictObject({ min: z.number(), max: z.number() }),
+    });
+    expect(validateRecords([own], [record('resource', 'odd', { min: 5, max: 1 })], { kits: [] }).diagnostics).toEqual(
+      [],
+    );
+  });
+
   it('find loot tables nested in a loop, once, at the first table, with the way round', () => {
     const diagnostics = check([
       ...SOUND,
@@ -174,6 +228,8 @@ describe('what the checks know with the kits on', () => {
             { effect: 'give-item', item: 'reactor', count: 0 },
             { effect: 'give-item', item: 'ghost' },
             { effect: 'pay-cost', cost: { credits: 5, gold: 1 } },
+            { effect: 'take-item', item: 'reactor', cuont: 2 },
+            { effect: 'pay-cost', cost: { credits: 0 } },
           ],
         },
       ],
@@ -182,7 +238,16 @@ describe('what the checks know with the kits on', () => {
       'E001 gifts /rows/0/do/0/count',
       'E005 gifts /rows/0/do/1/item',
       'E005 gifts /rows/0/do/2/cost/gold',
+      'E001 gifts /rows/0/do/3/cuont',
+      'E001 gifts /rows/0/do/4/cost/credits',
     ]);
+  });
+
+  it('joins the kits’ effects to a game’s effect names, as their facts and events join the game’s', () => {
+    const named = knownFrom({ effectNames: ['set-flag', 'stash'], kits: ['inventory'] }).effects;
+    expect(named.schemas.has('give-item')).toBe(true);
+    expect(named.schemas.has('set-flag')).toBe(true);
+    expect(named.names?.has('stash')).toBe(true);
   });
 
   it('lists each kit’s effects with their fields, for the editor’s forms', () => {

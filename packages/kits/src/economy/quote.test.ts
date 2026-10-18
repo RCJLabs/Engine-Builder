@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buyPrice, sellPrice } from './quote.ts';
+import { buyPrice, buysItem, sellPrice } from './quote.ts';
+import type { ShopRecord } from './types.ts';
 
 // Worked with Python's fractions.Fraction (docs/specs/kits.md): the first four are Space-Wrecked's
 // own prices (step 5, buying at 100 and selling at 50).
@@ -52,5 +53,22 @@ describe('the quote', () => {
     expect(() => buyPrice(1.5, 100, [], 1)).toThrow('whole number');
     expect(() => buyPrice(10, -1, [], 1)).toThrow('whole number');
     expect(() => sellPrice(10, 50, 0.5)).toThrow('whole number');
+  });
+});
+
+describe('what a shop buys', () => {
+  const shop = (buys?: ShopRecord['buys']): ShopRecord => ({ currency: 'credits', ...(buys ? { buys } : {}) });
+  const airlock = { name: 'Airlock', value: 45, tags: ['part'] };
+
+  it('is nothing without buys, and anything with buys and no tags', () => {
+    expect(buysItem(shop(), airlock)).toBe(false);
+    expect(buysItem(shop({}), airlock)).toBe(true);
+    expect(buysItem(shop({}), { name: 'Junk' })).toBe(true);
+  });
+
+  it('with tags, is an item with any one of them', () => {
+    expect(buysItem(shop({ tags: ['part', 'power'] }), airlock)).toBe(true);
+    expect(buysItem(shop({ tags: ['power'] }), airlock)).toBe(false);
+    expect(buysItem(shop({ tags: ['part'] }), { name: 'Junk' })).toBe(false);
   });
 });

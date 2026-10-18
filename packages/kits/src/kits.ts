@@ -1,21 +1,21 @@
 /**
  * The kits a project can list in project.json (M3.3, D41, docs/specs/kits.md), in the engine's
- * order, which is the order their modules join a game. A kit's id is its module's id.
+ * order, which is the order their modules join a game. A kit's id is its module's id. The list
+ * holds no module, so what only reads the list, project.json's checks and the editor's kit boxes,
+ * doesn't bring the kits' sim code with it (modules.ts has that).
  */
-import type { Module } from '@eb/core';
-import { economyKit } from './economy/module.ts';
-import { inventoryKit } from './inventory/module.ts';
+import { ECONOMY } from './economy/types.ts';
+import { INVENTORY } from './inventory/types.ts';
 
 export interface Kit {
   readonly id: string;
   /** The kits it needs on beside it. */
   readonly needs: readonly string[];
-  readonly module: Module;
 }
 
 export const KITS: readonly Kit[] = Object.freeze([
-  { id: inventoryKit.id, needs: [], module: inventoryKit },
-  { id: economyKit.id, needs: [inventoryKit.id], module: economyKit },
+  { id: INVENTORY, needs: [] },
+  { id: ECONOMY, needs: [INVENTORY] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));
@@ -58,7 +58,3 @@ export function kitsOn(listed: readonly unknown[]): { on: readonly string[]; pro
   }
   return { on, problems: problems.sort((a, b) => a.index - b.index) };
 }
-
-/** The modules of the kits on, in the engine's order. */
-export const kitModules = (on: readonly string[]): Module[] =>
-  KITS.filter((kit) => on.includes(kit.id)).map((kit) => kit.module);

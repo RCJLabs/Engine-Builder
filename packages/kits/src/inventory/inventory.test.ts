@@ -1,6 +1,7 @@
 import { createRecordStore } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { apply, fact, game, RECORDS, sim, start } from '../../test/market.ts';
+import { room } from './items.ts';
 
 const bag = (state: ReturnType<typeof start>) => (state.inventory as { bag: Record<string, number> }).bag;
 
@@ -61,6 +62,20 @@ describe('the inventory kit', () => {
     );
     expect(again.beats.some((b) => b.type === 'inventory/gained')).toBe(false);
     expect(again.beats).toContainEqual({ type: 'inventory/full', item: 'reactor', lost: 1 });
+  });
+
+  it('fits nothing past a limit an update lowered below what is carried, and says all of it was lost', () => {
+    expect(room({ max: 2 }, 3, 2)).toBe(0);
+    expect(room({ max: 2 }, 1, 2)).toBe(1);
+    const carried = apply(start(), { effect: 'give-item', item: 'reactor', count: 2 });
+    const lowered = createRecordStore({ ...RECORDS, item: { ...RECORDS.item, reactor: { value: 200, max: 1 } } });
+    const result = game.reduce(
+      carried,
+      { type: 'town/do', effects: [{ effect: 'give-item', item: 'reactor', count: 2 }] },
+      { content: lowered },
+    );
+    expect(result.beats).toContainEqual({ type: 'inventory/full', item: 'reactor', lost: 2 });
+    expect((result.state.inventory as { bag: object }).bag).toEqual({ reactor: 2 });
   });
 
   it('counts items by tag, each one carried', () => {
