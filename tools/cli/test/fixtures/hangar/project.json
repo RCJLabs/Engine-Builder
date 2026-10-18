@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "hangar",
+  "name": "The hangar",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Weapon mount",
+  "value": 130,
+  "tags": ["part"],
+  "category": "weapons",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

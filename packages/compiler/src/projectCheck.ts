@@ -41,6 +41,8 @@ export interface ListedRecord {
 export interface ProjectFilesRead {
   /** Null when project.json is missing or unsound. */
   readonly project: PackProject | null;
+  /** The kits on (M3.3, D41), in the engine's order: none when project.json is unsound. */
+  readonly kits: readonly string[];
   readonly types: ProjectTypes;
   /** The record files, as the source lists them. Their contents aren't read. */
   readonly recordFiles: readonly ListedRecord[];
@@ -49,8 +51,9 @@ export interface ProjectFilesRead {
   /** The provenance log as read (D34), or undefined when there is none. */
   readonly assetsLog: ParsedFile | undefined;
   /**
-   * Every problem with them, in no order: E007 to E010, E015 to E017, E019 to E021, W101 and
-   * W105 to W107. A record that isn't JSON is the records' check's (E007), as are its fields.
+   * Every problem with them, in no order: E007 to E010, E015 to E017, E019 to E021, E033, E034,
+   * E037, W101 and W105 to W107. A record that isn't JSON is the records' check's (E007), as are
+   * its fields.
    */
   readonly diagnostics: readonly Diagnostic[];
 }
@@ -62,11 +65,17 @@ export async function readProjectFiles(
   const diagnostics: Diagnostic[] = [];
   const report = (r: Report) => diagnostics.push(diagnosticOf(r));
   const project = await readManifestFile(source, report);
-  const types = await readTypes(source, codeTypes, report);
+  const kits = project?.kits ?? [];
+  const types = await readTypes(source, codeTypes, report, kits);
   const assets = await readAssets(source);
   const assetsLog = await checkAssetsLog(source, assets, report);
   const recordFiles = await listRecords(source, report);
-  return { project, types, recordFiles, assets, assetsLog, diagnostics };
+  return { project, kits, types, recordFiles, assets, assetsLog, diagnostics };
+}
+
+/** The kits project.json turns on, for a caller that reads nothing else: none when it is missing or unsound. */
+export async function readKits(source: ProjectSource): Promise<readonly string[]> {
+  return (await readManifestFile(source, () => {}))?.kits ?? [];
 }
 
 async function readManifestFile(source: ProjectSource, report: (r: Report) => void): Promise<PackProject | null> {

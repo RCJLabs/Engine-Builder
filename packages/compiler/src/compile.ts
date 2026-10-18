@@ -23,7 +23,7 @@ export interface CompileResult {
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
   /** How many record files the project has, including any that failed. */
   readonly records: number;
-  /** The types forms are drawn from, by name: the project's own from types/ that are sound, and the engine's flag and sheet. */
+  /** The types forms are drawn from, by name: the project's own from types/ that are sound, and the engine's flag and sheet and the kits'. */
   readonly dataTypes: ReadonlyMap<string, DataType>;
 }
 
@@ -46,7 +46,8 @@ export async function compileProject(
   const records = (await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))).map(
     (record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record),
   );
-  const validation = validateRecords(known.types, records, { ...options, assets: files.assets });
+  const kitted = { ...options, kits: files.kits };
+  const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics);
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
@@ -55,7 +56,7 @@ export async function compileProject(
     pack:
       failed || files.project === null
         ? null
-        : createPack(files.project, packRecords(records, known.types, options), Object.fromEntries(scripts.compiled)),
+        : createPack(files.project, packRecords(records, known.types, kitted), Object.fromEntries(scripts.compiled)),
     usedBy: validation.usedBy,
     records: records.length,
     dataTypes: known.data,

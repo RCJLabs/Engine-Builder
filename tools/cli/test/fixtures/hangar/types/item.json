@@ -1,0 +1,32 @@
+{
+  "title": "Part",
+  "description": "A ship module: Space-Wrecked's data/modules.json.",
+  "fields": {
+    "category": {
+      "kind": "enum",
+      "values": ["command", "power", "engines", "weapons", "defense", "crew", "cargo", "utility"],
+      "label": "Category"
+    },
+    "maker": {
+      "kind": "text",
+      "optional": true,
+      "label": "Maker"
+    },
+    "size": {
+      "kind": "group",
+      "label": "Size in cells",
+      "fields": {
+        "w": {
+          "kind": "int",
+          "min": 1,
+          "label": "Wide"
+        },
+        "h": {
+          "kind": "int",
+          "min": 1,
+          "label": "High"
+        }
+      }
+    }
+  }
+}

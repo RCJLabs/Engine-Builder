@@ -1,0 +1,11 @@
+{
+  "name": "Shield generator",
+  "value": 140,
+  "tags": ["part"],
+  "category": "defense",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

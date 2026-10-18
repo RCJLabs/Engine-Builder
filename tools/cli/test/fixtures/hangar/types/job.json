@@ -1,0 +1,23 @@
+{
+  "title": "Job",
+  "description": "A job on the board: Space-Wrecked's data/contracts.json, its pay and its drops as loot tables.",
+  "nameField": "title",
+  "fields": {
+    "title": {
+      "kind": "text",
+      "min": 1,
+      "label": "Title"
+    },
+    "pays": {
+      "kind": "ref",
+      "to": "loot-table",
+      "label": "Pays"
+    },
+    "drops": {
+      "kind": "ref",
+      "to": "loot-table",
+      "optional": true,
+      "label": "Drops"
+    }
+  }
+}

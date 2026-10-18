@@ -13,6 +13,8 @@ import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
 import { FlagChecks } from './flagCheck.ts';
+import { KitChecks } from './kitCheck.ts';
+import { kitDataTypes } from './kitTypes.ts';
 import { knownFrom } from './known.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
@@ -72,6 +74,11 @@ export interface ValidateOptions {
    * (E018). Without it, asset fields get only the shape check.
    */
   readonly assets?: ReadonlySet<string>;
+  /**
+   * The kits on (M3.3, D41): their types join the engine's, unless one of `types` already has the
+   * name (the compiler's, with a project's own fields), and their records get the kits' checks.
+   */
+  readonly kits?: readonly string[];
 }
 
 /**
@@ -84,7 +91,12 @@ export function validateRecords(
   records: readonly RecordInput[],
   options: ValidateOptions = {},
 ): Validation {
-  const byName = indexTypes(withEngineTypes(types));
+  const on = options.kits ?? [];
+  const given = new Set(types.map((t) => t.type));
+  const kitTypes = kitDataTypes(on)
+    .filter((d) => !given.has(d.type))
+    .map((d) => d.recordType);
+  const byName = indexTypes(withEngineTypes([...kitTypes, ...types]));
   const known = knownFrom(options);
   // Records of unknown types count too; no reference can name them, since every reference
   // target is a known type.
@@ -95,6 +107,7 @@ export function validateRecords(
   const usages = new Map<string, Usage[]>();
   const assetUsages = new Map<string, Usage[]>();
   const flags = new FlagChecks();
+  const kits = new KitChecks(on, known);
   for (const record of records) {
     const from = formatRef(record.type, record.id);
     const report = (code: DiagnosticCode, path: string, message: string) =>
@@ -135,8 +148,10 @@ export function validateRecords(
       checkSheet(record.value, { ...ctx, heard });
     }
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
+    if (sound) kits.record(record.type, record.id, record.value, report);
   }
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
+  kits.finish();
   return {
     diagnostics: diagnostics.sort(compareDiagnostics),
     usedBy: sortUsages(usages),

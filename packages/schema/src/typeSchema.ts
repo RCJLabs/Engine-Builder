@@ -15,6 +15,11 @@ export interface DataType {
   readonly type: string;
   readonly file: TypeFile;
   readonly recordType: RecordType;
+  /**
+   * A kit's type (M3.3, D41): the kit, and the fields that are its own, first in `file`, which
+   * the type designer shows but doesn't change. The rest are the project's.
+   */
+  readonly kit?: { readonly id: string; readonly fields: readonly string[] };
 }
 
 /** A colour as the web writes one: "#" and six hex digits. */
@@ -30,10 +35,13 @@ export function typeFromFile(type: string, file: TypeFile): DataType {
   return Object.freeze({ type, file, recordType });
 }
 
-function groupSchema(fields: Fields): z.ZodType {
+const groupSchema = (fields: Fields): z.ZodType => z.strictObject(fieldShape(fields));
+
+/** Each field's schema by name: a strict object's shape, as a group's or an effect's (M3.3). */
+export function fieldShape(fields: Fields): Record<string, z.ZodType> {
   const shape: Record<string, z.ZodType> = {};
   for (const [name, def] of Object.entries(fields)) shape[name] = fieldSchema(def);
-  return z.strictObject(shape);
+  return shape;
 }
 
 function fieldSchema(def: FieldDef): z.ZodType {

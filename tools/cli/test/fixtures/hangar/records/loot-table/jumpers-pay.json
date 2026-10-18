@@ -1,0 +1,13 @@
+{
+  "name": "Claim jumpers: pay",
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 70,
+        "max": 100
+      }
+    }
+  ]
+}

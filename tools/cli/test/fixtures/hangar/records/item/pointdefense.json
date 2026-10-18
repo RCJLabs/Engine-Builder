@@ -1,0 +1,11 @@
+{
+  "name": "Point defense",
+  "value": 120,
+  "tags": ["part"],
+  "category": "weapons",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

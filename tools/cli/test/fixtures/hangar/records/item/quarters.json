@@ -1,0 +1,11 @@
+{
+  "name": "Crew quarters",
+  "value": 80,
+  "tags": ["part"],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}
