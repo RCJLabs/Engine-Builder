@@ -92,7 +92,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 
 **Status, 2026-10-17 (M1.10).** The spike is built and live at `/spikes/3d/` ([apps/spike-3d](../apps/spike-3d/README.md)). It works in headless Chromium on WebGL2, and Rapier's heightfield agrees with the drawn terrain. That proves only that the stack works. D8 stays PROPOSED until a phone's reading is in ROADMAP's Readings.
 
-### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.6, 2026-10-17
+### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.7, 2026-10-17
 
 - Trees in dirtbag's `TalkDef` shape for most talk; they are editable as a graph on a phone.
 - ink for long-form writing, with chooser-of-the-dead's stateless scene player.
@@ -723,6 +723,36 @@ Evan chose on 2026-10-18, from these options:
 - **Proofs #1 to #3 come before the tools.** Their art is drawn in code, as the games do now, so they prove the engine, not yet the route to art without code.
 - **The roadmap grows by a phase** of six milestones.
 - **Store builds keep one outside step:** GitHub Actions runs Bubblewrap, the Android SDK and Electron, with the signing keys in its secrets.
+
+### D41. Kits are listed in project.json; Kits I is two milestones, economy then stats; actors hold stats and worn gear, a party bag holds items and money; a pool keeps the damage taken. LOCKED, 2026-10-18 (Evan's calls, M3.3)
+
+**Decision.**
+- **A project lists its kits in project.json** (Evan's call): `"kits": ["inventory", "economy"]`, switched on and off in the Project panel. A listed kit's record types are the engine's own for that project, its facts, events and effects are known to the checks and the pickers, and its module joins the game after the engine's own, as they do, unless the game places it. A project that leaves a kit off keeps any type of the kit's names as its own.
+- **Kits I is two milestones** (Evan's call): M3.3 the economy (items and the bag, loot tables, resources, shops), then M3.4 the stats (actors, stats, pools, statuses, equipment). The later Phase 3 milestones move down one.
+- **Actors hold stats and worn gear; one party bag holds items and money** (Evan's call), as Space-Wrecked's hold and crew, Ludus's gear room and gladiators, and Dirtbag's van and climber have it. Bags for other actors and containers come with Phase 6's NPCs, by a migration of the inventory kit's slice.
+- **A pool keeps the damage taken** when its maximum moves (Evan's call), as Bethesda's actor values do: max HP up by 2 raises the current HP by 2. For M3.4; untested for feel.
+- **A project can add fields to a kit's types** (Evan's call). `types/item.json` holds the project's own fields, which join after the kit's: the type designer shows the kit's fields locked and edits the project's like any type's. The kit reads only its own fields; conditions, scripts and the stage can read the rest.
+
+Evan chose on 2026-10-18, from these options:
+- switching kits on: a list in project.json, imports in scripts/game.ts, or every kit always on;
+- scope: two milestones (economy, then stats), one milestone, or one with status durations and stacking moved to M4.5;
+- holders: actors and a party bag, a bag for every actor, or one party with no actors;
+- a pool whose maximum rises: it keeps the damage taken, keeps its amount, or keeps its share of the maximum;
+- kit types: fields a project adds after the kit's, or fixed, with a game's extra data in types of its own that point at them.
+
+The spec is [specs/kits.md](specs/kits.md).
+
+**Why.**
+- **project.json.** A project made only of data can use kits, and the editor knows their types before any script is trusted (D38). Every kit always on would make `item`, `actor` and `loot-table` the engine's names in every project, which the format-1 fixture's own types already use, and would change every game's state hash and golden file.
+- **Two milestones.** Phase 3's gate needs a shop; each half gets its own fixture, gate and PR.
+- **The party bag.** The games the kits come from keep one store of items and money for the party and put gear on people, and an effect then needs no "whose".
+- **Fields of a project's own.** Space-Wrecked's parts each carry a maker, a size, a layout of cells and stats (`data/modules.json`); without them, every part would be two records, an item and a part, kept in step by hand.
+
+**Cost.**
+- **project.json grows a field** that an editor from before M3.3 rejects, so a project with kits needs today's editor.
+- **Bags of their own** for NPCs and containers wait for Phase 6, and will need a migration then.
+- **A kit's own fields are fixed** while it is on: a project adds fields, but can't rename, remove or change the kit's.
+- **M3.3 grows** by the type designer's locked fields and the compiler's joining of the two field lists.
 
 ---
 

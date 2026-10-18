@@ -55,5 +55,5 @@ A sheet's form is its record form, laid out from the sheet's layout type file (`
 1. **Long sheets.** Every row is open at once. A sheet of fifty rows may want rows that fold, or a row at a time with the cards to move between them.
 2. **Moving by dragging.** Rows and effects move a step at a time with buttons, which works by touch and keyboard alike; dragging would be quicker for long moves.
 3. **A game's events and effects.** Settled by M3.2 (D38): once a project's scripts/game.ts has run, the pickers offer the game's own ([editor-scripts.md](editor-scripts.md#the-game-through-the-editor)). A game whose code lives outside the project, given to `eb` by `--types`, still gets the engine's alone in the editor.
-4. **Rows of other records.** A quest or a scene could carry rows of its own (D36), once missions (M3.7) need it.
+4. **Rows of other records.** A quest or a scene could carry rows of its own (D36), once missions (M3.8) need it.
 5. **Checking flags together.** An edit to a record that names a flag checks every flag and every record naming one again: 60 ms for 300 of them in Node (ROADMAP.md's Readings), growing with their number, and untried on a phone. A lint indexed by flag would check only the flags the edit names, and the records naming those.

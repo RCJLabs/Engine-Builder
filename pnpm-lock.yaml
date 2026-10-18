@@ -139,6 +139,12 @@ importers:
 
   packages/core: {}
 
+  packages/kits:
+    dependencies:
+      '@eb/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/platform:
     dependencies:
       '@eb/core':
