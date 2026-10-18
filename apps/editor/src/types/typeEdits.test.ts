@@ -89,7 +89,11 @@ describe('changes to a type with its records', () => {
     expect(reads).toEqual(['types/fighter.json']);
     reads.length = 0;
     await changeType(counted, 'fighter', renameFieldChange([], 'style', 'manner'));
-    expect(reads.filter((path) => path.startsWith('records/')).length).toBeGreaterThan(0);
+    // A rename checks and rewrites every record, reading each once.
+    expect(reads.filter((path) => path.startsWith('records/')).sort()).toEqual([
+      'records/fighter/crixus.json',
+      'records/fighter/spartacus.json',
+    ]);
   });
 
   it('renames a field in the type and in each record, in its own layout, as one step', async () => {
@@ -125,7 +129,10 @@ describe('changes to a type with its records', () => {
   it('renames a field inside the groups of a list', async () => {
     const { copy, step, value, problems } = setup();
     await step((c) => changeType(c, 'fighter', renameFieldChange(['fields', 'bouts', 'of'], 'won', 'victory')));
-    expect((await value('records/fighter/spartacus.json')).bouts).toEqual([{ foe: 'fighter:crixus', victory: true }]);
+    expect((await value('records/fighter/spartacus.json')).bouts).toEqual([
+      { foe: 'fighter:crixus', victory: true },
+      { foe: 'fighter:spartacus', victory: false },
+    ]);
     expect((await value('types/fighter.json')).fields.bouts.of.fields.victory).toEqual({ kind: 'bool' });
     expect(await problems()).toEqual([]);
     expect(copy).toBeDefined();
@@ -269,6 +276,20 @@ describe('renaming records', () => {
     expect(await problems()).toEqual([]);
     await step((c) => renameRecord(c, 'school', 'ludus-magnus', 'ludus-maximus'));
     expect((await value('records/fighter/crixus-gaul.json')).school).toBe('ludus-maximus');
+    expect(await problems()).toEqual([]);
+  });
+
+  it('rewrites a moved record’s references to itself, once', async () => {
+    const { copy, step, value, problems } = setup();
+    const changes = await renameRecord(copy, 'fighter', 'spartacus', 'spartacus-thrax');
+    expect(paths(changes)).toEqual([
+      '-records/fighter/spartacus.json',
+      '+records/fighter/spartacus-thrax.json',
+      '~records/fighter/crixus.json',
+    ]);
+    await step(async () => changes);
+    expect((await value('records/fighter/spartacus-thrax.json')).bouts[1].foe).toBe('fighter:spartacus-thrax');
+    expect((await value('records/fighter/crixus.json')).rival).toBe('fighter:spartacus-thrax');
     expect(await problems()).toEqual([]);
   });
 

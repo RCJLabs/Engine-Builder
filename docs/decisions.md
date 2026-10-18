@@ -509,6 +509,38 @@ The spec is [specs/editor-tables.md](specs/editor-tables.md). Type-files.md's op
 - **The editor holds every record in memory**, with its problems. That is fine at thousands of records. A phone may want the checks in a worker; the open question is in the spec.
 - **`nameField` is part of the type file format.** An engine from before M2.5 reports E015 for a type file that uses it.
 
+### D33. Renames carry the records: a field, choice, type or record renamed rewrites every record and reference to match, as one step undo takes back. Record renames join M2.6. LOCKED, 2026-10-17 (Evan's calls, M2.6)
+
+**Decision.**
+- **Renames rewrite the records** (Evan's call).
+  - A field renamed is renamed in every record, nested groups included, and the name field follows it.
+  - A type renamed moves its file and its records' folder, every `to` that names it follows, and every qualified ref `"old:id"` becomes `"new:id"`.
+  - A choice renamed changes the records that hold it, map keys included.
+  - Each is one step: undo takes back the type file and every record together.
+- **Renaming a record joins M2.6** (Evan's call). Its file moves and every ref to it follows: bare ids, `type:id` and map keys.
+- **The designer adds, from the same rewriting:**
+  - a field removed takes its values out of the records;
+  - a required field added, or one some records leave out, is filled in on them with a value chosen;
+  - a ref changed between one type and several qualifies or unqualifies its records' ids, so they keep naming the same records.
+- **Nothing is lost quietly.** A rename onto a name some records hold already is refused, and so is deleting a type that other types refer to.
+- **Not rewritten:** conditions, whose words the editor can't tell apart from ids until it knows the game's facts (Phase 3). A record's rename lists the conditions that mention its id. A change of kind converts nothing: the designer says how many records don't fit.
+- **The designer lives in the inspector**, the sheet on a phone, beside the record form.
+
+Evan chose on 2026-10-17, from these options:
+- renames: rewrite the records, or leave them and offer to remove what no longer fits (the M2.4 behaviour);
+- renaming a record with its references: in M2.6, or later.
+
+The spec is [specs/editor-types.md](specs/editor-types.md). Type-files.md's open questions 3 and 4, editor-tables.md's question 1 and editor-forms.md's question 3 are settled.
+
+**Why.**
+- **Rewriting.** A rename that leaves the data behind loses it: every record would hold a key the type no longer lists. Contentful's field-id change keeps the content it holds. Airtable warns before a change that may clear values, and its undo takes the change back. The editor already holds the records and an undo that takes back many files as one step (D30, D32).
+- **Record renames now.** A record's id is its file name, and refs hold ids. The rewriting a type rename needs is the same, so the two cost little more than one.
+
+**Cost.**
+- **A rename touches every file that holds the name.** In an opened folder those are written one by one, so a crash mid-save can leave some renamed and some not (D30's cost). Stored projects save through the journal, all or nothing.
+- **Big steps.** A type of 1,000 records renamed is 2,000 file changes in one step of the command log: its bytes before and after stay in memory until the step leaves the history.
+- **Conditions can be left naming an old id** until the editor knows the game's facts. The rename lists them; it doesn't fix them.
+
 ---
 
 ## Open

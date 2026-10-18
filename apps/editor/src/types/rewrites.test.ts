@@ -44,6 +44,9 @@ describe('fields in records', () => {
     const both = { ...CRIXUS, manner: 'odd' };
     expect(renameClashes(FIGHTER, [], 'style', 'manner', both)).toBe(1);
     expect(renameClashes(FIGHTER, [], 'style', 'manner', CRIXUS)).toBe(0);
+    // Holding the new name without the old one is no clash: the rename doesn't touch it.
+    const { style: _style, ...only } = both;
+    expect(renameClashes(FIGHTER, [], 'style', 'manner', only)).toBe(0);
     expect(renameField(FIGHTER, [], 'style', 'manner')(both)).toBe(both);
     const items = { ...CRIXUS, bouts: [{ foe: 'beast:lion', won: true, victory: 1 }, { won: false }] };
     expect(renameClashes(FIGHTER, BOUTS, 'won', 'victory', items)).toBe(1);
@@ -63,12 +66,18 @@ describe('fields in records', () => {
     const items = { ...CRIXUS, bouts: [{ foe: 'beast:lion' }, { won: true }, { foe: 'beast:bear', won: false }] };
     expect(missingField(FIGHTER, BOUTS, 'won', items)).toBe(1);
     expect(missingField(FIGHTER, BOUTS, 'foe', items)).toBe(1);
+    // Counted in the group's objects, not the record: the record has a name, the bouts don't.
+    expect(missingField(FIGHTER, BOUTS, 'name', items)).toBe(3);
     const made = fillField(FIGHTER, BOUTS, 'won', { by: [] })(items) as { bouts: Record<string, unknown>[] };
     expect(made.bouts.map((bout) => Object.keys(bout))).toEqual([['foe', 'won'], ['won'], ['foe', 'won']]);
     expect(made.bouts[0]?.won).toEqual({ by: [] });
-    // Two records filled never share one object.
-    const again = fillField(FIGHTER, BOUTS, 'won', { by: [] })(items) as { bouts: Record<string, unknown>[] };
-    expect(again.bouts[0]?.won).not.toBe(made.bouts[0]?.won);
+    // Each object filled gets a copy of its own, never the value given.
+    const given = { by: [] };
+    const two = { ...CRIXUS, bouts: [{ foe: 'beast:lion' }, { foe: 'beast:bear' }] };
+    const copies = fillField(FIGHTER, BOUTS, 'won', given)(two) as { bouts: Record<string, unknown>[] };
+    expect(copies.bouts[0]?.won).toEqual(given);
+    expect(copies.bouts[0]?.won).not.toBe(given);
+    expect(copies.bouts[0]?.won).not.toBe(copies.bouts[1]?.won);
   });
 });
 
@@ -118,6 +127,16 @@ describe('references in records', () => {
     expect(self.bouts[0]?.foe).toBe('fighter:spartacus-thrax');
   });
 
+  it('reads a list of one type as a list: its refs are qualified', () => {
+    const file = { title: 'T', fields: { home: { kind: 'ref', to: ['school'] } } };
+    expect(renameRecordRefs(file, 'school', 'ludus-magnus', 'ludus-maximus')({ home: 'school:ludus-magnus' })).toEqual({
+      home: 'school:ludus-maximus',
+    });
+    expect(renameRecordRefs(file, 'school', 'ludus-magnus', 'x')({ home: 'ludus-magnus' })).toEqual({
+      home: 'ludus-magnus',
+    });
+  });
+
   it('never takes an id of another type, or a word inside an id', () => {
     // "lion" is a beast; a fighter called lion isn't the same record.
     expect(renameRecordRefs(FIGHTER, 'fighter', 'lion', 'leo')(CRIXUS)).toBe(CRIXUS);
@@ -138,7 +157,7 @@ describe('references in records', () => {
   it('qualifies bare ids when a ref takes several types, and unqualifies them back', () => {
     const many = retargetRefs(FIGHTER, ['fields', 'school'], 'school', ['school', 'guild'])(CRIXUS) as Fighter;
     expect(many.school).toBe('school:ludus-magnus');
-    const keys = retargetRefs(FIGHTER, ['fields', 'kit', 'key'], 'weapon', ['weapon', 'beast'])(CRIXUS) as Fighter;
+    const keys = retargetRefs(FIGHTER, ['fields', 'kit', 'key'], 'weapon', ['beast', 'weapon'])(CRIXUS) as Fighter;
     expect(keys.kit).toEqual({ 'weapon:gladius': 1, 'weapon:net': 2 });
     const one = retargetRefs(FIGHTER, ['fields', 'rival'], ['fighter', 'beast'], 'fighter')(CRIXUS) as Fighter;
     expect(one.rival).toBe('spartacus');

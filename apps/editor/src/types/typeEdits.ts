@@ -63,7 +63,11 @@ function rewritten(bytes: Uint8Array, rewrite: Rewrite): Uint8Array {
 
 /** The records of `files` changed by `rewrite`, each in its own layout; those it leaves alone aren't changes. */
 async function rewriteFiles(source: ProjectSource, files: readonly string[], rewrite: Rewrite): Promise<FileChange[]> {
-  const read = await readFiles(source, files);
+  return rewriteRead(await readFiles(source, files), files, rewrite);
+}
+
+/** rewriteFiles, for files read already. */
+function rewriteRead(read: ReadonlyMap<string, Uint8Array>, files: readonly string[], rewrite: Rewrite): FileChange[] {
   const changes: FileChange[] = [];
   for (const path of files) {
     const before = read.get(path);
@@ -138,9 +142,11 @@ export async function changeType(
   const after = editJson(bytes, () => made.file);
   const own: FileChange[] = after === bytes ? [] : [{ path, before: bytes, after }];
   if (!made.rewrite && !made.check) return own;
+  // Read once for both: a rename both checks and rewrites every record.
   const files = await recordFilesOf(source, type);
-  if (made.check) made.check([...(await readFiles(source, files)).values()].map(jsonOf));
-  return made.rewrite ? [...own, ...(await rewriteFiles(source, files, made.rewrite))] : own;
+  const read = await readFiles(source, files);
+  if (made.check) made.check([...read.values()].map(jsonOf));
+  return made.rewrite ? [...own, ...rewriteRead(read, files, made.rewrite)] : own;
 }
 
 /** A file moved: gone from `from`, at `to` with its bytes after `rewrite`. */

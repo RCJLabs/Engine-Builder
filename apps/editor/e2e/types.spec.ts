@@ -45,7 +45,10 @@ test('designs a new type, its fields of several kinds, and makes records of it',
   const errors = watchErrors(page);
   await importLudus(page);
   await showRecords(page);
-  await page.getByRole('button', { name: 'New type' }).first().click();
+  // From the palette as from the panels.
+  await page.getByRole('button', { name: 'Commands' }).click();
+  await page.getByRole('combobox', { name: 'Command' }).fill('new record type');
+  await page.keyboard.press('Enter');
   const naming = page.getByRole('form', { name: 'New type' });
   await expect(naming.getByLabel('Name of the new type')).toBeFocused();
   await naming.getByLabel('Name of the new type').fill('School');
@@ -62,6 +65,9 @@ test('designs a new type, its fields of several kinds, and makes records of it',
 
   await addField(design, 'Top speed', 'Whole number');
   const speed = design.getByRole('region', { name: 'Field topSpeed' });
+  // A row added opens, and says so; the others stay shut.
+  await expect(design.getByRole('button', { name: /^Top speed / })).toHaveAttribute('aria-expanded', 'true');
+  await expect(design.getByRole('button', { name: /^Name Text/ })).toHaveAttribute('aria-expanded', 'false');
   await speed.getByLabel(/^Largest/).fill('10');
   await speed.getByLabel(/^Label/).fill('Speed');
   await expect(design.getByRole('button', { name: /^Speed Whole number, at most 10/ })).toBeVisible();
@@ -193,8 +199,21 @@ test('removes a field from the type and the records, fills in a new required one
 
   await addField(design, 'age', 'Whole number', async (form) => {
     await expect(form).toContainText('The 3 records there are get:');
+    // The value is checked as the field would check it, once its box is left.
+    await form.getByLabel(/^Age for the records there are/).fill('2.5');
+    await form.getByLabel(/^Age for the records there are/).blur();
+    await expect(form).toContainText('Expected a whole number');
     await form.getByLabel(/^Age for the records there are/).fill('30');
   });
+  // An optional field is added to the type alone: no record gets it.
+  await addField(design, 'nickname', 'Text', async (form) => {
+    await form.getByLabel('Optional: records may leave it out').check();
+    await expect(form).not.toContainText('there are get');
+  });
+  await expect
+    .poll(() => stored(page, 'types/gladiator.json'))
+    .toMatchObject({ fields: { nickname: { kind: 'text', optional: true } } });
+  expect(await stored(page, SPICULUS)).not.toHaveProperty('nickname');
   await expect.poll(() => stored(page, SPICULUS)).toMatchObject({ age: 30 });
   await expect.poll(() => stored(page, 'records/gladiator/flamma.json')).toMatchObject({ age: 30 });
 

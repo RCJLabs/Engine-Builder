@@ -19,7 +19,7 @@ Every record of the open project, read and checked: each record's value, its pro
 - **Kept up to date by file.** A record's problems depend on its own value, on which records exist, and on the types and assets, nothing else. So:
   - an edit, undo or redo checks again only the records whose files it changed;
   - creating or deleting a record also checks those that refer to it, which "used by" already knows (it keeps references to missing records);
-  - a change to a type file or to the assets checks every record;
+  - a change to a type file or to the assets checks every record, except one that only names things: a title, a label, help, the name field (M2.6, [editor-types.md](editor-types.md#the-record-index));
   - a record whose bytes read the same keeps its entry, checks and all.
 - **Another tab's save** names the files it wrote (`TabMessage` `saved.paths`), so a read-only tab reads only those again. An editor from before M2.5 leaves them out; then, and whenever anything may have changed, the index reads every file and checks those whose bytes differ:
   - when the project opens;
@@ -154,7 +154,7 @@ Labels, descriptions and lists point at elements by id. Preact's `useId` counts 
 
 ## Open questions
 
-1. **Renaming a record** and what refers to it. A record's id is its file name, and refs hold ids, so a rename is a move plus a rewrite of every reference, including those in condition text. M2.6 needs the same rewriting for renamed types and fields ([type-files.md](type-files.md#open-questions), question 4); the two belong together. Until then: Duplicate, fix what "used by" lists, Delete.
+1. **Renaming a record** and what refers to it. Settled in M2.6 (D33, Evan's call): Rename on the record's form moves its file and rewrites every ref to it. Conditions that mention its id are listed, not rewritten ([editor-types.md](editor-types.md#changes-that-carry-the-records)).
 2. **Duplicating several records at once**, and editing cells in place. Neither is in M2.5.
 3. **Views kept across a reload.** A type's search, filters and sort last while the project is open. Keeping them (per project, in this browser) is cheap; whether they belong in the project, for everyone, is not.
 4. **A worker for the index.** Checking all 2,008 records of the bench project takes 45–123 ms in Node (Readings). A mid-range phone may be several times slower, and opening a project, a change to a type, or a full re-read checks everything. Measure on Evan's phone before moving it.

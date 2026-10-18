@@ -155,9 +155,11 @@ describe('updateIndex', () => {
     expect(problemsOf(after, 'gladiator:spiculus')).toEqual(['E001 /label: Missing field "label"']);
     // Whether a field may be left out changes the checks: flamma has no portrait.
     files.edit('types/gladiator.json', (type) => {
-      const fields = type.fields as Record<string, Record<string, unknown>>;
-      delete fields.label;
-      delete (fields.portrait as Record<string, unknown>).optional;
+      delete (type.fields as Record<string, unknown>).label;
+    });
+    await files.update(['types/gladiator.json']);
+    files.edit('types/gladiator.json', (type) => {
+      delete ((type.fields as Record<string, Record<string, unknown>>).portrait as Record<string, unknown>).optional;
     });
     const { index: required, fresh } = await files.update(['types/gladiator.json']);
     expect(problemsOf(required, 'gladiator:flamma')).toEqual(['E001 /portrait: Missing field "portrait"']);

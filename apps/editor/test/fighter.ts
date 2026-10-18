@@ -61,7 +61,11 @@ export function arena(): Record<string, string> {
     style: 'retiarius',
     school: 'ludus-magnus',
     rival: 'fighter:crixus',
-    bouts: [{ foe: 'fighter:crixus', won: true }],
+    // Sparring counts: a record that refers to itself, which its own rename must follow.
+    bouts: [
+      { foe: 'fighter:crixus', won: true },
+      { foe: 'fighter:spartacus', won: false },
+    ],
     kit: { trident: 1 },
     titles: {},
     moods: ['calm'],
