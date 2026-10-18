@@ -104,6 +104,45 @@ A test walks every tick of four years of a small calendar with a counter that ca
 - **Daily upkeep** in a fixed order, like landnam's `passDay` or ludus's `endWeek`, is a set of repeating timers due on the same tick, scheduled in the order they must run.
 - **A trip that an event can cut short,** like landnam's road, dirtbag's multi-day trips and space-wrecked's expeditions, waits one day at a time in the game's action and stops when a consequence changes the mode. A single long `wait` fires everything due in it; the encounters it pushes queue up on the mode stack.
 
+## Start-of events
+
+From M3.5 (D43), the time module says as each day, week, month, season and year starts, so content can run a day's pass and react to dates without a script.
+
+| Event | Arguments | Declared when the calendar has |
+| --- | --- | --- |
+| `time/year-started` | `year` | months or `daysPerYear` |
+| `time/season-started` | `season` | seasons |
+| `time/month-started` | `month` | months |
+| `time/week-started` | (none) | weekdays |
+| `time/day-started` | `day` | always |
+
+- **When:** a day starts when `time.day` changes; a week when the new day is the first weekday; a month on its first day; a season on the day it begins; a year on its first day.
+- **Heard at their tick.** Each tick that starts something is one attempt, raising its events with the clock at that tick, as a timer's are. So a row on `time/day-started` reads that day's date and the state as that day finds it.
+- **Order at a tick:** the largest first (year, season, month, week, day), then the timers due there. A wait across three days raises three `time/day-started`, each before that day's timers.
+- **The game's first day raises nothing:** the game starts within it.
+- **A day's pass** is a sheet's rows on `time/day-started`, run in row order (Landnam's `passDay`). A dated event is a row with a condition on the date: Ludus's Floralia is `time.day-of-year == 28`; Dirtbag's bills are `time.weekday == sun`. Matching an argument picks one boundary: `{ "event": "time/season-started", "season": "winter" }`.
+- **The kits' own upkeep** at a day's start (the stats kit's statuses ending, the factions kit's drift) comes after the rows, since listeners hear in module order and the engine's sheet module comes before the kits.
+- **The cap:** these attempts count with the timers' toward the 10,000 firings in one advance.
+- **State and saves** are unchanged: the events read the tick, and nothing is stored. A game's beats gain them; its state, and so its golden runs, don't change.
+
+## The time kit
+
+From M3.5 (D43), a project made only of data can keep time. The time module is a kit ([kits.md](kits.md)):
+
+```json
+{ "format": 1, "id": "steading", "name": "Steading", "version": "0.1.0", "kits": ["time"],
+  "calendar": { "ticksPerDay": 1, "daysPerYear": 96,
+    "seasons": [{ "id": "spring", "from": 0 }, { "id": "summer", "from": 24 }, { "id": "autumn", "from": 48 }, { "id": "winter", "from": 72 }] } }
+```
+
+- **`calendar`** is a calendar as above, `{ "ticksPerDay": 1 }` when left out. The editor's Project panel edits it.
+- **The kit's module** is `timeModule({ calendar })`, joining the game after the other kits. A game that names a module `time` itself keeps its own ([kits.md](kits.md#switching-kits-on)).
+- **Its effects** (`wait`, `schedule`, `cancel-timer`), facts and events join the project's catalogue as other kits' do, with the calendar's units in their durations and its names in their domains.
+- **Packs** carry the calendar in `project.calendar` (format 3).
+- **E038:** a calendar that doesn't hold together, with `calendarOf`'s words, at `/calendar`.
+- **W116:** a calendar no time module reads: the time kit is off, or the game keeps a time module of its own.
+- **Real time** (`time/elapse`) for a project made of data waits for Phase 4's stage, which sends it.
+
 ## Wall-clock time
 
 `realTime: { msPerTick, maxElapseMs }` turns `time/elapse { ms }` on.
@@ -137,7 +176,7 @@ A test walks every tick of four years of a small calendar with a counter that ca
 ## Open questions
 
 1. **The cost of a refused attempt.** Each one runs the action again, so offline settling with many refusing timers costs refusals × firings. The bench shows 64 refusals in 8 hours of hourly timers take about 100 ms. Savepoints would be cheaper, at the price of stale references (sim.md).
-2. **Absolute schedules.** "At the start of next spring" or "every Monday" needs `at:` rather than `after:`. Add it with the kits that need it (M3.5).
+2. **Absolute schedules.** "At the start of next spring" or "every Monday" was answered for content by the start-of events (M3.5): a row on `time/season-started` or `time/day-started` with a condition on the date. A timer set `at:` a date, for scripts, waits for a game that needs one.
 3. **Game speed.** Pausing and fast-forward belong to the stage, which scales or stops the milliseconds it passes. A sim-side speed setting would need to be in the state to replay.
 4. **A frame helper.** Real-time play wants a stage-side loop that sends frame time and stops sending while hidden. It belongs with the player runtime (Phase 4).
 5. **Dailies by real date.** A daily challenge keyed by the real calendar is a stage feature, and the games disagree on it. 2060td, sandbagged, rule-or-drool and wasteland-protocol use UTC days, and rule-or-drool's players in the Americas lost streaks without missing a local day. project-ascent, chooser-of-the-dead and afterglass use local dates, and afterglass's daily is "someone's today for about 50 hours". Decide when the first daily arrives.
