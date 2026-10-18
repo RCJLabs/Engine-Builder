@@ -19,13 +19,15 @@ my-game/
   types/<type>.json         the project's own record types, as fields (M2.4)
   assets/                   files that asset fields name (M2.4; M2.7 imports them)
   assets/assets.json        every asset's provenance: licence, source, date (M2.7)
+  scripts/<id>.ts           the game's code, TypeScript; scripts/game.ts is the game (M3.2)
 ```
 
-- **Later folders.** Later milestones add `scenes/`, `ui/`, `scripts/`, `dialogue/` and `locales/` ([architecture](../architecture.md#project-format)).
-- **What gets read.** The compiler reads `project.json`, `records/`, `types/` and `assets/assets.json`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
+- **Later folders.** Later milestones add `scenes/`, `ui/`, `dialogue/` and `locales/` ([architecture](../architecture.md#project-format)).
+- **What gets read.** The compiler reads `project.json`, `records/`, `types/`, `scripts/` and `assets/assets.json`, and lists `assets/` for asset fields to name. Anything else in the folder is left alone, so a project can sit at the root of a game's repo, next to its README and package.json.
 - **The provenance log** is specified in [editor-assets.md](editor-assets.md#the-provenance-log) (D34).
 - **Type files** are specified in [type-files.md](type-files.md).
 - **Flags and trigger sheets** are records of the engine's own types, `flag` and `sheet`, which every project has ([triggers.md](triggers.md), D36).
+- **Scripts** are specified in [scripts.md](scripts.md) (D38).
 - **Hidden entries are never read.** These are names that start with `.` (`.git`, `.DS_Store`, `.gitkeep`) and the `__MACOSX` folder that macOS adds to zips.
 
 ## project.json (format 1)
@@ -104,9 +106,12 @@ A project travels as a zip: the editor exports one, imports one, and the CLI rea
 2. **Type files** in `types/` are read beside the code types: E007, E015 to E017 and W105 ([type-files.md](type-files.md#compiling)). A type whose file has problems still names its type; its records aren't checked until it is fixed. A type file named for one of the engine's types is E017.
 3. **`assets/`** is listed, for asset fields to name (E018), the log left out. Then the log is read and checked against the list (D34): E007 when it isn't JSON, otherwise E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)).
 4. **Record files** are sorted into records, misplaced files (E010) and ignored files (W101), then parsed (E007).
-5. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014, E018 and, since M3.1, E022–E027 and W108–W110, each with its record's file.
-6. **Diagnostics** are sorted in the order records.md gives.
-7. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees, inside the effects the catalogue knows too.
+5. **Scripts** under `scripts/` are read and checked without running ([scripts.md](scripts.md#checks-without-running)): E028 to E030, W111 and W112, each with its script's file and line.
+6. **Records** go through `validateRecords` ([records.md](records.md)), giving E001–E006, E011–E014, E018 and, since M3.1, E022–E027 and W108–W110, each with its record's file.
+7. **Diagnostics** are sorted in the order records.md gives, a script's by line after its file.
+8. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees, inside the effects the catalogue knows too, and the scripts game.ts reaches as JavaScript (format 2).
+
+`compileProject` never runs a script. `compileWithGame(source)` (M3.2) runs the project's game.ts first, as `eb` does without `--types`, and checks content against it: its E031 or E032 is an error like any other ([scripts.md](scripts.md#the-game)).
 
 Steps 1 to 4, short of parsing the records, are `readProjectFiles(source, types)` (M2.8). The editor's catalog runs the same function, and its record index the records' checks, so the Problems panel lists what `eb validate` says ([editor-problems.md](editor-problems.md)).
 
@@ -124,9 +129,9 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 | E010 | error | a JSON file under `records/` is not at `records/<type>/<id>.json` | the file | empty |
 | W101 | warning | a file under `records/` that the compiler ignores | the file | empty |
 
-Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)). Trigger sheets, effects and flags add E022 to E027 and W108 to W110 ([triggers.md](triggers.md#codes)).
+Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)). Trigger sheets, effects and flags add E022 to E027 and W108 to W110 ([triggers.md](triggers.md#codes)). Scripts add E028 to E032, W111 and W112, with a line ([scripts.md](scripts.md)).
 
-## Content packs (format 1)
+## Content packs (formats 1 and 2)
 
 ```json
 {
@@ -137,17 +142,18 @@ Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](typ
 }
 ```
 
-- **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`. That is `stateHash` ([state-hash.md](state-hash.md)).
+- **Format 2** (M3.2) adds `"scripts": { "<id>": "<JavaScript>" }`: game.ts and every script it reaches, compiled by sucrase. A pack without scripts is still format 1, so its hash and its bytes are what they were, and an older engine reads it.
+- **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`, with `scripts` beside them in format 2. That is `stateHash` ([state-hash.md](state-hash.md)).
   - The same content gives the same hash in the editor and in the CLI, whatever the files' formatting, key order or listing order.
   - It is a fingerprint, not a signature.
 - **Bytes.** Packs are written as canonical JSON plus a newline, so the same content gives the same bytes too.
-- **The pack's own format.** `PACK_FORMAT` is 1, and it is separate from the project format: the runtime reads packs and never reads projects.
+- **The pack's own format.** `PACK_FORMAT` is 2, and it is separate from the project format: the runtime reads packs and never reads projects.
 - **The golden.** The v1 fixture's pack hash is `489cedf323bd33d9`, and [`state_hash_oracle.py`](state_hash_oracle.py) computes the same hash from the fixture's files. A change to it changes every pack built so far, so it needs a decision.
 
 `readPack(value)` throws a `PackError` unless all of these hold:
 
-- the format is 1, and a newer format asks for a newer engine;
-- the pack has exactly `format`, `project`, `records` and `hash`;
+- the format is 1 or 2, and a newer format asks for a newer engine;
+- the pack has exactly `format`, `project`, `records` and `hash`, and `scripts` in format 2: at least one, each a valid id with its JavaScript as text;
 - the project has exactly a valid `id`, a `name` and a `version`;
 - `records` maps valid type names to objects keyed by valid ids;
 - the hash matches the content.
@@ -160,6 +166,7 @@ The sim then reads the records through `createRecordStore(pack.records)`.
 pnpm eb validate <project> [--types <module>] [--json]
 pnpm eb build <project> [--types <module>] [--out <file>] [--json]
 pnpm eb schemas <folder> [--types <module>] [--json]
+pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] …
 ```
 
 - **`<project>`** is a project folder or a zip of one.
@@ -168,6 +175,8 @@ pnpm eb schemas <folder> [--types <module>] [--json]
   - Its `facts`, `events` and `effects` exports, or a `modules` export for the first two, are what conditions, rows and effect fields are checked against; without them, the engine's own, and any other name taken as written (M3.1, D36).
   - Until kits exist (M3), a module is how the CLI learns a game's code types.
   - When records are of types neither defines, the CLI says where types come from.
+- **Without `--types`** (M3.2), a project with `scripts/game.ts` is checked against its own game: `eb` runs game.ts as it would a `--game` module, and `eb sim` plays it with no `--game` ([scripts.md](scripts.md#eb)).
+- **A script's problem** prints its line: `scripts/hold.ts:15: error E029: …`.
 - **Output.**
   - One line per diagnostic, `file#/json/pointer: severity code: message`, with the pointer written as a URI fragment (RFC 6901).
   - Then a summary line, with the hash when the pack builds.

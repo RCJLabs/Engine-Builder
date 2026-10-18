@@ -85,6 +85,7 @@ describe('readPack', () => {
     ['no hash', { hash: 5 }, 'The pack has no hash'],
     ['scripts in a format 1 pack', { scripts: { game: '' } }, 'Unknown pack fields: scripts'],
     ['a format 2 pack without scripts', { format: 2 }, 'A format 2 pack has no scripts'],
+    ['a format 2 pack with none in its scripts', { format: 2, scripts: {} }, 'A format 2 pack has no scripts'],
     ['a script with a bad name', { format: 2, scripts: { Game: '' } }, '"Game" is not a valid script name'],
     ['a script that is not text', { format: 2, scripts: { game: 1 } }, 'The pack\'s script "game" is not text'],
   ])('rejects %s', (_name, change, message) => {

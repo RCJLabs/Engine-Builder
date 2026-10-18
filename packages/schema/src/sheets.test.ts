@@ -146,6 +146,8 @@ describe('with a game: nothing else', () => {
             setFlag('met', 3),
             { effect: 'add-to-flag', flag: 'met', by: 1 },
             { effect: 'dock' },
+            // The engine's own, among the game's names, is held to its schema.
+            { effect: 'roll', outcomes: 'many' },
           ],
         }),
       ]),
@@ -154,6 +156,7 @@ describe('with a game: nothing else', () => {
       'E026 sheet:s /rows/0/do/1/to',
       'E025 sheet:s /rows/0/do/2/effect',
       'E025 sheet:s /rows/0/do/3/effect',
+      'E001 sheet:s /rows/0/do/4/outcomes',
     ]);
   });
 });

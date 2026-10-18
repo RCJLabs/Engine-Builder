@@ -45,8 +45,10 @@ pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> [--types <module>] --out <file>
 pnpm eb schemas <folder> [--types <module>]    # JSON Schemas for VS Code, in .vscode/eb-schemas/
-pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
+pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
 ```
+
+- Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
 
 - `@playwright/test` is pinned to 1.56.1 because that matches the Chromium preinstalled in Claude Code's cloud containers. CI installs its own copy.
 - Tools run under Node's native TypeScript stripping (Node ≥ 22.18). Write erasable TS only (`erasableSyntaxOnly`): no enums, namespaces or parameter properties. Import local files with their `.ts` extension.
@@ -77,13 +79,20 @@ apps/editor/           the editor PWA
                        (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
-                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form
+                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form; M3.2's
+                       ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games)
+  src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
+                       play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
+                       gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
+                       scriptEdits.ts, playFiles.ts; the lazy ScriptEditor with CodeMirror (codeEditor.ts,
+                       completions.ts, typedAhead.ts); open.ts
   src/assets/          the asset browser (M2.7): assetLog.ts (the provenance log's JSON), assetPaths.ts (names and
                        free paths), assetEdits.ts (steps over the working copy), assetList.ts (rows and the
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
                        check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
                        inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
-  src/problems/        the Problems panel (M2.8): collect.ts (the list: the catalog's problems and the index's),
+  src/problems/        the Problems panel (M2.8): collect.ts (the list: the catalog's problems, the index's and the
+                       game's scripts', M3.2),
                        problemList.ts (where each opens, titles, words, the view), count.ts (the tab's count),
                        open.ts (openPlace), ProblemsPanel and its lazy ProblemBrowser
   src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
@@ -98,11 +107,12 @@ apps/editor/           the editor PWA
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 and 2)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate), attempts, sessions,
                        events and listeners (events.ts, M3.1)
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION
-  src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files
+  src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files, and the
+                       sweep's report as lines (report.ts: formatSweep, eb sim's and the editor's Run's)
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
   src/time/            calendars, timers and wall-clock settling: timeModule
   src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
@@ -122,17 +132,26 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
-                       reads before the records, shared with the editor's catalog, M2.8); not pure
+                       reads before the records, shared with the editor's catalog, M2.8); M3.2: scripts.ts (scripts/
+                       read and checked, never run) and projectGame.ts (game.ts run, for eb and the script worker,
+                       compileWithGame); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
+packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
+                       engine to them, the compiler a project's scripts (M3.2)
+packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
+                       transpile.ts (sucrase), load.ts (the CommonJS loader), api.ts ("eb") and apiDocs.ts (the lists
+                       completion offers), game.ts and project.ts (game.ts read, E031/E032), catalog.ts; not pure
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
 tools/cli/             eb validate | build | schemas | sim; folderSource.ts is the Node fs source; modules.ts loads
-                       --types and --game; schemas.ts is eb schemas; sim.ts and simReport.ts are eb sim
-  test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json
-tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
+                       --types and --game, a project's game.ts without them (M3.2); schemas.ts is eb schemas; sim.ts
+                       and simReport.ts are eb sim
+  test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
+                       a game written as scripts (M3.2)
+tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```

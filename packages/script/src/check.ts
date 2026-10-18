@@ -19,6 +19,7 @@ export interface CheckedScript {
   readonly js?: string;
   /** The scripts it imports, by id, in the order written. */
   readonly imports: readonly string[];
+  /** In no order: the compiler sorts every diagnostic, by line within a file. */
   readonly problems: readonly ScriptProblem[];
 }
 
@@ -58,6 +59,5 @@ export function checkScript(source: string, scripts: ReadonlySet<string>): Check
         : `Imports "${spec}": a script may import "eb" and other scripts ("./<name>")`;
     problems.push({ code: 'E030', message, line });
   }
-  problems.sort((a, b) => (a.line ?? 0) - (b.line ?? 0) || (a.code < b.code ? -1 : a.code > b.code ? 1 : 0));
   return { ...(out.ok ? { js: out.js } : {}), imports, problems };
 }

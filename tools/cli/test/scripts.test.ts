@@ -73,9 +73,12 @@ describe('eb validate with scripts/game.ts', () => {
     const run = eb(['validate', dir]);
     expect(run.code).toBe(1);
     expect(run.out).toContain('scripts/hold.ts:15: error E029: no Math.random (use a seeded rng stream)');
+    // Nothing ran, so nothing failed as it ran.
+    expect(run.out).not.toContain('E031');
     const sim = eb(['sim', dir, '--seeds', '5']);
     expect(sim.code).toBe(1);
     expect(sim.out).toContain('scripts/hold.ts:15: error E029');
+    expect(sim.out).not.toContain('E031');
   });
 });
 
@@ -87,6 +90,13 @@ describe('eb sim with scripts/game.ts', () => {
     expect(out).toMatchObject({ ok: true, project: 'hold', report: { runs: 20, refused: { count: 0 } } });
     expect(out.report.ends.ended).toBe(20);
     expect(out.report.metrics.map((m: { label: string }) => m.label)).toEqual(['hold.count']);
+  });
+
+  it('plays nothing while content names an effect the game lacks', () => {
+    const odd = { 'records/sheet/odd.json': sheet({ do: [{ effect: 'bail' }] }) };
+    const run = eb(['sim', hold(odd), '--seeds', '5']);
+    expect(run.code).toBe(1);
+    expect(run.out).toContain('records/sheet/odd.json#/rows/0/do/0/effect: error E025: No effect "bail" in this game');
   });
 
   it('needs --game, or a project with scripts/game.ts', () => {

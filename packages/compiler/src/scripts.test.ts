@@ -45,6 +45,16 @@ describe('reading scripts', () => {
     expect(read.compiled.size).toBe(0);
   });
 
+  it('reaches a script through another, however deep', async () => {
+    const game = GAME.replace("import { hold } from './hold';", "import { hold } from './crew';");
+    const crew = "export { hold } from './hold';";
+    const read = await readScripts(
+      memorySource({ 'scripts/game.ts': game, 'scripts/crew.ts': crew, 'scripts/hold.ts': HOLD }),
+    );
+    expect(read.diagnostics).toEqual([]);
+    expect([...read.compiled.keys()]).toEqual(['crew', 'game', 'hold']);
+  });
+
   it('says a script runs nowhere when there is no game.ts', async () => {
     const read = await readScripts(memorySource({ 'scripts/hold.ts': HOLD }));
     expect(read.hasGame).toBe(false);
@@ -55,6 +65,19 @@ describe('reading scripts', () => {
 
 describe('compiling a project with scripts', () => {
   const ludus = () => readFixture(FIXTURE_LUDUS);
+
+  it("lists one script's problems by line, whatever their codes, the file's own first", async () => {
+    const spare = "import { readFileSync } from 'fs';\n\nexport const roll = () => Math.random();";
+    const { diagnostics } = await compileProject(
+      memorySource({ ...ludus(), 'scripts/game.ts': GAME, 'scripts/hold.ts': HOLD, 'scripts/spare.ts': spare }),
+      [],
+    );
+    expect(diagnostics.filter((d) => d.file === 'scripts/spare.ts').map((d) => `${d.code}:${d.line ?? ''}`)).toEqual([
+      'W112:',
+      'E030:1',
+      'E029:3',
+    ]);
+  });
 
   it("packs the scripts game.ts reaches as format 2, their problems beside the records'", async () => {
     const plain = await compileProject(memorySource(ludus()), []);

@@ -83,7 +83,7 @@ my-game/
   types/<type>.json        the project's own record types, as fields (M2.4)
   scenes/<id>.json         3D/2D scenes: entity trees with placed references
   ui/<screen>.json         screens: widget trees, bindings, actions
-  scripts/*.ts             script components (sim or stage)
+  scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
   dialogue/*.ink           ink scenes
   assets/…                 images, audio, models, fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
@@ -143,18 +143,19 @@ The exact rules are in [specs/conditions.md](specs/conditions.md) (M1.6).
 - **`game.preview()`** returns what effects would do from the current state, and the exact odds a `roll` will use, from the same table the roll reads.
 - **A lint** asks whether each condition in content can be true, and can be false, over the facts' domains (who-am-i's search). It reports W102 to W104 when a project is built.
 - **Flags** (M3.1, D36) are what content remembers: declared records, on or off or a whole number with bounds. `set-flag` and `add-to-flag` change them, `flag.on` and `flag.number` read them, and a lint warns of flags set but never read, read but never set, or never named (rule-or-drool's graph rules), [specs/triggers.md](specs/triggers.md).
-- **Effect fields.** `effect()` marks a field that holds an effect, checked against the effects known: the engine's own, or a game's when `--types` gives them.
+- **Effect fields.** `effect()` marks a field that holds an effect, checked against the effects known: the engine's own, or a game's when `--types` or its scripts/game.ts give them (M3.2).
+- **Scripts** (M3.2, D38) are `scripts/<id>.ts`, checked without running (E028 to E030, W111, W112) and packed as JavaScript, pack format 2, once game.ts reaches them ([specs/scripts.md](specs/scripts.md)).
 
 ## Logic layers
 
 1. **Trigger sheets** (M3.1, D36, [specs/triggers.md](specs/triggers.md)). Records of rows: *When* (an event, with argument values to match) / *If* (a condition) / *Do* (effects), run in the order written, each row as one attempt. Events are beats modules declare with typed arguments; listeners hear them when the work that raised them finishes, so a timer's consequences land at its tick. Sheets are records of their own today; a scene, an entity or a quest may carry rows later. They cover most mission and level logic with no code.
-2. **TypeScript script components**, with a typed `ctx` API.
-   - *Sim scripts* register facts, effects, reducers and bot policies, and are linted with the same purity rules as `eb.pure` packages.
-   - *Stage scripts* drive visuals and movement and are unrestricted.
-   - Scripts are edited in CodeMirror 6, transpiled by sucrase in a worker, and hot-reloaded in Play-in-Editor.
+2. **TypeScript scripts** (M3.2, D38, [specs/scripts.md](specs/scripts.md)).
+   - *Sim scripts* are modules made with `defineModule`: facts, effects, events, actions and modes, with bots beside them. `scripts/game.ts` exports the game as `eb sim --game` reads a module, so `eb` and the editor check content against its facts, events and effects, and play it. They import only `"eb"`, the sim's API, and each other, and are held to the purity rules `eb.pure` packages keep (`packages/purity`).
+   - *Stage scripts* will drive visuals and movement, unrestricted, with the runtime (Phase 4).
+   - The editor edits them in CodeMirror 6 with completion from the engine's API list, and a worker compiles them with sucrase, checks them and runs them as you type; Run plays 20 games and shows `eb sim`'s report ([specs/editor-scripts.md](specs/editor-scripts.md)). Hot reload in Play-in-Editor arrives with it (Phase 4).
 3. **Node graphs** (Phase 8) compile to the same actions and effects, so nothing in the runtime depends on them.
 
-Scripts in your own projects are trusted. Scripts from other people (mods, Phase 9) run sandboxed.
+A project made in the editor runs its scripts at once; one from a zip or a folder asks once first (D38), since a script runs with the editor's origin and the purity rules are a check, not a wall. The worker that runs them has no network or storage. Scripts from other people as mods (Phase 9) will run in a sandbox of their own origin.
 
 ## Missions
 

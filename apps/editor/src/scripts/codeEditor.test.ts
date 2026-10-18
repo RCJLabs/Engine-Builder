@@ -17,11 +17,14 @@ describe('the change a file brings to the editor', () => {
     expect(changeBetween('let a = 1;', 'let a = 12;')).toEqual({ from: 9, to: 9, insert: '2' });
     expect(changeBetween('abcdef', 'abXYef')).toEqual({ from: 2, to: 4, insert: 'XY' });
     expect(changeBetween('aaa', 'aa')).toEqual({ from: 2, to: 3, insert: '' });
+    // Grown by what it already ends with: the common start and end must not overlap.
+    expect(changeBetween('aa', 'aaa')).toEqual({ from: 2, to: 2, insert: 'a' });
     expect(changeBetween('', 'new')).toEqual({ from: 0, to: 0, insert: 'new' });
     expect(changeBetween('same', 'same')).toEqual({ from: 4, to: 4, insert: '' });
     for (const [a, b] of [
       ['import { x } from "eb";', 'import { x, y } from "eb";'],
       ['ababab', 'abab'],
+      ['abab', 'ababab'],
       ['x', ''],
     ] as const) {
       const { from, to, insert } = changeBetween(a, b);

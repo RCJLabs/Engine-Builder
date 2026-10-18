@@ -58,7 +58,6 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
   const heading = useUniqueId();
   const [naming, setNaming] = useState(false);
   const canEdit = editing.access.value.kind === 'editing';
-  const problemsOf = (id: string) => game.problems.filter((p) => p.file === scriptPath(id));
   return (
     <section class="logic-section" aria-labelledby={heading}>
       <div class="logic-head">
@@ -69,17 +68,7 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
           </button>
         ) : null}
       </div>
-      {game.status === 'untrusted' ? (
-        <div class="logic-trust">
-          <p>
-            This project came from a zip or a folder, so its scripts haven’t run in this browser. A script can do
-            anything this editor can: run them only if you trust where the project came from.
-          </p>
-          <button type="button" class="button primary" onClick={runScripts}>
-            Run its scripts
-          </button>
-        </div>
-      ) : null}
+      {game.status === 'untrusted' ? <TrustBanner /> : null}
       {naming ? (
         <NameRecord
           type="script"
@@ -95,21 +84,7 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
           cancel={() => setNaming(false)}
         />
       ) : null}
-      {game.ids.length === 0 ? (
-        <p class="muted">
-          No scripts yet. A game’s code is TypeScript in scripts/: game.ts lists the modules it is made of, the mode it
-          starts in and the bots that play it.
-        </p>
-      ) : (
-        <>
-          <p class="logic-game">{gameText(game)}</p>
-          <ul class="logic-list">
-            {game.ids.map((id) => (
-              <ScriptCard key={id} id={id} problems={problemsOf(id).length} />
-            ))}
-          </ul>
-        </>
-      )}
+      <ScriptList game={game} />
       {canEdit && !game.ids.includes(GAME_SCRIPT) ? (
         <div class="form-actions">
           <button type="button" class="button" onClick={() => startGame(project)}>
@@ -119,6 +94,44 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
       ) : null}
       {game.status === 'loaded' && game.catalog ? <RunGame project={project} catalog={game.catalog} /> : null}
     </section>
+  );
+}
+
+/** Asked once, of a project from a zip or a folder, before its scripts run (D38). */
+function TrustBanner() {
+  return (
+    <div class="logic-trust">
+      <p>
+        This project came from a zip or a folder, so its scripts haven’t run in this browser. A script can do anything
+        this editor can: run them only if you trust where the project came from.
+      </p>
+      <button type="button" class="button primary" onClick={runScripts}>
+        Run its scripts
+      </button>
+    </div>
+  );
+}
+
+/** The game in a sentence, then each script, or what scripts are for when there are none. */
+function ScriptList({ game }: { game: GameState }) {
+  if (game.ids.length === 0) {
+    return (
+      <p class="muted">
+        No scripts yet. A game’s code is TypeScript in scripts/: game.ts lists the modules it is made of, the mode it
+        starts in and the bots that play it.
+      </p>
+    );
+  }
+  const problemsOf = (id: string) => game.problems.filter((p) => p.file === scriptPath(id)).length;
+  return (
+    <>
+      <p class="logic-game">{gameText(game)}</p>
+      <ul class="logic-list">
+        {game.ids.map((id) => (
+          <ScriptCard key={id} id={id} problems={problemsOf(id)} />
+        ))}
+      </ul>
+    </>
   );
 }
 

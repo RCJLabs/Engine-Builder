@@ -34,17 +34,15 @@ function decode(bytes: Uint8Array | undefined): Loaded {
   }
 }
 
-export function ScriptEditor({ project, id }: { project: OpenProject; id: string }) {
-  const path = scriptPath(id);
-  const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const host = useRef<HTMLDivElement>(null);
-  const code = useRef<CodeEditor | null>(null);
-  const canEdit = editing.access.value.kind === 'editing';
-  const problems = useMemo(() => project.game.problems.filter((p) => p.file === path), [project.game, path]);
+type CodeRef = { current: CodeEditor | null };
+type HostRef = { current: HTMLDivElement | null };
 
-  // Read on every change, straight into CodeMirror rather than through a render, so no keystroke
-  // falls between an undo and the editor showing it.
+/**
+ * The script's file, read on every change and handed straight to CodeMirror rather than through a
+ * render, so no keystroke falls between an undo and the editor showing it.
+ */
+function useScriptFile(project: OpenProject, path: string, code: CodeRef): Loaded | null {
+  const [loaded, setLoaded] = useState<Loaded | null>(null);
   useEffect(() => {
     let live = true;
     const stop = effect(() => {
@@ -62,10 +60,16 @@ export function ScriptEditor({ project, id }: { project: OpenProject; id: string
       stop();
     };
   }, [project.source, path]);
+  return loaded;
+}
 
+/** CodeMirror in `host`, into `code`, once the text is first read; kept to the access, the problems and a line asked for. */
+function useCode(host: HostRef, code: CodeRef, loaded: Loaded | null, id: string, problems: readonly Diagnostic[]) {
+  const path = scriptPath(id);
+  const canEdit = editing.access.value.kind === 'editing';
   const ready = loaded?.kind === 'ok';
   useEffect(() => {
-    if (!ready || code.current || !host.current || loaded?.kind !== 'ok') return;
+    if (code.current || !host.current || loaded?.kind !== 'ok') return;
     code.current = codeEditor(host.current, {
       text: loaded.text,
       readOnly: !canEdit,
@@ -83,7 +87,19 @@ export function ScriptEditor({ project, id }: { project: OpenProject; id: string
     lineToFocus.value = null;
     code.current?.focusAt(focus.line, focus.column);
   }, [ready, lineToFocus.value]);
+}
 
+export function ScriptEditor({ project, id }: { project: OpenProject; id: string }) {
+  const path = scriptPath(id);
+  const [deleting, setDeleting] = useState(false);
+  const host = useRef<HTMLDivElement>(null);
+  // One editor for both hooks: the file's reads go into the CodeMirror useCode makes.
+  const code = useRef<CodeEditor | null>(null);
+  const problems = useMemo(() => project.game.problems.filter((p) => p.file === path), [project.game, path]);
+  const loaded = useScriptFile(project, path, code);
+  useCode(host, code, loaded, id, problems);
+  const canEdit = editing.access.value.kind === 'editing';
+  const ready = loaded?.kind === 'ok';
   return (
     <section class="script-editor" aria-label={`Script ${id}.ts`}>
       <header class="record-head">

@@ -116,13 +116,13 @@ The slice is `{ "fired": ["voyage/meet-trader"] }`: the once rows that have run,
 
 **What content is checked against** (D36):
 
-| | Without `--types` | With `--types` |
+| | No game known | With `--types`, or the project's scripts/game.ts once it runs (M3.2) |
 | --- | --- | --- |
 | Facts | the engine's own; any other taken as written | the game's: another is E012 |
 | Events | the engine's own; any other taken as written | the game's: another is E022 |
-| Effects | the engine's own; any other kept as written | the game's `effects`: another is E025 |
+| Effects | the engine's own; any other kept as written | the game's `effects`, or the names its modules handle: another is E025 |
 
-Without `--types` there is no game to ask, so a name the engine doesn't know may be the game's own, or a typo: it is kept as written. The editor has no `--types`, so it checks as `eb validate` does without one.
+With no game to ask, a name the engine doesn't know may be the game's own, or a typo: it is kept as written. Since M3.2 a project's `scripts/game.ts` is its game ([scripts.md](scripts.md#content-checked-against-the-game)): `eb` runs it when there is no `--types`, and the editor once the project is trusted, so both check content against it.
 
 **Effect fields.** `effect()` marks a field that holds an effect, as `condition()` marks a condition. zod checks only that it is an object naming itself; the effect check then looks the name up:
 
