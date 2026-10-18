@@ -754,6 +754,37 @@ The spec is [specs/kits.md](specs/kits.md).
 - **A kit's own fields are fixed** while it is on: a project adds fields, but can't rename, remove or change the kit's.
 - **M3.3 grows** by the type designer's locked fields and the compiler's joining of the two field lists.
 
+### D42. Stats and gear are two kits; a modifier adds, then takes a percent; a status lasts days, ticks or until removed; worn gear leaves the bag. LOCKED, 2026-10-18 (Evan's calls, M3.4)
+
+**Decision.**
+- **Two kits** (Evan's call): `stats` (actors, stats, statuses), which needs no other kit, and `gear` (slots, and items worn in them), which needs stats and inventory. A sports sim gets ratings without turning on items.
+- **A modifier adds, then takes a percent** (Evan's call). A stat's value is (base + the adds) × (100 + the percents) ÷ 100, rounded once to the nearest whole number, halves up, then kept within the stat's bounds. The adds are summed and so are the percents, so their order never changes a value. The parts (the base, each status, each worn item) are what a screen shows, from the same function the sim reads.
+- **A status lasts days, ticks or until removed** (Evan's call). Applied again, it takes the longer of the time it has left and its own, and one more stack up to its cap (1 when left out); each stack applies its modifiers once more. A timed status needs the time module, and is a warning in a game without one.
+- **Worn gear leaves the bag** (Evan's call). Equipping moves one item from the party's bag to the actor's slot, and the slot's old item back into the bag; unequipping puts it back, and is refused when the bag can't hold it. A worn item can't be sold.
+
+Evan chose on 2026-10-18, from these options:
+- modifiers: add then percent; flat points only; add, then multiply by each percent in turn;
+- durations: days, ticks or until removed; those and a number of actions; until removed only;
+- worn gear: off the bag and onto the actor; in the bag, marked worn; only ever on actors;
+- kits: stats and gear apart; one stats kit that needs inventory.
+
+Also settled, as the session's calls: every stat can take damage, its current amount being its value less the damage taken (Bethesda's actor values have it), so a pool is any stat a game hurts and heals; and a stat's base is a number, with no stat worked out from another (a script's fact does that).
+
+The spec is [specs/stats.md](specs/stats.md), and the survey behind it [research/stats.md](research/stats.md).
+
+**Why.**
+- **Add then percent** covers both families in Evan's games: flat points (Space-Wrecked's traits, Landnam's injuries, Sandbagged's gear) and percentages (Ludus's gear, 2060td's ranks). Summed percents, rounded once, are exact and order-free, as the economy's quote is.
+- **The longer time and a stack to a cap** is the rule the repos use most: Wasteland Protocol's `Math.max` of the old and new, Spliceworld's venom to 5 stacks.
+- **The bag.** One store of items for the party (D41) means a worn item is somewhere else, and selling what an actor wears would surprise a player.
+- **Two kits.** A game of ratings and meters (a football manager, Rule or Drool) needs no items.
+
+**Cost.**
+- **Two more boxes** in the Project panel's Kits.
+- **No compounding:** two +10% make +20%, not +21%. A game that compounds writes it in a script.
+- **Turns aren't a duration.** A fight that counts turns removes its statuses with rows or scripts until Phase 6's combat.
+- **No derived stats** (Landnam's health of 8 plus 2 a point of might): a game that needs one writes a fact in a script.
+- **The stats module is built knowing whether gear is on,** since a module can't ask whether another's fact exists.
+
 ---
 
 ## Open

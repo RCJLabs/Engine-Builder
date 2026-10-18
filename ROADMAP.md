@@ -360,7 +360,7 @@ How to read this file:
     - in the checks: each bound one past its line (a range, a resource's highest and start, a shop's buying); the shortest way round a loop; a project's own type with a kit's name left alone while the kit is off; an unknown key and a cost of 0 in a kit's effect; the kits' effects joined to a game's effect names;
     - in `eb sim`: the kits joined to a `--game` module's game (the stall fixture);
     - in the editor: every record checked again when a kit turns on, even beside types that were the kit's to the letter; the kits' names offered to a script; no Rename on a kit's type once it has a file of its own.
-- **M3.4 Kits I: stats** (D41). Actors, stats and pools, a pool keeping the damage taken when its maximum moves; statuses, a light gameplay-ability system of modifiers, durations and stacking; equipment slots, and worn gear that grants modifiers.
+- **M3.4 Kits I: stats** (D41, D42, your calls). Two kits: stats (actors, stats any of which can take damage, a stat keeping the damage taken when its maximum moves; statuses, a light gameplay-ability system of modifiers that add then take a percent, durations of days or ticks, and stacks to a cap) and gear (slots, and items worn in them, which leave the party's bag and add their modifiers). The arena fixture, a slice of Ludus.
 - **M3.5 Kits II.** Factions with standing bands; a roster with traits, wounds, ranks, bonds and recruits; time and calendar.
 - **M3.6 Choice events.** Costs shown on every choice, weighted outcomes, and consequences that land N turns, days or nodes later.
 - **M3.7 Dialogue.**
