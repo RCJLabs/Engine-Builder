@@ -73,6 +73,7 @@ pnpm eb schemas <folder> [--types <module>] [--json]
   ```
 
   A relative `url` is the workspace folder's, so this works when the project folder is the one opened in VS Code.
+- **Type files too.** When the project has type files, the type file format's schema (`typeFileJsonSchema`) goes to `.vscode/eb-schemas/_type-file.json`, mapped to `**/types/*.json`. No record type can be named `_type-file`: a type's name has no underscore. Each field's choice of kind also lists every kind, since VS Code completes a value only from the choices the rest of the object already fits: without the list, a new field was offered the seven kinds that need nothing else, not enum, ref, list, map or group.
 - **Which types.** The project's `types/` and the `--types` module's, as `eb validate` reads them. A type whose file has problems gets no schema, and the command says which and why. Records of a type nobody defines are named, with where types come from.
 - **Kept in step.** Schemas of types the project no longer has are removed; other files in the folder are left. Run it again after changing a type; a run with nothing changed leaves every file's bytes as they were.
 - **The settings are merged.** Other settings and other tools' entries in `json.schemas` are kept, in front; entries whose `url` starts with `./.vscode/eb-schemas/` are this command's and are replaced. The file keeps its indentation.
@@ -82,8 +83,8 @@ pnpm eb schemas <folder> [--types <module>] [--json]
   - a folder with no `project.json`;
   - `--out` and the sim's flags.
 - **Hidden.** `.vscode/` starts with a dot, so the compiler, zips and the editor leave it out: the content hash doesn't change.
-- **What the schemas check:** a record's shape, the same as a form: fields, kinds, bounds, choices, strict objects and the form of ids. **Not** whether a reference names a record, conditions written as text, or whether an asset file is there: those need `eb validate` or the editor.
-- **VS Code.** Its docs say its JSON support covers drafts 4 to 7, and 2019-09 and 2020-12 in part. The tests run the written schemas through `vscode-json-languageservice` 5.7.2, the library VS Code's JSON support is built on, set up from the written settings: no problems in the fixture's records, each wrong value and unknown field marked, a type's fields and a field's choices offered. They have not been tried in VS Code itself.
+- **What the schemas check:** a record's shape, the same as a form: fields, kinds, bounds, choices, strict objects and the form of ids; a type file's shape. **Not** whether a reference names a record, conditions written as text, whether an asset file is there, or the type file rules a shape can't carry, such as bounds in order: those need `eb validate` or the editor.
+- **VS Code.** Its docs say its JSON support covers drafts 4 to 7, and 2019-09 and 2020-12 in part. The tests run the written schemas through `vscode-json-languageservice` 5.7.2, the library VS Code's JSON support is built on, set up from the written settings: no problems in the fixture's records and type files, each wrong value and unknown field marked, a type's fields, a field's choices and all twelve kinds offered. They have not been tried in VS Code itself.
 
 ## On a phone
 
@@ -94,18 +95,26 @@ pnpm eb schemas <folder> [--types <module>] [--json]
 ## Checks
 
 - **Unit:**
-  - `problems/problemList.test.ts`: every code a data project can give, planted at once, listed as `compileProject` lists them; the clean fixture; a property test over subsets of the planted problems (40 runs); the files' problems before the index; where each problem opens; titles and wording; the filters; counts.
+  - `problems/problemList.test.ts`: every code a data project can give, planted at once, listed as `compileProject` lists them; the clean fixture; a property test over subsets of the planted problems (40 runs); the files' problems before the index; where each problem opens; titles and wording; the filters, a file with nothing shown left out; counts in words and the badge's.
+  - `problems/open.test.ts`: each kind of place opened by its own way of showing it, a record with the field to focus.
+  - `forms/focusField.test.ts`: the field at a pointer, or the nearest one holding it, a box with no control passed.
+  - `forms/catalog.test.ts`: a type file the compiler ignores is no broken type.
   - `records/recordIndex.test.ts`: a record of a type with no type file gets E002, as from the compiler.
+  - `app/state.test.ts`, `app/errors.test.ts`: repeats counted, levels kept apart, 200 lines kept, the last error held and taken off the toast after 8 s; errors nothing caught noted, ResizeObserver loops left out.
+  - `schema/jsonSchema.test.ts`: the type file format's schema, every kind in it.
   - `compiler`: `compileProject` on top of `readProjectFiles`, every fixture to its golden hash.
   - `app/layout.test.ts`: each layout's panels, the dock's bottom group, a phone opening on Project.
-  - `tools/cli/test/schemas.test.ts`: the files written and the fixture's hash unchanged; other settings and their indentation kept; stale schemas removed; a second run the same; a broken type skipped; records of no type named and nothing written; comments refused, nothing written; JSON out; the refusals; and the schemas through VS Code's JSON language service.
+  - `tools/cli/test/schemas.test.ts`: the files written and the fixture's hash unchanged; other settings and their indentation kept; stale schemas removed, and all of them with their entries when the types go; a second run the same; a broken type skipped; records of no type named and nothing written; settings left alone with nothing to map, or with comments, or no object; JSON out; the refusals; and the schemas through VS Code's JSON language service.
 - **e2e:** `e2e/problems.spec.ts` on a desktop, `e2e/problemsPhone.spec.ts` at 360×740, 390×844 and 740×360:
   - the list against `eb validate --json` on a zip of the same files, before and after a fix made in the form;
-  - each place a problem opens: a record's field focused, the type designer, an asset;
-  - the count on the tab, and its name on desktop;
-  - the filters, kept while the panel is away;
+  - each place a problem opens: a record's field focused, also with another record's form open, the type designer, an asset;
+  - 200 problems drawn, then the rest;
+  - the count on the tab, red only for errors, and the dock tab's text and name;
+  - the filters, kept while the panel is away, on a phone across its tabs;
   - Copy all and Clear;
-  - on phones, a refused step (an import over a provenance log that isn't JSON) shown as a toast, its Console button, and the line kept;
+  - on phones, a refused step (an import over a provenance log that isn't JSON) shown as a toast; Dismiss; Console, its line kept and counted; the toast going by itself;
+  - at tablet width, a tab shown from the palette brought into view in a zone of more tabs than fit;
+  - `layout.spec.ts`: panels a saved layout lacks placed beside their peers;
   - the shared checks (overflow, 44 px targets, axe at every impact, no id twice).
 
 **Found by these checks while building it:**
@@ -113,7 +122,12 @@ pnpm eb schemas <folder> [--types <module>] [--json]
 - dockview's tab names hid the count from screen readers;
 - `showPanel` skipped the console, from when it was never a tab, so on a phone the toast's Console button and the palette's "Show the Console panel" did nothing.
 
-**Planted bugs.** PLANTED_RESULTS
+**Planted bugs.** Ninety-five, at the unit and the UI level. The first run, of 88, caught 71. Each survivor got a check, now seen failing, and a second run caught all but one:
+- unit: a type file the compiler ignores taken for a broken type; warnings alone said as no problems; a file listed with nothing shown; a badge of 0; focus not walking up to the field that holds a pointer; project.json's problems not opening the Project panel; the toast never timing out; settings that are no object, or that map nothing, rewritten;
+- UI: the dock tab's text without its count; every problem drawn at once; the search lost across a phone's tabs; a badge never red; Dismiss doing nothing; a tab shown from the palette left out of view; panels a saved layout lacks put in the active group rather than beside their peers;
+- still surviving: a form taking a focus request meant for another record. The inspector shows one record form at a time, keyed by its record, so the old form is gone before the new one reads the request. The check stays for when a second form can be open.
+
+Seven more, planted in the code added after the first run (the toast's timer and the type file schema), were each caught.
 
 ## Open questions
 

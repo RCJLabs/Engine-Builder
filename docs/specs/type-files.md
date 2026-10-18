@@ -104,7 +104,7 @@ An asset field holds a path inside the project's `assets/` folder: `portraits/sp
 - `label` and `description` become the field's JSON Schema `title` and `description`;
 - `defineRecordType` checks the result like any other type.
 
-The JSON Schema of the format itself (`typeFileSchema`) can be exported for editing type files by hand; M2.8's `eb schemas` will write it.
+The JSON Schema of the format itself is `typeFileJsonSchema()`, for editing type files by hand: `eb schemas` writes it to `.vscode/eb-schemas/_type-file.json` and maps `types/*.json` to it (M2.8, [editor-problems.md](editor-problems.md#eb-schemas)). It has the format's shape only; the rules a shape can't carry are `readTypeFile`'s.
 
 ## Compiling
 

@@ -107,7 +107,8 @@ for (const viewport of [
 test.describe('the error toast, phone 390×844', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-  test('goes by itself after 8 s, the console keeping its line', async ({ page }) => {
+  test('goes by itself, the console keeping its line', async ({ page }) => {
+    test.setTimeout(45_000);
     const errors = watchErrors(page);
     await importLudus(page, { 'assets/assets.json': '{ "files": ' });
     const panel = await showAssets(page);
@@ -120,15 +121,12 @@ test.describe('the error toast, phone 390×844', () => {
     await form.getByLabel('Licence').selectOption('own');
     await form.getByLabel('Where it came from').fill('Drawn for the ludus');
     await form.getByLabel('Date').fill('2026-10-18');
-    // The page's clock from here on, so the toast's 8 s pass at once.
-    await page.clock.install();
     await form.getByRole('button', { name: 'Import 1 file' }).tap();
     const toast = page.getByRole('alert');
     await expect(toast).toBeVisible();
-    await page.clock.runFor(7_900);
-    await expect(toast).toBeVisible();
-    await page.clock.runFor(200);
-    await expect(toast).toBeHidden();
+    // In real time: the 8 s themselves are state.test.ts's, on fake timers. Playwright's clock keeps
+    // running until paused, so a test that took longer counted against the toast.
+    await expect(toast).toBeHidden({ timeout: 15_000 });
     await page.getByRole('tab', { name: 'Console' }).tap();
     await expect(page.locator('[data-panel="console"] .console-error')).toContainText('Couldn’t import');
     expect(errors).toEqual([]);
