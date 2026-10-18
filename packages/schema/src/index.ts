@@ -41,6 +41,7 @@ export {
   type FieldInfo,
   type FieldKind,
   type Fields,
+  fieldNameProblem,
   type ReadTypeFile,
   type RefDef,
   readTypeFile,

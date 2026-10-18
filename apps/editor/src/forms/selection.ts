@@ -1,9 +1,14 @@
 import { signal } from '@preact/signals';
 
-export interface Chosen {
-  readonly type: string;
-  readonly id: string;
-}
+/** What the inspector shows: a record's form, a type's designer (M2.6), or the form that names a new type. */
+export type Chosen =
+  | { readonly kind: 'record'; readonly type: string; readonly id: string }
+  | { readonly kind: 'type'; readonly type: string }
+  | { readonly kind: 'new-type' };
 
-/** The record the inspector shows. A project opening or closing clears it. */
+/** A project opening or closing clears it. */
 export const chosen = signal<Chosen | null>(null);
+
+/** The record the inspector shows, if it shows one. */
+export const chosenRecord = (): { readonly type: string; readonly id: string } | null =>
+  chosen.value?.kind === 'record' ? chosen.value : null;
