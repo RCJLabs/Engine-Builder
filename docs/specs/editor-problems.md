@@ -10,7 +10,7 @@ M2.8's three ways of seeing what is wrong: the Problems panel, which lists what 
   - the catalog's problems, from `readProjectFiles`: project.json, the type files, which files under `records/` are records, and the provenance log (E007 to E010, E015 to E017, E019 to E021, W101, W105 to W107);
   - the record index's, from the compiler's checks of each record (E001 to E007, E011 to E014, E018).
 - **The same code.** `compileProject` is `readProjectFiles`, then the records' checks, then the pack, so a check added to the compiler reaches the panel without a second copy.
-- **Held together by tests:** a property test over every combination of sixteen planted problems compares the panel's list with `compileProject`'s, and an e2e test compares it with `eb validate --json` on a zip of the same files.
+- **Held together by tests:** a property test over random subsets of sixteen planted problems (40 runs) compares the panel's list with `compileProject`'s, and an e2e test compares it with `eb validate --json` on a zip of the same files.
 - **Not the game's facts.** A `--types` module can give the CLI a fact catalogue, and then conditions are checked against it (E012, W102). The editor has no facts until Phase 3, so those problems are the CLI's alone.
 - **Until the index is read**, the panel shows the files' problems and says "Checking the records…".
 
@@ -74,7 +74,7 @@ pnpm eb schemas <folder> [--types <module>] [--json]
 
   A relative `url` is the workspace folder's, so this works when the project folder is the one opened in VS Code.
 - **Which types.** The project's `types/` and the `--types` module's, as `eb validate` reads them. A type whose file has problems gets no schema, and the command says which and why. Records of a type nobody defines are named, with where types come from.
-- **Kept in step.** Schemas of types the project no longer has are removed; other files in the folder are left. Run it again after changing a type; a run that changes nothing writes nothing new.
+- **Kept in step.** Schemas of types the project no longer has are removed; other files in the folder are left. Run it again after changing a type; a run with nothing changed leaves every file's bytes as they were.
 - **The settings are merged.** Other settings and other tools' entries in `json.schemas` are kept, in front; entries whose `url` starts with `./.vscode/eb-schemas/` are this command's and are replaced. The file keeps its indentation.
 - **Refused, writing nothing (exit 2):**
   - a settings file that isn't plain JSON: VS Code allows comments there, which a rewrite would lose, so the command prints the entries to add by hand;

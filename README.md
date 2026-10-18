@@ -2,7 +2,7 @@
 
 A browser-based game engine and editor. Build worlds, missions, scripts, menus and UI on a PC, tablet or phone, then ship the game as a PWA on GitHub Pages or as a Play Store app (TWA).
 
-**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Edits save by themselves, undo and redo, and stay whole through a crash, with one editing tab per project. A project's record types are data in its `types/` folder, and each record is edited in a form drawn from its type, with the compiler's problems beside each field. Each type's records also show as a table, to sort, search, filter and change many at once, and every record lists what refers to it. Record types are designed in the editor too, on a phone as well, and renaming a field, a type or a record carries every record and reference with it. Images, sounds, models and fonts come in through an Assets panel, each logged with its source and a licence that lets a game be sold, and stand-ins fill in until the art is ready. The problems and console panels come next. The engine's pure core is built, through the 3D spike:
+**Status: Phase 2, the editor foundation.** The editor lives at [engine.rcjlabs.com](https://engine.rcjlabs.com/). It stores projects in the browser, imports and exports zips, and opens folders on desktop. Desktop docks its panels, a phone keeps the inspector in a sheet, and a command palette (Ctrl/⌘+K) works on both. Edits save by themselves, undo and redo, and stay whole through a crash, with one editing tab per project. A project's record types are data in its `types/` folder, and each record is edited in a form drawn from its type, with the compiler's problems beside each field. Each type's records also show as a table, to sort, search, filter and change many at once, and every record lists what refers to it. Record types are designed in the editor too, on a phone as well, and renaming a field, a type or a record carries every record and reference with it. Images, sounds, models and fonts come in through an Assets panel, each logged with its source and a licence that lets a game be sold, and stand-ins fill in until the art is ready. A Problems panel lists what `eb validate` would say, each problem opening where it is fixed, and a console says what the editor did and what went wrong. Phase 3, the game's logic, comes next. The engine's pure core is built, through the 3D spike:
 - seeded RNG and state hashes;
 - records, the project format and the compiler;
 - the sim kernel, conditions and time;
@@ -62,6 +62,7 @@ pnpm check      # everything CI runs: typecheck, lint, unit tests, build, e2e
 | `pnpm format` | Biome autofix |
 | `pnpm eb validate <project> [--types <module>]` | Checks a project folder or zip and prints its diagnostics and pack hash ([spec](docs/specs/project-format.md#the-cli)). A project whose types are all in its `types/` needs no module |
 | `pnpm eb build <project> [--types <module>] --out <file>` | The same, then writes the content pack |
+| `pnpm eb schemas <folder> [--types <module>]` | Writes each record type's JSON Schema into the folder's `.vscode/`, so VS Code checks and completes records edited by hand ([spec](docs/specs/editor-problems.md#eb-schemas)) |
 | `pnpm --filter @eb/editor icons` | Re-renders the PWA icons from `apps/editor/public/icons/icon.svg` |
 
 ## Layout
@@ -71,7 +72,7 @@ apps/editor            the editor PWA (Preact + signals, Vite, vite-plugin-pwa)
 packages/core          the pure simulation kernel (no DOM, clock or Math.random)
 packages/schema        record types as strict zod schemas, type files, validation with coded diagnostics, JSON Schema export
 packages/compiler      reads a project (memory, OPFS, folder or zip), checks it and builds content packs
-tools/cli              eb validate and eb build
+tools/cli              eb validate, build, schemas and sim
 tools/lint-boundaries  the purity lint for packages marked "eb": { "pure": true }
 tools/site-check       the deploy check: the live page and every file it loads
 docs/                  architecture, decisions, research
