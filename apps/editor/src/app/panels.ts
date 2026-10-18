@@ -8,6 +8,9 @@ export interface PanelInfo {
   coming: readonly string[];
 }
 
+/** The panels no phase has built yet: Panel draws them from PANELS, and More's list says when they come. */
+export const PLACEHOLDERS: ReadonlySet<PanelId> = new Set(['world', 'play']);
+
 /** Phase 0 placeholders: each panel says what it will hold and when (ROADMAP.md). */
 export const PANELS: Record<PanelId, PanelInfo> = {
   project: {

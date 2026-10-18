@@ -291,7 +291,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 - **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
   - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), Assets (M2.7), World, Play and Inspector, with Console and Problems (M2.8) along the bottom. The Outliner joins with M5.1.
   - Tablet: two zones, and the console as a strip along the bottom.
-  - Phone: one panel at a time with a bottom tab bar (Project, Records, Assets, Logic, Problems, Console: D35, D36), and the inspector as a bottom sheet.
+  - Phone: one panel at a time with a bottom tab bar (Project, Records, Assets, Logic, Problems, More: D35, D36, D37), More holding Console, World and Play, and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.**

@@ -4,7 +4,7 @@ M3.1's place in the editor for trigger sheets and flags ([triggers.md](triggers.
 
 ## The Logic panel
 
-- **Where it sits.** The desktop dock's left group, beside Project; the tablet's side zone; the phone's fourth tab: Project, Records, Assets, Logic, Problems, Console.
+- **Where it sits.** The desktop dock's left group, beside Project; the tablet's side zone; the phone's fourth tab: Project, Records, Assets, Logic, Problems, More (D37).
 - **Trigger sheets.** Each sheet, by name and id, with how many rows it has and how many problems, then its rows as cards, in the order they run. A card says the row's id and whether it runs once, then its When, If and Do in words ("When a flag changes (flag: raids)", "If raids is at least 3", "Do: set met-trader to on"), and how many problems it has. Events are named by their labels; a game's own event, which the editor doesn't know, by its id.
 - **Flags.** Each flag, by name and id, with what it holds ("On or off: starts off", "A number from 0 to 5: starts at 0") and each of its problems: the lint's warnings (W108 to W110) most often.
 - **New sheet and New flag** ask for a name, as New does in the Records panel (M2.5), and open the new record in the inspector: a flag as `{ "name": … }`, a sheet as `{ "name": …, "rows": [] }`.
@@ -39,7 +39,7 @@ A sheet's form is its record form, laid out from the sheet's layout type file (`
 
 ## On a phone
 
-- Six tabs fit a 360 px phone, each at least 44 px each way.
+- Six tabs fit a 360 px phone, More the last (D37), each at least 44 px each way.
 - The sheet editor sits in the inspector's sheet. Its controls are at least 44 px, and its rows' groups and an effect's Up, Down and Remove wrap rather than run past the screen.
 - **The page never scrolls as a whole.** The words kept for screen readers are placed against each panel's scroll box, not the page: placed against the page, a long form made the page itself scroll, taking the top bar off a phone's screen. The e2e checks hold every page to the screen's height.
 

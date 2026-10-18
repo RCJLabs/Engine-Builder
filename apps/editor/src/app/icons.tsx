@@ -53,6 +53,37 @@ export function HistoryIcon({ way }: { way: 'undo' | 'redo' }) {
   );
 }
 
+/** The More tab (D37): three dots, the mark phones use for "the rest". */
+export function MoreIcon() {
+  return (
+    <svg class="tab-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path
+        d="M5 12h.01M12 12h.01M19 12h.01"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}
+
+/** Back to More's list: a chevron pointing back. */
+export function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+      <path
+        d="M14.5 5.5 8 12l6.5 6.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** The top bar's command palette button: a magnifier, the shape people look for to find a command. */
 export function CommandsIcon() {
   return (

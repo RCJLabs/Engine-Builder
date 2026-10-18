@@ -254,6 +254,54 @@ for (const [width, height] of [
       expect(errors).toEqual([]);
     });
 
+    test('reaches every panel past the bar through More, and back', async ({ page }) => {
+      const errors = watchErrors(page);
+      await page.goto('./');
+      // Every label whole, at 360 px too (D37).
+      const cut = await page
+        .locator('.tab-label')
+        .evaluateAll((els) => els.filter((el) => el.scrollWidth > el.clientWidth).map((el) => el.textContent));
+      expect(cut).toEqual([]);
+      const more = page.getByRole('tab', { name: 'More' });
+      await more.tap();
+      await expect(more).toHaveAttribute('aria-selected', 'true');
+      const list = page.locator('[data-panel="more"]');
+      await expect(list.getByRole('button')).toHaveCount(3);
+      const item = (name: string) => list.getByRole('button', { name: new RegExp(`^${name} `) });
+      await expect(item('Console')).toContainText('What the editor did');
+      await expect(item('Console')).not.toContainText('Phase');
+      await expect(item('World')).toContainText('Phases 4–7');
+      await expect(item('Play')).toContainText('Phase 4');
+      await expectNothingOffscreen(page);
+      expect(await smallTargets(page, 'body')).toEqual([]);
+      await expectNoAxeIssues(page);
+
+      // A panel from the list, More's tab still the one chosen, and back by the button.
+      await item('Console').tap();
+      await expect(page.locator('[data-panel="console"]')).toContainText('Engine-Builder');
+      await expect(more).toHaveAttribute('aria-selected', 'true');
+      await page.getByRole('button', { name: 'Back to More' }).tap();
+      await expect(list).toBeVisible();
+      await expect(page.getByRole('tabpanel')).toBeFocused();
+      await item('Play').tap();
+      await expect(page.locator('[data-panel="play"]')).toContainText('Play the game inside the editor');
+      await expect(page.getByRole('tabpanel')).toBeFocused();
+      await expectNothingOffscreen(page);
+      expect(await smallTargets(page, 'body')).toEqual([]);
+      await expectNoAxeIssues(page);
+      // Back by the tab, which shows the list again from one of its panels.
+      await more.tap();
+      await expect(list).toBeVisible();
+      await item('World').tap();
+      await expect(page.locator('[data-panel="world"]')).toBeVisible();
+      // Another tab, then More again: the list, not the panel last shown.
+      await page.getByRole('tab', { name: 'Logic' }).tap();
+      await expect(more).toHaveAttribute('aria-selected', 'false');
+      await more.tap();
+      await expect(list).toBeVisible();
+      expect(errors).toEqual([]);
+    });
+
     test('runs commands from the palette by touch', async ({ page }) => {
       const errors = watchErrors(page);
       await page.goto('./');
@@ -267,6 +315,13 @@ for (const [width, height] of [
       await page.getByRole('option', { name: 'Show the Problems panel' }).tap();
       await expect(palette).toBeHidden();
       await expect(page.getByRole('tab', { name: 'Problems' })).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByRole('tabpanel')).toBeFocused();
+
+      // Behind More: its tab chosen, the panel shown (D37).
+      await page.getByRole('button', { name: 'Commands' }).tap();
+      await page.getByRole('option', { name: 'Show the Play panel' }).tap();
+      await expect(page.getByRole('tab', { name: 'More' })).toHaveAttribute('aria-selected', 'true');
+      await expect(page.locator('[data-panel="play"]')).toBeVisible();
       await expect(page.getByRole('tabpanel')).toBeFocused();
 
       await page.getByRole('button', { name: 'Commands' }).tap();

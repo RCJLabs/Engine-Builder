@@ -47,7 +47,7 @@ A file the editor has no place for, such as a stray `records/notes.md` (W101), s
 - **Two levels.** An error is something the editor couldn't do, or something that went wrong in it: a step refused, a save that failed, a panel that wouldn't load, an error nothing caught. Everything else is information. Errors are marked "Error:" in red.
 - **A line said again is counted** (×3), not repeated. The newest 200 lines are kept.
 - **Copy all** puts every line, with its time, on the clipboard for a bug report. The editor sends nothing anywhere itself (offline always). **Clear** empties it.
-- **Where it is:** the desktop dock's bottom group, in front of Problems; the strip along a tablet's bottom; a phone's tab (D35).
+- **Where it is:** the desktop dock's bottom group, in front of Problems; the strip along a tablet's bottom; behind a phone's More tab (D37; a tab of its own under D35).
 - **Errors nothing caught** reach the console through `catchErrors`, from the window's `error` and `unhandledrejection` events. Chrome's "ResizeObserver loop" reports are left out: nothing went wrong.
 
 ### The error toast
@@ -88,7 +88,7 @@ pnpm eb schemas <folder> [--types <module>] [--json]
 
 ## On a phone
 
-- **Problems and Console are tabs** (D35), after Project, Records and Assets.
+- **Problems is a tab** (D35), after Project, Records, Assets and Logic; **the console is behind More** (D37), and the error toast's Console button opens it there.
 - **A problem opens its record in the inspector's sheet**, the field focused. In landscape, tablet width, it opens beside the panel.
 - **Every control is at least 44 px each way**, the toast's buttons included.
 

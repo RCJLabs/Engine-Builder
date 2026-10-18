@@ -23,7 +23,7 @@ const PANEL_ORDER: readonly PanelId[] = [
   'console',
 ];
 
-/** The panels this layout can bring forward: its own (a phone leaves the placeholders out, D35), but not a strip always in view. */
+/** The panels this layout can bring forward: its own, a phone's More's among them (D37), but not a strip always in view. */
 function panelCommands(): Command[] {
   const current = layout.value;
   const has = panelsOf(current);

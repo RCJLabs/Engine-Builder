@@ -17,6 +17,8 @@ export type PanelId =
 /** The panels desktop docks: every one. Tablet shows the console as a strip below its zones. */
 export type DockPanelId = PanelId;
 export type ZoneId = 'left' | 'center' | 'right' | 'main' | 'side' | 'only';
+/** A tab: a panel's, or More, which lists the panels past a phone's bar (D37). */
+export type TabId = PanelId | 'more';
 
 /** Widths in CSS pixels at which the next layout starts. */
 export const BREAKPOINTS = { tablet: 600, desktop: 1024 } as const;
@@ -27,8 +29,8 @@ export const layoutFor = (width: number): Layout =>
 /**
  * Zones in display order, each with its panels in tab order. The first panel is the default. The
  * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4; the Assets
- * panel (M2.7) sits beside it. A phone's bar holds the panels that do something (D35, Evan's
- * call): Logic since M3.1, fourth (D36); World and Play join it when their phases build them.
+ * panel (M2.7) sits beside it. A phone's bar holds five panels, Logic fourth since M3.1 (D36),
+ * then More for the rest (D37, Evan's call): every panel in reach, every label whole at 360 px.
  */
 export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly PanelId[] }[]> = {
   desktop: [
@@ -40,7 +42,14 @@ export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly Pan
     { zone: 'main', panels: ['records', 'assets', 'world', 'play'] },
     { zone: 'side', panels: ['inspector', 'project', 'problems', 'logic'] },
   ],
-  phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'logic', 'problems', 'console'] }],
+  phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'logic', 'problems'] }],
+};
+
+/** The panels behind a layout's More tab, in its first zone (D37): a phone's Console, World and Play. */
+export const MORE: Record<Layout, readonly PanelId[]> = {
+  desktop: [],
+  tablet: [],
+  phone: ['console', 'world', 'play'],
 };
 
 /**
@@ -58,35 +67,60 @@ export const DOCK_PANELS: readonly DockPanelId[] = [...ZONES.desktop.flatMap((zo
 /** Tablet's strip below its zones: the console, always in view. */
 export const STRIP: Record<Layout, PanelId | null> = { desktop: null, tablet: 'console', phone: null };
 
-/** The panels a layout can show: its zones', its sheet's and its strip's, or the dock's. */
+/** The panels a layout can show: its zones' and More's, its sheet's and its strip's, or the dock's. */
 export function panelsOf(layout: Layout): PanelId[] {
   if (layout === 'desktop') return [...DOCK_PANELS];
   const shown = ZONES[layout].flatMap((zone) => zone.panels);
   const sheet = SHEET[layout];
   const strip = STRIP[layout];
-  return [...shown, ...(sheet ? [sheet] : []), ...(strip ? [strip] : [])];
+  return [...shown, ...MORE[layout], ...(sheet ? [sheet] : []), ...(strip ? [strip] : [])];
 }
 
-export type ActiveTabs = Partial<Record<ZoneId, PanelId>>;
+/** What each zone shows: a panel, or More's list. */
+export type ActiveTabs = Partial<Record<ZoneId, PanelId | 'more'>>;
 
 /** The page ids of a zone's tab and tab panel, shared by the zone and the palette's Show commands. */
-export const zoneTabId = (zone: ZoneId, panel: PanelId) => `tab-${zone}-${panel}`;
-export const zonePanelId = (zone: ZoneId, panel: PanelId) => `panel-${zone}-${panel}`;
+export const zoneTabId = (zone: ZoneId, tab: TabId) => `tab-${zone}-${tab}`;
+export const zonePanelId = (zone: ZoneId, tab: TabId) => `panel-${zone}-${tab}`;
 
-/** The panel showing in a zone: the one chosen there, else the zone's first. */
-export function activePanel(layout: Layout, zone: ZoneId, active: ActiveTabs): PanelId {
+/** Whether a zone ends in the More tab: a layout's first zone, when it has panels past its bar. */
+const hasMore = (layout: Layout, zone: ZoneId) => MORE[layout].length > 0 && ZONES[layout][0]?.zone === zone;
+
+/** A zone's tabs in order: its panels', then More's. */
+export function tabsOf(layout: Layout, zone: ZoneId): TabId[] {
   const panels = ZONES[layout].find((z) => z.zone === zone)?.panels ?? [];
-  const chosen = active[zone];
-  return chosen && panels.includes(chosen) ? chosen : (panels[0] ?? 'world');
+  return hasMore(layout, zone) ? [...panels, 'more'] : [...panels];
 }
 
-/** Every panel visible at once in a layout, one per zone. */
-export const visiblePanels = (layout: Layout, active: ActiveTabs): PanelId[] =>
+/** The zone that shows a panel, by its tab or behind More. */
+export function zoneOf(layout: Layout, panel: PanelId): ZoneId | undefined {
+  const zone = ZONES[layout].find((z) => z.panels.includes(panel))?.zone;
+  return zone ?? (MORE[layout].includes(panel) ? ZONES[layout][0]?.zone : undefined);
+}
+
+/** The tab selected while `view` shows: More's for its list and the panels behind it. */
+export const tabOf = (layout: Layout, view: PanelId | 'more'): TabId =>
+  view !== 'more' && MORE[layout].includes(view) ? 'more' : view;
+
+/** What a zone shows: the panel or More's list chosen there, else the zone's first panel. */
+export function activePanel(layout: Layout, zone: ZoneId, active: ActiveTabs): PanelId | 'more' {
+  const panels = ZONES[layout].find((z) => z.zone === zone)?.panels ?? [];
+  const chosen = active[zone];
+  const more = hasMore(layout, zone);
+  const reachable =
+    chosen === 'more'
+      ? more
+      : chosen !== undefined && (panels.includes(chosen) || (more && MORE[layout].includes(chosen)));
+  return chosen !== undefined && reachable ? chosen : (panels[0] ?? 'world');
+}
+
+/** What each zone of a layout shows at once. */
+export const visiblePanels = (layout: Layout, active: ActiveTabs): (PanelId | 'more')[] =>
   ZONES[layout].map(({ zone }) => activePanel(layout, zone, active));
 
-/** The panel after (or before) `current` in a zone's tab order, wrapping at the ends. */
-export function neighbourTab(layout: Layout, zone: ZoneId, current: PanelId, step: 1 | -1): PanelId {
-  const panels = ZONES[layout].find((z) => z.zone === zone)?.panels ?? [];
-  const index = panels.indexOf(current);
-  return panels[(index + step + panels.length) % panels.length] ?? current;
+/** The tab after (or before) `current` in a zone's tab order, wrapping at the ends. */
+export function neighbourTab(layout: Layout, zone: ZoneId, current: TabId, step: 1 | -1): TabId {
+  const tabs = tabsOf(layout, zone);
+  const index = tabs.indexOf(current);
+  return tabs[(index + step + tabs.length) % tabs.length] ?? current;
 }
