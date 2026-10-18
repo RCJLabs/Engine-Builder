@@ -14,9 +14,9 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
     expect(await visiblePanels(page)).toEqual(['world']);
 
-    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other five.
+    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other six.
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveText(['World', 'Project', 'Records', 'Logic', 'Play']);
+    await expect(tabs).toHaveText(['World', 'Project', 'Records', 'Assets', 'Logic', 'Play']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 

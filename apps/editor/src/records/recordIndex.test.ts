@@ -3,7 +3,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
-import { EMPTY_INDEX, type RecordIndex, updateIndex, usersOf, usersOutside } from './recordIndex.ts';
+import { assetUsersOf, EMPTY_INDEX, type RecordIndex, updateIndex, usersOf, usersOutside } from './recordIndex.ts';
 
 /**
  * The ludus project as files that change between reads, as a working copy's do. `reversed` lists
@@ -45,14 +45,16 @@ const problemsOf = (index: RecordIndex, key: string) =>
 
 /** What a table shows of the index, to compare an updated index with one read afresh. */
 const shown = (index: RecordIndex) => ({
-  records: [...index.records.values()].map(({ key, value, checked, problems, refs }) => ({
+  records: [...index.records.values()].map(({ key, value, checked, problems, refs, assets }) => ({
     key,
     value,
     checked,
     problems,
     refs,
+    assets,
   })),
   usedBy: Object.fromEntries(index.usedBy),
+  assetUsers: Object.fromEntries(index.assetUsers),
 });
 
 const SPICULUS = 'records/gladiator/spiculus.json';
@@ -82,6 +84,12 @@ describe('updateIndex', () => {
     ]);
     expect(usersOf(index, 'weapon:trident')).toEqual(['gladiator:priscus']);
     expect(usersOf(index, 'school:ludus-dacicus')).toEqual(['gladiator:flamma']);
+    // And which records name each asset (M2.7).
+    expect(index.records.get('gladiator:spiculus')?.assets).toEqual([
+      { to: 'portraits/spiculus.svg', path: '/portrait' },
+    ]);
+    expect(assetUsersOf(index, 'portraits/spiculus.svg')).toEqual(['gladiator:spiculus']);
+    expect(assetUsersOf(index, 'portraits/nobody.png')).toEqual([]);
   });
 
   it('checks again only the records an edit changed', async () => {

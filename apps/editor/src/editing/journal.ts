@@ -19,14 +19,32 @@ export interface SavedFile {
   readonly bytes: Uint8Array | null;
 }
 
+// Base64 in parts of whole three-byte groups, so the parts join into the whole's base64; each part
+// built from slices small enough to pass as arguments. One string of every byte took 1.3 s for a
+// 25 MB asset (M2.7, Readings); the parts take 0.2 s, and write the same text.
+const PART = 3 * 0x10000;
+const SLICE = 0x2000;
+
 function toBase64(bytes: Uint8Array): string {
-  let binary = '';
-  // In slices: spreading a large array into one call overflows the stack.
-  for (let at = 0; at < bytes.length; at += 0x8000) binary += String.fromCharCode(...bytes.subarray(at, at + 0x8000));
-  return btoa(binary);
+  const parts: string[] = [];
+  for (let at = 0; at < bytes.length; at += PART) {
+    const part = bytes.subarray(at, at + PART);
+    let binary = '';
+    for (let i = 0; i < part.length; i += SLICE) {
+      binary += String.fromCharCode.apply(null, part.subarray(i, i + SLICE) as unknown as number[]);
+    }
+    parts.push(btoa(binary));
+  }
+  return parts.join('');
 }
 
-const fromBase64 = (text: string): Uint8Array => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+// A plain loop: Uint8Array.from with a function to map each character took 2.3 s for 25 MB, this 0.1 s.
+function fromBase64(text: string): Uint8Array {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
 
 /** The journal: one line of JSON, then a line with its hash, so a cut-short write shows. */
 export function journalText(files: readonly SavedFile[]): string {

@@ -29,7 +29,33 @@ const sorted = (files: Record<string, string>) => Object.fromEntries(Object.entr
 
 afterEach(restorePower);
 
+/** Bytes that don't repeat: a xorshift stream from `seed`. */
+function noise(size: number, seed: number): Uint8Array {
+  const out = new Uint8Array(size);
+  let x = seed;
+  for (let i = 0; i < size; i++) {
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    out[i] = x & 0xff;
+  }
+  return out;
+}
+
 describe('journalText and readJournal', () => {
+  it('write base64 as one pass over the file would, at every size around the parts it is built in', () => {
+    // The parts are 3 × 65,536 bytes, built from slices of 8,192: either side of each, and several parts.
+    for (const size of [0, 1, 2, 3, 4, 8191, 8192, 8193, 196607, 196608, 196609, 393217, 1_000_003]) {
+      const file = noise(size, size + 1);
+      const [body] = journalText([{ path: 'a.bin', bytes: file }]).split('\n');
+      const written = (JSON.parse(body as string) as { files: { bytes: string }[] }).files[0]?.bytes;
+      expect(written, `${size} bytes`).toBe(Buffer.from(file).toString('base64'));
+      const back = readJournal(journalText([{ path: 'a.bin', bytes: file }]))?.[0]?.bytes;
+      // Compared as buffers: an element-by-element deep equal of a megabyte takes seconds.
+      expect(back && Buffer.from(back).equals(Buffer.from(file)), `${size} bytes`).toBe(true);
+    }
+  });
+
   it('carry every byte value and removals', () => {
     const files: SavedFile[] = [
       { path: 'assets/all.bin', bytes: Uint8Array.from({ length: 256 }, (_, i) => i) },

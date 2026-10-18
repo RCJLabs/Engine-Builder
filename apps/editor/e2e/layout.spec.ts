@@ -6,7 +6,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 
 const LAYOUT_KEY = 'eb-editor:dock-layout';
-const FIRST_LAYOUT = ['Project+Logic', 'Records+World+Play', 'Inspector', 'Console'];
+const FIRST_LAYOUT = ['Project+Logic', 'Records+Assets+World+Play', 'Inspector', 'Console'];
 /** Storage keeps panel ids, which are the tab titles in lower case. */
 const ids = (groups: string[]) => groups.map((group) => group.toLowerCase());
 
@@ -76,7 +76,7 @@ test.describe('dock, desktop 1280×800', () => {
     expect(await groups(page)).toEqual(FIRST_LAYOUT);
 
     await dragTab(page, 'Logic', 'World', 'bottom');
-    const moved = ['Project', 'Records+World+Play', 'Logic', 'Inspector', 'Console'];
+    const moved = ['Project', 'Records+Assets+World+Play', 'Logic', 'Inspector', 'Console'];
     await expect.poll(() => groups(page)).toEqual(moved);
     const world = await groupOf(page, 'World').boundingBox();
     const logic = await groupOf(page, 'Logic').boundingBox();
@@ -101,7 +101,9 @@ test.describe('dock, desktop 1280×800', () => {
     await page.goto('./');
     await docked(page);
     await dragTab(page, 'Logic', 'World', 'centre');
-    await expect.poll(() => groups(page)).toEqual(['Project', 'Records+World+Play+Logic', 'Inspector', 'Console']);
+    await expect
+      .poll(() => groups(page))
+      .toEqual(['Project', 'Records+Assets+World+Play+Logic', 'Inspector', 'Console']);
     expect(await visiblePanels(page)).toEqual(['project', 'logic', 'inspector']);
     expect(errors).toEqual([]);
   });
@@ -129,7 +131,7 @@ test.describe('dock, desktop 1280×800', () => {
     await page.reload();
     await docked(page);
     expect((await groups(page)).join('+').split('+').sort()).toEqual(
-      ['Console', 'Inspector', 'Logic', 'Play', 'Project', 'Records', 'World'].sort(),
+      ['Assets', 'Console', 'Inspector', 'Logic', 'Play', 'Project', 'Records', 'World'].sort(),
     );
 
     await page.evaluate((key) => {

@@ -81,7 +81,7 @@ The names follow the fact domains conditions already use (`bool`, `int`, `enum`,
 An asset field holds a path inside the project's `assets/` folder: `portraits/spiculus.png`.
 
 - **Paths** have `/` between folders. No part may be empty, start with `.` (hidden: the compiler never reads those), be `__MACOSX`, or hold `\ : * ? " < > |` or a control character, so a zip made anywhere unpacks anywhere. A bad path is E001.
-- **Kinds**, by extension, in either case. M2.7's asset browser imports the same kinds, and owns this list.
+- **Kinds**, by extension, in either case. M2.7's asset browser imports these kinds and files of any other, which no asset field of a kind can name ([editor-assets.md](editor-assets.md)). This list is the browser's too.
 
   | Kind | Extensions |
   | --- | --- |
@@ -90,7 +90,9 @@ An asset field holds a path inside the project's `assets/` folder: `portraits/sp
   | `model` | glb, gltf |
   | `font` | woff2, woff, ttf, otf |
 
-- **The file must be there**: E018 when nothing in `assets/` has that path. Paths are compared exactly, case included, as OPFS and zips do, though a Mac's own disk would not.
+- **The file must be there**: E018 when nothing in `assets/` has that path. Paths are compared exactly, case included, as OPFS and zips do, though a Mac's own disk would not. The editor's own imports and renames keep paths apart case aside, so no two differ only in case.
+- **Not the log.** `assets/assets.json`, the provenance log (D34), is not an asset: asset fields can't name it.
+- **Every file has its provenance** in the log, or the project doesn't build (E019, [editor-assets.md](editor-assets.md#problems)).
 - **`asset(kind?)`** in `@eb/schema` gives code types the same field.
 
 ## How a file becomes a record type

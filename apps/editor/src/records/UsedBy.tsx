@@ -7,6 +7,7 @@ import type { OpenProject } from '../projects/opened.ts';
 import { openRecord } from './actions.ts';
 import { nameIn } from './names.ts';
 import { describePath } from './paths.ts';
+import type { RecordIndex } from './recordIndex.ts';
 
 /** Records listed before "Show all": enough for most, few enough for a phone. */
 const FIRST = 50;
@@ -16,6 +17,22 @@ const FIRST = 50;
  * button that opens it. References to a record that is gone are kept, so its users can be found.
  */
 export function UsedBy({ project, type, id }: { project: OpenProject; type: string; id: string }) {
+  return (
+    <Users
+      project={project}
+      of={(index) => index.usedBy.get(`${type}:${id}`) ?? []}
+      none="Nothing refers to this record."
+    />
+  );
+}
+
+/** The records whose asset fields name the file at `path` inside assets/ (M2.7). */
+export function AssetUsedBy({ project, path }: { project: OpenProject; path: string }) {
+  return <Users project={project} of={(index) => index.assetUsers.get(path) ?? []} none="No record uses this file." />;
+}
+
+function Users(props: { project: OpenProject; of: (index: RecordIndex) => readonly Usage[]; none: string }) {
+  const { project, of, none } = props;
   const { catalog, index } = project;
   const head = useUniqueId();
   const [all, setAll] = useState(false);
@@ -27,7 +44,7 @@ export function UsedBy({ project, type, id }: { project: OpenProject; type: stri
       </section>
     );
   }
-  const users = byRecord(index.usedBy.get(`${type}:${id}`) ?? []);
+  const users = byRecord(of(index));
   const shown = all ? users : users.slice(0, FIRST);
   return (
     <section class="used-by" aria-labelledby={head}>
@@ -35,7 +52,7 @@ export function UsedBy({ project, type, id }: { project: OpenProject; type: stri
         Used by <span class="muted">{users.length === 1 ? '1 record' : `${users.length} records`}</span>
       </h4>
       {users.length === 0 ? (
-        <p class="muted">Nothing refers to this record.</p>
+        <p class="muted">{none}</p>
       ) : (
         <ul class="used-by-list">
           {shown.map(([from, paths]) => (

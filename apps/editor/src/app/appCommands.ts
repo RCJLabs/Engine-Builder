@@ -11,7 +11,7 @@ import { PANELS } from './panels.ts';
 import { naming } from './projectUi.ts';
 import { layout } from './state.ts';
 
-const PANEL_ORDER: readonly PanelId[] = ['project', 'records', 'world', 'inspector', 'logic', 'play'];
+const PANEL_ORDER: readonly PanelId[] = ['project', 'records', 'assets', 'world', 'inspector', 'logic', 'play'];
 
 function panelCommands(): Command[] {
   const ids: readonly DockPanelId[] = layout.value === 'desktop' ? DOCK_PANELS : PANEL_ORDER;

@@ -8,6 +8,7 @@ export { type ParsedFile, parseJsonFile } from './decode.ts';
 export { type DirectoryHandleLike, directorySource, type FileHandleLike, type HandleLike } from './directorySource.ts';
 export {
   ASSETS_DIR,
+  ASSETS_LOG,
   classifyRecordFile,
   classifyTypeFile,
   MANIFEST_FILE,

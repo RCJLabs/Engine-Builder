@@ -2,6 +2,7 @@
 import { isAssetOf, type ValueDef } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../../app/ids.ts';
+import { openAsset } from '../../assets/open.ts';
 import { openRecord } from '../../records/actions.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
@@ -40,12 +41,14 @@ export function AssetField(props: FieldProps<AssetDef>) {
   const kind = props.def.of ?? true;
   const noun = props.def.of === undefined ? 'file' : props.def.of === 'audio' ? 'audio file' : props.def.of;
   const choices = catalog.assets.filter((path) => isAssetOf(path, kind)).map((path) => ({ value: path, label: path }));
+  const named = typeof props.value === 'string' && catalog.assets.includes(props.value) ? props.value : null;
   return (
     <PickField
       {...props}
       choices={choices}
       title={`Choose ${/^[aeiou]/.test(noun) ? 'an' : 'a'} ${noun}`}
-      empty={`There is no ${noun} in assets/ yet. Importing assets comes with M2.7.`}
+      empty={`There is no ${noun} in assets/ yet: import one in the Assets panel.`}
+      open={named ? () => openAsset(named) : undefined}
     />
   );
 }

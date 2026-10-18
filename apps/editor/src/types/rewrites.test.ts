@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { CRIXUS, FIGHTER } from '../../test/fighter.ts';
 import {
+  assetSites,
   conditionMentions,
   fillField,
   missingField,
   refSites,
   removeField,
+  renameAssetRefs,
   renameChoice,
   renameClashes,
   renameField,
@@ -165,6 +167,44 @@ describe('references in records', () => {
     const beast = retargetRefs(FIGHTER, BOUTS.concat('fields', 'foe'), ['fighter', 'beast'], 'fighter')(CRIXUS);
     expect((beast as Fighter).bouts.map((b) => b.foe)).toEqual(['spartacus', 'beast:lion']);
     expect(retargetRefs(FIGHTER, ['fields', 'school'], 'school', 'guild')(CRIXUS)).toBe(CRIXUS);
+  });
+});
+
+describe('assets in records', () => {
+  const ART = {
+    title: 'Art',
+    fields: {
+      portrait: { kind: 'asset', of: 'image' },
+      gallery: { kind: 'list', of: { kind: 'asset' } },
+      art: { kind: 'map', of: { kind: 'asset' } },
+      caption: { kind: 'text' },
+    },
+  };
+
+  it('finds every asset def: fields, list items and map values', () => {
+    expect(assetSites(ART)).toEqual([
+      ['fields', 'portrait'],
+      ['fields', 'gallery', 'of'],
+      ['fields', 'art', 'of'],
+    ]);
+    expect(assetSites(FIGHTER)).toEqual([]);
+  });
+
+  it('renames a file where a record names it, and nothing else, a text that says it included', () => {
+    const record = {
+      portrait: 'a.png',
+      gallery: ['a.png', 'b.png'],
+      art: { x: 'a.png', y: 'c.png' },
+      caption: 'a.png',
+    };
+    expect(renameAssetRefs(ART, 'a.png', 'z.png')(record)).toEqual({
+      portrait: 'z.png',
+      gallery: ['z.png', 'b.png'],
+      art: { x: 'z.png', y: 'c.png' },
+      caption: 'a.png',
+    });
+    const other = { portrait: 'q.png', gallery: ['b.png'], art: {}, caption: '' };
+    expect(renameAssetRefs(ART, 'a.png', 'z.png')(other)).toBe(other);
   });
 });
 

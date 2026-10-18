@@ -147,6 +147,20 @@ export function retargetRefs(file: unknown, at: DefPath, before: unknown, after:
   return (record) => record;
 }
 
+/** Every asset field holding `from` (a path inside assets/) made to hold `to`: an asset moved (M2.7). */
+export function renameAssetRefs(file: unknown, from: string, to: string): Rewrite {
+  return compose(assetSites(file).map((path) => atValues(file, path, false, (value) => (value === from ? to : value))));
+}
+
+/** The asset defs of a type file: fields and items. A map's keys are never assets. */
+export function assetSites(file: unknown): DefPath[] {
+  const sites: DefPath[] = [];
+  eachDef(file, (_def, kind, path) => {
+    if (kind === 'asset') sites.push(path);
+  });
+  return sites;
+}
+
 /**
  * Where a record's conditions mention `id` as a word: they may name the record, and the editor
  * can't tell, since it doesn't know the game's facts (Phase 3). They aren't changed; a rename lists

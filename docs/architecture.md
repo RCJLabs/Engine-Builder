@@ -89,7 +89,7 @@ my-game/
   locales/<lang>.json      string tables (Phase 8)
 ```
 
-- **Format 1** (M1.4) has `project.json` with `id`, `name` and `version`, plus `records/`. M2.4 added `types/`, and asset fields that name files in `assets/`, without a format bump, since a project without them loads as before. The other folders, and project.json's `modules`, `targets` and `settings`, arrive with the milestones that use them ([specs/project-format.md](specs/project-format.md)).
+- **Format 1** (M1.4) has `project.json` with `id`, `name` and `version`, plus `records/`. M2.4 added `types/`, and asset fields that name files in `assets/`, and M2.7 the provenance log every file there needs (D34), without a format bump, since a project without them loads as before. The other folders, and project.json's `modules`, `targets` and `settings`, arrive with the milestones that use them ([specs/project-format.md](specs/project-format.md)).
 - **One record per file** keeps diffs small and merges clean. Big tables (cards, players) may later opt into one collection file per type.
 - **Compiling.**
   - `packages/compiler` validates a project and builds **content packs**: canonical JSON with a content hash, plus coded diagnostics.
@@ -288,7 +288,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 ## Editor
 
 - **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
-  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), World, Play, Inspector and Console. Assets, Outliner and Problems join as their milestones land.
+  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), Assets (M2.7), World, Play, Inspector and Console. Outliner and Problems join as their milestones land.
   - Tablet: two zones.
   - Phone: one panel at a time with a bottom tab bar, and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
@@ -298,6 +298,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Forms from each record's type file in the inspector, with pickers for refs and assets, the compiler's problems beside each field, and New and Delete (M2.4, [specs/editor-forms.md](specs/editor-forms.md)).
   - Each type's records as a table, to sort, search and filter, and to change many at once, copy and delete; "used by" for every record; all from an index of every record kept up to date by file (M2.5, D32, [specs/editor-tables.md](specs/editor-tables.md)).
   - Types designed in the inspector: fields of every kind, nested ones included. Renaming a field, a choice, a type or a record rewrites every record and reference to match, as one step undo takes back (M2.6, D33, [specs/editor-types.md](specs/editor-types.md)).
+  - Assets in their own panel, each with its provenance in `assets/assets.json`: imported with a licence from a fixed list, previewed, renamed or replaced with the records that name them, and stand-ins drawn until the art is ready. A file with no provenance stops the build (M2.7, D34, [specs/editor-assets.md](specs/editor-assets.md)).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.

@@ -4,6 +4,8 @@ export const RECORDS_DIR = 'records';
 /** The project's own record types, one file each (docs/specs/type-files.md, M2.4). */
 export const TYPES_DIR = 'types';
 export const ASSETS_DIR = 'assets';
+/** The assets' provenance log (D34, M2.7): not an asset itself. */
+export const ASSETS_LOG = `${ASSETS_DIR}/assets.json`;
 
 /**
  * The folders a project owns: records/, types/ and assets/ now, and the ones later milestones fill

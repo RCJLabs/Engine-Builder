@@ -42,6 +42,19 @@ export const current = signal<OpenProject | null>(null);
  */
 export const revision = signal(0);
 
+// How many changes have named each file, and how many named none, which may have changed any.
+const versions = new Map<string, number>();
+let unnamed = 0;
+
+/**
+ * A key that changes whenever the file at `path` may have: what a view of its bytes, such as an
+ * asset's thumbnail (M2.7), is keyed by, so a change to one file reads no other file again.
+ */
+export function fileVersion(path: string): string {
+  void revision.value;
+  return `${unnamed}.${versions.get(path) ?? 0}`;
+}
+
 /**
  * The record index and the checks it runs load with the first project opened, not with the
  * editor, as the record form does (M2.4).
@@ -85,6 +98,8 @@ async function show(where: OpenProject['where'], label: string, copy: WorkingCop
 
 /** What a change to the files tells everything that shows them. */
 function changed(refresh: Refresh, paths: readonly string[] | undefined): void {
+  if (paths) for (const path of paths) versions.set(path, (versions.get(path) ?? 0) + 1);
+  else unnamed++;
   revision.value++;
   refresh(paths ?? null);
 }

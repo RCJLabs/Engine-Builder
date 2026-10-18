@@ -62,7 +62,11 @@ function rewritten(bytes: Uint8Array, rewrite: Rewrite): Uint8Array {
 }
 
 /** The records of `files` changed by `rewrite`, each in its own layout; those it leaves alone aren't changes. */
-async function rewriteFiles(source: ProjectSource, files: readonly string[], rewrite: Rewrite): Promise<FileChange[]> {
+export async function rewriteFiles(
+  source: ProjectSource,
+  files: readonly string[],
+  rewrite: Rewrite,
+): Promise<FileChange[]> {
   return rewriteRead(await readFiles(source, files), files, rewrite);
 }
 
@@ -78,14 +82,14 @@ function rewriteRead(read: ReadonlyMap<string, Uint8Array>, files: readonly stri
   return changes;
 }
 
-interface TypeFileRead {
+export interface TypeFileRead {
   readonly path: string;
   readonly bytes: Uint8Array;
   readonly json: unknown;
 }
 
 /** Every type file that reads as JSON, by type, in name order. */
-async function typeFiles(source: ProjectSource): Promise<Map<string, TypeFileRead>> {
+export async function typeFiles(source: ProjectSource): Promise<Map<string, TypeFileRead>> {
   const named = new Map<string, string>();
   for (const path of await source.files(TYPES_DIR)) {
     const role = classifyTypeFile(path);
@@ -150,7 +154,7 @@ export async function changeType(
 }
 
 /** A file moved: gone from `from`, at `to` with its bytes after `rewrite`. */
-function move(from: string, to: string, bytes: Uint8Array, rewrite: Rewrite): FileChange[] {
+export function move(from: string, to: string, bytes: Uint8Array, rewrite: Rewrite): FileChange[] {
   return [
     { path: from, before: bytes, after: null },
     { path: to, before: null, after: rewritten(bytes, rewrite) },

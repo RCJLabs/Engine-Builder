@@ -35,6 +35,11 @@ export interface Validation {
    * points at a deleted record.
    */
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
+  /**
+   * The same for assets (M2.7): every path inside assets/ an asset field holds, sorted, with the
+   * records that hold it, files that aren't there included (E018).
+   */
+  readonly assetsUsedBy: ReadonlyMap<string, readonly Usage[]>;
 }
 
 export interface ValidateOptions {
@@ -68,6 +73,7 @@ export function validateRecords(
   const index = recordIndex(records, counts);
   const diagnostics: Diagnostic[] = [];
   const usages = new Map<string, Usage[]>();
+  const assetUsages = new Map<string, Usage[]>();
   for (const record of records) {
     const report = (code: DiagnosticCode, path: string, message: string) =>
       diagnostics.push(diagnostic(record, code, path, message));
@@ -107,11 +113,19 @@ export function validateRecords(
     for (const found of conditions) checkConditionField(found, { facts: options.facts, records: index, report, use });
     for (const found of assets) {
       // A path zod already refused (E001) names no file to look for.
-      if (!options.assets || issues.some((issue) => issue.path === found.path)) continue;
-      if (!options.assets.has(found.value)) report('E018', found.path, `No file assets/${found.value}`);
+      if (issues.some((issue) => issue.path === found.path)) continue;
+      const list = assetUsages.get(found.value) ?? [];
+      list.push(usage(record, found.path));
+      assetUsages.set(found.value, list);
+      if (options.assets && !options.assets.has(found.value))
+        report('E018', found.path, `No file assets/${found.value}`);
     }
   }
-  return { diagnostics: diagnostics.sort(compareDiagnostics), usedBy: sortUsages(usages) };
+  return {
+    diagnostics: diagnostics.sort(compareDiagnostics),
+    usedBy: sortUsages(usages),
+    assetsUsedBy: sortUsages(assetUsages),
+  };
 }
 
 /**

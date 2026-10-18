@@ -23,6 +23,19 @@ describe('readCatalog', () => {
     expect(catalog.broken.size).toBe(0);
   });
 
+  it('reads the provenance log, which is not an asset, or says why it can’t (M2.7)', async () => {
+    const catalog = await readCatalog(ludus());
+    expect(catalog.assets).not.toContain('assets.json');
+    expect(catalog.assetsLog).toMatchObject({ files: { 'portraits/spiculus.svg': { licence: 'own' } } });
+    expect(catalog.logProblem).toBeUndefined();
+    const broken = await readCatalog(ludus({ 'assets/assets.json': '{ "files": ' }));
+    expect(broken.assetsLog).toBeUndefined();
+    expect(broken.logProblem).toMatch(/JSON/);
+    const none = await readCatalog(ludus({ 'assets/assets.json': null }));
+    expect(none.assetsLog).toBeUndefined();
+    expect(none.logProblem).toBeUndefined();
+  });
+
   it('sorts records however the folder lists them', async () => {
     const files = Object.entries(readFixture(FIXTURE_LUDUS)).reverse();
     const catalog = await readCatalog(memorySource(Object.fromEntries(files)));
