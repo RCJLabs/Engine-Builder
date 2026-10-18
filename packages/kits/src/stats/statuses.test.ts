@@ -1,6 +1,6 @@
 import { createRecordStore, type GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
-import { kitted, RECORDS } from '../../test/barracks.ts';
+import { gameWith, kitted, RECORDS } from '../../test/barracks.ts';
 
 const { apply, attempt, fact, game, sim, start, step } = kitted;
 const has = (state: GameState, actor: string, status: string) => fact(state, 'stats.has', { actor, status });
@@ -39,6 +39,9 @@ describe('statuses', () => {
     const two = attempt(three, { effect: 'remove-status', actor: 'bo', status: 'bleeding', stacks: 1 });
     expect(has(two.state, 'bo', 'bleeding')).toBe(2);
     expect(two.beats).toContainEqual({ type: 'stats/status-removed', actor: 'bo', status: 'bleeding', stacks: 2 });
+    // The two left keep the end the three had.
+    expect(has(wait(two.state, 2), 'bo', 'bleeding')).toBe(2);
+    expect(has(wait(two.state, 3), 'bo', 'bleeding')).toBe(0);
     const none = apply(two.state, { effect: 'remove-status', actor: 'bo', status: 'bleeding' });
     expect(has(none, 'bo', 'bleeding')).toBe(0);
     expect(held(none)).toEqual({});
@@ -60,6 +63,20 @@ describe('statuses', () => {
     const dazed = apply(start(), { effect: 'add-status', actor: 'ana', status: 'dazed' });
     expect(aim(dazed)).toBe(38);
     expect(has(wait(dazed), 'ana', 'dazed')).toBe(0);
+  });
+
+  it('count ticks and days apart in a day of more than one tick', () => {
+    const long = gameWith(true, RECORDS, 4);
+    const tick = (state: GameState, ticks: number) => long.apply(state, { effect: 'wait', ticks });
+    const hurt = long.apply(
+      long.start(),
+      { effect: 'add-status', actor: 'ana', status: 'dazed' },
+      { effect: 'add-status', actor: 'bo', status: 'bleeding' },
+    );
+    // Dazed lasts a tick, a quarter of a day; bleeding lasts 3 days, 12 ticks.
+    expect(long.fact(tick(hurt, 1), 'stats.has', { actor: 'ana', status: 'dazed' })).toBe(0);
+    expect(long.fact(tick(hurt, 11), 'stats.has', { actor: 'bo', status: 'bleeding' })).toBe(1);
+    expect(long.fact(tick(hurt, 12), 'stats.has', { actor: 'bo', status: 'bleeding' })).toBe(0);
   });
 
   it('applied again, take the later end, and one with stacks and no end outlasts any time', () => {
@@ -92,8 +109,10 @@ describe('statuses', () => {
       { effect: 'add-status', actor: 'bo', status: 'bleeding', stacks: 2 },
       { effect: 'add-status', actor: 'bo', status: 'dazed' },
       { effect: 'add-status', actor: 'bo', status: 'steady' },
+      { effect: 'add-status', actor: 'bo', status: 'hale' },
     );
     expect(fact(state, 'stats.tagged', { actor: 'bo', tag: 'injury' })).toBe(3);
+    expect(fact(state, 'stats.tagged', { actor: 'bo', tag: 'boon' })).toBe(1);
     expect(fact(state, 'stats.tagged', { actor: 'ana', tag: 'injury' })).toBe(0);
   });
 

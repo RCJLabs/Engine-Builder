@@ -36,7 +36,8 @@ describe('a value', () => {
   it('rounds as whole-number division would, halves up, for any sum and percent', () => {
     // Worked another way: n = sum × (100 + percent), split into hundreds and the rest.
     const reference = (sum: number, percent: number) => {
-      const n = sum * (100 + percent);
+      // 0 times a negative is -0 in JavaScript, which toBe tells from the 0 a BigInt gives.
+      const n = sum * (100 + percent) || 0;
       const rest = ((n % 100) + 100) % 100;
       const hundreds = (n - rest) / 100;
       return rest >= 50 ? hundreds + 1 : hundreds;
@@ -64,6 +65,12 @@ describe('a value', () => {
     // With the vest: 4 × (100 - 50 + 50) / 100 = 4.
     expect(value(state, 'ana', 'speed')).toBe(4);
   });
+
+  it('has no part for a status taken off, though the actor’s record lists it', () => {
+    const aimParts = (state: GameState) => statParts(sim.content, state.stats as StatsSlice, 'ana', 'aim').parts;
+    expect(aimParts(start())).toEqual([{ kind: 'status', id: 'steady', add: 5, percent: 0 }]);
+    expect(aimParts(apply(start(), { effect: 'remove-status', actor: 'ana', status: 'steady' }))).toEqual([]);
+  });
 });
 
 describe('damage', () => {
@@ -78,6 +85,38 @@ describe('damage', () => {
     expect(down.beats).toContainEqual({ type: 'stats/emptied', actor: 'ana', stat: 'health' });
     const again = attempt(down.state, { effect: 'damage-stat', actor: 'ana', stat: 'health', by: 1 });
     expect(again.beats.some((b) => b.type === 'stats/damaged' || b.type === 'stats/emptied')).toBe(false);
+  });
+
+  it('stops at a min other than 0, above it or below it', () => {
+    // Speed's min is 1: of a hit of 10, the 3 above it land, and healing 1 leaves 2.
+    const slowed = attempt(start(), { effect: 'damage-stat', actor: 'ana', stat: 'speed', by: 10 });
+    expect(current(slowed.state, 'ana', 'speed')).toBe(1);
+    expect(slowed.beats).toContainEqual({ type: 'stats/damaged', actor: 'ana', stat: 'speed', by: 3 });
+    expect(slowed.beats).toContainEqual({ type: 'stats/emptied', actor: 'ana', stat: 'speed' });
+    expect(
+      current(apply(slowed.state, { effect: 'heal-stat', actor: 'ana', stat: 'speed', by: 1 }), 'ana', 'speed'),
+    ).toBe(2);
+    // Grit's min is -10, where Ana starts: raised to -5, a hit of 10 takes the 5 above it.
+    const raised = apply(start(), { effect: 'add-to-stat', actor: 'ana', stat: 'grit', by: 5 });
+    const shaken = attempt(raised, { effect: 'damage-stat', actor: 'ana', stat: 'grit', by: 10 });
+    expect(current(shaken.state, 'ana', 'grit')).toBe(-10);
+    expect(shaken.beats).toContainEqual({ type: 'stats/damaged', actor: 'ana', stat: 'grit', by: 5 });
+  });
+
+  it('and healing come in whole numbers of 1 or more, as do stacks: validation stops the rest in content', () => {
+    for (const by of [0, -1, 1.5]) {
+      expect(() => apply(start(), { effect: 'damage-stat', actor: 'ana', stat: 'health', by })).toThrow(
+        'damage-stat: "by" is a whole number, 1 or more',
+      );
+      expect(() => apply(start(), { effect: 'heal-stat', actor: 'ana', stat: 'health', by })).toThrow(
+        'heal-stat: "by" is a whole number, 1 or more',
+      );
+    }
+    for (const effect of ['add-status', 'remove-status']) {
+      expect(() => apply(start(), { effect, actor: 'bo', status: 'bleeding', stacks: 0 })).toThrow(
+        `${effect}: "stacks" is a whole number, 1 or more`,
+      );
+    }
   });
 
   it('is kept apart, so a maximum that rises raises what is left by as much (D41)', () => {

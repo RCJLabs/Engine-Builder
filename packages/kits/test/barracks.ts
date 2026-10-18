@@ -1,7 +1,7 @@
 /**
  * The barracks: a test-only game for the stats and gear kits. Two soldiers with Space-Wrecked's
  * marine numbers (health 10, aim 70), statuses that stack and run out over days, and gear for two
- * slots, with the kits' modules beside the engine's and a day a tick.
+ * slots, with the kits' modules beside the engine's and a day a tick, unless a test asks for more.
  */
 import {
   type Action,
@@ -42,7 +42,7 @@ export const RECORDS = {
       tags: ['injury'],
     },
     dazed: { name: 'Dazed', modifiers: [{ stat: 'aim', percent: -50 }], lasts: { ticks: 1 }, tags: ['injury'] },
-    hale: { name: 'Hale', modifiers: [{ stat: 'health', add: 5 }] },
+    hale: { name: 'Hale', modifiers: [{ stat: 'health', add: 5 }], tags: ['boon'] },
   },
   slot: { hand: { name: 'Hand' }, body: { name: 'Body' }, head: { name: 'Head' } },
   item: {
@@ -57,7 +57,15 @@ export const RECORDS = {
         { stat: 'health', add: 5 },
       ],
     },
-    helmet: { name: 'Helmet', value: 40, slot: 'head' },
+    helmet: {
+      name: 'Helmet',
+      value: 40,
+      slot: 'head',
+      modifiers: [
+        { stat: 'health', add: 2 },
+        { stat: 'health', percent: 10 },
+      ],
+    },
     medkit: { name: 'Medkit', value: 30 },
   },
 };
@@ -78,10 +86,9 @@ const barracks = defineModule<Record<string, never>>({
   modes: { barracks: { actions: ['barracks/*'] } },
 });
 
-const engine = [logicModule, timeModule({ calendar: { ticksPerDay: 1 } }), flagModule];
-
 /** The game with both kits, or with the stats kit alone. */
-export function gameWith(gear: boolean, records: object = RECORDS) {
+export function gameWith(gear: boolean, records: object = RECORDS, ticksPerDay = 1) {
+  const engine = [logicModule, timeModule({ calendar: { ticksPerDay } }), flagModule];
   const modules: Module[] = [...engine, inventoryKit, statsModule(gear), ...(gear ? [gearKit] : []), barracks];
   const game = createGame({ modules, start: 'barracks' });
   const sim: SimContext = { content: createRecordStore(records as Record<string, Record<string, unknown>>) };

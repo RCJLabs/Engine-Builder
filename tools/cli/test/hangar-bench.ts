@@ -1,25 +1,26 @@
 /**
- * Times the hangar (M3.3), a game made with the inventory and economy kits: a sweep of 1,000 seeds
- * with its worker bot, reported per run and per turn. Each turn lists the options, which for a
- * shop means a quote for every item on its shelf and in the bag, lets the bot choose and reduces
- * the action. The instrument behind the "hangar sweep" reading in ROADMAP.md.
+ * Times a fixture made with kits: a sweep of 1,000 seeds with one of its bots, reported per run and
+ * per turn. The hangar (M3.3, the inventory and economy kits) with its worker bot by default; the
+ * arena (M3.4, all four kits) with its lanista. Each turn lists the options, lets the bot choose
+ * and reduces the action. The instrument behind the "hangar sweep" and "arena sweep" readings in
+ * ROADMAP.md.
  *
- *   node tools/cli/test/hangar-bench.ts
+ *   node tools/cli/test/hangar-bench.ts [fixture] [bot]
  */
 import { join } from 'node:path';
 import { compileWithGame, projectGame } from '@eb/compiler';
 import { createGame, createRecordStore, MAX_TURNS, seedsOf, sweep } from '@eb/core';
 import { folderSource } from '../src/folderSource.ts';
 
-const HANGAR = join(import.meta.dirname, 'fixtures/hangar');
-const source = folderSource(HANGAR);
+const [fixture = 'hangar', bot = 'worker'] = process.argv.slice(2);
+const source = folderSource(join(import.meta.dirname, 'fixtures', fixture));
 const scripted = await projectGame(source);
-if (scripted.kind !== 'loaded') throw new Error('The hangar’s game didn’t load');
+if (scripted.kind !== 'loaded') throw new Error(`The ${fixture}’s game didn’t load`);
 const compiled = await compileWithGame(source, scripted);
-if (!compiled.pack) throw new Error('The hangar didn’t compile');
+if (!compiled.pack) throw new Error(`The ${fixture} didn’t compile`);
 const { modules, start, policies, metrics } = scripted.game;
-const policy = policies.find((p) => p.name === 'worker');
-if (!policy) throw new Error('No worker bot');
+const policy = policies.find((p) => p.name === bot);
+if (!policy) throw new Error(`No ${bot} bot`);
 const game = createGame({ modules, start });
 const sim = { content: createRecordStore(compiled.pack.records) };
 

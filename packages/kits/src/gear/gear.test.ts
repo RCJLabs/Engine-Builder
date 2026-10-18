@@ -1,6 +1,8 @@
 import type { GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { kitted } from '../../test/barracks.ts';
+import type { GearSlice } from './types.ts';
+import { gearParts } from './worn.ts';
 
 const { apply, attempt, fact, game, sim, start } = kitted;
 const bag = (state: GameState) => (state.inventory as { bag: Record<string, number> }).bag;
@@ -17,6 +19,15 @@ describe('wearing gear', () => {
     expect(fact(done.state, 'gear.wearing', { actor: 'ana', item: 'rifle' })).toBe(1);
     expect(fact(done.state, 'gear.add', { actor: 'ana', stat: 'aim' })).toBe(10);
     expect(done.beats).toContainEqual({ type: 'gear/equipped', actor: 'ana', slot: 'hand', item: 'rifle' });
+  });
+
+  it('counts each of an item’s modifiers on a stat, adds then percents, as the stats kit does', () => {
+    const state = apply(stocked('helmet'), { effect: 'equip', actor: 'bo', item: 'helmet' });
+    expect(gearParts(sim.content, state.gear as GearSlice, 'bo', 'health')).toEqual([
+      { kind: 'item', id: 'helmet', add: 2, percent: 10 },
+    ]);
+    // Bo's 12 and the helmet's 2, then 10%: 15.4, so 15.
+    expect(fact(state, 'stats.value', { actor: 'bo', stat: 'health' })).toBe(15);
   });
 
   it('puts the slot’s old item back in the bag', () => {

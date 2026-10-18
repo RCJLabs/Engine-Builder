@@ -1,3 +1,4 @@
+import { engineModules, factCatalog, timeModule } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from './diagnostics.ts';
 import { kitEffectFiles } from './kitEffects.ts';
@@ -53,8 +54,11 @@ describe('records of the stats and gear kits', () => {
     const found = codes(
       check([
         ...SOUND,
-        record('stat', 'grit', { min: 5, max: 2 }),
+        // Each just past its bound, and one whose bounds meet, which is fine.
+        record('stat', 'grit', { min: 5, max: 4 }),
         record('stat', 'luck', { min: 0, max: 10, start: 11 }),
+        record('stat', 'nerve', { min: 2, start: 1 }),
+        record('stat', 'rank', { min: 3, max: 3, start: 3 }),
         record('status', 'odd', { modifiers: [{ stat: 'aim' }], lasts: { days: 1, ticks: 2 } }),
         record('status', 'empty', { lasts: {} }),
         record('actor', 'bo', { stats: { health: 101, aim: -1 } }),
@@ -65,6 +69,7 @@ describe('records of the stats and gear kits', () => {
       'E035 bo /stats/health',
       'E035 grit /max',
       'E035 luck /start',
+      'E035 nerve /start',
       'E035 empty /lasts',
       'E035 odd /lasts',
       'E035 odd /modifiers/0',
@@ -72,22 +77,30 @@ describe('records of the stats and gear kits', () => {
   });
 
   it('wear only what fits: the item’s own slot, one the actor has, an item that can be worn', () => {
-    const found = codes(
-      check([
-        ...SOUND,
-        record('slot', 'head', {}),
-        record('item', 'medkit', { value: 30 }),
-        record('item', 'cap', { slot: 'head' }),
-        record('actor', 'bo', { slots: ['hand'], wears: { head: 'cap' } }),
-        record('actor', 'cy', { wears: { hand: 'medkit', head: 'rifle' } }),
-      ]),
-    );
-    expect(found).toEqual(['E035 bo /wears/head', 'E035 cy /wears/hand', 'E035 cy /wears/head']);
+    const found = check([
+      ...SOUND,
+      record('slot', 'head', {}),
+      record('item', 'medkit', { value: 30 }),
+      record('item', 'cap', { slot: 'head' }),
+      record('actor', 'bo', { slots: ['hand'], wears: { head: 'cap' } }),
+      record('actor', 'cy', { wears: { hand: 'medkit', head: 'rifle' } }),
+    ]);
+    expect(codes(found)).toEqual(['E035 bo /wears/head', 'E035 cy /wears/hand', 'E035 cy /wears/head']);
+    expect(found.map((d) => d.message)).toEqual([
+      'It has no slot head: its slots are hand',
+      "medkit can't be worn: it names no slot",
+      'rifle is worn in hand, not head',
+    ]);
   });
 
-  it('warn of a status that lasts days in a game whose facts have no time module', () => {
+  it('warn of a status that lasts days or ticks in a game whose facts lack the one it reads', () => {
     expect(codes(check(SOUND, { facts: ENGINE_FACTS }))).toEqual(['W114 bleeding /lasts']);
     expect(check(SOUND)).toEqual([]);
+    // A game that counts ticks and not days: bleeding lasts days, so it is warned of; dazed isn't.
+    const timed = factCatalog([...engineModules, timeModule({ calendar: { ticksPerDay: 1 } })]);
+    const ticksOnly = Object.fromEntries(Object.entries(timed).filter(([id]) => id !== 'time.day'));
+    const dazed = record('status', 'dazed', { lasts: { ticks: 1 } });
+    expect(codes(check([...SOUND, dazed], { facts: ticksOnly }))).toEqual(['W114 bleeding /lasts']);
   });
 });
 
