@@ -31,6 +31,10 @@ const bell = defineModule<{ rung: number }>({
       ctx.emit('rang', { times: (action.times as number) ?? 1 });
       ctx.emit('after-ring');
     },
+    peal(ctx) {
+      ctx.emit('rang', { times: 1 });
+      ctx.emit('rang', { times: 2 });
+    },
     twice(ctx) {
       ctx.attempt(() => ctx.emit('rang', { times: 1 }));
       ctx.emit('between');
@@ -82,6 +86,9 @@ describe('declaring events', () => {
     expect(game.events()['bell/rang']).toEqual({ args: { times: { type: 'int', min: 1 } }, label: 'The bell rings' });
     expect(eventCatalog([bell])).toEqual(game.events());
     expect(Object.isFrozen(game.events())).toBe(true);
+    // Declared rang, found, then struck: neither that order nor its reverse is sorted.
+    const gong = defineModule({ id: 'gong', init: () => ({}), events: { struck: {} } });
+    expect(Object.keys(eventCatalog([bell, gong]))).toEqual(['bell/found', 'bell/rang', 'gong/struck']);
   });
 
   it('throws on a malformed event, or a listener for one nobody declares', () => {
@@ -131,6 +138,13 @@ describe('hearing events', () => {
     expect(types(step.beats)).toEqual(['bell/rang', 'bell/after-ring', 'ear 3', 'echo/heard']);
     expect(step.state.ear).toEqual({ heard: ['rang 3'] });
     expect(step.state.echo).toEqual({ heard: ['rang 3'] });
+  });
+
+  it('in the order they were raised', () => {
+    const game = createGame({ modules: [bell, ear('ear'), anyMode], start: 'any' });
+    const step = game.reduce(game.init('seed', sim), { type: 'bell/peal' }, sim);
+    expect(types(step.beats)).toEqual(['bell/rang', 'bell/rang', 'ear 1', 'ear 2']);
+    expect(step.state.ear).toEqual({ heard: ['rang 1', 'rang 2'] });
   });
 
   it('within an attempt when raised in one, so its consequences come before the work after it', () => {

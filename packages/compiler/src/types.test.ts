@@ -105,6 +105,16 @@ describe('type file problems', () => {
       { 'types/notes.md': 'Types go here.' },
       'W105 types/notes.md#: Ignored: type files are types/<type>.json',
     ],
+    [
+      'a file for the engine’s flag type',
+      { 'types/flag.json': '{ "title": "Flag", "fields": {} }' },
+      'E017 types/flag.json#: "flag" is one of the engine\'s own types (D36)',
+    ],
+    [
+      'a file for the engine’s sheet type',
+      { 'types/sheet.json': '{ "title": "Sheet", "fields": {} }' },
+      'E017 types/sheet.json#: "sheet" is one of the engine\'s own types (D36)',
+    ],
   ])('reports %s', async (_name, add, expected) => {
     const result = await compile({ ...ludus(), ...add });
     expect(brief(result.diagnostics)).toEqual([expect.stringContaining(expected)]);

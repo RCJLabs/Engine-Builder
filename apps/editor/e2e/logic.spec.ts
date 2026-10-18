@@ -84,6 +84,8 @@ test('flags and a sheet made in the Logic panel, the lint following each edit, e
   await sheet.getByRole('button', { name: 'Add a row' }).click();
   const second = sheet.getByRole('group', { name: 'Row 2: row-2' });
   const when = second.getByRole('group', { name: 'When' });
+  // A flag chosen, then another event: the flag was the old event's argument, and goes with it.
+  await when.getByLabel(/^Flag/).selectOption('raids');
   await when.getByLabel('Event', { exact: true }).selectOption({ label: 'A row runs' });
   await when.getByLabel(/^Sheet/).selectOption('the-arena');
   await when.getByLabel(/^Row/).fill('row-1');
@@ -93,9 +95,15 @@ test('flags and a sheet made in the Logic panel, the lint following each edit, e
   await secondDo.getByRole('button', { name: 'Add effect to Do' }).click();
   await secondDo.getByLabel('Flag', { exact: true }).selectOption('raids');
   await secondDo.getByLabel('By').fill('-1');
+  // A second effect goes after the first.
+  await secondDo.getByLabel('Effect to add to Do').selectOption({ label: 'Set a flag' });
+  await secondDo.getByRole('button', { name: 'Add effect to Do' }).click();
+  const added = secondDo.getByRole('listitem').nth(1);
+  await added.getByLabel('Flag', { exact: true }).selectOption('met-the-trader');
+  await added.getByLabel('To', { exact: true }).selectOption('off');
   await expect(page.getByRole('tab', { name: 'Problems', exact: true })).toBeVisible();
   await expect(card(panel, /^2\. row-2/)).toContainText('When a row runs (sheet: the-arena, row: row-1)');
-  await expect(card(panel, /^2\. row-2/)).toContainText('Do: take 1 from raids');
+  await expect(card(panel, /^2\. row-2/)).toContainText('Do: take 1 from raids, then set met-the-trader to off');
   await expectNothingOffscreen(page);
   await expectNoAxeIssues(page);
 
@@ -123,7 +131,10 @@ test('flags and a sheet made in the Logic panel, the lint following each edit, e
         id: 'row-2',
         when: { event: 'sheet/fired', args: { sheet: 'the-arena', row: 'row-1' } },
         if: 'flag.on(met-the-trader)',
-        do: [{ effect: 'add-to-flag', flag: 'raids', by: -1 }],
+        do: [
+          { effect: 'add-to-flag', flag: 'raids', by: -1 },
+          { effect: 'set-flag', flag: 'met-the-trader', to: false },
+        ],
       },
     ],
   });
@@ -165,11 +176,16 @@ test('a game’s own event and effect are kept as written, and edited as JSON', 
   await effect.blur();
   await expect(sheet.getByText(/^Not JSON yet/)).toBeVisible();
   await expect(effect).toHaveValue('{ "effect": "crowd", "mood": ');
-  expect(await stored(page, 'records/sheet/games.json')).toEqual(own);
+  // Another field's edit is saved, and the effect saved with it is still the one written.
+  await sheet.getByLabel(/^Note/).fill('The crowd roars');
+  await expect
+    .poll(() => stored(page, 'records/sheet/games.json'))
+    .toEqual({ rows: [{ ...own.rows[0], note: 'The crowd roars' }] });
+  await expect(effect).toHaveValue('{ "effect": "crowd", "mood": ');
   await effect.fill('{ "effect": "crowd", "mood": "calm" }');
   await expect
     .poll(() => stored(page, 'records/sheet/games.json'))
-    .toEqual({ rows: [{ ...own.rows[0], do: [{ effect: 'crowd', mood: 'calm' }] }] });
+    .toEqual({ rows: [{ ...own.rows[0], note: 'The crowd roars', do: [{ effect: 'crowd', mood: 'calm' }] }] });
   // No --types: a game's names are taken as written, so nothing here is a problem.
   await expect(page.getByRole('tab', { name: 'Problems', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
