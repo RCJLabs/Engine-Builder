@@ -97,11 +97,19 @@ async function typeFiles(source: ProjectSource): Promise<Map<string, TypeFileRea
   return found;
 }
 
-/** A new type file. Throws when the type has one already: a new type never overwrites one. */
-export async function createTypeFile(source: ProjectSource, type: string, title: string): Promise<FileChange[]> {
+/**
+ * A new type file: `file`, or a new type's start. Throws when the type has one already: a new type
+ * never overwrites one.
+ */
+export async function createTypeFile(
+  source: ProjectSource,
+  type: string,
+  title: string,
+  file: unknown = newTypeFile(title),
+): Promise<FileChange[]> {
   const path = typeFilePath(type);
   if ((await source.read(path)) !== undefined) throw new Error(`${path} exists already`);
-  return [{ path, before: null, after: encode(newFileText(newTypeFile(title))) }];
+  return [{ path, before: null, after: encode(newFileText(file)) }];
 }
 
 /** What a change to a type file does: the file after it, and what it does to each of its records. */

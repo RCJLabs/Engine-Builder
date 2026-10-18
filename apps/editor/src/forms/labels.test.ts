@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { humanize, labelOf, slugify } from './labels.ts';
+import { fieldNameOf, humanize, labelOf, slugify } from './labels.ts';
 
 describe('humanize', () => {
   it.each([
@@ -31,5 +31,25 @@ describe('slugify', () => {
     [`${'x'.repeat(63)} y`, 'x'.repeat(63)],
   ])('makes %j into %j', (typed, id) => {
     expect(slugify(typed)).toBe(id);
+  });
+});
+
+describe('fieldNameOf', () => {
+  it.each([
+    ['Hit points', 'hitPoints'],
+    ['Max HP', 'maxHP'],
+    ['HP max', 'hpMax'],
+    ['  Fights when ', 'fightsWhen'],
+    ['Café owner', 'cafeOwner'],
+    ['hit_points', 'hit_points'],
+    ['hit-points', 'hit-points'],
+    ['hitPoints', 'hitPoints'],
+    ['2nd wind', '2ndWind'],
+  ])('makes %j the name %j', (typed, name) => {
+    expect(fieldNameOf(typed)).toBe(name);
+  });
+
+  it('gives a name forms read back as the words typed', () => {
+    for (const typed of ['Hit points', 'Max HP', 'Fights when']) expect(humanize(fieldNameOf(typed))).toBe(typed);
   });
 });

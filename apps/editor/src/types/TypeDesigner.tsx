@@ -4,6 +4,7 @@ import { showPanel } from '../app/panelControl.ts';
 import { editing } from '../editing/current.ts';
 import { FieldView } from '../forms/FieldView.tsx';
 import { FormContext } from '../forms/formContext.ts';
+import { humanize } from '../forms/labels.ts';
 import { useFile } from '../forms/useFile.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { setView, tableType } from '../records/viewState.ts';
@@ -49,7 +50,15 @@ function Missing({ project, type }: { project: OpenProject; type: string }) {
           <p class="muted">
             There is no types/{type}.json, so its {count === 1 ? 'record' : `${count} records`} can’t be checked.
           </p>
-          <button type="button" class="button" disabled={!canEdit} onClick={() => void createType(type, type)}>
+          <p class="muted">
+            It starts with no fields: its records’ keys show as problems until fields of those names are added.
+          </p>
+          <button
+            type="button"
+            class="button"
+            disabled={!canEdit}
+            onClick={() => void createType(type, humanize(type), { title: humanize(type), fields: {} })}
+          >
             Create types/{type}.json
           </button>
         </>

@@ -34,9 +34,9 @@ async function step(
 export const changeTypeStep = (type: string, label: string, change: FieldChange, group?: string) =>
   step(label, (copy) => changeType(copy, type, change), group);
 
-/** A new type, shown in the designer and in the Records panel's table. */
-export async function createType(type: string, title: string): Promise<void> {
-  if (!(await step(`New type ${title}`, (copy) => createTypeFile(copy, type, title)))) return;
+/** A new type, shown in the designer and in the Records panel's table; `file` when not a new type's start. */
+export async function createType(type: string, title: string, file?: unknown): Promise<void> {
+  if (!(await step(`New type ${title}`, (copy) => createTypeFile(copy, type, title, file)))) return;
   tableType.value = type;
   chosen.value = { kind: 'type', type };
   showPanel('inspector');

@@ -4,6 +4,7 @@ import { useUniqueId } from '../app/ids.ts';
 import { type DefPath, isKeysPath, nodeAt, valuesAt } from './defPaths.ts';
 import { useDesign } from './designContext.ts';
 import { addChoiceChange, moveChoiceChange, removeChoiceChange, renameChoiceChange } from './fieldEdits.ts';
+import { holdersOf } from './kinds.ts';
 import { RenameForm } from './RenameForm.tsx';
 import { Problems } from './TypeDesigner.tsx';
 
@@ -103,9 +104,7 @@ export function ChoiceList({ at, label }: { at: DefPath; label: string }) {
                   }
                   said={() => {
                     const count = holding(design.records, design.json, at, choice);
-                    return count === 0
-                      ? 'No record holds it yet.'
-                      : `Renamed in the ${count === 1 ? 'record' : `${count} records`} that hold it too.`;
+                    return count === 0 ? 'No record holds it yet.' : `Renamed in ${holdersOf(count)} too.`;
                   }}
                   done={(name) => {
                     setRenaming(null);

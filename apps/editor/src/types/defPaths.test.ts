@@ -1,3 +1,4 @@
+import { FIELD_KINDS, readTypeFile } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { CRIXUS, FIGHTER } from '../../test/fighter.ts';
 import { eachDef, mapAt, nodeAt, setInTypeFile, stepsOf, valuesAt } from './defPaths.ts';
@@ -13,6 +14,7 @@ import {
   renameFieldDef,
   renameTypeInFile,
   replaceDef,
+  startingDef,
   targetsValue,
 } from './typeFileChanges.ts';
 
@@ -146,6 +148,18 @@ describe('type file changes', () => {
     expect(Object.keys((moved as typeof FIGHTER).fields).slice(0, 3)).toEqual(['style', 'name', 'school']);
     expect(moveFieldDef(FIGHTER, [], 'name', -1)).toBe(FIGHTER);
     expect(moveFieldDef(FIGHTER, [], 'fights', 1)).toBe(FIGHTER);
+  });
+
+  it('starts every kind sound, a choice once it has choices', () => {
+    for (const kind of FIELD_KINDS) {
+      const file = replaceDef(FIGHTER, ['fields', 'rival'], startingDef(kind, ['a', 'b'], 'school'), true);
+      expect(readTypeFile(file).ok, kind).toBe(true);
+    }
+    expect(readTypeFile(replaceDef(FIGHTER, ['fields', 'rival'], startingDef('enum', [], 'school'), true)).ok).toBe(
+      false,
+    );
+    expect(startingDef('list', [], 'school')).toEqual({ kind: 'list', of: { kind: 'text' } });
+    expect(startingDef('ref', [], 'school')).toEqual({ kind: 'ref', to: 'school' });
   });
 
   it('replaces a def by one of another kind, keeping what a field says about itself', () => {

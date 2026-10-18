@@ -30,3 +30,20 @@ export function slugify(text: string): string {
     .slice(0, 64)
     .replace(/-+$/, '');
 }
+
+/**
+ * A field's name from what someone typed (M2.6): words become camel case, so "Hit points" gives
+ * hitPoints, which forms read back as "Hit points". A name typed without spaces stays as typed,
+ * so snake_case and kebab-case names can be typed too. Accents are dropped.
+ */
+export function fieldNameOf(typed: string): string {
+  const text = typed.normalize('NFKD').replace(/\p{M}/gu, '').trim();
+  if (!/\s/.test(text)) return text;
+  const words = text.split(/[^A-Za-z0-9]+/).filter(Boolean);
+  return words
+    .map((word, i) => {
+      if (i > 0) return word.charAt(0).toUpperCase() + word.slice(1);
+      return word === word.toUpperCase() ? word.toLowerCase() : word.charAt(0).toLowerCase() + word.slice(1);
+    })
+    .join('');
+}

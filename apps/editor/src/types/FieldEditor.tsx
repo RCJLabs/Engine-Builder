@@ -4,13 +4,13 @@ import { useRef, useState } from 'preact/hooks';
 import { FieldView } from '../forms/FieldView.tsx';
 import { FormContext } from '../forms/formContext.ts';
 import { LocalField } from '../forms/LocalField.tsx';
-import { humanize } from '../forms/labels.ts';
+import { fieldNameOf, humanize } from '../forms/labels.ts';
 import { emptyValue } from '../forms/values.ts';
 import { namesOf } from '../records/names.ts';
 import { type DefPath, fieldNames, isObject, kindOf, valuesAt } from './defPaths.ts';
 import { designForm, useDesign } from './designContext.ts';
 import { fillChange, removeFieldChange, renameFieldChange } from './fieldEdits.ts';
-import { fieldLabel } from './kinds.ts';
+import { fieldLabel, holdersOf } from './kinds.ts';
 import { RenameForm } from './RenameForm.tsx';
 import { missingField } from './rewrites.ts';
 import { Problems } from './TypeDesigner.tsx';
@@ -103,12 +103,13 @@ function FieldName({ group, name, renamed }: { group: DefPath; name: string; ren
         <RenameForm
           label={`New name for the field ${name}`}
           initial={name}
+          shape={fieldNameOf}
           check={(typed) =>
             fieldNameProblem(typed) ?? (taken.includes(typed) ? `There is a field ${typed} already` : null)
           }
           said={() => {
             const count = holding(design, group, name);
-            return count === 0 ? 'No record holds it yet.' : `Renamed in the ${records(count)} that hold it too.`;
+            return count === 0 ? 'No record holds it yet.' : `Renamed in ${holdersOf(count)} too.`;
           }}
           done={(to) => {
             setOpen(false);
@@ -191,9 +192,7 @@ function RemoveField({ group, name, label }: { group: DefPath; name: string; lab
     <div class="confirm">
       <p>
         Remove {label}?{' '}
-        {count === 0
-          ? 'No record holds it.'
-          : `It goes from the ${records(count)} that hold it too; undo brings it back.`}
+        {count === 0 ? 'No record holds it.' : `It goes from ${holdersOf(count)} too; undo brings it back.`}
       </p>
       <div class="form-actions">
         <button

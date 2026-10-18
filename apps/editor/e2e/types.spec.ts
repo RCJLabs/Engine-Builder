@@ -1,9 +1,14 @@
 /** M2.6's type designer on a desktop: new types, fields of every sort, renames that carry the records, deletes. */
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, watchErrors } from './checks.ts';
-import { importLudus, openRecord, SPICULUS, showRecords, showTable, stored } from './ludus.ts';
+import { importLudus, LUDUS, openRecord, SPICULUS, showRecords, showTable, stored } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 800 } });
+
+const undo = (page: Page, label: string) => page.getByRole('button', { name: `Undo: ${label}` }).click();
 
 /** The designer of a type, by its title. */
 const designer = (page: Page, title: string): Locator => page.getByRole('region', { name: `Type ${title}` });
@@ -55,9 +60,16 @@ test('designs a new type, its fields of several kinds, and makes records of it',
     .poll(() => stored(page, 'types/chariot-team.json'))
     .toEqual({ title: 'Chariot Team', nameField: 'name', fields: { name: { kind: 'text', min: 1 } } });
 
-  await addField(design, 'speed', 'Whole number');
-  const speed = design.getByRole('region', { name: 'Field speed' });
+  await addField(design, 'Top speed', 'Whole number');
+  const speed = design.getByRole('region', { name: 'Field topSpeed' });
   await speed.getByLabel(/^Largest/).fill('10');
+  await speed.getByLabel(/^Label/).fill('Speed');
+  await expect(design.getByRole('button', { name: /^Speed Whole number, at most 10/ })).toBeVisible();
+  await design.getByRole('button', { name: 'Move Speed up' }).click();
+  await expect
+    .poll(async () => Object.keys(((await stored(page, 'types/chariot-team.json')) as { fields: object }).fields))
+    .toEqual(['topSpeed', 'name']);
+  await undo(page, 'Move Speed up');
   await addField(design, 'colours', 'Choice', (form) => form.getByLabel('Choices, one a line').fill('red\nblue\nred'));
   await addField(design, 'driver', 'Record', (form) => form.getByLabel('Names records of').selectOption('gladiator'));
   await addField(design, 'wins', 'Whole number', (form) =>
@@ -68,7 +80,7 @@ test('designs a new type, its fields of several kinds, and makes records of it',
     .toMatchObject({
       fields: {
         name: { kind: 'text', min: 1 },
-        speed: { kind: 'int', max: 10 },
+        topSpeed: { kind: 'int', max: 10, label: 'Speed' },
         colours: { kind: 'enum', values: ['red', 'blue'] },
         driver: { kind: 'ref', to: 'gladiator' },
         wins: { kind: 'int', optional: true },
@@ -83,11 +95,29 @@ test('designs a new type, its fields of several kinds, and makes records of it',
   await page.getByRole('button', { name: 'Create' }).click();
   await expect
     .poll(() => stored(page, 'records/chariot-team/golden-wheels.json'))
-    .toEqual({ name: 'Golden Wheels', speed: 0, colours: 'red', driver: '' });
+    .toEqual({ name: 'Golden Wheels', topSpeed: 0, colours: 'red', driver: '' });
   expect(errors).toEqual([]);
 });
 
-const undo = (page: Page, label: string) => page.getByRole('button', { name: `Undo: ${label}` }).click();
+test('writes a type file for records that have none, starting with no fields', async ({ page }) => {
+  const errors = watchErrors(page);
+  await importLudus(page, { 'records/horse/bucephalus.json': '{ "speed": "fast" }' });
+  await showTable(page, 'horse');
+  await page.getByRole('button', { name: 'Edit type' }).click();
+  const missing = designer(page, 'horse');
+  await expect(missing).toContainText('There is no types/horse.json, so its record can’t be checked.');
+  await missing.getByRole('button', { name: 'Create types/horse.json' }).click();
+  const design = designer(page, 'Horse');
+  await expect(design).toContainText('No fields yet.');
+  await expect(design).toContainText('1 has problems');
+  await addField(design, 'speed', 'Text', async (form) => {
+    await expect(form).toContainText('The record there is gets:');
+  });
+  // Filled only where it is missing: the record keeps what it holds.
+  await expect.poll(() => stored(page, 'records/horse/bucephalus.json')).toEqual({ speed: 'fast' });
+  await expect(design).not.toContainText('has problems');
+  expect(errors).toEqual([]);
+});
 
 test('renames a field, a choice and a type, carrying the records with them, and undo takes each back', async ({
   page,
@@ -115,7 +145,7 @@ test('renames a field, a choice and a type, carrying the records with them, and 
   const style = await openField(design, 'Style', 'style');
   await style.getByRole('button', { name: 'Rename the choice murmillo' }).click();
   await style.getByLabel('New name for the choice murmillo').fill('myrmillo');
-  await expect(style).toContainText('Renamed in the record that hold');
+  await expect(style).toContainText('Renamed in the record that holds it too.');
   await style.getByRole('form', { name: 'Rename murmillo' }).getByRole('button', { name: 'Rename' }).click();
   await expect.poll(() => stored(page, SPICULUS)).toMatchObject({ style: 'myrmillo' });
   await expect
@@ -155,7 +185,7 @@ test('removes a field from the type and the records, fills in a new required one
   const design = await editType(page, 'Gladiator');
   const story = await openField(design, 'Story', 'story');
   await story.getByRole('button', { name: 'Remove Story' }).click();
-  await expect(story).toContainText('It goes from the 1 record that hold it too');
+  await expect(story).toContainText('It goes from the record that holds it too; undo brings it back.');
   await story.getByRole('button', { name: 'Remove Story' }).click();
   await expect.poll(() => stored(page, SPICULUS)).not.toHaveProperty('story');
   await undo(page, 'Remove field story from type gladiator');
@@ -179,11 +209,28 @@ test('removes a field from the type and the records, fills in a new required one
   const again = await editType(page, 'Gladiator');
   const ageAgain = await openField(again, 'Age', 'age');
   await ageAgain.getByLabel('Optional', { exact: true }).uncheck();
+  // A box ticked off takes its key out: the format's fields are required unless they say so.
+  await expect
+    .poll(async () => ((await stored(page, 'types/gladiator.json')) as { fields: { age: object } }).fields.age)
+    .toEqual({ kind: 'int' });
   await expect(ageAgain).toContainText('1 record leaves Age out. Give it:');
   await ageAgain.getByLabel(/^Age for the records that leave it out/).fill('25');
   await ageAgain.getByRole('button', { name: 'Fill in 1 record' }).click();
   await expect.poll(() => stored(page, 'records/gladiator/flamma.json')).toMatchObject({ age: 25 });
   await expect(ageAgain.getByRole('button', { name: 'Fill in 1 record' })).toHaveCount(0);
+
+  // A choice made from text starts from the texts the records hold.
+  const style = await openField(again, 'Style', 'style');
+  await style.getByLabel('Kind', { exact: true }).selectOption({ label: 'Text' });
+  await expect.poll(() => stored(page, 'types/gladiator.json')).toMatchObject({ fields: { style: { kind: 'text' } } });
+  await style.getByLabel('Kind', { exact: true }).selectOption({ label: 'Choice' });
+  await expect
+    .poll(() => stored(page, 'types/gladiator.json'))
+    .toMatchObject({ fields: { style: { kind: 'enum', values: ['murmillo', 'retiarius', 'secutor'] } } });
+  // A ref names one type at least: the last one ticked can't be ticked off.
+  const kit = await openField(again, 'Weapons carried', 'kit');
+  await expect(kit.getByRole('checkbox', { name: 'Weapon' })).toBeDisabled();
+  await expect(kit.getByRole('checkbox', { name: 'School' })).toBeEnabled();
 
   const might = await openField(again, 'Might', 'might');
   await might.getByLabel('Kind', { exact: true }).selectOption({ label: 'Text' });
@@ -221,7 +268,17 @@ test('renames a record and every reference to it, and deletes a type only while 
   page,
 }) => {
   const errors = watchErrors(page);
-  await importLudus(page);
+  const spiculus = JSON.parse(readFileSync(join(LUDUS, SPICULUS), 'utf8'));
+  await importLudus(page, {
+    [SPICULUS]: JSON.stringify({ ...spiculus, fights: 'arena.day and not rival.is(flamma)' }),
+  });
+  // Conditions aren't changed: the editor can't tell which of their words are ids, so it lists them.
+  const flamma = await openRecord(page, 'Gladiator', 'flamma');
+  await flamma.getByRole('button', { name: 'Rename', exact: true }).click();
+  await expect(flamma).toContainText(
+    'Conditions in gladiator:spiculus mention flamma. The editor can’t tell whether they name this record, so they stay as they are.',
+  );
+  await flamma.getByRole('button', { name: 'Cancel' }).click();
   const form = await openRecord(page, 'School', 'ludus-magnus');
   await form.getByRole('button', { name: 'Rename', exact: true }).click();
   await form.getByLabel('New id for ludus-magnus').fill('Ludus Dacicus');

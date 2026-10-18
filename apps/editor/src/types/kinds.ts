@@ -85,3 +85,7 @@ export function summary(node: unknown, title: (type: string) => string): string 
 /** What forms call a field: its label, or its name in words. */
 export const fieldLabel = (name: string, def: unknown): string =>
   isObject(def) && typeof def.label === 'string' && def.label !== '' ? def.label : humanize(name);
+
+/** "the record that holds it", "the 3 records that hold it": the records a change reaches. */
+export const holdersOf = (count: number): string =>
+  count === 1 ? 'the record that holds it' : `the ${count} records that hold it`;

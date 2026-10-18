@@ -2,7 +2,7 @@ import { type FieldKind, fieldNameProblem, type ValueDef } from '@eb/schema';
 import { useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { LocalField } from '../forms/LocalField.tsx';
-import { humanize } from '../forms/labels.ts';
+import { fieldNameOf, humanize } from '../forms/labels.ts';
 import { emptyValue } from '../forms/values.ts';
 import { namesOf } from '../records/names.ts';
 import { type DefPath, fieldNames, isObject, valuesAt } from './defPaths.ts';
@@ -61,7 +61,7 @@ function FieldForm({ group, done, cancel }: { group: DefPath; done: (name: strin
     design.types.includes(design.type) ? design.type : (design.types[0] ?? design.type),
   );
   const [optional, setOptional] = useState(false);
-  const typed = name.trim();
+  const typed = fieldNameOf(name);
   const problem =
     typed === ''
       ? null
@@ -175,7 +175,7 @@ function FieldForm({ group, done, cancel }: { group: DefPath; done: (name: strin
       </div>
       {fills && !needsChoices ? (
         <div class="fill-missing">
-          <p>The {records(holders)} there are get:</p>
+          <p>{holders === 1 ? 'The record there is gets:' : `The ${records(holders)} there are get:`}</p>
           <LocalField
             key={shape}
             catalog={design.project.catalog}
