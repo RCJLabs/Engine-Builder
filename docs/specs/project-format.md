@@ -107,6 +107,8 @@ A project travels as a zip: the editor exports one, imports one, and the CLI rea
 6. **Diagnostics** are sorted in the order records.md gives.
 7. **The pack** is built only when no diagnostic is an error. Warnings don't stop it. Conditions written as text go into it as their trees.
 
+Steps 1 to 4, short of parsing the records, are `readProjectFiles(source, types)` (M2.8). The editor's catalog runs the same function, and its record index the records' checks, so the Problems panel lists what `eb validate` says ([editor-problems.md](editor-problems.md)).
+
 The result doesn't depend on the order a source lists files in, or on the files' formatting or key order (property-tested).
 
 ### Diagnostics this adds
@@ -156,6 +158,7 @@ The sim then reads the records through `createRecordStore(pack.records)`.
 ```
 pnpm eb validate <project> [--types <module>] [--json]
 pnpm eb build <project> [--types <module>] [--out <file>] [--json]
+pnpm eb schemas <folder> [--types <module>] [--json]
 ```
 
 - **`<project>`** is a project folder or a zip of one.
@@ -170,14 +173,11 @@ pnpm eb build <project> [--types <module>] [--out <file>] [--json]
 - **build** writes the pack to `--out`, or to `<project id>.pack.json` in the current folder, and only when there are no errors.
 - **Exit codes:** 0 with no errors, 1 with errors, and 2 when the command couldn't run (bad arguments, an unreadable input or types module).
 - **Paths.** Through `pnpm eb`, relative paths are relative to the repository root, where pnpm runs root scripts.
+- **schemas** (M2.8) writes each record type's JSON Schema into the folder's `.vscode/`, for VS Code to check records edited by hand ([editor-problems.md](editor-problems.md#eb-schemas)). It takes a folder only.
 
 ## Open questions
 
-1. **VS Code and record schemas** (moved here from records.md). I recommend an `eb schemas` command that does two things:
-   - writes each type's JSON Schema;
-   - writes a `.vscode/settings.json` that maps `records/<type>/*.json` to that schema.
-
-   Record files then stay pure data, with no `$schema` key for strict objects to reject. It is listed under M2.8.
+1. **VS Code and record schemas.** Settled in M2.8: `eb schemas` writes them into `.vscode/eb-schemas/` and maps them in `.vscode/settings.json` (D35, [editor-problems.md](editor-problems.md#eb-schemas)). Record files stay pure data, with no `$schema` key for strict objects to reject.
 2. **Duplicate keys in a JSON file.** `JSON.parse` silently keeps the last one, and a git merge can produce duplicates. A warning would need a JSON reader that sees them.
 3. **Zip size.** Settled in M2.1: `zipSource` takes limits, and the editor's import allows 10,000 files and 100 MB ([Zips](#zips)).
 4. **Where a project's record types come from.** Its own types are in `types/` since M2.4 (D31). Code types still come from `--types`: `project.json` gains a `modules` list with M3.3's kits, and the CLI then resolves those modules instead.
