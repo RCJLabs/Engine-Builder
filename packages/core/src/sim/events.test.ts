@@ -184,6 +184,28 @@ describe('hearing events', () => {
     expect(step.beats).toEqual([{ type: 'rejected', action: 'bell/ring', reason: 'vetoed' }]);
   });
 
+  it('hears any number of events one after another: only how deep they go is limited', () => {
+    const many = defineModule<{ heard: number }>({
+      id: 'many',
+      init: () => ({ heard: 0 }),
+      events: { tick: {} },
+      on: {
+        'many/tick': (ctx) => {
+          ctx.write().heard += 1;
+        },
+      },
+      actions: {
+        go: (ctx) => {
+          for (let i = 0; i < MAX_EVENT_DEPTH * 4; i++) ctx.attempt(() => ctx.emit('tick'));
+          for (let i = 0; i < MAX_EVENT_DEPTH * 4; i++) ctx.emit('tick');
+        },
+      },
+    });
+    const game = createGame({ modules: [many, anyMode], start: 'any' });
+    const step = game.reduce(game.init('seed', sim), { type: 'many/go' }, sim);
+    expect(step.state.many).toEqual({ heard: MAX_EVENT_DEPTH * 8 });
+  });
+
   it(`throws when listeners raise events ${MAX_EVENT_DEPTH} deep`, () => {
     // Stops after `left` rounds: 63 are fine, 64 is one too many.
     const self = defineModule<Record<string, never>>({

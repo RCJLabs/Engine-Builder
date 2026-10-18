@@ -14,6 +14,8 @@ import {
 } from '../../../packages/compiler/test/fixture.ts';
 
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
+const SALVAGE = resolve(import.meta.dirname, '../../../packages/core/test/fixtures/salvage-run');
+const SALVAGE_GAME = resolve(import.meta.dirname, 'fixtures/salvage-game.ts');
 const V1_HASH = '489cedf323bd33d9';
 const LUDUS_HASH = '34035cc3fb5fba7a';
 
@@ -110,6 +112,24 @@ describe('eb validate', () => {
     ]);
     expect(unknown.code).toBe(1);
     expect(unknown.out).toContain('records/event/a.json#/choices/go/when/fact: error E012: No fact "hold.debt"');
+  });
+
+  it("checks rows against the types module's events and effects, and takes them as written without one (D36)", () => {
+    const salvage = () => {
+      const dir = scratch();
+      cpSync(SALVAGE, dir, { recursive: true });
+      const row = { id: 'typo', when: { event: 'voyage/arived' }, do: [{ effect: 'lot', table: 'dead-hauler' }] };
+      writeFileSync(join(dir, 'records/sheet/typos.json'), JSON.stringify({ rows: [row] }));
+      return dir;
+    };
+    const typed = eb(['validate', salvage(), '--types', SALVAGE_GAME]);
+    expect(typed.code).toBe(1);
+    expect(typed.out).toContain('records/sheet/typos.json#/rows/0/when/event: error E022: No event "voyage/arived" in this game');
+    expect(typed.out).toContain('records/sheet/typos.json#/rows/0/do/0/effect: error E025: No effect "lot" in this game');
+    // Without --types, a game's own names can't be told from typos: taken as written.
+    const open = eb(['validate', salvage()]);
+    expect(open.out).not.toContain('E022');
+    expect(open.out).not.toContain('E025');
   });
 
   it('prints JSON for machines', () => {

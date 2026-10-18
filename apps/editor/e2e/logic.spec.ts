@@ -52,6 +52,8 @@ test('flags and a sheet made in the Logic panel, the lint following each edit, e
   const first = sheet.getByRole('group', { name: 'Row 1: row-1' });
   await first.getByRole('group', { name: 'When' }).getByLabel(/^Flag/).selectOption('raids');
   await first.getByLabel(/^If/).fill('flag.number(raids) >= 3');
+  // Read with the engine's facts, as eb validate reads it: the flag's one argument needs no name.
+  await expect(first.getByText('Reads: raids is at least 3.')).toBeVisible();
   const firstDo = first.getByRole('group', { name: 'Do' });
   await firstDo.getByRole('button', { name: 'Add effect to Do' }).click();
   await firstDo.getByLabel('Flag', { exact: true }).selectOption('met-the-trader');
@@ -184,5 +186,39 @@ test('a problem inside a row opens the sheet at its field', async ({ page }) => 
   await problems.getByRole('button', { name: /E005 No record flag:ghost · Rows, item 1: Do, item 1: flag$/ }).click();
   const form = page.getByRole('region', { name: 'Trigger sheet s' });
   await expect(form.getByRole('group', { name: 'Do' }).getByLabel('Flag', { exact: true })).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test('set-flag asks for on or off, or a whole number, as the flag is', async ({ page }) => {
+  const errors = watchErrors(page);
+  const sheet = {
+    rows: [
+      {
+        id: 'a',
+        when: { event: 'flag/changed' },
+        do: [
+          { effect: 'set-flag', flag: 'met', to: true },
+          { effect: 'set-flag', flag: 'raids', to: 2 },
+        ],
+      },
+    ],
+  };
+  await importLudus(page, {
+    'records/flag/met.json': '{}',
+    'records/flag/raids.json': JSON.stringify({ number: { max: 5 } }),
+    'records/sheet/s.json': JSON.stringify(sheet),
+  });
+  const panel = await showLogic(page);
+  await card(panel, /^1\. a/).click();
+  const effects = page
+    .getByRole('region', { name: 'Trigger sheet s' })
+    .getByRole('group', { name: 'Do' })
+    .getByRole('listitem');
+  await expect(effects.nth(0).getByRole('combobox', { name: 'To' })).toHaveValue('on');
+  await expect(effects.nth(1).getByRole('textbox', { name: 'To' })).toHaveValue('2');
+  await effects.nth(1).getByRole('textbox', { name: 'To' }).fill('4');
+  await expect
+    .poll(() => stored(page, 'records/sheet/s.json'))
+    .toMatchObject({ rows: [{ do: [{ to: true }, { effect: 'set-flag', flag: 'raids', to: 4 }] }] });
   expect(errors).toEqual([]);
 });
