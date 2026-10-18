@@ -42,10 +42,14 @@ export async function importLudus(page: Page, extra: Record<string, string> = {}
 
 export const openProject = (page: Page): Locator => page.getByRole('region', { name: 'Open project' });
 
-/** The Project panel to the front, where tabs share a zone (phone, tablet). */
+/**
+ * The Project panel to the front. Every layout has its tab (D35, D37), and it is waited for: on
+ * desktop the dock mounts after the page loads, with the layout saved last, which may have
+ * another panel in front. Checked before the dock was up, the tab wasn't there to choose, and a
+ * test after a reload once found the Project panel behind Logic (M3.2's CI).
+ */
 export async function showProject(page: Page): Promise<void> {
-  const tab = page.getByRole('tab', { name: 'Project' });
-  if (await tab.isVisible()) await tab.click();
+  await page.getByRole('tab', { name: 'Project' }).click();
 }
 
 /** The Records panel to the front, where tabs share a zone (phone, tablet) or a dock group (desktop). */

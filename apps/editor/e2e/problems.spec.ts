@@ -150,6 +150,9 @@ test.describe('the console', () => {
     await importLudus(page);
     const log = page.locator('.console');
     await expect(log).toContainText('Opened Ludus from this browser.');
+    // The service worker's line comes once its precache is in (1.8 MB since M3.2), and on a busy
+    // runner that was after the Clear below (M3.2's CI). Waited for, it can't land after it.
+    await expect(log).toContainText('Offline copy saved', { timeout: 15_000 });
     await log.getByRole('button', { name: 'Copy all' }).click();
     await expect(log).toContainText('Copied the console.');
     const copied = await page.evaluate(() => navigator.clipboard.readText());
