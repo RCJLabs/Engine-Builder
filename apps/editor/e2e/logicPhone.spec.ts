@@ -58,7 +58,7 @@ for (const viewport of [
       await importLudus(page, EXTRA);
       if (viewport.width < viewport.height) {
         const tabs = page.getByRole('tablist').first().getByRole('tab');
-        await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Logic', /^Problems/, 'Console']);
+        await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Logic', /^Problems/, 'More']);
       }
       await page.getByRole('tab', { name: 'Logic' }).tap();
       const panel = page.locator('[data-panel="logic"]');

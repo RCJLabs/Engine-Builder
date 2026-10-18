@@ -4,7 +4,7 @@
  */
 import { signal } from '@preact/signals';
 import type { DockHandle } from './dock/desktopDock.tsx';
-import { type DockPanelId, SHEET, ZONES, zonePanelId } from './layout.ts';
+import { type DockPanelId, SHEET, tabOf, zoneOf, zonePanelId } from './layout.ts';
 import { activeTabs, layout } from './state.ts';
 
 /** Whether the phone's inspector sheet is open. */
@@ -36,12 +36,13 @@ export function showPanel(id: DockPanelId): void {
     focusSoon(SHEET_BODY_ID);
     return;
   }
-  const zone = ZONES[current].find((z) => (z.panels as readonly DockPanelId[]).includes(id));
+  // By its tab, or behind a phone's More (D37), whose tab is then the one chosen.
+  const zone = zoneOf(current, id);
   if (zone) {
-    activeTabs.value = { ...activeTabs.value, [zone.zone]: id };
-    focusSoon(zonePanelId(zone.zone, id));
+    activeTabs.value = { ...activeTabs.value, [zone]: id };
+    focusSoon(zonePanelId(zone, tabOf(current, id)));
   } else if (id === 'console') {
-    // A phone's tab (M2.8), but in view in no zone on a tablet: focus goes to it there.
+    // Behind a phone's More, but in view in no zone on a tablet: focus goes to it there.
     focusSoon(CONSOLE_STRIP_ID);
   }
 }

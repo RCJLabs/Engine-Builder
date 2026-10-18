@@ -55,7 +55,8 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 
 ```
 apps/editor/           the editor PWA
-  src/app/             shell: layout model (layout.ts), zones, panels, console, the phone's inspector sheet,
+  src/app/             shell: layout model (layout.ts), zones, panels, console, the phone's inspector sheet and its
+                       More tab (MorePanel.tsx, D37),
                        the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show),
                        the console's log (state.ts), ErrorToast.tsx and errors.ts (errors nothing caught, M2.8),
                        ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId)

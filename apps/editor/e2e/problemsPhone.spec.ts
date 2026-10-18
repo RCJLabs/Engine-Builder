@@ -89,10 +89,11 @@ for (const viewport of [
       await expect(toast).toBeVisible();
       await toast.getByRole('button', { name: 'Console' }).tap();
       await expect(toast).toBeHidden();
-      // A tab of its own held upright; in landscape, tablet width, the strip along the bottom.
+      // Behind More held upright (D37); in landscape, tablet width, the strip along the bottom.
       const lines = page.getByRole('list', { name: 'Console messages' });
       if (viewport.width < viewport.height) {
-        await expect(page.getByRole('tab', { name: 'Console' })).toHaveAttribute('aria-selected', 'true');
+        await expect(page.getByRole('tab', { name: 'More' })).toHaveAttribute('aria-selected', 'true');
+        await expect(lines).toBeVisible();
       } else {
         await expect(lines).toBeFocused();
       }
@@ -127,7 +128,8 @@ test.describe('the error toast, phone 390×844', () => {
     // In real time: the 8 s themselves are state.test.ts's, on fake timers. Playwright's clock keeps
     // running until paused, so a test that took longer counted against the toast.
     await expect(toast).toBeHidden({ timeout: 15_000 });
-    await page.getByRole('tab', { name: 'Console' }).tap();
+    await page.getByRole('tab', { name: 'More' }).tap();
+    await page.getByRole('button', { name: /^Console / }).tap();
     await expect(page.locator('[data-panel="console"] .console-error')).toContainText('Couldn’t import');
     expect(errors).toEqual([]);
   });

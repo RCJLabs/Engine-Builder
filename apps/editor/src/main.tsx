@@ -8,6 +8,7 @@ import { watchPage } from './editing/current.ts';
 import { startProjects } from './projects/session.ts';
 import { startPwa } from './pwa/register.ts';
 import './styles/app.css';
+import './styles/more.css';
 import './styles/projects.css';
 import './styles/overlays.css';
 import './styles/editing.css';

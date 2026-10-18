@@ -14,10 +14,10 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
     expect(await visiblePanels(page)).toEqual(['project']);
 
-    // The inspector is the sheet's (layout.spec.ts); Logic is fourth since M3.1 (D36), and the
-    // placeholders wait for their phases (D35).
+    // The inspector is the sheet's (layout.spec.ts); Logic is fourth since M3.1 (D36), and More
+    // ends the bar, holding the rest (D37).
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Logic', 'Problems', 'Console']);
+    await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Logic', 'Problems', 'More']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 
@@ -28,8 +28,9 @@ test.describe('phone portrait 390×844', () => {
     await page.getByRole('tab', { name: 'Problems' }).tap();
     expect(await visiblePanels(page)).toEqual(['problems']);
     await expect(page.getByRole('tab', { name: 'Problems' })).toHaveAttribute('aria-selected', 'true');
-    // The console is a tab of its own on a phone (M2.8), with the build's line in it.
-    await page.getByRole('tab', { name: 'Console' }).tap();
+    // The console is behind More on a phone (D37), with the build's line in it.
+    await page.getByRole('tab', { name: 'More' }).tap();
+    await page.getByRole('button', { name: /^Console / }).tap();
     await expect(page.locator('[data-panel="console"]')).toContainText('Engine-Builder');
 
     await expectNothingOffscreen(page);

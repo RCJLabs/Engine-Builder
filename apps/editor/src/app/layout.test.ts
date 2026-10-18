@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { activePanel, BREAKPOINTS, DOCK_PANELS, layoutFor, neighbourTab, panelsOf, visiblePanels } from './layout.ts';
+import {
+  activePanel,
+  BREAKPOINTS,
+  DOCK_PANELS,
+  layoutFor,
+  MORE,
+  neighbourTab,
+  panelsOf,
+  tabOf,
+  tabsOf,
+  visiblePanels,
+  zoneOf,
+} from './layout.ts';
 
 describe('layoutFor', () => {
   it('switches exactly at the breakpoints', () => {
@@ -13,7 +25,7 @@ describe('layoutFor', () => {
 });
 
 describe('zones', () => {
-  it('reach each panel once at most, every panel on desktop and tablet, and on a phone those that do something', () => {
+  it('reach each panel once at most, and every panel on every layout', () => {
     for (const layout of ['desktop', 'tablet', 'phone'] as const) {
       const all = panelsOf(layout);
       expect(new Set(all).size, layout).toBe(all.length);
@@ -21,16 +33,27 @@ describe('zones', () => {
     const every = ['assets', 'console', 'inspector', 'logic', 'play', 'problems', 'project', 'records', 'world'];
     expect(panelsOf('desktop').sort()).toEqual(every);
     expect(panelsOf('tablet').sort()).toEqual(every);
-    // D35: World and Play join a phone's bar when their phases build them; Logic joined with M3.1 (D36).
-    expect(panelsOf('phone').sort()).toEqual([
-      'assets',
-      'console',
-      'inspector',
-      'logic',
-      'problems',
-      'project',
-      'records',
-    ]);
+    // D37: a phone too, five panels on its bar and the rest behind More, which ends it.
+    expect(panelsOf('phone').sort()).toEqual(every);
+    expect(tabsOf('phone', 'only')).toEqual(['project', 'records', 'assets', 'logic', 'problems', 'more']);
+    expect(MORE.phone).toEqual(['console', 'world', 'play']);
+    expect(tabsOf('tablet', 'main')).toEqual(['records', 'assets', 'world', 'play']);
+    expect(tabsOf('tablet', 'side')).toEqual(['inspector', 'project', 'problems', 'logic']);
+  });
+
+  it('show More’s list, or one of its panels with More’s tab chosen', () => {
+    expect(activePanel('phone', 'only', { only: 'more' })).toBe('more');
+    expect(activePanel('phone', 'only', { only: 'play' })).toBe('play');
+    expect(tabOf('phone', 'play')).toBe('more');
+    expect(tabOf('phone', 'more')).toBe('more');
+    expect(tabOf('phone', 'logic')).toBe('logic');
+    expect(tabOf('tablet', 'play')).toBe('play');
+    expect(zoneOf('phone', 'console')).toBe('only');
+    expect(zoneOf('phone', 'logic')).toBe('only');
+    // The sheet's and the strip's are in no zone.
+    expect(zoneOf('phone', 'inspector')).toBeUndefined();
+    expect(zoneOf('tablet', 'console')).toBeUndefined();
+    expect(zoneOf('tablet', 'play')).toBe('main');
   });
 
   it('dock the desktop zones’ panels, then the console and problems along the bottom', () => {
@@ -56,16 +79,20 @@ describe('zones', () => {
 
   it('ignore a choice that belongs to another layout', () => {
     expect(activePanel('phone', 'only', { only: 'problems' })).toBe('problems');
-    expect(activePanel('phone', 'only', { only: 'world' })).toBe('project');
+    expect(activePanel('phone', 'only', { only: 'inspector' })).toBe('project');
     expect(activePanel('tablet', 'main', { main: 'inspector' })).toBe('records');
+    expect(activePanel('tablet', 'main', { main: 'more' })).toBe('records');
+    expect(activePanel('tablet', 'side', { side: 'console' })).toBe('inspector');
   });
 
   it('step through tabs and wrap at both ends', () => {
     expect(neighbourTab('phone', 'only', 'project', 1)).toBe('records');
-    expect(neighbourTab('phone', 'only', 'project', -1)).toBe('console');
+    expect(neighbourTab('phone', 'only', 'project', -1)).toBe('more');
     expect(neighbourTab('phone', 'only', 'records', 1)).toBe('assets');
     expect(neighbourTab('phone', 'only', 'assets', 1)).toBe('logic');
     expect(neighbourTab('phone', 'only', 'logic', 1)).toBe('problems');
+    expect(neighbourTab('phone', 'only', 'problems', 1)).toBe('more');
+    expect(neighbourTab('phone', 'only', 'more', 1)).toBe('project');
     expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('inspector');
   });
 });

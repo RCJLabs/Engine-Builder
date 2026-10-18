@@ -1,0 +1,60 @@
+/* D37's More: the panels past a phone's bar, one row each, and the way back to the list. Rows are
+   the width of the panel and at least 56 px tall, a summary under each name. */
+
+.more-items {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.more-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 12px;
+  font: inherit;
+  text-align: start;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.more-item:focus-visible,
+.more-back-button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.more-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.more-label {
+  font-weight: 600;
+}
+
+.more-summary {
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.more-back {
+  margin: -4px 0 12px;
+}
+
+.more-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px 0 8px;
+}

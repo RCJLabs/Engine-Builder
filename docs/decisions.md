@@ -577,7 +577,7 @@ The spec is [specs/editor-assets.md](specs/editor-assets.md).
 ### D35. Problems and Console replace the phone's placeholder tabs; `eb schemas` writes into `.vscode/`; CI's checks of exported projects are the gate tests. LOCKED, 2026-10-18 (Evan's calls, M2.8)
 
 **Decision.**
-- **The phone's tab bar is Project, Records, Assets, Problems, Console** (Evan's call), opening on Project. World, Logic and Play, still placeholders, come back to it when their phases build them; desktop and tablet keep them. The tablet's side zone gains Problems, and its console stays the strip along the bottom. The desktop dock's bottom group holds Console and Problems.
+- **The phone's tab bar is Project, Records, Assets, Problems, Console** (Evan's call), opening on Project. World, Logic and Play, still placeholders, come back to it when their phases build them; desktop and tablet keep them. (D37 changed the phone's bar: More ends it, holding Console, World and Play.) The tablet's side zone gains Problems, and its console stays the strip along the bottom. The desktop dock's bottom group holds Console and Problems.
 - **The Problems panel lists what `eb validate` would say** of the open project. The compiler's reading of a project's files is one function, `readProjectFiles`, shared by `compileProject` and the editor's catalog, and the record index adds the records' checks. A property test holds the panel's list equal to the compiler's. Each problem opens where it is fixed: a record's form at the field, the type designer, an asset, or the Project or Assets panel.
 - **`eb schemas <folder>`** writes each record type's JSON Schema to `.vscode/eb-schemas/<type>.json` and maps `records/<type>/*.json` to them in `.vscode/settings.json` (Evan's call), with the type file format's own for `types/*.json`. The folder is hidden, so the compiler and zips leave it out. Rerun it after changing a type.
 - **"The CLI validates exported projects in CI" counts as met** (Evan's call). The gate tests of M2.1, M2.4, M2.6 and M2.7 already export zips from the editor, on phone-sized pages, and read them with the CLI in CI to the hash of the same files made in Node. Nothing more is built for it.
@@ -606,7 +606,7 @@ The spec is [specs/editor-problems.md](specs/editor-problems.md). Project-format
 **Decision.**
 - **A sheet is a record** (Evan's call): `records/sheet/<id>.json`, an ordered list of rows. Each row has an `id`, an optional `note`, `when` (an event and, optionally, values its arguments must have), an optional `if` (a condition), `do` (a list of effects) and an optional `once`. Rows run in the order written, sheets in id order. A row fires every time its event happens and its condition holds; a `once` row fires the first time only.
 - **Flags are declared** (Evan's call): `records/flag/<id>.json`, on or off, or with `number`, a whole number with a start and bounds. An on/off flag starts off. The effects `set-flag` and `add-to-flag` change them; the facts `flag.on(flag)` and `flag.number(flag)` read them. A misspelled flag is a reference to a record that doesn't exist (E005 in an effect, E013 in a condition). The lint warns of a flag set but never read (W108), read but never set (W109), or never named at all (W110).
-- **The phone's tab bar is Project, Records, Assets, Logic, Problems, Console** (Evan's call). Desktop and tablet keep Logic where it was.
+- **The phone's tab bar is Project, Records, Assets, Logic, Problems, Console** (Evan's call). Desktop and tablet keep Logic where it was. (D37 changed the phone's bar: More ends it, holding Console, World and Play.)
 - **The editor offers the engine's own events and effects** (Evan's call): `flag/changed`, `sheet/fired`, `set-flag`, `add-to-flag` and `roll`, and each kit's as kits land. A row naming a game's own event or effect is kept as written and edited as JSON. Without `--types`, `eb validate` and the editor accept such names as written; with `--types`, an event or effect the game doesn't have is an error.
 
 Evan chose on 2026-10-18, from these options:
@@ -633,6 +633,28 @@ The spec is [specs/triggers.md](specs/triggers.md).
 - **Previews don't follow events.** A preview shows what an effect does, not what rows do in answer to it, so a row that rolls in answer to a choice is not in that choice's preview.
 - **A renamed once row fires again** in a save made before the rename, since the save keeps which rows have fired by id.
 - **A flag read only by a game's code** warns as set but never read (W108): the lint sees content, not code.
+
+### D37. A phone's tab bar ends in More, which holds Console, World and Play. LOCKED, 2026-10-18 (Evan's calls, between M3.1 and M3.2)
+
+**Decision.**
+- **Every panel is in reach on a phone held upright** (Evan's call). D35 had left World and Play off a phone's bar until their phases build them, so a phone could not open them at all, not even from the command palette.
+- **The bar is Project, Records, Assets, Logic, Problems, More** (Evan's call). More shows a list of the panels past the bar, Console, World and Play, each a row with what it holds, and a placeholder's row says which phase builds it. A panel opened from the list has a Back to More button above it; the More tab stays the one chosen, and tapping it shows the list again. Panels later phases add join the list.
+- **Everything that shows a panel reaches More's too.** The command palette's Show commands cover every panel on a phone, and the error toast's Console button opens the console behind More.
+- **The fix shipped in its own PR** (Evan's call), merged once CI was green, before M3.2.
+
+Evan chose on 2026-10-18, from these options:
+- the bar: a More tab in place of Console; More keeping Console as a seventh tab; eight tabs; or one bar of eight that scrolls sideways;
+- shipping: its own PR merged on green, its own PR waiting for Evan's merge, or folded into M3.2's PR.
+
+The spec is [specs/editor-layout.md](specs/editor-layout.md).
+
+**Why.**
+- **More.** Six tabs fill a 360 px phone with every label whole, as D35 found; seven cut Problems short, and eight are 44 px each, the least a target may be, with Records, Problems and Console cut short. A bar that scrolls hides tabs past its edge, which is how World and Play went unnoticed.
+- **Console behind More.** It is read least of the six on a phone, and the error toast still opens it in one tap.
+
+**Cost.**
+- **Console, World and Play are a tap further away** than a tab, and the row's name is the whole row read aloud ("Console What the editor did…"), since a name of the label alone would hide visible words from speech input (WCAG 2.5.3).
+- **World and Play are still placeholders.** On a phone they now show what is coming and when, as they do on desktop and tablet.
 
 ---
 
