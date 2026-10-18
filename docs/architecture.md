@@ -31,7 +31,7 @@ How Engine-Builder fits together. This is design intent: each section is settled
 | --- | --- | --- |
 | Runtime | `packages/*` | Ships inside every exported game. Modular: a UI-only game stays small, and 3D, physics and navigation load only when a game uses them. |
 | Editor | `apps/editor` | An installable PWA. Play-in-Editor runs the same runtime the export ships. |
-| CLI | `tools/cli` (Phase 1) | `eb validate`, `eb build`, `eb export`, `eb sim`, for CI and for agents working in the repo. |
+| CLI | `tools/cli` (Phase 1) | `eb validate`, `eb build`, `eb schemas`, `eb export`, `eb sim`, for CI and for agents working in the repo. |
 | Templates | `templates/*` (Phase 4+) | Starter projects with stock screens, kits, sample content and bot tests. |
 
 ## The sim decides; the stage renders
@@ -288,9 +288,9 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 ## Editor
 
 - **Layout** (M2.2, D29, [specs/editor-layout.md](specs/editor-layout.md)).
-  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), Assets (M2.7), World, Play, Inspector and Console. Outliner and Problems join as their milestones land.
-  - Tablet: two zones.
-  - Phone: one panel at a time with a bottom tab bar, and the inspector as a bottom sheet.
+  - Desktop: dockable panels (dockview, loaded only on desktop), with the layout saved in the browser. Today they are Project, Logic, Records (M2.5), Assets (M2.7), World, Play and Inspector, with Console and Problems (M2.8) along the bottom. The Outliner joins with M5.1.
+  - Tablet: two zones, and the console as a strip along the bottom.
+  - Phone: one panel at a time with a bottom tab bar (Project, Records, Assets, Problems, Console: D35), and the inspector as a bottom sheet.
   - Every layout: a command palette, from the top bar or Ctrl/⌘+K.
   - The breakpoints are written down once, in `apps/editor/src/app/layout.ts`. The shell sets `data-layout` from them, and the CSS keys off that attribute.
 - **Editing.**
@@ -299,6 +299,7 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
   - Each type's records as a table, to sort, search and filter, and to change many at once, copy and delete; "used by" for every record; all from an index of every record kept up to date by file (M2.5, D32, [specs/editor-tables.md](specs/editor-tables.md)).
   - Types designed in the inspector: fields of every kind, nested ones included. Renaming a field, a choice, a type or a record rewrites every record and reference to match, as one step undo takes back (M2.6, D33, [specs/editor-types.md](specs/editor-types.md)).
   - Assets in their own panel, each with its provenance in `assets/assets.json`: imported with a licence from a fixed list, previewed, renamed or replaced with the records that name them, and stand-ins drawn until the art is ready. A file with no provenance stops the build (M2.7, D34, [specs/editor-assets.md](specs/editor-assets.md)).
+  - A Problems panel listing what `eb validate` would say, from the same reading of the project's files, each problem a way to where it is fixed; a console that marks errors, with a toast for each on every layout; and `eb schemas`, so VS Code checks records edited by hand (M2.8, D35, [specs/editor-problems.md](specs/editor-problems.md)).
 - **Storage** (M2.1, D10, [specs/editor-storage.md](specs/editor-storage.md)).
   - OPFS everywhere, written through one worker's sync access handles.
   - "Open folder" on desktop Chromium, so the editor and Claude Code edit the same git checkout.
@@ -319,7 +320,7 @@ packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
 apps/player         the runtime shell that exports ship                    Phase 4
-tools/cli           eb validate | build (M1.4), sim (M1.9); export | test later
+tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8); export | test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)
 templates/*                                                               Phase 4+

@@ -161,10 +161,13 @@ export async function updateIndex(
  */
 function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, catalog: Catalog): void {
   if (dirty.size === 0) return;
+  // As the compiler does: a record of a type whose file has problems isn't checked, and one of a
+  // type with no file at all is, for its E002 (M2.8: the Problems panel lists it).
+  const validated = (record: IndexedRecord) => record.unreadable === undefined && !catalog.broken.has(record.type);
   const inputs: RecordInput[] = [];
   for (const record of records.values()) {
     const { type, id, file, value } = record;
-    const checks = dirty.has(record.key) && record.checked && record.unreadable === undefined;
+    const checks = dirty.has(record.key) && validated(record);
     inputs.push(checks ? { type, id, file, value } : { type, id, file, value: undefined, unreadable: true });
   }
   const { diagnostics, usedBy, assetsUsedBy } = validateRecords(catalog.recordTypes, inputs, {
@@ -185,7 +188,8 @@ function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, 
     const checked = record.checked && record.unreadable === undefined;
     records.set(key, {
       ...record,
-      problems: record.unreadable === undefined ? (checked ? (problems.get(key) ?? []) : []) : [unreadable(record)],
+      problems:
+        record.unreadable === undefined ? (validated(record) ? (problems.get(key) ?? []) : []) : [unreadable(record)],
       refs: checked ? (refs.get(key) ?? []) : [],
       assets: checked ? (assets.get(key) ?? []) : [],
     });

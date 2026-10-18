@@ -5,18 +5,32 @@ import { pickZip } from '../projects/pickZip.ts';
 import { busy, closeProject, current, exportCurrent, openFolder } from '../projects/session.ts';
 import { startNewType } from '../types/open.ts';
 import type { Command } from './commands.ts';
-import { DOCK_PANELS, type DockPanelId, type PanelId } from './layout.ts';
+import { DOCK_PANELS, type DockPanelId, type PanelId, panelsOf, STRIP } from './layout.ts';
 import { resetLayout, showPanel } from './panelControl.ts';
 import { PANELS } from './panels.ts';
 import { naming } from './projectUi.ts';
 import { layout } from './state.ts';
 
-const PANEL_ORDER: readonly PanelId[] = ['project', 'records', 'assets', 'world', 'inspector', 'logic', 'play'];
+const PANEL_ORDER: readonly PanelId[] = [
+  'project',
+  'records',
+  'assets',
+  'problems',
+  'world',
+  'inspector',
+  'logic',
+  'play',
+  'console',
+];
 
+/** The panels this layout can bring forward: its own (a phone leaves the placeholders out, D35), but not a strip always in view. */
 function panelCommands(): Command[] {
-  const ids: readonly DockPanelId[] = layout.value === 'desktop' ? DOCK_PANELS : PANEL_ORDER;
+  const current = layout.value;
+  const has = panelsOf(current);
+  const ids: readonly DockPanelId[] =
+    current === 'desktop' ? DOCK_PANELS : PANEL_ORDER.filter((id) => has.includes(id) && id !== STRIP[current]);
   return ids.map((id) => {
-    const label = id === 'console' ? 'Console' : PANELS[id].label;
+    const label = PANELS[id].label;
     return {
       id: `show-${id}`,
       title: `Show the ${label} panel`,

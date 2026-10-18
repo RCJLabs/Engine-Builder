@@ -15,22 +15,25 @@ The width picks the layout. The breakpoints are written once, in `layout.ts`. Th
 
 | Layout | Width | Panels |
 | --- | --- | --- |
-| Phone | under 600 px | one panel at a time with a bottom tab bar (World, Project, Records, Logic, Play), and the inspector as a sheet |
-| Tablet | 600 to 1,023 px | two zones: Records, World and Play; Inspector, Project and Logic. A phone on its side is usually this |
+| Phone | under 600 px | one panel at a time with a bottom tab bar (Project, Records, Assets, Problems, Console), and the inspector as a sheet. World, Logic and Play join the bar when their phases build them (D35) |
+| Tablet | 600 to 1,023 px | two zones: Records, Assets, World and Play; Inspector, Project, Problems and Logic; and the console as a strip along the bottom. A phone on its side is usually this |
 | Desktop | 1,024 px and up | the dock |
 
 An iPad turned from portrait to landscape crosses from tablet to desktop. The dock is built when the desktop layout appears and taken down when it goes.
+
+A zone whose tabs don't fit its width, such as the tablet's side zone of four, scrolls them sideways (`data-scroll-x`), with the active tab kept in view. The Problems tab carries the open project's count of problems, red while any is an error (M2.8, [editor-problems.md](editor-problems.md)).
 
 ## The desktop dock
 
 - **dockview 8.5.1**, the framework-free package, with `dockview-core` pinned to the same release by an override in `pnpm-workspace.yaml`. Panels render with Preact into the elements dockview asks for.
 - **Loaded only on desktop.** `DesktopLayout` imports `dock/desktopDock.tsx` when it first renders, so a phone never runs dockview's 80.6 kB of gzipped JS or its 10.9 kB of CSS (Readings). The service worker still caches it, since a tablet can turn into a desktop offline.
 - **If its code can't load**, the desktop zones stand in: three fixed zones and the console strip. The console says why.
-- **The panels** are `DOCK_PANELS`: Project, Logic, Records, World, Play, Inspector and Console. A panel's id is also its dockview component name. The Records panel came with M2.5 ([editor-tables.md](editor-tables.md)).
+- **The panels** are `DOCK_PANELS`: Project, Logic, Records, Assets, World, Play and Inspector, then Console and Problems. A panel's id is also its dockview component name. Records came with M2.5 ([editor-tables.md](editor-tables.md)), Assets with M2.7 ([editor-assets.md](editor-assets.md)), and Problems with M2.8 ([editor-problems.md](editor-problems.md)).
 - **The first layout:**
-  - three groups side by side: Project with Logic (280 px), Records with World and Play, and Inspector (320 px). Records leads the middle group, and the tablet's main zone, since the World panel waits for Phase 4;
-  - the console along the bottom, 150 px tall.
+  - three groups side by side: Project with Logic (280 px), Records with Assets, World and Play, and Inspector (320 px). Records leads the middle group, and the tablet's main zone, since the World panel waits for Phase 4;
+  - along the bottom, 150 px tall, the console in front and Problems behind it (`DOCK_BOTTOM`). The console stays in front so what the editor says stays in view: dockview builds only a group's shown tab.
 - **Tabs are labels only.** dockview's own tab holds a close button inside the tab, which axe reports as nested controls (`nested-interactive`). The editor's panels are moved, never closed.
+- **The Problems tab's count** is drawn by the tab itself, not set as the panel's title, which dockview would save as a change to the layout. dockview names each tab with an `aria-label` of its title, which would keep the count from screen readers, so the tab sets its name to match what it shows ("Problems (4)").
 - **Floating groups are off.** A floating group covers the panels under it, and the saved layout stays a plain grid.
 - **Keyboard.** dockview makes each group a region named after its active panel, its tab strip a tablist, and its content a tabpanel. The arrow keys move along the tabs, and Enter shows the focused one (manual activation). Inside the tabpanel, the editor's panel is a plain focusable block, so it can be scrolled from the keyboard. A named section there repeated the group's landmark (`landmark-unique`). The console's block takes focus only from the palette, since its list already takes the tab stop.
 
@@ -47,7 +50,7 @@ An iPad turned from portrait to landscape crosses from tablet to desktop. The do
   - it names a panel the editor doesn't have;
   - a panel's component isn't the panel's own id.
 - **If dockview refuses it anyway**, the first layout is laid instead, and the console says the saved one couldn't be restored.
-- **Panels the editor has gained** since the layout was saved are added to the active group, behind its shown tab.
+- **Panels the editor has gained** since the layout was saved join their peer's group, behind its shown tab: Assets beside Records, Problems beside the console (`PEERS`), or the active group when the peer is gone. So does a panel the saved layout names but places in no group, which dockview would drop.
 - **Reset the layout** (palette, desktop only) forgets the saved layout and starts a fresh dock, exactly as on a first visit. It doesn't save the first layout, so the reset dock follows the default too.
 - **A format change** bumps `LAYOUT_FORMAT`. Older layouts are then passed over, not migrated. Unlike a game save, a lost layout costs one reset.
 
@@ -72,7 +75,7 @@ An iPad turned from portrait to landscape crosses from tablet to desktop. The do
 - **The commands** (`appCommands.ts`):
   - New project, Import a zip, and Open a folder where the browser can;
   - for an open project: Export it as a zip, and Close it;
-  - Show each panel: six on desktop, the console included, and five elsewhere;
+  - Show each panel the layout has: all nine on desktop, the console included; eight on a tablet, whose console strip is always in view; and six on a phone, its five tabs and the inspector;
   - Reset the layout, on desktop.
   - While the library is busy, the project commands are left out, as the panel's buttons are disabled. The session would drop them.
 - **Closing first.** The dialog closes before its command runs. Its focus handback would otherwise undo focus that the command moves. "Show" commands move focus into the panel they show.
@@ -100,7 +103,7 @@ Each must come from the site itself, answer OK, and arrive as the type its exten
 - **e2e tests** (`layout.spec.ts`, plus the shell and project specs):
   - a tab dragged below another group, kept through a reload, then reset;
   - a tab dragged into another group;
-  - a saved layout without the console gets it back, and one dockview refuses falls back with a note;
+  - a saved layout without the console, and so without the group Problems shares with it, gets both back, and one dockview refuses falls back with a note;
   - fixed zones when the dock's code is blocked;
   - the palette by keyboard: focus, the active option, wrapping, filtering, Enter (focus lands in the panel shown), Escape (focus goes back), and Ctrl+K with Caps Lock on;
   - the palette by touch at 360 and 390 px: Show Logic and Show Inspector (the sheet opens), each taking focus into the panel, and New project (the name field takes focus);

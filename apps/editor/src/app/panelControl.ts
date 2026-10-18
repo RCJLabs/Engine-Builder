@@ -10,6 +10,8 @@ import { activeTabs, layout } from './state.ts';
 /** Whether the phone's inspector sheet is open. */
 export const sheetOpen = signal(false);
 export const SHEET_BODY_ID = 'inspector-sheet-body';
+/** The console's lines where the console is no tab: the tablet's strip, or desktop's while its dock is down. */
+export const CONSOLE_STRIP_ID = 'console-strip-lines';
 
 /** Focus goes into the panel shown once it has rendered, so keyboard users land in it. */
 const focusSoon = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.focus());
@@ -35,9 +37,12 @@ export function showPanel(id: DockPanelId): void {
     return;
   }
   const zone = ZONES[current].find((z) => (z.panels as readonly DockPanelId[]).includes(id));
-  if (zone && id !== 'console') {
+  if (zone) {
     activeTabs.value = { ...activeTabs.value, [zone.zone]: id };
     focusSoon(zonePanelId(zone.zone, id));
+  } else if (id === 'console') {
+    // A phone's tab (M2.8), but in view in no zone on a tablet: focus goes to it there.
+    focusSoon(CONSOLE_STRIP_ID);
   }
 }
 

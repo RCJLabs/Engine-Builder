@@ -189,7 +189,9 @@ describe('updateIndex', () => {
     files.write('records/horse/bucephalus.json', '{ "speed": "fast" }');
     files.write('types/weapon.json', '{ "title": "" }');
     const { index } = await files.update(null);
-    expect(index.records.get('horse:bucephalus')).toMatchObject({ checked: false, problems: [], refs: [] });
+    // No type file at all is the compiler's E002 (M2.8); a type file with problems leaves its records unchecked.
+    expect(index.records.get('horse:bucephalus')).toMatchObject({ checked: false, refs: [] });
+    expect(problemsOf(index, 'horse:bucephalus')).toEqual(['E002 : Unknown record type "horse"']);
     expect(index.records.get('weapon:net')).toMatchObject({ checked: false, problems: [] });
     // Their records still exist, so references to them resolve.
     expect(problemsOf(index, 'gladiator:flamma')).toEqual([]);

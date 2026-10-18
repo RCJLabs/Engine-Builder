@@ -12,6 +12,9 @@ const PATHS: Record<PanelId, string> = {
   inspector: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
   logic: 'M6 4v6a3 3 0 0 0 3 3h6M6 4a2 2 0 1 0 0 .01M18 13a2 2 0 1 0 0 .01M6 20a2 2 0 1 0 0 .01M6 10v8',
   play: 'M8 5.5v13a.5.5 0 0 0 .76.43l10.4-6.5a.5.5 0 0 0 0-.86L8.76 5.07A.5.5 0 0 0 8 5.5z',
+  problems: 'M12 3.5 21 19.5H3zM12 10v4.5M12 17.2v.1',
+  console:
+    'M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5zM8 9.5l3 2.5-3 2.5M13 15h3.5',
 };
 
 export function PanelIcon({ panel }: { panel: PanelId }) {

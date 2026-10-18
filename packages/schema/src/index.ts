@@ -27,7 +27,7 @@ export {
   severityOf,
 } from './diagnostics.ts';
 export { type SchemaIssue, schemaIssues } from './issues.ts';
-export { recordJsonSchema } from './jsonSchema.ts';
+export { recordJsonSchema, typeFileJsonSchema } from './jsonSchema.ts';
 export { packValue } from './packValue.ts';
 export {
   checkProvenance,

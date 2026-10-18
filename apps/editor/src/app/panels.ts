@@ -54,6 +54,18 @@ export const PANELS: Record<PanelId, PanelInfo> = {
       'Trigger sheets: When / If / Do, plus scripts',
     ],
   },
+  problems: {
+    label: 'Problems',
+    phase: 'Phase 2',
+    summary: 'Every problem `eb validate` would find in the project, each a tap from where it is fixed.',
+    coming: [],
+  },
+  console: {
+    label: 'Console',
+    phase: 'Phase 2',
+    summary: 'What the editor did and what went wrong, to read or copy into a bug report.',
+    coming: [],
+  },
   play: {
     label: 'Play',
     phase: 'Phase 4',

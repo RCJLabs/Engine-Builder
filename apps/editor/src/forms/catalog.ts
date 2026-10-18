@@ -1,19 +1,11 @@
 /**
  * What forms need to know about the open project besides the record on screen: its types from
- * types/, the records there are of each type, and the files under assets/. It is read again after
- * every change, beside the Project panel's summary (projects/opened.ts).
+ * types/, the records there are of each type, and the files under assets/, read as the compiler
+ * reads them (readProjectFiles), with the problems it finds there. It is read again after every
+ * change, beside the Project panel's summary (projects/opened.ts).
  */
-import {
-  ASSETS_DIR,
-  ASSETS_LOG,
-  classifyRecordFile,
-  type ProjectSource,
-  parseJsonFile,
-  RECORDS_DIR,
-  readTypes,
-  type TypeReport,
-} from '@eb/compiler';
-import type { DataType, RecordType } from '@eb/schema';
+import { type ProjectSource, RECORDS_DIR, readProjectFiles, type TypeReport } from '@eb/compiler';
+import type { DataType, Diagnostic, RecordType } from '@eb/schema';
 
 export interface Catalog {
   /** The project's types whose files are sound, by name. */
@@ -34,6 +26,11 @@ export interface Catalog {
   readonly logProblem?: string;
   /** Every type for validation, stand-ins for broken ones included. */
   readonly recordTypes: readonly RecordType[];
+  /**
+   * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
+   * files under records/ that aren't records, and the assets' log. The record index has the rest.
+   */
+  readonly problems: readonly Diagnostic[];
 }
 
 export const EMPTY_CATALOG: Catalog = {
@@ -44,44 +41,42 @@ export const EMPTY_CATALOG: Catalog = {
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
+  problems: [],
 };
 
 // UTF-16 order, the same in every locale, as the compiler sorts.
 const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 export async function readCatalog(source: ProjectSource): Promise<Catalog> {
-  const reports: TypeReport[] = [];
-  const known = await readTypes(source, [], (report) => reports.push(report));
+  const read = await readProjectFiles(source, []);
+  const known = read.types;
   const broken = new Map<string, TypeReport>();
-  for (const report of reports) {
-    const type = /^types\/([^/]+)\.json$/.exec(report.file)?.[1];
-    if (type !== undefined && known.unchecked.has(type) && !broken.has(type)) broken.set(type, report);
+  for (const { code, message, file = '', path } of read.diagnostics) {
+    const type = /^types\/([^/]+)\.json$/.exec(file)?.[1];
+    if (type !== undefined && known.unchecked.has(type) && !broken.has(type))
+      broken.set(type, { code, message, file, path });
   }
   const records = new Map<string, string[]>();
-  for (const path of await source.files(RECORDS_DIR)) {
-    const role = classifyRecordFile(path);
-    if (role.kind !== 'record') continue;
-    const ids = records.get(role.type) ?? [];
-    ids.push(role.id);
-    records.set(role.type, ids);
+  for (const { type, id } of read.recordFiles) {
+    const ids = records.get(type) ?? [];
+    ids.push(id);
+    records.set(type, ids);
   }
   for (const ids of records.values()) ids.sort(byText);
-  const prefix = `${ASSETS_DIR}/`;
-  const assets = (await source.files(ASSETS_DIR))
-    .filter((path) => path !== ASSETS_LOG)
-    .map((path) => path.slice(prefix.length))
-    .sort(byText);
+  const assets = [...read.assets].sort(byText);
   const names = [...new Set([...known.types.map((t) => t.type), ...records.keys()])].sort(byText);
-  const log = await readLog(source);
-  return { types: known.data, broken, names, records, assets, ...log, recordTypes: known.types };
-}
-
-/** The provenance log as read: its JSON, nothing when there is none, or why it can't be read. */
-async function readLog(source: ProjectSource): Promise<{ assetsLog: unknown; logProblem?: string }> {
-  const bytes = await source.read(ASSETS_LOG);
-  if (bytes === undefined) return { assetsLog: undefined };
-  const parsed = parseJsonFile(bytes);
-  return parsed.ok ? { assetsLog: parsed.value } : { assetsLog: undefined, logProblem: parsed.message };
+  const log = read.assetsLog;
+  return {
+    types: known.data,
+    broken,
+    names,
+    records,
+    assets,
+    assetsLog: log?.ok ? log.value : undefined,
+    ...(log && !log.ok ? { logProblem: log.message } : {}),
+    recordTypes: known.types,
+    problems: read.diagnostics,
+  };
 }
 
 export const recordFile = (type: string, id: string): string => `${RECORDS_DIR}/${type}/${id}.json`;

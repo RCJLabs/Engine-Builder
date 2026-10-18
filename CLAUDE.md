@@ -44,6 +44,7 @@ pnpm e2e          # Playwright against `vite preview` at / (the editor's own dom
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> [--types <module>] --out <file>
+pnpm eb schemas <folder> [--types <module>]    # JSON Schemas for VS Code, in .vscode/eb-schemas/
 pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
 ```
 
@@ -56,6 +57,7 @@ pnpm eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--golden 
 apps/editor/           the editor PWA
   src/app/             shell: layout model (layout.ts), zones, panels, console, the phone's inspector sheet,
                        the command palette (commands.ts matches, appCommands.ts lists), panelControl.ts (Show),
+                       the console's log (state.ts), ErrorToast.tsx and errors.ts (errors nothing caught, M2.8),
                        ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId)
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
@@ -67,7 +69,7 @@ apps/editor/           the editor PWA
   src/forms/           record forms (M2.4): the catalog (types, records, assets), values.ts (paths, empty values,
                        key order), problems.ts (the compiler's diagnostics per field), one component per field kind
                        in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
-                       and tables make)
+                       and tables make); focusField.ts (opening a form at a field, M2.8)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
                        file, used by), table.ts, cells.ts, filters.ts and view.ts (columns, cells, filters, sort as
                        plain functions), names.ts (nameField), the table and its tools, UsedBy, actions.ts,
@@ -77,6 +79,9 @@ apps/editor/           the editor PWA
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
                        check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
                        inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
+  src/problems/        the Problems panel (M2.8): collect.ts (the list: the catalog's problems and the index's),
+                       problemList.ts (where each opens, titles, words, the view), count.ts (the tab's count),
+                       open.ts (openPlace), ProblemsPanel and its lazy ProblemBrowser
   src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
                        rewrites.ts (what a change does to a record), typeFileChanges.ts and fieldEdits.ts (what it
                        does to the type file), typeEdits.ts (steps over the working copy), typeActions.ts, the
@@ -105,15 +110,16 @@ packages/schema/       record types (strict zod), condition(), asset(), rollEffe
                        checks, M2.7); packValue (text conditions to trees); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
-                       readTypes (types/ beside the code types); not pure
+                       readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
+                       reads before the records, shared with the editor's catalog, M2.8); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
-tools/cli/             eb validate | build | sim; folderSource.ts is the Node fs source; modules.ts loads
-                       --types and --game; sim.ts and simReport.ts are eb sim
+tools/cli/             eb validate | build | schemas | sim; folderSource.ts is the Node fs source; modules.ts loads
+                       --types and --game; schemas.ts is eb schemas; sim.ts and simReport.ts are eb sim
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json
 tools/lint-boundaries/ purity lint: scan.ts (tokenizer), rules.ts, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type

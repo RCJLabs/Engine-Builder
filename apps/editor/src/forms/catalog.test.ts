@@ -55,6 +55,12 @@ describe('readCatalog', () => {
     expect(catalog.broken.get('weapon')).toMatchObject({ code: 'E015', file: 'types/weapon.json', path: '/title' });
     expect(catalog.names).toEqual(['gladiator', 'horse', 'school', 'weapon']);
   });
+
+  it('takes no type from a type file the compiler ignores, such as a name that is no type id', async () => {
+    const catalog = await readCatalog(ludus({ 'types/Horse.json': '{ "title": "Horse", "fields": {} }' }));
+    expect(catalog.problems.map((p) => `${p.code} ${p.file}`)).toEqual(['E017 types/Horse.json']);
+    expect([...catalog.broken.keys()]).toEqual([]);
+  });
 });
 
 describe('checkRecord', () => {

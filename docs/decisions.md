@@ -574,6 +574,33 @@ The spec is [specs/editor-assets.md](specs/editor-assets.md).
 - **The list will need additions** as real assets arrive: each is a change to the engine, not a choice in a project.
 - **Big files are capped, for the save journal's sake** (not one of the calls above; a reading). A stored project's save carries its files whole in the journal (D30), about five times their size in memory while it is built, and an import is one save: 25 MB a file and 50 MB an import, not yet tried on a phone (ROADMAP.md, Readings).
 
+### D35. Problems and Console replace the phone's placeholder tabs; `eb schemas` writes into `.vscode/`; CI's checks of exported projects are the gate tests. LOCKED, 2026-10-18 (Evan's calls, M2.8)
+
+**Decision.**
+- **The phone's tab bar is Project, Records, Assets, Problems, Console** (Evan's call), opening on Project. World, Logic and Play, still placeholders, come back to it when their phases build them; desktop and tablet keep them. The tablet's side zone gains Problems, and its console stays the strip along the bottom. The desktop dock's bottom group holds Console and Problems.
+- **The Problems panel lists what `eb validate` would say** of the open project. The compiler's reading of a project's files is one function, `readProjectFiles`, shared by `compileProject` and the editor's catalog, and the record index adds the records' checks. A property test holds the panel's list equal to the compiler's. Each problem opens where it is fixed: a record's form at the field, the type designer, an asset, or the Project or Assets panel.
+- **`eb schemas <folder>`** writes each record type's JSON Schema to `.vscode/eb-schemas/<type>.json` and maps `records/<type>/*.json` to them in `.vscode/settings.json` (Evan's call), with the type file format's own for `types/*.json`. The folder is hidden, so the compiler and zips leave it out. Rerun it after changing a type.
+- **"The CLI validates exported projects in CI" counts as met** (Evan's call). The gate tests of M2.1, M2.4, M2.6 and M2.7 already export zips from the editor, on phone-sized pages, and read them with the CLI in CI to the hash of the same files made in Node. Nothing more is built for it.
+
+Evan chose on 2026-10-18, from these options:
+- the phone: swap the placeholder tabs, a top-bar Problems button over the six tabs, or a seventh tab of about 50 px at 360 px;
+- CI: count the gate tests, a CI step running `eb validate` on every zip e2e exports, or a workflow template for game repos (which needs the CLI published, Phase 4);
+- the schemas: inside `.vscode/`, or a `schemas/` folder beside `records/`, carried in zips.
+
+The spec is [specs/editor-problems.md](specs/editor-problems.md). Project-format.md's open question 1 is settled.
+
+**Why.**
+- **The tabs.** Six tabs fill a 360 px phone, and three of them had nothing in them. A seventh would cut every label short. A top-bar button would put a second way to change panels beside the tab bar.
+- **One reading of a project's files.** A panel that agrees with `eb validate` only by having its own copy of the checks drifts the first time a check is added. Sharing the function makes them the same code, and the property test keeps the record index honest too: it found the index skipping records of a type with no type file, which the compiler reports (E002).
+- **`.vscode/`.** The schemas are made from the types, so they are a cache, not content: carried in zips they would go stale in someone else's copy. VS Code reads `.vscode/settings.json` without being told.
+- **The gate tests.** They already prove what the line asks, on the zips a person would export, in the CI that runs on every push.
+
+**Cost.**
+- **World, Logic and Play are out of a phone's reach** until their phases build them. There is nothing in them yet.
+- **The catalog now checks project.json and the provenance log as a project opens**, so the Problems tab's count is right from the start: 2.1 kB more at the editor's start (ROADMAP.md, Readings).
+- **The schemas check a record's shape only.** References, conditions written as text and asset files need `eb validate` or the editor. VS Code's support for draft 2020-12 is partial by its own docs; the schemas pass through its JSON language service in a test, but not yet through VS Code itself.
+- **`.vscode/settings.json` must be plain JSON** for `eb schemas` to change it, since a rewrite would lose comments. With comments, it changes nothing and prints the entries to add by hand.
+
 ---
 
 ## Open

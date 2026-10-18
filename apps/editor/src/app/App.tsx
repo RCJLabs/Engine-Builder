@@ -5,6 +5,7 @@ import { UpdateToast } from '../pwa/UpdateToast.tsx';
 import { CommandPalette, paletteOpen } from './CommandPalette.tsx';
 import { Console } from './Console.tsx';
 import { DesktopLayout } from './DesktopLayout.tsx';
+import { ErrorToast } from './ErrorToast.tsx';
 import { CommandsIcon } from './icons.tsx';
 import { ZONES } from './layout.ts';
 import { layout } from './state.ts';
@@ -67,6 +68,7 @@ export function App() {
         </>
       )}
       <UpdateToast />
+      <ErrorToast />
       <CommandPalette />
     </div>
   );
