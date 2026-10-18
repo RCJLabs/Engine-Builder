@@ -1,0 +1,20 @@
+{
+  "name": "@eb/script",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Project scripts (M3.2): TypeScript stripped by sucrase, held to the purity rules, and loaded into a game. Runs in the CLI and in the editor's script worker.",
+  "type": "module",
+  "//sideEffects": "Nothing runs on import, so a bundle that leaves scripts out leaves sucrase out too.",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*",
+    "@eb/purity": "workspace:*",
+    "sucrase": "3.35.1"
+  }
+}

@@ -9,10 +9,12 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { compileProject, type ProjectSource, zipSource } from '@eb/compiler';
+import { type CompileResult, compileProject, type ProjectSource, zipSource } from '@eb/compiler';
 import { canonicalJson } from '@eb/core';
+import { compareDiagnostics } from '@eb/schema';
 import { folderSource } from './folderSource.ts';
-import { loadGame, loadTypes, UsageError } from './modules.ts';
+import { type GameModule, loadGame, loadTypes, UsageError } from './modules.ts';
+import { gameOptions, projectGame } from './projectGame.ts';
 import { formatResult } from './report.ts';
 import { runSchemas } from './schemas.ts';
 import { runSim } from './sim.ts';
@@ -21,15 +23,16 @@ const USAGE = `Usage:
   eb validate <project> [--types <module>] [--json]
   eb build <project> [--types <module>] [--out <file>] [--json]
   eb schemas <folder> [--types <module>] [--json]
-  eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--prefix <text>]
+  eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--prefix <text>]
          [--max-turns <n>] [--golden <file> [--update]] [--json]
 
 <project> is a project folder or a .zip of one. --types names a JS or TS module whose
 recordTypes export lists the record types to check against; whose facts and events exports (or
 modules export) give the facts conditions and the events trigger rows are checked against; and
-whose effects export lists its effects' schemas. Without --types, content is checked against the
-engine's own facts, events and effects, and any other is taken as written. build writes the
-content pack to --out, or to <project id>.pack.json in the current folder.
+whose effects export lists its effects' schemas. Without --types, a project with
+scripts/game.ts is checked against its own game's facts, events and effects, which eb runs to
+learn them; one without is checked against the engine's own, and any other is taken as written.
+build writes the content pack to --out, or to <project id>.pack.json in the current folder.
 
 schemas writes each record type's JSON Schema into the folder's .vscode/eb-schemas/ and maps
 records/<type>/*.json to them in .vscode/settings.json, so an editor checks records edited by
@@ -37,7 +40,7 @@ hand. Run it again after changing a type.
 
 sim plays the project with a bot, one run per seed (100 seeds, seed-0 on, by default), and
 reports how the runs went. --game names a module exporting recordTypes, modules and start, and
-optionally policies and metrics. --golden checks the runs against a golden file, playing its own
+optionally policies and metrics; without it, sim plays the project's scripts/game.ts. --golden checks the runs against a golden file, playing its own
 seeds, policy and cap; with --update it writes the file instead.`;
 
 const SIM_ONLY = ['game', 'policy', 'seeds', 'prefix', 'max-turns', 'golden', 'update'] as const;
@@ -64,17 +67,18 @@ async function main(argv: readonly string[]): Promise<number> {
     throw new UsageError(USAGE);
   }
   if (command === 'sim') {
-    if (values.game === undefined) throw new UsageError('eb sim needs --game <module>');
     if (values.types !== undefined || values.out !== undefined)
       throw new UsageError('eb sim takes --game, not --types or --out');
-    return runSim(await openProject(project), await loadGame(values.game), values);
+    const source = await openProject(project);
+    if (values.game !== undefined) return runSim(source, await loadGame(values.game), values);
+    return simScripts(source, values);
   }
   const misplaced = SIM_ONLY.find((flag) => values[flag] !== undefined);
   if (misplaced) throw new UsageError(`--${misplaced} only applies to eb sim`);
   if (command !== 'build' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
   if (command === 'schemas') return runSchemas(project, values);
-  const { types, ...catalogues } = values.types === undefined ? { types: [] } : await loadTypes(values.types);
-  const result = await compileProject(await openProject(project), types, catalogues);
+  const source = await openProject(project);
+  const result = values.types === undefined ? await compileScripted(source) : await compileTyped(source, values.types);
   let out: string | undefined;
   if (command === 'build' && result.pack) {
     out = values.out ?? `${result.pack.project.id}.pack.json`;
@@ -90,6 +94,33 @@ async function main(argv: readonly string[]): Promise<number> {
     if (out) console.log(`Wrote ${out}.`);
   }
   return result.diagnostics.some((d) => d.severity === 'error') ? 1 : 0;
+}
+
+async function compileTyped(source: ProjectSource, path: string): Promise<CompileResult> {
+  const { types, ...catalogues } = await loadTypes(path);
+  return compileProject(source, types, catalogues);
+}
+
+/** Checked against the project's own game when it has one (D38); a game that fails to run is one more error. */
+async function compileScripted(source: ProjectSource): Promise<CompileResult> {
+  const scripted = await projectGame(source);
+  const result = await compileProject(source, [], scripted.kind === 'loaded' ? gameOptions(scripted.catalog) : {});
+  if (scripted.kind !== 'failed') return result;
+  return { ...result, diagnostics: [...result.diagnostics, scripted.diagnostic].sort(compareDiagnostics), pack: null };
+}
+
+/** eb sim with no --game: the project's scripts/game.ts, run as a --game module would be. */
+async function simScripts(source: ProjectSource, flags: Parameters<typeof runSim>[2]): Promise<number> {
+  const scripted = await projectGame(source);
+  if (scripted.kind === 'none') throw new UsageError('eb sim needs --game <module>, or a project with scripts/game.ts');
+  if (scripted.kind !== 'loaded') {
+    const result = await compileScripted(source);
+    for (const line of formatResult(result, false)) console.log(line);
+    return 1;
+  }
+  const { game, catalog } = scripted;
+  const loaded: GameModule = { recordTypes: [], ...game, effectNames: catalog.effects };
+  return runSim(source, loaded, flags);
 }
 
 async function openProject(path: string): Promise<ProjectSource> {

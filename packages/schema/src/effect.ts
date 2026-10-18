@@ -104,6 +104,11 @@ export interface EffectCatalog {
   readonly schemas: ReadonlyMap<string, z.core.$ZodType>;
   /** True when these are every effect there is: a game's, given by `--types`. Otherwise one not here is kept as written. */
   readonly closed: boolean;
+  /**
+   * Effects the game has whose arguments it doesn't describe: a project game's own, known by name
+   * from its modules (M3.2). Each is kept as written; its handler checks it when it runs.
+   */
+  readonly names?: ReadonlySet<string>;
 }
 
 /** Each schema's effect name: the literal of its `effect` field. Throws on a programmer error. */

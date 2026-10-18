@@ -12,6 +12,7 @@ import {
 } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
+import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
 
 export interface CompileResult {
@@ -30,7 +31,8 @@ export interface CompileResult {
  * Reads, checks and packs a project. The same files give the same diagnostics and the same pack
  * hash in the editor and in the CLI, whatever order the source lists them in. `types` are the
  * game's code types, which the project's own types/ join; `options.facts` is the game's fact
- * catalog, for checking the conditions in records.
+ * catalog, for checking the conditions in records. Scripts are checked without being run, and
+ * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
  */
 export async function compileProject(
   source: ProjectSource,
@@ -38,8 +40,9 @@ export async function compileProject(
   options: Omit<ValidateOptions, 'assets'> = {},
 ): Promise<CompileResult> {
   const files = await readProjectFiles(source, types);
+  const scripts = await readScripts(source);
   const known = files.types;
-  const diagnostics: Diagnostic[] = [...files.diagnostics];
+  const diagnostics: Diagnostic[] = [...files.diagnostics, ...scripts.diagnostics];
   const records = (await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))).map(
     (record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record),
   );
@@ -50,7 +53,9 @@ export async function compileProject(
   return {
     diagnostics,
     pack:
-      failed || files.project === null ? null : createPack(files.project, packRecords(records, known.types, options)),
+      failed || files.project === null
+        ? null
+        : createPack(files.project, packRecords(records, known.types, options), Object.fromEntries(scripts.compiled)),
     usedBy: validation.usedBy,
     records: records.length,
     dataTypes: known.data,

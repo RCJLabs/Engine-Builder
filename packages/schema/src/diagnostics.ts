@@ -31,6 +31,11 @@ export const DIAGNOSTIC_CODES = {
   E025: 'An effect the game does not have',
   E026: 'A flag is set or read as the other kind, or set outside its bounds',
   E027: "A flag's start lies outside its bounds, or its lowest is above its highest",
+  E028: 'A script does not parse as TypeScript',
+  E029: 'A script breaks a purity rule',
+  E030: 'A script imports something other than "eb" and other scripts, or is misplaced or misnamed',
+  E031: 'The game fails when its scripts run: a script throws as it loads, or the game it makes is refused',
+  E032: "scripts/game.ts doesn't export what a game needs",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -41,6 +46,8 @@ export const DIAGNOSTIC_CODES = {
   W108: 'A flag is set, but nothing reads it',
   W109: 'A flag is read, but nothing sets it',
   W110: 'Nothing sets or reads a flag',
+  W111: 'A file under scripts/ that the compiler ignores',
+  W112: "A script scripts/game.ts doesn't import, directly or through another",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;
@@ -58,6 +65,9 @@ export interface Diagnostic {
   readonly file?: string;
   /** JSON Pointer (RFC 6901) into the file's JSON (a record's value); empty for the file as a whole. */
   readonly path: string;
+  /** The line in a file that isn't JSON, counted from 1: a script's (M3.2). */
+  readonly line?: number;
+  readonly column?: number;
 }
 
 export const severityOf = (code: DiagnosticCode): Severity => (code.startsWith('W') ? 'warning' : 'error');
@@ -65,13 +75,14 @@ export const severityOf = (code: DiagnosticCode): Severity => (code.startsWith('
 // UTF-16 order, the same in every locale.
 export const compareText = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
 
-/** File, then type, id, path, code and message: one order whatever order the files came in. */
+/** File, then type, id, path, line, code and message: one order whatever order the files came in. */
 export function compareDiagnostics(a: Diagnostic, b: Diagnostic): number {
   return (
     compareText(a.file ?? '', b.file ?? '') ||
     compareText(a.type ?? '', b.type ?? '') ||
     compareText(a.id ?? '', b.id ?? '') ||
     compareText(a.path, b.path) ||
+    (a.line ?? 0) - (b.line ?? 0) ||
     compareText(a.code, b.code) ||
     compareText(a.message, b.message)
   );

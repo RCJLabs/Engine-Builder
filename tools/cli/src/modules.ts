@@ -28,6 +28,8 @@ export interface GameModule {
   readonly metrics: readonly MetricSpec[];
   /** The schemas of every effect the game has (M3.1), when it says: content may then name no other. */
   readonly effects?: readonly z.core.$ZodType[];
+  /** A project game's effects by name (M3.2), from its modules: content may name no other. */
+  readonly effectNames?: readonly string[];
 }
 
 /** What `--types` gives: the record types, and the catalogues a game's content is checked against. */

@@ -4,7 +4,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { checkPureSource, type Violation } from './rules.ts';
+import { checkPureSource, type Violation } from '@eb/purity';
 import { rel, sourceFiles, workspacePackages } from './workspace.ts';
 
 const root = resolve(import.meta.dirname, '../../..');

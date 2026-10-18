@@ -15,6 +15,7 @@
   "dependencies": {
     "@eb/core": "workspace:*",
     "@eb/schema": "workspace:*",
+    "@eb/script": "workspace:*",
     "fflate": "0.8.3"
   }
 }

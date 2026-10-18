@@ -21,6 +21,7 @@ export {
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
 export { type ListedRecord, type ProjectFilesRead, readProjectFiles } from './projectCheck.ts';
 export { projectFiles, readFiles, zipProject } from './projectZip.ts';
+export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';

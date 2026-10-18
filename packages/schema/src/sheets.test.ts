@@ -134,6 +134,28 @@ describe('with a game: nothing else', () => {
   it('reports a fact the game doesn’t have', () => {
     expect(check([sheet('s', [row('a', { if: 'hold.full' })])], closed)).toEqual(['E012 sheet:s /rows/0/if']);
   });
+
+  it('knows a project game’s effects by name: the engine’s checked, its own kept as written (M3.2)', () => {
+    const named: ValidateOptions = { ...closed, effects: undefined, effectNames: ['set-flag', 'roll', 'stash'] };
+    const records = [
+      flag('met'),
+      sheet('s', [
+        row('a', {
+          do: [
+            { effect: 'stash', anything: [1, 'at', 'all'] },
+            setFlag('met', 3),
+            { effect: 'add-to-flag', flag: 'met', by: 1 },
+            { effect: 'dock' },
+          ],
+        }),
+      ]),
+    ];
+    expect(errors(records, named)).toEqual([
+      'E026 sheet:s /rows/0/do/1/to',
+      'E025 sheet:s /rows/0/do/2/effect',
+      'E025 sheet:s /rows/0/do/3/effect',
+    ]);
+  });
 });
 
 describe('a sheet', () => {

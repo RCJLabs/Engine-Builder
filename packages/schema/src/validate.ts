@@ -65,6 +65,8 @@ export interface ValidateOptions {
   readonly events?: EventCatalog;
   /** The game's effects' schemas, for effect fields (E001, E025). Without them, the engine's own, and any other kept as written. */
   readonly effects?: readonly z.core.$ZodType[];
+  /** A project game's effects by name (M3.2): content may name no other; the game's own are kept as written. */
+  readonly effectNames?: readonly string[];
   /**
    * The files under the project's assets/ folder, as paths inside it, for asset fields to name
    * (E018). Without it, asset fields get only the shape check.

@@ -8,3 +8,6 @@ export const read = (o: { document: string; process: () => void }): string => {
   o.process();
   return o.document;
 };
+// Methods named eval or Function, and names ending in them, are not the globals.
+export const call = (parser: { eval: (x: string) => number }, isFunction: (f: unknown) => boolean): boolean =>
+  isFunction(parser.eval('1'));

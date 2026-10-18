@@ -10,7 +10,8 @@
   "dependencies": {
     "@eb/compiler": "workspace:*",
     "@eb/core": "workspace:*",
-    "@eb/schema": "workspace:*"
+    "@eb/schema": "workspace:*",
+    "@eb/script": "workspace:*"
   },
   "devDependencies": {
     "fflate": "0.8.3",

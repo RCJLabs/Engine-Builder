@@ -85,7 +85,8 @@ function checkEffect(value: unknown, at: string, ctx: PartContext): void {
   if (!isEffectShape(value)) return;
   const schema = ctx.known.effects.schemas.get(value.effect);
   if (!schema) {
-    if (ctx.known.effects.closed) ctx.report('E025', `${at}/effect`, `No effect "${value.effect}" in this game`);
+    if (ctx.known.effects.names?.has(value.effect)) ctx.effect(at, value);
+    else if (ctx.known.effects.closed) ctx.report('E025', `${at}/effect`, `No effect "${value.effect}" in this game`);
     return;
   }
   if (checkPart(schema, value, at, ctx, true)) ctx.effect(at, value);

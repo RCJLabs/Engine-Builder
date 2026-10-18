@@ -1,0 +1,10 @@
+{
+  "//": "Pure: ES2023 only, no DOM and no Node types. It runs in the CLI, in tools/lint-boundaries and in the editor's script worker.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

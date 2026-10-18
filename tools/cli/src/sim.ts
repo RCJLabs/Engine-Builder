@@ -43,6 +43,7 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
     facts: factCatalog(loaded.modules),
     events: eventCatalog(loaded.modules),
     ...(loaded.effects ? { effects: loaded.effects } : {}),
+    ...(loaded.effectNames ? { effectNames: loaded.effectNames } : {}),
   });
   if (!compiled.pack) {
     for (const line of formatResult(compiled, false)) console.log(line);
