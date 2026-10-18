@@ -1,18 +1,21 @@
-import { type Condition, checkCondition, describeCondition, parseCondition, printCondition } from '@eb/core';
-import { ENGINE_FACTS } from '@eb/schema';
+import {
+  type Condition,
+  checkCondition,
+  describeCondition,
+  type FactCatalog,
+  parseCondition,
+  printCondition,
+} from '@eb/core';
 import { useUniqueId } from '../../app/ids.ts';
 import { useDraft } from '../../editing/draft.ts';
+import { factsOf, openGame } from '../../scripts/known.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell, type Problem } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
 
 const isTree = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-// The facts validation reads conditions with when no game's are known (D36): the engine's own,
-// so "flag.on(met-trader)" parses, prints and reads as it does in eb validate.
-const facts = ENGINE_FACTS;
-
 /** A tree as text to edit: its canonical print when it is sound, else its JSON, to type over. */
-const asText = (value: unknown): string => {
+const asText = (value: unknown, facts: FactCatalog): string => {
   if (typeof value === 'string') return value;
   if (isTree(value) && checkCondition(value).length === 0) return printCondition(value as Condition, facts);
   return asWritten(value);
@@ -26,8 +29,11 @@ const asText = (value: unknown): string => {
 export function ConditionField({ label, info, path, value, quietLabel }: FieldProps) {
   const form = useForm();
   const id = useUniqueId();
+  // The facts validation reads conditions with (D36): the game's once its scripts have run, else
+  // the engine's own, so "flag.on(met-trader)" parses, prints and reads as it does in eb validate.
+  const facts = factsOf(openGame());
   const tree = isTree(value);
-  const draft = useDraft(asText(value));
+  const draft = useDraft(asText(value, facts));
   const text = draft.shown;
   const parsed = text.trim() === '' ? null : parseCondition(text, facts);
   // Text the file holds gets its parse error from validation (E011); a tree's draft can't be written yet.

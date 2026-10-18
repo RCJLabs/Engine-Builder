@@ -4,6 +4,7 @@
  * game. Checking a script reads it; loading one runs it, which only trusted projects do.
  */
 export { EB_MODULE } from './api.ts';
+export { type ApiEntry, CTX_API, EB_API, RNG_API } from './apiDocs.ts';
 export { type CatalogFact, type GameCatalog, gameCatalog } from './catalog.ts';
 export { type CheckedScript, checkScript, EB, importedScript, type ScriptProblem } from './check.ts';
 export { classifyScript, GAME_SCRIPT, SCRIPTS_DIR, type ScriptFile, scriptPath } from './files.ts';

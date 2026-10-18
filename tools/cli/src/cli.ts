@@ -9,12 +9,17 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { type CompileResult, compileProject, type ProjectSource, zipSource } from '@eb/compiler';
+import {
+  type CompileResult,
+  compileProject,
+  compileWithGame,
+  type ProjectSource,
+  projectGame,
+  zipSource,
+} from '@eb/compiler';
 import { canonicalJson } from '@eb/core';
-import { compareDiagnostics } from '@eb/schema';
 import { folderSource } from './folderSource.ts';
 import { type GameModule, loadGame, loadTypes, UsageError } from './modules.ts';
-import { gameOptions, projectGame } from './projectGame.ts';
 import { formatResult } from './report.ts';
 import { runSchemas } from './schemas.ts';
 import { runSim } from './sim.ts';
@@ -78,7 +83,7 @@ async function main(argv: readonly string[]): Promise<number> {
   if (command !== 'build' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
   if (command === 'schemas') return runSchemas(project, values);
   const source = await openProject(project);
-  const result = values.types === undefined ? await compileScripted(source) : await compileTyped(source, values.types);
+  const result = values.types === undefined ? await compileWithGame(source) : await compileTyped(source, values.types);
   let out: string | undefined;
   if (command === 'build' && result.pack) {
     out = values.out ?? `${result.pack.project.id}.pack.json`;
@@ -102,19 +107,13 @@ async function compileTyped(source: ProjectSource, path: string): Promise<Compil
 }
 
 /** Checked against the project's own game when it has one (D38); a game that fails to run is one more error. */
-async function compileScripted(source: ProjectSource): Promise<CompileResult> {
-  const scripted = await projectGame(source);
-  const result = await compileProject(source, [], scripted.kind === 'loaded' ? gameOptions(scripted.catalog) : {});
-  if (scripted.kind !== 'failed') return result;
-  return { ...result, diagnostics: [...result.diagnostics, scripted.diagnostic].sort(compareDiagnostics), pack: null };
-}
 
 /** eb sim with no --game: the project's scripts/game.ts, run as a --game module would be. */
 async function simScripts(source: ProjectSource, flags: Parameters<typeof runSim>[2]): Promise<number> {
   const scripted = await projectGame(source);
   if (scripted.kind === 'none') throw new UsageError('eb sim needs --game <module>, or a project with scripts/game.ts');
   if (scripted.kind !== 'loaded') {
-    const result = await compileScripted(source);
+    const result = await compileWithGame(source, scripted);
     for (const line of formatResult(result, false)) console.log(line);
     return 1;
   }

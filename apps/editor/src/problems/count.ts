@@ -6,5 +6,5 @@ import { type ProblemCounts, tally } from './collect.ts';
 /** Null with no project open. */
 export const problemCount = computed<ProblemCounts | null>(() => {
   const project = current.value;
-  return project ? tally(project.catalog, project.index) : null;
+  return project ? tally(project.catalog, project.index, project.game) : null;
 });

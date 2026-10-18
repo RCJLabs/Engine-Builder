@@ -10,12 +10,14 @@
  * which "used by" already knows, references to missing records included; and a change to the
  * types or the assets checks them all. Flags are the exception (M3.1): a flag's lint reads every
  * record that names it, and a set-flag's check reads the flag, so a change to any record that
- * names a flag checks all of them again (flagRelated).
+ * names a flag checks all of them again (flagRelated). The game's facts, events and effects
+ * (M3.2) are grounds like the types: a script that changes what the game declares checks them all.
  */
 import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
 import { formatRef } from '@eb/core';
 import { compareText, type Diagnostic, type RecordInput, type Usage, validateRecords } from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
+import type { GameChecks } from '../scripts/gameState.ts';
 import { flagRelated } from './flagRelated.ts';
 
 /** A reference out of a record: the "type:id" it names, and where in the record. */
@@ -53,19 +55,24 @@ export interface RecordIndex {
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
   /** What names each file under assets/ (M2.7), by its path inside assets/, files that aren't there included. */
   readonly assetUsers: ReadonlyMap<string, readonly Usage[]>;
-  /** The types and assets the records were checked against (groundsOf). */
+  /** The types, assets and game the records were checked against (groundsOf). */
   readonly grounds: string;
 }
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };
 
 /**
- * What a record's checks depend on besides the records: the sound types' fields and the assets.
- * What only names things (a type's title and description, its name field, a field's label and
- * help) changes no check, so typing a label in the type designer (M2.6) checks nothing again.
+ * What a record's checks depend on besides the records: the sound types' fields, the assets and
+ * the game's checks. What only names things (a type's title and description, its name field, a
+ * field's label and help) changes no check, so typing a label in the type designer (M2.6) checks
+ * nothing again, and nor does a script edit that leaves what the game declares as it was.
  */
-const groundsOf = (catalog: Catalog): string =>
-  JSON.stringify([[...catalog.types].map(([type, data]) => [type, checked(data.file.fields)]), catalog.assets]);
+const groundsOf = (catalog: Catalog, game: GameChecks): string =>
+  JSON.stringify([
+    [...catalog.types].map(([type, data]) => [type, checked(data.file.fields)]),
+    catalog.assets,
+    [game.facts ?? null, game.events ?? null, game.effectNames ?? null],
+  ]);
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -119,6 +126,7 @@ export async function updateIndex(
   source: ProjectSource,
   catalog: Catalog,
   paths: readonly string[] | null,
+  game: GameChecks = {},
 ): Promise<RecordIndex> {
   const named = new Set(paths ?? []);
   const listed: { type: string; id: string; file: string; key: string }[] = [];
@@ -153,15 +161,15 @@ export async function updateIndex(
   for (const key of [...appeared, ...went]) {
     for (const usage of before.usedBy.get(key) ?? []) if (records.has(usage.from)) dirty.add(usage.from);
   }
-  const grounds = groundsOf(catalog);
+  const grounds = groundsOf(catalog, game);
   const checking = grounds === before.grounds ? dirty : new Set(records.keys());
-  check(records, checking, catalog);
+  check(records, checking, catalog, game);
   // Read after the check, so the records just checked count by what they name now.
   const changed = [...checking, ...went].some(
     (key) => flagRelated(records.get(key)) || flagRelated(before.records.get(key)),
   );
   const more = changed ? [...records.values()].filter((r) => flagRelated(r) && !checking.has(r.key)) : [];
-  if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog);
+  if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog, game);
   return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };
 }
 
@@ -169,7 +177,12 @@ export async function updateIndex(
  * Checks the `dirty` records, in place. Every other record goes to validateRecords as there but
  * unread, so references to it resolve and nothing about it is checked again.
  */
-function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, catalog: Catalog): void {
+function check(
+  records: Map<string, IndexedRecord>,
+  dirty: ReadonlySet<string>,
+  catalog: Catalog,
+  game: GameChecks,
+): void {
   if (dirty.size === 0) return;
   // As the compiler does: a record of a type whose file has problems isn't checked, and one of a
   // type with no file at all is, for its E002 (M2.8: the Problems panel lists it).
@@ -181,6 +194,7 @@ function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, 
     inputs.push(checks ? { type, id, file, value } : { type, id, file, value: undefined, unreadable: true });
   }
   const { diagnostics, usedBy, assetsUsedBy } = validateRecords(catalog.recordTypes, inputs, {
+    ...game,
     assets: new Set(catalog.assets),
   });
   const problems = new Map<string, Diagnostic[]>();

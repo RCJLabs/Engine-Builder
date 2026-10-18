@@ -1,11 +1,11 @@
 /**
  * What the Logic panel lists (M3.1, D36): each trigger sheet with its rows as cards in the order
- * they run, and each flag with what it holds and what the lint says of it. A card opens the sheet
- * in the inspector at its row; New sheet and New flag name a record as New does in the Records
- * panel.
+ * they run, each flag with what it holds and what the lint says of it, and the project's scripts
+ * (M3.2). A card opens the sheet in the inspector at its row; New sheet and New flag name a record
+ * as New does in the Records panel.
  */
-import { FLAG, type FlagRecord, formatRef, SHEET } from '@eb/core';
-import { type Diagnostic, ENGINE_EVENTS, ENGINE_FACTS, FLAG_TYPE, SHEET_DATA } from '@eb/schema';
+import { type EventCatalog, type FactCatalog, FLAG, type FlagRecord, formatRef, SHEET } from '@eb/core';
+import { type Diagnostic, FLAG_TYPE, SHEET_DATA } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
@@ -16,7 +16,9 @@ import { createRecord, openRecord } from '../records/actions.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
 import type { IndexedRecord } from '../records/recordIndex.ts';
+import { eventsOf, factsOf } from '../scripts/known.ts';
 import { doText, ifText, whenText } from './rowText.ts';
+import { ScriptsSection } from './ScriptsSection.tsx';
 import '../styles/logic.css';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -32,8 +34,10 @@ function openRow(sheet: string, row: number): void {
 }
 
 export function LogicBrowser({ project }: { project: OpenProject }) {
-  const { catalog, index } = project;
+  const { catalog, index, game } = project;
   const names = namesOf(index, catalog);
+  const facts = factsOf(game);
+  const events = eventsOf(game);
   const [naming, setNaming] = useState<'sheet' | 'flag' | null>(null);
   const canEdit = editing.access.value.kind === 'editing';
   const sheets = catalog.records.get(SHEET) ?? [];
@@ -77,7 +81,14 @@ export function LogicBrowser({ project }: { project: OpenProject }) {
         ) : (
           <ul class="logic-list">
             {sheets.map((id) => (
-              <SheetCard key={id} id={id} label={label(SHEET, id)} record={record(SHEET, id)} />
+              <SheetCard
+                key={id}
+                id={id}
+                label={label(SHEET, id)}
+                record={record(SHEET, id)}
+                facts={facts}
+                events={events}
+              />
             ))}
           </ul>
         )}
@@ -114,11 +125,19 @@ export function LogicBrowser({ project }: { project: OpenProject }) {
           </ul>
         )}
       </section>
+      <ScriptsSection project={project} />
     </div>
   );
 }
 
-function SheetCard({ id, label, record }: { id: string; label: string; record: IndexedRecord | undefined }) {
+function SheetCard(props: {
+  id: string;
+  label: string;
+  record: IndexedRecord | undefined;
+  facts: FactCatalog;
+  events: EventCatalog;
+}) {
+  const { id, label, record, facts, events } = props;
   const value = record?.value;
   const rows = isObject(value) && Array.isArray(value.rows) ? value.rows : [];
   const problems = record?.problems ?? [];
@@ -135,7 +154,7 @@ function SheetCard({ id, label, record }: { id: string; label: string; record: I
             const at = `/rows/${i}`;
             const own = problems.filter((d) => d.path === at || d.path.startsWith(`${at}/`));
             const when = isObject(row) ? row.when : undefined;
-            const said = isObject(row) ? ifText(row.if, ENGINE_FACTS) : undefined;
+            const said = isObject(row) ? ifText(row.if, facts) : undefined;
             return (
               // Keyed by place: two rows can share an id until E024 is fixed.
               <li key={i}>
@@ -144,7 +163,7 @@ function SheetCard({ id, label, record }: { id: string; label: string; record: I
                     {`${i + 1}. ${isObject(row) && typeof row.id === 'string' ? row.id : 'a row'}`}
                     {isObject(row) && row.once === true ? ' · once' : ''}
                   </span>
-                  <span>{whenText(when, ENGINE_EVENTS)}</span>
+                  <span>{whenText(when, events)}</span>
                   {said ? <span>{said}</span> : null}
                   <span>{doText(isObject(row) ? row.do : undefined)}</span>
                   {own.length > 0 ? <span class="logic-problem">{problemsText(own)}</span> : null}

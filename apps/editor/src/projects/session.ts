@@ -8,6 +8,7 @@ import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
 import { browserLocks, projectLockName, takeLock } from '../editing/projectLock.ts';
 import { browserTabs } from '../editing/tabs.ts';
+import { folderKey, libraryKey, trust } from '../scripts/trust.ts';
 import { saveFile } from './download.ts';
 import type { DirectoryLike } from './files.ts';
 import { idbFolderStore } from './folderStore.ts';
@@ -134,6 +135,8 @@ const noStore: FolderStore = {
 export const newProject = (name: string) =>
   run('Creating the project', async () => {
     const folder = await needLibrary().create(name);
+    // Made here, so its scripts are its author's: they run at once (D38).
+    trust.trust(libraryKey(folder));
     await keep();
     await refresh();
     await openStored(folder);
@@ -171,6 +174,8 @@ export const deleteStoredProject = (folder: string) =>
     } finally {
       held?.release();
     }
+    // A project copied in later may get the same folder: it is asked about afresh.
+    trust.forget(libraryKey(folder));
     note(`Deleted ${folder} from this browser.`);
     await refresh();
   });
@@ -214,6 +219,7 @@ export const reopenFolder = (record: FolderRecord) =>
 export const forgetFolder = (record: FolderRecord) =>
   run(`Forgetting ${record.name}`, async () => {
     await remembered?.remove(record.key);
+    trust.forget(folderKey(record.key));
     await refresh();
   });
 
@@ -223,6 +229,8 @@ export const copyCurrentIn = () =>
     const open = current.value;
     if (!open) return;
     const folder = await needLibrary().copyIn(open.source);
+    // The same files: trusted here if the folder was.
+    if (trust.trusted(open.trustKey)) trust.trust(libraryKey(folder));
     await keep();
     await refresh();
     await openStored(folder);

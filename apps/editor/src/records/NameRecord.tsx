@@ -3,9 +3,9 @@ import { useUniqueId } from '../app/ids.ts';
 import { slugify } from '../forms/labels.ts';
 
 /**
- * Naming a new record or a copy (M2.4's New, M2.5's Duplicate): what is typed makes the id
- * ("Ludus Magnus" is ludus-magnus), and the form shows the file it will be. An id that is taken,
- * or that the words don't make, can't be used. The box takes focus as it opens.
+ * Naming a new record or a copy (M2.4's New, M2.5's Duplicate), or a new script (M3.2): what is
+ * typed makes the id ("Ludus Magnus" is ludus-magnus), and the form shows the file it will be. An
+ * id that is taken, or that the words don't make, can't be used. The box takes focus as it opens.
  */
 export function NameRecord(props: {
   type: string;
@@ -15,10 +15,12 @@ export function NameRecord(props: {
   /** The button that makes it: "Create", "Duplicate". */
   action: string;
   initial?: string;
+  /** The file an id is saved as: a record's, unless said otherwise. */
+  fileOf?: (id: string) => string;
   done: (id: string, typed: string) => void;
   cancel: () => void;
 }) {
-  const { type, ids, label, action, done, cancel } = props;
+  const { type, ids, label, action, done, cancel, fileOf = (id: string) => `records/${type}/${id}.json` } = props;
   const [typed, setTyped] = useState(props.initial ?? '');
   const box = useRef<HTMLInputElement>(null);
   const field = useUniqueId();
@@ -54,7 +56,7 @@ export function NameRecord(props: {
         }}
       />
       <p id={`${field}-said`} class={problem ? 'field-problem' : 'form-help'}>
-        {problem ?? (id ? `Saved as records/${type}/${id}.json` : 'Lowercase words joined by hyphens make its id.')}
+        {problem ?? (id ? `Saved as ${fileOf(id)}` : 'Lowercase words joined by hyphens make its id.')}
       </p>
       <div class="form-actions">
         <button type="submit" class="button primary" disabled={id === '' || taken}>

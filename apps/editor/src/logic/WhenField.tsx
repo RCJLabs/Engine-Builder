@@ -1,15 +1,16 @@
 /**
- * A row's When (M3.1, D36): the event, one of the engine's own or another written by hand, and
- * the values its arguments must have for the row to run. An argument left empty matches any.
+ * A row's When (M3.1, D36): the event, one the game declares (the engine's own until its scripts
+ * have run, M3.2) or another written by hand, and the values its arguments must have for the row
+ * to run. An argument left empty matches any.
  */
 import { type Domain, formatRef, type Value } from '@eb/core';
-import { ENGINE_EVENTS } from '@eb/schema';
 import { useUniqueId } from '../app/ids.ts';
 import { useDraft } from '../editing/draft.ts';
 import { describedBy, FieldShell } from '../forms/FieldShell.tsx';
 import { FieldView } from '../forms/FieldView.tsx';
 import { pointerOf, useForm, useShownProblems } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
+import { eventsOf, openGame } from '../scripts/known.ts';
 import { JsonField } from './JsonField.tsx';
 import { forEvent, withArg } from './sheetEdits.ts';
 
@@ -23,7 +24,8 @@ export function WhenField({ path, value }: { path: Path; value: unknown }) {
   const id = useUniqueId();
   const when = isObject(value) ? value : {};
   const event = typeof when.event === 'string' ? when.event : '';
-  const info = ENGINE_EVENTS[event];
+  const events = eventsOf(openGame());
+  const info = events[event];
   const eventPath = [...path, 'event'];
   const { shown, onFocus, onBlur } = useShownProblems(form.problemsAt(pointerOf(eventPath)));
   const help = { description: 'A game’s own event is written as module/name, like voyage/arrived.' };
@@ -45,7 +47,7 @@ export function WhenField({ path, value }: { path: Path; value: unknown }) {
               form.update(path, () => forEvent(picked), `Choose the event`);
             }}
           >
-            {Object.entries(ENGINE_EVENTS).map(([name, about]) => (
+            {Object.entries(events).map(([name, about]) => (
               <option key={name} value={name}>
                 {about.label ?? name}
               </option>

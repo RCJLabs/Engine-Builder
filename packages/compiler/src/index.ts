@@ -20,6 +20,7 @@ export {
 } from './layout.ts';
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
 export { type ListedRecord, type ProjectFilesRead, readProjectFiles } from './projectCheck.ts';
+export { compileWithGame, gameOf, gameOptions, projectGame, type ScriptedGame } from './projectGame.ts';
 export { projectFiles, readFiles, zipProject } from './projectZip.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
