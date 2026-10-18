@@ -152,7 +152,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     requestAnimationFrame(() => requestAnimationFrame(() => focusField(root, focusing.at)));
   }, [focusing, file]);
   const canEdit = editing.access.value.kind === 'editing';
-  const diagnostics = useMemo(() => checkRecord(catalog, type, id, value), [catalog, type, id, value]);
+  const index = project.index ?? undefined;
+  const diagnostics = useMemo(() => checkRecord(catalog, type, id, value, index), [catalog, type, id, value, index]);
   const routed = useMemo(
     () => routeProblems(diagnostics, fieldPointers(typeFile, value)),
     [diagnostics, typeFile, value],

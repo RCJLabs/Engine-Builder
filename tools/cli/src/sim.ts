@@ -10,6 +10,7 @@ import {
   compareGolden,
   createGame,
   createRecordStore,
+  eventCatalog,
   factCatalog,
   type Golden,
   type GoldenComparison,
@@ -37,7 +38,12 @@ export interface SimFlags {
 /** 0 when the runs are fine, 1 when the content has errors, an offer was refused or a golden differs. */
 export async function runSim(source: ProjectSource, loaded: GameModule, flags: SimFlags): Promise<number> {
   if (flags.update && !flags.golden) throw new UsageError('--update needs --golden <file>');
-  const compiled = await compileProject(source, loaded.recordTypes, { facts: factCatalog(loaded.modules) });
+  // The game's modules are all it has, so content may name no other fact or event.
+  const compiled = await compileProject(source, loaded.recordTypes, {
+    facts: factCatalog(loaded.modules),
+    events: eventCatalog(loaded.modules),
+    ...(loaded.effects ? { effects: loaded.effects } : {}),
+  });
   if (!compiled.pack) {
     for (const line of formatResult(compiled, false)) console.log(line);
     return 1;

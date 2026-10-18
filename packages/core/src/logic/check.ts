@@ -15,6 +15,11 @@ export interface CheckOptions {
   readonly catalog?: FactCatalog;
   /** The records, to check that referenced records exist. */
   readonly records?: RecordIndex;
+  /**
+   * The catalog isn't every fact there is: it is the engine's own, and a game's facts are taken as
+   * written (D36). Without it, a fact the catalog doesn't list is E012.
+   */
+  readonly open?: boolean;
 }
 
 type Report = (code: ConditionIssue['code'], path: string, message: string) => void;
@@ -90,7 +95,7 @@ function checkTest(node: Readonly<Record<string, unknown>>, path: string, option
 function checkFact(test: FactTest, path: string, options: CheckOptions, report: Report): void {
   const info = options.catalog?.[test.fact];
   if (!info) {
-    report('E012', `${path}/fact`, `No fact "${test.fact}"`);
+    if (!options.open) report('E012', `${path}/fact`, `No fact "${test.fact}"`);
     return;
   }
   const declared = info.args ?? {};

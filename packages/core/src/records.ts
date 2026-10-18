@@ -17,6 +17,8 @@ const ID = `(?=[a-z0-9-]{1,${MAX_ID_LENGTH}}(?![a-z0-9-]))[a-z0-9]+(?:-[a-z0-9]+
 export const RECORD_ID_PATTERN = new RegExp(`^${ID}$`);
 /** A qualified reference: `item:medkit`. */
 export const QUALIFIED_REF_PATTERN = new RegExp(`^${ID}:${ID}$`);
+/** An event's id, its module's id and its own name: `flag/changed` (M3.1). */
+export const EVENT_PATTERN = new RegExp(`^${ID}/${ID}$`);
 
 /**
  * A valid record id: lowercase kebab-case, at most 64 characters. Record type names follow the

@@ -68,9 +68,11 @@ describe('salvage run, a test-only text game', () => {
   it('gives one facet per module, plus the kernel', () => {
     expect(Object.keys(readFacets(play('seed-0').state))).toEqual([
       'crew',
+      'flag',
       'hold',
       'kernel',
       'logic',
+      'sheet',
       'time',
       'voyage',
     ]);
@@ -158,7 +160,10 @@ describe('salvage run: time', () => {
         const action = botAction(before, game.allowedActions(before), bot);
         if (!action) break;
         const step = session.dispatch(action as Action);
-        const due = step.beats.find((beat) => beat.timer === 'debt' && beat.type !== 'time/scheduled');
+        // A debt falling due, not one scheduled or settled with the trader.
+        const due = step.beats.find(
+          (beat) => beat.timer === 'debt' && (beat.type === 'time/fired' || beat.type === 'time/refused'),
+        );
         if (!due) continue;
         const credits = (state: GameState) => game.fact(state, 'hold.credits', undefined, sim) as number;
         expect(game.fact(step.state, 'time.day', undefined, sim)).toBe(
@@ -174,7 +179,8 @@ describe('salvage run: time', () => {
         }
       }
     }
-    expect(refused).toBeGreaterThan(50);
-    expect(paid).toBeGreaterThan(50);
+    // Both kinds, often: 182 refused and 38 paid over these 100 seeds since M3.1's trader tithe.
+    expect(refused).toBeGreaterThan(25);
+    expect(paid).toBeGreaterThan(25);
   });
 });

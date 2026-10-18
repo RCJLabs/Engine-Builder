@@ -4,7 +4,8 @@
  * is lost or day 30 brings them home. Three modules that only reach each other through facts
  * and effects, as kits will, plus the logic module for rolls and the time module for days.
  * Choices are locked by conditions in content, their odds come from roll effects, and a debt
- * promised to raiders falls due three days later.
+ * promised to raiders falls due three days later. Since M3.1 its beats are events, and a trigger
+ * sheet with three flags reacts to them: a trader met, raider fights counted, a debt owed.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,9 +16,11 @@ import {
   type DeepReadonly,
   defineModule,
   type Effect,
+  flagModule,
   type GameState,
   logicModule,
   Rng,
+  sheetModule,
   timeModule,
 } from '../src/index.ts';
 
@@ -109,6 +112,10 @@ const crew = defineModule<Crew>({
     },
   },
   facts: { alive: { read: ({ state }) => living(state).length, domain: { type: 'int', min: 0, max: 3 } } },
+  events: {
+    rested: { args: { healed: { type: 'int', min: 1 } }, label: 'The crew rests' },
+    wounded: { args: { member: { type: 'text' }, hp: { type: 'int', min: 0 } }, label: 'Someone is hurt' },
+  },
 });
 
 const healed = (member: { hp: number; max: number }, hp: number) => Math.min(member.max, member.hp + hp);
@@ -155,6 +162,7 @@ const hold = defineModule<Hold>({
       describe: (test) => (test.op === '>=' ? `${test.value} ${test.args?.item} to sell` : undefined),
     },
   },
+  events: { looted: { args: { item: { type: 'ref', to: 'item' } }, label: 'Something is looted' } },
 });
 
 interface Voyage {
@@ -166,6 +174,11 @@ const voyage = defineModule<Voyage>({
   init: () => ({ ending: null }),
   facts: {
     ending: { read: ({ state }) => state.ending ?? undefined, domain: { type: 'enum', values: ['home', 'lost'] } },
+  },
+  events: {
+    arrived: { args: { day: { type: 'int', min: 0 }, event: { type: 'ref', to: 'event' } }, label: 'The crew arrives' },
+    chose: { args: { event: { type: 'ref', to: 'event' }, choice: { type: 'text' } }, label: 'The crew chooses' },
+    ended: { args: { ending: { type: 'enum', values: ['home', 'lost'] } }, label: 'The voyage ends' },
   },
   modes: {
     travel: { actions: ['voyage/jump', 'crew/rest'] },
@@ -212,7 +225,15 @@ const voyage = defineModule<Voyage>({
 });
 
 // A tick is a day: the voyage counts nothing smaller.
-export const salvageModules = [logicModule, timeModule({ calendar: { ticksPerDay: 1 } }), crew, hold, voyage];
+export const salvageModules = [
+  logicModule,
+  timeModule({ calendar: { ticksPerDay: 1 } }),
+  crew,
+  hold,
+  voyage,
+  flagModule,
+  sheetModule,
+];
 export const game = createGame({ modules: salvageModules, start: 'travel' });
 
 /** The choices a menu would offer now: those whose condition holds. */

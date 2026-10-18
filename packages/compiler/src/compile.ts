@@ -22,7 +22,7 @@ export interface CompileResult {
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
   /** How many record files the project has, including any that failed. */
   readonly records: number;
-  /** The project's own types from types/ that are sound, by name. */
+  /** The types forms are drawn from, by name: the project's own from types/ that are sound, and the engine's flag and sheet. */
   readonly dataTypes: ReadonlyMap<string, DataType>;
 }
 
@@ -89,7 +89,7 @@ function packRecords(
   for (const { type, id, value } of records) {
     const schema = byName.get(type)?.schema;
     pack[type] ??= {};
-    pack[type][id] = schema ? packValue(schema, value, options.facts) : value;
+    pack[type][id] = schema ? packValue(schema, value, options) : value;
   }
   return pack;
 }

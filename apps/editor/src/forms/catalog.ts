@@ -5,14 +5,14 @@
  * change, beside the Project panel's summary (projects/opened.ts).
  */
 import { type ProjectSource, RECORDS_DIR, readProjectFiles, type TypeReport } from '@eb/compiler';
-import type { DataType, Diagnostic, RecordType } from '@eb/schema';
+import { type DataType, type Diagnostic, isEngineType, type RecordType } from '@eb/schema';
 
 export interface Catalog {
-  /** The project's types whose files are sound, by name. */
+  /** The project's types whose files are sound, by name, and the engine's flag and sheet (D36). */
   readonly types: ReadonlyMap<string, DataType>;
   /** What is wrong with each type file that has problems, by type: its first problem. */
   readonly broken: ReadonlyMap<string, TypeReport>;
-  /** Every type that types/ or records/ names, sorted. */
+  /** Every type that types/ or records/ names, sorted: the engine's own once the project has records of them. */
   readonly names: readonly string[];
   /** Record ids by type, sorted. */
   readonly records: ReadonlyMap<string, readonly string[]>;
@@ -64,7 +64,8 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   }
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
-  const names = [...new Set([...known.types.map((t) => t.type), ...records.keys()])].sort(byText);
+  const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
+  const names = [...new Set([...named, ...records.keys()])].sort(byText);
   const log = read.assetsLog;
   return {
     types: known.data,

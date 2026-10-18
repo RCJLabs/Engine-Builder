@@ -1,3 +1,4 @@
+export { type EventCatalog, type EventInfo, eventDataProblem } from './events.ts';
 export { ActionError, createGame, type Game, type GameDefinition } from './game.ts';
 export { MigrationError, type MigrationReport } from './migrate.ts';
 export {
@@ -12,6 +13,7 @@ export {
   type FactSpec,
   type FactView,
   type InitContext,
+  type Listener,
   type ModeControl,
   type ModeDef,
   type Module,
@@ -20,8 +22,9 @@ export {
   type OptionsView,
   type PreviewContext,
 } from './module.ts';
-export { factCatalog } from './registry.ts';
+export { eventCatalog, factCatalog } from './registry.ts';
 export { createSession, type Session } from './session.ts';
+export { MAX_EVENT_DEPTH } from './transaction.ts';
 export type {
   Action,
   Attempt,

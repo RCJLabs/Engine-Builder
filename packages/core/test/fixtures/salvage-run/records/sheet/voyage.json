@@ -1,0 +1,104 @@
+{
+  "name": "The voyage",
+  "description": "What happens around the choices: the trader met, raider fights counted, and the debt the raiders are owed.",
+  "rows": [
+    {
+      "id": "meet-trader",
+      "note": "The first trader the crew meets",
+      "when": {
+        "event": "voyage/arrived",
+        "args": {
+          "event": "trader"
+        }
+      },
+      "do": [
+        {
+          "effect": "set-flag",
+          "flag": "met-trader",
+          "to": true
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "tithe",
+      "note": "Once met, the trader takes 5 credits of each salvage looted: refused when the hold can't pay",
+      "when": {
+        "event": "hold/looted",
+        "args": {
+          "item": "salvage"
+        }
+      },
+      "if": {
+        "fact": "flag.on",
+        "args": {
+          "flag": "met-trader"
+        }
+      },
+      "do": [
+        {
+          "effect": "credits",
+          "delta": -5
+        }
+      ]
+    },
+    {
+      "id": "count-fights",
+      "when": {
+        "event": "voyage/chose",
+        "args": {
+          "event": "raiders",
+          "choice": "fight"
+        }
+      },
+      "do": [
+        {
+          "effect": "add-to-flag",
+          "flag": "fights",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "veteran",
+      "note": "Three fights in, the crew knows how to patch itself up",
+      "when": {
+        "event": "flag/changed",
+        "args": {
+          "flag": "fights"
+        }
+      },
+      "if": {
+        "fact": "flag.number",
+        "args": {
+          "flag": "fights"
+        },
+        "op": ">=",
+        "value": 3
+      },
+      "do": [
+        {
+          "effect": "heal",
+          "hp": 2
+        }
+      ],
+      "once": true
+    },
+    {
+      "id": "debt-due",
+      "when": {
+        "event": "time/fired",
+        "args": {
+          "timer": "debt"
+        }
+      },
+      "do": [
+        {
+          "effect": "set-flag",
+          "flag": "owes-raiders",
+          "to": false
+        }
+      ]
+    }
+  ]
+}

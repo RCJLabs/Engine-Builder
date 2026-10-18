@@ -1,9 +1,21 @@
-import { type FactCatalog, formatRef, isRecordId, parseRef, type RecordIndex } from '@eb/core';
-import { checkConditionField } from './conditions.ts';
+import {
+  type EventCatalog,
+  type FactCatalog,
+  FLAG,
+  type FlagRecord,
+  formatRef,
+  isRecordId,
+  type RecordIndex,
+  SHEET,
+} from '@eb/core';
+import type { z } from 'zod';
+import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
-import { schemaIssues } from './issues.ts';
+import { withEngineTypes } from './engineTypes.ts';
+import { FlagChecks } from './flagCheck.ts';
+import { knownFrom } from './known.ts';
 import type { RecordType } from './recordType.ts';
-import { type FoundRef, scanRecord } from './walk.ts';
+import { checkSheet } from './sheetCheck.ts';
 
 export interface RecordInput {
   readonly type: string;
@@ -45,10 +57,14 @@ export interface Validation {
 export interface ValidateOptions {
   /**
    * The game's facts (factCatalog in @eb/core), to check conditions against (E012 to E014) and
-   * lint them (W102 to W104). Without it, conditions get the shape check, and the lint treats
-   * every fact as one with no domain.
+   * lint them (W102 to W104). Without it, conditions are checked against the engine's own facts
+   * (D36), and a fact those don't list is taken as written.
    */
   readonly facts?: FactCatalog;
+  /** The game's events (eventCatalog in @eb/core), for rows' When (E022, E023). Without it, the engine's own, and any other taken as written. */
+  readonly events?: EventCatalog;
+  /** The game's effects' schemas, for effect fields (E001, E025). Without them, the engine's own, and any other kept as written. */
+  readonly effects?: readonly z.core.$ZodType[];
   /**
    * The files under the project's assets/ folder, as paths inside it, for asset fields to name
    * (E018). Without it, asset fields get only the shape check.
@@ -57,15 +73,17 @@ export interface ValidateOptions {
 }
 
 /**
- * Checks records against their types and against each other. The result depends only on the
- * set of records given, never on their order.
+ * Checks records against their types and against each other. The engine's own types (flag and
+ * sheet) join the ones given. The result depends only on the set of records given, never on
+ * their order.
  */
 export function validateRecords(
   types: readonly RecordType[],
   records: readonly RecordInput[],
   options: ValidateOptions = {},
 ): Validation {
-  const byName = indexTypes(types);
+  const byName = indexTypes(withEngineTypes(types));
+  const known = knownFrom(options);
   // Records of unknown types count too; no reference can name them, since every reference
   // target is a known type.
   const counts = new Map<string, number>();
@@ -74,14 +92,12 @@ export function validateRecords(
   const diagnostics: Diagnostic[] = [];
   const usages = new Map<string, Usage[]>();
   const assetUsages = new Map<string, Usage[]>();
+  const flags = new FlagChecks();
   for (const record of records) {
+    const from = formatRef(record.type, record.id);
     const report = (code: DiagnosticCode, path: string, message: string) =>
       diagnostics.push(diagnostic(record, code, path, message));
-    const use = (key: string, path: string) => {
-      const list = usages.get(key) ?? [];
-      list.push(usage(record, path));
-      usages.set(key, list);
-    };
+    const use = (key: string, path: string) => listUsage(usages, key, usage(record, path));
     const recordType = byName.get(record.type);
     if (!recordType) {
       report('E002', '', `Unknown record type "${record.type}"`);
@@ -94,38 +110,42 @@ export function validateRecords(
         `"${record.id}" is not a valid id: use lowercase words joined by hyphens, at most 64 characters`,
       );
     }
-    const count = counts.get(formatRef(record.type, record.id)) ?? 0;
+    const count = counts.get(from) ?? 0;
     if (count > 1) report('E004', '', `${count} ${record.type} records have the id "${record.id}"`);
     if (record.unreadable) continue;
-    const { refs, conditions, assets } = scanRecord(recordType.schema, record.value);
-    // Conditions get checkCondition's messages (E011) rather than zod's.
-    const inCondition = (path: string) => conditions.some((c) => path === c.path || path.startsWith(`${c.path}/`));
-    const issues = schemaIssues(recordType.schema, record.value);
-    for (const issue of issues) {
-      if (!inCondition(issue.path)) report('E001', issue.path, issue.message);
+    const ctx: PartContext = {
+      known,
+      records: index,
+      report,
+      use,
+      asset: (path, value) => {
+        listUsage(assetUsages, value, usage(record, path));
+        if (options.assets && !options.assets.has(value)) report('E018', path, `No file assets/${value}`);
+      },
+      condition: (path, sound) => flags.condition({ from, path, report }, sound, known.facts),
+      effect: (path, value) => flags.effect({ from, path, report }, value),
+    };
+    const sound = checkPart(recordType.schema, record.value, '', ctx);
+    if (record.type === SHEET) {
+      const heard = (type: string, id: string) => {
+        if (type === FLAG) flags.heard(id, from);
+      };
+      checkSheet(record.value, { ...ctx, heard });
     }
-    for (const found of refs) {
-      const key = resolve(found, report);
-      if (key === undefined) continue;
-      use(key, found.path);
-      if (!counts.has(key)) report('E005', found.path, `No record ${key}`);
-    }
-    for (const found of conditions) checkConditionField(found, { facts: options.facts, records: index, report, use });
-    for (const found of assets) {
-      // A path zod already refused (E001) names no file to look for.
-      if (issues.some((issue) => issue.path === found.path)) continue;
-      const list = assetUsages.get(found.value) ?? [];
-      list.push(usage(record, found.path));
-      assetUsages.set(found.value, list);
-      if (options.assets && !options.assets.has(found.value))
-        report('E018', found.path, `No file assets/${found.value}`);
-    }
+    if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
   }
+  flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
   return {
     diagnostics: diagnostics.sort(compareDiagnostics),
     usedBy: sortUsages(usages),
     assetsUsedBy: sortUsages(assetUsages),
   };
+}
+
+function listUsage(map: Map<string, Usage[]>, key: string, entry: Usage): void {
+  const list = map.get(key) ?? [];
+  list.push(entry);
+  map.set(key, list);
 }
 
 /**
@@ -156,26 +176,6 @@ function indexTypes(types: readonly RecordType[]): ReadonlyMap<string, RecordTyp
   }
   return byName;
 }
-
-/**
- * The "type:id" a reference names, or undefined when there is nothing to resolve: a malformed
- * value (zod reports it as E001) or a type the field does not allow (reported here, as E006).
- */
-function resolve(found: FoundRef, report: (code: DiagnosticCode, path: string, message: string) => void) {
-  if (typeof found.target === 'string') {
-    return isRecordId(found.value) ? formatRef(found.target, found.value) : undefined;
-  }
-  const key = parseRef(found.value);
-  if (!key) return undefined;
-  if (!found.target.includes(key.type)) {
-    report('E006', found.path, `This field takes ${listTypes(found.target)} records, not ${key.type}`);
-    return undefined;
-  }
-  return found.value;
-}
-
-const listTypes = (types: readonly string[]): string =>
-  types.length === 1 ? (types[0] as string) : `${types.slice(0, -1).join(', ')} or ${types[types.length - 1]}`;
 
 function diagnostic(record: RecordInput, code: DiagnosticCode, path: string, message: string): Diagnostic {
   const { type, id, file } = record;

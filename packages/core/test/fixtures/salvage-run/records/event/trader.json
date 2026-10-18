@@ -18,6 +18,38 @@
     },
     "leave": {
       "effects": []
+    },
+    "settle": {
+      "when": {
+        "all": [
+          {
+            "fact": "flag.on",
+            "args": {
+              "flag": "owes-raiders"
+            }
+          },
+          {
+            "fact": "hold.credits",
+            "op": ">=",
+            "value": 12
+          }
+        ]
+      },
+      "effects": [
+        {
+          "effect": "cancel-timer",
+          "timer": "debt"
+        },
+        {
+          "effect": "credits",
+          "delta": -12
+        },
+        {
+          "effect": "set-flag",
+          "flag": "owes-raiders",
+          "to": false
+        }
+      ]
     }
   }
 }

@@ -83,8 +83,15 @@ export function timeModule(options: TimeOptions): Module {
       },
     },
     facts: facts(calendar),
+    // The beats rows can react to (M3.1). A timer's are heard at its tick, inside its attempt.
+    events: {
+      passed: { args: { from: TICK, to: TICK }, label: 'Time passes' },
+      fired: { args: { timer: { type: 'text' }, at: TICK }, label: 'A timer fires' },
+    },
   });
 }
+
+const TICK: Domain = { type: 'int', min: 0 };
 
 function checkRealTime(realTime: RealTime): RealTime {
   const { msPerTick, maxElapseMs } = realTime;

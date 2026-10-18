@@ -7,11 +7,12 @@
 import { canonicalJson } from '../canonical.ts';
 import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
 import { Rng } from '../rng.ts';
+import type { EventCatalog } from './events.ts';
 import { freezeJson } from './json.ts';
 import { type MigrationReport, migrateState } from './migrate.ts';
 import type { FactArgs, Module } from './module.ts';
 import { AttemptRefused, Refusal } from './refusal.ts';
-import { type ActionEntry, buildRegistry, catalogOf, KERNEL, type Registry, versionsOf } from './registry.ts';
+import { type ActionEntry, buildRegistry, catalogOf, eventsOf, KERNEL, type Registry, versionsOf } from './registry.ts';
 import { Transaction } from './transaction.ts';
 import type { Action, Effect, EffectPreview, GameState, ModeFrame, RejectedBeat, SimContext, Step } from './types.ts';
 
@@ -35,6 +36,8 @@ export interface Game {
   fact(state: GameState, id: string, args: FactArgs | undefined, sim: SimContext): unknown;
   /** Every fact the modules register, by id: what conditions in content are checked against. */
   catalog(): FactCatalog;
+  /** Every event the modules declare, by id: what rows' When is checked against. */
+  events(): EventCatalog;
   /** A condition's truth in this state, by the same evaluation the sim uses: what a menu shows as open or locked. */
   check(state: GameState, condition: Condition, sim: SimContext): Truth;
   /** What these effects would do in this state, without doing them: chances, costs and outcomes for the stage to show. */
@@ -55,6 +58,7 @@ export function createGame(definition: GameDefinition): Game {
   const registry = buildRegistry(definition.modules);
   if (!registry.modes.has(definition.start)) throw new Error(`The start mode "${definition.start}" is not registered`);
   const catalog = catalogOf(registry);
+  const events = eventsOf(registry);
 
   const allowedIn = (state: GameState): ReadonlySet<string> => {
     const current = state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame;
@@ -117,6 +121,8 @@ export function createGame(definition: GameDefinition): Game {
 
     catalog: () => catalog,
 
+    events: () => events,
+
     check: (state, condition, sim) => new Transaction(registry, state, sim).check(condition),
 
     preview(state, effects, sim) {
@@ -138,7 +144,7 @@ function runAction(registry: Registry, entry: ActionEntry, state: GameState, act
   for (;;) {
     const tx = new Transaction(registry, state, sim, skipped);
     try {
-      entry.run(tx.context(entry.module), action);
+      tx.scope(() => entry.run(tx.context(entry.module), action));
       return { state: tx.commit(), beats: Object.freeze(tx.beats), accepted: true };
     } catch (error) {
       if (error instanceof Refusal) return refused(state, action, error.reason, error.data);

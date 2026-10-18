@@ -8,12 +8,15 @@
  * exist (for its references) and on the types and assets, nothing else. So an edit checks again
  * only the records it changed; creating or deleting a record also checks those that refer to it,
  * which "used by" already knows, references to missing records included; and a change to the
- * types or the assets checks them all.
+ * types or the assets checks them all. Flags are the exception (M3.1): a flag's lint reads every
+ * record that names it, and a set-flag's check reads the flag, so a change to any record that
+ * names a flag checks all of them again (flagRelated).
  */
 import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
 import { formatRef } from '@eb/core';
 import { compareText, type Diagnostic, type RecordInput, type Usage, validateRecords } from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
+import { flagRelated } from './flagRelated.ts';
 
 /** A reference out of a record: the "type:id" it names, and where in the record. */
 export interface Ref {
@@ -151,7 +154,14 @@ export async function updateIndex(
     for (const usage of before.usedBy.get(key) ?? []) if (records.has(usage.from)) dirty.add(usage.from);
   }
   const grounds = groundsOf(catalog);
-  check(records, grounds === before.grounds ? dirty : new Set(records.keys()), catalog);
+  const checking = grounds === before.grounds ? dirty : new Set(records.keys());
+  check(records, checking, catalog);
+  // Read after the check, so the records just checked count by what they name now.
+  const changed = [...checking, ...went].some(
+    (key) => flagRelated(records.get(key)) || flagRelated(before.records.get(key)),
+  );
+  const more = changed ? [...records.values()].filter((r) => flagRelated(r) && !checking.has(r.key)) : [];
+  if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog);
   return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };
 }
 

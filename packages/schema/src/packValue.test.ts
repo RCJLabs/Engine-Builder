@@ -12,7 +12,7 @@ describe('packValue', () => {
       },
     };
     const before = JSON.stringify(value);
-    expect(packValue(event.schema, value, facts)).toEqual({
+    expect(packValue(event.schema, value, { facts })).toEqual({
       when: { not: { fact: 'voyage.night' } },
       choices: {
         'a/b': { when: { fact: 'hold.count', args: { item: 'medkit' }, op: '>=', value: 2 }, effects: [] },
@@ -25,11 +25,11 @@ describe('packValue', () => {
 
   it('gives back the same value when nothing is text', () => {
     const value = { choices: { go: { when: { fact: 'voyage.night' }, effects: [] } } };
-    expect(packValue(event.schema, value, facts)).toBe(value);
+    expect(packValue(event.schema, value, { facts })).toBe(value);
   });
 
   it('throws on text that does not parse, which validation lets no pack hold', () => {
-    expect(() => packValue(event.schema, { when: 'voyage.night and', choices: {} }, facts)).toThrow(
+    expect(() => packValue(event.schema, { when: 'voyage.night and', choices: {} }, { facts })).toThrow(
       'packValue: the condition at /when does not parse',
     );
   });

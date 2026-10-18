@@ -8,7 +8,7 @@
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { readProjectFiles } from '@eb/compiler';
-import { type RecordType, recordJsonSchema, typeFileJsonSchema } from '@eb/schema';
+import { isEngineType, type RecordType, recordJsonSchema, typeFileJsonSchema } from '@eb/schema';
 import { folderSource } from './folderSource.ts';
 import { loadTypes, UsageError } from './modules.ts';
 
@@ -95,7 +95,11 @@ const byName = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 async function readProjectTypes(folder: string, codeTypes: readonly RecordType[]) {
   const read = await readProjectFiles(folderSource(folder), codeTypes);
   const { types, unchecked } = read.types;
-  const sound = types.filter((type) => !unchecked.has(type.type)).sort((a, b) => byName(a.type, b.type));
+  // Every project has the engine's flag and sheet types (D36): their schemas come with their first record.
+  const used = new Set(read.recordFiles.map((record) => record.type));
+  const sound = types
+    .filter((type) => !unchecked.has(type.type) && (!isEngineType(type.type) || used.has(type.type)))
+    .sort((a, b) => byName(a.type, b.type));
   const skipped = [...unchecked].sort(byName).map((type) => {
     const first = read.diagnostics.find((d) => d.file === `types/${type}.json`);
     return { type, why: first ? `${first.code} ${first.message}` : 'its type file has problems' };

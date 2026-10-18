@@ -7,7 +7,8 @@
 import type { Condition, FactInfo, Truth } from '../logic/types.ts';
 import type { RecordStore } from '../records.ts';
 import type { Rng } from '../rng.ts';
-import type { Action, Attempt, DeepReadonly, Effect, EffectPreview, ModeFrame } from './types.ts';
+import type { EventInfo } from './events.ts';
+import type { Action, Attempt, Beat, DeepReadonly, Effect, EffectPreview, ModeFrame } from './types.ts';
 
 export type FactArgs = Readonly<Record<string, unknown>>;
 
@@ -48,7 +49,10 @@ export interface ModuleContext<S> {
    * made anywhere else would fork the replay (landnam's src/sim/swing.ts).
    */
   rng(name: string): Rng;
-  /** Adds the beat "module/what", with data. */
+  /**
+   * Adds the beat "module/what", with data. When the module declares "what" as an event, the data
+   * must be its arguments, and listeners hear it once the work that raised it finishes.
+   */
   emit(what: string, data?: Readonly<Record<string, unknown>>): void;
   /** Refuses the action: nothing it changed is kept, and the stage gets one rejected beat. */
   refuse(reason: string, data?: Readonly<Record<string, unknown>>): never;
@@ -113,6 +117,12 @@ export interface EffectSpec<S> {
   readonly preview?: (ctx: PreviewContext<S>, effect: Effect) => Readonly<Record<string, unknown>>;
 }
 
+/**
+ * What a module does when an event is raised. It runs with the module's own context, as an effect
+ * does, once the work that raised the event finishes (docs/specs/triggers.md).
+ */
+export type Listener<S> = (ctx: ModuleContext<S>, event: Beat) => void;
+
 export interface InitContext {
   readonly content: RecordStore;
   rng(name: string): Rng;
@@ -138,6 +148,13 @@ export interface ModuleDef<S> {
   /** Registered by bare name, unique across the game, because content names them: `{ "effect": "loot" }`. */
   readonly effects?: Readonly<Record<string, EffectRun<S> | EffectSpec<S>>>;
   readonly modes?: Readonly<Record<string, ModeDef>>;
+  /**
+   * Registered as "id/name": the beats content may react to, with their arguments, which the
+   * kernel checks each time one is raised with ctx.emit (M3.1).
+   */
+  readonly events?: Readonly<Record<string, EventInfo>>;
+  /** What the module does when an event is raised, by event id, or "*" for every event it has no entry for. */
+  readonly on?: Readonly<Record<string, Listener<S>>>;
   /**
    * The shape of this module's slice, from 1 (the default). Bump it whenever the shape changes,
    * with a migration to it and a fixture saved by the old version that must still load.

@@ -601,6 +601,39 @@ The spec is [specs/editor-problems.md](specs/editor-problems.md). Project-format
 - **The schemas check a record's shape only.** References, conditions written as text and asset files need `eb validate` or the editor. VS Code's support for draft 2020-12 is partial by its own docs; the schemas pass through its JSON language service in a test, but not yet through VS Code itself.
 - **`.vscode/settings.json` must be plain JSON** for `eb schemas` to change it, since a rewrite would lose comments. With comments, it changes nothing and prints the entries to add by hand.
 
+### D36. Trigger sheets are records of rows; flags are declared records; Logic is the phone's fourth tab; the editor offers the engine's own events and effects. LOCKED, 2026-10-18 (Evan's calls, M3.1)
+
+**Decision.**
+- **A sheet is a record** (Evan's call): `records/sheet/<id>.json`, an ordered list of rows. Each row has an `id`, an optional `note`, `when` (an event and, optionally, values its arguments must have), an optional `if` (a condition), `do` (a list of effects) and an optional `once`. Rows run in the order written, sheets in id order. A row fires every time its event happens and its condition holds; a `once` row fires the first time only.
+- **Flags are declared** (Evan's call): `records/flag/<id>.json`, on or off, or with `number`, a whole number with a start and bounds. An on/off flag starts off. The effects `set-flag` and `add-to-flag` change them; the facts `flag.on(flag)` and `flag.number(flag)` read them. A misspelled flag is a reference to a record that doesn't exist (E005 in an effect, E013 in a condition). The lint warns of a flag set but never read (W108), read but never set (W109), or never named at all (W110).
+- **The phone's tab bar is Project, Records, Assets, Logic, Problems, Console** (Evan's call). Desktop and tablet keep Logic where it was.
+- **The editor offers the engine's own events and effects** (Evan's call): `flag/changed`, `sheet/fired`, `set-flag`, `add-to-flag` and `roll`, and each kit's as kits land. A row naming a game's own event or effect is kept as written and edited as JSON. Without `--types`, `eb validate` and the editor accept such names as written; with `--types`, an event or effect the game doesn't have is an error.
+
+Evan chose on 2026-10-18, from these options:
+- sheets: a record per sheet, a record per row, or a `logic/` folder of their own;
+- flags: declared records, flags by name with nothing declared (as rule-or-drool has them), or no flags until the kits;
+- the phone: a sixth tab, Logic in place of Console, or no Logic tab, with sheets opened from the Records panel;
+- the catalogue: the engine's own for now, or an `eb catalog --game` command writing a game's events, facts and effects into the project.
+
+The spec is [specs/triggers.md](specs/triggers.md).
+
+**How it works** (not among the calls above):
+- **Events are declared beats.** A module lists the beats content may react to, with typed arguments, and the kernel checks each one raised. Listeners hear an event when the work that raised it finishes: the action, an attempt, or another listener. So a row reacting to a timer runs at the timer's tick, and a row's consequences run before the next row. Chains more than 64 deep throw, as a row raising its own event would.
+- **A row's effects run as one attempt,** like a timer's: a row that refuses is undone, with a `sheet/refused` beat, and the player's action stands. A refused `once` row is not used up.
+- **Engine types.** `flag` is a type file built into the engine, so its forms and table work as a project's own types do. `sheet` is a zod type, with its own editor. Neither name can be used by a project's `types/` (E017) or a game's code.
+- **Effect fields.** `effect()` marks a field that holds an effect, as `condition()` marks a condition. Validation checks it against the effects known: the engine's own without `--types`, or the game's `effects` export with it.
+
+**Why.**
+- **A record per sheet.** Sheets get used-by, the Records table, zips and packs as any record does, and one file holds the rows whose order matters. A file per row would put that order in numbers spread across files.
+- **Declared flags.** A flag named in content is checked like any reference, so a typo is an error where it is written, not a lint warning found later.
+- **Events after the work.** Handing an event over in the middle of an effect would run content while that effect's module is half-way through its change. Waiting for the whole action would run a timer's consequences at the end of a long wait, not when it was due (time.md).
+
+**Cost.**
+- **Nothing in a data-only project runs before Play (Phase 4).** Sheets run in tests and `eb sim`, through salvage run.
+- **Previews don't follow events.** A preview shows what an effect does, not what rows do in answer to it, so a row that rolls in answer to a choice is not in that choice's preview.
+- **A renamed once row fires again** in a save made before the rename, since the save keeps which rows have fired by id.
+- **A flag read only by a game's code** warns as set but never read (W108): the lint sees content, not code.
+
 ---
 
 ## Open

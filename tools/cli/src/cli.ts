@@ -25,9 +25,11 @@ const USAGE = `Usage:
          [--max-turns <n>] [--golden <file> [--update]] [--json]
 
 <project> is a project folder or a .zip of one. --types names a JS or TS module whose
-recordTypes export lists the record types to check against, and whose facts export (or modules
-export) gives the facts to check conditions against. build writes the content pack to --out, or
-to <project id>.pack.json in the current folder.
+recordTypes export lists the record types to check against; whose facts and events exports (or
+modules export) give the facts conditions and the events trigger rows are checked against; and
+whose effects export lists its effects' schemas. Without --types, content is checked against the
+engine's own facts, events and effects, and any other is taken as written. build writes the
+content pack to --out, or to <project id>.pack.json in the current folder.
 
 schemas writes each record type's JSON Schema into the folder's .vscode/eb-schemas/ and maps
 records/<type>/*.json to them in .vscode/settings.json, so an editor checks records edited by
@@ -71,8 +73,8 @@ async function main(argv: readonly string[]): Promise<number> {
   if (misplaced) throw new UsageError(`--${misplaced} only applies to eb sim`);
   if (command !== 'build' && values.out !== undefined) throw new UsageError('--out only applies to eb build');
   if (command === 'schemas') return runSchemas(project, values);
-  const { types, facts } = values.types === undefined ? { types: [] } : await loadTypes(values.types);
-  const result = await compileProject(await openProject(project), types, facts ? { facts } : {});
+  const { types, ...catalogues } = values.types === undefined ? { types: [] } : await loadTypes(values.types);
+  const result = await compileProject(await openProject(project), types, catalogues);
   let out: string | undefined;
   if (command === 'build' && result.pack) {
     out = values.out ?? `${result.pack.project.id}.pack.json`;
