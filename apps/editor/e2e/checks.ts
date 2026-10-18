@@ -41,6 +41,12 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
     return found.slice(0, 5);
   }, width);
   expect(offenders, 'elements outside the viewport').toEqual([]);
+  // The editor's shell is the screen's height, its panels scrolling inside it. A page that scrolls
+  // as a whole takes the top bar off a phone's screen, as a long form's hidden labels once did (M3.1).
+  const overflow = await page.evaluate(() =>
+    document.querySelector('.shell') ? document.documentElement.scrollHeight - window.innerHeight : 0,
+  );
+  expect(overflow, 'the page scrolls as a whole, past the shell').toBeLessThanOrEqual(0);
 }
 
 /** Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h". */

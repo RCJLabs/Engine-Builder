@@ -28,7 +28,7 @@ export const layoutFor = (width: number): Layout =>
  * Zones in display order, each with its panels in tab order. The first panel is the default. The
  * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4; the Assets
  * panel (M2.7) sits beside it. A phone's bar holds the panels that do something (D35, Evan's
- * call): World, Logic and Play join it when their phases build them.
+ * call): Logic since M3.1, fourth (D36); World and Play join it when their phases build them.
  */
 export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly PanelId[] }[]> = {
   desktop: [
@@ -40,7 +40,7 @@ export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly Pan
     { zone: 'main', panels: ['records', 'assets', 'world', 'play'] },
     { zone: 'side', panels: ['inspector', 'project', 'problems', 'logic'] },
   ],
-  phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'problems', 'console'] }],
+  phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'logic', 'problems', 'console'] }],
 };
 
 /**

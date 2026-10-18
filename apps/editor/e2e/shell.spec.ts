@@ -14,9 +14,10 @@ test.describe('phone portrait 390×844', () => {
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
     expect(await visiblePanels(page)).toEqual(['project']);
 
-    // The inspector is the sheet's (layout.spec.ts); the placeholders wait for their phases (D35).
+    // The inspector is the sheet's (layout.spec.ts); Logic is fourth since M3.1 (D36), and the
+    // placeholders wait for their phases (D35).
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Problems', 'Console']);
+    await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Logic', 'Problems', 'Console']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 

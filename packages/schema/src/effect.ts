@@ -18,9 +18,9 @@ export const EFFECT_KEY = 'x-eb-effect';
 
 // Any JSON, for an effect's fields. Its own schema checks them, in a pass of its own, so its
 // messages name the effect's fields rather than zod's "Invalid input" for a union with no match.
-const json: z.ZodType<unknown> = z.lazy(() =>
-  z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(json), z.record(z.string(), json)]),
-);
+const json: z.ZodType<unknown> = z
+  .lazy(() => z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(json), z.record(z.string(), json)]))
+  .meta({ id: 'eb-json', description: 'Any JSON value' });
 
 const field = z
   .record(z.string(), json, { error: 'Expected an effect: {"effect": "set-flag", …}' })

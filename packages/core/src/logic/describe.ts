@@ -1,6 +1,7 @@
 import type { Condition, FactCatalog, FactTest, Op } from './types.ts';
 
-const WORDS: Readonly<Record<Op, string>> = {
+/** Each comparison in words, for describe and for facts that word their own tests. */
+export const OP_WORDS: Readonly<Record<Op, string>> = {
   '==': 'is',
   '!=': 'is not',
   '<': 'is less than',
@@ -63,5 +64,5 @@ function test(condition: FactTest, catalog: FactCatalog): string {
   // "night", not "night is true".
   if (typeof value === 'boolean' && (op === '==' || op === '!='))
     return value === (op === '==') ? subject : `not ${subject}`;
-  return `${subject} ${WORDS[op]} ${String(value)}`;
+  return `${subject} ${OP_WORDS[op]} ${String(value)}`;
 }

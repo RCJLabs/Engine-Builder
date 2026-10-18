@@ -4,6 +4,7 @@
  * bounds. The slice holds only the flags whose value differs from their start, so a content
  * update to a start reaches the games that never changed that flag.
  */
+import { OP_WORDS } from '../logic/describe.ts';
 import type { Domain } from '../logic/types.ts';
 import type { RecordStore } from '../records.ts';
 import { defineModule, type FactView, type ModuleContext, type PreviewContext } from '../sim/module.ts';
@@ -138,6 +139,8 @@ export const flagModule = defineModule<FlagSlice>({
       args: FLAG_ARG,
       domain: { type: 'int' },
       label: 'flag',
+      describe: (test) =>
+        test.op === undefined ? undefined : `${String(test.args?.flag)} ${OP_WORDS[test.op]} ${String(test.value)}`,
       read: (view, { flag }) => {
         const value = read(view, flag);
         return typeof value === 'number' ? value : undefined;

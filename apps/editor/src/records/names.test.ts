@@ -1,5 +1,6 @@
 import { memorySource } from '@eb/compiler';
 import type { TypeFile } from '@eb/schema';
+import { SHEET_TYPE_FILE } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
@@ -68,6 +69,9 @@ describe('describePath', () => {
     expect(describePath(gladiator, '/school')).toBe('School');
     expect(describePath(gladiator, '/kit/gladius')).toBe('Weapons carried: gladius');
     expect(describePath(gladiator, '/skills/1')).toBe('Skills, item 2');
+    // A sheet's places, by its layout's type file (M3.1).
+    expect(describePath(SHEET_TYPE_FILE, '/rows/0/when/event')).toBe('Rows, item 1: When: Event');
+    expect(describePath(SHEET_TYPE_FILE, '/rows/1/do/0/flag')).toBe('Rows, item 2: Do, item 1: flag');
     expect(describePath(gladiator, '/record/wins')).toBe('Wins and losses: Wins');
     expect(describePath(gladiator, '/fights')).toBe('Fights when');
     // What the type doesn't describe reads as the path.

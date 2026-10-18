@@ -1,5 +1,5 @@
 export { type CheckOptions, checkCondition } from './check.ts';
-export { describeCondition } from './describe.ts';
+export { describeCondition, OP_WORDS } from './describe.ts';
 export { compare, evaluate, type FactReader } from './evaluate.ts';
 export { ConditionSyntaxError } from './lexer.ts';
 export { logicModule, type RollEffect, type RollOutcome, type RollRow, rollTable } from './module.ts';

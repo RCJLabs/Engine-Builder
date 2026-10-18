@@ -1,7 +1,8 @@
-import { pointerSegment } from '@eb/core';
+import { pointerSegment, SHEET } from '@eb/core';
 import type { DataType, Diagnostic } from '@eb/schema';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
+import { SheetRows } from '../logic/SheetRows.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { duplicateRecord } from '../records/actions.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
@@ -200,16 +201,13 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
           remove={(key) => api.update([key], () => undefined, `Remove “${key}”`)}
           canEdit={canEdit}
         />
-        {fields.map(([name, def]) => (
-          <FieldView
-            key={name}
-            label={labelOf(name, def)}
-            def={def}
-            info={def}
-            path={[name]}
-            value={typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined}
-          />
-        ))}
+        {fields.map(([name, def]) => {
+          const held =
+            typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;
+          // A sheet's rows get the sheet editor (M3.1); its type file only sketches them.
+          if (type === SHEET && name === 'rows') return <SheetRows key={name} value={held} />;
+          return <FieldView key={name} label={labelOf(name, def)} def={def} info={def} path={[name]} value={held} />;
+        })}
         <UsedBy project={project} type={type} id={id} />
       </section>
     </FormContext.Provider>

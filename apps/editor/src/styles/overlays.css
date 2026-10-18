@@ -141,7 +141,9 @@
   background: var(--muted);
 }
 
+/* Positioned, as .zone-body is: see there. */
 .sheet-body {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;
