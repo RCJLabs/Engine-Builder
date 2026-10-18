@@ -57,8 +57,8 @@ test('lists what eb validate says, follows edits, and opens each problem where i
   const expected = validate(PLANTED);
   expect(expected.map((said) => said.code).sort()).toEqual(['E001', 'E015', 'E019', 'W101']);
   await importLudus(page, PLANTED);
-  // The dock's tab carries the count, the panel's badge says what kind.
-  await expect(page.getByRole('tab', { name: 'Problems (4)' })).toBeVisible();
+  // The dock's tab carries the count, in its words and its name; the panel's badge says what kind.
+  await expect(page.getByRole('tab', { name: 'Problems (4)' })).toHaveText('Problems (4)');
   const panel = await showProblems(page);
   await expect(panel.getByText('3 errors and 1 warning')).toBeVisible();
   const items = panel.locator('.problem-items > li');
@@ -88,6 +88,37 @@ test('lists what eb validate says, follows edits, and opens each problem where i
   await expect(page.getByRole('region', { name: 'Type Horse' })).toBeVisible();
   await panel.getByRole('button', { name: /E019 / }).click();
   await expect(page.getByRole('region', { name: 'Asset portraits/unlogged.svg' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('focuses the field of the record a problem names, whatever form is open', async ({ page }) => {
+  const errors = watchErrors(page);
+  await importLudus(page, {
+    'records/gladiator/bad.json': JSON.stringify({ ...spiculus, name: 'Bad', might: 'strong' }),
+    'records/gladiator/worse.json': JSON.stringify({ ...spiculus, name: 'Worse', record: { wins: 'many', losses: 0 } }),
+  });
+  const panel = await showProblems(page);
+  await panel.getByRole('button', { name: /E001 .* · Might$/ }).click();
+  await expect(page.getByRole('region', { name: 'Gladiator bad' }).getByLabel('Might', { exact: true })).toBeFocused();
+  // The open form is not the one to focus: the next form shown is.
+  await panel.getByRole('button', { name: /E001 .* · Wins and losses: Wins$/ }).click();
+  await expect(page.getByRole('region', { name: 'Gladiator worse' }).getByLabel('Wins', { exact: true })).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test('draws 200 problems, then the rest on asking', async ({ page }) => {
+  const errors = watchErrors(page);
+  const many: Record<string, string> = {};
+  for (let i = 0; i < 201; i++) {
+    many[`records/gladiator/g${i}.json`] = JSON.stringify({ ...spiculus, name: `G ${i}`, might: 'strong' });
+  }
+  await importLudus(page, many);
+  const panel = await showProblems(page);
+  const items = panel.locator('.problem-items > li');
+  await expect(panel.getByText('201 in all')).toBeVisible();
+  await expect(items).toHaveCount(200);
+  await panel.getByRole('button', { name: 'Show 1 more' }).click();
+  await expect(items).toHaveCount(201);
   expect(errors).toEqual([]);
 });
 

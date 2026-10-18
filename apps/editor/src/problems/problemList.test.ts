@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
 import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
-import { countProblems, countsText, projectProblems, tally } from './collect.ts';
+import { badgeText, countProblems, countsText, projectProblems, tally } from './collect.ts';
 import { ALL_PROBLEMS, fileTitle, groupProblems, placeOf, shownGroups, whereOf } from './problemList.ts';
 
 const ludus = () => readFixture(FIXTURE_LUDUS);
@@ -152,6 +152,9 @@ describe('the panel’s view', () => {
     expect(shown({ search: 'spiculus might' })).toEqual(['E001']);
     expect(shown({ search: 'E020' })).toEqual(['E020']);
     expect(shown({ search: 'nothing like this' })).toEqual([]);
+    // A file none of whose problems are shown is left out, not listed empty.
+    const e020 = editor.find((d) => d.code === 'E020');
+    expect(shownGroups(groups, { ...ALL_PROBLEMS, search: 'E020' }, catalog).map((g) => g.file)).toEqual([e020?.file]);
   });
 
   it('counts errors and warnings in words, the badge’s tally the same without listing them', async () => {
@@ -162,5 +165,9 @@ describe('the panel’s view', () => {
     expect(countsText(counts)).toBe(`${counts.errors} errors and 4 warnings`);
     expect(countsText({ errors: 1, warnings: 0 })).toBe('1 error');
     expect(countsText({ errors: 0, warnings: 0 })).toBe('No problems');
+    expect(countsText({ errors: 0, warnings: 1 })).toBe('1 warning');
+    expect(badgeText(counts)).toBe(String(counts.errors + 4));
+    expect(badgeText({ errors: 0, warnings: 0 })).toBeNull();
+    expect(badgeText(null)).toBeNull();
   });
 });

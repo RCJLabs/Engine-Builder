@@ -1,7 +1,7 @@
 import { QUALIFIED_REF_PATTERN, RECORD_ID_PATTERN } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { actor, item, lootTable } from '../test/samples.ts';
-import { defineRecordType, recordJsonSchema, z } from './index.ts';
+import { defineRecordType, FIELD_KINDS, recordJsonSchema, typeFileJsonSchema, z } from './index.ts';
 
 describe('recordJsonSchema', () => {
   it('exports a record type as draft 2020-12 with its id, title and description', () => {
@@ -55,5 +55,21 @@ describe('recordJsonSchema', () => {
     });
     const schema = recordJsonSchema(described);
     expect([schema.title, schema.description]).toEqual(['Note', 'A line in the log.']);
+  });
+});
+
+describe('typeFileJsonSchema', () => {
+  it('exports the type file format, strict as the format is, with every kind a field can be', () => {
+    const schema = typeFileJsonSchema();
+    expect(schema).toMatchObject({
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $id: 'urn:eb:type-file',
+      title: 'Type file',
+      type: 'object',
+      required: ['title', 'fields'],
+      additionalProperties: false,
+    });
+    const text = JSON.stringify(schema);
+    for (const kind of FIELD_KINDS) expect(text).toContain(`"const":"${kind}"`);
   });
 });

@@ -39,6 +39,12 @@ export function tally(catalog: Catalog, index: RecordIndex | null): ProblemCount
   return { errors, warnings };
 }
 
+/** The Problems tab's badge: how many, or nothing when there are none. */
+export function badgeText(counts: ProblemCounts | null): string | null {
+  const total = counts ? counts.errors + counts.warnings : 0;
+  return total > 0 ? String(total) : null;
+}
+
 /** "2 errors and 1 warning", "No problems". */
 export function countsText({ errors, warnings }: ProblemCounts): string {
   const said = [

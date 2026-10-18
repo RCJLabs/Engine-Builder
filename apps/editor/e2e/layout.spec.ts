@@ -145,6 +145,31 @@ test.describe('dock, desktop 1280×800', () => {
     expect(errors).toEqual([]);
   });
 
+  test('puts the panels a saved layout lacks beside the panels they go with', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('./');
+    await docked(page);
+    await runCommand(page, 'logic panel');
+    await expect.poll(() => savedGroups(page)).toEqual(ids(FIRST_LAYOUT));
+    // The layout as an editor before M2.7 and M2.8 would have saved it: no Assets, no Problems.
+    await page.evaluate((key) => {
+      type Node = { type: 'leaf'; data: { views: string[] } } | { type: 'branch'; data: Node[] };
+      const gone = ['assets', 'problems'];
+      const saved = JSON.parse(localStorage.getItem(key) ?? '');
+      for (const id of gone) delete saved.layout.panels[id];
+      const drop = (node: Node): void => {
+        if (node.type === 'leaf') node.data.views = node.data.views.filter((view) => !gone.includes(view));
+        else node.data.forEach(drop);
+      };
+      drop(saved.layout.grid.root);
+      localStorage.setItem(key, JSON.stringify(saved));
+    }, LAYOUT_KEY);
+    await page.reload();
+    await docked(page);
+    expect(await groups(page)).toEqual(['Project+Logic', 'Records+World+Play+Assets', 'Inspector', 'Console+Problems']);
+    expect(errors).toEqual([]);
+  });
+
   test('falls back to fixed zones when the dock’s code can’t load', async ({ page }) => {
     await page.route('**/assets/desktopDock-*', (route) => route.abort());
     await page.goto('./');

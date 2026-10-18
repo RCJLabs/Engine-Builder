@@ -1,4 +1,5 @@
-import { badgeText, problemCount } from './count.ts';
+import { badgeText } from './collect.ts';
+import { problemCount } from './count.ts';
 
 /** How many problems the open project has, on the Problems tab: red while any is an error (M2.8). */
 export function ProblemBadge() {

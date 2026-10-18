@@ -1,8 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { FIELD_KINDS } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { getLanguageService, TextDocument } from 'vscode-json-languageservice';
 import { FIXTURE_LUDUS } from '../../../packages/compiler/test/fixture.ts';
@@ -28,9 +29,25 @@ function ludus(changes: Record<string, string> = {}): string {
   return dir;
 }
 
+/** The ludus fixture's records and project.json, with no types/. */
+function bare(changes: Record<string, string> = {}): string {
+  const dir = mkdtempSync(join(tmpdir(), 'eb-schemas-'));
+  cpSync(join(FIXTURE_LUDUS, 'project.json'), join(dir, 'project.json'));
+  cpSync(join(FIXTURE_LUDUS, 'records'), join(dir, 'records'), { recursive: true });
+  for (const [path, content] of Object.entries(changes)) {
+    mkdirSync(join(dir, path, '..'), { recursive: true });
+    writeFileSync(join(dir, path), content);
+  }
+  return dir;
+}
+
 const read = (dir: string, path: string) => readFileSync(join(dir, path), 'utf8');
 const entry = (type: string) => ({ fileMatch: [`**/records/${type}/*.json`], url: `./${SCHEMAS}/${type}.json` });
-const LUDUS_ENTRIES = ['gladiator', 'school', 'weapon'].map(entry);
+const TYPE_FILES = { fileMatch: ['**/types/*.json'], url: `./${SCHEMAS}/_type-file.json` };
+const LUDUS_ENTRIES = [TYPE_FILES, ...['gladiator', 'school', 'weapon'].map(entry)];
+const WROTE = `Wrote the schemas of type files and of 3 record types (gladiator, school, weapon) to ${SCHEMAS}/`;
+const NO_TYPE =
+  'No schema for the records of gladiator, school, weapon: no type defines them. Pass --types <module>, or add types/<type>.json.';
 
 /** Every file under .vscode, by path, to compare one run with the next. */
 function vscodeFiles(dir: string): Record<string, string> {
@@ -50,10 +67,16 @@ describe('eb schemas', () => {
     const dir = ludus();
     expect(eb(['schemas', dir])).toEqual({
       code: 0,
-      out: `Wrote 3 schemas to ${SCHEMAS}/ (gladiator, school, weapon) and mapped them in ${SETTINGS}.\n`,
+      out: `${WROTE} and mapped them in ${SETTINGS}.\n`,
       err: '',
     });
-    expect(readdirSync(join(dir, SCHEMAS))).toEqual(['gladiator.json', 'school.json', 'weapon.json']);
+    expect(readdirSync(join(dir, SCHEMAS))).toEqual([
+      '_type-file.json',
+      'gladiator.json',
+      'school.json',
+      'weapon.json',
+    ]);
+    expect(JSON.parse(read(dir, `${SCHEMAS}/_type-file.json`))).toMatchObject({ $id: 'urn:eb:type-file' });
     expect(JSON.parse(read(dir, `${SCHEMAS}/school.json`))).toMatchObject({
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       $id: 'urn:eb:record:school',
@@ -78,16 +101,39 @@ describe('eb schemas', () => {
     const dir = ludus({ [`${SCHEMAS}/horse.json`]: '{}', [`${SCHEMAS}/notes.md`]: 'Mine.' });
     const run = eb(['schemas', dir]);
     expect(run.out).toContain(`Removed ${SCHEMAS}/horse.json: the project has no type horse now.\n`);
-    expect(readdirSync(join(dir, SCHEMAS))).toEqual(['gladiator.json', 'notes.md', 'school.json', 'weapon.json']);
+    expect(readdirSync(join(dir, SCHEMAS))).toEqual([
+      '_type-file.json',
+      'gladiator.json',
+      'notes.md',
+      'school.json',
+      'weapon.json',
+    ]);
+  });
+
+  it('takes out its schemas and entries when the types are gone, keeping the other settings', () => {
+    const dir = ludus({ [SETTINGS]: JSON.stringify({ 'editor.tabSize': 4 }) });
+    eb(['schemas', dir]);
+    rmSync(join(dir, 'types'), { recursive: true });
+    expect(eb(['schemas', dir]).out).toBe(
+      [
+        `No record types, so no schemas; took eb's entries out of ${SETTINGS}.`,
+        `Removed ${SCHEMAS}/_type-file.json: the project has no type files now.`,
+        `Removed ${SCHEMAS}/gladiator.json: the project has no type gladiator now.`,
+        `Removed ${SCHEMAS}/school.json: the project has no type school now.`,
+        `Removed ${SCHEMAS}/weapon.json: the project has no type weapon now.`,
+        NO_TYPE,
+        '',
+      ].join('\n'),
+    );
+    expect(JSON.parse(read(dir, SETTINGS))).toEqual({ 'editor.tabSize': 4, 'json.schemas': [] });
+    expect(readdirSync(join(dir, SCHEMAS))).toEqual([]);
   });
 
   it('changes nothing when run again', () => {
     const dir = ludus();
     eb(['schemas', dir]);
     const first = vscodeFiles(dir);
-    expect(eb(['schemas', dir]).out).toBe(
-      `Wrote 3 schemas to ${SCHEMAS}/ (gladiator, school, weapon); ${SETTINGS} already maps them.\n`,
-    );
+    expect(eb(['schemas', dir]).out).toBe(`${WROTE}; ${SETTINGS} already maps them.\n`);
     expect(vscodeFiles(dir)).toEqual(first);
   });
 
@@ -98,22 +144,22 @@ describe('eb schemas', () => {
     expect(run.out).toContain(
       'No schema for weapon: types/weapon.json has problems (E015 Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition). Fix it, then run eb schemas again.\n',
     );
-    expect(readdirSync(join(dir, SCHEMAS))).toEqual(['gladiator.json', 'school.json']);
-    expect(JSON.parse(read(dir, SETTINGS))['json.schemas']).toEqual([entry('gladiator'), entry('school')]);
+    expect(readdirSync(join(dir, SCHEMAS))).toEqual(['_type-file.json', 'gladiator.json', 'school.json']);
+    expect(JSON.parse(read(dir, SETTINGS))['json.schemas']).toEqual([TYPE_FILES, entry('gladiator'), entry('school')]);
   });
 
   it('says which records no type defines, and writes nothing when no type does', () => {
-    const bare = mkdtempSync(join(tmpdir(), 'eb-schemas-'));
-    cpSync(join(FIXTURE_LUDUS, 'project.json'), join(bare, 'project.json'));
-    cpSync(join(FIXTURE_LUDUS, 'records'), join(bare, 'records'), { recursive: true });
-    expect(eb(['schemas', bare]).out).toBe(
-      [
-        'No record types, so no schemas.',
-        'No schema for the records of gladiator, school, weapon: no type defines them. Pass --types <module>, or add types/<type>.json.',
-        '',
-      ].join('\n'),
-    );
-    expect(existsSync(join(bare, '.vscode'))).toBe(false);
+    const dir = bare();
+    expect(eb(['schemas', dir]).out).toBe(['No record types, so no schemas.', NO_TYPE, ''].join('\n'));
+    expect(existsSync(join(dir, '.vscode'))).toBe(false);
+  });
+
+  it("leaves settings as they are when it has nothing to map and they map nothing of eb's", () => {
+    const mine = '{\n    "editor.tabSize": 4\n}\n';
+    const dir = bare({ [SETTINGS]: mine });
+    expect(eb(['schemas', dir]).code).toBe(0);
+    expect(read(dir, SETTINGS)).toBe(mine);
+    expect(existsSync(join(dir, SCHEMAS))).toBe(false);
   });
 
   it('leaves settings with comments as they are, writes nothing, and prints what to add', () => {
@@ -130,12 +176,22 @@ describe('eb schemas', () => {
     expect(existsSync(join(dir, SCHEMAS))).toBe(false);
   });
 
+  it('leaves settings that are no JSON object as they are, and writes nothing', () => {
+    const dir = ludus({ [SETTINGS]: '[]' });
+    const run = eb(['schemas', dir]);
+    expect(run).toMatchObject({ code: 2, out: '' });
+    expect(run.err).toContain(`${SETTINGS} isn't a JSON object, so eb schemas leaves it as it is`);
+    expect(read(dir, SETTINGS)).toBe('[]');
+    expect(existsSync(join(dir, SCHEMAS))).toBe(false);
+  });
+
   it('prints JSON for machines', () => {
     const run = eb(['schemas', ludus(), '--json']);
     expect(run.code).toBe(0);
     expect(JSON.parse(run.out)).toEqual({
       ok: true,
       written: ['gladiator', 'school', 'weapon'],
+      typeFiles: true,
       removed: [],
       skipped: [],
       untyped: [],
@@ -230,5 +286,17 @@ describe("the schemas in VS Code's JSON language service", () => {
       '"secutor"',
       '"thraex"',
     ]);
+  });
+
+  it('find no problems in the type files eb validate passes, and mark what a type file must not hold', async () => {
+    for (const name of readdirSync(join(dir, 'types'))) expect(await code.problems(`types/${name}`)).toEqual([]);
+    const horse = { title: 'Horse', fields: { speed: { kind: 'int', min: 'slow' } }, colour: 'bay' };
+    expect(await code.problems('types/horse.json', JSON.stringify(horse))).toEqual(['"slow"', '"colour"']);
+  });
+
+  it('offer every kind a field can be, those that need more than a kind included', async () => {
+    const text = '{ "title": "Horse", "fields": { "speed": { "kind": "" } } }';
+    const offered = await code.offers('types/horse.json', text, text.indexOf('""') + 1);
+    expect(offered?.sort()).toEqual(FIELD_KINDS.map((kind) => `"${kind}"`).sort());
   });
 });

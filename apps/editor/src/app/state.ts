@@ -36,6 +36,17 @@ export function note(text: string, level: LogLevel = 'info'): void {
 
 export const noteError = (text: string): void => note(text, 'error');
 
+/** How long an error stays on the toast (M2.8). It stays in the console after. */
+export const ERROR_SHOWN_MS = 8000;
+
+/** Takes `line` off the toast after `after` ms, unless a newer error has taken its place. Returns the cancel. */
+export function expireError(line: LogLine, after = ERROR_SHOWN_MS): () => void {
+  const timer = setTimeout(() => {
+    if (lastError.value === line) lastError.value = null;
+  }, after);
+  return () => clearTimeout(timer);
+}
+
 /** Keeps `layout` in step with the window, including rotation and split-screen resizes. */
 export function watchLayout(): void {
   const update = (): void => {

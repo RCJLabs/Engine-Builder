@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { lastError, log, note, noteError } from './state.ts';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ERROR_SHOWN_MS, expireError, lastError, log, note, noteError } from './state.ts';
 
 beforeEach(() => {
   log.value = [];
@@ -48,5 +48,41 @@ describe('the console log (M2.8)', () => {
     expect(lastError.value?.count).toBe(2);
     note('Saved.');
     expect(lastError.value?.text).toBe('Couldn’t save.');
+  });
+});
+
+describe('the error toast’s time (M2.8)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('takes an error off the toast after 8 s', () => {
+    noteError('Couldn’t save.');
+    const line = lastError.value;
+    if (!line) throw new Error('no error held');
+    expireError(line);
+    vi.advanceTimersByTime(ERROR_SHOWN_MS - 1);
+    expect(lastError.value).toBe(line);
+    vi.advanceTimersByTime(1);
+    expect(lastError.value).toBeNull();
+    expect(ERROR_SHOWN_MS).toBe(8000);
+  });
+
+  it('leaves a newer error up, and stops when cancelled', () => {
+    noteError('Couldn’t save.');
+    const first = lastError.value;
+    if (!first) throw new Error('no error held');
+    expireError(first);
+    noteError('Couldn’t rename.');
+    vi.advanceTimersByTime(ERROR_SHOWN_MS);
+    expect(lastError.value?.text).toBe('Couldn’t rename.');
+    const second = lastError.value;
+    if (!second) throw new Error('no error held');
+    expireError(second)();
+    vi.advanceTimersByTime(ERROR_SHOWN_MS);
+    expect(lastError.value).toBe(second);
   });
 });
