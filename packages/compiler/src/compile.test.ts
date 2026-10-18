@@ -238,8 +238,25 @@ describe('the code table', () => {
         'types/notes.md': '',
       }),
     );
+    // Assets (M2.7): a file the log leaves out, a refused licence, an entry of the wrong shape for a
+    // file that isn't there, and a stand-in.
+    const day = '2026-10-18';
+    const assets = await compile(
+      changed({
+        'assets/a.png': 'png',
+        'assets/b.png': 'png',
+        'assets/hero.svg': '<svg/>',
+        'assets/assets.json': JSON.stringify({
+          files: {
+            'b.png': { licence: 'CC-BY-NC-4.0', source: 'a forum', date: day },
+            'gone.png': { licence: 'own', source: 'drawn here', date: 'yesterday' },
+            'hero.svg': { licence: 'own', source: 'the editor', date: day, standIn: true },
+          },
+        }),
+      }),
+    );
     const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions, types].flatMap((r) => r.diagnostics.map((d) => d.code)),
+      [broken, duplicate, newer, invalid, conditions, types, assets].flatMap((r) => r.diagnostics.map((d) => d.code)),
     );
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     expect([...seen, 'E004'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());

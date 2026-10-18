@@ -117,6 +117,26 @@ describe('typeFromFile', () => {
     ]);
   });
 
+  it('says which records hold each asset path, files that aren’t there included (M2.7)', () => {
+    const value = { ...spiculus, portrait: 'portraits/spiculus.png' };
+    const { assetsUsedBy } = validateRecords(
+      types,
+      [
+        ...base,
+        { type: 'gladiator', id: 'spiculus', file: 'records/gladiator/spiculus.json', value },
+        { type: 'gladiator', id: 'crixus', value: { ...value, portrait: 'portraits/crixus.png' } },
+        { type: 'gladiator', id: 'odd', value: { ...value, portrait: '../odd.png' } },
+      ],
+      { assets: new Set(['portraits/spiculus.png']) },
+    );
+    expect(Object.fromEntries(assetsUsedBy)).toEqual({
+      'portraits/crixus.png': [{ from: 'gladiator:crixus', path: '/portrait' }],
+      'portraits/spiculus.png': [
+        { from: 'gladiator:spiculus', file: 'records/gladiator/spiculus.json', path: '/portrait' },
+      ],
+    });
+  });
+
   it('takes conditions as text or as trees', () => {
     expect(lines({ ...spiculus, fights: 'arena.day and not crowd.angry' })).toEqual([]);
     expect(lines({ ...spiculus, fights: { fact: 'arena.day' } })).toEqual([]);

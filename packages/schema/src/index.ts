@@ -29,6 +29,21 @@ export {
 export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema } from './jsonSchema.ts';
 export { packValue } from './packValue.ts';
+export {
+  checkProvenance,
+  isDay,
+  kindOfAsset,
+  LICENCES,
+  type Licence,
+  licenceOf,
+  licenceProblem,
+  type Provenance,
+  type ProvenanceCode,
+  type ProvenanceIssue,
+  type ProvenanceLog,
+  provenanceLogSchema,
+  provenanceSchema,
+} from './provenance.ts';
 export { defineRecordType, type RecordType, type RecordTypeDefinition, SchemaError } from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
 export { cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';

@@ -22,11 +22,16 @@ export const DIAGNOSTIC_CODES = {
   E016: 'A type file names a record type the project does not have',
   E017: 'A type file is misplaced, misnamed, or names a type the game already defines',
   E018: 'An asset field names a file that is not in assets/',
+  E019: 'A file under assets/ has no provenance in assets/assets.json',
+  E020: "An asset's licence isn't one the engine accepts, or what it asks for isn't logged",
+  E021: "assets/assets.json doesn't match the provenance log's format",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
   W104: 'The lint could not tell whether a condition can be true',
   W105: 'A file under types/ that the compiler ignores',
+  W106: 'assets/assets.json logs a file that is not in assets/',
+  W107: 'A stand-in made by the editor is still in assets/',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

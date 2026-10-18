@@ -1,5 +1,6 @@
 import { createPack, type Pack, type PackProject } from '@eb/core';
 import {
+  checkProvenance,
   compareDiagnostics,
   type DataType,
   type Diagnostic,
@@ -13,7 +14,7 @@ import {
   validateRecords,
 } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
-import { ASSETS_DIR, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
+import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
 import { checkManifest } from './manifest.ts';
 import type { ProjectSource } from './source.ts';
 import { readTypes } from './types.ts';
@@ -63,6 +64,7 @@ export async function compileProject(
   const project = await readProject(source, report);
   const known = await readTypes(source, types, report);
   const assets = await readAssets(source);
+  await checkAssetsLog(source, assets, report);
   const records = (await readRecords(source, report)).map((record) =>
     known.unchecked.has(record.type) ? { ...record, unreadable: true } : record,
   );
@@ -96,10 +98,28 @@ async function readProject(source: ProjectSource, report: (r: Report) => void): 
   return project;
 }
 
-/** The files under assets/, as paths inside it, for asset fields to name. */
+/** The files under assets/, as paths inside it, for asset fields to name. The provenance log isn't one. */
 async function readAssets(source: ProjectSource): Promise<ReadonlySet<string>> {
   const prefix = `${ASSETS_DIR}/`;
-  return new Set((await source.files(ASSETS_DIR)).map((path) => path.slice(prefix.length)));
+  const files = (await source.files(ASSETS_DIR)).filter((path) => path !== ASSETS_LOG);
+  return new Set(files.map((path) => path.slice(prefix.length)));
+}
+
+/**
+ * The assets' provenance (D34): every file logged, under a licence that passes. A log that isn't
+ * JSON is one E007, not an E019 for every file it would have covered.
+ */
+async function checkAssetsLog(source: ProjectSource, assets: ReadonlySet<string>, report: (r: Report) => void) {
+  const bytes = await source.read(ASSETS_LOG);
+  const parsed = bytes === undefined ? undefined : parseJsonFile(bytes);
+  if (parsed && !parsed.ok) {
+    report({ code: 'E007', message: parsed.message, file: ASSETS_LOG, path: '' });
+    return;
+  }
+  for (const issue of checkProvenance(parsed?.value, assets)) {
+    const file = issue.asset === undefined ? ASSETS_LOG : `${ASSETS_DIR}/${issue.asset}`;
+    report({ code: issue.code, message: issue.message, file, path: issue.path });
+  }
 }
 
 // Any order will do: validation's output doesn't depend on it, and the pack hash is canonical.

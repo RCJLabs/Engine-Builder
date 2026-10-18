@@ -36,6 +36,8 @@ export interface IndexedRecord {
   readonly checked: boolean;
   readonly problems: readonly Diagnostic[];
   readonly refs: readonly Ref[];
+  /** The files under assets/ its asset fields name (M2.7): `to` is the path inside assets/. */
+  readonly assets: readonly Ref[];
 }
 
 export interface RecordIndex {
@@ -46,11 +48,13 @@ export interface RecordIndex {
    * References to records that aren't there are kept, so a deleted record's users can be found.
    */
   readonly usedBy: ReadonlyMap<string, readonly Usage[]>;
+  /** What names each file under assets/ (M2.7), by its path inside assets/, files that aren't there included. */
+  readonly assetUsers: ReadonlyMap<string, readonly Usage[]>;
   /** The types and assets the records were checked against (groundsOf). */
   readonly grounds: string;
 }
 
-export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), grounds: '' };
+export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };
 
 /**
  * What a record's checks depend on besides the records: the sound types' fields and the assets.
@@ -87,7 +91,16 @@ const sameBytes = (a: Uint8Array, b: Uint8Array): boolean => {
 /** A record as its file reads, before it is checked. */
 function readRecord(type: string, id: string, file: string, bytes: Uint8Array, catalog: Catalog): IndexedRecord {
   const parsed = parseJsonFile(bytes);
-  const at = { key: formatRef(type, id), type, id, file, bytes, checked: catalog.types.has(type), refs: [] };
+  const at = {
+    key: formatRef(type, id),
+    type,
+    id,
+    file,
+    bytes,
+    checked: catalog.types.has(type),
+    refs: [],
+    assets: [],
+  };
   return parsed.ok
     ? { ...at, value: parsed.value, problems: [] }
     : { ...at, value: undefined, unreadable: parsed.message, problems: [] };
@@ -139,7 +152,7 @@ export async function updateIndex(
   }
   const grounds = groundsOf(catalog);
   check(records, grounds === before.grounds ? dirty : new Set(records.keys()), catalog);
-  return { records, usedBy: usedByOf(records), grounds };
+  return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };
 }
 
 /**
@@ -154,12 +167,19 @@ function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, 
     const checks = dirty.has(record.key) && record.checked && record.unreadable === undefined;
     inputs.push(checks ? { type, id, file, value } : { type, id, file, value: undefined, unreadable: true });
   }
-  const { diagnostics, usedBy } = validateRecords(catalog.recordTypes, inputs, { assets: new Set(catalog.assets) });
+  const { diagnostics, usedBy, assetsUsedBy } = validateRecords(catalog.recordTypes, inputs, {
+    assets: new Set(catalog.assets),
+  });
   const problems = new Map<string, Diagnostic[]>();
   for (const diagnostic of diagnostics)
     push(problems, formatRef(diagnostic.type ?? '', diagnostic.id ?? ''), diagnostic);
-  const refs = new Map<string, Ref[]>();
-  for (const [to, usages] of usedBy) for (const { from, path } of usages) push(refs, from, { to, path });
+  const byRecord = (used: ReadonlyMap<string, readonly Usage[]>) => {
+    const found = new Map<string, Ref[]>();
+    for (const [to, usages] of used) for (const { from, path } of usages) push(found, from, { to, path });
+    return found;
+  };
+  const refs = byRecord(usedBy);
+  const assets = byRecord(assetsUsedBy);
   for (const key of dirty) {
     const record = records.get(key) as IndexedRecord;
     const checked = record.checked && record.unreadable === undefined;
@@ -167,6 +187,7 @@ function check(records: Map<string, IndexedRecord>, dirty: ReadonlySet<string>, 
       ...record,
       problems: record.unreadable === undefined ? (checked ? (problems.get(key) ?? []) : []) : [unreadable(record)],
       refs: checked ? (refs.get(key) ?? []) : [],
+      assets: checked ? (assets.get(key) ?? []) : [],
     });
   }
 }
@@ -191,11 +212,11 @@ const unreadable = ({ type, id, file, unreadable }: IndexedRecord): Diagnostic =
 const byUsage = (a: Usage, b: Usage) =>
   compareText(a.from, b.from) || compareText(a.path, b.path) || compareText(a.file ?? '', b.file ?? '');
 
-/** "Used by" from every record's references, in validateRecords's order. */
-function usedByOf(records: ReadonlyMap<string, IndexedRecord>): Map<string, readonly Usage[]> {
+/** "Used by" from every record's references, or from the assets they name, in validateRecords's order. */
+function usedByOf(records: ReadonlyMap<string, IndexedRecord>, what: 'refs' | 'assets'): Map<string, readonly Usage[]> {
   const found = new Map<string, Usage[]>();
   for (const record of records.values()) {
-    for (const { to, path } of record.refs) push(found, to, { from: record.key, file: record.file, path });
+    for (const { to, path } of record[what]) push(found, to, { from: record.key, file: record.file, path });
   }
   for (const list of found.values()) list.sort(byUsage);
   return found;
@@ -204,6 +225,11 @@ function usedByOf(records: ReadonlyMap<string, IndexedRecord>): Map<string, read
 /** The records that refer to `key`, each once, in order. */
 export const usersOf = (index: RecordIndex, key: string): string[] => [
   ...new Set((index.usedBy.get(key) ?? []).map((usage) => usage.from)),
+];
+
+/** The records whose asset fields name the file at `path` inside assets/, each once, in order (M2.7). */
+export const assetUsersOf = (index: RecordIndex, path: string): string[] => [
+  ...new Set((index.assetUsers.get(path) ?? []).map((usage) => usage.from)),
 ];
 
 /**

@@ -123,7 +123,54 @@ describe('asset fields', () => {
   it('name files under assets/ (E018)', async () => {
     const result = await compile(changed({ 'assets/portraits/spiculus.svg': null }));
     expect(brief(result.diagnostics)).toEqual([
+      'W106 assets/assets.json#/files/portraits~1spiculus.svg: No file assets/portraits/spiculus.svg: the entry can go',
       'E018 records/gladiator/spiculus.json#/portrait: No file assets/portraits/spiculus.svg',
     ]);
+  });
+
+  it('never name the provenance log, which is not an asset', async () => {
+    const spiculus = JSON.parse(ludus()['records/gladiator/spiculus.json'] ?? '{}');
+    const result = await compile(
+      changed({ 'records/gladiator/spiculus.json': JSON.stringify({ ...spiculus, portrait: 'assets.json' }) }),
+    );
+    expect(brief(result.diagnostics)).toEqual([
+      'E001 records/gladiator/spiculus.json#/portrait: Expected an image: .png, .jpg, .jpeg, .webp, .gif, .svg, .avif',
+    ]);
+  });
+});
+
+describe('asset provenance (M2.7, D34)', () => {
+  it('passes the ludus fixture, whose one asset is logged, to the same hash as before', async () => {
+    const result = await compile(ludus());
+    expect(brief(result.diagnostics)).toEqual([]);
+    expect(result.pack?.hash).toBe(LUDUS_HASH);
+  });
+
+  it('reports a file the log leaves out at the file, and the log’s problems in the log', async () => {
+    const result = await compile(
+      changed({
+        'assets/portraits/flamma.png': 'png',
+        'assets/assets.json': JSON.stringify({
+          files: { 'portraits/spiculus.svg': { licence: 'CC-BY-SA-4.0', source: 'a forum', date: '2026-10-18' } },
+        }),
+      }),
+    );
+    expect(brief(result.diagnostics)).toEqual([
+      'E020 assets/assets.json#/files/portraits~1spiculus.svg/licence: Refused: ShareAlike (SA) would bind what is made with it to the same licence',
+      'E019 assets/portraits/flamma.png#: No provenance: log its licence and source',
+    ]);
+    expect(result.pack).toBeNull();
+  });
+
+  it('gives one E007 for a log that isn’t JSON, not an E019 for every asset', async () => {
+    const result = await compile(changed({ 'assets/assets.json': '{ "files": ' }));
+    expect(brief(result.diagnostics)).toEqual([expect.stringMatching(/^E007 assets\/assets\.json#: /)]);
+  });
+
+  it('lets a project with no assets have no log, and a log with no files have no entries', async () => {
+    const result = await compile(
+      changed({ 'assets/portraits/spiculus.svg': null, 'assets/assets.json': '{ "files": {} }' }),
+    );
+    expect(brief(result.diagnostics).filter((d) => !d.startsWith('E018'))).toEqual([]);
   });
 });

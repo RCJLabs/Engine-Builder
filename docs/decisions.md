@@ -541,6 +541,38 @@ The spec is [specs/editor-types.md](specs/editor-types.md). Type-files.md's open
 - **Big steps.** A type of 1,000 records renamed is 2,000 file changes in one step of the command log: its bytes before and after stay in memory until the step leaves the history.
 - **Conditions can be left naming an old id** until the editor knows the game's facts. The rename lists them; it doesn't fix them.
 
+### D34. Assets carry their provenance in `assets/assets.json`; a fixed list of licences passes, OFL for fonts included; an asset with none is an error; the editor makes stand-ins. LOCKED, 2026-10-18 (Evan's calls, M2.7)
+
+**Decision.**
+- **A provenance log, `assets/assets.json`,** with an entry for every file under `assets/`: its licence, where it came from, when, who made it, the tool and prompt for generated art, the hand edits since, and whether it is a stand-in. The architecture named the file at the start.
+- **A fixed list of licences passes** (Evan's call):
+  - CC0 1.0, CC BY 3.0 and 4.0, MIT, Apache-2.0;
+  - public domain, the project's own work, and generated art with its tool and prompt logged;
+  - the SIL Open Font License, for fonts (Evan's call), and the notice file it asks to travel with them (`OFL.txt`).
+
+  Anything else is refused until it is added to the list. NonCommercial, NoDerivatives and ShareAlike licences are refused by name. A licence that asks for credit needs its author.
+- **An asset with no provenance is an error** (Evan's call): the project doesn't build, so `eb validate` and CI refuse it.
+- **Stand-in art** (Evan's call): the editor makes a placeholder image with a name on a colour, logged as a stand-in. A warning lists stand-ins until they are replaced, and replacing one keeps every record that names it.
+
+Evan chose on 2026-10-18, from these options:
+- OFL fonts: allow, or refuse as share-alike;
+- licences: a fixed list, or refuse only NC, ND and SA;
+- an asset with no provenance: an error, or a warning;
+- stand-ins: placeholders the editor makes, or nothing until Phase 4.
+
+The spec is [specs/editor-assets.md](specs/editor-assets.md).
+
+**Why.**
+- **A fixed list.** A licence the engine doesn't know may limit a game in ways NC, ND and SA don't name, such as personal use only. A known licence can be added when it is needed.
+- **OFL.** Its share-alike condition binds the font file alone, not the game that bundles it, and its FAQ names games among the bundling it allows. Nearly every free font, Google Fonts included, is OFL; refusing it would leave few fonts to use.
+- **An error.** CLAUDE.md's rule is that assets carry their provenance. The editor's import always writes it, so only files added by hand, by zip or by a tool meet the error, and they are the ones whose licence is unknown.
+- **One file.** Licences, credits and checks read one place. A file per asset would double the files, and could be left behind when an asset moves.
+
+**Cost.**
+- **Every project with assets needs the log.** The ludus fixture gains one; its content hash is unchanged, since packs hold records only.
+- **Generated art passes on its tool's terms.** The log records the tool and prompt; it can't say whether a tool's terms allow a use.
+- **The list will need additions** as real assets arrive: each is a change to the engine, not a choice in a project.
+
 ---
 
 ## Open
