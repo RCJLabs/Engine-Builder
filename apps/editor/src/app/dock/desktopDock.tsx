@@ -66,11 +66,16 @@ function labelRenderer(): ITabRenderer {
       const title = params.title ?? params.api.title ?? '';
       element.textContent = title;
       // The Problems tab carries its count (M2.8), drawn here rather than set as its title, which
-      // dockview would save as a change to the layout.
+      // dockview would save as a change to the layout. dockview names the tab by its title
+      // (aria-label), which would keep the count from screen readers, so the name follows too.
       if (params.api.id !== 'problems') return;
       stop = effect(() => {
         const count = badgeText(problemCount.value);
-        element.textContent = count ? `${title} (${count})` : title;
+        const text = count ? `${title} (${count})` : title;
+        element.textContent = text;
+        const name = () => element.closest('[role="tab"]')?.setAttribute('aria-label', text);
+        if (element.isConnected) name();
+        else requestAnimationFrame(name);
       });
     },
     dispose: () => stop?.(),

@@ -1,4 +1,5 @@
 import { useUniqueId } from './ids.ts';
+import { CONSOLE_STRIP_ID } from './panelControl.ts';
 import { type LogLine, log, note, noteError } from './state.ts';
 
 /** A line as copied into a bug report: its time, an error said as one, how many times. */
@@ -47,8 +48,14 @@ export function Console({ docked = false }: { docked?: boolean }) {
           Clear
         </button>
       </div>
-      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: the log scrolls, so keyboard users must reach it (axe scrollable-region-focusable) */}
-      <ol class="console-lines" aria-live="polite" aria-label="Console messages" tabIndex={0}>
+      <ol
+        id={docked ? undefined : CONSOLE_STRIP_ID}
+        class="console-lines"
+        aria-live="polite"
+        aria-label="Console messages"
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: the log scrolls, so keyboard users must reach it (axe scrollable-region-focusable)
+        tabIndex={0}
+      >
         {log.value.map((line) => (
           <li key={line.id} class={line.level === 'error' ? 'console-error' : undefined}>
             <time>{line.at}</time> {line.level === 'error' ? <strong>Error: </strong> : null}
