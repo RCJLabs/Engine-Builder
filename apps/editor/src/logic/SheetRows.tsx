@@ -38,7 +38,7 @@ export function SheetRows({ value }: { value: unknown }) {
         const id = isObject(row) && typeof row.id === 'string' ? row.id : '';
         const field = (name: string) => (isObject(row) ? row[name] : undefined);
         return (
-          // biome-ignore lint/suspicious/noArrayIndexKey: two rows can share an id until E024 is fixed
+          // Keyed by place: two rows can share an id until E024 is fixed.
           <fieldset key={i} class="form-group logic-row-form" data-at={pointerOf(at)}>
             <legend class="form-legend">{`Row ${i + 1}${id ? `: ${id}` : ''}`}</legend>
             <WhenField path={[...at, 'when']} value={field('when')} />

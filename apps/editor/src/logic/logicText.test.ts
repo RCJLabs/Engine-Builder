@@ -70,6 +70,7 @@ describe('sheet edits', () => {
     const a = newEffect('roll');
     const b = newEffect('roll');
     expect(a).toEqual(b);
-    expect((a as { outcomes: unknown[] }).outcomes).not.toBe((b as { outcomes: unknown[] }).outcomes);
+    const outcomes = (effect: unknown) => (effect as { outcomes: unknown[] }).outcomes;
+    expect(outcomes(a)).not.toBe(outcomes(b));
   });
 });

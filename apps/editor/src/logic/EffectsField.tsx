@@ -36,8 +36,7 @@ export function EffectsField({ label, path, value }: { label: string; path: Path
       {effects.length > 0 ? (
         <ol class="logic-effect-list">
           {effects.map((effect, i) => (
-            // Keyed by place: moving one moves its values, and the boxes follow them.
-            // biome-ignore lint/suspicious/noArrayIndexKey: an effect has no id of its own
+            // Keyed by place, an effect having no id of its own: moving one moves its values, and the boxes follow them.
             <li key={i} class="logic-effect">
               <EffectItem
                 path={[...path, i]}
@@ -153,7 +152,7 @@ function Roll({ path, value }: { path: Path; value: Record<string, unknown> }) {
     <div class="logic-roll" data-at={pointerOf(at)}>
       <p class="form-help">{`Chances add up to ${total}${total === 100 ? '' : ', and must make 100'}.`}</p>
       {outcomes.map((outcome, k) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: an outcome has no id of its own
+        // Keyed by place, as an outcome has no id of its own.
         <fieldset key={k} class="form-group" data-at={pointerOf([...at, k])}>
           <legend class="form-legend">{`Outcome ${k + 1}`}</legend>
           <FieldView

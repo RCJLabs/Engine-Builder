@@ -137,7 +137,7 @@ function SheetCard({ id, label, record }: { id: string; label: string; record: I
             const when = isObject(row) ? row.when : undefined;
             const said = isObject(row) ? ifText(row.if, ENGINE_FACTS) : undefined;
             return (
-              // biome-ignore lint/suspicious/noArrayIndexKey: two rows can share an id until E024 is fixed
+              // Keyed by place: two rows can share an id until E024 is fixed.
               <li key={i}>
                 <button type="button" class="logic-card" onClick={() => openRow(id, i)}>
                   <span class="logic-row-id">
