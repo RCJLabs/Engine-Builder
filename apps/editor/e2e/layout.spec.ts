@@ -6,7 +6,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 
 const LAYOUT_KEY = 'eb-editor:dock-layout';
-const FIRST_LAYOUT = ['Project+Logic', 'Records+Assets+World+Play', 'Inspector', 'Console'];
+const FIRST_LAYOUT = ['Project+Logic', 'Records+Assets+World+Play', 'Inspector', 'Console+Problems'];
 /** Storage keeps panel ids, which are the tab titles in lower case. */
 const ids = (groups: string[]) => groups.map((group) => group.toLowerCase());
 
@@ -76,7 +76,7 @@ test.describe('dock, desktop 1280×800', () => {
     expect(await groups(page)).toEqual(FIRST_LAYOUT);
 
     await dragTab(page, 'Logic', 'World', 'bottom');
-    const moved = ['Project', 'Records+Assets+World+Play', 'Logic', 'Inspector', 'Console'];
+    const moved = ['Project', 'Records+Assets+World+Play', 'Logic', 'Inspector', 'Console+Problems'];
     await expect.poll(() => groups(page)).toEqual(moved);
     const world = await groupOf(page, 'World').boundingBox();
     const logic = await groupOf(page, 'Logic').boundingBox();
@@ -103,7 +103,7 @@ test.describe('dock, desktop 1280×800', () => {
     await dragTab(page, 'Logic', 'World', 'centre');
     await expect
       .poll(() => groups(page))
-      .toEqual(['Project', 'Records+Assets+World+Play+Logic', 'Inspector', 'Console']);
+      .toEqual(['Project', 'Records+Assets+World+Play+Logic', 'Inspector', 'Console+Problems']);
     expect(await visiblePanels(page)).toEqual(['project', 'logic', 'inspector']);
     expect(errors).toEqual([]);
   });
@@ -131,7 +131,7 @@ test.describe('dock, desktop 1280×800', () => {
     await page.reload();
     await docked(page);
     expect((await groups(page)).join('+').split('+').sort()).toEqual(
-      ['Assets', 'Console', 'Inspector', 'Logic', 'Play', 'Project', 'Records', 'World'].sort(),
+      ['Assets', 'Console', 'Inspector', 'Logic', 'Play', 'Problems', 'Project', 'Records', 'World'].sort(),
     );
 
     await page.evaluate((key) => {
@@ -212,7 +212,7 @@ for (const [width, height] of [
 
       await handle.tap();
       await expect(handle).toHaveAttribute('aria-expanded', 'true');
-      expect(await visiblePanels(page)).toEqual(['world', 'inspector']); // the panel keeps a strip above
+      expect(await visiblePanels(page)).toEqual(['project', 'inspector']); // the panel keeps a strip above
       const open = await page.getByRole('region', { name: 'Inspector' }).boundingBox();
       expect(open && shut && open.height > shut.height * 4).toBe(true);
       await expectNothingOffscreen(page);
@@ -224,7 +224,7 @@ for (const [width, height] of [
       await handle.tap();
       await handle.tap();
       await expect(handle).toHaveAttribute('aria-expanded', 'false');
-      expect(await visiblePanels(page)).toEqual(['world']);
+      expect(await visiblePanels(page)).toEqual(['project']);
       await expect(inspector).toHaveCount(0);
       expect(errors).toEqual([]);
     });
@@ -239,9 +239,9 @@ for (const [width, height] of [
       expect(await smallTargets(page, 'dialog')).toEqual([]);
       await expectNoAxeIssues(page);
 
-      await page.getByRole('option', { name: 'Show the Logic panel' }).tap();
+      await page.getByRole('option', { name: 'Show the Problems panel' }).tap();
       await expect(palette).toBeHidden();
-      await expect(page.getByRole('tab', { name: 'Logic' })).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByRole('tab', { name: 'Problems' })).toHaveAttribute('aria-selected', 'true');
       await expect(page.getByRole('tabpanel')).toBeFocused();
 
       await page.getByRole('button', { name: 'Commands' }).tap();

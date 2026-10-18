@@ -1,0 +1,82 @@
+/* M2.8's Problems panel: each file's problems under its name, each one a button to where it is
+   fixed. Every control is at least 44 px each way. */
+
+.panel[data-panel="problems"] {
+  max-width: none;
+}
+
+.problem-browser {
+  display: grid;
+  gap: 10px;
+}
+
+.problem-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.problem-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.problem-count {
+  margin: 0;
+}
+
+.problem-groups,
+.problem-items {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.problem-groups {
+  gap: 14px;
+}
+
+.problem-group h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.problem-open,
+.problem-text {
+  display: block;
+  width: 100%;
+  min-height: var(--tap);
+  margin: 0;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--text);
+  text-align: start;
+  overflow-wrap: anywhere;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.problem-open {
+  cursor: pointer;
+}
+
+.problem-open:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.problem-severity {
+  font-weight: 600;
+}
+
+.problem-severity.error {
+  color: var(--danger);
+}
+
+.problem-severity.warning {
+  color: var(--warning);
+}

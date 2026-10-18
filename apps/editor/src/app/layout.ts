@@ -4,9 +4,18 @@
  * attribute, so CSS and code can never disagree about which layout is showing.
  */
 export type Layout = 'phone' | 'tablet' | 'desktop';
-export type PanelId = 'project' | 'records' | 'assets' | 'world' | 'inspector' | 'logic' | 'play';
-/** Desktop docks the console too; tablet shows it as a strip and a phone leaves it out. */
-export type DockPanelId = PanelId | 'console';
+export type PanelId =
+  | 'project'
+  | 'records'
+  | 'assets'
+  | 'world'
+  | 'inspector'
+  | 'logic'
+  | 'play'
+  | 'problems'
+  | 'console';
+/** The panels desktop docks: every one. Tablet shows the console as a strip below its zones. */
+export type DockPanelId = PanelId;
 export type ZoneId = 'left' | 'center' | 'right' | 'main' | 'side' | 'only';
 
 /** Widths in CSS pixels at which the next layout starts. */
@@ -18,7 +27,8 @@ export const layoutFor = (width: number): Layout =>
 /**
  * Zones in display order, each with its panels in tab order. The first panel is the default. The
  * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4; the Assets
- * panel (M2.7) sits beside it.
+ * panel (M2.7) sits beside it. A phone's bar holds the panels that do something (D35, Evan's
+ * call): World, Logic and Play join it when their phases build them.
  */
 export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly PanelId[] }[]> = {
   desktop: [
@@ -28,16 +38,34 @@ export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly Pan
   ],
   tablet: [
     { zone: 'main', panels: ['records', 'assets', 'world', 'play'] },
-    { zone: 'side', panels: ['inspector', 'project', 'logic'] },
+    { zone: 'side', panels: ['inspector', 'project', 'problems', 'logic'] },
   ],
-  phone: [{ zone: 'only', panels: ['world', 'project', 'records', 'assets', 'logic', 'play'] }],
+  phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'problems', 'console'] }],
 };
+
+/**
+ * Desktop's group along the bottom, below the zones' groups (M2.8): the console in front, as since
+ * M2.2, so what the editor says stays in view; Problems beside it, its tab showing the count.
+ */
+export const DOCK_BOTTOM: readonly PanelId[] = ['console', 'problems'];
 
 /** The panel each layout shows in a bottom sheet over its zones: on a phone, the inspector, so it sits over what it inspects. */
 export const SHEET: Record<Layout, PanelId | null> = { desktop: null, tablet: null, phone: 'inspector' };
 
-/** Desktop's dock: the zones' groups side by side, then the console along the bottom (M2.2). */
-export const DOCK_PANELS: readonly DockPanelId[] = [...ZONES.desktop.flatMap((zone) => zone.panels), 'console'];
+/** Desktop's dock: the zones' groups side by side, then the bottom group (M2.2, M2.8). */
+export const DOCK_PANELS: readonly DockPanelId[] = [...ZONES.desktop.flatMap((zone) => zone.panels), ...DOCK_BOTTOM];
+
+/** Tablet's strip below its zones: the console, always in view. */
+export const STRIP: Record<Layout, PanelId | null> = { desktop: null, tablet: 'console', phone: null };
+
+/** The panels a layout can show: its zones', its sheet's and its strip's, or the dock's. */
+export function panelsOf(layout: Layout): PanelId[] {
+  if (layout === 'desktop') return [...DOCK_PANELS];
+  const shown = ZONES[layout].flatMap((zone) => zone.panels);
+  const sheet = SHEET[layout];
+  const strip = STRIP[layout];
+  return [...shown, ...(sheet ? [sheet] : []), ...(strip ? [strip] : [])];
+}
 
 export type ActiveTabs = Partial<Record<ZoneId, PanelId>>;
 

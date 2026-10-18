@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
-import { note } from '../app/state.ts';
+import { noteError } from '../app/state.ts';
 import { current } from '../projects/opened.ts';
 
 type BrowserModule = typeof import('./AssetBrowser.tsx');
@@ -21,7 +21,7 @@ function loadBrowser(): void {
     },
     (error: unknown) => {
       loading = false;
-      note(`The asset browser couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
+      noteError(`The asset browser couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
     },
   );
 }

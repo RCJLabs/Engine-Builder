@@ -1,6 +1,6 @@
 import { pointerSegment } from '@eb/core';
 import type { DataType, Diagnostic } from '@eb/schema';
-import { useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { duplicateRecord } from '../records/actions.ts';
@@ -10,6 +10,7 @@ import { RenameRecord } from '../records/RenameRecord.tsx';
 import { UsedBy } from '../records/UsedBy.tsx';
 import { recordFile } from './catalog.ts';
 import { FieldView } from './FieldView.tsx';
+import { fieldToFocus, focusField } from './focusField.ts';
 import { type FormApi, FormContext, pointerOf } from './formContext.ts';
 import { labelOf } from './labels.ts';
 import { checkRecord, fieldPointers, routeProblems } from './problems.ts';
@@ -141,6 +142,15 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   const { catalog } = project;
   const { file: typeFile, type } = data;
   const file = recordFile(type, id);
+  const section = useRef<HTMLElement>(null);
+  const focusing = fieldToFocus.value;
+  useEffect(() => {
+    if (focusing?.file !== file || !section.current) return;
+    const root = section.current;
+    fieldToFocus.value = null;
+    // After the sheet or the dock has moved focus into the inspector, which it does a frame on.
+    requestAnimationFrame(() => requestAnimationFrame(() => focusField(root, focusing.at)));
+  }, [focusing, file]);
   const canEdit = editing.access.value.kind === 'editing';
   const diagnostics = useMemo(() => checkRecord(catalog, type, id, value), [catalog, type, id, value]);
   const routed = useMemo(
@@ -175,7 +185,7 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   const top = (routed.get('') ?? []).filter((d) => !strays.has(d.path));
   return (
     <FormContext.Provider value={api}>
-      <section class="record-form" aria-label={`${typeFile.title} ${id}`}>
+      <section ref={section} class="record-form" aria-label={`${typeFile.title} ${id}`}>
         <RecordHead
           title={`${typeFile.title}: ${id}`}
           id={id}

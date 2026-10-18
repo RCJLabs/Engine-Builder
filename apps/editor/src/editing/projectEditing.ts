@@ -45,7 +45,7 @@ export interface EditingDeps {
   /** Null in a browser without Web Locks: editing works, without the guard. */
   readonly locks: Locks | null;
   readonly tabs: Tabs;
-  readonly note: (text: string) => void;
+  readonly note: (text: string, level?: 'info' | 'error') => void;
   readonly after: (run: () => void, ms: number) => void;
 }
 
@@ -206,7 +206,7 @@ export function createEditing(deps: EditingDeps): Editing {
       state.waiting = null;
       await state.session.value
         ?.flush()
-        .catch((error: unknown) => deps.note(`The last edits couldn’t be saved: ${message(error)}`));
+        .catch((error: unknown) => deps.note(`The last edits couldn’t be saved: ${message(error)}`, 'error'));
       end(state, { kind: 'closed' });
       state.target = null;
     });

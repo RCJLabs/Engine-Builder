@@ -1,5 +1,6 @@
 import { render } from 'preact';
 import { App } from './app/App.tsx';
+import { catchErrors } from './app/errors.ts';
 import { note, watchLayout } from './app/state.ts';
 import { watchUndoKeys } from './app/undoKeys.ts';
 import { buildStamp } from './build.ts';
@@ -12,6 +13,7 @@ import './styles/overlays.css';
 import './styles/editing.css';
 import './styles/forms.css';
 
+catchErrors();
 watchLayout();
 watchPage();
 watchUndoKeys();

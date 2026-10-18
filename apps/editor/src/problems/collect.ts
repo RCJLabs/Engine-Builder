@@ -1,0 +1,49 @@
+/**
+ * The Problems panel's list (M2.8): every problem `eb validate` gives for the open project, from
+ * what the editor keeps up to date already. The catalog has the files' own, read as the compiler
+ * reads them (readProjectFiles); the record index has each record's, from the compiler's checks.
+ * A test holds the two together to compileProject's list.
+ */
+import { compareDiagnostics, type Diagnostic } from '@eb/schema';
+import type { Catalog } from '../forms/catalog.ts';
+import type { RecordIndex } from '../records/recordIndex.ts';
+
+/** Every problem, sorted as the compiler sorts them. Until the index is read, the files' alone. */
+export function projectProblems(catalog: Catalog, index: RecordIndex | null): Diagnostic[] {
+  // A record that isn't JSON has its E007 among its problems (the index's own).
+  const found: Diagnostic[] = [...catalog.problems];
+  for (const record of index?.records.values() ?? []) found.push(...record.problems);
+  return found.sort(compareDiagnostics);
+}
+
+export interface ProblemCounts {
+  readonly errors: number;
+  readonly warnings: number;
+}
+
+export const countProblems = (problems: readonly Diagnostic[]): ProblemCounts => {
+  const errors = problems.filter((p) => p.severity === 'error').length;
+  return { errors, warnings: problems.length - errors };
+};
+
+/** The project's problems counted without listing them, for the Problems tab's badge after every change. */
+export function tally(catalog: Catalog, index: RecordIndex | null): ProblemCounts {
+  let errors = 0;
+  let warnings = 0;
+  const add = (problem: Diagnostic) => {
+    if (problem.severity === 'error') errors++;
+    else warnings++;
+  };
+  catalog.problems.forEach(add);
+  for (const record of index?.records.values() ?? []) record.problems.forEach(add);
+  return { errors, warnings };
+}
+
+/** "2 errors and 1 warning", "No problems". */
+export function countsText({ errors, warnings }: ProblemCounts): string {
+  const said = [
+    errors > 0 ? `${errors} ${errors === 1 ? 'error' : 'errors'}` : '',
+    warnings > 0 ? `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}` : '',
+  ].filter(Boolean);
+  return said.length === 0 ? 'No problems' : said.join(' and ');
+}

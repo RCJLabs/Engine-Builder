@@ -5,7 +5,7 @@
  */
 import { type ProjectSource, zipProject, zipSource } from '@eb/compiler';
 import { signal } from '@preact/signals';
-import { note } from '../app/state.ts';
+import { note, noteError } from '../app/state.ts';
 import { browserLocks, projectLockName, takeLock } from '../editing/projectLock.ts';
 import { browserTabs } from '../editing/tabs.ts';
 import { saveFile } from './download.ts';
@@ -54,7 +54,7 @@ export async function startProjects(): Promise<void> {
     worker = files;
     stored = createLibrary(root, (folder, written) => files.write([PROJECTS_DIR, folder], written));
     await recoverAll(root, files).catch((error: unknown) =>
-      note(`A save cut short couldn’t be finished: ${message(error)}`),
+      noteError(`A save cut short couldn’t be finished: ${message(error)}`),
     );
   } catch (error) {
     trouble.value = `This browser can't store projects (${message(error)}). Zips and opened folders still work.`;
@@ -88,7 +88,7 @@ async function run(label: string, action: () => Promise<void>): Promise<void> {
     await action();
   } catch (error) {
     trouble.value = message(error);
-    note(`${label} failed: ${message(error)}`);
+    noteError(`${label} failed: ${message(error)}`);
   } finally {
     busy.value = null;
   }
@@ -118,7 +118,7 @@ const openStored = (folder: string): Promise<void> => {
 async function show(handle: FolderHandle): Promise<void> {
   // The folder opens either way; failing to remember it only costs the shortcut next time.
   const key = await rememberFolder(remembered ?? noStore, handle, Date.now()).catch((error: unknown) => {
-    note(`The folder list couldn’t keep ${handle.name}: ${message(error)}`);
+    noteError(`The folder list couldn’t keep ${handle.name}: ${message(error)}`);
     return null;
   });
   await openFolderProject(handle, key);

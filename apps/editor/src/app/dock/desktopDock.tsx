@@ -6,12 +6,14 @@
 import { DockviewComponent, type IContentRenderer, type ITabRenderer } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import '../../styles/dock.css';
+import { effect } from '@preact/signals';
 import { render } from 'preact';
+import { badgeText, problemCount } from '../../problems/count.ts';
 import { Console } from '../Console.tsx';
-import { DOCK_PANELS, type DockPanelId, type PanelId, ZONES } from '../layout.ts';
+import { DOCK_BOTTOM, DOCK_PANELS, type DockPanelId, type PanelId, ZONES } from '../layout.ts';
 import { Panel } from '../Panel.tsx';
 import { PANELS } from '../panels.ts';
-import { note } from '../state.ts';
+import { noteError } from '../state.ts';
 import { LAYOUT_KEY, layoutText, readSavedLayout } from './savedLayout.ts';
 
 export interface DockHandle {
@@ -28,7 +30,10 @@ const SIDE_WIDTH = { left: 280, right: 320 } as const;
 const CONSOLE_HEIGHT = 150;
 const SAVE_AFTER_MS = 300;
 
-const titleOf = (id: DockPanelId) => (id === 'console' ? 'Console' : PANELS[id as PanelId].label);
+const titleOf = (id: DockPanelId) => PANELS[id].label;
+
+/** Where a panel added since a layout was saved goes: beside the panel it sits with by default. */
+const PEERS: Partial<Record<PanelId, PanelId>> = { assets: 'records', problems: 'console' };
 
 /**
  * A panel's content: the same Preact panel the zones show. dockview already makes each group a
@@ -54,11 +59,21 @@ function contentRenderer(id: DockPanelId): IContentRenderer {
 function labelRenderer(): ITabRenderer {
   const element = document.createElement('span');
   element.className = 'dock-tab';
+  let stop: (() => void) | undefined;
   return {
     element,
     init: (params) => {
-      element.textContent = params.title ?? params.api.title ?? '';
+      const title = params.title ?? params.api.title ?? '';
+      element.textContent = title;
+      // The Problems tab carries its count (M2.8), drawn here rather than set as its title, which
+      // dockview would save as a change to the layout.
+      if (params.api.id !== 'problems') return;
+      stop = effect(() => {
+        const count = badgeText(problemCount.value);
+        element.textContent = count ? `${title} (${count})` : title;
+      });
     },
+    dispose: () => stop?.(),
   };
 }
 
@@ -77,12 +92,14 @@ function layDefault(dock: DockviewComponent): void {
     for (const id of rest) lay(dock, id, { referencePanel: first, direction: 'within' }, true);
     previous = first;
   }
-  lay(dock, 'console', { direction: 'below' });
+  const [bottom, ...below] = DOCK_BOTTOM as [PanelId, ...PanelId[]];
+  lay(dock, bottom, { direction: 'below' });
+  for (const id of below) lay(dock, id, { referencePanel: bottom, direction: 'within' }, true);
   const size = (id: DockPanelId, event: { width?: number; height?: number }) =>
     dock.getGroupPanel(id)?.group.api.setSize(event);
   size(ZONES.desktop[0]?.panels[0] as PanelId, { width: SIDE_WIDTH.left });
   size(ZONES.desktop[2]?.panels[0] as PanelId, { width: SIDE_WIDTH.right });
-  size('console', { height: CONSOLE_HEIGHT });
+  size(bottom, { height: CONSOLE_HEIGHT });
 }
 
 function restore(dock: DockviewComponent, storage: Storage | null): void {
@@ -96,12 +113,21 @@ function restore(dock: DockviewComponent, storage: Storage | null): void {
   if (saved) {
     try {
       dock.fromJSON(saved.layout as Parameters<DockviewComponent['fromJSON']>[0]);
-      // Panels added to the editor since the layout was saved join the active group.
-      for (const id of saved.missing) lay(dock, id, undefined, true);
+      // Panels added to the editor since the layout was saved, and any it names but places in no
+      // group, which dockview drops, join their peer's group, or the active one.
+      for (const id of DOCK_PANELS.filter((panel) => !dock.getGroupPanel(panel))) {
+        const peer = PEERS[id];
+        lay(
+          dock,
+          id,
+          peer && dock.getGroupPanel(peer) ? { referencePanel: peer, direction: 'within' } : undefined,
+          true,
+        );
+      }
       return;
     } catch (error) {
       // dockview has already taken down whatever it built before it threw.
-      note(`The saved layout couldn’t be restored, so the panels are back where they started (${String(error)}).`);
+      noteError(`The saved layout couldn’t be restored, so the panels are back where they started (${String(error)}).`);
     }
   }
   layDefault(dock);

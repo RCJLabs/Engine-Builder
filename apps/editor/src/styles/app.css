@@ -12,6 +12,7 @@
   --accent: #6cb4ff;
   --accent-ink: #0b1a2b;
   --focus: #ffd166;
+  --warning: #ffd166;
   --radius: 10px;
   --tap: 44px;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -38,6 +39,7 @@
     --accent: #0b5fc1;
     --accent-ink: #ffffff;
     --focus: #a34f00;
+    --warning: #a34f00;
   }
 }
 
@@ -204,6 +206,36 @@ body {
   font-size: 12px;
 }
 
+/* The Problems tab's count (M2.8): beside the label, or on the icon's corner in a phone's bar. */
+.tab-badge {
+  min-width: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.tab-badge.error {
+  color: var(--danger-ink);
+  background: var(--danger);
+  border-color: transparent;
+}
+
+[data-layout="phone"] .tab {
+  position: relative;
+}
+
+[data-layout="phone"] .tab-badge {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 6px);
+}
+
 [data-layout="phone"] .tab[aria-selected="true"] {
   box-shadow: inset 0 2px 0 var(--accent);
 }
@@ -283,7 +315,22 @@ body {
   }
 }
 
+/* A phone's console is a panel of its own: it fills the zone (M2.8). */
+[data-layout="phone"] .console {
+  max-height: none;
+  height: 100%;
+  border-top: 0;
+}
+
+.console-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 6px;
+}
+
 .console-title {
+  flex: 1;
   margin: 0;
   padding: 6px 12px;
   font-size: 12px;
@@ -303,6 +350,26 @@ body {
 .console-lines time {
   margin-right: 6px;
   color: var(--muted);
+}
+
+.console-action {
+  padding: 0 12px;
+  font-weight: 400;
+}
+
+.console-error {
+  color: var(--danger);
+}
+
+.console-count {
+  color: var(--muted);
+}
+
+/* An error comes in at the top, clear of the update toast and a phone's tab bar. */
+.toast.error-toast {
+  top: calc(60px + var(--safe-top));
+  bottom: auto;
+  border-color: var(--danger);
 }
 
 .toast {

@@ -12,11 +12,11 @@ test.describe('phone portrait 390×844', () => {
     const errors = watchErrors(page);
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'phone');
-    expect(await visiblePanels(page)).toEqual(['world']);
+    expect(await visiblePanels(page)).toEqual(['project']);
 
-    // The inspector is the sheet's (layout.spec.ts), so the bar holds the other six.
+    // The inspector is the sheet's (layout.spec.ts); the placeholders wait for their phases (D35).
     const tabs = page.getByRole('tab');
-    await expect(tabs).toHaveText(['World', 'Project', 'Records', 'Assets', 'Logic', 'Play']);
+    await expect(tabs).toHaveText(['Project', 'Records', 'Assets', 'Problems', 'Console']);
     const bar = await page.locator('.tabs').boundingBox();
     expect(bar && bar.y + bar.height).toBeGreaterThan(844 - 90); // sits at the bottom
 
@@ -24,10 +24,12 @@ test.describe('phone portrait 390×844', () => {
       expect(box).toBeGreaterThanOrEqual(44); // touch targets
     }
 
-    await page.getByRole('tab', { name: 'Logic' }).tap();
-    expect(await visiblePanels(page)).toEqual(['logic']);
-    await expect(page.getByRole('tab', { name: 'Logic' })).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('.console')).toHaveCount(0);
+    await page.getByRole('tab', { name: 'Problems' }).tap();
+    expect(await visiblePanels(page)).toEqual(['problems']);
+    await expect(page.getByRole('tab', { name: 'Problems' })).toHaveAttribute('aria-selected', 'true');
+    // The console is a tab of its own on a phone (M2.8), with the build's line in it.
+    await page.getByRole('tab', { name: 'Console' }).tap();
+    await expect(page.locator('[data-panel="console"]')).toContainText('Engine-Builder');
 
     await expectNothingOffscreen(page);
     await expectNoAxeIssues(page);

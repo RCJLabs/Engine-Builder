@@ -6,7 +6,7 @@
  */
 import { directorySource } from '@eb/compiler';
 import { signal } from '@preact/signals';
-import { note } from '../app/state.ts';
+import { note, noteError } from '../app/state.ts';
 import { editing } from '../editing/current.ts';
 import { saveIntoFolder } from '../editing/folderSave.ts';
 import { folderLockName, projectLockName } from '../editing/projectLock.ts';
@@ -83,7 +83,7 @@ function refresher(copy: WorkingCopy): Refresh {
       current.value = { ...open, index };
       return true;
     },
-    (error) => note(`The project couldn’t be read again: ${String(error)}`),
+    (error) => noteError(`The project couldn’t be read again: ${String(error)}`),
   );
 }
 

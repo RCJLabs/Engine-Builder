@@ -313,3 +313,8 @@ textarea.form-input {
   padding: 0;
   list-style: none;
 }
+
+/* A field's box that says where in the record it is (M2.8): it lays out nothing itself. */
+.form-at {
+  display: contents;
+}

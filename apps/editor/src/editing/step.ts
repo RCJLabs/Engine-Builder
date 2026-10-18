@@ -3,7 +3,7 @@
  * step refused (a name taken, a file in the way, a rename that would lose data) changes nothing.
  * The type designer (M2.6) and the Assets panel (M2.7) make their steps through it.
  */
-import { note } from '../app/state.ts';
+import { noteError } from '../app/state.ts';
 import { editing } from './current.ts';
 import type { FileChange } from './history.ts';
 import type { WorkingCopy } from './workingCopy.ts';
@@ -20,7 +20,7 @@ export async function step(
     await editing.edit(label, make, group);
     return true;
   } catch (error) {
-    note(`Couldn’t ${label.charAt(0).toLowerCase()}${label.slice(1)}: ${message(error)}.`);
+    noteError(`Couldn’t ${label.charAt(0).toLowerCase()}${label.slice(1)}: ${message(error)}.`);
     return false;
   }
 }

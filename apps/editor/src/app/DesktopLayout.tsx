@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { Console } from './Console.tsx';
 import { ZONES } from './layout.ts';
 import { setDock } from './panelControl.ts';
-import { note } from './state.ts';
+import { noteError } from './state.ts';
 import { Zone } from './Zone.tsx';
 
 const storage = (): Storage | null => {
@@ -33,7 +33,7 @@ export function DesktopLayout() {
         setState('docked');
       })
       .catch((error: unknown) => {
-        note(`The dockable layout didn’t load, so the panels sit in fixed zones (${String(error)}).`);
+        noteError(`The dockable layout didn’t load, so the panels sit in fixed zones (${String(error)}).`);
         if (!gone) setState('failed');
       });
     return () => {

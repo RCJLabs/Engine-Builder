@@ -1,7 +1,7 @@
 import { signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
-import { note } from '../app/state.ts';
+import { noteError } from '../app/state.ts';
 import { editing } from '../editing/current.ts';
 import { current } from '../projects/opened.ts';
 import { designType, startNewType } from '../types/open.ts';
@@ -25,7 +25,7 @@ function loadTable(): void {
     },
     (error: unknown) => {
       loading = false;
-      note(`The records table couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
+      noteError(`The records table couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
     },
   );
 }

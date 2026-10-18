@@ -1,4 +1,6 @@
 import type { TargetedKeyboardEvent } from 'preact';
+import { useEffect } from 'preact/hooks';
+import { ProblemBadge } from '../problems/ProblemBadge.tsx';
 import { InspectorSheet } from './InspectorSheet.tsx';
 import { PanelIcon } from './icons.tsx';
 import {
@@ -21,6 +23,10 @@ export function Zone({ zone }: { zone: ZoneId }) {
   const panels = ZONES[current].find((z) => z.zone === zone)?.panels ?? [];
   const active = activePanel(current, zone, activeTabs.value);
 
+  useEffect(() => {
+    document.getElementById(tabId(zone, active))?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [zone, active]);
+
   const select = (panel: PanelId, focus = false): void => {
     activeTabs.value = { ...activeTabs.value, [zone]: panel };
     if (focus) requestAnimationFrame(() => document.getElementById(tabId(zone, panel))?.focus());
@@ -42,7 +48,8 @@ export function Zone({ zone }: { zone: ZoneId }) {
 
   const tabs =
     panels.length > 1 ? (
-      <div class="tabs" role="tablist" aria-label={`${zone} panels`} onKeyDown={onKeyDown}>
+      // A zone narrower than its tabs scrolls them sideways (data-scroll-x), the active one kept in view.
+      <div class="tabs" role="tablist" aria-label={`${zone} panels`} data-scroll-x onKeyDown={onKeyDown}>
         {panels.map((panel) => (
           <button
             key={panel}
@@ -57,6 +64,7 @@ export function Zone({ zone }: { zone: ZoneId }) {
           >
             <PanelIcon panel={panel} />
             <span class="tab-label">{PANELS[panel].label}</span>
+            {panel === 'problems' ? <ProblemBadge /> : null}
           </button>
         ))}
       </div>

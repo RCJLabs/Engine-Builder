@@ -1,6 +1,6 @@
 import { type Signal, signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
-import { note } from '../app/state.ts';
+import { noteError } from '../app/state.ts';
 import { current } from '../projects/opened.ts';
 import { chosen } from './selection.ts';
 
@@ -24,7 +24,7 @@ function later<T>(load: () => Promise<T>, what: string): { module: Signal<T | nu
         },
         (error: unknown) => {
           loading = false;
-          note(`${what} couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
+          noteError(`${what} couldn’t load: ${error instanceof Error ? error.message : String(error)}`);
         },
       );
     },

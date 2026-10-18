@@ -7,9 +7,22 @@ import { MapField } from './fields/MapField.tsx';
 import { NumberField } from './fields/NumberField.tsx';
 import { AssetField, RefField } from './fields/PickField.tsx';
 import { TextField } from './fields/TextField.tsx';
+import { pointerOf } from './formContext.ts';
 
-/** The field for a value of any kind: one component per kind, as the type file names them. */
+/**
+ * The field for a value of any kind, in a box that says where in the record it is (`data-at`, a
+ * JSON Pointer), so the Problems panel can open the form at it (M2.8). The box lays out nothing.
+ */
 export function FieldView(props: FieldProps) {
+  return (
+    <div class="form-at" data-at={pointerOf(props.path)}>
+      <FieldOfKind {...props} />
+    </div>
+  );
+}
+
+/** One component per kind, as the type file names them. */
+function FieldOfKind(props: FieldProps) {
   const { def } = props;
   switch (def.kind) {
     case 'text':

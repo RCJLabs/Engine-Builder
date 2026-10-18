@@ -1,16 +1,6 @@
 /* M2.7's Assets panel and asset inspector. The grid fills the zone's width in as many columns as
    fit, three on a 360 px phone; every control is at least 44 px each way. */
 
-:root {
-  --warning: #ffd166;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --warning: #a34f00;
-  }
-}
-
 .panel[data-panel="assets"] {
   max-width: none;
 }
