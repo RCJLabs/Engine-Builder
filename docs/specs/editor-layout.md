@@ -15,7 +15,7 @@ The width picks the layout. The breakpoints are written once, in `layout.ts`. Th
 
 | Layout | Width | Panels |
 | --- | --- | --- |
-| Phone | under 600 px | one panel at a time with a bottom tab bar (Project, Records, Assets, Problems, Console), and the inspector as a sheet. World, Logic and Play join the bar when their phases build them (D35) |
+| Phone | under 600 px | one panel at a time with a bottom tab bar (Project, Records, Assets, Logic, Problems, Console), and the inspector as a sheet. Logic joined in M3.1 (D36); World and Play join the bar when their phases build them (D35) |
 | Tablet | 600 to 1,023 px | two zones: Records, Assets, World and Play; Inspector, Project, Problems and Logic; and the console as a strip along the bottom. A phone on its side is usually this |
 | Desktop | 1,024 px and up | the dock |
 
@@ -56,7 +56,7 @@ A zone whose tabs don't fit its width, such as the tablet's side zone of four, s
 
 ## The phone's inspector sheet
 
-- **Where.** `SHEET` in `layout.ts` puts the inspector in a sheet on a phone. The sheet sits between the panel and the tab bar, so the tab bar keeps the other five panels.
+- **Where.** `SHEET` in `layout.ts` puts the inspector in a sheet on a phone. The sheet sits between the panel and the tab bar, so the tab bar keeps the other six panels.
 - **Shut**, it is a 44 px handle: a grip and the word Inspector. The inspector isn't built while the sheet is shut, so its forms (M2.4) don't run out of sight.
 - **Open**, it takes 60% of the zone, and the panel above keeps the rest. The inspector edits what is selected above it, so that stays in view. It is not a modal.
 - **No drag.** The handle is one button with `aria-expanded`, which opens and shuts it. Escape shuts it too, unless the palette is open. Its body scrolls and takes focus.
@@ -75,7 +75,7 @@ A zone whose tabs don't fit its width, such as the tablet's side zone of four, s
 - **The commands** (`appCommands.ts`):
   - New project, Import a zip, and Open a folder where the browser can;
   - for an open project: Export it as a zip, and Close it;
-  - Show each panel the layout has: all nine on desktop, the console included; eight on a tablet, whose console strip is always in view; and six on a phone, its five tabs and the inspector;
+  - Show each panel the layout has: all nine on desktop, the console included; eight on a tablet, whose console strip is always in view; and seven on a phone, its six tabs and the inspector;
   - Reset the layout, on desktop.
   - While the library is busy, the project commands are left out, as the panel's buttons are disabled. The session would drop them.
 - **Closing first.** The dialog closes before its command runs. Its focus handback would otherwise undo focus that the command moves. "Show" commands move focus into the panel they show.

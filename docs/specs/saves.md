@@ -245,7 +245,8 @@ A decoded file still goes through `loadSave`.
 
 `packages/core/test/fixtures/saves/salvage-v1.json` is a save of format 1 with every salvage run module at version 1. It was generated once and is never edited.
 
-- It must load to state hash `94b566fe492a48eb` and play on to an ending.
+- It must load to state hash `94b566fe492a48eb` in the game that saved it.
+- Since M3.1 salvage run also has the flag and sheet modules ([triggers.md](triggers.md)). Today's game loads the fixture with those two slices added from their `init`, every other slice as saved, and `differs` set, and plays on to an ending.
 - It also loads after a planted v2 migration of the hold, and with one module added and one removed.
 
 Each `SAVE_VERSION` bump, and each module version bump, adds a fixture written by the old version.
