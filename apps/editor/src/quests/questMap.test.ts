@@ -88,6 +88,25 @@ describe('the quest map', () => {
     ]);
   });
 
+  it('orders the rows by steps, reads the first stage of an id twice, and no deadline on a stage done at once', () => {
+    const rows = questMap('q', {
+      stages: [
+        { id: 'a', next: 'c' },
+        { id: 'b', objectives: [{ id: 'x', text: 'X', 'done-when': 'flag.on(f)' }] },
+        { id: 'c', next: 'b', days: 3 },
+        { id: 'a', next: 'd' },
+        { id: 'd' },
+      ],
+    });
+    expect(ids(rows)).toEqual([
+      [0, ['a']],
+      [1, ['c']],
+      [2, ['b']],
+      [undefined, ['a', 'd']],
+    ]);
+    expect(rows[1]?.boxes[0]?.fails).toEqual([]);
+  });
+
   it('draws a quest caught half made, and nothing for one with no stages yet', () => {
     expect(questMap('q', undefined)).toEqual([]);
     expect(questMap('q', { stages: 'none' })).toEqual([]);

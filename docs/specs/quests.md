@@ -224,3 +224,4 @@ The editor draws each quest as a map above its form, as it draws a talk ([editor
 2. **Optional objectives,** shown but not needed for the stage, as Bethesda has.
 3. **A journal screen** is the stage's, in Phase 4; the preview is what it will read.
 4. **Repeating quests** come with aliases (M3.10): a quest done or failed stays so until then.
+5. **Fields a quest never reads:** a Then from a stage whose objectives all lead elsewhere, and Fails when or Days on a stage with no objectives, which is done at once. The map says so of the first; a warning could say both, as a field the engine never reads.

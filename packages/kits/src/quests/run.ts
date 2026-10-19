@@ -27,11 +27,12 @@ function counts(count: Count, heard: Beat): boolean {
 }
 
 /**
- * The quest reaches the stage: logged, its progress emptied, `staged` raised, its effects applied;
- * one that fails ends it. A stage reached again moves to the end of the log, so the log holds each
- * stage once and a quest that loops can't grow its save. The effects are one attempt, as a
- * consequence the events kit lands: one that refuses, a cost the party can't meet, undoes them
- * with a beat saying why, and never the action that moved the quest.
+ * The quest reaches the stage: logged, its progress emptied, `staged` raised, its effects applied.
+ * It is checked next, by its caller, or past a check's moves as the kit hears `staged`, and the
+ * check fails it at a stage that fails. A stage reached again moves to the end of the log, so the
+ * log holds each stage once and a quest that loops can't grow its save. The effects are one
+ * attempt, as a consequence the events kit lands: one that refuses, a cost the party can't meet,
+ * undoes them with a beat saying why, and never the action that moved the quest.
  */
 function enter(ctx: Ctx, id: string, stageId: string): void {
   const stage = namedStage(ctx.content, id, stageId);
@@ -49,8 +50,6 @@ function enter(ctx: Ctx, id: string, stageId: string): void {
     });
     if (!result.ok) ctx.emit('refused', { quest: id, stage: stageId, reason: result.reason });
   }
-  // Its effects may have moved or ended the quest; the stage fails it only while it is current.
-  if (stage.fails === true && entryOf(ctx, id)?.stage === stageId) fail(ctx, id, stage.log ?? FAILED);
 }
 
 export function fail(ctx: Ctx, id: string, why: string): void {
@@ -61,8 +60,8 @@ export function fail(ctx: Ctx, id: string, why: string): void {
   ctx.emit('failed', { quest: id, why });
 }
 
+/** Only ever for a quest the check found active. */
 function finish(ctx: Ctx, id: string): void {
-  if (entryOf(ctx, id)?.state !== 'active') return;
   writeEntry(ctx, id).state = 'done';
   ctx.emit('done', { quest: id });
 }
@@ -105,8 +104,8 @@ type Move =
 
 /** One check at the quest's stage: where it goes, if anywhere. Then (step 5) comes before failing (step 6). */
 function progress(ctx: Ctx, id: string, stage: Stage, heard: Beat | undefined): Move | undefined {
-  // Its effects can raise events the kit hears before reaching it is done: a failing stage, with
-  // no objectives, would otherwise read as done.
+  // Reaching it fails the quest, at this check, which follows at once: before it, its effects'
+  // events may be heard, and with no objectives it would read as done.
   if (stage.fails === true) return { to: 'fail', why: stage.log ?? FAILED };
   if (heard) tally(ctx, id, stage, heard);
   const branch = markDone(ctx, id, stage);

@@ -4,7 +4,7 @@
  */
 import type { GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
-import { dockGame, dockWith, flagOn, set, withQuest } from '../../test/dock.ts';
+import { dockGame, dockWith, flagOn, RECORDS, set, withQuest } from '../../test/dock.ts';
 import type { QuestsSlice } from './types.ts';
 
 const { start, apply, run, fact } = dockGame;
@@ -85,5 +85,32 @@ describe('a quest starts', () => {
   it('leaves the slice shared when an event moves no quest', () => {
     const state = start();
     expect(run(state, set('alarm')).state.quests).toBe(state.quests);
+  });
+
+  it('not while its start is unknown: a waiting quest’s stage has no value', () => {
+    const records = withQuest('shadow', {
+      name: 'Shadow',
+      'starts-when': { fact: 'quests.stage', args: { quest: 'courier' }, op: '==', value: 'pickup' },
+      stages: [{ id: 'follow', objectives: [{ id: 'wait', text: 'Wait', 'done-when': flagOn('loop') }] }],
+    });
+    const dock = dockWith(records);
+    const state = dock.apply(dock.start(), set('posted'));
+    expect(quests(state).shadow).toBeUndefined();
+    const courier = dock.apply(state, { effect: 'start-quest', quest: 'courier' });
+    expect(quests(courier).shadow?.state).toBe('active');
+  });
+
+  it('with the game in a game with no quest at the start, once its starts-when holds already', () => {
+    const records = {
+      ...RECORDS,
+      quest: {
+        early: {
+          name: 'Early',
+          'starts-when': { not: flagOn('posted') },
+          stages: [{ id: 'one', objectives: [{ id: 'wait', text: 'Wait', 'done-when': flagOn('posted') }] }],
+        },
+      },
+    };
+    expect(quests(dockWith(records).start()).early).toMatchObject({ state: 'active', stage: 'one' });
   });
 });

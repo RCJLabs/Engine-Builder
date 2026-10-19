@@ -158,3 +158,52 @@ describe('where a stage goes', () => {
     ]);
   });
 });
+
+describe('a check', () => {
+  it('keeps the objectives done sorted, whatever order they were done in', () => {
+    const records = withQuest('trio', {
+      name: 'Three things',
+      'at-start': true,
+      stages: [
+        {
+          id: 'all',
+          objectives: [
+            { id: 'beta', text: 'B', 'done-when': flagOn('ready') },
+            { id: 'alpha', text: 'A', 'done-when': flagOn('alarm') },
+            { id: 'gamma', text: 'C', 'done-when': flagOn('loop') },
+          ],
+        },
+      ],
+    });
+    const dock = dockWith(records);
+    const both = dock.apply(dock.apply(dock.start(), set('alarm')), set('ready'));
+    expect(quests(both).trio?.done).toEqual(['alpha', 'beta']);
+  });
+
+  it('moves a quest through all its stages at once, however many: one check, not one event each', () => {
+    const chain = Array.from({ length: 70 }, (_, i) => ({ id: `s${i}`, ...(i < 69 ? { next: `s${i + 1}` } : {}) }));
+    const dock = dockWith(withQuest('relay', { name: 'Relay', stages: chain }));
+    const relayed = dock.apply(dock.start(), { effect: 'start-quest', quest: 'relay' });
+    expect(quests(relayed).relay).toMatchObject({ state: 'done', stage: 's69' });
+    expect(quests(relayed).relay?.log).toHaveLength(70);
+  });
+
+  it('comes at once as a quest starts or is set to a stage, before the effects after it', () => {
+    const records = withQuest('gate', {
+      name: 'The gate',
+      stages: [
+        { id: 'open', objectives: [{ id: 'quiet', text: 'Quiet', 'done-when': { not: flagOn('loop') } }] },
+        { id: 'shut', objectives: [{ id: 'never', text: 'Never', 'done-when': flagOn('ready') }] },
+      ],
+    });
+    const dock = dockWith(records);
+    const started = dock.apply(dock.start(), { effect: 'start-quest', quest: 'gate' }, set('loop'));
+    expect(quests(started).gate?.state).toBe('done');
+    // Set while waiting, it starts there; set while active, it moves there: checked at once either way.
+    const staged = dock.apply(dock.start(), { effect: 'set-stage', quest: 'gate', stage: 'open' }, set('loop'));
+    expect(quests(staged).gate?.state).toBe('done');
+    const shut = dock.apply(dock.start(), { effect: 'set-stage', quest: 'gate', stage: 'shut' });
+    const moved = dock.apply(shut, { effect: 'set-stage', quest: 'gate', stage: 'open' }, set('loop'));
+    expect(quests(moved).gate).toMatchObject({ state: 'done', stage: 'open' });
+  });
+});

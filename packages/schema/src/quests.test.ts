@@ -168,11 +168,38 @@ describe('E035', () => {
     expect(found[0]?.message).toBe(
       'Its stages lead round with nothing to wait on, which would never stop: square → again → square',
     );
+    // A loop through Then from stages with objectives waits on them too.
+    const thens = withStages([
+      ...stage(1, { objectives: [{ id: 'go', text: 'Go', 'done-when': 'flag.on(paid)' }], next: 'round' }),
+      {
+        id: 'round',
+        objectives: [{ id: 'back', text: 'Back', 'done-when': 'flag.on(refused)' }],
+        next: 'square',
+        days: 2,
+      },
+    ]);
+    expect(check(thens)).toEqual([]);
     // A loop through an objective waits on it, so it can stop.
     const waits = withStages([
       ...stage(1, { objectives: [{ id: 'x', text: 'X', 'done-when': 'flag.on(paid)', next: 'owed' }] }),
     ]);
     expect(check(waits)).toEqual([]);
+  });
+});
+
+describe('E001', () => {
+  it.each([
+    // With no stages, nothing reads refused, which the sheet sets; the bounty's count still reads paid.
+    ['a quest with no stages', withDebt({ stages: [] }), 'W108 refused ', 'E001 debt /stages'],
+    ['a deadline of no days', withStages(stage(0, { days: 0 })), 'E001 debt /stages/0/days'],
+    [
+      'a count to none',
+      withStages(objective(1, { 'done-when': undefined, count: { event: 'flag/changed', to: 0 } })),
+      'W108 refused ',
+      'E001 debt /stages/0/objectives/1/count/to',
+    ],
+  ])('for %s', (_name, records, ...expected) => {
+    expect(check(records as RecordInput[])).toEqual(expected);
   });
 });
 
@@ -237,6 +264,8 @@ describe('E043', () => {
 describe('the warnings', () => {
   it('W120: days in a game without a time module', () => {
     expect(check(SOUND, { kits: ['quests'], events: ENGINE_EVENTS })).toEqual(['W120 debt /stages/0/days']);
+    // With no game's events given, a game's own time module may raise days: it isn't warned of.
+    expect(check(SOUND, { kits: ['quests'] })).toEqual([]);
   });
 
   it('W124: a stage nothing brings the quest to, unless a set-stage names it', () => {
@@ -251,6 +280,12 @@ describe('the warnings', () => {
       }),
     ];
     expect(check(set)).toEqual([]);
+    // Not reached and unable to end: W124, as nothing brings the quest there to be stuck.
+    const loose = withStages([
+      ...STAGES,
+      { id: 'lost', objectives: [{ id: 'spin', text: 'Spin', 'done-when': 'flag.on(paid)', next: 'lost' }] },
+    ]);
+    expect(check(loose)).toEqual(['W124 debt /stages/3/id']);
     // A Then is taken only when the stage can be done: these objectives all lead elsewhere.
     expect(check(withStages([...stage(0, { next: 'lost' }), { id: 'lost' }]))).toEqual(['W124 debt /stages/3/id']);
   });
@@ -272,6 +307,12 @@ describe('the warnings', () => {
       { id: 'round', objectives: [{ id: 'back', text: 'Back', 'done-when': 'flag.on(refused)', next: 'square' }] },
     ]);
     expect(check(stuck)).toEqual(['W126 debt /stages/1/id', 'W126 debt /stages/3/id']);
+    // Days on a stage with no objectives never count: it is done at once, so it is no way out.
+    const instant = withStages([
+      ...stage(1, { next: 'round', days: 2 }),
+      { id: 'round', objectives: [{ id: 'back', text: 'Back', 'done-when': 'flag.on(refused)', next: 'square' }] },
+    ]);
+    expect(check(instant)).toEqual(['W126 debt /stages/1/id', 'W126 debt /stages/3/id']);
     // A way out of the loop, by days, is enough.
     const timed = withStages([
       ...stage(1, { objectives: [{ id: 'go', text: 'Go', 'done-when': 'flag.on(paid)', next: 'owed' }] }),

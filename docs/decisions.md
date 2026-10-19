@@ -981,6 +981,14 @@ The spec is [specs/quests.md](specs/quests.md), and the survey behind it [resear
 - **An objective met and then lost stays done.** A quest that must hold a condition at its end needs a condition to fail on, or a last stage that reads it.
 - **One run per quest.** A quest done or failed stays so until M3.10's repeatable quests.
 
+**Settled while building it** (the session's calls, 2026-10-19):
+- **The log keeps each stage once,** in the order last reached, so a quest that loops can't grow its save, and the journal reads as its latest pass.
+- **A stage's effects are one attempt,** as a consequence the events kit lands: one that refuses, such as a cost the party can't meet, undoes them with `quests/refused`, and never the action that moved the quest. Playing the yard found it: a stage charging 20 credits refused the choice that reached it, so a party with less couldn't refuse the miner at all.
+- **A stage that fails fails on any check.** Its effects' events are heard before reaching it is done, and the yard's day lost to bruises, heard first, read the stage as done.
+- **The kit hears its own events,** so a quest can wait on another. A check moves a quest at most as many stages as it has, so no check runs for ever; a quest whose objectives are always met round a loop is checked again as it hears its own moves, until the kernel stops the action 64 events deep. E035 catches the loops that show in a quest's own fields.
+- **A count's arguments are text,** the ids an event names. A number is read by a Done when instead.
+- **The bots' quest metrics come after a game's own,** each named by its quest's name and id, in `eb sim` and the editor's Run alike.
+
 ---
 
 ## Open

@@ -56,6 +56,12 @@ describe('the journal', () => {
     });
   });
 
+  it('leaves out a stage with no log line', () => {
+    const forked = apply(start(), { effect: 'start-quest', quest: 'fork' }, set('ready'));
+    expect(quests(forked).fork?.log).toEqual(['choose', 'out']);
+    expect(journal(forked, 'fork').log).toEqual(['You bailed.']);
+  });
+
   it('agrees with the state at every step of a run', () => {
     const steps: ((state: GameState) => GameState)[] = [
       (s) => apply(s, set('posted')),
@@ -107,6 +113,12 @@ describe('the facts', () => {
     expect([fact(paid, 'quests.tally', { state: 'done' }), fact(paid, 'quests.tally', { state: 'active' })]).toEqual([
       1, 1,
     ]);
+    // A stage passed stays reached; an objective of a later stage is the quest's too.
+    expect([
+      fact(paid, 'quests.stage', { quest: 'debt' }),
+      fact(paid, 'quests.reached', { quest: 'debt', stage: 'owed' }),
+    ]).toEqual(['square', true]);
+    expect(fact(paid, 'quests.objective', { quest: 'courier', objective: 'hand-over' })).toBe(false);
   });
 
   it('throw for a stage or an objective the quest doesn’t have', () => {
