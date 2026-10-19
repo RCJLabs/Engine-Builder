@@ -21,6 +21,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* The browser pans up and down; a sideways move is a swipe's (M4.2). */
+  touch-action: pan-y;
 }
 
 .eb-sheet {
@@ -164,7 +166,9 @@
 
 .eb-button:focus-visible,
 .eb-tab:focus-visible,
-.eb-sr:focus-visible {
+.eb-sr:focus-visible,
+.eb-game[data-input="pad"] .eb-button:focus,
+.eb-game[data-input="pad"] .eb-tab:focus {
   outline: 3px solid var(--eb-accent);
   outline-offset: 2px;
 }
@@ -235,4 +239,45 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* M4.2: a step's toast, over the top of the game's box. Taps go through it. */
+.eb-toast {
+  position: absolute;
+  top: max(var(--eb-space), env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(calc(100% - var(--eb-space) * 2), 24rem);
+  padding: calc(var(--eb-space) * 1.5);
+  border: 1px solid var(--eb-muted);
+  border-radius: var(--eb-radius);
+  background: var(--eb-surface);
+  color: var(--eb-text);
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  z-index: 1;
+  animation: eb-toast-in 160ms ease-out;
+}
+
+@keyframes eb-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eb-toast {
+    animation: none;
+  }
+}
+
+.eb-log-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--eb-space) / 2);
 }

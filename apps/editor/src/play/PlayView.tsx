@@ -6,7 +6,7 @@
  */
 import type { Action } from '@eb/core';
 import { GameScreens } from '@eb/ui';
-import type { Screen, Theme } from '@eb/ui/format';
+import type { Said, Screen, Theme } from '@eb/ui/format';
 import type { View } from '@eb/ui/session';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
@@ -30,7 +30,11 @@ type Shown =
       readonly screens: Readonly<Record<string, Screen>>;
       readonly theme: Theme | undefined;
       readonly view: View;
+      /** What the last step said (M4.2). */
+      readonly said: readonly Said[];
       readonly at: number;
+      /** Which game this is, so a new one starts with nothing in its log. */
+      readonly game: number;
     }
   | { readonly kind: 'refused'; readonly errors: number }
   | { readonly kind: 'failed'; readonly message: string };
@@ -62,7 +66,7 @@ export function PlayView({ project }: { project: OpenProject }) {
     setBusy(true);
     try {
       const reply = await client.send({ kind: 'act', action });
-      if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view });
+      if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view, said: reply.said });
       else if (reply.kind === 'failed') setShown({ kind: 'failed', message: reply.message });
     } catch (error) {
       setShown(failed(error));
@@ -106,9 +110,11 @@ export function PlayView({ project }: { project: OpenProject }) {
       {shown.kind === 'playing' ? (
         <div class="play-game">
           <GameScreens
+            key={shown.game}
             screens={shown.screens}
             theme={shown.theme}
             view={shown.view}
+            said={shown.said}
             busy={busy}
             act={(a) => void act(a)}
           />
@@ -119,9 +125,13 @@ export function PlayView({ project }: { project: OpenProject }) {
   );
 }
 
+let games = 0;
+
 function started(reply: PlayPageReply, at: number): Shown {
-  if (reply.kind === 'started')
-    return { kind: 'playing', screens: reply.screens, theme: reply.theme, view: reply.view, at };
+  if (reply.kind === 'started') {
+    const { screens, theme, view } = reply;
+    return { kind: 'playing', screens, theme, view, said: [], at, game: ++games };
+  }
   if (reply.kind === 'refused') return { kind: 'refused', errors: reply.errors.length };
   if (reply.kind === 'failed') return { kind: 'failed', message: reply.message };
   return { kind: 'failed', message: 'The game answered with something else' };

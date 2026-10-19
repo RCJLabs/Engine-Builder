@@ -90,7 +90,7 @@ describe('a play’s view', () => {
     const play = cragPlay();
     const before = play.view;
     const step = play.act({ type: 'dialogue/say', option: 'beta' });
-    expect(step).toEqual({ view: before, beats: [], accepted: false });
+    expect(step).toEqual({ view: before, beats: [], said: [], accepted: false });
     expect(play.view).toBe(before);
   });
 
