@@ -124,6 +124,30 @@ test('adds, moves and removes list items and map entries, focus following', asyn
   await spiculus(page).toMatchObject({ kit: { trident: 2 } });
 });
 
+test('leaves focus in a field chosen while an added item was still to land', async ({ page }) => {
+  await importLudus(page);
+  const form = await openRecord(page, 'Gladiator', 'spiculus');
+  const name = form.getByLabel('Name', { exact: true });
+  // Add, then into another box before the add has landed, as a quick thumb does: on CI's phone,
+  // focus jumped to the item once it showed, and the next number typed went into it (M3.7).
+  const add = await form.getByRole('button', { name: 'Add to Skills' }).elementHandle();
+  const box = await name.elementHandle();
+  await page.evaluate(
+    ([button, field]) => {
+      (button as HTMLButtonElement).click();
+      (field as HTMLInputElement).focus();
+    },
+    [add, box],
+  );
+  await expect(form.getByLabel('Skills, item 3')).toBeVisible();
+  // Effects run after the frame that shows the item.
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+  await expect(name).toBeFocused();
+  await name.press('End');
+  await page.keyboard.type(' II');
+  await spiculus(page).toMatchObject({ name: 'Spiculus II', skills: ['feint', 'shield wall', ''] });
+});
+
 test('keeps a condition as the file holds it, reads it in words, and parses as it is typed', async ({ page }) => {
   await importLudus(page);
   let form = await openRecord(page, 'Gladiator', 'spiculus');

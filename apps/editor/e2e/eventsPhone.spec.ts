@@ -53,10 +53,15 @@ for (const viewport of [
       const fight = form.getByRole('group', { name: 'Choices, item 1', exact: true });
       await fight.getByLabel('Id', { exact: true }).fill('fight');
       await fight.getByLabel('Label', { exact: true }).fill('Fight');
-      await fight.getByRole('button', { name: 'Add to Outcomes' }).tap();
-      await fight.getByRole('button', { name: 'Add to Outcomes' }).tap();
       const better = fight.getByRole('group', { name: 'Outcomes, item 1', exact: true });
       const worse = fight.getByRole('group', { name: 'Outcomes, item 2', exact: true });
+      await fight.getByRole('button', { name: 'Add to Outcomes' }).tap();
+      await expect(better).toBeVisible();
+      await fight.getByRole('button', { name: 'Add to Outcomes' }).tap();
+      // Focus goes to the item added once it shows. A fill into the box focus is in already makes
+      // no event before its text goes in, as a finger or a key does, so it waits for that move:
+      // on CI, the move came between and the 60 went into the second outcome (M3.7).
+      await expect(worse.getByRole('textbox', { name: /^Chance/ })).toBeFocused();
       await better.getByRole('textbox', { name: /^Chance/ }).fill('60');
       await worse.getByRole('textbox', { name: /^Chance/ }).fill('40');
       await worse.getByLabel('Effect to add to Effects', { exact: true }).selectOption({ label: 'Do later' });

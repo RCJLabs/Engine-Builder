@@ -11,6 +11,34 @@ const FOCUS_WAIT_MS = 2000;
 /** One change to the list as a step, and where focus goes once it has rendered. */
 type Change = (said: string, make: (list: unknown[]) => unknown[], focus: string) => void;
 
+interface PendingFocus {
+  readonly selector: string;
+  readonly until: number;
+  /** Stops listening for the person going on: once focus has moved, or the list has gone. */
+  readonly stop: () => void;
+}
+
+/** Whatever the person does after a change cancels the focus it was to move. */
+const GOING_ON = ['pointerdown', 'keydown', 'input', 'focusin'] as const;
+
+/**
+ * Focus to move into the list once a change shows, unless the person goes on first: taps, types
+ * or moves focus. A tap doesn't focus the button it lands on (Safari's buttons, or Chromium on a
+ * touch screen), so where focus was can't tell; on CI's phone, a number typed into the box tapped
+ * next went into the new item when it showed (M3.7).
+ */
+function pendingFocus(selector: string, cancel: () => void): PendingFocus {
+  const stop = () => {
+    for (const type of GOING_ON) document.removeEventListener(type, goneOn, true);
+  };
+  const goneOn = () => {
+    stop();
+    cancel();
+  };
+  for (const type of GOING_ON) document.addEventListener(type, goneOn, true);
+  return { selector, until: performance.now() + FOCUS_WAIT_MS, stop };
+}
+
 /**
  * A list: its items in order, each with buttons to move it up, down or out, and one to add an
  * item at the end. Buttons rather than dragging, so a thumb and a keyboard work the same. Each
@@ -20,7 +48,7 @@ export function ListField({ label, def, info, path, value }: FieldProps<ListDef>
   const form = useForm();
   const id = useUniqueId();
   const box = useRef<HTMLFieldSetElement>(null);
-  const focusNext = useRef<{ selector: string; until: number } | null>(null);
+  const focusNext = useRef<PendingFocus | null>(null);
   const items = Array.isArray(value) ? value : null;
   const problems = form.problemsAt(pointerOf(path));
   const full = def.max !== undefined && (items?.length ?? 0) >= def.max;
@@ -33,12 +61,17 @@ export function ListField({ label, def, info, path, value }: FieldProps<ListDef>
     if (!next) return;
     const target = box.current?.querySelector<HTMLElement>(next.selector);
     if (!target && performance.now() < next.until) return;
+    next.stop();
     focusNext.current = null;
     target?.focus();
   });
+  useEffect(() => () => focusNext.current?.stop(), []);
 
   const change: Change = (said, make, focus) => {
-    focusNext.current = { selector: focus, until: performance.now() + FOCUS_WAIT_MS };
+    focusNext.current?.stop();
+    focusNext.current = pendingFocus(focus, () => {
+      focusNext.current = null;
+    });
     form.update(path, (current) => make(Array.isArray(current) ? current : []), said);
   };
   const add = () =>
