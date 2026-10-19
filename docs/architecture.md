@@ -219,10 +219,11 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Layout:** flex and anchors, safe-area insets, and breakpoints at phone portrait, phone landscape, tablet and desktop.
 - **Themes:** colour, type and spacing tokens, plus UI sounds. Every theme is checked for AA contrast in CI.
 - **Bindings** read the game's facts by name, for example `economy.amount(resource: credits)`, and **buttons** take the actions the game offers or open screens: the sim decides, so a screen never runs an effect itself ([specs/screens.md](specs/screens.md)).
-- **Navigation and input:**
-  - A screen stack with transitions.
-  - Spatial focus navigation for keyboard and gamepad, following chooser-of-the-dead's `spatial.ts` and dirtbag's `ui/spatial.ts`.
-  - A gesture recognizer for tap, long-press, drag and pinch (from space-wrecked's `ui/gestures.js`).
+- **Navigation and input** (M4.2, D52, [specs/input.md](specs/input.md)):
+  - A screen stack, its screens opened by buttons closed by Back: Escape, a pad's B, a swipe right, and on the player page the browser's own back.
+  - Spatial focus for keyboard and gamepad by chooser-of-the-dead's rule (`spatial.ts`), on the top screen; each screen gives focus back to the control it last had.
+  - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known; drag and pinch wait for M4.5's map.
+- **Feedback** (M4.2, D52): a game words its beats in `ui/feedback.json`; the worker fills the words in, and the page shows them as toasts, keeps them in a `log` widget and speaks each step's once through one live region.
 - **Stock screens** ship as templates you restyle:
   - title with slots (Continue, New, Daily), settings, save/load, pause, HUD;
   - inventory, journal, map, dialogue, shop, codex (built from live numbers);
@@ -320,7 +321,7 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI (M4.1): the screens' format, the session that plays a game in a worker, the Preact renderer; input, a11y and stock screens later
+packages/ui         runtime UI (M4.1, M4.2): the screens' and feedback's format, the session that plays a game in a worker and words its beats, the Preact renderer, input (focus, gamepad, swipes, Back); stock screens later
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7

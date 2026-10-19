@@ -82,8 +82,8 @@ Touch and pen only; a mouse clicks. The recognizer is Space-Wrecked's gestures.j
 - **A swipe** is a drag that ends at least 48 px to one side of where it began, at least twice as far sideways as up or down, within 800 ms.
 - **On tabs,** a swipe left chooses the next tab and a swipe right the previous, as pages turn.
 - **Elsewhere,** a swipe right on a screen a button opened is Back. A swipe left does nothing.
-- **Scrolling wins:** screens let the browser pan up and down (`touch-action: pan-y`), so a vertical move scrolls and the gesture ends with no effect.
-- **A swipe presses nothing:** the click that follows a swipe begun on a button is swallowed.
+- **Scrolling wins:** screens let the browser pan up and down (`touch-action: pan-y`), so a vertical move scrolls and the gesture ends with no effect. The main region says so too: `touch-action` counts only up to the nearest element that scrolls, so without it the browser took a sideways move inside the main region as a pan and cancelled the swipe (found by the gate's specs).
+- **A swipe presses nothing:** the click that follows a swipe begun on a button is swallowed, until the next press begins, so a quick tap after a swipe that made no click isn't eaten (found by the gate's specs).
 - **Each gesture has a button:** tabs are buttons, and a screen a button opens should have a close button (W134).
 
 ## Back
