@@ -64,7 +64,7 @@ apps/editor/           the editor PWA
                        the console's log (state.ts), ErrorToast.tsx and errors.ts (errors nothing caught, M2.8),
                        ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId),
                        ProjectKits.tsx (the Project panel's kit boxes, M3.3), ProjectCalendar.tsx and
-                       calendarFile.ts (project.json's calendar as a form, M3.5)
+                       calendarFile.ts (project.json's calendar as a form, M3.5), loaded by CalendarSlot.tsx
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
@@ -109,7 +109,7 @@ apps/editor/           the editor PWA
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
-                       is the save journal with big files; loot-bench.ts and stats-bench.ts the index with kits)
+                       is the save journal with big files; loot-, stats- and factions-bench.ts the index with kits)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
@@ -176,7 +176,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
                        join (M3.3); hangar-bench.ts; arena/, a slice of Ludus made with all four kits, and
                        arena-lanista.golden.json (M3.4); steading/, a slice of Landnam made with the factions and
-                       time kits, and steading-jarl.golden.json (M3.5)
+                       time kits, and steading-jarl.golden.json; almanac/ and almanac-game.ts, a --game module the
+                       time kit joins with project.json's calendar (M3.5)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
