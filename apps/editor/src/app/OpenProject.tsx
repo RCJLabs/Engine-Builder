@@ -1,5 +1,5 @@
 import { TIME } from '@eb/kits';
-import { busy, closeProject, copyCurrentIn, exportCurrent, type OpenProject } from '../projects/session.ts';
+import { busy, closeProject, copyCurrentIn, exportCurrent, exportGame, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
 import { TypeList } from '../records/TypeList.tsx';
 import { CalendarSlot } from './CalendarSlot.tsx';
@@ -41,6 +41,9 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>
           Export zip
+        </button>
+        <button type="button" class="button" disabled={!idle} onClick={() => void exportGame()}>
+          Export game
         </button>
         {project.where === 'folder' ? (
           <button type="button" class="button" disabled={!idle} onClick={() => void copyCurrentIn()}>

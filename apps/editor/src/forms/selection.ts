@@ -3,7 +3,7 @@ import { signal } from '@preact/signals';
 /**
  * What the inspector shows: a record's form, a type's designer (M2.6), the form that names a new
  * type, an asset (M2.7), by its path inside assets/, a script (M3.2) or an ink scene (M3.11), by
- * its id.
+ * its id, or a screen or the theme under ui/ (M4.1), by its file.
  */
 export type Chosen =
   | { readonly kind: 'record'; readonly type: string; readonly id: string }
@@ -11,7 +11,8 @@ export type Chosen =
   | { readonly kind: 'new-type' }
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string }
-  | { readonly kind: 'scene'; readonly id: string };
+  | { readonly kind: 'scene'; readonly id: string }
+  | { readonly kind: 'ui'; readonly path: string };
 
 /** A project opening or closing clears it. */
 export const chosen = signal<Chosen | null>(null);

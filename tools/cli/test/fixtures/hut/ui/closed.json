@@ -1,0 +1,31 @@
+{
+  "title": "The hut is closed",
+  "shows": ["closed"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "The hut is closed for the winter.",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The season ended on day {time.day} with {economy.amount(resource: coins)} coins."
+      },
+      {
+        "widget": "text",
+        "text": "The guides’ guild: {factions.standing(faction: guild)}. The village: {factions.standing(faction: village)}.",
+        "style": "caption"
+      },
+      {
+        "widget": "button",
+        "label": "Read the journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  }
+}

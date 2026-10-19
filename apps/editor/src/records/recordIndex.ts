@@ -74,6 +74,8 @@ export interface RecordIndex {
   readonly assetUsers: ReadonlyMap<string, readonly Usage[]>;
   /** The types, assets and game the records were checked against (groundsOf). */
   readonly grounds: string;
+  /** The problems of the screens under ui/ (M4.1), checked against the game once the records are (screenChecks.ts). */
+  readonly screens?: readonly Diagnostic[];
 }
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };

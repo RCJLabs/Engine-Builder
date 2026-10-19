@@ -1,7 +1,7 @@
 /**
  * The provenance log a project keeps for its assets, `assets/assets.json` (D34, Evan's calls): an
  * entry for every file under assets/, saying where it came from and under what licence, so a game
- * never ships art it may not use, and its credits can be written from the log (M4.2). This is the
+ * never ships art it may not use, and its credits can be written from the log (M4.3). This is the
  * log's format, the licences that pass, and the checks the compiler and the editor share.
  */
 import { pointerSegment } from '@eb/core';

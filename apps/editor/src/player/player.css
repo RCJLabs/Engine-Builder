@@ -1,0 +1,80 @@
+/*
+ * The player page (M4.1): a bar with the game's name and a way to open another, and the game
+ * below it filling the rest of the screen. Mobile first: the safe area kept clear, 44 px targets.
+ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #10161d;
+  color: #eef3f7;
+  font-family: system-ui, sans-serif;
+}
+
+#player {
+  height: 100%;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.player-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  border-bottom: 1px solid #2c3a48;
+}
+
+.player-bar h1 {
+  margin: 0;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.player-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.5em 1em;
+  border-radius: 10px;
+  border: 1px solid #a9b7c6;
+  background: #1c2733;
+  color: #eef3f7;
+  font: inherit;
+  cursor: pointer;
+}
+
+.player-button:focus-visible {
+  outline: 3px solid #f4b860;
+  outline-offset: 2px;
+}
+
+.player-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.player-note {
+  margin: 1rem;
+  max-width: 40rem;
+  line-height: 1.5;
+}
+
+.player-problem {
+  color: #ffb4a8;
+}
+
+.player-game {
+  flex: 1;
+  min-height: 0;
+}

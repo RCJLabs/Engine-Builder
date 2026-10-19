@@ -219,7 +219,7 @@ Reads that storage refuses throw a `StoreError` from `load`, `list` and `quarant
 - **`quarantined()`** lists every entry, by key.
   - The same text is kept once, so a broken save loaded twice makes one entry.
   - A new entry takes the next number not in use.
-  - Nothing in the engine deletes an entry. A player can, after exporting it (M4.2).
+  - Nothing in the engine deletes an entry. A player can, after exporting it (M4.3).
 
 ## Save codes
 
@@ -239,7 +239,7 @@ Reads that storage refuses throw a `StoreError` from `load`, `list` and `quarant
 A decoded file still goes through `loadSave`.
 
 - **Other encoders.** Deflate output differs between libraries, so another encoder may write a different code for the same save. Any inflate reads it.
-- **File export.** A file export is the save file's JSON, which carries its own checksum. The buttons for files and codes belong to the save/load screen (M4.2).
+- **File export.** A file export is the save file's JSON, which carries its own checksum. The buttons for files and codes belong to the save/load screen (M4.3).
 
 ## Fixtures
 
@@ -286,8 +286,8 @@ Each `SAVE_VERSION` bump, and each module version bump, adds a fixture written b
 1. **Format migrations.** The first `SAVE_VERSION` bump needs a step that brings an older file up to date before its shape is checked. Build it with that bump, with the format 1 fixture as its test.
 2. **Migrations across slices.** A migration sees only its own slice. A change that moves data from one module to another would need both. Decide when one does.
 3. **A mode that a newer game added.** A save in a mode this build lacks reads as `cannot-migrate`, not `newer`, so it falls back to the backup. A game-wide version number in the file would tell the two apart.
-4. **Quarantine growth.** Nothing removes entries. The save/load screen needs a way to export and clear them (M4.2), and quarantine needs a bound if entries ever fill storage.
+4. **Quarantine growth.** Nothing removes entries. The save/load screen needs a way to export and clear them (M4.3), and quarantine needs a bound if entries ever fill storage.
 5. **Two writes at once.** A conflict is seen by checksum, per `Saves`, between a write's read and its write. Two tabs writing at the same moment can still race. So can two writes from one tab, such as an autosave and a save on `pagehide`, though there the loser is only the older of the tab's own saves. A Web Lock around the write would close both, as M2.3 plans for the editor.
 6. **Time away.** After a load, the stage passes `time/elapse` with now − `savedAt` ([time.md](time.md)). `savedAt` comes from the writing device's clock, so a device with a wrong clock gives a wrong gap. The elapse cap and the refusal of negative time bound the damage.
-7. **What a summary holds.** The summary is whatever JSON the stage passes. The stock screens (M4.2) will want a shape: day, place, playtime, perhaps a thumbnail.
+7. **What a summary holds.** The summary is whatever JSON the stage passes. The stock screens (M4.3) will want a shape: day, place, playtime, perhaps a thumbnail.
 8. **Safari's seven-day rule.** Does a granted `persist()`, or adding the game to the home screen, keep Safari from clearing its storage after seven days away? Check on a real iPhone before Proof #1 ships: players leave games for longer than a week.

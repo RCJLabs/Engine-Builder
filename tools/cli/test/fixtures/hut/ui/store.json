@@ -1,0 +1,75 @@
+{
+  "title": "The store",
+  "shows": ["shopping"],
+  "modal": true,
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "{shop.name}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: coins)} coins"
+      }
+    ]
+  },
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Buy",
+        "children": [
+          {
+            "widget": "list",
+            "of": "shelf",
+            "empty": "The shelves are bare.",
+            "item": {
+              "widget": "button",
+              "label": "{.name}: {.price} coins, {.count} left",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "label": "Sell",
+        "children": [
+          {
+            "widget": "list",
+            "of": "bag",
+            "empty": "Nothing to sell.",
+            "item": {
+              "widget": "button",
+              "label": "Sell {.name} for {.price} coins",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Leave the store",
+        "action": {
+          "take": "economy/leave"
+        }
+      }
+    ]
+  }
+}

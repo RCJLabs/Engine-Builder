@@ -104,6 +104,8 @@ export {
   type ValueDef,
 } from './typeFile.ts';
 export { COLOUR_PATTERN, type DataType, fieldShape, typeFromFile } from './typeSchema.ts';
+export { checkUi, type UiCheckOptions, type UiFile } from './uiCheck.ts';
+export { screenSchema, themeSchema } from './uiSchema.ts';
 export {
   type RecordInput,
   type Usage,

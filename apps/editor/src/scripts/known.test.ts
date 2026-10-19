@@ -16,6 +16,7 @@ const loaded: GameState = {
     events: { 'hold/looted': { label: 'The crew loots' } },
     effects: ['add-to-flag', 'roll', 'set-flag', 'stash'],
     actions: ['hold/loot'],
+    modes: ['sea'],
     policies: [],
   },
 };

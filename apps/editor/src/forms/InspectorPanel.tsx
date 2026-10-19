@@ -7,7 +7,7 @@ import { chosen } from './selection.ts';
 /**
  * A part of the inspector that loads when first wanted, as the dock loads only on desktop (M2.2):
  * the record form (M2.4), the type designer (M2.6), the asset inspector (M2.7), the script
- * editor with CodeMirror (M3.2) and the scene editor (M3.11), each with the checks it runs, are more than the editor's start
+ * editor with CodeMirror (M3.2), the scene editor (M3.11) and the screen editor (M4.1), each with the checks it runs, are more than the editor's start
  * should carry (Readings). The offline cache holds them like any other file.
  */
 function later<T>(load: () => Promise<T>, what: string): { module: Signal<T | null>; load: () => void } {
@@ -36,6 +36,7 @@ const designer = later(() => import('../types/TypeDesigner.tsx'), 'The type desi
 const assets = later(() => import('../assets/AssetInspector.tsx'), 'The asset inspector');
 const scripts = later(() => import('../scripts/ScriptEditor.tsx'), 'The script editor');
 const scenes = later(() => import('../scenes/SceneEditor.tsx'), 'The scene editor');
+const screens = later(() => import('../screens/ScreenEditor.tsx'), 'The screen editor');
 
 /** The Inspector panel: the form for the record chosen, the designer for the type, the asset, or the script. */
 export function InspectorPanel() {
@@ -46,6 +47,7 @@ export function InspectorPanel() {
     else if (pick?.kind === 'asset') assets.load();
     else if (pick?.kind === 'script') scripts.load();
     else if (pick?.kind === 'scene') scenes.load();
+    else if (pick?.kind === 'ui') screens.load();
     else if (pick) designer.load();
   }, [pick]);
   return (
@@ -99,6 +101,14 @@ function Chosen() {
       <SceneEditor key={pick.id} project={project} id={pick.id} />
     ) : (
       <p class="muted">Opening scenes/{pick.id}.ink…</p>
+    );
+  }
+  if (pick.kind === 'ui') {
+    const ScreenEditor = screens.module.value?.ScreenEditor;
+    return ScreenEditor ? (
+      <ScreenEditor key={pick.path} project={project} path={pick.path} />
+    ) : (
+      <p class="muted">Opening {pick.path}…</p>
     );
   }
   const loaded = designer.module.value;

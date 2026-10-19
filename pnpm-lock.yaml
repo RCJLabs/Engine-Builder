@@ -80,6 +80,9 @@ importers:
       '@eb/script':
         specifier: workspace:*
         version: link:../../packages/script
+      '@eb/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@lezer/highlight':
         specifier: 1.2.5
         version: 1.2.5
@@ -189,6 +192,9 @@ importers:
       '@eb/kits':
         specifier: workspace:*
         version: link:../kits
+      '@eb/ui':
+        specifier: workspace:*
+        version: link:../ui
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -208,6 +214,24 @@ importers:
         specifier: 3.35.1
         version: 3.35.1
 
+  packages/ui:
+    dependencies:
+      '@eb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@eb/kits':
+        specifier: workspace:*
+        version: link:../kits
+      '@eb/script':
+        specifier: workspace:*
+        version: link:../script
+      '@preact/signals':
+        specifier: 2.11.3
+        version: 2.11.3(preact@11.0.1)
+      preact:
+        specifier: 11.0.1
+        version: 11.0.1
+
   tools/cli:
     dependencies:
       '@eb/compiler':
@@ -226,6 +250,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/script
     devDependencies:
+      '@eb/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       fflate:
         specifier: 0.8.3
         version: 0.8.3

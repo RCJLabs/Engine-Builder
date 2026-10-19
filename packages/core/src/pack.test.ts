@@ -43,7 +43,7 @@ describe('createPack', () => {
 
   it('carries the kits as format 3, scripts or none, hashing them too (M3.3)', () => {
     const kitted = createPack({ ...project, kits: ['inventory'] }, records);
-    expect(kitted.format).toBe(PACK_FORMAT);
+    expect(kitted.format).toBe(3);
     expect(kitted.project.kits).toEqual(['inventory']);
     expect(kitted.scripts).toBeUndefined();
     expect(kitted.hash).not.toBe(createPack(project, records).hash);
@@ -62,6 +62,27 @@ describe('createPack', () => {
     expect(timed.hash).not.toBe(createPack({ ...project, kits: ['time'] }, records).hash);
     // The calendar is the time kit's: with no kits, there is nothing to carry it.
     expect(createPack({ ...project, calendar }, records)).toEqual(createPack(project, records));
+  });
+
+  it('carries the screens as format 4, kits and scripts or none, hashing them too (M4.1)', () => {
+    const ui = { screens: { hud: { main: { widget: 'text', text: 'Day {time.day}' } } } };
+    const screened = createPack(project, records, undefined, ui);
+    expect(screened.format).toBe(PACK_FORMAT);
+    expect(screened.ui).toEqual(ui);
+    expect(screened.project).toEqual(project);
+    expect(screened.hash).not.toBe(createPack(project, records).hash);
+    const themed = createPack(project, records, undefined, { ...ui, theme: { colors: {} } });
+    expect(themed.ui?.theme).toEqual({ colors: {} });
+    expect(themed.hash).not.toBe(screened.hash);
+    const other = { screens: { hud: { main: { widget: 'text', text: 'Night' } } } };
+    expect(createPack(project, records, undefined, other).hash).not.toBe(screened.hash);
+    const all = createPack({ ...project, kits: ['time'], calendar: { ticksPerDay: 1 } }, records, { game: 'g' }, ui);
+    expect(all.format).toBe(4);
+    expect(all.project).toEqual({ ...project, kits: ['time'], calendar: { ticksPerDay: 1 } });
+    expect(all.scripts).toEqual({ game: 'g' });
+    // No screens at all is the format a pack had before, and a theme alone is no screen.
+    expect(createPack(project, records, undefined, { screens: {} })).toEqual(createPack(project, records));
+    expect(createPack(project, records, undefined, { screens: {}, theme: {} })).toEqual(createPack(project, records));
   });
 });
 
@@ -111,9 +132,41 @@ describe('readPack', () => {
     expect(() => readPack({ ...plain, format: 3 })).toThrow('A format 3 pack lists its kits');
   });
 
+  it('reads a format 4 pack, its screens and theme, with or without kits and scripts', () => {
+    const ui = { screens: { hud: { main: { widget: 'text', text: 'Hi' } } }, theme: { colors: {} } };
+    const plain = readPack(reloaded(createPack(project, records, undefined, ui)));
+    expect(plain.format).toBe(4);
+    expect(plain.ui).toEqual(ui);
+    expect(plain.project.kits).toBeUndefined();
+    const all = readPack(reloaded(createPack({ ...project, kits: ['inventory'] }, records, { game: 'x' }, ui)));
+    expect(all.project.kits).toEqual(['inventory']);
+    expect(all.scripts).toEqual({ game: 'x' });
+  });
+
+  it('refuses screens outside format 4, and a format 4 pack without them', () => {
+    const screened = reloaded(createPack(project, records, undefined, { screens: { hud: {} } }));
+    const kitted = reloaded(createPack({ ...project, kits: ['inventory'] }, records));
+    expect(() => readPack({ ...kitted, ui: screened.ui })).toThrow('Unknown pack fields: ui');
+    expect(() => readPack({ ...screened, ui: undefined })).toThrow('A format 4 pack has no screens');
+    expect(() => readPack({ ...screened, ui: { screens: {} } })).toThrow('A format 4 pack has no screens');
+    expect(() => readPack({ ...screened, ui: { screens: { hud: {} }, extra: 1 } })).toThrow(
+      'Unknown pack ui fields: extra',
+    );
+    expect(() => readPack({ ...screened, ui: { screens: { Hud: {} } } })).toThrow('"Hud" is not a valid screen name');
+    expect(() => readPack({ ...screened, ui: { screens: { hud: [] } } })).toThrow(
+      'The pack\'s screen "hud" is not an object',
+    );
+    expect(() => readPack({ ...screened, ui: { screens: { hud: {} }, theme: 'dark' } })).toThrow(
+      "The pack's theme is not an object",
+    );
+    expect(() => readPack({ ...screened, project: { ...project, kits: [] } })).toThrow(
+      'A format 4 pack with kits lists them',
+    );
+  });
+
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 4 })).toThrow(
-      'This pack is format 4; this engine reads formats 1 to 3. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 5 })).toThrow(
+      'This pack is format 5; this engine reads formats 1 to 4. Update the engine.',
     );
   });
 

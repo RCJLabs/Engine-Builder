@@ -44,7 +44,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 - These are the newest pinned toolchains in the most recent repos (chooser-of-the-dead, who-am-i-).
 - Playwright 1.56.1 matches the Chromium preinstalled in Claude Code's cloud containers, so e2e runs there with no browser download. CI installs its own.
 
-### D4. Preact + signals for the editor and in-game UI. LOCKED for the editor, PROPOSED for game UI until M4.1, 2026-10-17
+### D4. Preact + signals for the editor and in-game UI. LOCKED for the editor, 2026-10-17; LOCKED for game UI, 2026-10-19 (Evan's call, D51)
 
 **Decision.** Preact 11 with @preact/signals. Reach for React-only libraries through `preact/compat` only when unavoidable.
 
@@ -121,7 +121,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 - **Weight:** the compiler, with zod, loads at start. It is 33.8 kB of the editor's 51.1 kB of gzipped JS.
 - **Safari** may delete a site's data after 7 days without a visit, unless the site is a Home Screen app. Zips are the backup until Phase 4.
 
-### D11. Export targets as a per-project matrix. PROPOSED until M4.8, 2026-10-17
+### D11. Export targets as a per-project matrix. PROPOSED until M4.9, 2026-10-17
 
 The targets are Pages PWA, single-file HTML, itch.io, Play TWA, and later Electron/Steam. Each has an edition (demo, full, playtest), packs, a storage namespace and a leak check. The pattern comes from chooser-of-the-dead's `targets.ts`, and the TWA pipeline from dirtbag's `build-twa.yml`.
 
@@ -706,7 +706,7 @@ Evan chose on 2026-10-18 between merging on green and going on, and waiting for 
 - **What "made here" allows** (Evan's call):
   - art and sound from the editor's own tools, or drawn by code written in its script editor;
   - a few OFL fonts that ship with the engine and count as its own;
-  - store builds (the Play package, Steam's) in a GitHub workflow the editor writes (M4.8), since Bubblewrap, the Android SDK and Electron can't run in a browser.
+  - store builds (the Play package, Steam's) in a GitHub workflow the editor writes (M4.9), since Bubblewrap, the Android SDK and Electron can't run in a browser.
 - **The art tools come in one phase, before the demo** (Evan's call): Phase 10's painter, icons and type, figures and portraits, music and mesh kit. The proofs before it may draw their art in code written in the script editor, as Dirtbag and Space-Wrecked draw theirs now.
 - **Importing stays.** M2.7's asset import and M5.5's glTF import and CC0 kit are there for games that want outside art; Proof #4 uses none of them.
 
@@ -1123,6 +1123,58 @@ Evan chose on 2026-10-19, from these options:
 - **CI grows** by the time the e2e takes to build the game, a few minutes.
 - **The e2e breaks as the editor's forms change,** and has to change with them. That is the price of the proof.
 - **The adventure's text is written fresh,** and is the session's to write. Its tone is yours to correct.
+
+### D51. A game's screens are data, rendered by Preact with signals; the runtime UI is two milestones, proved by the hut played through its screens. LOCKED, 2026-10-19 (Evan's calls, M4.1)
+
+**Decision.**
+- **Preact with signals renders a game's screens** (Evan's call), as it does the editor, so D4 holds for games too.
+- **Screens are data** (Evan's call): widget trees in `ui/<screen>.json`.
+  - They are checked as records are, and their bindings name the game's facts.
+  - Their actions run effects or open screens.
+  - M4.4's UI designer will edit them.
+  - Anything the data can't say waits for an escape hatch of its own, later.
+- **Two milestones** (Evan's call):
+  - M4.1 is screens: widgets, layout with safe areas and breakpoints, themes with an AA check, bindings, actions and the screen stack;
+  - M4.2 is input and feedback: spatial focus for keyboard and gamepad, gestures, toasts, a log, and screen-reader announcements.
+
+  Phase 4's later milestones move up one number.
+- **M4.1's gate is the hut played through its screens** (Evan's call). The hut gets screens written as data:
+  - a HUD with the day, the coins and the standings;
+  - the hut's actions;
+  - the store, the talks, the storm and the journal.
+
+  It plays to its end in the editor's Play panel and in an exported page, by touch at 360 and 390 px and in landscape, with every theme AA-checked.
+
+Also settled, as the session's calls ([specs/screens.md](specs/screens.md)):
+- **a button takes only an action the game offers,** or opens or closes a screen: a screen never runs an effect, so what the player can do is still the sim's to say;
+- **a game plays in the script worker,** where `lockDown` has run, and the page gets each step's view as JSON: the facts and conditions its screens name, the actions on offer, and the kits' views of the open talk, event, shop and journal;
+- **the game's modes drive the stack:** each mode's screen is the first that names it, a mode no screen names gets a plain fallback (W133), and screens a button opens sit on top until a step changes the modes;
+- **the exported page is the player at `/play/`,** opening the game file the Project panel exports, a pack of format 4 that carries the screens and the theme; a page that is a single file comes with M4.9's export;
+- **screens are written as JSON in the editor** until M4.4's designer, opened from the Play panel with their problems at their lines.
+
+As built (M4.1):
+- **the Play panel's game runs in a copy of the script worker of its own,** so the compiler and kits ship once, and a check that runs too long in the script worker never ends a game in play;
+- **the player page is a page of the editor's own build** (`play/index.html`), so the editor's service worker holds it and a game opened once plays offline; its worker takes the host's ways out away before a game's scripts run, as the script worker does;
+- **a screen's problems are given at their lines** in its file, by `eb validate` as in the editor, from their JSON paths;
+- **a list's entries come from the kits' own previews and facts,** and the `bag` is the inventory kit's, not the economy kit's, as first written; a fact or condition the game can't read shows as no value rather than stopping the game.
+
+Evan chose on 2026-10-19, from these options:
+- the framework: Preact with signals; or plain DOM, as Space-Wrecked;
+- screens: data, as JSON widget trees; code, as Preact components in the project's scripts; or data with script widgets;
+- the split: two milestones; or one, as written;
+- the gate: the hut played through its screens; or a small fixture made for the UI.
+
+The survey behind it is [research/runtime-ui.md](research/runtime-ui.md).
+
+**Why.**
+- **Preact.** It is small, and the editor already uses it. Chooser, the most complete of the existing UIs, is built on it.
+- **Data.** Screens that are data can be checked, edited by a designer, and shared as templates. A screen written as code would be rewritten by every game.
+- **Two milestones.** Each one gets its own PR and gate, as the kits' did.
+- **The hut.** It shows a real game played through its screens, and its quests and talks already exist to drive them.
+
+**Cost.**
+- **Anything a widget tree can't say waits** for an escape hatch.
+- **Exported games carry Preact,** about 5 kB.
 
 ---
 

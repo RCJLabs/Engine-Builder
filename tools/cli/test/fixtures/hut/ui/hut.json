@@ -1,0 +1,132 @@
+{
+  "title": "The hut",
+  "shows": ["hut"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "Day {time.day} of 10",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: coins)} coins",
+        "style": "heading"
+      }
+    ]
+  },
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "progress",
+        "value": "{time.day}",
+        "max": 10,
+        "label": "The season"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "Keep the hut through the season: carry loads up from the village, keep the store, and see to the guides.",
+            "style": "body"
+          },
+          {
+            "widget": "text",
+            "text": "The guides’ guild: {factions.standing(faction: guild)}. The village: {factions.standing(faction: village)}.",
+            "style": "caption"
+          }
+        ]
+      },
+      {
+        "widget": "grid",
+        "columns": 1,
+        "gap": 1,
+        "at": {
+          "landscape": {
+            "columns": 2
+          },
+          "tablet": {
+            "columns": 2
+          },
+          "desktop": {
+            "columns": 3
+          }
+        },
+        "children": [
+          {
+            "widget": "button",
+            "label": "Carry a load up",
+            "style": "primary",
+            "action": {
+              "take": "hut/carry"
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Rest a day",
+            "action": {
+              "take": "hut/rest"
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Open the store",
+            "action": {
+              "take": "hut/store"
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Visit Greta",
+            "action": {
+              "take": "hut/visit",
+              "args": {
+                "who": "greta"
+              }
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Visit Anselm",
+            "action": {
+              "take": "hut/visit",
+              "args": {
+                "who": "anselm"
+              }
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Close the hut for the winter",
+            "style": "primary",
+            "action": {
+              "take": "hut/close"
+            },
+            "shows-when": "time.day >= 10"
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  }
+}

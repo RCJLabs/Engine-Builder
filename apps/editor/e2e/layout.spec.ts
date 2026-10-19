@@ -271,7 +271,9 @@ for (const [width, height] of [
       await expect(item('Console')).toContainText('What the editor did');
       await expect(item('Console')).not.toContainText('Phase');
       await expect(item('World')).toContainText('Phases 4–7');
-      await expect(item('Play')).toContainText('Phase 4');
+      // Play is built (M4.1): its summary, and no phase to wait for.
+      await expect(item('Play')).toContainText('Play the game inside the editor');
+      await expect(item('Play')).not.toContainText('Phase');
       await expectNothingOffscreen(page);
       expect(await smallTargets(page, 'body')).toEqual([]);
       await expectNoAxeIssues(page);
@@ -284,7 +286,7 @@ for (const [width, height] of [
       await expect(list).toBeVisible();
       await expect(page.getByRole('tabpanel')).toBeFocused();
       await item('Play').tap();
-      await expect(page.locator('[data-panel="play"]')).toContainText('Play the game inside the editor');
+      await expect(page.locator('[data-panel="play"]')).toContainText('Open a project to play it here');
       await expect(page.getByRole('tabpanel')).toBeFocused();
       await expectNothingOffscreen(page);
       expect(await smallTargets(page, 'body')).toEqual([]);

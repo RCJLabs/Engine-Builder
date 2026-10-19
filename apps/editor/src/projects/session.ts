@@ -8,6 +8,8 @@ import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
 import { browserLocks, projectLockName, takeLock } from '../editing/projectLock.ts';
 import { browserTabs } from '../editing/tabs.ts';
+import { playClient } from '../play/playClient.ts';
+import { playFiles } from '../scripts/playFiles.ts';
 import { folderKey, libraryKey, trust } from '../scripts/trust.ts';
 import { saveFile } from './download.ts';
 import type { DirectoryLike } from './files.ts';
@@ -188,6 +190,35 @@ export const exportCurrent = () =>
   run('Exporting the project', async () => {
     const open = current.value;
     if (open) await exportSource(open.source, open.summary, open.label);
+  });
+
+// Its own worker: packing runs the game's scripts, as Play does, and needn't wait on a game in play.
+let exporter: ReturnType<typeof playClient> | null = null;
+
+/**
+ * Export game (M4.1, D51): the open project compiled with its game into the pack the player page
+ * at /play/ opens, as one JSON file. Like Play, it runs the game's scripts, so they must be allowed
+ * to run, and it writes nothing while the project has errors.
+ */
+export const exportGame = () =>
+  run('Exporting the game', async () => {
+    const open = current.value;
+    if (!open) return;
+    if (open.game.status !== 'loaded') {
+      throw new Error('Exporting the game runs its scripts: let them run, and fix them, in the Logic panel first.');
+    }
+    exporter ??= playClient();
+    const reply = await exporter.send({ kind: 'pack', files: await playFiles(open.source) });
+    if (reply.kind === 'refused') {
+      const n = reply.errors.length;
+      throw new Error(`The project has ${n === 1 ? 'an error' : `${n} errors`}: see Problems.`);
+    }
+    if (reply.kind !== 'packed') throw new Error(reply.kind === 'failed' ? reply.message : 'The pack didn’t come back');
+    const bytes = new TextEncoder().encode(`${JSON.stringify(reply.pack)}\n`);
+    const version = open.summary.project?.version;
+    const name = `${reply.name}${version ? `-${version}` : ''}.game.json`;
+    saveFile(bytes, name, 'application/json');
+    note(`Exported ${name} (${sizeText(bytes.byteLength)}). Open it at /play/ to play it.`);
   });
 
 async function exportSource(source: ProjectSource, summary: ProjectSummary, fallback: string): Promise<void> {

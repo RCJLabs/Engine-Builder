@@ -8,10 +8,12 @@ import {
   classifyRecordFile,
   classifyScene,
   classifyTypeFile,
+  classifyUi,
   MANIFEST_FILE,
   RECORDS_DIR,
   SCENES_DIR,
   TYPES_DIR,
+  UI_DIR,
 } from '@eb/compiler';
 import { pointerKeys } from '@eb/core';
 import type { Diagnostic } from '@eb/schema';
@@ -28,6 +30,7 @@ export type Place =
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
+  | { readonly kind: 'ui'; readonly path: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'panel'; readonly panel: 'project' | 'assets' };
 
 /** The script a file under scripts/ is, or undefined for one the compiler ignores or that is misplaced. */
@@ -35,6 +38,13 @@ const scriptOf = (file: string): string | undefined => {
   if (!file.startsWith(`${SCRIPTS_DIR}/`)) return undefined;
   const role = classifyScript(file);
   return role.kind === 'script' ? role.id : undefined;
+};
+
+/** What a file under ui/ is, when it is a screen or the theme (M4.1). */
+const uiOf = (file: string) => {
+  if (!file.startsWith(`${UI_DIR}/`)) return undefined;
+  const role = classifyUi(file);
+  return role.kind === 'ignored' ? undefined : role;
 };
 
 /** Where `problem` is fixed, or null for a file the editor has no place for (a misplaced file). */
@@ -63,6 +73,8 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   if (script !== undefined) return { kind: 'script', id: script, ...at };
   const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : undefined;
   if (scene?.kind === 'scene') return { kind: 'scene', id: scene.id, ...at };
+  const ui = uiOf(file);
+  if (ui !== undefined) return { kind: 'ui', path: file, ...at };
   return null;
 }
 
@@ -82,6 +94,9 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   if (script !== undefined) return `Script ${script}.ts`;
   const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : null;
   if (scene?.kind === 'scene') return `Scene ${scene.id}.ink`;
+  const ui = uiOf(file);
+  if (ui !== undefined) return ui.kind === 'theme' ? 'Theme (ui/theme.json)' : `Screen ${ui.id}`;
+  if (file === '') return 'The game';
   return file;
 }
 

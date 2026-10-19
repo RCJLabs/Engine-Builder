@@ -45,10 +45,12 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const project = await readKitSettings(source);
   const kits = kitModules(project.kits, project.calendar).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
   const modules = [...kits, ...loaded.modules];
-  // The game's modules are all it has, so content may name no other fact or event.
+  // The game's modules are all it has, so content may name no other fact, event, action or mode.
   const compiled = await compileProject(source, loaded.recordTypes, {
     facts: factCatalog(modules),
     events: eventCatalog(modules),
+    actions: modules.flatMap((m) => Object.keys(m.actions ?? {}).map((verb) => `${m.id}/${verb}`)),
+    modes: modules.flatMap((m) => Object.keys(m.modes ?? {})),
     ...(loaded.effects ? { effects: loaded.effects } : {}),
     ...(loaded.effectNames ? { effectNames: loaded.effectNames } : {}),
   });

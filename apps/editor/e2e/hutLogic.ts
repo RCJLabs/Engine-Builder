@@ -9,7 +9,7 @@ import { addEffect, choose, fixtureText, landed } from './hutHelpers.ts';
 import { showLogic } from './kitHelpers.ts';
 
 /** Replaces the whole text in a CodeMirror, as pasting does. */
-async function replaceText(page: Page, region: Locator, text: string): Promise<void> {
+export async function replaceText(page: Page, region: Locator, text: string): Promise<void> {
   await region.locator('.cm-content').click();
   await page.keyboard.press('ControlOrMeta+a');
   await page.keyboard.insertText(text);

@@ -213,12 +213,12 @@ The journal is `start-quest`'s preview: what the sim holds, never a second copy.
 
 ## UI
 
-Screens are data: a widget tree with layout, a theme, bindings and actions. A small runtime renders them with Preact.
+Screens are data: a widget tree with layout, a theme, bindings and actions. A small runtime renders them with Preact (`@eb/ui`, M4.1, D51). The game plays in a worker; after each step the page gets a JSON view, the game's modes, the actions on offer, the values of what its screens name and the kits' lists, and draws only that. The stack follows the game's modes ([specs/screens.md](specs/screens.md)).
 
 - **Widgets:** panel, stack, grid, text, image, button, toggle, slider, select, progress bar, list (bound to a collection), tabs, modal, tooltip, toast, touch stick, touch button.
 - **Layout:** flex and anchors, safe-area insets, and breakpoints at phone portrait, phone landscape, tablet and desktop.
 - **Themes:** colour, type and spacing tokens, plus UI sounds. Every theme is checked for AA contrast in CI.
-- **Bindings** read state through the shared fact registry, for example `resource(credits)`, and **actions** run effects or open screens.
+- **Bindings** read the game's facts by name, for example `economy.amount(resource: credits)`, and **buttons** take the actions the game offers or open screens: the sim decides, so a screen never runs an effect itself ([specs/screens.md](specs/screens.md)).
 - **Navigation and input:**
   - A screen stack with transitions.
   - Spatial focus navigation for keyboard and gamepad, following chooser-of-the-dead's `spatial.ts` and dirtbag's `ui/spatial.ts`.
@@ -245,7 +245,7 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
   - Each slot keeps a backup: the save its last write replaced.
   - A save that won't load, that a write would destroy, or that an update changed is copied to quarantine first, and is never overwritten.
   - Logs stop growing: `writeSession` compacts the session at 200 actions.
-- **Export and import.** The save file is JSON, and a text code (`EB1.<game>.<payload>.<check>`) carries it deflated. The buttons are the save/load screen's (M4.2).
+- **Export and import.** The save file is JSON, and a text code (`EB1.<game>.<payload>.<check>`) carries it deflated. The buttons are the save/load screen's (M4.3).
 - **Storage.**
   - IndexedDB by default, then localStorage, then memory. A file adapter for Electron comes with Phase 8's desktop export.
   - A persistent-storage request on the first save.
@@ -320,12 +320,12 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
+packages/ui         runtime UI (M4.1): the screens' format, the session that plays a game in a worker, the Preact renderer; input, a11y and stock screens later
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
-apps/player         the runtime shell that exports ship                    Phase 4
+apps/player         the runtime shell that exports ship (M4.9); until then the player page at /play/ is a page of the editor's build (M4.1)
 tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8); export | test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)
@@ -346,7 +346,7 @@ Packages are added in the phase that first needs them, not before.
 These are set from readings, not guesses (see ROADMAP Readings).
 
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
-- **UI-only game export:** a budget set at M4.10 from the first measured template.
+- **UI-only game export:** a budget set at M4.11 from the first measured template.
 - **3D:** FPS targets per quality tier, set from the M1.10 spike on a real phone.
 
 ## Open questions

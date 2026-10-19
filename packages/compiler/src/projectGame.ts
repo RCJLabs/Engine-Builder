@@ -5,9 +5,9 @@
  * that never returns hangs its caller here, as a --game module's would; the editor stops its worker
  * from outside.
  */
-import { compareDiagnostics, type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
+import { compareDiagnostics, type Diagnostic, severityOf } from '@eb/schema';
 import { type GameCatalog, loadProjectGame, type ProjectGame, scriptPath } from '@eb/script';
-import { type CompileResult, compileProject } from './compile.ts';
+import { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
 import { type KitSettings, readKitSettings } from './projectCheck.ts';
 import { readScripts, type ScriptsRead } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
@@ -43,11 +43,13 @@ export async function projectGame(source: ProjectSource): Promise<ScriptedGame> 
   return gameOf(await readScripts(source), await readKitSettings(source));
 }
 
-/** What content is checked against once the game has run: its facts, events and effects, and nothing else. */
-export const gameOptions = (catalog: GameCatalog): ValidateOptions => ({
+/** What content is checked against once the game has run: its facts, events and effects, and nothing else; its actions and modes for screens. */
+export const gameOptions = (catalog: GameCatalog): CompileOptions => ({
   facts: catalog.facts,
   events: catalog.events,
   effectNames: catalog.effects,
+  actions: catalog.actions,
+  modes: catalog.modes,
 });
 
 /**
