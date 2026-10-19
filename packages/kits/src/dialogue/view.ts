@@ -18,6 +18,12 @@ const holds = (choosing: Choosing, condition: Condition | undefined) =>
 export const openingLine = (choosing: Choosing, talk: TalkRecord): string | undefined =>
   talk.starts.find((start) => holds(choosing, start.if))?.line;
 
+/** Where a line goes on to when it shows no option: its first branch whose If holds, else its Then; none ends the talk. */
+export function wayOn(choosing: Choosing, line: Line): string | undefined {
+  for (const branch of line.branches ?? []) if (choosing.check(branch.if) === true) return branch.line;
+  return line.next;
+}
+
 /** What has been said in a talk. */
 export const saidIn = (slice: Slice, talk: string): readonly string[] => own(slice.said, talk) ?? [];
 
@@ -67,9 +73,9 @@ export function talkView(choosing: Choosing, slice: Slice, id: unknown, preview:
     talk: id,
     line: line.id,
     ...(speaker === undefined ? {} : { speaker }),
-    text: line.text,
+    ...(line.text === undefined ? {} : { text: line.text }),
     ...(shown.length > 0
       ? { options: shown.map((option) => choiceShown(choosing, option, odds, preview)) }
-      : { 'go-on': line.next === undefined ? 'end' : 'next' }),
+      : { 'go-on': wayOn(choosing, line) === undefined ? 'end' : 'next' }),
   };
 }

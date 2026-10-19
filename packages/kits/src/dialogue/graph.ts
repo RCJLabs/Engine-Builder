@@ -5,15 +5,22 @@
  */
 import type { Line, TalkRecord } from './types.ts';
 
-/** The lines a line leads to, as written: each option's and its outcomes', then the line's own. */
+/** The lines a line leads to, as written: each option's and its outcomes', its branches', then its own. */
 export function leadsFrom(line: Line): string[] {
   const to: string[] = [];
   for (const option of line.options ?? []) {
     if (option.next !== undefined) to.push(option.next);
     for (const outcome of option.outcomes ?? []) if (outcome.next !== undefined) to.push(outcome.next);
   }
+  for (const branch of line.branches ?? []) if (branch.line !== undefined) to.push(branch.line);
   if (line.next !== undefined) to.push(line.next);
   return to;
+}
+
+/** The lines a line can go on to when it shows no option: its branches', then its own. */
+export function goesOnTo(line: Line): string[] {
+  const to = (line.branches ?? []).flatMap((branch) => (branch.line === undefined ? [] : [branch.line]));
+  return line.next === undefined ? to : [...to, line.next];
 }
 
 /**
