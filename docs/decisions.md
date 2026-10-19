@@ -1176,6 +1176,38 @@ The survey behind it is [research/runtime-ui.md](research/runtime-ui.md).
 - **Anything a widget tree can't say waits** for an escape hatch.
 - **Exported games carry Preact,** about 5 kB.
 
+### D52. A game words its beats in `ui/feedback.json`; the log is a widget kept for the play; Back and tab swipes are the gestures; the hut played by keys, pad and touch proves it. LOCKED, 2026-10-19 (Evan's calls, M4.2)
+
+**Decision.**
+- **Feedback is data** (Evan's call). `ui/feedback.json` lists lines, each naming an event the game declares, an optional match on its arguments, words whose holes are those arguments (`{.item}`, a record's id shown as its name), and whether it toasts, logs or both. Each beat is said by the first line that matches it. Without the file nothing is said; the editor's New feedback starts one with the kits' common events worded.
+- **The log is a widget** (Evan's call), `log`, placed on any screen, showing the last lines said. The page keeps them for the play; they are not saved.
+- **The gestures are Back and tab swipes** (Evan's call). Escape, a pad's B, a swipe right on a screen a button opened, and the player page's own browser back (Android's back gesture) close that screen; a swipe left or right on tabs changes tab. Each has a button or a key.
+- **The gate is the hut played by keys, by pad and by touch** (Evan's call), with a feedback file of its own: to its end by keyboard alone and by gamepad alone, and by touch with its gestures at 360 and 390 px and in landscape; every line checked as the live region holds it; axe and the 44 px checks on each screen. All automated.
+
+Also settled, as the session's calls ([specs/input.md](specs/input.md)):
+- **focus moves by Chooser's spatial rule** (a 45° cone, ahead plus twice across), within the top screen, never wrapping; each screen remembers its last control and gets it back when it returns to the top;
+- **the gamepad is read each frame while one is connected**, in the standard mapping: the d-pad and left stick move, A presses, B is Back, LB and RB change tab;
+- **the worker words the beats**, so the page still never reads the sim's state, and one polite live region speaks each step's lines once; toasts are hidden from screen readers and the log doesn't announce, so nothing is heard twice;
+- **toasts come one at a time**, timed by their length as Dirtbag's are, and taps go through them;
+- **pack format 5** adds the feedback; a pack without it keeps its format;
+- **W134** warns of a screen only a button opens that has no close button, since on touch a swipe would be the only way back.
+
+Evan chose on 2026-10-19, from these options:
+- words: `ui/feedback.json`; the engine's own words for every kit event, overridable; or each event's label with its arguments;
+- the log: a widget kept for the play; saved with the game; or a drawer the engine draws on every game;
+- gestures: Back and tab swipes; Back only; or those and a long press for an entry's details;
+- the gate: the hut by keys, pad and touch, all automated; or that and a TalkBack run on his phone.
+
+**Why.**
+- **Feedback as data.** The engine picks no tone for a game, the lines are checked against the events they name, and a game's words stay in one file a translation can replace.
+- **A widget for the log.** The author decides where it sits and how much it shows; saving it waits for M4.3's slots, where the page's own state belongs.
+- **Back and tab swipes.** Back matters most on Android, where a TWA would otherwise leave the game; the tab swipe is the one other gesture the stock widgets invite. The recognizer is the one M4.5's map will need for drag and pinch.
+- **An automated gate.** It plays the whole hut each way on every CI run, and the session can go on to M4.3.
+
+**Cost.**
+- **No words by default:** a game says nothing until its feedback file says it.
+- **No real screen reader** is run: the checks read what the live region holds, not what TalkBack or VoiceOver speak. A run by hand stays on the phone checks.
+
 ---
 
 ## Open
