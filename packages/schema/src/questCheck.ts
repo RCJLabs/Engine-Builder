@@ -13,6 +13,7 @@ import type { SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { factTests } from './flagCheck.ts';
 import type { Known } from './known.ts';
+import { checkJob, checkSlots, isJobTimer, type SlotContext } from './questSlots.ts';
 import { checkWhen, type SheetContext } from './sheetCheck.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
@@ -100,11 +101,17 @@ function loopFrom(start: string, leads: (from: string) => readonly Lead[]) {
   return undefined;
 }
 
-/** Each count's event and its arguments, as a row's When is checked (E022, E023). */
-export function checkCounts(quest: QuestRecord, ctx: SheetContext): void {
+/** Each count's event and its arguments, as a row's When is checked (E022, E023), naming the quest's slots (E044). */
+export function checkCounts(
+  quest: QuestRecord,
+  ctx: SheetContext,
+  slotsAt?: (path: string) => Readonly<Record<string, string>>,
+): void {
   quest.stages.forEach((stage, i) => {
     (stage.objectives ?? []).forEach((objective, j) => {
-      if (objective.count) checkWhen(objective.count, `/stages/${i}/objectives/${j}/count`, ctx);
+      const path = `/stages/${i}/objectives/${j}/count`;
+      const slots = slotsAt?.(path);
+      if (objective.count) checkWhen(objective.count, path, slots ? { ...ctx, slots } : ctx);
     });
   });
 }
@@ -113,7 +120,7 @@ interface Named {
   readonly report: Report;
   readonly path: string;
   readonly quest: string;
-  readonly kind: 'stage' | 'objective' | 'count';
+  readonly kind: 'stage' | 'objective' | 'count' | 'slot';
   readonly name: string;
 }
 
@@ -126,12 +133,18 @@ function namedBy(test: { fact: string; args?: Record<string, unknown>; op?: stri
   if (test.fact === 'quests.reached') return name('stage', test.args?.stage);
   if (test.fact === 'quests.objective') return name('objective', test.args?.objective);
   if (test.fact === 'quests.count') return name('count', test.args?.objective);
+  if (test.fact === 'quests.slot') return name('slot', test.args?.slot);
   if (test.fact === 'quests.stage' && (test.op === '==' || test.op === '!=')) return name('stage', test.value);
   return undefined;
 }
 
 /** Why the quest lacks what is named, or undefined. */
 function lacks(record: QuestRecord, quest: string, kind: Named['kind'], name: string): string | undefined {
+  if (kind === 'slot') {
+    const slots = (record.slots ?? []).map((s) => s.id);
+    if (slots.includes(name)) return undefined;
+    return `The quest ${quest} has no slot ${name}: ${slots.length === 0 ? 'it has none' : `its slots are ${slots.join(', ')}`}`;
+  }
   const stages = record.stages.map((s) => s.id);
   if (kind === 'stage') {
     return stages.includes(name)
@@ -159,7 +172,12 @@ export class QuestChecks {
   private readonly staged: Named[] = [];
   private readonly named: Named[] = [];
 
-  constructor(known: Known) {
+  private readonly known: Known;
+  private readonly slots: SlotContext;
+
+  constructor(known: Known, ctx: Omit<SlotContext, 'known'>) {
+    this.known = known;
+    this.slots = { known, ...ctx };
     this.days = known.openEvents || known.events['time/day-started'] !== undefined;
   }
 
@@ -169,8 +187,10 @@ export class QuestChecks {
     const quest = value as QuestRecord;
     checkIds(quest, report);
     const stages = new Set(quest.stages.map((stage) => stage.id));
+    checkSlots(quest, report, this.slots);
     quest.stages.forEach((stage, i) => {
       checkStage(stage, `/stages/${i}`, stages, report);
+      checkJob(stage, `/stages/${i}`, stages, report, this.known);
       if (stage.days !== undefined && !this.days) {
         report(
           'W120',
@@ -185,6 +205,13 @@ export class QuestChecks {
 
   /** An effect whose schema passed: start-quest and set-stage start the quest they name (W125), and set-stage brings it to a stage (W124). */
   effect(report: Report, path: string, effect: Effect): void {
+    if ((effect.effect === 'schedule' || effect.effect === 'cancel-timer') && isJobTimer(effect.timer)) {
+      report(
+        'E035',
+        `${path}/timer`,
+        'Timers named quests-… are the quests kit’s own, for its jobs: name it otherwise',
+      );
+    }
     if (effect.effect !== 'start-quest' && effect.effect !== 'set-stage') return;
     if (typeof effect.quest !== 'string') return;
     this.started.add(effect.quest);
@@ -205,7 +232,7 @@ export class QuestChecks {
     for (const { report, path, quest, kind, name } of [...this.named, ...this.staged]) {
       const record = this.quests.get(quest)?.quest;
       const why = record === undefined ? undefined : lacks(record, quest, kind, name);
-      if (why !== undefined) report('E043', path, why);
+      if (why !== undefined) report(kind === 'slot' ? 'E044' : 'E043', path, why);
     }
     for (const [id, { quest, report }] of this.quests) {
       if (quest['at-start'] !== true && quest['starts-when'] === undefined && !this.started.has(id)) {

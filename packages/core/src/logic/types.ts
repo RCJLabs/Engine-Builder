@@ -57,7 +57,7 @@ export type FactCatalog = Readonly<Record<string, FactInfo>>;
 
 /** A problem with a condition, at a JSON Pointer inside it. Codes are in @eb/schema's table. */
 export interface ConditionIssue {
-  readonly code: 'E011' | 'E012' | 'E013' | 'E014';
+  readonly code: 'E011' | 'E012' | 'E013' | 'E014' | 'E044';
   readonly path: string;
   readonly message: string;
 }

@@ -1,12 +1,13 @@
 /**
  * The quest map (M3.9, D47): above a quest's form, a box for each stage in rows by steps from the
- * first, each saying where its objectives and Then lead and how it can fail. Tapping a box opens
+ * first, each saying where its objectives, Then and job's outcomes (M3.10) lead and how it can
+ * fail; above them, where the quest goes when a slot's record is gone. Tapping a box opens
  * its stage's form at its id, as the Problems panel opens a field. For seeing and getting around:
  * a stage is moved in its list.
  */
 import { useMemo } from 'preact/hooks';
 import { fieldToFocus } from '../forms/focusField.ts';
-import { type Box, type Exit, type MapRow, questMap } from './questMap.ts';
+import { type Box, type Exit, type GoneLine, goneLines, type MapRow, questMap } from './questMap.ts';
 import '../styles/kitMap.css';
 
 const CLIP = 90;
@@ -52,12 +53,23 @@ function MapBox({ box, file, reached }: { box: Box; file: string; reached: boole
   );
 }
 
+function goneText({ slot, to, found }: GoneLine): string {
+  if (to === undefined) return `If ${slot} is gone, the quest fails`;
+  return `If ${slot} is gone → ${to}${found ? '' : ' (no such stage)'}`;
+}
+
 export function QuestMap({ id, value, file }: { id: string; value: unknown; file: string }) {
   const rows = useMemo(() => questMap(id, value), [id, value]);
+  const gone = useMemo(() => goneLines(value), [value]);
   if (rows.length === 0) return null;
   return (
     <section class="kit-map" aria-label="Map of the quest">
       <h4>Map</h4>
+      {gone.map((line) => (
+        <p key={line.slot} class={line.found ? 'kit-map-note' : 'kit-map-note lost'}>
+          {goneText(line)}
+        </p>
+      ))}
       {rows.map((row) => (
         <div key={row.steps ?? 'none'} class="kit-map-row">
           <h5 class={row.steps === undefined ? 'kit-map-steps unreached' : 'kit-map-steps'}>{rowTitle(row.steps)}</h5>

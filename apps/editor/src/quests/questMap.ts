@@ -1,7 +1,8 @@
 /**
  * The quest map's layout (M3.9, D47, docs/specs/editor-kits.md#the-quests-kit-m39): a box for each
  * stage, in rows by the fewest steps from the first (the kit's stepsFrom, which W124 reads too),
- * and where each stage's objectives, its Then and its own set-stages lead, and how it can end.
+ * and where each stage's objectives, its Then, its own set-stages and its job's outcomes (M3.10)
+ * lead, and how it can end; and where the quest goes when a slot's record is gone.
  * Stages the first doesn't reach come last, in a row of their own. Read from the form's value as
  * it stands, which may not hold together yet: whatever isn't the shape a quest has is left out,
  * and no value throws.
@@ -47,6 +48,15 @@ const textOf = (value: unknown): string | undefined => (typeof value === 'string
 const daysOf = (value: unknown): number | undefined =>
   typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : undefined;
 
+/** A job's outcomes as the kit's graph reads them, those with a whole chance and a stage to go to. */
+function jobShape(value: unknown) {
+  if (typeof value !== 'object' || value === null) return {};
+  const outcomes = listOf(loose(value).outcomes).flatMap((o) =>
+    textOf(o.next) && typeof o.chance === 'number' ? [{ chance: o.chance, next: textOf(o.next) as string }] : [],
+  );
+  return { job: { takes: {}, outcomes } };
+}
+
 /** What the kit's graph reads of a stage, and no more: ids, where it leads, and how it ends. */
 function stageShape(stage: Loose, id: string) {
   const objectives = listOf(stage.objectives).map((o, i) => ({
@@ -61,8 +71,40 @@ function stageShape(stage: Loose, id: string) {
     ...(stage.fails === true ? { fails: true } : {}),
     ...(stage['fail-when'] !== undefined && stage['fail-when'] !== '' ? { 'fail-when': stage['fail-when'] } : {}),
     ...(daysOf(stage.days) ? { days: daysOf(stage.days) } : {}),
+    ...(stage.job === undefined ? {} : jobShape(stage.job)),
     effects: listOf(stage.effects).map((e): Loose & { effect: string } => ({ ...e, effect: textOf(e.effect) ?? '' })),
   };
+}
+
+/** What the kit's graph reads of the slots: which can lose their record, and where the quest goes then. */
+const slotShapes = (value: unknown) =>
+  listOf(loose(value).slots).flatMap((slot) => {
+    const id = textOf(slot.id);
+    if (id === undefined) return [];
+    const keeps = slot.keeps !== undefined && slot.keeps !== '';
+    return [
+      {
+        id,
+        type: textOf(slot.type) ?? '',
+        ...(keeps ? { keeps: true } : {}),
+        ...(textOf(slot.gone) ? { gone: textOf(slot.gone) } : {}),
+      },
+    ];
+  });
+
+/** Where the quest goes when each slot's record is gone, for a line above the map: a stage, or failing. */
+export interface GoneLine {
+  readonly slot: string;
+  /** The stage; undefined when the quest fails. */
+  readonly to: string | undefined;
+  readonly found: boolean;
+}
+
+export function goneLines(value: unknown): GoneLine[] {
+  const stages = new Set(listOf(loose(value).stages).flatMap((stage) => textOf(stage.id) ?? []));
+  return slotShapes(value)
+    .filter((slot) => slot.keeps)
+    .map((slot) => ({ slot: slot.id, to: slot.gone, found: slot.gone === undefined || stages.has(slot.gone) }));
 }
 
 type Shape = ReturnType<typeof stageShape>;
@@ -75,6 +117,7 @@ function exitsOf(quest: string, stage: Shape, stages: ReadonlySet<string>): Exit
     ...(never ? { never } : {}),
   });
   const exits = (stage.objectives ?? []).flatMap((o) => (o.next ? [exit(`“${o.text}”`, o.next)] : []));
+  for (const outcome of stage.job?.outcomes ?? []) exits.push(exit(`${outcome.chance}%`, outcome.next));
   const done = canBeDone(stage as never);
   if (stage.next !== undefined) exits.push(exit('Then', stage.next, !done));
   else if (done && stage.fails !== true) exits.push(exit('Then', undefined));
@@ -88,6 +131,7 @@ function exitsOf(quest: string, stage: Shape, stages: ReadonlySet<string>): Exit
 
 function failsOf(stage: Shape): string[] {
   if (stage.fails === true) return ['Fails as it is reached'];
+  if (stage.job !== undefined) return [];
   const waits = (stage.objectives ?? []).length > 0;
   return [
     ...(waits && stage['fail-when'] !== undefined ? ['Fails when its condition holds'] : []),
@@ -102,7 +146,7 @@ export function questMap(id: string, value: unknown): MapRow[] {
     return stageId === undefined ? [] : [{ index, stage, shape: stageShape(stage, stageId) }];
   });
   const ids = new Set(stages.map((s) => s.shape.id));
-  const record = { name: '', stages: stages.map((s) => s.shape) } as unknown as QuestRecord;
+  const record = { name: '', slots: slotShapes(value), stages: stages.map((s) => s.shape) } as unknown as QuestRecord;
   const steps = questStepsFrom(id, record);
   const ending = endingStages(id, record);
   const first = new Map<string, number>();

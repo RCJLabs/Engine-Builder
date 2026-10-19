@@ -4,7 +4,7 @@
  * arena (M3.4, all four kits) with its lanista; the steading (M3.5, with factions and time) with its
  * jarl; the crew (M3.6, with the roster) with its captain; the convoy (M3.7, with the events kit)
  * with its scout; the crag (M3.8, with the dialogue kit) with its climber; the yard (M3.9, with the
- * quests kit) with its scavenger. Each turn lists the options, lets the bot choose and reduces the
+ * quests kit) with its scavenger; the school (M3.10, with slots, repeats and jobs) with its lanista. Each turn lists the options, lets the bot choose and reduces the
  * action. The instrument behind the sweep readings in ROADMAP.md, one for each.
  *
  *   node tools/cli/test/hangar-bench.ts [fixture] [bot]

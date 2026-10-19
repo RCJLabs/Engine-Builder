@@ -74,3 +74,14 @@
 .kit-map-exit.lost {
   color: var(--warning);
 }
+
+/* Where a quest goes when a slot's record is gone (M3.10): from every stage, so above the rows. */
+.kit-map-note {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.kit-map-note.lost {
+  color: var(--warning);
+}

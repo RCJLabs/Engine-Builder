@@ -1,0 +1,12 @@
+{
+  "name": "The slave market",
+  "offers": 2,
+  "recruits": [
+    {
+      "recruit": "thrax"
+    },
+    {
+      "recruit": "murmillo"
+    }
+  ]
+}

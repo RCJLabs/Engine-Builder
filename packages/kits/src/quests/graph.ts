@@ -1,7 +1,8 @@
 /**
  * Where a quest's stages lead (docs/specs/quests.md#checks, #the-map): by an objective's Leads to,
- * by Then when the stage can be done, and by a set-stage of the quest among a stage's effects. The
- * schema's checks and the editor's quest map both read this, so the map shows what the checks say.
+ * by Then when the stage can be done, by a set-stage of the quest among a stage's effects, and by a
+ * job's outcomes (M3.10). A slot's gone stage can be reached from every stage. The schema's checks
+ * and the editor's quest map both read this, so the map shows what the checks say.
  */
 import type { Effect } from '@eb/core';
 import type { QuestRecord, Stage } from './types.ts';
@@ -10,18 +11,24 @@ export interface Lead {
   readonly to: string;
   /** The field that leads, a JSON Pointer into the quest. */
   readonly path: string;
-  readonly by: 'then' | 'objective' | 'effect';
+  readonly by: 'then' | 'objective' | 'effect' | 'job';
   /** The objective's id, for a Leads to. */
   readonly objective?: string;
   /** Nothing to wait on: a Then from a stage with no objectives, or a set-stage among its effects. */
   readonly atOnce: boolean;
+  /** A job's outcome: its chance. */
+  readonly chance?: number;
 }
 
-/** Whether the stage can be done, so that its Then is taken: one whose objectives all lead elsewhere moves only by them. */
+/**
+ * Whether the stage can be done, so that its Then is taken: one whose objectives all lead elsewhere
+ * moves only by them, and a job only by its outcomes.
+ */
 export const canBeDone = (stage: Stage): boolean =>
-  (stage.objectives ?? []).length === 0 || (stage.objectives ?? []).some((objective) => objective.next === undefined);
+  stage.job === undefined &&
+  ((stage.objectives ?? []).length === 0 || (stage.objectives ?? []).some((objective) => objective.next === undefined));
 
-/** Whether reaching the stage can end the quest: done with no Then, failing, or able to fail. */
+/** Whether reaching the stage can end the quest: done with no Then, failing, or able to fail. A job can't be done. */
 export function canEnd(stage: Stage): boolean {
   if (stage.fails === true) return true;
   const waits = (stage.objectives ?? []).length > 0;
@@ -48,8 +55,21 @@ export function leadsFrom(id: string, stage: Stage, index: number): Lead[] {
     if (setsStage(id, effect))
       leads.push({ to: effect.stage, path: `${at}/effects/${k}/stage`, by: 'effect', atOnce: true });
   });
+  (stage.job?.outcomes ?? []).forEach((outcome, k) => {
+    const path = `${at}/job/outcomes/${k}/next`;
+    leads.push({ to: outcome.next, path, by: 'job', atOnce: false, chance: outcome.chance });
+  });
   return leads;
 }
+
+/** The stages slots go to when their record is gone, each once: reached from every stage. */
+export const goneStages = (quest: QuestRecord): string[] => [
+  ...new Set((quest.slots ?? []).flatMap((slot) => (slot.keeps !== undefined && slot.gone ? [slot.gone] : []))),
+];
+
+/** A slot whose record can be gone with no stage to go to: the quest can fail at any stage. */
+const failsWhenGone = (quest: QuestRecord): boolean =>
+  (quest.slots ?? []).some((slot) => slot.keeps !== undefined && slot.gone === undefined);
 
 /** Each stage's leads by its id: the first stage of an id, as the kit reads it. */
 export function leadsByStage(id: string, quest: QuestRecord): ReadonlyMap<string, readonly Lead[]> {
@@ -74,6 +94,12 @@ export function stepsFrom(id: string, quest: QuestRecord, also: readonly string[
     steps.set(root, 0);
     queue.push(root);
   }
+  // A gone stage is a step from wherever the quest is, the first stage among them.
+  for (const gone of first === undefined ? [] : goneStages(quest)) {
+    if (!leads.has(gone) || steps.has(gone)) continue;
+    steps.set(gone, 1);
+    queue.push(gone);
+  }
   for (let i = 0; i < queue.length; i++) {
     const at = queue[i] as string;
     for (const lead of leads.get(at) ?? []) {
@@ -89,6 +115,11 @@ export function stepsFrom(id: string, quest: QuestRecord, also: readonly string[
 export function endingStages(id: string, quest: QuestRecord): ReadonlySet<string> {
   const leads = leadsByStage(id, quest);
   const ending = new Set(quest.stages.filter(canEnd).map((stage) => stage.id));
+  const gone = goneStages(quest);
+  // A record gone can end the quest, or move it to a stage that can, from every stage.
+  if (failsWhenGone(quest) || gone.some((stage) => ending.has(stage))) {
+    for (const stage of quest.stages) ending.add(stage.id);
+  }
   let grew = true;
   while (grew) {
     grew = false;

@@ -1,0 +1,11 @@
+{
+  "name": "Thrax",
+  "actor": "gladiator",
+  "names": ["Gannicus", "Oenomaus", "Agron", "Duro", "Nasir", "Barca"],
+  "stats": {
+    "fame": {
+      "min": 0,
+      "max": 2
+    }
+  }
+}

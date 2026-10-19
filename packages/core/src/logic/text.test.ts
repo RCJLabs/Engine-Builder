@@ -128,7 +128,26 @@ describe('parseCondition', () => {
     ['x.y(1, 2)', 'Expected ")": name each argument when there is more than one', 5],
     ['x.y == a.b', 'Expected a value to compare with; text with a dot goes in quotes', 7],
     ['x.y == and', 'Expected a value to compare with', 7],
+    ['crew.hp(@) > 1', 'Unexpected "@": a slot is @ and its name, like @mark', 8],
+    ['crew.hp(@Mark) > 1', 'Unexpected "@": a slot is @ and its name, like @mark', 8],
   ])('reports %j with its column', (text, message, at) => {
     expect(failure(text)).toEqual({ message: `${message} (column ${at + 1})`, at });
+  });
+});
+
+describe('a slot (M3.10)', () => {
+  it('reads as the text "@mark", bare or in quotes, and prints bare', () => {
+    const tree: Condition = { fact: 'crew.hp', args: { member: '@mark' }, op: '>', value: 2 };
+    expect(parsed('crew.hp(@mark) > 2')).toEqual(tree);
+    expect(parsed('crew.hp("@mark") > 2')).toEqual(tree);
+    expect(printCondition(tree, catalog)).toBe('crew.hp(@mark) > 2');
+    expect(printCondition({ fact: 'voyage.leader', op: '==', value: '@the-mark' })).toBe('voyage.leader == @the-mark');
+  });
+
+  it('ends where its name does', () => {
+    expect(parsed('crew.trait(member: @mark, trait: brave)')).toEqual({
+      fact: 'crew.trait',
+      args: { member: '@mark', trait: 'brave' },
+    });
   });
 });

@@ -1,0 +1,91 @@
+{
+  "name": "A booking at the games",
+  "repeats": true,
+  "slots": [
+    {
+      "id": "man",
+      "type": "actor",
+      "where": "roster.member(@man)",
+      "pick": "random",
+      "goes": true,
+      "keeps": "roster.member(@man)",
+      "gone": "forfeit"
+    }
+  ],
+  "stages": [
+    {
+      "id": "booked",
+      "log": "The editor of the games has booked {man}.",
+      "objectives": [
+        {
+          "id": "ready",
+          "text": "Get {man} to 4 fame",
+          "done-when": "stats.value(actor: @man, stat: fame) >= 4"
+        }
+      ],
+      "next": "games",
+      "days": 8,
+      "why": "{man} was not ready, and the booking went to another house."
+    },
+    {
+      "id": "games",
+      "log": "{man} fights at the games.",
+      "job": {
+        "takes": {
+          "days": 2
+        },
+        "outcomes": [
+          {
+            "chance": 60,
+            "text": "{man} wins the crowd",
+            "next": "won"
+          },
+          {
+            "chance": 30,
+            "text": "{man} is beaten",
+            "next": "beaten"
+          },
+          {
+            "chance": 10,
+            "text": "{man} dies on the sand",
+            "next": "killed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "won",
+      "log": "{man} won the crowd.",
+      "effects": [
+        {
+          "effect": "add-to-stat",
+          "actor": "@man",
+          "stat": "fame",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "beaten",
+      "log": "{man} was beaten.",
+      "fails": true
+    },
+    {
+      "id": "killed",
+      "log": "{man} died on the sand.",
+      "effects": [
+        {
+          "effect": "leave",
+          "actor": "@man",
+          "why": "dead"
+        }
+      ],
+      "fails": true
+    },
+    {
+      "id": "forfeit",
+      "log": "{man} is gone, and the advance is repaid twice over.",
+      "fails": true
+    }
+  ]
+}

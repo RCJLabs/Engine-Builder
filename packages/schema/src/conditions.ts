@@ -20,6 +20,8 @@ export interface ConditionContext {
   report(code: DiagnosticCode, path: string, message: string): void;
   /** Records that the condition at `path` names "type:id". */
   use(key: string, path: string): void;
+  /** The quest's slots it can name, with their types (M3.10). */
+  readonly slots?: Readonly<Record<string, string>>;
 }
 
 /** A condition whose shape is sound, and where each place inside it is in its record. */
@@ -39,7 +41,12 @@ export function checkConditionField(found: FoundCondition, ctx: ConditionContext
   const tree = readField(found, ctx);
   if (tree === undefined) return undefined;
   const at = typeof found.value === 'string' ? () => found.path : (inner: string) => `${found.path}${inner}`;
-  const options = { ...(ctx.facts ? { catalog: ctx.facts } : {}), records: ctx.records, open: ctx.open === true };
+  const options = {
+    ...(ctx.facts ? { catalog: ctx.facts } : {}),
+    records: ctx.records,
+    open: ctx.open === true,
+    ...(ctx.slots ? { slots: ctx.slots } : {}),
+  };
   const issues = checkCondition(tree, options);
   for (const issue of issues) ctx.report(issue.code, at(issue.path), issue.message);
   if (issues.some((issue) => issue.code === 'E011')) return undefined;

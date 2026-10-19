@@ -102,19 +102,26 @@ export {
   canBeDone,
   canEnd,
   endingStages,
+  goneStages,
   type Lead,
   leadsByStage,
   leadsFrom as questLeadsFrom,
   stepsFrom as questStepsFrom,
 } from './quests/graph.ts';
-export { type ObjectiveShown, type QuestShown, questShown } from './quests/journal.ts';
+export { jobTimer } from './quests/jobs.ts';
+export { type JobShown, type ObjectiveShown, type QuestShown, questShown } from './quests/journal.ts';
 export { kitMetrics } from './quests/metrics.ts';
 export { questsModule } from './quests/module.ts';
-export { namedObjective, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';
+export { namedObjective, namedSlot, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';
 export { FAILED } from './quests/run.ts';
+export { bind as bindSlots, slotText } from './quests/slots.ts';
 export {
   type Count,
+  type Job,
+  type JobOutcome,
   type Objective,
+  PICKS,
+  type Pick,
   QUEST,
   QUEST_STATES,
   QUESTS,
@@ -122,6 +129,8 @@ export {
   type QuestRecord,
   type QuestState,
   type QuestsSlice,
+  type Slot,
+  type SlotRank,
   type Stage,
 } from './quests/types.ts';
 export { bondOf, pairKey } from './roster/bonds.ts';

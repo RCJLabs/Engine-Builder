@@ -137,3 +137,65 @@ describe('checkCondition: against the catalog', () => {
     ]);
   });
 });
+
+describe('checkCondition: slots (M3.10)', () => {
+  const slots = { mark: 'actor', loot: 'item' };
+  // null: outside any quest.
+  const slotted = (condition: unknown, given: Record<string, string> | null = slots) =>
+    checkCondition(condition, { catalog, records, ...(given ? { slots: given } : {}) }).map(
+      ({ code, path, message }) => `${code} ${path}: ${message}`,
+    );
+
+  it('takes a slot where an id of its type, or any text, goes', () => {
+    expect(slotted({ fact: 'crew.hp', args: { member: '@mark' }, op: '>', value: 2 })).toEqual([]);
+    expect(slotted({ fact: 'crew.trait', args: { member: '@mark', trait: '@loot' } })).toEqual([]);
+    expect(slotted({ fact: 'voyage.leader', op: '==', value: '@mark' })).toEqual([]);
+  });
+
+  it.each([
+    [
+      'outside a quest',
+      { fact: 'crew.hp', args: { member: '@mark' }, op: '>', value: 2 },
+      null,
+      ["E044 /args/member: @mark names a quest's slot, which only that quest's own fields can name"],
+    ],
+    [
+      'a slot the quest lacks',
+      { fact: 'crew.hp', args: { member: '@who' }, op: '>', value: 2 },
+      slots,
+      ['E044 /args/member: No slot who here: the slots are mark, loot'],
+    ],
+    [
+      'no slots at all',
+      { fact: 'crew.hp', args: { member: '@who' }, op: '>', value: 2 },
+      {},
+      ['E044 /args/member: No slot who here: none can be named'],
+    ],
+    [
+      'a slot of another type',
+      { fact: 'hold.count', args: { item: '@mark' }, op: '>', value: 0 },
+      slots,
+      ['E044 /args/item: mark holds an actor, not an item'],
+    ],
+    [
+      'a slot where a number goes',
+      { fact: 'crew.slot', args: { index: '@mark' } },
+      slots,
+      ['E044 /args/index: mark holds a record, not a number'],
+    ],
+    [
+      'a slot compared with an enum',
+      { fact: 'voyage.sector', op: '==', value: '@mark' },
+      slots,
+      ['E044 /value: mark holds a record, not one of: core, rim, void'],
+    ],
+    [
+      'a slot named constructor',
+      { fact: 'crew.hp', args: { member: '@constructor' }, op: '>', value: 2 },
+      slots,
+      ['E044 /args/member: No slot constructor here: the slots are mark, loot'],
+    ],
+  ])('reports %s', (_name, condition, given, expected) => {
+    expect(slotted(condition, given)).toEqual(expected);
+  });
+});

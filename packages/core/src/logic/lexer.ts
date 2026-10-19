@@ -26,9 +26,12 @@ const NUMBER = /-?\d+(?:\.\d+)?(?![\w.])/y;
 // biome-ignore lint/suspicious/noControlCharactersInRegex: a JSON string may not hold U+0000 to U+001F raw (RFC 8259).
 const STRING = /"(?:[^"\\\u0000-\u001f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"/y;
 const OP = /==|!=|<=|>=|<|>/y;
+// A quest's slot (M3.10): text, as a quoted "@mark" is, written bare.
+const SLOT = /@[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?![\w-])/y;
 const SPACE = /\s+/y;
 
 const HINTS: readonly [RegExp, string][] = [
+  [/@/y, 'a slot is @ and its name, like @mark'],
   [/&&?/y, 'write "and"'],
   [/\|\|?/y, 'write "or"'],
   [/!/y, 'write "not"'],
@@ -69,6 +72,8 @@ function readToken(text: string, at: number): { token: Token; length: number } {
   if (number) return { token: { kind: 'number', value: Number(number), at }, length: number.length };
   const word = match(WORD, text, at);
   if (word) return { token: { kind: 'word', text: word, at }, length: word.length };
+  const slot = match(SLOT, text, at);
+  if (slot) return { token: { kind: 'string', value: slot, at }, length: slot.length };
   const string = match(STRING, text, at);
   if (string) return { token: { kind: 'string', value: JSON.parse(string) as string, at }, length: string.length };
   for (const [pattern, hint] of HINTS) {

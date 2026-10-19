@@ -11,7 +11,7 @@
 
 import { ConditionSyntaxError, type Token, tokenize } from './lexer.ts';
 import type { Condition, FactCatalog, FactTest, Op, Value } from './types.ts';
-import { NAME_PATTERN } from './values.ts';
+import { NAME_PATTERN, SLOT_PATTERN } from './values.ts';
 
 const KEYWORDS = new Set(['and', 'or', 'not', 'true', 'false']);
 
@@ -197,5 +197,6 @@ function printTest(test: FactTest, catalog?: FactCatalog): string {
 
 export function printValue(value: Value): string {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (SLOT_PATTERN.test(value)) return value;
   return NAME_PATTERN.test(value) && !KEYWORDS.has(value) ? value : JSON.stringify(value);
 }

@@ -1,6 +1,6 @@
 /** The quests kit's records, read by id: validation stops content naming one that isn't there (E005, E035, E043). */
 import type { RecordStore } from '@eb/core';
-import { type Objective, QUEST, type QuestRecord, type Stage } from './types.ts';
+import { type Objective, QUEST, type QuestRecord, type Slot, type Stage } from './types.ts';
 
 export function questRecord(content: RecordStore, id: unknown): QuestRecord {
   if (typeof id !== 'string' || !content.has(QUEST, id)) throw new Error(`No quest "${String(id)}"`);
@@ -32,4 +32,11 @@ export function namedObjective(content: RecordStore, quest: unknown, id: unknown
   const objective = objectiveOf(questRecord(content, quest), id);
   if (!objective) throw new Error(`The quest "${String(quest)}" has no objective "${String(id)}"`);
   return objective;
+}
+
+/** The slot, or a thrown error: E044 stops a condition naming one its quest doesn't have. */
+export function namedSlot(content: RecordStore, quest: unknown, id: unknown): Slot {
+  const slot = questRecord(content, quest).slots?.find((each) => each.id === id);
+  if (!slot) throw new Error(`The quest "${String(quest)}" has no slot "${String(id)}"`);
+  return slot;
 }

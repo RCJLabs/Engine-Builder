@@ -4,7 +4,7 @@
  * throws.
  */
 import { describe, expect, it } from 'vitest';
-import { questMap } from './questMap.ts';
+import { goneLines, questMap } from './questMap.ts';
 
 const DEBT = {
   name: 'The miner’s debt',
@@ -118,5 +118,59 @@ describe('the quest map', () => {
       [undefined, ['a']],
     ]);
     expect(rows[0]?.boxes[0]?.fails).toEqual([]);
+  });
+});
+
+describe('the quest map, with slots and jobs (M3.10)', () => {
+  const BOOKING = {
+    name: 'A booking',
+    slots: [
+      { id: 'man', type: 'actor', where: 'roster.member(@man)', keeps: 'roster.member(@man)', gone: 'forfeit' },
+      { id: 'foe', type: 'actor', record: 'crixus', keeps: 'roster.member(@foe)' },
+      { id: 'prize', type: 'item', record: 'laurel' },
+    ],
+    stages: [
+      {
+        id: 'games',
+        job: {
+          takes: { days: 2 },
+          outcomes: [
+            { chance: 60, next: 'won' },
+            { chance: 40, next: 'lost' },
+          ],
+        },
+      },
+      { id: 'won' },
+      { id: 'beaten', fails: true },
+      { id: 'forfeit', fails: true },
+    ],
+  };
+
+  it('leads a job by its outcomes’ chances, and puts a gone stage a step from the first', () => {
+    const rows = questMap('booking', BOOKING);
+    expect(ids(rows)).toEqual([
+      [0, ['games']],
+      [1, ['won', 'forfeit']],
+      [undefined, ['beaten']],
+    ]);
+    expect(rows[0]?.boxes[0]).toMatchObject({
+      exits: [
+        { by: '60%', to: 'won', found: true },
+        { by: '40%', to: 'lost', found: false },
+      ],
+      fails: [],
+      stuck: false,
+    });
+  });
+
+  it('says where the quest goes when each slot that keeps its record loses it', () => {
+    expect(goneLines(BOOKING)).toEqual([
+      { slot: 'man', to: 'forfeit', found: true },
+      { slot: 'foe', to: undefined, found: true },
+    ]);
+    expect(goneLines({ ...BOOKING, slots: [{ id: 'man', keeps: 'x', gone: 'nowhere' }] })).toEqual([
+      { slot: 'man', to: 'nowhere', found: false },
+    ]);
+    expect(goneLines({ stages: 'not a list', slots: [null, { keeps: 'x' }] })).toEqual([]);
   });
 });

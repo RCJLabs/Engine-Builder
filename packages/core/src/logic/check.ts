@@ -4,9 +4,11 @@ import {
   domainProblem,
   FACT_PATTERN,
   isOrdering,
+  isSlotName,
   isValue,
   NAME_PATTERN,
   type RecordIndex,
+  slotProblem,
   valueProblem,
 } from './values.ts';
 
@@ -20,6 +22,11 @@ export interface CheckOptions {
    * written (D36). Without it, a fact the catalog doesn't list is E012.
    */
   readonly open?: boolean;
+  /**
+   * The slots a quest's field can name as "@slot", each with the type of record it holds (M3.10).
+   * Outside a quest there are none, and a slot named is E044.
+   */
+  readonly slots?: Readonly<Record<string, string>>;
 }
 
 type Report = (code: ConditionIssue['code'], path: string, message: string) => void;
@@ -105,8 +112,14 @@ function checkFact(test: FactTest, path: string, options: CheckOptions, report: 
   }
   for (const [name, arg] of Object.entries(given)) {
     const domain = declared[name];
+    const at = `${path}/args/${pointerSegment(name)}`;
+    if (domain && isSlotName(arg)) {
+      const problem = slotProblem(arg, domain, options.slots);
+      if (problem) report('E044', at, problem);
+      continue;
+    }
     const problem = domain ? domainProblem(arg, domain, options.records) : `"${test.fact}" has no argument "${name}"`;
-    if (problem) report('E013', `${path}/args/${pointerSegment(name)}`, problem);
+    if (problem) report('E013', at, problem);
   }
   const domain = info.domain;
   if (!domain) return;
@@ -115,6 +128,9 @@ function checkFact(test: FactTest, path: string, options: CheckOptions, report: 
       report('E014', path, `"${test.fact}" is not a yes/no fact: compare it, like "${test.fact} == …"`);
   } else if (isOrdering(test.op) && domain.type !== 'int' && domain.type !== 'number') {
     report('E014', `${path}/op`, `${test.op} compares numbers, and "${test.fact}" is not a number`);
+  } else if (isSlotName(test.value)) {
+    const problem = slotProblem(test.value, domain, options.slots);
+    if (problem) report('E044', `${path}/value`, problem);
   } else {
     const problem = valueProblem(test.value as Value, domain, options.records);
     if (problem) report('E014', `${path}/value`, problem);

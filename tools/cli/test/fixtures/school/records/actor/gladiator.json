@@ -1,0 +1,7 @@
+{
+  "name": "Gladiator",
+  "description": "What every gladiator bought at market starts as.",
+  "stats": {
+    "fame": 0
+  }
+}

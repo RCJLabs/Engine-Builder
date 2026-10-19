@@ -7,7 +7,7 @@ import { openRecord } from '../../records/actions.ts';
 import { asWritten, describedBy, type FieldProps, FieldShell } from '../FieldShell.tsx';
 import { pointerOf, useForm, useShownProblems } from '../formContext.ts';
 import { type Choice, Picker } from '../Picker.tsx';
-import { chooseTitle, noNames, refChoices } from '../refChoices.ts';
+import { chooseTitle, noNames, refChoices, slotChoices } from '../refChoices.ts';
 
 type RefDef = Extract<ValueDef, { kind: 'ref' }>;
 type AssetDef = Extract<ValueDef, { kind: 'asset' }>;
@@ -20,13 +20,14 @@ function target(def: RefDef, value: unknown, records: ReadonlyMap<string, readon
 }
 
 export function RefField(props: FieldProps<RefDef>) {
-  const { catalog, names = noNames } = useForm();
+  const { catalog, names = noNames, slots } = useForm();
   const types = typeof props.def.to === 'string' ? props.def.to : props.def.to.join(' or ');
   const named = target(props.def, props.value, catalog.records);
+  const slotted = slotChoices(props.def, slots?.(pointerOf(props.path)));
   return (
     <PickField
       {...props}
-      choices={refChoices(props.def, catalog.records, names)}
+      choices={[...slotted, ...refChoices(props.def, catalog.records, names)]}
       title={chooseTitle(props.def, catalog.types)}
       empty={`There are no ${types} records yet.`}
       shownName={named ? names(`${named.type}:${named.id}`) : undefined}

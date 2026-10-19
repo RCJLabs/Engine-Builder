@@ -2,7 +2,16 @@
  * A sheet's own checks, beyond its schema (M3.1, D36): each row's event against the event catalogue
  * (E022) and its argument values against the event's (E023), and each row id once (E024).
  */
-import { domainProblem, EVENT_PATTERN, formatRef, isRecordId, pointerSegment, type RecordIndex } from '@eb/core';
+import {
+  domainProblem,
+  EVENT_PATTERN,
+  formatRef,
+  isRecordId,
+  isSlotName,
+  pointerSegment,
+  type RecordIndex,
+  slotProblem,
+} from '@eb/core';
 import type { Report } from './checkValue.ts';
 import type { Known } from './known.ts';
 
@@ -13,6 +22,8 @@ export interface SheetContext {
   use(key: string, path: string): void;
   /** A row's When names this record as an argument's value: for a flag, the row hears it change. */
   heard(type: string, id: string): void;
+  /** The slots a quest's count can name (M3.10). */
+  readonly slots?: Readonly<Record<string, string>>;
 }
 
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -49,6 +60,11 @@ export function checkWhen(when: unknown, path: string, ctx: SheetContext): void 
     const domain = declared[name];
     if (!domain) {
       ctx.report('E023', at, `"${when.event}" has no argument "${name}"`);
+      continue;
+    }
+    if (isSlotName(arg)) {
+      const problem = slotProblem(arg, domain, ctx.slots);
+      if (problem) ctx.report('E044', at, problem);
       continue;
     }
     if (domain.type === 'ref' && isRecordId(arg)) {
