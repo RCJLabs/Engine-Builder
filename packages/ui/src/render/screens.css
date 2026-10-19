@@ -81,6 +81,8 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  /* touch-action counts only up to the nearest scroller, so the main region, which scrolls, says it too. */
+  touch-action: pan-y;
 }
 
 .eb-stack,

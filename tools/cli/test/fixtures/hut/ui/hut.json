@@ -112,6 +112,12 @@
             "shows-when": "time.day >= 10"
           }
         ]
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
       }
     ]
   },

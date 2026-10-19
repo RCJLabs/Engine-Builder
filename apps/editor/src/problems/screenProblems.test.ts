@@ -59,6 +59,7 @@ function broken() {
     'ui/store.json': encode({ ...store, modal: 'yes' }),
     'ui/talk.json': new TextEncoder().encode('{ "main": '),
     'ui/notes.md': new Uint8Array(),
+    'ui/feedback.json': encode({ lines: [{ on: 'hut/burned', say: 'Gone' }] }),
     'ui/theme.json': encode({
       ...read(files, 'ui/theme.json'),
       colors: { ...(read(files, 'ui/theme.json').colors as object), muted: '#3a4250' },
@@ -73,6 +74,7 @@ describe('a project’s problems with its screens', () => {
     expect(editor).toEqual([]);
     expect(catalog.screens).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(catalog.theme).toBe(true);
+    expect(catalog.feedback).toBe(true);
   });
 
   it('are eb validate’s, each at its line in its file, when its screens are broken', async () => {
@@ -82,7 +84,8 @@ describe('a project’s problems with its screens', () => {
     // By file, then by path: the button at the bottom, the mode, the misspelt fact.
     expect(brief).toEqual([
       'W133 (game)',
-      'E049 ui/hut.json:111',
+      'E051 ui/feedback.json:4',
+      'E049 ui/hut.json:117',
       'E049 ui/hut.json:5',
       'E048 ui/hut.json:9',
       'W132 ui/notes.md',
@@ -111,7 +114,7 @@ describe('the Play worker’s jobs', () => {
   it('pack the hut as Export game writes it, and start it from its files', async () => {
     const jobs = playJobs();
     const packed = await jobs({ id: 1, kind: 'pack', files: sent(hut()) });
-    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 4 } });
+    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 5 } });
     const started = await jobs({ id: 2, kind: 'start-files', files: sent(hut()), seed: '1' });
     if (started.kind !== 'started') throw new Error(JSON.stringify(started));
     expect(started.name).toBe('The hut');

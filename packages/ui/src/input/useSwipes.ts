@@ -1,7 +1,8 @@
 /**
  * Swipes on the page (M4.2, docs/specs/input.md#gestures): touch and pen pointers fed to the
  * recognizer, and each swipe handed on with where it began. The click a swipe begun on a button
- * would still make is swallowed, so a swipe presses nothing.
+ * would still make is swallowed, so a swipe presses nothing; the next press puts an end to that,
+ * since a swipe that makes no click would otherwise eat a quick tap after it.
  */
 import type { RefObject } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
@@ -26,6 +27,7 @@ export function useSwipes(
       event.preventDefault();
     };
     const feed = (event: PointerEvent) => {
+      if (event.type === 'pointerdown') element.removeEventListener('click', swallow, { capture: true });
       if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
       const kind = event.type === 'pointerdown' ? 'down' : event.type === 'pointermove' ? 'move' : 'up';
       const input: PointerEventIn =
