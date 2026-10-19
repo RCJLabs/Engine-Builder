@@ -71,6 +71,8 @@ for (const [width, height] of PHONES) {
     test.use({ viewport: { width, height }, hasTouch: true, isMobile: true });
 
     test('keeps the overlay on screen, with 44 px targets', async ({ page }) => {
+      // Its first frame alone may take the 30 s its poll allows.
+      test.setTimeout(60_000);
       const errors = watchErrors(page);
       await page.goto(`${SPIKE}?tier=medium`);
       await expect.poll(() => framesDrawn(page), { timeout: 30_000 }).toBeGreaterThan(0);

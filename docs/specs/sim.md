@@ -34,10 +34,11 @@ It follows the patterns that survived in three of the existing games:
 
 ## Modules
 
-`defineModule({ id, init, actions, facts, effects, modes, events, on, version, migrate })`:
+`defineModule({ id, init, start, actions, facts, effects, modes, events, on, made, version, migrate })`:
 
 - **Names.** The `id` is kebab-case, unique, and not `kernel`. Every other name is kebab-case too.
 - **`init(ctx)`** returns the module's first slice. Its `ctx` has `content` and `rng(name)`. Modules start in the order the game lists them.
+- **`start(ctx)`** (M3.6), if given, runs once as a new game begins, after every module's `init`, in module order, with a handler's context: it applies effects, raises events that listeners hear, and makes attempts, as an action's work does. Its draws are kept, its beats dropped, and the state stays at step 0. A refusal there throws: a game can't refuse to begin. A module a migration adds to a save starts with `init` alone. The roster kit gives the members who start on it their ranks' statuses this way.
 - **Registered names:**
 
   | What | Registered as | Unique within |
@@ -53,6 +54,7 @@ It follows the patterns that survived in three of the existing games:
 - **Facts** are a function `(view, args) => value`, or `{ read, args?, domain?, label?, describe? }` for conditions to check, lint and word ([conditions.md](conditions.md)). A fact with a domain must answer one of its values, or `undefined`/`null` for none; the kernel throws on any other answer, wherever the fact is read.
 - **Effects** are a function `(ctx, effect) => void`, or `{ run, preview? }`. A preview says what the effect would do now, without doing it.
 - **Events** are the beats content may react to, each with its arguments, and **listeners** (`on`) are what a module does when one is raised: by event id, or `"*"` for every event it has no entry for (M3.1, [triggers.md](triggers.md)).
+- **Made records** (`made`) are records the module makes in play, which every module reads beside the pack's ([Made records](#made-records)).
 - **Versions.** `version` (default 1) is the shape of the slice, recorded in `kernel.versions`. `migrate` turns an older slice into the current one, so old saves keep loading ([saves.md](saves.md#module-versions-and-migrations)).
 
 `createGame({ modules, start })` checks every name. It throws on:
@@ -149,6 +151,18 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 - **Refused actions** keep none of their draws.
 - **Where randomness comes from.** Handlers take it only from `ctx.rng`. A stream made anywhere else forks the replay (landnam's `src/sim/swing.ts`).
 
+## Made records
+
+A module may make records in play (M3.6, [D44](../decisions.md)): the roster kit's recruits are actors made this way ([roster.md](roster.md#members-made-in-play)).
+
+- **Declared** as `made: { types, ids(view, type), get(view, type, id) }`. `view` is `{ state, content }`: the module's slice as it is at that moment, and the pack's content. `ids` lists the ids it has made of a type, sorted; `get` gives one record, or `undefined`.
+- **Read everywhere content is.** The `content` a handler's context, a fact's view, an action's options and an effect's preview hold is the pack's records with every module's made records beside them. So a made record is read, listed, checked as a reference and named in an event exactly as a written one is: `has`, `get`, `getOrThrow`, `ids` and `entries` all see it, and `ids` lists both kinds sorted together.
+- **Read through the drafts.** Each lookup reads the making module's slice as the action has left it so far, so a record made by one effect is there for the next in the same action, and a refused action leaves none.
+- **Never a written record's id.** A made id that is also the pack's, or another module's, throws when a type's ids are listed; looked up by id, the written record is the one found. Content that could clash is stopped by validation (the roster kit's E035).
+- **Frozen** the first time the kernel sees each, as content's records are.
+- **Not in `init`:** nothing has been made before the first slices exist.
+- **Not checked by `eb validate`,** which reads only the pack: a module makes records only from what validation checked, a recruit from its template.
+
 ## Beats
 
 - **Shape.** `{ "type": "module/what", ...data }`. The data is JSON, and it can't override `type`.
@@ -161,6 +175,7 @@ Callers read `accepted` rather than comparing states. An accepted action can cha
 None of these change the state or draw a random number.
 
 - `game.fact(state, id, args, sim)` reads a fact for the UI or a bot.
+- `game.content(state, sim)` is the content every module reads in that state: the pack's records and the [made records](#made-records). The stage names an event's actor from it, a recruit's included.
 - `game.check(state, condition, sim)` evaluates a condition the way `ctx.check` does, so a menu offers what the sim allows.
 - `game.preview(state, effects, sim)` previews each effect: its module's `preview`, or the effect as written ([conditions.md](conditions.md)).
 - `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against. `game.events()` and `eventCatalog(modules)` do the same for events.

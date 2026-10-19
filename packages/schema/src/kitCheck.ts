@@ -2,8 +2,9 @@
  * The kits' checks beyond their type files (M3.3, docs/specs/kits.md): E035 for a record whose
  * numbers or entries don't hold together, E036 for loot tables nested in a loop, and W113 for a
  * shop that stocks again in a game without days. Each record is checked as it comes; what needs
- * every loot table waits for finish().
+ * every loot table waits for finish(). The stats, factions and roster kits' are in their own files.
  */
+import type { Effect } from '@eb/core';
 import {
   ITEM,
   LOOT_TABLE,
@@ -12,6 +13,7 @@ import {
   type Range,
   RESOURCE,
   type ResourceRecord,
+  ROSTER,
   rangeOf,
   SHOP,
   type ShopRecord,
@@ -21,6 +23,7 @@ import { compareText, type DiagnosticCode } from './diagnostics.ts';
 import { FactionChecks } from './factionCheck.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
+import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
@@ -83,16 +86,21 @@ export class KitChecks {
   private readonly shops = new Map<string, Seen<ShopRecord>>();
   private readonly stats: StatChecks;
   private readonly factions: FactionChecks;
+  /** With the roster kit off, its type names are free for a project's own types (D41). */
+  private readonly roster: RosterChecks | undefined;
 
   constructor(on: readonly string[], known: Known) {
     this.on = on;
     this.known = known;
     this.stats = new StatChecks(on, known);
     this.factions = new FactionChecks(known);
+    this.roster = on.includes(ROSTER) ? new RosterChecks(on) : undefined;
   }
 
   /** One record that passed its type's schema. */
   record(type: string, id: string, value: unknown, report: Report): void {
+    // The roster's cap can read a flag, which is the engine's type, not a kit's.
+    this.roster?.record(type, id, value, report);
     if (!isKitType(type, this.on)) return;
     this.stats.record(type, id, value, report);
     this.factions.record(type, id, value, report);
@@ -115,9 +123,20 @@ export class KitChecks {
     }
   }
 
-  /** A record's sound condition, for the bands it names (E039). */
+  /** A record's sound condition, for the bands and ranks it names (E039, E040). */
   condition(report: Report, sound: SoundCondition): void {
     this.factions.condition(report, sound);
+    this.roster?.condition(report, sound);
+  }
+
+  /** The flags a kit's record reads as the game runs (W108, W109): the roster's cap-flag. */
+  flagsRead(type: string, value: unknown): readonly string[] {
+    return this.roster?.reads(type, value) ?? [];
+  }
+
+  /** An effect whose schema passed, at path. */
+  effect(report: Report, path: string, effect: Effect): void {
+    this.roster?.effect(report, path, effect);
   }
 
   /** What needs every loot table: loops (E036), and stock tables that give a resource (E035). */
@@ -125,6 +144,7 @@ export class KitChecks {
     this.loops();
     this.stats.finish();
     this.factions.finish();
+    this.roster?.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

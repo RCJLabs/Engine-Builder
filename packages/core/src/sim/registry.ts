@@ -2,6 +2,7 @@ import type { FactCatalog, FactInfo } from '../logic/types.ts';
 import { domainError, FACT_PATTERN, NAME_PATTERN } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
 import { type EventCatalog, type EventInfo, eventInfoError } from './events.ts';
+import type { Maker } from './made.ts';
 import type { ActionRun, ActionSpec, EffectRun, EffectSpec, FactRead, Listener, Module } from './module.ts';
 
 /** The module id the kernel's own state uses. */
@@ -46,6 +47,8 @@ export interface Registry {
   readonly listeners: ReadonlyMap<string, readonly ListenerEntry[]>;
   /** Each mode's allowed action types, with its patterns already expanded. */
   readonly modes: ReadonlyMap<string, ReadonlySet<string>>;
+  /** The modules that make records in play, in module order (D44). */
+  readonly makers: readonly Maker[];
 }
 
 /**
@@ -64,6 +67,9 @@ export function buildRegistry(modules: readonly Module[]): Registry {
     if (ids.has(module.id)) throw new Error(`Two modules have the id "${module.id}"`);
     ids.add(module.id);
     checkVersion(module);
+    if (module.start !== undefined && typeof module.start !== 'function') {
+      throw new Error(`Module "${module.id}": start must be a function`);
+    }
     for (const [verb, def] of Object.entries(module.actions ?? {})) {
       const type = `${module.id}/${name(verb, `${module.id} action`)}`;
       const spec = typeof def === 'function' ? { run: def } : def;
@@ -92,7 +98,22 @@ export function buildRegistry(modules: readonly Module[]): Registry {
     }
   }
   const listeners = listenersOf(modules, events);
-  return { modules, actions, facts, effects, events, listeners, modes: expandModes(modules, actions) };
+  const makers = makersOf(modules);
+  return { modules, actions, facts, effects, events, listeners, modes: expandModes(modules, actions), makers };
+}
+
+function makersOf(modules: readonly Module[]): Maker[] {
+  return modules.flatMap((module) => {
+    const spec = module.made;
+    if (spec === undefined) return [];
+    if (!Array.isArray(spec.types) || spec.types.length === 0 || !spec.types.every(isRecordId)) {
+      throw new Error(`Module "${module.id}": made.types must list the record types it makes`);
+    }
+    if (typeof spec.ids !== 'function' || typeof spec.get !== 'function') {
+      throw new Error(`Module "${module.id}": made needs ids and get functions`);
+    }
+    return [{ module: module.id, spec }];
+  });
 }
 
 // A listener for an event nobody declares would never run, which is a typo found too late.

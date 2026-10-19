@@ -123,6 +123,27 @@ export interface EffectSpec<S> {
  */
 export type Listener<S> = (ctx: ModuleContext<S>, event: Beat) => void;
 
+/** What a module's made records are worked out from: its slice as it is now, and the pack's content. */
+export interface MadeView<S> {
+  readonly state: DeepReadonly<S>;
+  readonly content: RecordStore;
+}
+
+/**
+ * Records a module makes in play (D44, docs/specs/sim.md#made-records): the content every module
+ * reads holds them beside the pack's, so they are read, checked and named as written records are.
+ * The roster kit's recruits are actors made this way. Both functions read the slice as it is at
+ * that moment, drafts included, so a record made earlier in an action is there for later effects.
+ */
+export interface MadeSpec<S> {
+  /** The record types it makes. */
+  readonly types: readonly string[];
+  /** The ids it has made of a type, sorted. */
+  ids(view: MadeView<S>, type: string): readonly string[];
+  /** One record it has made, or undefined. The kernel freezes it, as it freezes content's. */
+  get(view: MadeView<S>, type: string, id: string): unknown;
+}
+
 export interface InitContext {
   readonly content: RecordStore;
   rng(name: string): Rng;
@@ -138,6 +159,12 @@ export interface ModuleDef<S> {
   readonly id: string;
   /** The slice a new game starts with. */
   init(ctx: InitContext): S;
+  /**
+   * Runs once as a new game begins, after every module's init, in module order (M3.6): what init
+   * can't do, such as applying another module's effects. Its draws are kept and its beats
+   * dropped. A module that a migration adds to a save starts with init alone.
+   */
+  start?(ctx: ModuleContext<S>): void;
   /** Registered as "id/verb": a handler, or a handler with the options a bot or menu can offer. */
   readonly actions?: Readonly<Record<string, ActionRun<S> | ActionSpec<S>>>;
   /**
@@ -155,6 +182,8 @@ export interface ModuleDef<S> {
   readonly events?: Readonly<Record<string, EventInfo>>;
   /** What the module does when an event is raised, by event id, or "*" for every event it has no entry for. */
   readonly on?: Readonly<Record<string, Listener<S>>>;
+  /** The records it makes in play, which every module reads beside the pack's (D44). */
+  readonly made?: MadeSpec<S>;
   /**
    * The shape of this module's slice, from 1 (the default). Bump it whenever the shape changes,
    * with a migration to it and a fixture saved by the old version that must still load.

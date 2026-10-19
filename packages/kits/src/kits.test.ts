@@ -19,6 +19,9 @@ describe('the kits', () => {
     expect(kitsOn(['economy', 'inventory'])).toEqual({ on: ['inventory', 'economy'], problems: [] });
     expect(kitsOn(['economy']).on).toEqual([]);
     expect(kitsOn(['economy']).problems.map((p) => `${p.code} ${p.index}`)).toEqual(['E034 0']);
+    // The roster's members are actors, so it needs the stats kit (M3.6).
+    expect(kitsOn(['roster']).problems.map((p) => p.message)).toEqual(['The roster kit needs stats on too']);
+    expect(kitsOn(['roster', 'stats']).on).toEqual(['stats', 'roster']);
     expect(kitsOn(['inventory', 'magic', 'inventory']).problems.map((p) => `${p.code} ${p.index}`)).toEqual([
       'E033 1',
       'E033 2',

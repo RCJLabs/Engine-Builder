@@ -1,0 +1,14 @@
+{
+  "name": "Wounded",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": -10
+    }
+  ],
+  "lasts": {
+    "days": 3
+  },
+  "stacks": 3,
+  "tags": ["injury"]
+}

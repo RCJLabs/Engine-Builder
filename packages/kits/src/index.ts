@@ -3,8 +3,9 @@
  * docs/specs/kits.md). The inventory kit (items, the party's bag, loot tables), the economy kit
  * (resources, shops), the stats kit (actors, stats, statuses) and the gear kit (slots, worn items;
  * M3.4, docs/specs/stats.md), the factions kit (standing, bands, drift; M3.5,
- * docs/specs/factions.md) and the time kit (the calendar as data). Their record types and checks
- * are in @eb/schema.
+ * docs/specs/factions.md), the time kit (the calendar as data) and the roster kit (members,
+ * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md). Their record types and
+ * checks are in @eb/schema.
  */
 export { addAmount, amountOf, highest, lowest, resourceRecord } from './economy/amounts.ts';
 export { economyKit } from './economy/module.ts';
@@ -45,6 +46,43 @@ export {
 export { KIT_IDS, KITS, type Kit, type KitProblem, kitsOn } from './kits.ts';
 export { type Drawn, draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from './loot/draw.ts';
 export { kitModules } from './modules.ts';
+export { bondOf, pairKey } from './roster/bonds.ts';
+export { type HireVerdict, hallIn, hireVerdict } from './roster/hall.ts';
+export { capOf, rankOf, roomOf, rosterRecord } from './roster/members.ts';
+export { rosterModule } from './roster/module.ts';
+export {
+  feeOf,
+  MADE,
+  madeActor,
+  NAME_TRIES,
+  nextRecruit,
+  type Offer,
+  offerAt,
+  recruitId,
+  roll,
+  roundOf,
+} from './roster/offers.ts';
+export {
+  type BondBand,
+  type BondSettings,
+  type Fee,
+  HALL,
+  type HallRecord,
+  type HallRecruit,
+  type HallState,
+  HIRING,
+  type Ladder,
+  type Rank,
+  RECRUIT,
+  type RecruitRecord,
+  ROSTER,
+  ROSTER_RECORD,
+  type Rolled,
+  type RosterRecord,
+  type RosterSlice,
+  type StatRange,
+  type Trait,
+} from './roster/types.ts';
 export { statsModule } from './stats/module.ts';
 export {
   ACTOR,

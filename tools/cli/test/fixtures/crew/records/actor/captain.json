@@ -1,0 +1,8 @@
+{
+  "name": "Ada Vance",
+  "description": "The captain.",
+  "stats": {
+    "aim": 60,
+    "health": 12
+  }
+}

@@ -154,6 +154,43 @@ function laterEffectText(effect: Record<string, unknown>): string | undefined {
       return `do ${count === 1 ? '1 effect' : `${count} effects`} in ${lengthOf(effect.after)}${every}`;
     }
     default:
+      return rosterEffectText(effect);
+  }
+}
+
+// "add 2 to", "take 2 from": a whole number's change in words.
+const changeBy = (by: unknown, what: string) =>
+  typeof by === 'number' && by < 0 ? `take ${-by} from ${what}` : `add ${written(by)} to ${what}`;
+
+/**
+ * The roster kit's effects (M3.6): "recruit deckhand", "take ana off the roster: dead", "add 1 to
+ * every bond on the roster", "start dock’s next round".
+ */
+function rosterEffectText(effect: Record<string, unknown>): string | undefined {
+  const actor = named(effect.actor, 'an actor');
+  const { hall } = effect;
+  switch (effect.effect) {
+    case 'recruit':
+      return typeof effect.recruit === 'string' && effect.recruit !== ''
+        ? `recruit ${effect.recruit}`
+        : 'recruit from a template not yet chosen';
+    case 'join':
+      return `put ${actor} on the roster`;
+    case 'leave':
+      return typeof effect.why === 'string' && effect.why !== ''
+        ? `take ${actor} off the roster: ${effect.why}`
+        : `take ${actor} off the roster`;
+    case 'change-bond':
+      return changeBy(effect.by, `the bond of ${actor} and ${named(effect.with, 'an actor')}`);
+    case 'change-bonds':
+      return changeBy(effect.by, 'every bond on the roster');
+    case 'open-hall':
+      return `open ${named(hall, 'a hall')}`;
+    case 'refresh-hall':
+      return typeof hall === 'string' && hall !== ''
+        ? `start ${hall}’s next round`
+        : 'start the next round of a hall not yet chosen';
+    default:
       return undefined;
   }
 }

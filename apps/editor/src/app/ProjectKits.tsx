@@ -18,6 +18,10 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     brings: 'Standing with each faction, in bands that set shops’ prices and that conditions read.',
   },
   time: { name: 'Time', brings: 'Days, weeks, months and seasons, and rows that run as each one starts.' },
+  roster: {
+    name: 'Roster',
+    brings: 'Members who join and leave, recruits rolled in halls, ranks on a stat, and bonds. Needs Stats.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

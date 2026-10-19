@@ -1,0 +1,13 @@
+{
+  "name": "Kessel outpost",
+  "offers": 2,
+  "recruits": [
+    {
+      "recruit": "marine",
+      "weight": 2
+    },
+    {
+      "recruit": "tech"
+    }
+  ]
+}

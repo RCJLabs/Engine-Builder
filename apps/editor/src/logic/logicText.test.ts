@@ -146,6 +146,35 @@ describe('sheet edits', () => {
     expect(effectText({ effect: 'wait', days: 0 })).toBe('wait a length not yet set');
   });
 
+  it('says the roster kit’s effects in a few words (M3.6)', () => {
+    expect(
+      doText([
+        { effect: 'recruit', recruit: 'deckhand' },
+        { effect: 'join', actor: 'ana' },
+        { effect: 'leave', actor: 'ana', why: 'dead' },
+        { effect: 'change-bond', actor: 'ana', with: 'bo', by: 2 },
+        { effect: 'change-bond', actor: 'ana', with: 'bo', by: -1 },
+        { effect: 'change-bonds', by: 1 },
+        { effect: 'change-bonds', by: -2 },
+        { effect: 'open-hall', hall: 'dock' },
+        { effect: 'refresh-hall', hall: 'dock' },
+      ]),
+    ).toBe(
+      'Do: recruit deckhand, then put ana on the roster, then take ana off the roster: dead, ' +
+        'then add 2 to the bond of ana and bo, then take 1 from the bond of ana and bo, ' +
+        'then add 1 to every bond on the roster, then take 2 from every bond on the roster, ' +
+        'then open dock, then start dock’s next round',
+    );
+    expect(effectText({ effect: 'recruit', recruit: '' })).toBe('recruit from a template not yet chosen');
+    expect(effectText({ effect: 'leave', actor: '' })).toBe('take an actor not yet chosen off the roster');
+    expect(effectText({ effect: 'change-bond', actor: 'ana', by: 1 })).toBe(
+      'add 1 to the bond of ana and an actor not yet chosen',
+    );
+    expect(effectText({ effect: 'refresh-hall' })).toBe('start the next round of a hall not yet chosen');
+    expect(kitEffectFile('recruit', ['stats', 'roster'])?.kit).toBe('roster');
+    expect(kitEffectFile('recruit', ['stats'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

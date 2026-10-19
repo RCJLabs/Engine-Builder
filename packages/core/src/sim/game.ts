@@ -6,9 +6,11 @@
  */
 import { canonicalJson } from '../canonical.ts';
 import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
+import type { RecordStore } from '../records.ts';
 import { Rng } from '../rng.ts';
 import type { EventCatalog } from './events.ts';
 import { freezeJson } from './json.ts';
+import { withMade } from './made.ts';
 import { type MigrationReport, migrateState } from './migrate.ts';
 import type { FactArgs, Module } from './module.ts';
 import { AttemptRefused, Refusal } from './refusal.ts';
@@ -34,6 +36,11 @@ export interface Game {
    */
   options(state: GameState, sim: SimContext): readonly Action[];
   fact(state: GameState, id: string, args: FactArgs | undefined, sim: SimContext): unknown;
+  /**
+   * The records every module reads in this state: the pack's, and those modules have made in play
+   * (D44), such as the roster kit's recruits. What the stage names an event's actor from.
+   */
+  content(state: GameState, sim: SimContext): RecordStore;
   /** Every fact the modules register, by id: what conditions in content are checked against. */
   catalog(): FactCatalog;
   /** Every event the modules declare, by id: what rows' When is checked against. */
@@ -89,7 +96,7 @@ export function createGame(definition: GameDefinition): Game {
         versions: versionsOf(registry),
       };
       freezeJson(kernel, `/${KERNEL}`);
-      return Object.freeze({ [KERNEL]: kernel, ...slices }) as GameState;
+      return startGame(registry, Object.freeze({ [KERNEL]: kernel, ...slices }) as GameState, sim);
     },
 
     reduce(state, action, sim) {
@@ -119,6 +126,8 @@ export function createGame(definition: GameDefinition): Game {
 
     fact: (state, id, args, sim) => new Transaction(registry, state, sim).fact(id, args),
 
+    content: (state, sim) => withMade(sim.content, registry.makers, (module) => state[module]),
+
     catalog: () => catalog,
 
     events: () => events,
@@ -136,6 +145,30 @@ export function createGame(definition: GameDefinition): Game {
 
 /** More refused attempts than this in one action means one refuses every time it runs. */
 const MAX_REFUSED_ATTEMPTS = 1000;
+
+/**
+ * Each module's start, in module order, once every slice exists (M3.6): what a module does as the
+ * game begins that init can't, applying effects and raising events as an action's work does.
+ * Its draws are kept and its beats dropped, and the state stays at step 0.
+ */
+function startGame(registry: Registry, state: GameState, sim: SimContext): GameState {
+  const starters = registry.modules.filter((module) => module.start !== undefined);
+  if (starters.length === 0) return state;
+  const skipped = new Map<string, Refusal>();
+  for (;;) {
+    const tx = new Transaction(registry, state, sim, skipped);
+    try {
+      for (const module of starters) tx.scope(() => module.start?.(tx.context(module.id)));
+      return tx.commit(0);
+    } catch (error) {
+      if (error instanceof Refusal) throw new Error(`A module's start was refused: ${error.reason}`);
+      if (!(error instanceof AttemptRefused)) throw error;
+      if (skipped.size >= MAX_REFUSED_ATTEMPTS)
+        throw new Error(`More than ${MAX_REFUSED_ATTEMPTS} attempts refused as the game starts`);
+      skipped.set(error.id, error.refusal);
+    }
+  }
+}
 
 // A run that ends in a refused attempt starts again from the same state with that attempt
 // skipped, so the attempt's work leaves nothing behind (ctx.attempt in docs/specs/sim.md).

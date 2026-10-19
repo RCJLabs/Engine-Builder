@@ -83,6 +83,7 @@ export const CTX_API: readonly ApiEntry[] = [
 export const MODULE_API: readonly ApiEntry[] = [
   value('id', 'string', 'The module’s id, kebab-case: its actions are "id/verb", its facts "id.name".'),
   fn('init', '(ctx: { content, rng }) => State', 'The slice a new game starts with.'),
+  fn('start', '(ctx) => void', 'Runs once as a new game begins, after every init: what init can’t, such as effects.'),
   value('actions', '{ verb: (ctx, action) => void }', 'What the player can do: each a handler, or { run, options }.'),
   value(
     'facts',
@@ -93,6 +94,11 @@ export const MODULE_API: readonly ApiEntry[] = [
   value('events', '{ name: { args?, label? } }', 'The beats trigger rows can react to, raised with ctx.emit.'),
   value('on', '{ "module/event": (ctx, event) => void }', 'What the module does when an event is raised.'),
   value('modes', '{ name: { actions: ["id/*"] } }', 'The modes the game moves through, and the actions each allows.'),
+  value(
+    'made',
+    '{ types: string[], ids(view, type), get(view, type, id) }',
+    'Records it makes in play from its slice, which every module reads beside the pack’s.',
+  ),
   value(
     'version',
     'number',

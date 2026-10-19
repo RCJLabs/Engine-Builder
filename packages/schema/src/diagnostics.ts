@@ -43,6 +43,7 @@ export const DIAGNOSTIC_CODES = {
   E037: "A project's fields for a kit's type name one of the kit's own",
   E038: "project.json's calendar doesn't hold together",
   E039: 'A condition names a band its faction does not have',
+  E040: 'A condition names a rank, a bond band or a bond the roster does not have',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -59,6 +60,7 @@ export const DIAGNOSTIC_CODES = {
   W114: 'A status lasts days or ticks in a game without the time module',
   W115: 'A faction drifts in a game without the time module',
   W116: "project.json's calendar is read by no time module",
+  W117: 'A recruit has a fee in a game without the economy kit',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

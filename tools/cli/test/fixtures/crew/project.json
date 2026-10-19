@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "crew",
+  "name": "The crew",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "stats", "time", "roster"],
+  "calendar": {
+    "ticksPerDay": 1
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Medic",
+  "description": "What every medic starts as.",
+  "stats": {
+    "health": 10,
+    "aim": 40
+  }
+}

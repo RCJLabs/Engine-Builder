@@ -827,6 +827,46 @@ The specs are [specs/factions.md](specs/factions.md) and [specs/time.md](specs/t
 
 ---
 
+### D44. The roster kit: recruits rolled from templates and worked out from the seed; bonds a number per pair in bands; ranks a ladder on a stat; members who leave kept as gone. LOCKED, 2026-10-19 (Evan's calls, M3.6)
+
+**Decision.**
+- **Recruits** (Evan's call): a recruit template names a written actor to copy and rolls the rest: a name from its lists, stats within ranges, traits by chance, and a fee. A hall offers a few recruits a round, worked out from the game's seed, the hall, its round and the slot, so it offers the same people every visit and only those hired are saved (Space-Wrecked). A row can make a recruit straight from a template, for people who just arrive (Landnam, Afterglass).
+- **Bonds** (Evan's call): a whole number for each pair of actors, within the roster's range, in bands it names (Wasteland's 4, 10 and 18 fights, Ludus's strength), changed by effects that rows apply. Nothing grows by itself, as with factions.
+- **Ranks** (Evan's call): a ladder on a stat, such as fights or xp: each rank begins at a value, and a member at a rank has its status (Space-Wrecked's 3 and 8 fights, 2060td's 40, 110 and 220). Conditions read the rank by name.
+- **Leaving** (Evan's call): a member who leaves (dead, dismissed, sold) leaves the roster but stays in the save with the reason, so bonds and annals can still name them (Ludus's fallen, Landnam, Afterglass). Ids are never reused.
+
+Evan chose on 2026-10-19, from these options:
+- recruits: rolled from templates and worked out from the seed; a market rolled once and saved (Ludus); or written members only;
+- bonds: a number per pair in bands; the same, growing with days together without a row; or no bonds yet;
+- ranks: a ladder on a stat with a status a rank; levels with points to spend (Wasteland's perks); or no ranks yet;
+- leaving: kept as gone with the reason; or removed outright with everything naming them.
+
+Also settled, as the session's calls:
+- traits and wounds are the stats kit's statuses: a trait has no end, a wound lasts days. Every game surveyed fits one or the other;
+- **a member made in play is a record like any other.** The kernel's content, as every module reads it, holds the records a module makes from its slice beside the records content lists. So every kit reads, checks and names a recruit as it does a written actor, and events and facts that name an actor take a recruit's id;
+- a recruit's id is its template's and a number, `deckhand-4`, from one counter the game never winds back. A written actor named that way is refused (E035), so the two can't meet;
+- one roster a game, its settings a roster record: its cap (a number, or a number flag that rows raise), who starts on it, the rank ladder, and the range and bands of bonds;
+- a hall works like a shop: opening it shows its offers in a mode, where hiring is an action. A fee is paid as pay-cost pays, so with no economy kit nothing can charge one;
+- found while building it: the stage needs a recruit's name outside an action ("Ketil Ash joined"), so `game.content(state, sim)` gives the content every module reads; and a module's `start`, run once after every init, gives those who start on the roster their ranks' statuses, which init can't, since it applies no effects;
+- also found: `constructor` is a valid record id, and a plain object answers it with Object.prototype's. The roster reads its slice's maps by own keys only (`own.ts`); the kits before it don't yet (ROADMAP's ideas);
+- a hall offers at most 20 a round, since every offer is worked out again whenever the hall's options are read; a leave's why is any text; a condition naming an actor's bond with itself is E040, as a change-bond naming one is E035.
+
+The spec is [specs/roster.md](specs/roster.md), and the survey behind it [research/kits-ii.md](research/kits-ii.md#rosters).
+
+**Why.**
+- **Templates worked out from the seed.** Space-Wrecked's stations do this, and saves hold only who was hired. A market saved whole (Ludus) is a hall whose offers a row refreshes, so it costs nothing extra.
+- **A number per pair, in bands.** Ludus, Wasteland and Landnam's grudges all keep one number per pair and act on thresholds, which bands are; the factions kit has the same shape.
+- **A ladder on a stat.** Space-Wrecked, 2060td and Landnam all count something (fights, xp) and act at thresholds. Levels with points to spend need a screen to spend them on, which is Phase 4's.
+- **Kept as gone.** Every game but Space-Wrecked keeps its dead, and Ludus's kin, Landnam's grudges and Afterglass's shades name them after.
+- **Made records in the kernel.** A recruit read some other way would need every kit that reads actors (stats, gear, and later missions) to learn a second place to look, and every event that names an actor to stop checking that the actor exists.
+
+**Cost.**
+- **Rows can't yet name the member an event is about:** a row on `roster/joined` can't give that member a status. The kit's own work (traits at hire, a rank's status) and a game's scripts can. Aliases come with missions (M3.9).
+- **A recruit's rolled stats and traits are kept, not worked out again,** so a content change to a template's ranges reaches only recruits made after it. What the recruit copies from its actor (its slots, the statuses it starts with) is read from content each time.
+- **The kernel's content is no longer only the pack:** a made record isn't checked by `eb validate`, only by the template it was rolled from.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

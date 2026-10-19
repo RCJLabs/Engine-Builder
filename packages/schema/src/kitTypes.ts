@@ -10,10 +10,14 @@ import {
   FACTION,
   FACTIONS,
   GEAR,
+  HALL,
   INVENTORY,
   ITEM,
   LOOT_TABLE,
+  RECRUIT,
   RESOURCE,
+  ROSTER,
+  ROSTER_RECORD,
   SHOP,
   SLOT,
   STAT,
@@ -22,6 +26,7 @@ import {
 } from '@eb/kits';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
+import { HALL_TYPE_FILE, ROSTER_TYPE_FILE, recruitTypeFile } from './rosterTypes.ts';
 import { actorTypeFile, SLOT_TYPE_FILE, STAT_TYPE_FILE, STATUS_TYPE_FILE, WORN_ITEM_FIELDS } from './statTypes.ts';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -210,7 +215,10 @@ const FACTION_SHOP_TYPE_FILE: TypeFile = {
   fields: { ...SHOP_TYPE_FILE.fields, ...FACTION_SHOP_FIELDS },
 };
 
-/** Each kit's types, by name, as the type files it has with the kits on: gear adds to items and actors, factions to shops. */
+/**
+ * Each kit's types, by name, as the type files it has with the kits on: gear adds to items and
+ * actors, factions to shops, and the economy kit makes a recruit's fee name resources.
+ */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
   [INVENTORY]: (on) => ({
     [ITEM]: on.includes(GEAR) ? WORN_ITEM_TYPE_FILE : ITEM_TYPE_FILE,
@@ -223,6 +231,11 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on.includes(GEAR)), [STATUS]: STATUS_TYPE_FILE }),
   [GEAR]: () => ({ [SLOT]: SLOT_TYPE_FILE }),
   [FACTIONS]: () => ({ [FACTION]: FACTION_TYPE_FILE }),
+  [ROSTER]: (on) => ({
+    [RECRUIT]: recruitTypeFile(on.includes(ECONOMY)),
+    [HALL]: HALL_TYPE_FILE,
+    [ROSTER_RECORD]: ROSTER_TYPE_FILE,
+  }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

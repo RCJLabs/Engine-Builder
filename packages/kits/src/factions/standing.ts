@@ -4,6 +4,7 @@
  * Space-Wrecked's levels and Landnam's bands are both "the last band passed".
  */
 import type { DeepReadonly, ModuleContext, RecordStore } from '@eb/core';
+import { bandAt, reachedBand, withinBounds } from '../bands.ts';
 import { type Band, FACTION, type FactionRecord, type FactionsSlice } from './types.ts';
 
 /** The record, or a thrown error: validation stops a reference to a missing one. */
@@ -13,8 +14,7 @@ export function factionRecord(content: RecordStore, id: unknown): FactionRecord 
 }
 
 /** `n` kept within the faction's bounds. */
-export const within = (faction: FactionRecord, n: number): number =>
-  Math.min(Math.max(n, faction.min ?? Number.NEGATIVE_INFINITY), faction.max ?? Number.POSITIVE_INFINITY);
+export const within = (faction: FactionRecord, n: number): number => withinBounds(faction, n);
 
 /** Where standing begins: the faction's start, or 0 kept within its bounds. */
 export const startOf = (faction: FactionRecord): number => faction.start ?? within(faction, 0);
@@ -26,21 +26,11 @@ export function standingOf(content: RecordStore, slice: DeepReadonly<FactionsSli
 }
 
 /** The band a standing is in: the last whose start it has reached, the first holding everything below. */
-export function bandOf(faction: FactionRecord, standing: number): Band | undefined {
-  const bands = faction.bands ?? [];
-  let found = bands[0];
-  for (const band of bands.slice(1)) if (band.from !== undefined && band.from <= standing) found = band;
-  return found;
-}
+export const bandOf = (faction: FactionRecord, standing: number): Band | undefined => bandAt(faction.bands, standing);
 
 /** Whether a standing is at or above where the band begins: the first band holds everything below. */
-export function reached(faction: FactionRecord, id: string, band: unknown, standing: number): boolean {
-  const bands = faction.bands ?? [];
-  const index = bands.findIndex((b) => b.id === band);
-  if (index === -1) throw new Error(`Faction "${id}" has no band "${String(band)}"`);
-  const from = (bands[index] as Band).from;
-  return index === 0 || (from !== undefined && standing >= from);
-}
+export const reached = (faction: FactionRecord, id: string, band: unknown, standing: number): boolean =>
+  reachedBand(faction.bands, `Faction "${id}"`, band, standing);
 
 /** The share of a shop's prices the faction's band sets, percent: 100 with no bands. */
 export const priceOf = (faction: FactionRecord, standing: number): number => bandOf(faction, standing)?.price ?? 100;

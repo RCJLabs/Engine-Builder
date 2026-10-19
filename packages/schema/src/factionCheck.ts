@@ -4,8 +4,8 @@
  * faction doesn't have, and W115 for drift in a game without days. A condition can name a faction
  * before its record is read, so E039 waits for finish().
  */
-import { NAME_PATTERN } from '@eb/core';
 import { FACTION, type FactionRecord } from '@eb/kits';
+import { boundsText, checkBands, outside } from './bandCheck.ts';
 import type { SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { factTests } from './flagCheck.ts';
@@ -13,50 +13,19 @@ import type { Known } from './known.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
 
-const bounds = (f: FactionRecord) => `${f.min ?? 'no limit'} to ${f.max ?? 'no limit'}`;
-const outside = (f: FactionRecord, n: number) =>
-  (f.min !== undefined && n < f.min) || (f.max !== undefined && n > f.max);
-
-function checkBands(faction: FactionRecord, report: Report): void {
-  const seen = new Set<string>();
-  let last: { id: string; from: number } | undefined;
-  (faction.bands ?? []).forEach((band, i) => {
-    const at = `/bands/${i}`;
-    if (!NAME_PATTERN.test(band.id)) {
-      report('E035', `${at}/id`, `"${band.id}" can't be written in a condition: use lowercase words joined by hyphens`);
-    } else if (seen.has(band.id)) report('E035', `${at}/id`, `${band.id} is a band twice`);
-    seen.add(band.id);
-    if (band.from === undefined) {
-      if (i > 0)
-        report('E035', at, `${band.id} says nothing of where it begins: only the first band can leave From out`);
-      return;
-    }
-    if (outside(faction, band.from)) {
-      report('E035', `${at}/from`, `${band.id} begins at ${band.from}, outside ${bounds(faction)}`);
-    } else if (last !== undefined && band.from <= last.from) {
-      report(
-        'E035',
-        `${at}/from`,
-        `${band.id} begins at ${band.from}, not above ${last.id}'s ${last.from}: lowest first`,
-      );
-    }
-    last = { id: band.id, from: band.from };
-  });
-}
-
 function checkFaction(faction: FactionRecord, known: Known, report: Report): void {
   if (faction.min !== undefined && faction.max !== undefined && faction.max < faction.min) {
     report('E035', '/max', `Highest ${faction.max} is below lowest ${faction.min}`);
     return;
   }
   if (faction.start !== undefined && outside(faction, faction.start)) {
-    report('E035', '/start', `It starts at ${faction.start}, outside ${bounds(faction)}`);
+    report('E035', '/start', `It starts at ${faction.start}, outside ${boundsText(faction)}`);
   }
-  checkBands(faction, report);
+  checkBands(faction.bands ?? [], '/bands', faction, 'band', report);
   const { drift } = faction;
   if (drift === undefined) return;
   if (drift.toward !== undefined && outside(faction, drift.toward)) {
-    report('E035', '/drift/toward', `It rests at ${drift.toward}, outside ${bounds(faction)}`);
+    report('E035', '/drift/toward', `It rests at ${drift.toward}, outside ${boundsText(faction)}`);
   }
   if (!known.openEvents && known.events['time/day-started'] === undefined) {
     report('W115', '/drift', 'It drifts as days start, which time/day-started says: this game has no time module');

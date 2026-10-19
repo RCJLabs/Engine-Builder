@@ -353,8 +353,18 @@ describe('the code table', () => {
       { calendar: { ticksPerDay: 24 } },
       { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
     );
+    // M3.6: a recruit's fee in a game without the economy kit, and a row naming a rank the roster lacks.
+    const rostered = await kitted(['stats', 'roster'], {
+      'records/stat/fights.json': '{}',
+      'records/actor/hand.json': '{}',
+      'records/recruit/deckhand.json': '{ "actor": "hand", "names": ["Ketil"], "fee": { "credits": 30 } }',
+      'records/roster/crew.json': '{ "ranks": { "stat": "fights", "bands": [{ "id": "green" }] } }',
+      'records/sheet/watch.json': JSON.stringify({
+        rows: [{ id: 'a', when: { event: 'roster/joined' }, if: 'roster.ranked(veteran) >= 1', do: [] }],
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const seen = new Set([...results, timed, drifting].flatMap((r) => r.diagnostics.map((d) => d.code)));
+    const seen = new Set([...results, timed, drifting, rostered].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

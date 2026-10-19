@@ -1,0 +1,36 @@
+{
+  "name": "Marine",
+  "actor": "marine-base",
+  "names": ["Ketil", "Asa", "Bryn", "Dag", "Rook", "Tam"],
+  "bynames": ["Ash", "Reed", "Orr", "Holt"],
+  "stats": {
+    "aim": {
+      "min": 50,
+      "max": 65
+    }
+  },
+  "traits": [
+    {
+      "status": "steady",
+      "chance": 30,
+      "fee": {
+        "credits": 15
+      }
+    },
+    {
+      "status": "tough",
+      "chance": 25,
+      "fee": {
+        "credits": 10
+      }
+    },
+    {
+      "status": "nervous",
+      "chance": 20
+    }
+  ],
+  "most": 2,
+  "fee": {
+    "credits": 30
+  }
+}
