@@ -1,0 +1,9 @@
+{
+  "name": "Steady",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 5
+    }
+  ]
+}

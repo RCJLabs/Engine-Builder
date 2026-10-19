@@ -1,0 +1,8 @@
+{
+  "name": "Marine",
+  "description": "What every marine starts as.",
+  "stats": {
+    "health": 12,
+    "aim": 55
+  }
+}

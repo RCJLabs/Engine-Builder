@@ -157,7 +157,10 @@ export function validateRecords(
       checkSheet(record.value, { ...ctx, heard });
     }
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
-    if (sound) kits.record(record.type, record.id, record.value, report);
+    if (sound) {
+      kits.record(record.type, record.id, record.value, report);
+      for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);
+    }
   }
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
   kits.finish();

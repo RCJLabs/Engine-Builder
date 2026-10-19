@@ -1,0 +1,43 @@
+{
+  "name": "The crew",
+  "cap-flag": "berths",
+  "start": ["captain"],
+  "ranks": {
+    "stat": "fights",
+    "bands": [
+      {
+        "id": "green",
+        "name": "Green"
+      },
+      {
+        "id": "seasoned",
+        "name": "Seasoned",
+        "from": 3,
+        "status": "seasoned"
+      },
+      {
+        "id": "veteran",
+        "name": "Veteran",
+        "from": 8,
+        "status": "veteran"
+      }
+    ]
+  },
+  "bonds": {
+    "min": 0,
+    "max": 20,
+    "bands": [
+      {
+        "id": "strangers"
+      },
+      {
+        "id": "mates",
+        "from": 4
+      },
+      {
+        "id": "brothers",
+        "from": 10
+      }
+    ]
+  }
+}

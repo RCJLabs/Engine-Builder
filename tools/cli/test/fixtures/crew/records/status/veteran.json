@@ -1,0 +1,14 @@
+{
+  "name": "Veteran",
+  "description": "Eight fights in.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 8
+    },
+    {
+      "stat": "health",
+      "add": 2
+    }
+  ]
+}

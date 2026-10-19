@@ -1,0 +1,29 @@
+{
+  "name": "Tech",
+  "actor": "tech-base",
+  "names": ["Ida", "Une", "Moss", "Pell"],
+  "bynames": ["Kade", "Lorn"],
+  "stats": {
+    "aim": {
+      "min": 40,
+      "max": 55
+    }
+  },
+  "traits": [
+    {
+      "status": "steady",
+      "chance": 20,
+      "fee": {
+        "credits": 15
+      }
+    },
+    {
+      "status": "nervous",
+      "chance": 30
+    }
+  ],
+  "most": 1,
+  "fee": {
+    "credits": 30
+  }
+}

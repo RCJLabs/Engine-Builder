@@ -1,0 +1,10 @@
+{
+  "name": "Seasoned",
+  "description": "Three fights in.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 5
+    }
+  ]
+}

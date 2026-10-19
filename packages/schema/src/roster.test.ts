@@ -128,12 +128,20 @@ describe('recruits, halls and the roster that hold together', () => {
     expect(codes(check(withRoster({ start: ['ana', 'bo', 'ana'] })))).toEqual(['E035 crew /start/2']);
     expect(codes(check(withRoster({ cap: 1 })))).toEqual(['E035 crew /start']);
     expect(codes(check(withRoster({ cap: 2 })))).toEqual([]);
-    const flags = [record('flag', 'berths', { number: { start: 3 } }), record('flag', 'docked', {})];
+    const berths = record('flag', 'berths', { number: { start: 3 } });
+    const flags = [berths, record('flag', 'docked', {})];
     const capped = (changes: object) => codes(check([...withRoster(changes), ...flags]));
     // Sorted by file: the flags' come first.
-    expect(capped({ 'cap-flag': 'berths' })).toEqual(['W110 docked ', 'E035 crew /cap-flag']);
-    expect(capped({ cap: undefined, 'cap-flag': 'docked' })).toEqual(['W110 berths ', 'E035 crew /cap-flag']);
-    expect(capped({ cap: undefined, 'cap-flag': 'berths' })).toEqual(['W110 docked ']);
+    expect(capped({ 'cap-flag': 'berths' })).toEqual(['W109 berths ', 'W110 docked ', 'E035 crew /cap-flag']);
+    expect(capped({ cap: undefined, 'cap-flag': 'docked' })).toEqual([
+      'W110 berths ',
+      'W109 docked ',
+      'E035 crew /cap-flag',
+    ]);
+    // The roster reads its flag, so one only rows set isn't W108, and one nothing sets is W109.
+    expect(capped({ cap: undefined, 'cap-flag': 'berths' })).toEqual(['W109 berths ', 'W110 docked ']);
+    const raised = row('roster.count >= 1', [{ effect: 'add-to-flag', flag: 'berths', by: 1 }]);
+    expect(codes(check([...withRoster({ cap: undefined, 'cap-flag': 'berths' }), berths, raised]))).toEqual([]);
   });
 
   it('rank lowest first, by statuses that last as long as the rank and leave its stat alone', () => {

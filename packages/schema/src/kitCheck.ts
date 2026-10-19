@@ -129,6 +129,11 @@ export class KitChecks {
     this.roster?.condition(report, sound);
   }
 
+  /** The flags a kit's record reads as the game runs (W108, W109): the roster's cap-flag. */
+  flagsRead(type: string, value: unknown): readonly string[] {
+    return this.roster?.reads(type, value) ?? [];
+  }
+
   /** An effect whose schema passed, at path. */
   effect(report: Report, path: string, effect: Effect): void {
     this.roster?.effect(report, path, effect);

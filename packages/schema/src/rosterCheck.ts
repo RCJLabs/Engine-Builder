@@ -126,6 +126,12 @@ export class RosterChecks {
     else if (type === FLAG) this.flags.set(id, value as FlagRecord);
   }
 
+  /** The flags a record reads as the game runs, which the flag lint counts as readers: a roster's cap. */
+  reads(type: string, value: unknown): readonly string[] {
+    const flag = type === ROSTER_RECORD ? (value as RosterRecord)['cap-flag'] : undefined;
+    return flag === undefined ? [] : [flag];
+  }
+
   /** An effect whose schema passed: a bond names two actors. */
   effect(report: Report, path: string, effect: Effect): void {
     if (effect.effect === 'change-bond' && effect.actor === effect.with) {

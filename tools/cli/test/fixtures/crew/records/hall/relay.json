@@ -1,0 +1,17 @@
+{
+  "name": "Relay station",
+  "offers": 2,
+  "recruits": [
+    {
+      "recruit": "tech",
+      "weight": 2
+    },
+    {
+      "recruit": "medic",
+      "weight": 2
+    },
+    {
+      "recruit": "marine"
+    }
+  ]
+}

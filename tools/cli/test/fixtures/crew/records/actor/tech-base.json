@@ -1,0 +1,8 @@
+{
+  "name": "Tech",
+  "description": "What every tech starts as.",
+  "stats": {
+    "health": 9,
+    "aim": 45
+  }
+}

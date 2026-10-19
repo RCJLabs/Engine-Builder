@@ -1,0 +1,9 @@
+{
+  "name": "Nervous",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": -5
+    }
+  ]
+}

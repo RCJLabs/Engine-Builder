@@ -1,0 +1,9 @@
+{
+  "name": "Tough",
+  "modifiers": [
+    {
+      "stat": "health",
+      "add": 3
+    }
+  ]
+}
