@@ -47,7 +47,7 @@ describe('an open event', () => {
       ],
     });
     const poor = open(spend(spend(start(), 'scrap', 28), 'fuel', 2), 'raiders');
-    const [pay, flee] = (view(poor) as { choices: Record<string, unknown>[] }).choices;
+    const [pay, flee] = view(poor).choices;
     expect(pay).toEqual({
       id: 'pay',
       label: 'Pay the toll',
@@ -57,13 +57,7 @@ describe('an open event', () => {
     });
     expect(flee).toEqual({ id: 'flee', label: 'Flee', open: false, needs: RECORDS.event.raiders.choices[1]?.needs });
     const friendly = open(apply(start(), { effect: 'set-flag', flag: 'helped', to: true }), 'raiders');
-    expect((view(friendly) as { choices: { id: string }[] }).choices.map((c) => c.id)).toEqual([
-      'pay',
-      'flee',
-      'fight',
-      'parley',
-      'hide',
-    ]);
+    expect(view(friendly).choices.map((c) => c.id)).toEqual(['pay', 'flee', 'fight', 'parley', 'hide']);
   });
 
   it('offers exactly the choices it shows open', () => {
@@ -75,14 +69,14 @@ describe('an open event', () => {
       open(spend(start(), 'scrap', 35), 'trader'),
     ];
     for (const state of states) {
-      const shown = (view(state) as { choices: { id: string; open: boolean }[] }).choices;
+      const shown = view(state).choices as readonly { id: string; open: boolean }[];
       expect(offered(state)).toEqual(shown.filter((c) => c.open).map((c) => c.id));
       for (const choice of shown) expect(choose(state, choice.id).accepted).toBe(choice.open);
     }
   });
 
   it('shows outcomes, chances and what they do only when the event shows its odds', () => {
-    const trader = view(open(start(), 'trader')) as { choices: Record<string, unknown>[] };
+    const trader = view(open(start(), 'trader'));
     expect(trader.choices[0]).toMatchObject({
       id: 'buy',
       effects: [{ effect: 'add-resource', resource: 'fuel', from: 3, to: 5 }],
@@ -93,7 +87,7 @@ describe('an open event', () => {
         { chance: 50, result: 'No deal.', effects: [] },
       ],
     });
-    const raiders = view(open(start(), 'raiders')) as { choices: Record<string, unknown>[] };
+    const raiders = view(open(start(), 'raiders'));
     for (const choice of raiders.choices) {
       expect(choice).not.toHaveProperty('outcomes');
       expect(choice).not.toHaveProperty('effects');
@@ -164,7 +158,7 @@ describe('choosing', () => {
     const toll = { choices: [{ id: 'pay', label: 'Pay the toll', cost: { scrap: 30 } }] };
     const free = caravanWith(withRecord('event', 'raiders', toll), { economy: false });
     const state = free.open(free.start(), 'raiders');
-    const shown = (free.view(state) as { choices: Record<string, unknown>[] }).choices;
+    const shown = free.view(state).choices;
     expect(shown[0]).toEqual({ id: 'pay', label: 'Pay the toll', cost: { scrap: 30 }, open: true });
     expect(free.choose(state, 'pay').accepted).toBe(true);
   });

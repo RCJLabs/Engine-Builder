@@ -185,8 +185,19 @@ export function caravanWith(records: object = RECORDS, setup: Setup = {}) {
     fact: (state: GameState, id: string, args?: Record<string, unknown>) => game.fact(state, id, args, sim),
     /** What the open event shows, as the stage reads it: open-event's preview. */
     view: (state: GameState) =>
-      game.preview(state, [{ effect: 'open-event', event: game.fact(state, 'events.open', {}, sim) }], sim)[0],
+      game.preview(
+        state,
+        [{ effect: 'open-event', event: game.fact(state, 'events.open', {}, sim) }],
+        sim,
+      )[0] as unknown as EventView,
   };
+}
+
+/** What open-event's preview gives: the event, and its choices as the player sees them. */
+export interface EventView {
+  readonly effect: string;
+  readonly event: unknown;
+  readonly choices: readonly Record<string, unknown>[];
 }
 
 export const caravanGame = caravanWith();

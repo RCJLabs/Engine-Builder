@@ -191,6 +191,36 @@ function rosterEffectText(effect: Record<string, unknown>): string | undefined {
         ? `start ${hall}’s next round`
         : 'start the next round of a hall not yet chosen';
     default:
+      return eventEffectText(effect);
+  }
+}
+
+// "after 3 days", "after 2 choices", "once nodes has risen by 3": when a consequence comes due.
+function dueText(after: unknown): string {
+  const given = isObject(after) ? after : {};
+  const kinds = ['days', 'choices', 'flag'].filter((kind) => given[kind] !== undefined);
+  if (kinds.length !== 1) return 'later, when is not yet set';
+  if (given.days !== undefined) return `after ${lengthOf({ days: given.days })}`;
+  if (given.choices !== undefined)
+    return given.choices === 1 ? 'after 1 choice' : `after ${written(given.choices)} choices`;
+  return `once ${written(given.flag)} has risen by ${written(given.by ?? 1)}`;
+}
+
+/** The events kit's effects (M3.7): "open the event raiders", "do 1 effect after 3 days", "cancel the consequence debt". */
+function eventEffectText(effect: Record<string, unknown>): string | undefined {
+  switch (effect.effect) {
+    case 'open-event':
+      return `open the event ${named(effect.event, 'an event')}`;
+    case 'draw-event':
+      return `draw an event from ${named(effect.deck, 'a deck')}`;
+    case 'later': {
+      const count = Array.isArray(effect.do) ? effect.do.length : 0;
+      const id = typeof effect.id === 'string' && effect.id !== '' ? `${effect.id}: ` : '';
+      return `${id}do ${count === 1 ? '1 effect' : `${count} effects`} ${dueText(effect.after)}`;
+    }
+    case 'cancel-later':
+      return `cancel the consequence ${named(effect.id, 'a consequence')}`;
+    default:
       return undefined;
   }
 }
