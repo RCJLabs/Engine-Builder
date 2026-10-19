@@ -4,7 +4,15 @@
  * written, since a data-only project's game isn't known. The kits a project lists join either
  * (M3.3, D41).
  */
-import { type EventCatalog, engineModules, eventCatalog, type FactCatalog, factCatalog } from '@eb/core';
+import {
+  type CalendarDef,
+  canonicalJson,
+  type EventCatalog,
+  engineModules,
+  eventCatalog,
+  type FactCatalog,
+  factCatalog,
+} from '@eb/core';
 import { kitModules } from '@eb/kits';
 import type { z } from 'zod';
 import { type EffectCatalog, ENGINE_EFFECTS, effectCatalog } from './effect.ts';
@@ -28,6 +36,8 @@ export interface KnownOptions {
    * engine's or a game's, since a kit's module joins every game of a project that lists it.
    */
   readonly kits?: readonly string[];
+  /** project.json's calendar, for the time kit's facts, events and effects (M3.5, D43). */
+  readonly calendar?: CalendarDef;
 }
 
 export interface Known {
@@ -41,7 +51,7 @@ export interface Known {
 
 export function knownFrom(options: KnownOptions): Known {
   const on = options.kits ?? [];
-  const kits = kitCatalogs(on);
+  const kits = kitCatalogs(on, options.calendar);
   return {
     facts: on.length === 0 ? (options.facts ?? ENGINE_FACTS) : { ...(options.facts ?? ENGINE_FACTS), ...kits.facts },
     openFacts: options.facts === undefined,
@@ -64,15 +74,19 @@ interface KitCatalogs {
   readonly effects: readonly z.core.$ZodType[];
 }
 
-// Made once for each list of kits: a project's checks run after every edit in the editor.
+// Made once for each list of kits and calendar: a project's checks run after every edit in the editor.
 const catalogs = new Map<string, KitCatalogs>();
 
-function kitCatalogs(on: readonly string[]): KitCatalogs {
-  const key = on.join(',');
+function kitCatalogs(on: readonly string[], calendar: CalendarDef | undefined): KitCatalogs {
+  const key = `${on.join(',')} ${calendar === undefined ? '' : canonicalJson(calendar)}`;
   let found = catalogs.get(key);
   if (!found) {
-    const modules = kitModules(on);
-    found = { facts: factCatalog(modules), events: eventCatalog(modules), effects: kitEffectSchemas(on) };
+    const modules = kitModules(on, calendar);
+    found = {
+      facts: factCatalog(modules),
+      events: eventCatalog(modules),
+      effects: kitEffectSchemas(on, calendar),
+    };
     catalogs.set(key, found);
   }
   return found;

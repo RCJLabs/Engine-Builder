@@ -185,3 +185,23 @@
   flex: 1 1 100%;
   margin: 0 0 6px calc(var(--tap) + 10px);
 }
+
+/* project.json's calendar (M3.5): a record form's fields, in a box like the kits'. */
+.project-calendar {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.project-calendar legend {
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+.project-calendar > p {
+  margin: 0;
+}

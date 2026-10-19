@@ -92,7 +92,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 
 **Status, 2026-10-17 (M1.10).** The spike is built and live at `/spikes/3d/` ([apps/spike-3d](../apps/spike-3d/README.md)). It works in headless Chromium on WebGL2, and Rapier's heightfield agrees with the drawn terrain. That proves only that the stack works. D8 stays PROPOSED until a phone's reading is in ROADMAP's Readings.
 
-### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.7, 2026-10-17
+### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.8, 2026-10-17
 
 - Trees in dirtbag's `TalkDef` shape for most talk; they are editable as a graph on a phone.
 - ink for long-form writing, with chooser-of-the-dead's stateless scene player.
@@ -784,6 +784,46 @@ The spec is [specs/stats.md](specs/stats.md), and the survey behind it [research
 - **Turns aren't a duration.** A fight that counts turns removes its statuses with rows or scripts until Phase 6's combat.
 - **No derived stats** (Landnam's health of 8 plus 2 a point of might): a game that needs one writes a fact in a script.
 - **The stats module is built knowing whether gear is on,** since a module can't ask whether another's fact exists.
+
+### D43. Kits II is two milestones, factions and time, then the roster; a faction's standing is a whole number in bands of its own; a band sets a shop's prices, and a faction may drift; a time kit keeps the calendar and says as each day starts. LOCKED, 2026-10-18 (Evan's calls, M3.5)
+
+**Decision.**
+- **Two milestones** (Evan's call): M3.5 factions and the time kit, then M3.6 the roster (recruits made in play, ranks, bonds). Choice events, dialogue and missions move down one, to M3.7, M3.8 and M3.9.
+- **Standing** (Evan's call): a whole number for each faction, within its own min and max, from its own start, in bands it lists lowest first by where each begins (Space-Wrecked's −10 to 10 in five, Landnam's −100 to 100). A gain with one faction and a loss with another are two effects; nothing spreads to allies or rivals by itself.
+- **What standing does by itself** (Evan's call):
+  - with the economy kit on, a shop may name a faction, and the faction's band sets a share of what the shop charges (Space-Wrecked's 150, 125, 100, 90 and 75 percent), through the same quote. What the shop pays stays as it was, and never more than it charges;
+  - a faction may drift one point every few days toward a resting value (Landnam, Ludus, 2060td), counted in the time module's days.
+- **The time kit** (Evan's call): `time` in project.json's kits, with the calendar in project.json, edited in the Project panel. The time module says as each day, week, month, season and year starts, with events heard at that tick, so a sheet's rows on them are a day's pass in row order, and a dated event is a row with a condition on the date.
+
+Evan chose on 2026-10-18, from these options:
+- scope: two milestones (factions and time, then the roster), one, or three;
+- standing: each faction's own range and bands; one set of bands for every faction; or bands per faction plus allies and rivals that a change spreads to;
+- what standing does: prices and drift; prices only; or nothing by itself;
+- time: a kit with the calendar as data and events as each day starts; the same plus a record type for dated events; or no kit, the time module only in scripts.
+
+Also settled, as the session's calls:
+- the start-of events are the time module's own, so a game.ts's time module raises them too. At a tick, the boundaries come before the timers due there, the largest first (year, season, month, week, day);
+- the kits' own upkeep at a day's start (statuses ending, drift) comes after the rows on `time/day-started`, since listeners hear in module order and the engine's sheets come first;
+- the stats kit's timed statuses end as the day that ends them starts, not only once the action that passed the time is done. Before, a status that ran out during a wait still stacked with the same status applied after the wait in that action;
+- a calendar given while the time kit is off is a warning, W116, not an error: nothing reads it. With the kit on, a game.ts naming a module `time` of its own is E031, as for any kit;
+- real time (`time/elapse`) for a project made of data waits for Phase 4's stage;
+- project.json's calendar is checked apart from the rest of the file: a shape it lacks is E038 at the field, so a calendar half filled in, as the Project panel's form leaves it between boxes, never stops the project being read or turns its kits off. Its `ticksPerDay` is 1 when left out, as a calendar left out is;
+- the calendar's form takes out a list left empty, and the calendar once nothing is left in it, since the engine reads an empty list of weekdays or months as a calendar that doesn't hold together;
+- `schedule`, whose timer holds a list of effects, is added in the editor as Other, as JSON, until the sheet editor's own list can hold them ([editor-kits.md](specs/editor-kits.md#open-questions), question 4).
+
+The specs are [specs/factions.md](specs/factions.md) and [specs/time.md](specs/time.md#the-time-kit), and the survey behind them [research/kits-ii.md](research/kits-ii.md).
+
+**Why.**
+- **Two milestones.** Phase 3's gate needs a shop and factions, not a roster. Recruits made in play are actors that content doesn't list, which the stats kit reads only from records, so they need a design of their own.
+- **Bands of its own.** The games' ranges and bands differ (−3 to 3, −10 to 10, −100 to 100, 0 to 100); every one moves standing from content, often in opposed pairs, and none spreads a change by itself.
+- **Prices and drift.** Band prices are what Space-Wrecked's stations and Landnam's trade do. Drift is Landnam's, Ludus's, 2060td's and rule-or-drool's; written as rows, it would take one row a faction.
+- **Events as each day starts.** Landnam's `passDay` and Ludus's week's end run fixed steps in a fixed order, which a sheet's rows are. Ludus's festivals and Dirtbag's holidays and bills are a table of dates, which conditions on the date are.
+
+**Cost.**
+- **Drift is in whole points:** Landnam's 0.12 a day becomes a point every 8 days.
+- **No relations:** a game where standing with one faction moves its allies writes the second effect each time.
+- **Every game with a time module raises the new events,** so its beats change. The events alone change no state, so salvage run's and the hangar's golden runs hold. The arena's were taken again, since its statuses now end as the day starts.
+- **The roster waits a milestone,** and recruits with it.
 
 ---
 

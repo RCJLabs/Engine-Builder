@@ -12,7 +12,7 @@ import { FieldNotes } from '../forms/FieldShell.tsx';
 import { FieldView } from '../forms/FieldView.tsx';
 import { pointerOf, useForm } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
-import { openGame, openKits, ownEffectsOf } from '../scripts/known.ts';
+import { openCalendar, openGame, openKits, ownEffectsOf } from '../scripts/known.ts';
 import { FlagSelect, flagOf, OnOffSelect } from './choices.tsx';
 import { JsonField } from './JsonField.tsx';
 import { KitEffect, kitEffectFile, newKitEffect } from './KitEffect.tsx';
@@ -76,7 +76,7 @@ function EffectItem(props: {
   const { path, value, number, up, down, remove } = props;
   const form = useForm();
   const kind = isObject(value) ? value.effect : undefined;
-  const kit = kitEffectFile(kind, openKits());
+  const kit = kitEffectFile(kind, openKits(), openCalendar());
   const title = `${number}. ${effectText(value)}`;
   return (
     <div class="logic-effect-body" data-at={pointerOf(path)}>
@@ -219,14 +219,14 @@ function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string
   const [kind, setKind] = useState('set-flag');
   if (!form.canEdit) return null;
   const engine = (Object.keys(NEW_EFFECTS) as NewEffect[]).filter((k) => k !== 'other');
-  const kits = kitEffectFiles(openKits());
+  const kits = kitEffectFiles(openKits(), openCalendar());
   const own = ownEffectsOf(openGame());
   const pick = () => {
     if (kind.startsWith(GAME_EFFECT)) {
       const name = kind.slice(GAME_EFFECT.length);
       return add({ effect: name }, name);
     }
-    const kit = kitEffectFile(kind.slice(KIT_EFFECT.length), openKits());
+    const kit = kitEffectFile(kind.slice(KIT_EFFECT.length), openKits(), openCalendar());
     if (kind.startsWith(KIT_EFFECT) && kit) return add(newKitEffect(kit), kit.label.toLowerCase());
     const known = kind as NewEffect;
     add(newEffect(known), NEW_EFFECTS[known].label.toLowerCase());

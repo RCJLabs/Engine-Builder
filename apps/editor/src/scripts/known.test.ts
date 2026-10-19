@@ -60,7 +60,20 @@ describe('what forms offer with kits on', () => {
       },
     };
     expect(factsOf(kitted, ['inventory'])['inventory.count']?.label).toBe('carried');
-    expect(ownEffectsOf(kitted)).toEqual(['stash']);
+    expect(ownEffectsOf(kitted, ['inventory'])).toEqual(['stash']);
+    // With the kit off its names are free: a give-item the game declares is its own.
+    expect(ownEffectsOf(kitted, [])).toEqual(['give-item', 'stash']);
+  });
+
+  it('offers the time kit’s schedule, which has no form, as none of the game’s own (M3.5)', () => {
+    const timed: GameState = {
+      ...loaded,
+      catalog: {
+        ...(loaded.catalog as NonNullable<GameState['catalog']>),
+        effects: ['cancel-timer', 'change-standing', 'schedule', 'stash', 'wait'],
+      },
+    };
+    expect(ownEffectsOf(timed, ['factions', 'time'])).toEqual(['stash']);
   });
 });
 

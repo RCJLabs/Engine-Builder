@@ -5,9 +5,11 @@
  * doesn't bring the kits' sim code with it (modules.ts has that).
  */
 import { ECONOMY } from './economy/types.ts';
+import { FACTIONS } from './factions/types.ts';
 import { GEAR } from './gear/types.ts';
 import { INVENTORY } from './inventory/types.ts';
 import { STATS } from './stats/types.ts';
+import { TIME } from './time/types.ts';
 
 export interface Kit {
   readonly id: string;
@@ -20,6 +22,8 @@ export const KITS: readonly Kit[] = Object.freeze([
   { id: ECONOMY, needs: [INVENTORY] },
   { id: STATS, needs: [] },
   { id: GEAR, needs: [INVENTORY, STATS] },
+  { id: FACTIONS, needs: [] },
+  { id: TIME, needs: [] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));

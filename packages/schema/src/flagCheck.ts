@@ -139,7 +139,8 @@ export class FlagChecks {
 }
 
 /** Every fact test in a condition, with its place inside it. */
-function factTests(condition: Condition, path: string): [string, FactTest][] {
+/** Every fact test in a condition, with its place inside it. */
+export function factTests(condition: Condition, path: string): [string, FactTest][] {
   if ('all' in condition) return condition.all.flatMap((c, i) => factTests(c, `${path}/all/${i}`));
   if ('any' in condition) return condition.any.flatMap((c, i) => factTests(c, `${path}/any/${i}`));
   if ('not' in condition) return factTests(condition.not, `${path}/not`);

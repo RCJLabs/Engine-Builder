@@ -4,7 +4,7 @@
  * refused 140 of 210 buys a player could afford. Exact: a fraction in BigInt, rounded once, so
  * the order of the rules can't change a price.
  */
-import type { Condition, RecordStore } from '@eb/core';
+import type { Condition, FactArgs, RecordStore } from '@eb/core';
 import { itemRecord } from '../inventory/items.ts';
 import type { ItemRecord } from '../inventory/types.ts';
 import { resourceRecord } from './amounts.ts';
@@ -38,19 +38,24 @@ export function sellPrice(value: number, buysAt: number, step: number): number {
   return whole(((big(value, 'value') * big(buysAt, 'percent')) / unit) * BigInt(step));
 }
 
-/** What a quote reads: content, and whether a rule's condition is true now. */
+/** What a quote reads: content, whether a rule's condition is true now, and other kits' facts. */
 export interface Quoting {
   readonly content: RecordStore;
   holds(condition: Condition): boolean;
+  fact(id: string, args?: FactArgs): unknown;
 }
 
 const stepOf = (content: RecordStore, shop: ShopRecord) => resourceRecord(content, shop.currency).step ?? 1;
 
-/** What buying one of the item costs now: the rules whose `if` holds, in the order written. */
+/**
+ * What buying one of the item costs now: the share its faction's band sets (M3.5, D43), then the
+ * rules whose `if` holds. One fraction, rounded once, so their order can't change the price.
+ */
 export function quoteBuy(quoting: Quoting, shop: ShopRecord, item: string): number {
   const rules = (shop.rules ?? []).filter((rule) => quoting.holds(rule.if)).map((rule) => rule.percent);
+  const share = shop.faction === undefined ? [] : [quoting.fact('factions.price', { faction: shop.faction }) as number];
   const { value = 0 } = itemRecord(quoting.content, item);
-  return buyPrice(value, shop['sells-at'] ?? 100, rules, stepOf(quoting.content, shop));
+  return buyPrice(value, shop['sells-at'] ?? 100, [...share, ...rules], stepOf(quoting.content, shop));
 }
 
 /** What the shop pays for one now: never more than buying the same item would cost. */

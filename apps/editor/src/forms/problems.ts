@@ -37,7 +37,8 @@ export function checkRecord(
     }
   }
   const assets = new Set(catalog.assets);
-  return validateRecords(catalog.recordTypes, records, { assets, kits: catalog.kits }).diagnostics.filter(
+  const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
+  return validateRecords(catalog.recordTypes, records, { assets, kits: catalog.kits, ...calendar }).diagnostics.filter(
     (d) => d.type === type && d.id === id,
   );
 }

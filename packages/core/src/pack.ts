@@ -4,6 +4,7 @@
  */
 import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
+import { type CalendarDef, calendarOf } from './time/calendar.ts';
 
 /**
  * The newest format this engine reads and writes. Format 2 (M3.2) adds the project's scripts as
@@ -19,6 +20,8 @@ export interface PackProject {
   readonly version: string;
   /** Format 3 only: the kits the project lists, in the engine's order (M3.3, D41). */
   readonly kits?: readonly string[];
+  /** Format 3 with the time kit: the calendar project.json gives (M3.5, D43). */
+  readonly calendar?: CalendarDef;
 }
 
 export interface Pack {
@@ -46,10 +49,12 @@ export function createPack(
   scripts?: Readonly<Record<string, string>>,
 ): Pack {
   const scripted = scripts !== undefined && Object.keys(scripts).length > 0;
-  const { kits, ...plain } = project;
+  // The calendar travels only with the kits: it is the time kit's.
+  const { kits, calendar, ...plain } = project;
+  const kitted = { ...plain, kits, ...(calendar !== undefined ? { calendar } : {}) };
   const content =
     kits !== undefined && kits.length > 0
-      ? ({ format: 3, project: { ...plain, kits }, records, ...(scripted ? { scripts } : {}) } as const)
+      ? ({ format: 3, project: kitted, records, ...(scripted ? { scripts } : {}) } as const)
       : scripted
         ? ({ format: 2, project: plain, records, scripts } as const)
         : ({ format: 1, project: plain, records } as const);
@@ -99,15 +104,22 @@ function checkKeys(value: Readonly<Record<string, unknown>>, allowed: readonly s
 
 function checkProject(project: unknown, kitted: boolean): void {
   if (!isObject(project)) throw new PackError('The pack has no project');
-  checkKeys(project, ['id', 'name', 'version', ...(kitted ? ['kits'] : [])], 'pack project');
+  checkKeys(project, ['id', 'name', 'version', ...(kitted ? ['kits', 'calendar'] : [])], 'pack project');
   if (!isRecordId(project.id)) throw new PackError('The pack project has no valid id');
   for (const key of ['name', 'version'] as const) {
     if (typeof project[key] !== 'string') throw new PackError(`The pack project has no ${key}`);
   }
   if (!kitted) return;
-  const { kits } = project;
+  const { kits, calendar } = project;
   if (!Array.isArray(kits) || kits.length === 0 || !kits.every(isRecordId)) {
     throw new PackError('A format 3 pack lists its kits');
+  }
+  if (calendar === undefined) return;
+  if (!kits.includes('time')) throw new PackError("A pack's calendar is the time kit's, which it doesn't list");
+  try {
+    calendarOf(calendar as CalendarDef);
+  } catch (error) {
+    throw new PackError(`The pack's calendar: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

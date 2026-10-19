@@ -1,9 +1,9 @@
 /**
  * Times a fixture made with kits: a sweep of 1,000 seeds with one of its bots, reported per run and
  * per turn. The hangar (M3.3, the inventory and economy kits) with its worker bot by default; the
- * arena (M3.4, all four kits) with its lanista. Each turn lists the options, lets the bot choose
- * and reduces the action. The instrument behind the "hangar sweep" and "arena sweep" readings in
- * ROADMAP.md.
+ * arena (M3.4, all four kits) with its lanista; the steading (M3.5, with factions and time) with its
+ * jarl. Each turn lists the options, lets the bot choose and reduces the action. The instrument
+ * behind the "hangar sweep", "arena sweep" and "steading sweep" readings in ROADMAP.md.
  *
  *   node tools/cli/test/hangar-bench.ts [fixture] [bot]
  */

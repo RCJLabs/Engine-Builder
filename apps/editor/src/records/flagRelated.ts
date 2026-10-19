@@ -1,5 +1,5 @@
 import { FLAG } from '@eb/core';
-import { ACTOR, GEAR, ITEM, LOOT_TABLE, SHOP, STAT, STATS } from '@eb/kits';
+import { ACTOR, FACTION, FACTIONS, GEAR, ITEM, LOOT_TABLE, SHOP, STAT, STATS } from '@eb/kits';
 import type { IndexedRecord } from './recordIndex.ts';
 
 /**
@@ -27,10 +27,18 @@ export const statRelated = (record: IndexedRecord | undefined): boolean =>
 export const wornRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === ITEM || record.type === ACTOR);
 
+/**
+ * A faction, or a record that names one (M3.5): a condition naming a band is checked against the
+ * faction's bands (E039), so a change to a faction checks everything naming it again.
+ */
+export const factionRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === FACTION || record.refs.some((ref) => ref.to.startsWith(`${FACTION}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
   lootRelated,
   ...(kits.includes(STATS) ? [statRelated] : []),
   ...(kits.includes(GEAR) ? [wornRelated] : []),
+  ...(kits.includes(FACTIONS) ? [factionRelated] : []),
 ];

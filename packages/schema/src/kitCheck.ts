@@ -16,7 +16,9 @@ import {
   SHOP,
   type ShopRecord,
 } from '@eb/kits';
+import type { SoundCondition } from './conditions.ts';
 import { compareText, type DiagnosticCode } from './diagnostics.ts';
+import { FactionChecks } from './factionCheck.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
 import { StatChecks } from './statCheck.ts';
@@ -80,17 +82,20 @@ export class KitChecks {
   private readonly tables = new Map<string, Seen<LootTableRecord>>();
   private readonly shops = new Map<string, Seen<ShopRecord>>();
   private readonly stats: StatChecks;
+  private readonly factions: FactionChecks;
 
   constructor(on: readonly string[], known: Known) {
     this.on = on;
     this.known = known;
     this.stats = new StatChecks(on, known);
+    this.factions = new FactionChecks(known);
   }
 
   /** One record that passed its type's schema. */
   record(type: string, id: string, value: unknown, report: Report): void {
     if (!isKitType(type, this.on)) return;
     this.stats.record(type, id, value, report);
+    this.factions.record(type, id, value, report);
     if (type === LOOT_TABLE) {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
@@ -110,10 +115,16 @@ export class KitChecks {
     }
   }
 
+  /** A record's sound condition, for the bands it names (E039). */
+  condition(report: Report, sound: SoundCondition): void {
+    this.factions.condition(report, sound);
+  }
+
   /** What needs every loot table: loops (E036), and stock tables that give a resource (E035). */
   finish(): void {
     this.loops();
     this.stats.finish();
+    this.factions.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

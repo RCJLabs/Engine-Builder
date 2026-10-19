@@ -1,0 +1,74 @@
+{
+  "name": "Trade",
+  "description": "Every buy from a neighbour warms them a little.",
+  "rows": [
+    {
+      "id": "grimsgarth-trade",
+      "note": "Trading at Grimsgarth's hall warms them",
+      "when": {
+        "event": "economy/bought",
+        "args": {
+          "shop": "grimsgarth-hall"
+        }
+      },
+      "do": [
+        {
+          "effect": "change-standing",
+          "faction": "grimsgarth",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "ketilstead-trade",
+      "note": "Trading at Ketilstead's hall warms them",
+      "when": {
+        "event": "economy/bought",
+        "args": {
+          "shop": "ketilstead-hall"
+        }
+      },
+      "do": [
+        {
+          "effect": "change-standing",
+          "faction": "ketilstead",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "reed-camp-trade",
+      "note": "Trading at The Reed Camp's fire warms them",
+      "when": {
+        "event": "economy/bought",
+        "args": {
+          "shop": "reed-camp-fire"
+        }
+      },
+      "do": [
+        {
+          "effect": "change-standing",
+          "faction": "reed-camp",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "sealwatch-trade",
+      "note": "Trading at Sealwatch's shore warms them",
+      "when": {
+        "event": "economy/bought",
+        "args": {
+          "shop": "sealwatch-shore"
+        }
+      },
+      "do": [
+        {
+          "effect": "change-standing",
+          "faction": "sealwatch",
+          "by": 2
+        }
+      ]
+    }
+  ]
+}

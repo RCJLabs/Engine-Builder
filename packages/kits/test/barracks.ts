@@ -86,10 +86,17 @@ const barracks = defineModule<Record<string, never>>({
   modes: { barracks: { actions: ['barracks/*'] } },
 });
 
-/** The game with both kits, or with the stats kit alone. */
-export function gameWith(gear: boolean, records: object = RECORDS, ticksPerDay = 1) {
+/** The game with both kits, or with the stats kit alone; `after`, modules a test listens with. */
+export function gameWith(gear: boolean, records: object = RECORDS, ticksPerDay = 1, after: readonly Module[] = []) {
   const engine = [logicModule, timeModule({ calendar: { ticksPerDay } }), flagModule];
-  const modules: Module[] = [...engine, inventoryKit, statsModule(gear), ...(gear ? [gearKit] : []), barracks];
+  const modules: Module[] = [
+    ...engine,
+    inventoryKit,
+    statsModule(gear),
+    ...(gear ? [gearKit] : []),
+    barracks,
+    ...after,
+  ];
   const game = createGame({ modules, start: 'barracks' });
   const sim: SimContext = { content: createRecordStore(records as Record<string, Record<string, unknown>>) };
   const step = (state: GameState, action: Action): GameState => {

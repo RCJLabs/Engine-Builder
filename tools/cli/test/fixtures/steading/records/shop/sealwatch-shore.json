@@ -1,0 +1,25 @@
+{
+  "name": "Sealwatch's shore",
+  "currency": "hacksilver",
+  "faction": "sealwatch",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": ["metal"]
+  },
+  "stock": {
+    "items": [
+      {
+        "item": "fish",
+        "count": 8
+      },
+      {
+        "item": "amber",
+        "count": 1
+      }
+    ],
+    "every": {
+      "days": 6
+    }
+  }
+}

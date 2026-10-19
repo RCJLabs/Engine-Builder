@@ -9,6 +9,7 @@ import { NAME_PATTERN } from '../logic/values.ts';
 import { defineModule, type FactSpec, type Module, type ModuleContext } from '../sim/module.ts';
 import type { Action, DeepReadonly, Effect } from '../sim/types.ts';
 import { type Calendar, type CalendarDef, calendarOf, dateAt, ticksOf } from './calendar.ts';
+import { startEvents } from './starts.ts';
 import { advanceTo, insert, type Timer, type TimeSlice } from './timers.ts';
 
 export interface RealTime {
@@ -53,15 +54,15 @@ export function timeModule(options: TimeOptions): Module {
         const { type: _, ...duration } = action;
         const ticks = tryTicks(calendar, duration);
         if (ticks === undefined) return ctx.refuse('bad-duration');
-        advanceTo(ctx, ctx.read().tick + ticks);
+        advanceTo(ctx, calendar, ctx.read().tick + ticks);
       },
       ...(realTime
-        ? { elapse: (ctx: ModuleContext<TimeSlice>, action: Action) => elapse(ctx, action.ms, realTime) }
+        ? { elapse: (ctx: ModuleContext<TimeSlice>, action: Action) => elapse(ctx, calendar, action.ms, realTime) }
         : {}),
     },
     effects: {
       wait: {
-        run: (ctx, effect) => advanceTo(ctx, ctx.read().tick + ticksOf(calendar, durationIn(effect))),
+        run: (ctx, effect) => advanceTo(ctx, calendar, ctx.read().tick + ticksOf(calendar, durationIn(effect))),
         preview: (ctx, effect) => waitPreview(ctx.read(), ctx.read().tick + ticksOf(calendar, durationIn(effect))),
       },
       schedule: {
@@ -87,6 +88,7 @@ export function timeModule(options: TimeOptions): Module {
     events: {
       passed: { args: { from: TICK, to: TICK }, label: 'Time passes' },
       fired: { args: { timer: { type: 'text' }, at: TICK }, label: 'A timer fires' },
+      ...startEvents(calendar),
     },
   });
 }
@@ -107,7 +109,7 @@ function checkRealTime(realTime: RealTime): RealTime {
  * Wall-clock time into ticks. The milliseconds short of a whole tick carry over to the next
  * elapse, so many short elapses add up to exactly one long one. Time past the cap is dropped.
  */
-function elapse(ctx: ModuleContext<TimeSlice>, ms: unknown, { msPerTick, maxElapseMs }: RealTime) {
+function elapse(ctx: ModuleContext<TimeSlice>, calendar: Calendar, ms: unknown, { msPerTick, maxElapseMs }: RealTime) {
   if (typeof ms !== 'number' || !Number.isSafeInteger(ms)) return ctx.refuse('bad-elapsed');
   if (ms < 0) return ctx.refuse('clock-went-back', { ms });
   const counted = Math.min(ms, maxElapseMs);
@@ -115,7 +117,7 @@ function elapse(ctx: ModuleContext<TimeSlice>, ms: unknown, { msPerTick, maxElap
   const slice = ctx.write();
   const total = slice.carry + counted;
   slice.carry = total % msPerTick;
-  advanceTo(ctx, slice.tick + (total - slice.carry) / msPerTick);
+  advanceTo(ctx, calendar, slice.tick + (total - slice.carry) / msPerTick);
 }
 
 function schedule(calendar: Calendar, slice: TimeSlice, spec: ScheduleSpec, now = 0): Timer {

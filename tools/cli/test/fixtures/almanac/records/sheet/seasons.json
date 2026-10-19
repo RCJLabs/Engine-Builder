@@ -1,0 +1,10 @@
+{
+  "name": "The seasons",
+  "rows": [
+    {
+      "id": "rains",
+      "when": { "event": "time/season-started", "args": { "season": "wet" } },
+      "do": [{ "effect": "add-to-flag", "flag": "rains", "by": 1 }]
+    }
+  ]
+}

@@ -2,7 +2,9 @@
  * @eb/kits: the engine's kits, pure modules for what most games share (M3.3, D41,
  * docs/specs/kits.md). The inventory kit (items, the party's bag, loot tables), the economy kit
  * (resources, shops), the stats kit (actors, stats, statuses) and the gear kit (slots, worn items;
- * M3.4, docs/specs/stats.md). Their record types and checks are in @eb/schema.
+ * M3.4, docs/specs/stats.md), the factions kit (standing, bands, drift; M3.5,
+ * docs/specs/factions.md) and the time kit (the calendar as data). Their record types and checks
+ * are in @eb/schema.
  */
 export { addAmount, amountOf, highest, lowest, resourceRecord } from './economy/amounts.ts';
 export { economyKit } from './economy/module.ts';
@@ -21,6 +23,9 @@ export {
   type ShopState,
   type StockItem,
 } from './economy/types.ts';
+export { factionsKit } from './factions/module.ts';
+export { bandOf, priceOf, reached, standingOf, startOf, within } from './factions/standing.ts';
+export { type Band, type Drift, FACTION, FACTIONS, type FactionRecord, type FactionsSlice } from './factions/types.ts';
 export { gearKit } from './gear/module.ts';
 export { GEAR, type GearSlice, SLOT, type SlotRecord, type WearableItem, type WearingActor } from './gear/types.ts';
 export { gearParts, wornBy } from './gear/worn.ts';
@@ -57,3 +62,5 @@ export {
   type Until,
 } from './stats/types.ts';
 export { currentOf, type Part, type StatParts, statParts, statusParts } from './stats/values.ts';
+export { timeKit } from './time/module.ts';
+export { DEFAULT_CALENDAR, TIME } from './time/types.ts';

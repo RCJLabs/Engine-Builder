@@ -1,0 +1,25 @@
+{
+  "name": "The Reed Camp's fire",
+  "currency": "hacksilver",
+  "faction": "reed-camp",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": ["metal", "goods"]
+  },
+  "stock": {
+    "items": [
+      {
+        "item": "fish",
+        "count": 12
+      },
+      {
+        "item": "furs",
+        "count": 2
+      }
+    ],
+    "every": {
+      "days": 6
+    }
+  }
+}

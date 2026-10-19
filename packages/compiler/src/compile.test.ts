@@ -306,14 +306,19 @@ describe('the code table', () => {
     // Kits (M3.3): one the engine doesn't have, one whose need is left out, a resource that starts
     // below its lowest, a table in a loop, a project's field with a kit field's name, and a shop
     // that stocks again in a game without days; and (M3.4) a status that lasts days there too.
-    const kitted = (kits: string[], files: Record<string, string>) =>
+    const kitted = (
+      kits: string[],
+      files: Record<string, string>,
+      more = {},
+      options: object = { facts: ENGINE_FACTS },
+    ) =>
       compileProject(
         memorySource({
-          'project.json': JSON.stringify({ format: 1, id: 'kits', name: 'Kits', version: '0.1.0', kits }),
+          'project.json': JSON.stringify({ format: 1, id: 'kits', name: 'Kits', version: '0.1.0', kits, ...more }),
           ...files,
         }),
         [],
-        { facts: ENGINE_FACTS },
+        options,
       );
     const kits = await kitted(['inventory', 'economy', 'stats', 'magic'], {
       'records/status/bleeding.json': '{ "lasts": { "days": 3 } }',
@@ -323,11 +328,33 @@ describe('the code table', () => {
       'types/item.json': '{ "fields": { "value": { "kind": "text" } } }',
     });
     const needs = await kitted(['economy'], {});
-    const seen = new Set(
-      [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs].flatMap((r) =>
-        r.diagnostics.map((d) => d.code),
-      ),
+    // M3.5: a calendar with no weekdays in its list, and a row naming a band its faction lacks;
+    // then a faction that drifts in a game without the time module, whose calendar nothing reads.
+    const timed = await kitted(
+      ['factions', 'time'],
+      {
+        'records/faction/guild.json': '{ "bands": [{ "id": "friendly" }] }',
+        'records/sheet/watch.json': JSON.stringify({
+          rows: [
+            {
+              id: 'a',
+              when: { event: 'time/day-started' },
+              if: 'factions.reached(faction: guild, band: frendly)',
+              do: [],
+            },
+          ],
+        }),
+      },
+      { calendar: { ticksPerDay: 1, weekdays: [] } },
     );
+    const drifting = await kitted(
+      ['factions'],
+      { 'records/faction/rivals.json': '{ "drift": { "every": 8 } }' },
+      { calendar: { ticksPerDay: 24 } },
+      { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
+    );
+    const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
+    const seen = new Set([...results, timed, drifting].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

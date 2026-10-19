@@ -5,7 +5,7 @@
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { compileProject, type ProjectSource, readKits } from '@eb/compiler';
+import { compileProject, type ProjectSource, readKitSettings } from '@eb/compiler';
 import {
   compareGolden,
   createGame,
@@ -42,7 +42,8 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   if (flags.update && !flags.golden) throw new UsageError('--update needs --golden <file>');
   // The kits the project lists join a --game module's game as they join a project's own (D41),
   // unless it names them; a project game's already have.
-  const kits = kitModules(await readKits(source)).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
+  const project = await readKitSettings(source);
+  const kits = kitModules(project.kits, project.calendar).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
   const modules = [...kits, ...loaded.modules];
   // The game's modules are all it has, so content may name no other fact or event.
   const compiled = await compileProject(source, loaded.recordTypes, {

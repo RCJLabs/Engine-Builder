@@ -152,7 +152,9 @@ export function statsModule(gear: boolean): Module {
     // no module declares is refused, so the kit hears every event and picks that one out.
     on: {
       '*': (ctx, event) => {
-        if (event.type === 'time/passed') expireDue(ctx);
+        // As each day starts, so the rows of the days after the end don't see it (M3.5); and once
+        // time has passed, for a status that ends on a tick within a day.
+        if (event.type === 'time/day-started' || event.type === 'time/passed') expireDue(ctx);
       },
     },
     events: {

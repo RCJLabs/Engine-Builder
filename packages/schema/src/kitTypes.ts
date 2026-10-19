@@ -4,7 +4,23 @@
  * after a kit's. With a kit off, its type names are free for a project's own types.
  */
 import { pointerSegment } from '@eb/core';
-import { ACTOR, ECONOMY, GEAR, INVENTORY, ITEM, LOOT_TABLE, RESOURCE, SHOP, SLOT, STAT, STATS, STATUS } from '@eb/kits';
+import {
+  ACTOR,
+  ECONOMY,
+  FACTION,
+  FACTIONS,
+  GEAR,
+  INVENTORY,
+  ITEM,
+  LOOT_TABLE,
+  RESOURCE,
+  SHOP,
+  SLOT,
+  STAT,
+  STATS,
+  STATUS,
+} from '@eb/kits';
+import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
 import { actorTypeFile, SLOT_TYPE_FILE, STAT_TYPE_FILE, STATUS_TYPE_FILE, WORN_ITEM_FIELDS } from './statTypes.ts';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
@@ -188,15 +204,25 @@ export const SHOP_TYPE_FILE: TypeFile = {
 /** An item that can be worn, with the gear kit on (M3.4). */
 const WORN_ITEM_TYPE_FILE: TypeFile = { ...ITEM_TYPE_FILE, fields: { ...ITEM_TYPE_FILE.fields, ...WORN_ITEM_FIELDS } };
 
-/** Each kit's types, by name, as the type files it has with the kits on: gear adds to items and actors. */
+/** A shop that may name a faction, with the factions kit on (M3.5). */
+const FACTION_SHOP_TYPE_FILE: TypeFile = {
+  ...SHOP_TYPE_FILE,
+  fields: { ...SHOP_TYPE_FILE.fields, ...FACTION_SHOP_FIELDS },
+};
+
+/** Each kit's types, by name, as the type files it has with the kits on: gear adds to items and actors, factions to shops. */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
   [INVENTORY]: (on) => ({
     [ITEM]: on.includes(GEAR) ? WORN_ITEM_TYPE_FILE : ITEM_TYPE_FILE,
     [LOOT_TABLE]: lootTableFile(on.includes(ECONOMY)),
   }),
-  [ECONOMY]: () => ({ [RESOURCE]: RESOURCE_TYPE_FILE, [SHOP]: SHOP_TYPE_FILE }),
+  [ECONOMY]: (on) => ({
+    [RESOURCE]: RESOURCE_TYPE_FILE,
+    [SHOP]: on.includes(FACTIONS) ? FACTION_SHOP_TYPE_FILE : SHOP_TYPE_FILE,
+  }),
   [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on.includes(GEAR)), [STATUS]: STATUS_TYPE_FILE }),
   [GEAR]: () => ({ [SLOT]: SLOT_TYPE_FILE }),
+  [FACTIONS]: () => ({ [FACTION]: FACTION_TYPE_FILE }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

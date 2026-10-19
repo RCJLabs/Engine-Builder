@@ -54,6 +54,15 @@ describe('createPack', () => {
     // No kits at all is the format a pack had before.
     expect(createPack({ ...project, kits: [] }, records)).toEqual(createPack(project, records));
   });
+
+  it('carries the time kit’s calendar with the kits, and nowhere else (M3.5)', () => {
+    const calendar = { ticksPerDay: 1, daysPerYear: 96 };
+    const timed = createPack({ ...project, kits: ['time'], calendar }, records);
+    expect(timed.project.calendar).toEqual(calendar);
+    expect(timed.hash).not.toBe(createPack({ ...project, kits: ['time'] }, records).hash);
+    // The calendar is the time kit's: with no kits, there is nothing to carry it.
+    expect(createPack({ ...project, calendar }, records)).toEqual(createPack(project, records));
+  });
 });
 
 describe('readPack', () => {
@@ -80,6 +89,18 @@ describe('readPack', () => {
     expect(kitted.project.kits).toEqual(['inventory', 'economy']);
     const both = readPack(reloaded(createPack({ ...project, kits: ['inventory'] }, records, { game: 'x' })));
     expect(both.scripts).toEqual({ game: 'x' });
+  });
+
+  it('reads a calendar beside the time kit, and refuses one without it, or one that doesn’t hold together', () => {
+    const timed = reloaded(createPack({ ...project, kits: ['time'], calendar: { ticksPerDay: 24 } }, records));
+    expect(readPack(timed).project.calendar).toEqual({ ticksPerDay: 24 });
+    const kitted = reloaded(createPack({ ...project, kits: ['inventory'] }, records));
+    expect(() =>
+      readPack({ ...kitted, project: { ...project, kits: ['inventory'], calendar: { ticksPerDay: 24 } } }),
+    ).toThrow("A pack's calendar is the time kit's, which it doesn't list");
+    expect(() => readPack({ ...timed, project: { ...project, kits: ['time'], calendar: { ticksPerDay: 0 } } })).toThrow(
+      "The pack's calendar: Calendar: ticksPerDay must be a whole number, at least 1",
+    );
   });
 
   it('refuses kits outside format 3, and a format 3 pack without them', () => {

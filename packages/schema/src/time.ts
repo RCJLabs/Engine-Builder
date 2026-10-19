@@ -45,3 +45,31 @@ export function scheduleEffect(effect: z.ZodType<Effect>, calendar: CalendarDef)
 /** `{ "effect": "cancel-timer", "timer": "debt" }` */
 export const cancelTimerEffect = () =>
   named('cancel-timer', z.strictObject({ effect: z.literal('cancel-timer'), timer: timerName }));
+
+const nameOf = z.string().regex(NAME_PATTERN, { error: 'A name is lowercase words joined by hyphens' });
+
+/**
+ * project.json's calendar, with the time kit on (M3.5, D43): the shape of a CalendarDef. What the
+ * shape can't say (phases in order, seasons within the year, a start within the day) is
+ * calendarOf's to check, and E038's to report.
+ */
+export const calendarSchema = z.strictObject({
+  // A tick is a day when left out.
+  ticksPerDay: z.int().min(1).optional(),
+  units: z.record(nameOf, z.int().min(1)).optional(),
+  phases: z.array(z.strictObject({ id: nameOf, from: z.int().min(0) })).optional(),
+  weekdays: z.array(nameOf).optional(),
+  months: z.array(z.strictObject({ id: nameOf, days: z.int().min(1) })).optional(),
+  daysPerYear: z.int().min(1).optional(),
+  seasons: z
+    .array(
+      z.strictObject({
+        id: nameOf,
+        from: z.union([z.int().min(0), z.strictObject({ month: nameOf, day: z.int().min(1).optional() })]),
+      }),
+    )
+    .optional(),
+  start: z
+    .strictObject({ year: z.int().min(1).optional(), day: z.int().min(0).optional(), tick: z.int().min(0).optional() })
+    .optional(),
+});

@@ -64,7 +64,7 @@ export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(),
 
 /**
  * What a record's checks depend on besides the records: the sound types' fields, the assets, the
- * kits and the game's checks. What only names things (a type's title and description, its name field, a
+ * kits and their calendar, and the game's checks. What only names things (a type's title and description, its name field, a
  * field's label and help) changes no check, so typing a label in the type designer (M2.6) checks
  * nothing again, and nor does a script edit that leaves what the game declares as it was.
  */
@@ -72,8 +72,10 @@ const groundsOf = (catalog: Catalog, game: GameChecks): string =>
   JSON.stringify([
     [...catalog.types].map(([type, data]) => [type, checked(data.file.fields)]),
     catalog.assets,
-    // A kit brings facts, events and effects as well as types (M3.3).
+    // A kit brings facts, events and effects as well as types (M3.3), the time kit's effects in the
+    // calendar's units (M3.5).
     catalog.kits,
+    catalog.calendar ?? null,
     [game.facts ?? null, game.events ?? null, game.effectNames ?? null],
   ]);
 
@@ -199,6 +201,7 @@ function check(
   const { diagnostics, usedBy, assetsUsedBy } = validateRecords(catalog.recordTypes, inputs, {
     ...game,
     kits: catalog.kits,
+    ...(catalog.calendar ? { calendar: catalog.calendar } : {}),
     assets: new Set(catalog.assets),
   });
   const problems = new Map<string, Diagnostic[]>();

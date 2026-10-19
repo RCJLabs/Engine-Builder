@@ -1,4 +1,4 @@
-import { createRecordStore, type GameState } from '@eb/core';
+import { createRecordStore, defineModule, type GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { gameWith, kitted, RECORDS } from '../../test/barracks.ts';
 
@@ -63,6 +63,25 @@ describe('statuses', () => {
     const dazed = apply(start(), { effect: 'add-status', actor: 'ana', status: 'dazed' });
     expect(aim(dazed)).toBe(38);
     expect(has(wait(dazed), 'ana', 'dazed')).toBe(0);
+  });
+
+  it('end as the day that ends them starts, so a later day hears them gone', () => {
+    // Listens after the stats kit, noting Bo's bleeding as each day starts.
+    const lookout = defineModule<{ seen: number[] }>({
+      id: 'lookout',
+      init: () => ({ seen: [] }),
+      on: {
+        '*': (ctx, event) => {
+          if (event.type !== 'time/day-started') return;
+          ctx.write().seen.push(ctx.fact('stats.has', { actor: 'bo', status: 'bleeding' }) as number);
+        },
+      },
+    });
+    const watched = gameWith(true, RECORDS, 1, [lookout]);
+    const bleeding = watched.apply(watched.start(), { effect: 'add-status', actor: 'bo', status: 'bleeding' });
+    // Three days: gone on the third, before anything after the kit hears that day start.
+    const later = watched.step(bleeding, { type: 'barracks/wait', days: 5 });
+    expect((later.lookout as { seen: number[] }).seen).toEqual([1, 1, 0, 0, 0]);
   });
 
   it('count ticks and days apart in a day of more than one tick', () => {

@@ -41,6 +41,8 @@ export const DIAGNOSTIC_CODES = {
   E035: "A record of a kit's type doesn't hold together",
   E036: 'Loot tables nest in a loop',
   E037: "A project's fields for a kit's type name one of the kit's own",
+  E038: "project.json's calendar doesn't hold together",
+  E039: 'A condition names a band its faction does not have',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -55,6 +57,8 @@ export const DIAGNOSTIC_CODES = {
   W112: "A script scripts/game.ts doesn't import, directly or through another",
   W113: 'A shop stocks again every few days in a game without time.day',
   W114: 'A status lasts days or ticks in a game without the time module',
+  W115: 'A faction drifts in a game without the time module',
+  W116: "project.json's calendar is read by no time module",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

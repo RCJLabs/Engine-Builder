@@ -1,0 +1,21 @@
+{
+  "name": "A camp's stores",
+  "picks": {
+    "min": 1,
+    "max": 2
+  },
+  "entries": [
+    {
+      "item": "fish",
+      "weight": 3,
+      "count": {
+        "min": 4,
+        "max": 10
+      }
+    },
+    {
+      "item": "furs",
+      "weight": 1
+    }
+  ]
+}
