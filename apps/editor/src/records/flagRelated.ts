@@ -1,5 +1,19 @@
 import { FLAG } from '@eb/core';
-import { ACTOR, FACTION, FACTIONS, GEAR, ITEM, LOOT_TABLE, SHOP, STAT, STATS } from '@eb/kits';
+import {
+  ACTOR,
+  FACTION,
+  FACTIONS,
+  GEAR,
+  ITEM,
+  LOOT_TABLE,
+  RECRUIT,
+  ROSTER,
+  ROSTER_RECORD,
+  SHOP,
+  STAT,
+  STATS,
+  STATUS,
+} from '@eb/kits';
 import type { IndexedRecord } from './recordIndex.ts';
 
 /**
@@ -34,6 +48,32 @@ export const wornRelated = (record: IndexedRecord | undefined): boolean =>
 export const factionRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === FACTION || record.refs.some((ref) => ref.to.startsWith(`${FACTION}:`)));
 
+// A roster fact is named by its id, in a condition's text or its tree, and names no record that
+// refs would find: "roster.ranked(veteran)". Read once for each record the index keeps.
+const decoder = new TextDecoder();
+const mentions = new WeakMap<IndexedRecord, boolean>();
+function namesRosterFact(record: IndexedRecord): boolean {
+  let found = mentions.get(record);
+  if (found === undefined) {
+    found = decoder.decode(record.bytes).includes(`${ROSTER}.`);
+    mentions.set(record, found);
+  }
+  return found;
+}
+
+/**
+ * The roster's record, the statuses its ranks give, and every record whose conditions name a
+ * roster fact (M3.6): a rank or a bond band a condition names is checked against the roster's
+ * (E040), a rank's status against its ladder, and a second roster against the first (E035), so a
+ * change to any of them checks them all again.
+ */
+export const rosterRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === ROSTER_RECORD || record.type === STATUS || namesRosterFact(record));
+
+/** An actor or a recruit template (M3.6): a written actor may not have an id a recruit could take (E035). */
+export const recruitRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === ACTOR || record.type === RECRUIT);
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -41,4 +81,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(STATS) ? [statRelated] : []),
   ...(kits.includes(GEAR) ? [wornRelated] : []),
   ...(kits.includes(FACTIONS) ? [factionRelated] : []),
+  ...(kits.includes(ROSTER) ? [rosterRelated, recruitRelated] : []),
 ];
