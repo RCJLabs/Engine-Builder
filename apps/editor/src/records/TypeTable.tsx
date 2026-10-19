@@ -52,6 +52,8 @@ export function TypeTable({ project, type }: { project: OpenProject; type: strin
   const captionId = useUniqueId();
   // What is selected is what the view shows of it: a record deleted or filtered out drops away.
   const selected = shown.filter((row) => picked.has(row.record.id));
+  // An ink scene's talk (M3.11) is its .ink file's: edited there, never set, copied or deleted as a record.
+  const pickable = shown.filter((row) => row.record.scene === undefined);
   const change = (next: (view: View) => View, keepSelection = false) => {
     setView(type, next);
     setLimit(PAGE);
@@ -168,12 +170,12 @@ export function TypeTable({ project, type }: { project: OpenProject; type: strin
           canEdit && data
             ? {
                 picked,
-                all: pickedState(shown, picked),
-                count: shown.length,
+                all: pickedState(pickable, picked),
+                count: pickable.length,
                 toggle: (id) => setPicked(toggled(picked, id)),
                 toggleAll: () =>
                   setPicked(
-                    pickedState(shown, picked) === 'all' ? new Set() : new Set(shown.map((row) => row.record.id)),
+                    pickedState(pickable, picked) === 'all' ? new Set() : new Set(pickable.map((row) => row.record.id)),
                   ),
               }
             : null

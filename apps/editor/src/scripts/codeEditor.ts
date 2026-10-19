@@ -2,14 +2,15 @@
  * The script editor's CodeMirror 6 (M3.2, D38): TypeScript's colours, the engine's API and the
  * project's names offered as you type (completions.ts), the script's problems in the gutter, and
  * no history of its own: typing becomes the editor's steps, which its undo takes back (D30). Tab
- * indents; Escape then Tab moves on, as CodeMirror has it.
+ * indents; Escape then Tab moves on, as CodeMirror has it. The scene editor (M3.11) uses it with
+ * ink's colours in place of TypeScript's.
  */
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { javascript, localCompletionSource } from '@codemirror/lang-javascript';
 import { bracketMatching, HighlightStyle, indentOnInput, syntaxHighlighting } from '@codemirror/language';
 import { type Diagnostic as CodeProblem, lintGutter, setDiagnostics } from '@codemirror/lint';
-import { Annotation, Compartment, EditorState, type Text } from '@codemirror/state';
+import { Annotation, Compartment, EditorState, type Extension, type Text } from '@codemirror/state';
 import { drawSelection, EditorView, highlightActiveLine, keymap, lineNumbers } from '@codemirror/view';
 import type { Diagnostic } from '@eb/schema';
 import { tags } from '@lezer/highlight';
@@ -28,6 +29,8 @@ const colours = HighlightStyle.define([
   { tag: [tags.typeName, tags.className], color: 'var(--code-type)' },
   { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: 'var(--code-name)' },
   { tag: tags.propertyName, color: 'var(--code-property)' },
+  { tag: [tags.heading, tags.labelName], color: 'var(--code-keyword)', fontWeight: 'bold' },
+  { tag: tags.meta, color: 'var(--code-type)' },
 ]);
 
 /** Where `line` and `column` (1-based) fall in `doc`, kept inside it. */
@@ -67,9 +70,19 @@ export interface CodeOptions {
   readonly label: string;
   /** Writes typed text into the file; settles once that edit has been made. */
   readonly type: (text: string) => Promise<void>;
-  /** The project's names, as completion offers them in a string. */
-  readonly names: () => ProjectNames;
+  /** The project's names, as completion offers them in a string: a script's. */
+  readonly names?: () => ProjectNames;
+  /** The language and what it offers as you type; TypeScript with the engine's API when left out. */
+  readonly language?: Extension;
 }
+
+const NO_NAMES = (): ProjectNames => ({ facts: [], events: [], effects: [], records: new Map() });
+
+/** TypeScript, with the engine's API and the project's names offered as you type. */
+const scriptLanguage = (names: () => ProjectNames): Extension => [
+  javascript({ typescript: true }),
+  autocompletion({ override: [scriptCompletions(names), localCompletionSource] }),
+];
 
 export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEditor {
   const typing = typedAhead();
@@ -85,9 +98,8 @@ export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEdito
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        javascript({ typescript: true }),
+        options.language ?? scriptLanguage(options.names ?? NO_NAMES),
         syntaxHighlighting(colours),
-        autocompletion({ override: [scriptCompletions(options.names), localCompletionSource] }),
         lintGutter(),
         keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...completionKeymap, indentWithTab]),
         EditorView.lineWrapping,

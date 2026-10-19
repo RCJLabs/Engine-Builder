@@ -35,7 +35,25 @@ const letter = {
   ],
 };
 
-const records = { ...RECORDS, flag: { ...RECORDS.flag, read: {} }, talk: { ...RECORDS.talk, letter } };
+// A flag compared with a number: neither true nor false, so no branch is taken on it.
+const neither: Condition = { fact: 'flag.on', args: { flag: 'permit' }, op: '==', value: 3 };
+const gate = {
+  starts: [{ line: 'gate' }],
+  lines: [
+    {
+      id: 'gate',
+      text: 'The gate.',
+      branches: [
+        { if: neither, line: 'wrong' },
+        { if: flagOn('permit'), line: 'through' },
+      ],
+    },
+    { id: 'through', text: 'Through.', branches: [{ if: flagOn('permit') }], next: 'wrong' },
+    { id: 'wrong', text: 'Wrong.' },
+  ],
+};
+
+const records = { ...RECORDS, flag: { ...RECORDS.flag, read: {} }, talk: { ...RECORDS.talk, letter, gate } };
 const { start, apply, visit, say, goOn, fact, view } = cragWith(records);
 const slice = (state: GameState) => state.dialogue as DialogueSlice;
 const types = (beats: readonly { type: string }[]) => beats.map((b) => b.type).filter((t) => t.startsWith('dialogue/'));
@@ -84,6 +102,16 @@ describe('branches', () => {
     const friendly = visit(apply(permitted, set('knows-arete')), 'letter');
     expect(view(friendly, 'letter')).toMatchObject({ line: 'permitted', 'go-on': 'next' });
     expect(slice(done(goOn(friendly)).state).open?.line).toBe('friend');
+  });
+
+  it('are taken only on an If that is true, and say whether going on ends the talk', () => {
+    expect(view(visit(start(), 'gate'), 'gate')).toMatchObject({ line: 'gate', 'go-on': 'end' });
+    const opened = visit(apply(start(), set('permit')), 'gate');
+    expect(view(opened, 'gate')).toMatchObject({ line: 'gate', 'go-on': 'next' });
+    const through = done(goOn(opened)).state;
+    expect(slice(through).open?.line).toBe('through');
+    // Its branch names no line, so going on ends the talk, though it has a Then.
+    expect(view(through, 'gate')).toMatchObject({ line: 'through', 'go-on': 'end' });
   });
 
   it('end the talk when the one that holds names no line, passed over or gone on from', () => {

@@ -6,9 +6,9 @@
  */
 import type { Condition, FactCatalog, FactTest, Value } from '@eb/core';
 import type { Expr, External, Written } from './ast.ts';
-import { InkError, type Problems } from './problems.ts';
+import { InkError, type Problems, Reported } from './problems.ts';
 
-/** A fact as an EXTERNAL binds it: its id and its arguments' names, in the EXTERNAL's order. */
+/** A fact as an EXTERNAL binds it: its id and its arguments' names, in the EXTERNAL's order; null when it binds none. */
 export interface Bound {
   readonly fact: string;
   readonly args: readonly string[];
@@ -21,15 +21,17 @@ export function bindExternals(
   externals: readonly External[],
   catalog: FactCatalog,
   problems: Problems,
-): Map<string, Bound> {
+): Map<string, Bound | null> {
   const facts = new Map<string, string[]>();
   for (const fact of Object.keys(catalog).sort()) facts.set(inkName(fact), [...(facts.get(inkName(fact)) ?? []), fact]);
-  const bound = new Map<string, Bound>();
+  // An EXTERNAL that binds nothing is still declared: its problem is at its line, not at each use.
+  const bound = new Map<string, Bound | null>();
   for (const external of externals) {
     if (bound.has(external.name)) {
       problems.add(external.at, `EXTERNAL ${external.name} is declared twice`);
       continue;
     }
+    bound.set(external.name, null);
     const named = facts.get(external.name) ?? [];
     if (named.length === 0) {
       const message = `EXTERNAL ${external.name} names no fact of the game: an EXTERNAL is a fact’s name with _ for its . and -, like flags_value for flags.value`;
@@ -62,7 +64,11 @@ function bindArgs(fact: string, params: readonly string[], catalog: FactCatalog)
 }
 
 /** The engine's condition for an ink condition; an InkError at a column of its text when it has none. */
-export function toCondition(written: Written, bound: ReadonlyMap<string, Bound>, catalog: FactCatalog): Condition {
+export function toCondition(
+  written: Written,
+  bound: ReadonlyMap<string, Bound | null>,
+  catalog: FactCatalog,
+): Condition {
   const convert = (expr: Expr): Condition => {
     switch (expr.kind) {
       case 'or':
@@ -94,7 +100,7 @@ export function toCondition(written: Written, bound: ReadonlyMap<string, Bound>,
 
 const FLIPPED = { '==': '==', '!=': '!=', '<': '>', '<=': '>=', '>': '<', '>=': '<=' } as const;
 
-function compared(expr: Extract<Expr, { kind: 'compare' }>, bound: ReadonlyMap<string, Bound>): FactTest {
+function compared(expr: Extract<Expr, { kind: 'compare' }>, bound: ReadonlyMap<string, Bound | null>): FactTest {
   const { left, right } = expr;
   if (left.kind === 'call' && right.kind === 'literal')
     return { ...called(left, bound), op: expr.op, value: right.value };
@@ -110,8 +116,9 @@ function compared(expr: Extract<Expr, { kind: 'compare' }>, bound: ReadonlyMap<s
   throw new InkError('Compare a fact with a value', expr.column);
 }
 
-function called(expr: Extract<Expr, { kind: 'call' }>, bound: ReadonlyMap<string, Bound>): FactTest {
+function called(expr: Extract<Expr, { kind: 'call' }>, bound: ReadonlyMap<string, Bound | null>): FactTest {
   const fact = bound.get(expr.name);
+  if (fact === null) throw new Reported(expr.name);
   if (fact === undefined) {
     throw new InkError(
       `${expr.name} isn’t an EXTERNAL of this scene: declare it at the top, EXTERNAL ${expr.name}(…)`,

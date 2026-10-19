@@ -1073,6 +1073,14 @@ The spec is [specs/ink.md](specs/ink.md), and the survey behind it [research/ink
 - **A line at a time:** a passage of several speakers taps on between them.
 - **Generated ids move:** a line named by neither a knot nor a label is numbered within its knot, so adding a line before it renames it.
 
+**Settled while building it** (the session's calls, 2026-10-19):
+- **An EXTERNAL that names no fact is still declared:** its problem is said once, at its line, not again at each use.
+- **A scene with the dialogue kit off is one problem and no record,** so nothing cascades from a talk type that isn't there; **a scene beside a talk record of its id** is E004 at both and isn't checked, in `eb` and the editor alike.
+- **The walk keeps each condition once,** so a loop that passes the same branch again settles rather than running to its limit of 20,000 steps.
+- **A condition is bracketed only where it joins others,** in a choice's two `{…}` or a line's `{condition: this|that}`s; alone, as a branch's If, it is written bare.
+- **The fourth `{condition: this|that}` on a line is reported at its own line,** since a paragraph runs over lines.
+- **In the editor, a scene's talk opens the scene,** never a form, from Records, the Problems panel or a map; Records lists it among the talks by its name, but it can't be ticked for a bulk edit, a duplicate or a delete, which are for records written as JSON; the map shows once the scene has no errors.
+
 ---
 
 ## Open

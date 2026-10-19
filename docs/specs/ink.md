@@ -7,8 +7,8 @@ A scene stays ink that Inky opens: its conditions name the game's facts through 
 ## Files
 
 - **`scenes/<id>.ink`** is the talk `<id>`. The id follows a record's rules: lowercase words joined by hyphens.
-- **The dialogue kit must be on** in `project.json`; without it, a scene is E046.
-- **A scene and a talk record with one id** are E004, as two records of one type with one id are.
+- **The dialogue kit must be on** in `project.json`; without it, a scene is E046 and no record, so nothing else is said of it.
+- **A scene and a talk record with one id** are E004 at both files, as two records of one type with one id are; the record is checked, the scene no further.
 - **A `.ink` file in a folder under `scenes/`,** or one whose name isn't an id, is E046. Any other file there is W131, and ignored.
 - **A scene with a problem of its own** (E046, E012, E013) makes no talk, so the talk's checks don't pile on. It is still counted as a talk, so what names it isn't E005 as well.
 

@@ -26,6 +26,9 @@ export class InkError extends Error {
   }
 }
 
+/** A problem already reported where it was made, as an EXTERNAL that names no fact: a use of it says nothing more. */
+export class Reported extends InkError {}
+
 export class Problems {
   readonly list: InkProblem[] = [];
 
@@ -39,6 +42,7 @@ export class Problems {
       return read();
     } catch (error) {
       if (!(error instanceof InkError)) throw error;
+      if (error instanceof Reported) return undefined;
       const column = error.column === undefined ? undefined : error.column + offset;
       this.add({ line, ...(column === undefined ? {} : { column }) }, error.message, error.code);
       return undefined;

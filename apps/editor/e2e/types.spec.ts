@@ -326,7 +326,7 @@ test('renames a record and every reference to it, and deletes a type only while 
   await expect(design).toContainText('Delete Chariot and its 0 records? Undo brings them back.');
   await design.getByRole('button', { name: 'Delete Chariot' }).click();
   await expect.poll(() => stored(page, 'types/chariot.json')).toBeNull();
-  await expect(page.getByText('Choose a record, a type, an asset or a script to edit it here.')).toBeVisible();
+  await expect(page.getByText('Choose a record, a type, an asset, a script or a scene to edit it here.')).toBeVisible();
   await undo(page, 'Delete type Chariot');
   await expect.poll(() => stored(page, 'types/chariot.json')).toMatchObject({ title: 'Chariot' });
   expect(errors).toEqual([]);

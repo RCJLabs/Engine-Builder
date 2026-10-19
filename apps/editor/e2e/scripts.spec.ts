@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { firstModuleTemplate, gameTemplate } from '../src/scripts/templates.ts';
 import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
+import { storedText } from './kitHelpers.ts';
 import { importLudus, openProject, REPO, scratch, showProject } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 900 } });
@@ -71,25 +72,6 @@ async function replaceText(page: Page, region: Locator, text: string): Promise<v
   await code(region).click();
   await page.keyboard.press('ControlOrMeta+a');
   await page.keyboard.insertText(text);
-}
-
-/** A stored project's file as text, read from OPFS, or null while it can't be read. */
-function storedText(page: Page, folder: string, path: string): Promise<string | null> {
-  return page.evaluate(
-    async ({ folder, path }) => {
-      try {
-        let dir = await (await navigator.storage.getDirectory()).getDirectoryHandle('projects');
-        dir = await dir.getDirectoryHandle(folder);
-        const parts = path.split('/');
-        const name = parts.pop() as string;
-        for (const part of parts) dir = await dir.getDirectoryHandle(part);
-        return await (await (await dir.getFileHandle(name)).getFile()).text();
-      } catch {
-        return null;
-      }
-    },
-    { folder, path },
-  );
 }
 
 /** The first module as Start a game writes it, with an effect content can name: five coins more. */

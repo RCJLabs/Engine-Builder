@@ -88,8 +88,12 @@ export async function readScenes(
       diagnostics.push(diagnostic(file, 'E046', message, { id }));
       records.push({ type: TALK, id, file, value: undefined, unreadable: true });
     };
-    if (!kits.includes(DIALOGUE)) failed('A scene compiles into a talk: turn the dialogue kit on in project.json');
-    else if (text === undefined) failed('Not valid UTF-8 text');
+    // Without the kit there is no talk type for it to be, so it is no record at all: one problem.
+    if (!kits.includes(DIALOGUE)) {
+      diagnostics.push(
+        diagnostic(file, 'E046', 'A scene compiles into a talk: turn the dialogue kit on in project.json', { id }),
+      );
+    } else if (text === undefined) failed('Not valid UTF-8 text');
     else {
       const scene = compileScene(text, { facts });
       for (const p of scene.problems) diagnostics.push(diagnostic(file, p.code, p.message, { ...p, id }));

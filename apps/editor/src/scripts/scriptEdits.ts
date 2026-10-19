@@ -1,6 +1,7 @@
 /**
  * The file changes the script editor and the Scripts list make (M3.2), each a step undo takes
- * back (D30): scripts created, a script's text changed, a script deleted.
+ * back (D30): scripts created, a script's text changed, a script deleted. The scene editor and
+ * the Scenes list make the same of ink scenes' files (M3.11).
  */
 import type { ProjectSource } from '@eb/compiler';
 import { scriptPath } from '@eb/script';
@@ -8,8 +9,8 @@ import { type FileChange, sameState } from '../editing/history.ts';
 
 const encoder = new TextEncoder();
 
-/** New script files, as one step. Throws when one is there already: a new script never overwrites one. */
-export async function createScripts(
+/** New text files, as one step. Throws when one is there already: a new script or scene never overwrites one. */
+export async function createTextFiles(
   source: ProjectSource,
   files: readonly (readonly [path: string, text: string])[],
 ): Promise<FileChange[]> {
@@ -21,16 +22,19 @@ export async function createScripts(
   return changes;
 }
 
-/** The script's text as typed; nothing when it is what the file holds. A script deleted meanwhile is made again. */
-export async function setScriptText(source: ProjectSource, id: string, text: string): Promise<FileChange[]> {
-  const path = scriptPath(id);
+/** A file's text as typed; nothing when it is what the file holds. A file deleted meanwhile is made again. */
+export async function setFileText(source: ProjectSource, path: string, text: string): Promise<FileChange[]> {
   const before = (await source.read(path)) ?? null;
   const after = encoder.encode(text);
   return before !== null && sameState(before, after) ? [] : [{ path, before, after }];
 }
 
-export async function deleteScript(source: ProjectSource, id: string): Promise<FileChange[]> {
-  const path = scriptPath(id);
+export async function deleteFile(source: ProjectSource, path: string): Promise<FileChange[]> {
   const before = await source.read(path);
   return before === undefined ? [] : [{ path, before, after: null }];
 }
+
+export const setScriptText = (source: ProjectSource, id: string, text: string) =>
+  setFileText(source, scriptPath(id), text);
+
+export const deleteScript = (source: ProjectSource, id: string) => deleteFile(source, scriptPath(id));

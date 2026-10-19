@@ -98,8 +98,8 @@ interface Step {
   readonly known: readonly Condition[];
 }
 
-/** Every way from a start, carrying the conditions that held on it. */
-export function walkTalk(talk: TalkRecord, catalog: FactCatalog): Walk {
+/** Every way from a start, carrying the conditions that held on it; it stops after `limit` steps. */
+export function walkTalk(talk: TalkRecord, catalog: FactCatalog, limit = WALK_LIMIT): Walk {
   const lines = byId(talk);
   const tree = (value: unknown) => treeOf(value, catalog);
   const holds = (known: readonly Condition[]) =>
@@ -107,8 +107,11 @@ export function walkTalk(talk: TalkRecord, catalog: FactCatalog): Walk {
   const reached = { lines: new Set<string>(), options: new Set<string>(), branches: new Set<string>() };
   const queue: Step[] = [];
   const seen = new Set<string>();
+  // Each condition once, in one order, so a loop that passes the same branch again adds nothing and the walk settles.
   const push = (line: string | undefined, known: readonly Condition[]) => {
-    if (line !== undefined && holds(known)) queue.push({ line, known });
+    if (line === undefined || !holds(known)) return;
+    const once = new Map(known.map((c) => [JSON.stringify(c), c]));
+    queue.push({ line, known: [...once.keys()].sort().map((key) => once.get(key) as Condition) });
   };
   const before: Condition[] = [];
   for (const start of talk.starts) {
@@ -117,7 +120,7 @@ export function walkTalk(talk: TalkRecord, catalog: FactCatalog): Walk {
     if (own) before.push({ not: own });
   }
   for (let steps = 0; queue.length > 0; steps++) {
-    if (steps >= WALK_LIMIT) return { complete: false, ...reached };
+    if (steps >= limit) return { complete: false, ...reached };
     const { line: id, known } = queue.pop() as Step;
     const key = `${id}|${JSON.stringify(known)}`;
     const line = lines.get(id);

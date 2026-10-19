@@ -11,7 +11,7 @@ import { type OpenProject, runScripts } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import type { GameState } from '../scripts/gameState.ts';
 import { openScript } from '../scripts/open.ts';
-import { createScripts } from '../scripts/scriptEdits.ts';
+import { createTextFiles } from '../scripts/scriptEdits.ts';
 import { moduleTemplate, startFiles } from '../scripts/templates.ts';
 import { trust } from '../scripts/trust.ts';
 import { RunGame } from './RunGame.tsx';
@@ -26,14 +26,14 @@ function trustFirst(project: OpenProject): void {
 function startGame(project: OpenProject): void {
   trustFirst(project);
   void editing
-    .edit('Start the game’s scripts', (copy) => createScripts(copy, startFiles(project.game.ids)))
+    .edit('Start the game’s scripts', (copy) => createTextFiles(copy, startFiles(project.game.ids)))
     .then(() => openScript(GAME_SCRIPT));
 }
 
 function newScript(project: OpenProject, id: string): void {
   trustFirst(project);
   void editing
-    .edit(`New script ${id}`, (copy) => createScripts(copy, [[scriptPath(id), moduleTemplate(id)]]))
+    .edit(`New script ${id}`, (copy) => createTextFiles(copy, [[scriptPath(id), moduleTemplate(id)]]))
     .then(() => openScript(id));
 }
 

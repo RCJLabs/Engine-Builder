@@ -96,6 +96,34 @@ describe('the talk map', () => {
     expect(rows.at(-1)?.boxes.map((b) => b.index)).toEqual([5, 6, 7]);
   });
 
+  it('leads on by a line’s branches before its Then, and says which lines pass (M3.11)', () => {
+    const letter = {
+      starts: [{ line: 'open' }],
+      lines: [
+        { id: 'open', branches: [{ if: 'flag.on(paid)', line: 'paid' }, { if: 'flag.on(gone)' }], next: 'owed' },
+        { id: 'paid', text: 'Paid in full.' },
+        { id: 'owed', text: 'You still owe.', next: 'pick' },
+        { id: 'pick', options: [{ id: 'pay', label: 'Pay', next: 'paid' }] },
+      ],
+    };
+    expect(box(letter, 'open')?.exits).toEqual([
+      { by: 'If flag.on(paid)', to: 'paid', found: true },
+      { by: 'If flag.on(gone)', to: undefined, found: true },
+      { by: 'Then', to: 'owed', found: true },
+    ]);
+    expect([box(letter, 'open')?.passes, box(letter, 'pick')?.passes, box(letter, 'paid')?.passes]).toEqual([
+      true,
+      false,
+      false,
+    ]);
+    // Reached by a branch, so in the row its steps give, not the last.
+    expect(ids(talkMap(letter))).toEqual([
+      [0, ['open']],
+      [1, ['paid', 'owed']],
+      [2, ['pick']],
+    ]);
+  });
+
   it('marks an exit to a line the talk doesn’t have', () => {
     const lines = MARGE.lines.map((line) => (line.id === 'tour' ? { ...line, next: 'agian' } : line));
     expect(box({ ...MARGE, lines }, 'tour')?.exits).toEqual([{ by: 'Then', to: 'agian', found: false }]);

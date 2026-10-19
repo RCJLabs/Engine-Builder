@@ -1,6 +1,7 @@
 /**
- * What the kits' e2e specs share (M3.3 to M3.5): a new project, a stored file read back, a record
- * of a kit's type made in Records, a record picked, the Logic panel, and a fixture folder as a zip.
+ * What the kits' e2e specs share (M3.3 to M3.5): a new project, a stored file read back, as JSON or
+ * as text, a record of a kit's type made in Records, a record picked, the Logic panel, and a
+ * fixture folder as a zip.
  */
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -43,6 +44,25 @@ export function stored(page: Page, folder: string, path: string): Promise<unknow
         const name = parts.pop() as string;
         for (const part of parts) dir = await dir.getDirectoryHandle(part);
         return JSON.parse(await (await (await dir.getFileHandle(name)).getFile()).text()) as unknown;
+      } catch {
+        return null;
+      }
+    },
+    { folder, path },
+  );
+}
+
+/** A stored project's file as text, read from OPFS, or null while it can't be read: a script or a scene. */
+export function storedText(page: Page, folder: string, path: string): Promise<string | null> {
+  return page.evaluate(
+    async ({ folder, path }) => {
+      try {
+        let dir = await (await navigator.storage.getDirectory()).getDirectoryHandle('projects');
+        dir = await dir.getDirectoryHandle(folder);
+        const parts = path.split('/');
+        const name = parts.pop() as string;
+        for (const part of parts) dir = await dir.getDirectoryHandle(part);
+        return await (await (await dir.getFileHandle(name)).getFile()).text();
       } catch {
         return null;
       }

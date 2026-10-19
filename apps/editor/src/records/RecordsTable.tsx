@@ -130,13 +130,15 @@ function RecordRow(props: {
     <tr class={picked ? 'picked' : undefined}>
       {picked !== null ? (
         <td class="pick-cell">
-          <input
-            type="checkbox"
-            class="pick-box"
-            checked={picked}
-            aria-label={`Select ${record.id}`}
-            onChange={() => toggle?.(record.id)}
-          />
+          {record.scene ? null : (
+            <input
+              type="checkbox"
+              class="pick-box"
+              checked={picked}
+              aria-label={`Select ${record.id}`}
+              onChange={() => toggle?.(record.id)}
+            />
+          )}
         </td>
       ) : null}
       {columns.map((column) => {
@@ -150,7 +152,7 @@ function RecordRow(props: {
                 onClick={() => open(record.id)}
               >
                 {name ? <span class="record-name">{name}</span> : null}
-                <span class="mono record-id">{record.id}</span>
+                <span class="mono record-id">{record.scene ? `${record.id}.ink` : record.id}</span>
               </button>
             </th>
           );

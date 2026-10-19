@@ -5,7 +5,7 @@
  * with `{cond: this|that}` inside becomes a line that passes to one variant of it per way its
  * conditions can fall.
  */
-import { type Condition, type FactCatalog, printCondition } from '@eb/core';
+import { type FactCatalog, printCondition } from '@eb/core';
 import type { At, Tag, Written } from './ast.ts';
 import { type Bound, toCondition } from './conditions.ts';
 import { type Graph, hasInline, type Node, type Option, type Ref } from './graph.ts';
@@ -22,7 +22,7 @@ const NAME = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
 const MOST_INLINE = 3;
 
 interface Context {
-  readonly bound: ReadonlyMap<string, Bound>;
+  readonly bound: ReadonlyMap<string, Bound | null>;
   readonly catalog: FactCatalog;
   readonly problems: Problems;
   readonly map: SourceMap;
@@ -176,7 +176,8 @@ function optionOf(option: Option, at: string, line: string, k: number, ids: Ids,
     id: label === undefined ? `${line}-${k + 1}` : idOf(label, option.at, ctx.problems),
     label: option.text,
   };
-  if (option.conds.length > 0) out.if = option.conds.map((cond) => conditionText(cond, ctx)).join(' and ');
+  const conds = option.conds.map((cond) => conditionText(cond, ctx));
+  if (conds.length > 0) out.if = conds.length === 1 ? conds[0] : conds.map(wrap).join(' and ');
   if (option.needs) out.needs = conditionText(option.needs, ctx);
   if (option.cost) out.cost = option.cost;
   out.once = true;
@@ -186,26 +187,23 @@ function optionOf(option: Option, at: string, line: string, k: number, ids: Ids,
   return out;
 }
 
-/** The engine's text for a written condition, in brackets when it has an or. */
+/** The engine's text for a written condition. */
 function conditionText(written: Written, ctx: Context): string {
   const condition = ctx.problems.catching(
     written.at.line,
     () => toCondition(written, ctx.bound, ctx.catalog),
     written.offset,
   );
-  return condition === undefined ? 'false' : bracketed(condition, ctx.catalog);
+  return condition === undefined ? 'false' : printCondition(condition, ctx.catalog);
 }
-
-const bracketed = (condition: Condition, catalog: FactCatalog) => {
-  const text = printCondition(condition, catalog);
-  return 'any' in condition ? `(${text})` : text;
-};
 
 /** A line with `{cond: this|that}` inside: one that passes, holding its effects, and a variant per way its conditions fall. */
 function variants(node: Node, id: string, index: number, ids: Ids, ctx: Context): Record<string, unknown>[] {
   const conds = node.paras.flatMap((p) => p.segments.flatMap((s) => (typeof s === 'string' ? [] : [s.cond])));
   if (conds.length > MOST_INLINE) {
-    ctx.problems.add(node.at, `At most ${MOST_INLINE} {condition: this|that} to a line: split it with # beat`);
+    // At the one past the limit: a paragraph runs over lines, and the first of them may hold none.
+    const over = (conds[MOST_INLINE] as Written).at;
+    ctx.problems.add(over, `At most ${MOST_INLINE} {condition: this|that} to a line: split it with # beat`);
     return [];
   }
   const texts = conds.map((cond) => conditionText(cond, ctx));
@@ -216,9 +214,10 @@ function variants(node: Node, id: string, index: number, ids: Ids, ctx: Context)
   const ways = 1 << conds.length;
   const variant = (way: number) => `${id}-${way + 1}`;
   pass.branches = Array.from({ length: ways - 1 }, (_, way) => {
-    const holds = texts.map((text, k) => (way & (1 << (conds.length - 1 - k)) ? `not ${wrap(text)}` : text));
+    const fell = (k: number) => (way & (1 << (conds.length - 1 - k))) !== 0;
+    const parts = texts.map((text, k) => (fell(k) ? `not ${wrap(text)}` : texts.length === 1 ? text : wrap(text)));
     ctx.map[`${at}/branches/${way}`] = node.at.line;
-    return { if: holds.length === 1 ? holds[0] : holds.map(wrap).join(' and '), line: variant(way) };
+    return { if: parts.join(' and '), line: variant(way) };
   });
   pass.next = variant(ways - 1);
   const next = ids(node.next);
@@ -239,4 +238,5 @@ function variants(node: Node, id: string, index: number, ids: Ids, ctx: Context)
   return [pass, ...shown];
 }
 
-const wrap = (text: string) => (/ (and|or) /.test(text) && !text.startsWith('(') ? `(${text})` : text);
+/** A condition's text in brackets when it joins others: `(a) and (b)` starts with one but isn't one. */
+const wrap = (text: string) => (/ (and|or) /.test(text) ? `(${text})` : text);

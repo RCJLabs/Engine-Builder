@@ -1,4 +1,5 @@
 import { createPack, type Pack } from '@eb/core';
+import { TALK } from '@eb/kits';
 import {
   compareDiagnostics,
   type DataType,
@@ -48,9 +49,11 @@ export async function compileProject(
   const kitted = { ...options, kits: files.kits, ...(files.calendar ? { calendar: files.calendar } : {}) };
   const scenes = await readScenes(source, knownFrom(kitted).facts, files.kits);
   const diagnostics: Diagnostic[] = [...files.diagnostics, ...scripts.diagnostics, ...scenes.diagnostics];
+  // A scene beside a talk record of its id is E004 at both, and isn't checked: one problem, as the editor has it.
+  const talks = new Set(files.recordFiles.filter((r) => r.type === TALK).map((r) => r.id));
   const records = [
     ...(await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))),
-    ...scenes.records,
+    ...scenes.records.map((scene) => (talks.has(scene.id) ? { ...scene, unreadable: true } : scene)),
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));

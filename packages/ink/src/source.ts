@@ -49,17 +49,13 @@ export function closing(text: string, from: number, close: string): number {
   return -1;
 }
 
-/** The first `:` outside double quotes and brackets, or -1: where a condition ends and what it shows starts. */
+/** The first `:` outside double quotes, or -1: where a condition ends and what it shows starts. */
 export function topColon(text: string): number {
   let quoted = false;
-  let depth = 0;
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
     if (char === '"') quoted = !quoted;
-    else if (quoted) continue;
-    else if (char === '(') depth++;
-    else if (char === ')') depth--;
-    else if (char === ':' && depth === 0) return i;
+    else if (char === ':' && !quoted) return i;
   }
   return -1;
 }

@@ -6,9 +6,11 @@ import {
   ASSETS_DIR,
   ASSETS_LOG,
   classifyRecordFile,
+  classifyScene,
   classifyTypeFile,
   MANIFEST_FILE,
   RECORDS_DIR,
+  SCENES_DIR,
   TYPES_DIR,
 } from '@eb/compiler';
 import { pointerKeys } from '@eb/core';
@@ -19,12 +21,13 @@ import { nameIn } from '../records/names.ts';
 import { describePath } from '../records/paths.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 
-/** Where the editor fixes a problem: a record's field, a type, an asset, a script's line (M3.2), or a panel. */
+/** Where the editor fixes a problem: a record's field, a type, an asset, a script's or a scene's line (M3.2, M3.11), or a panel. */
 export type Place =
   | { readonly kind: 'record'; readonly type: string; readonly id: string; readonly at: string }
   | { readonly kind: 'type'; readonly type: string }
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
+  | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'panel'; readonly panel: 'project' | 'assets' };
 
 /** The script a file under scripts/ is, or undefined for one the compiler ignores or that is misplaced. */
@@ -54,16 +57,12 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
       : { kind: 'panel', panel: 'assets' };
   }
   if (file.startsWith(`${ASSETS_DIR}/`)) return { kind: 'asset', path: file.slice(ASSETS_DIR.length + 1) };
+  const { line, column } = problem;
+  const at = { ...(line !== undefined ? { line } : {}), ...(column !== undefined ? { column } : {}) };
   const script = scriptOf(file);
-  if (script !== undefined) {
-    const { line, column } = problem;
-    return {
-      kind: 'script',
-      id: script,
-      ...(line !== undefined ? { line } : {}),
-      ...(column !== undefined ? { column } : {}),
-    };
-  }
+  if (script !== undefined) return { kind: 'script', id: script, ...at };
+  const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : undefined;
+  if (scene?.kind === 'scene') return { kind: 'scene', id: scene.id, ...at };
   return null;
 }
 
@@ -81,13 +80,15 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   if (type?.kind === 'type') return `Type ${catalog.types.get(type.type)?.file.title ?? type.type}`;
   const script = scriptOf(file);
   if (script !== undefined) return `Script ${script}.ts`;
+  const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : null;
+  if (scene?.kind === 'scene') return `Scene ${scene.id}.ink`;
   return file;
 }
 
 /** Where in its file a problem is, in words; '' for the file as a whole. */
 export function whereOf(problem: Diagnostic, catalog: Catalog): string {
   const file = problem.file ?? '';
-  // A script's problems are at lines (M3.2).
+  // A script's and a scene's problems are at lines (M3.2, M3.11).
   if (problem.line !== undefined)
     return `line ${problem.line}${problem.column !== undefined ? `, column ${problem.column}` : ''}`;
   const keys = pointerKeys(problem.path);

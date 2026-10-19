@@ -320,6 +320,12 @@ describe('the checks that follow a talk’s ways (M3.11)', () => {
     expect(ways(withX(nested))).toEqual(['W129 marge /lines/6/branches/0/if', 'W129 marge /lines/7/id']);
   });
 
+  it('W129 leaves a condition that can never hold to W102, and a branch may name no line', () => {
+    const never = tour({ branches: [{ if: 'flag.on(x) and not flag.on(x)', line: 'thanks' }] });
+    expect(ways(withX(never))).toEqual(['W102 marge /lines/1/branches/0/if']);
+    expect(check(withLines(tour({ branches: [{ if: BONDED }] })))).toEqual([]);
+  });
+
   it('W129: an option the ways to its line rule out, until an effect on the way could change it', () => {
     const inner = (effects: object[]) => [
       ...tour({ branches: [{ if: 'flag.on(x)', line: 'inner' }] }),

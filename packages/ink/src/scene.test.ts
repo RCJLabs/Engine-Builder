@@ -212,6 +212,8 @@ describe('conditions', () => {
         'EXTERNAL faction_name(faction)',
         'EXTERNAL quests_state(quest, quest)',
         '{ faction_name("hel"): Hi. }',
+        // Uses of EXTERNALs that bind nothing: their problems are at the EXTERNALs, said once.
+        '{ flags_on("a") and flag_on("b"): Hi. }',
       ]),
     ).toEqual([
       'E012 1: EXTERNAL flags_on names no fact of the game: an EXTERNAL is a fact’s name with _ for its . and -, like flags_value for flags.value',

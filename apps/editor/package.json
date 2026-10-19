@@ -21,6 +21,7 @@
     "@codemirror/view": "6.43.14",
     "@eb/compiler": "workspace:*",
     "@eb/core": "workspace:*",
+    "@eb/ink": "workspace:*",
     "@eb/kits": "workspace:*",
     "@eb/platform": "workspace:*",
     "@eb/schema": "workspace:*",

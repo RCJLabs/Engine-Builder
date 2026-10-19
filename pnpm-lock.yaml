@@ -65,6 +65,9 @@ importers:
       '@eb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@eb/ink':
+        specifier: workspace:*
+        version: link:../../packages/ink
       '@eb/kits':
         specifier: workspace:*
         version: link:../../packages/kits
