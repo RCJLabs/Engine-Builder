@@ -16,12 +16,14 @@ describe('the API completion offers', () => {
     const parts: Record<keyof ModuleDef<unknown>, true> = {
       id: true,
       init: true,
+      start: true,
       actions: true,
       facts: true,
       effects: true,
       events: true,
       on: true,
       modes: true,
+      made: true,
       version: true,
       migrate: true,
     };

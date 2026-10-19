@@ -6,9 +6,11 @@
  */
 import { canonicalJson } from '../canonical.ts';
 import type { Condition, FactCatalog, Truth } from '../logic/types.ts';
+import type { RecordStore } from '../records.ts';
 import { Rng } from '../rng.ts';
 import type { EventCatalog } from './events.ts';
 import { freezeJson } from './json.ts';
+import { withMade } from './made.ts';
 import { type MigrationReport, migrateState } from './migrate.ts';
 import type { FactArgs, Module } from './module.ts';
 import { AttemptRefused, Refusal } from './refusal.ts';
@@ -34,6 +36,11 @@ export interface Game {
    */
   options(state: GameState, sim: SimContext): readonly Action[];
   fact(state: GameState, id: string, args: FactArgs | undefined, sim: SimContext): unknown;
+  /**
+   * The records every module reads in this state: the pack's, and those modules have made in play
+   * (D44), such as the roster kit's recruits. What the stage names an event's actor from.
+   */
+  content(state: GameState, sim: SimContext): RecordStore;
   /** Every fact the modules register, by id: what conditions in content are checked against. */
   catalog(): FactCatalog;
   /** Every event the modules declare, by id: what rows' When is checked against. */
@@ -118,6 +125,8 @@ export function createGame(definition: GameDefinition): Game {
     },
 
     fact: (state, id, args, sim) => new Transaction(registry, state, sim).fact(id, args),
+
+    content: (state, sim) => withMade(sim.content, registry.makers, (module) => state[module]),
 
     catalog: () => catalog,
 

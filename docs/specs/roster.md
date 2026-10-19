@@ -36,6 +36,7 @@ A recruit is an **actor record made in play**: the kernel's content, as every mo
   - Everything else (`description`, and with gear `slots` and `wears`) is the actor's, read from content each time.
 - **Its id** is its template's id, a hyphen and a number: `deckhand-4`. The number comes from one counter for the whole game, which counts every recruit made and never goes back, so an id is never used twice.
 - **It stays a record after it leaves,** so its bonds, its rank and what it was can still be read.
+- **Outside an action** the stage reads it from `game.content(state, sim)`, which holds the made records beside the pack's ([sim.md](sim.md#facts-and-effects-outside-reduce)): how "Ketil Ash joined" finds its name.
 
 ## Records
 
@@ -99,7 +100,7 @@ The roster's settings. A game has at most one roster record; without one, the ro
 - **`gone`** holds why each actor who left did: a name such as `dead`, `dismissed` or `sold`. An actor who rejoins is taken out of it.
 - **`halls`** holds a hall only once it has been refreshed or hired from: its round, and the slots hired this round.
 - **`bonds`** holds a pair only while it differs from the start, keyed by the two ids sorted and joined by `|`.
-- **`ranks`** holds the rank each member was last given, so a move takes the old rank's status off. With no ladder it stays empty.
+- **`ranks`** holds the rank each member was last given, so a move takes the old rank's status off. A member who leaves keeps its entry, so one whose rank moved while it was away has the old status taken off as it rejoins. With no ladder it stays empty.
 
 ## Offers
 
@@ -118,14 +119,14 @@ The roster's settings. A game has at most one roster record; without one, the ro
 | Effect | Does | Preview |
 | --- | --- | --- |
 | `{ "effect": "recruit", "recruit": "deckhand" }` | Makes a recruit from the template and puts it on the roster, with no fee. Refused (`roster-full`) when the roster is full | `{ actor, name, stats, traits }`: who would join |
-| `{ "effect": "join", "actor": "ana" }` | A written actor joins. Nothing for one on the roster already. Refused (`roster-full`) when the roster is full | as written |
-| `{ "effect": "leave", "actor": "ana", "why": "dead" }` | A member leaves, kept in `gone` with why. Nothing for one not on the roster | as written |
+| `{ "effect": "join", "actor": "ana" }` | An actor joins, a written one or a recruit who left. Nothing for one on the roster already. Refused (`roster-full`) when the roster is full | as written |
+| `{ "effect": "leave", "actor": "ana", "why": "dead" }` | A member leaves, kept in `gone` with why, a kebab-case name. Nothing for one not on the roster | as written |
 | `{ "effect": "change-bond", "actor": "ana", "with": "bo", "by": 2 }` | Adds `by` to the pair's bond, within the bounds. Raises `bond-changed` with how much it moved, then `bond-band-changed` if its band changed | `{ actor, with, from, to }`, and `band: { from, to }` when bonds have bands |
 | `{ "effect": "change-bonds", "by": 1 }` | Every pair of members now, in id order, as change-bond does: Wasteland's fight won together, Ludus's week | as written |
 | `{ "effect": "open-hall", "hall": "dock" }` | Opens the hall: its offers in the mode `hiring`, where hiring is an action. Refused (`already-in-hall`) when a hall is open | as written |
 | `{ "effect": "refresh-hall", "hall": "dock" }` | Starts the hall's next round | as written |
 
-A recruit, a join, a leave and a bond change each say what they did as events; a rank change follows from them ([ranks](#ranks)).
+A recruit, a join, a leave and a bond change each say what they did as events; a rank change follows from them ([ranks](#ranks)). An actor that is neither written nor made throws, as a missing record does everywhere.
 
 ## Actions
 
@@ -135,6 +136,14 @@ In the mode `hiring`, whose data is `{ "hall": "dock" }`:
 | --- | --- | --- |
 | `roster/hire` `{ slot }` | The offer in that slot joins, once its fee is paid (pay-cost); its slot is hired for the round | for each slot not hired this round, while the roster has room and the fee can be paid |
 | `roster/leave-hall` | Leaves the hall | always |
+
+The options and the action share one check, so what is offered is what a hire accepts. A hire is refused with:
+
+- `no-such-slot`: not a whole number from 0 to the hall's `offers` less one;
+- `hired`: hired already this round;
+- `roster-full`;
+- `cant-afford`, with `resource`, `have` and `need`, the first resource of the fee the party is short of, in id order, as pay-cost finds it;
+- `not-hiring`, for either action outside a hall.
 
 ## Facts
 
@@ -146,8 +155,8 @@ In the mode `hiring`, whose data is `{ "hall": "dock" }`:
 | `roster.left(actor)` | text: why it left; no value for an actor that hasn't | "why ana left is dead" |
 | `roster.rank(actor)` | text: its rank's id; no value with no ladder | "ana’s rank is veteran" |
 | `roster.reached(actor, rank)` | bool: its ladder stat is at or past where the rank begins | "ana is at least veteran" |
-| `roster.ranked(rank)` | int from 0: members who have reached the rank | "members at least veteran" |
-| `roster.bond(actor, with)` | int | "the bond of ana and bo is at least 4" |
+| `roster.ranked(rank)` | int from 0: members who have reached the rank | "the number of members at least veteran is at least 2" |
+| `roster.bond(actor, with)` | int. An actor's bond with itself throws | "the bond of ana and bo is at least 4" |
 | `roster.bond-band(actor, with)` | text: the band's id; no value with no bands | "the bond of ana and bo is mates" |
 
 A rank or a band the roster doesn't have throws, and validation stops it in content (E040).
@@ -190,8 +199,8 @@ A rank or a band the roster doesn't have throws, and validation stops it in cont
 
 ## Proof
 
-- **Unit tests** (`packages/kits/src/roster/`): offers worked out twice the same, in any order of asking, and from a save; names drawn again while worn; traits stopping at `most`; recruits' ids never reused across leaving; the cap, from a number and from a flag; hiring paying the fee and refused when short; ranks moving with the ladder stat and their statuses with them; bonds within bounds, in bands, and every pair by change-bonds; members kept as gone.
-- **Kernel tests:** made records read, checked and named like content's; a clash with a content id throws; a made record seen by later effects in the same action.
+- **Unit tests** (`packages/kits/src/roster/`, with the muster game in `packages/kits/test/muster.ts`): offers equal to the draws made by hand in this spec's order; offers worked out twice the same, in any order of asking, and from a save; names drawn again while worn; traits stopping at `most`; recruits' ids never reused across leaving; the cap, from a number and from a flag; hiring paying the fee and refused when short; ranks moving with the ladder stat and their statuses with them; bonds within bounds, in bands, and every pair by change-bonds; members kept as gone.
+- **Kernel tests:** made records read, checked and named like content's, and in `game.content`; a clash with a content id throws; a made record seen by later effects in the same action; `start` run once after every init.
 - **Schema tests:** every E035 rule at its bound; E040 in each kind of condition; W117.
 - **The crew fixture** (`tools/cli/test/fixtures/crew`), a slice of Space-Wrecked: stations offering recruits from backgrounds, fees by trait, ranks at 3 and 8 fights, wounds that last days, bonds that grow with fights won, and the dead kept. Its golden runs, and a test that every recruit hired in 30 seeds' runs is the offer worked out again from its hall, round and slot.
 

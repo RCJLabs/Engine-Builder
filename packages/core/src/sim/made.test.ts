@@ -75,6 +75,16 @@ describe('made records', () => {
     expect(game.fact(game.init('kennel', sim), 'vet.pets', {}, sim)).toBe(1);
   });
 
+  it('are in the content a game reads outside an action, as the stage reads it', () => {
+    const state = adopted(game.init('kennel', sim), 'rex', 'Rex');
+    const content = game.content(state, sim);
+    expect(content.ids('pet')).toEqual(['fido', 'rex']);
+    expect(content.get('pet', 'rex')).toEqual({ name: 'Rex' });
+    expect(Object.isFrozen(content.get('pet', 'rex'))).toBe(true);
+    // The state it was asked about, not a later one.
+    expect(game.content(game.init('kennel', sim), sim).has('pet', 'rex')).toBe(false);
+  });
+
   it('are named by events, whose arguments the kernel checks against them', () => {
     const step = take(game.init('kennel', sim), { effect: 'adopt', pet: 'rex', name: 'Rex' });
     expect(step.beats).toContainEqual({ type: 'kennel/adopted', pet: 'rex' });

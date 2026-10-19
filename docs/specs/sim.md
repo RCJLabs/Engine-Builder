@@ -175,6 +175,7 @@ A module may make records in play (M3.6, [D44](../decisions.md)): the roster kit
 None of these change the state or draw a random number.
 
 - `game.fact(state, id, args, sim)` reads a fact for the UI or a bot.
+- `game.content(state, sim)` is the content every module reads in that state: the pack's records and the [made records](#made-records). The stage names an event's actor from it, a recruit's included.
 - `game.check(state, condition, sim)` evaluates a condition the way `ctx.check` does, so a menu offers what the sim allows.
 - `game.preview(state, effects, sim)` previews each effect: its module's `preview`, or the effect as written ([conditions.md](conditions.md)).
 - `game.catalog()`, and `factCatalog(modules)` without a start mode, list every fact's declaration by id: what content is checked against. `game.events()` and `eventCatalog(modules)` do the same for events.
