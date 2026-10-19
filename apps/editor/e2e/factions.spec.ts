@@ -163,6 +163,9 @@ test('the factions and time kits on, a calendar, a faction and a shop priced by 
     'When a season starts (season: autumn)If guild is at least friendlyDo: take 5 from guild’s standing',
   );
   await expect(panel.getByRole('button', { name: /^2\. row-2/ })).toContainText('Do: wait 6 hours');
+  // Checked as the export will be: hours are the calendar's, and friendly is one of the guild's bands.
+  await sheet.getByLabel(/^Row id/).first().focus();
+  await expect(sheet.locator('.field-problem')).toHaveCount(0);
   await expectNothingOffscreen(page);
   await expectNoAxeIssues(page);
 
