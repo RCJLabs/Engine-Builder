@@ -86,7 +86,7 @@ async function makeTalk(page: Page): Promise<Locator> {
   await pick(page, sent, /^Speaker/, 'Choose a speaker', 'Dex (dex)');
   await addLine(talk, 4, 'later', 'See you at the crag.');
   // Nothing leads to "later" (W121): at its id, and in the map's last row.
-  const never = talk.getByText('No start leads here, by an option, an outcome or a Then: it is never shown');
+  const never = talk.getByText('No start leads here, by an option, an outcome, a branch or a Then: it is never shown');
   await expect(never).toBeVisible();
   await expect(mapRow(talk, 'Nothing leads here').getByRole('button')).toHaveCount(1);
   await expect(mapRow(talk, 'Nothing leads here').getByRole('button')).toContainText('See you at the crag.');
