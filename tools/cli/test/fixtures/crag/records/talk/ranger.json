@@ -1,0 +1,75 @@
+{
+  "name": "The ranger at the gate",
+  "speaker": "ranger",
+  "show-odds": true,
+  "starts": [
+    {
+      "if": "flag.on(permit)",
+      "line": "checked"
+    },
+    {
+      "line": "stop"
+    }
+  ],
+  "lines": [
+    {
+      "id": "stop",
+      "text": "Climbing permit?",
+      "options": [
+        {
+          "id": "buy",
+          "label": "Buy one",
+          "cost": {
+            "cash": 20
+          },
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "permit",
+              "to": true
+            }
+          ],
+          "next": "checked"
+        },
+        {
+          "id": "charm",
+          "label": "I’m only here for the view",
+          "outcomes": [
+            {
+              "chance": 50,
+              "effects": [
+                {
+                  "effect": "set-flag",
+                  "flag": "permit",
+                  "to": true
+                }
+              ],
+              "next": "waved"
+            },
+            {
+              "chance": 50,
+              "effects": [],
+              "next": "turned-back"
+            }
+          ]
+        },
+        {
+          "id": "leave",
+          "label": "Leave"
+        }
+      ]
+    },
+    {
+      "id": "checked",
+      "text": "Have a good climb."
+    },
+    {
+      "id": "waved",
+      "text": "Fine. Stay on the trail."
+    },
+    {
+      "id": "turned-back",
+      "text": "Not without a permit."
+    }
+  ]
+}

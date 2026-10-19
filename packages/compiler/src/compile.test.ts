@@ -385,8 +385,28 @@ describe('the code table', () => {
       undefined,
       { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
     );
+    // M3.8: a talk nothing opens, with a line no start reaches and a line whose one option can be
+    // locked, and a row naming a line the talk lacks.
+    const talked = await kitted(['dialogue'], {
+      'records/talk/marge.json': JSON.stringify({
+        starts: [{ line: 'hello' }],
+        lines: [
+          {
+            id: 'hello',
+            text: 'Hi',
+            options: [{ id: 'ask', label: 'Ask', needs: 'dialogue.talked(talk: marge) >= 2' }],
+          },
+          { id: 'lost', text: 'Lost' },
+        ],
+      }),
+      'records/sheet/watch.json': JSON.stringify({
+        rows: [
+          { id: 'a', when: { event: 'dialogue/ended' }, if: 'dialogue.heard(talk: marge, line: summit) >= 1', do: [] },
+        ],
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented];
+    const late = [timed, drifting, rostered, evented, talked];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

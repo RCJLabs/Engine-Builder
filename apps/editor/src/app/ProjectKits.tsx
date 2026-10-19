@@ -5,7 +5,7 @@
  */
 import { KITS } from '@eb/kits';
 import { editing } from '../editing/current.ts';
-import { kitsChange, kitsStep, kitsWith } from '../editing/projectEdits.ts';
+import { kitsStep, kitsWith, kitToggle } from '../editing/projectEdits.ts';
 
 /** What each kit is called and brings, for the box beside it. */
 export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonly brings: string }>> = {
@@ -26,14 +26,17 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     name: 'Events',
     brings: 'Choice events, the decks they’re drawn from, and consequences that land days or choices later.',
   },
+  dialogue: {
+    name: 'Dialogue',
+    brings: 'Speakers, and talks of lines and what the player says back, with a map of where each line leads.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {
   const canEdit = editing.access.value.kind === 'editing';
   const toggle = (kit: string, wanted: boolean) => {
-    const after = kitsWith(on, kit, wanted);
-    void editing.edit(kitsStep(kit, wanted, on, after), async (copy) => {
-      const change = await kitsChange(copy, after);
+    void editing.edit(kitsStep(kit, wanted, on, kitsWith(on, kit, wanted)), async (copy) => {
+      const change = await kitToggle(copy, kit, wanted);
       return change ? [change] : [];
     });
   };

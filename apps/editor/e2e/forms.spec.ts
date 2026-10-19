@@ -215,6 +215,26 @@ test('shows the compiler’s problems beside their fields, and keeps what isn’
     .toMatchObject({ name: 'Priscus Secundus', might: 150 });
 });
 
+test('a press that leaves a field still lands where it was pressed, its problem shown once the pointer lifts', async ({
+  page,
+}) => {
+  // Tall enough that the field and the button are both in view: scrolled to the button, the field
+  // would sit above what shows, and the browser's scroll anchoring would hide the shift.
+  await page.setViewportSize({ width: 1280, height: 1600 });
+  await importLudus(page);
+  const form = await openRecord(page, 'Gladiator', 'spiculus');
+  const before = ((await stored(page, SPICULUS)) as { skills: unknown[] }).skills.length;
+  // Shown as the field was left, At most 100 pushed Add to Skills down between the press and the
+  // lift, and the click was lost (M3.8, with a talk's Leads to naming a line not yet written). A
+  // press near the button's top edge misses after any shift, not only one past half its height.
+  await form.getByLabel('Might', { exact: true }).fill('150');
+  await form.getByRole('button', { name: 'Add to Skills', exact: true }).click({ position: { x: 8, y: 2 } });
+  await expect(form.getByRole('textbox', { name: `Skills, item ${before + 1}`, exact: true })).toBeVisible();
+  await expect(form.locator('.form-field', { has: page.getByLabel('Might', { exact: true }) })).toContainText(
+    'At most 100',
+  );
+});
+
 test('creates a record with its type’s fields to fill in, deletes it, and undo brings it back', async ({ page }) => {
   const errors = watchErrors(page);
   await importLudus(page);

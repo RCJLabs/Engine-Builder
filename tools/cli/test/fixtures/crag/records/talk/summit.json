@@ -1,0 +1,15 @@
+{
+  "name": "The top of the arete",
+  "starts": [
+    {
+      "if": "flag.number(sends) >= 1",
+      "line": "top"
+    }
+  ],
+  "lines": [
+    {
+      "id": "top",
+      "text": "The whole valley, from the top of the arete."
+    }
+  ]
+}

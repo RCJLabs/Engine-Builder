@@ -6,6 +6,7 @@ import {
   kitsChange,
   kitsStep,
   kitsWith,
+  kitToggle,
   manifestChange,
   manifestProblem,
   withCalendar,
@@ -66,6 +67,18 @@ describe('kitsStep', () => {
     expect(kitsStep('inventory', true, [], ['inventory'])).toBe('Turn on the inventory kit');
     expect(kitsStep('inventory', false, ['inventory', 'economy'], [])).toBe('Turn off the inventory kit, with economy');
     expect(kitsStep('economy', false, ['inventory', 'economy'], ['inventory'])).toBe('Turn off the economy kit');
+  });
+});
+
+describe('kitToggle', () => {
+  it('turns a kit on or off from the kits project.json lists as it runs', async () => {
+    const listed = MANIFEST.replace('"0.1.0"\n', '"0.1.0",\n  "kits": ["dialogue"]\n');
+    const on = await kitToggle(memorySource({ 'project.json': listed }), 'economy', true);
+    expect(JSON.parse(decode(on?.after) ?? '')).toMatchObject({ kits: ['inventory', 'economy', 'dialogue'] });
+    const off = await kitToggle(memorySource({ 'project.json': listed }), 'dialogue', false);
+    expect(decode(off?.after)).toBe(MANIFEST);
+    expect(await kitToggle(memorySource({ 'project.json': listed }), 'dialogue', true)).toBeNull();
+    expect(await kitToggle(memorySource({}), 'dialogue', true)).toBeNull();
   });
 });
 

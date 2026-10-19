@@ -220,6 +220,9 @@ function eventEffectText(effect: Record<string, unknown>): string | undefined {
     }
     case 'cancel-later':
       return `cancel the consequence ${named(effect.id, 'a consequence')}`;
+    // The dialogue kit's one effect (M3.8): "open the talk marge".
+    case 'open-talk':
+      return `open the talk ${named(effect.talk, 'a talk')}`;
     default:
       return undefined;
   }

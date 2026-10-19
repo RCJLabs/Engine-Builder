@@ -2,7 +2,7 @@
 
 This is how kits work: the engine's own modules for what most games share, with their record types, facts, events and effects (M3.3, [D41](../decisions.md)). The modules are in `packages/kits`, pure; their types, effect schemas and checks are in `@eb/schema`. A port must follow it to hold the same state, draw the same numbers and charge the same prices.
 
-M3.3 builds the economy half of Kits I: the inventory kit (items, the party's bag, loot tables) and the economy kit (resources, shops). M3.4 adds the stats kit (actors, stats, statuses) and the gear kit (slots, worn items): [stats.md](stats.md). M3.5 adds the factions kit (standing, bands, drift, prices by band): [factions.md](factions.md), and the time kit (the calendar as data): [time.md](time.md#the-time-kit). M3.6 adds the roster kit (members, recruits made in play, halls, ranks, bonds): [roster.md](roster.md). M3.7 adds the events kit (choice events, decks, consequences): [events.md](events.md).
+M3.3 builds the economy half of Kits I: the inventory kit (items, the party's bag, loot tables) and the economy kit (resources, shops). M3.4 adds the stats kit (actors, stats, statuses) and the gear kit (slots, worn items): [stats.md](stats.md). M3.5 adds the factions kit (standing, bands, drift, prices by band): [factions.md](factions.md), and the time kit (the calendar as data): [time.md](time.md#the-time-kit). M3.6 adds the roster kit (members, recruits made in play, halls, ranks, bonds): [roster.md](roster.md). M3.7 adds the events kit (choice events, decks, consequences): [events.md](events.md). M3.8 adds the dialogue kit (speakers, talks): [dialogue.md](dialogue.md).
 
 It follows the games that came before:
 
@@ -19,7 +19,7 @@ A project lists its kits in `project.json`:
 { "format": 1, "id": "hangar", "name": "Hangar", "version": "0.1.0", "kits": ["inventory", "economy"] }
 ```
 
-- **The kits** are, in the engine's order, `inventory`, `economy`, `stats`, `gear`, `factions`, `time`, `roster` and `events`. `economy` needs `inventory`; `gear` needs `inventory` and `stats`; `roster` needs `stats`; the rest need none. Each id is listed once, in any order.
+- **The kits** are, in the engine's order, `inventory`, `economy`, `stats`, `gear`, `factions`, `time`, `roster`, `events` and `dialogue`. `economy` needs `inventory`; `gear` needs `inventory` and `stats`; `roster` needs `stats`; the rest need none. Each id is listed once, in any order.
 - **E033:** a kit the engine doesn't have, or one listed twice. **E034:** a kit whose need is left out. Neither stops `project.json` being read: the kit in question is off, and its records are of a type the project doesn't have (E002).
 - **A kit that is on:**
   - its record types are the engine's own for the project, as `flag` and `sheet` are (D36);

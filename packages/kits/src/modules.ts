@@ -1,5 +1,7 @@
 /** The kits' modules (M3.3, D41), apart from the list of kits so that reading the list costs no sim code. */
 import type { CalendarDef, Module } from '@eb/core';
+import { dialogueModule } from './dialogue/module.ts';
+import { DIALOGUE } from './dialogue/types.ts';
 import { economyKit } from './economy/module.ts';
 import { ECONOMY } from './economy/types.ts';
 import { eventsModule } from './events/module.ts';
@@ -28,6 +30,9 @@ const ROSTER_WITH_ECONOMY = rosterModule(true);
 // Likewise a choice's cost (W119).
 const EVENTS_ALONE = eventsModule(false);
 const EVENTS_WITH_ECONOMY = eventsModule(true);
+// And an option's (W119).
+const DIALOGUE_ALONE = dialogueModule(false);
+const DIALOGUE_WITH_ECONOMY = dialogueModule(true);
 
 /** The modules of the kits on, in the engine's order; the time kit's with the project's calendar (M3.5). */
 export function kitModules(on: readonly string[], calendar?: CalendarDef): Module[] {
@@ -36,6 +41,7 @@ export function kitModules(on: readonly string[], calendar?: CalendarDef): Modul
     if (kit.id === TIME) return timeKit(calendar);
     if (kit.id === ROSTER) return on.includes(ECONOMY) ? ROSTER_WITH_ECONOMY : ROSTER_ALONE;
     if (kit.id === EVENTS) return on.includes(ECONOMY) ? EVENTS_WITH_ECONOMY : EVENTS_ALONE;
+    if (kit.id === DIALOGUE) return on.includes(ECONOMY) ? DIALOGUE_WITH_ECONOMY : DIALOGUE_ALONE;
     return MODULES.get(kit.id) as Module;
   });
 }

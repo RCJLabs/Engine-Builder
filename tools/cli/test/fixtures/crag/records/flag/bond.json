@@ -1,0 +1,8 @@
+{
+  "name": "Bond with Marge",
+  "number": {
+    "start": 0,
+    "min": 0,
+    "max": 5
+  }
+}

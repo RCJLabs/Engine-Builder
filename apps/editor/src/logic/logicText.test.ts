@@ -202,6 +202,14 @@ describe('sheet edits', () => {
     expect(kitEffectFile('later', ['roster'])).toBeUndefined();
   });
 
+  it('says the dialogue kit’s open-talk in a few words (M3.8)', () => {
+    expect(doText([{ effect: 'open-talk', talk: 'marge' }, { effect: 'open-talk' }])).toBe(
+      'Do: open the talk marge, then open the talk a talk not yet chosen',
+    );
+    expect(kitEffectFile('open-talk', ['dialogue'])?.fields.talk).toMatchObject({ kind: 'ref', to: 'talk' });
+    expect(kitEffectFile('open-talk', ['events'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

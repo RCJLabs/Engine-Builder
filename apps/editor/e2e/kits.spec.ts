@@ -117,6 +117,20 @@ test('kits turned on, their records made with forms, a row giving an item, and t
   expect(errors).toEqual([]);
 });
 
+test('two kits ticked in one moment both stay on', async ({ page }) => {
+  await createProject(page, 'Pair');
+  await expect(kitsBox(page).getByLabel('Time', { exact: true })).toBeEnabled();
+  // Both in one task, before the first tick's edit lands and the boxes are drawn again: each tick
+  // worked out its kits from the boxes as drawn, so the second undid the first (M3.8, seen on CI
+  // with Dialogue then Economy).
+  await page.evaluate(() => {
+    for (const id of ['kit-dialogue', 'kit-time']) (document.getElementById(id) as HTMLInputElement).click();
+  });
+  await expect.poll(() => stored(page, 'pair', 'project.json')).toMatchObject({ kits: ['time', 'dialogue'] });
+  await expect(kitsBox(page).getByLabel('Dialogue', { exact: true })).toBeChecked();
+  await expect(kitsBox(page).getByLabel('Time', { exact: true })).toBeChecked();
+});
+
 test('a kit turned off takes its types with it, and undo brings them back', async ({ page }) => {
   const errors = watchErrors(page);
   await createProject(page, 'Stall');

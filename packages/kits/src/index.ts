@@ -4,10 +4,28 @@
  * (resources, shops), the stats kit (actors, stats, statuses) and the gear kit (slots, worn items;
  * M3.4, docs/specs/stats.md), the factions kit (standing, bands, drift; M3.5,
  * docs/specs/factions.md), the time kit (the calendar as data) and the roster kit (members,
- * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md) and the events kit
- * (choice events, decks, consequences; M3.7, docs/specs/events.md). Their record types and checks
- * are in @eb/schema.
+ * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md), the events kit
+ * (choice events, decks, consequences; M3.7, docs/specs/events.md) and the dialogue kit (speakers
+ * and talks; M3.8, docs/specs/dialogue.md). Their record types and checks are in @eb/schema.
  */
+export { leadsFrom, stepsFrom } from './dialogue/graph.ts';
+export { dialogueModule } from './dialogue/module.ts';
+export { lineOf, namedLine, namedOption, optionOf, talkRecord } from './dialogue/records.ts';
+export {
+  DIALOGUE,
+  type DialogueSlice,
+  type Line,
+  type OpenTalk,
+  SPEAKER,
+  type SpeakerRecord,
+  type Start,
+  TALK,
+  TALKING,
+  type TalkOption,
+  type TalkOutcome,
+  type TalkRecord,
+} from './dialogue/types.ts';
+export { openingLine, saidIn, shownOptions, talkView } from './dialogue/view.ts';
 export { addAmount, amountOf, highest, lowest, resourceRecord } from './economy/amounts.ts';
 export { economyKit } from './economy/module.ts';
 export { buyPrice, buysItem, type Quoting, quoteBuy, quoteSell, sellPrice } from './economy/quote.ts';
@@ -26,13 +44,16 @@ export {
   type StockItem,
 } from './economy/types.ts';
 export {
+  type Asked,
   type ChoiceVerdict,
   type Choosing,
+  choiceShown,
   choiceVerdict,
   chooseOptions,
   eventView,
   outcomeTable,
   type Short,
+  verdictOn,
 } from './events/choices.ts';
 export { dueOf, leftOf } from './events/laters.ts';
 export { eventsModule } from './events/module.ts';

@@ -1,6 +1,7 @@
 import { FLAG } from '@eb/core';
 import {
   ACTOR,
+  DIALOGUE,
   EVENT,
   EVENTS,
   FACTION,
@@ -15,6 +16,7 @@ import {
   STAT,
   STATS,
   STATUS,
+  TALK,
 } from '@eb/kits';
 import type { IndexedRecord } from './recordIndex.ts';
 
@@ -83,6 +85,14 @@ export const recruitRelated = (record: IndexedRecord | undefined): boolean =>
 export const eventRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === EVENT || record.refs.some((ref) => ref.to.startsWith(`${EVENT}:`)));
 
+/**
+ * A talk, or a record that names one (M3.8): a condition naming a line or an option is checked
+ * against its talk (E042), and a talk is warned of when nothing opens it (W123), so a change to a
+ * talk, or to what names one, checks them all again.
+ */
+export const talkRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === TALK || record.refs.some((ref) => ref.to.startsWith(`${TALK}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -92,4 +102,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(FACTIONS) ? [factionRelated] : []),
   ...(kits.includes(ROSTER) ? [rosterRelated, recruitRelated] : []),
   ...(kits.includes(EVENTS) ? [eventRelated] : []),
+  ...(kits.includes(DIALOGUE) ? [talkRelated] : []),
 ];

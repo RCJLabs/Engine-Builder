@@ -58,7 +58,7 @@ M2.4's record forms: a record's fields, drawn from its type's file ([type-files.
 
 - **The same diagnostics as the compiler.** `checkRecord` runs `validateRecords` on the record on screen, with every other record counted as there (for refs to name) but not checked, and `assets/` listed. One record's checks per change, not the project's.
 - **At the field they're about.** Each diagnostic shows at the deepest field on screen whose pointer holds its path. A problem inside a condition's tree shows at the condition. What no field claims shows at the top of the form, and a key the type doesn't list gets a Remove button there.
-- **When.** A field being typed in shows no new problem until it is left; one it already had stays up while it is fixed, and goes as soon as it is. Practitioner guides agree on this (validate on leaving a field, clear on fixing), though no controlled study was found. Fields never touched show their problems at once, so a new record shows what is left to fill in.
+- **When.** A field being typed in shows no new problem until it is left, and, when a press left it, until the press lifts (M3.8): shown as the press moved focus, a problem pushed the button pressed out from under the pointer, and the click was lost. One it already had stays up while it is fixed, and goes as soon as it is. Practitioner guides agree on this (validate on leaving a field, clear on fixing), though no controlled study was found. Fields never touched show their problems at once, so a new record shows what is left to fill in.
 - **Kinds' own messages** are written for people: "At most 100", "No school chosen yet", "Expected an image: .png, .jpg…" ([type-files.md](type-files.md#kinds)).
 
 ## Loading
