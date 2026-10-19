@@ -124,7 +124,7 @@ An open event puts the game in the mode `choosing`, whose data is `{ "event": "r
 
 `events/choose` `{ choice }`, offered for each choice the view has open, in the event's order. It is refused with:
 
-- `not-choosing`: no event is open, or the mode isn't `choosing`;
+- `not-choosing`: no event is open in the mode `choosing`, as in a game that starts in it once its events are done;
 - `no-such-choice`: the event has no such choice, or its `if` doesn't hold;
 - `locked`: its `needs` doesn't hold;
 - `cant-afford`, with `resource`, `have` and `need`.
@@ -138,7 +138,9 @@ Choosing, in this order:
 5. the consequences counting choices that are now due land ([consequences](#consequences));
 6. when no event is open, the first one waiting opens.
 
-An effect of the choice that refuses refuses the choice: nothing it did is kept, and the event stays open. Content stops it with `needs`; the runner counts it as an offer refused, which is how `eb sim` finds one missing. The mode `choosing` can't be a game's start mode, since closing the last mode would empty the stack: a module's `start` opens a game's first event ([sim.md](sim.md#modules)).
+An effect of the choice that refuses refuses the choice: nothing it did is kept, and the event stays open. Content stops it with `needs`; the runner counts it as an offer refused, which is how `eb sim` finds one missing.
+
+A game made only of events can start in the mode `choosing`, a module's `start` opening its first event ([sim.md](sim.md#modules)). Once no event is open or waiting, nothing is offered, and the game is over.
 
 ## Decks
 
@@ -221,7 +223,7 @@ A choice its event doesn't have, named in `events.chose`, throws; validation sto
 
 ## Proof
 
-- **Unit tests** (`packages/kits/src/events/`, with the caravan game in `packages/kits/test/caravan.ts`): the view equal to the action's verdicts, in every lock; costs paid once, and refused when short; outcomes rolled by the table the view shows; decks' draws equal to draws made by hand in this spec's order; `once`, `recent`, `unseen` and `if`; events waiting their turn; consequences by days, choices and a flag, dropped by `if`, cancelled, replaced by id, with their receipts; the mode `choosing` as a start mode refused.
+- **Unit tests** (`packages/kits/src/events/`, with the caravan game in `packages/kits/test/caravan.ts`): the view equal to the action's verdicts, in every lock; costs paid once, and refused when short; outcomes rolled by the table the view shows; decks' draws equal to draws made by hand in this spec's order; `once`, `recent`, `unseen` and `if`; events waiting their turn; consequences by days, choices and a flag, dropped by `if`, cancelled, replaced by id, with their receipts; a game that starts in the mode `choosing`.
 - **Schema tests:** every E035 rule at its bound; E041; W118, W119 and W120.
 - **The convoy fixture** (`tools/cli/test/fixtures/convoy`), a slice of Wasteland Protocol: a convoy crossing eight nodes kept in a flag, a road deck, raiders, traders and a loan shark, a debt due three nodes on, a pursuit two days behind and a survivor who returns two choices later. Its golden runs, and tests over 30 seeds' runs that no consequence outlives its run, that no run ends inside an event, and that every choice made was open in the view at that state, its cost paid exactly.
 

@@ -4,8 +4,9 @@
  * (resources, shops), the stats kit (actors, stats, statuses) and the gear kit (slots, worn items;
  * M3.4, docs/specs/stats.md), the factions kit (standing, bands, drift; M3.5,
  * docs/specs/factions.md), the time kit (the calendar as data) and the roster kit (members,
- * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md). Their record types and
- * checks are in @eb/schema.
+ * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md) and the events kit
+ * (choice events, decks, consequences; M3.7, docs/specs/events.md). Their record types and checks
+ * are in @eb/schema.
  */
 export { addAmount, amountOf, highest, lowest, resourceRecord } from './economy/amounts.ts';
 export { economyKit } from './economy/module.ts';
@@ -24,6 +25,35 @@ export {
   type ShopState,
   type StockItem,
 } from './economy/types.ts';
+export {
+  type ChoiceVerdict,
+  type Choosing,
+  choiceVerdict,
+  chooseOptions,
+  eventView,
+  outcomeTable,
+  type Short,
+} from './events/choices.ts';
+export { dueOf, leftOf } from './events/laters.ts';
+export { eventsModule } from './events/module.ts';
+export { choiceOf, deckRecord, eventRecord } from './events/records.ts';
+export {
+  CHOOSING,
+  type Choice,
+  type Cost,
+  DECK,
+  type DeckEntry,
+  type DeckRecord,
+  type DeckState,
+  type Due,
+  EVENT,
+  EVENTS,
+  type EventRecord,
+  type EventsSlice,
+  type Later,
+  type Outcome,
+  type Receipt,
+} from './events/types.ts';
 export { factionsKit } from './factions/module.ts';
 export { bandOf, priceOf, reached, standingOf, startOf, within } from './factions/standing.ts';
 export { type Band, type Drift, FACTION, FACTIONS, type FactionRecord, type FactionsSlice } from './factions/types.ts';
