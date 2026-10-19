@@ -124,7 +124,9 @@ apps/editor/           the editor PWA
                        the index with kits; scenes-bench.ts, with ink scenes)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
-                       editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
+                       editor and opens its tables and records; kitHelpers.ts is what the kits' specs share;
+                       hut.spec.ts is Phase 3's gate (D50), the hut built from an empty project, its parts in
+                       hutGoods.ts, hutStory.ts, hutQuests.ts, hutLogic.ts and hutExport.ts
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 3)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -231,7 +233,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        Space-Wrecked's first act made with the quests kit, and yard-scavenger.golden.json (M3.9);
                        school/, a slice of Ludus made with slots, repeats and jobs, and school-lanista.golden.json
                        (M3.10); gatehouse/, a slice of Chooser of the Slain whose dusk scenes are ink, written
-                       fresh, and gatehouse-chooser.golden.json (M3.11)
+                       fresh, and gatehouse-chooser.golden.json (M3.11); hut/, Phase 3's gate, an original
+                       adventure at an alpine hut that hut.spec.ts builds in the editor, and hut-keeper.golden.json
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
