@@ -85,7 +85,7 @@ my-game/
   scenes/<id>.json         3D/2D scenes: entity trees with placed references
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
-  dialogue/*.ink           ink scenes
+  dialogue/*.ink           ink scenes, compiled into talks (M3.10)
   assets/…                 images, audio, models, fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
 ```
@@ -182,15 +182,15 @@ The mission designer shows a step list and a graph built from the transitions. V
 
 ## Dialogue
 
-- **Dialogue trees** for most talk.
-  - Data in dirtbag's `TalkDef` shape: start nodes chosen by condition, and nodes with text and options, each option with conditions, effects and a next node.
-  - Edited as a graph, and comfortable on a phone.
-- **ink scenes** for long-form writing, using chooser-of-the-dead's stateless player:
-  - each scene is its own compiled story;
-  - it reads game state only through whitelisted EXTERNALs;
-  - it changes game state only through `# fx:` tags applied when the scene ends;
-  - a lint walks every path.
-- Both use the shared conditions and effects, and the same dialogue screen.
+- **Dialogue trees** for most talk (M3.8, D46, [specs/dialogue.md](specs/dialogue.md)): the dialogue kit's talks.
+  - Data in dirtbag's `TalkDef` shape: starts chosen by condition, and lines with a speaker, text, effects and options. Each option is an event's choice, with the line it leads to.
+  - Edited with forms and a map of the talk, the same by touch on a phone.
+- **ink scenes** for long-form writing (M3.10, D46), compiled into the same talks:
+  - a subset of ink: knots, choices, conditions and `# fx:` tags, anything else an error with its line;
+  - a scene reads game state only through whitelisted EXTERNALs, which are facts;
+  - its `# fx:` tags become a line's or an option's effects;
+  - the talk checks find what nothing reaches.
+- Both are played by one module in the sim, so bots, saves and previews cover them, and both use the same dialogue screen.
 
 ## Worlds
 

@@ -92,11 +92,11 @@ Product decisions are Evan's. The others record what was chosen and why.
 
 **Status, 2026-10-17 (M1.10).** The spike is built and live at `/spikes/3d/` ([apps/spike-3d](../apps/spike-3d/README.md)). It works in headless Chromium on WebGL2, and Rapier's heightfield agrees with the drawn terrain. That proves only that the stack works. D8 stays PROPOSED until a phone's reading is in ROADMAP's Readings.
 
-### D9. Dialogue: visual trees plus ink scenes. PROPOSED until M3.8, 2026-10-17
+### D9. Dialogue: visual trees plus ink scenes. LOCKED, 2026-10-19, as D46 settles it
 
-- Trees in dirtbag's `TalkDef` shape for most talk; they are editable as a graph on a phone.
-- ink for long-form writing, with chooser-of-the-dead's stateless scene player.
-- Both use the shared conditions and effects.
+- Trees in dirtbag's `TalkDef` shape for most talk, edited with forms and a map, by touch on a phone (M3.8).
+- ink for long-form writing, compiled into the same talks (M3.10), rather than played by chooser-of-the-dead's stateless scene player.
+- Both use the shared conditions and effects, and one player in the sim.
 
 ### D10. Editor storage: projects in OPFS written by one worker, folders opened on desktop, zips that carry only the project; GitHub sync in Phase 4. LOCKED, 2026-10-17 (M2.1)
 
@@ -901,6 +901,46 @@ The spec is [specs/events.md](specs/events.md), and the survey behind it [resear
 - **Odds can't yet move with stats** (Landnam's checks, Spliceworld's reasons). A chance is a whole percent written in content.
 - **A consequence keeps the effects it was booked with,** as a timer does: content changed after booking reaches only those booked after.
 - **A cost is resources only.** An item a choice takes is a condition it needs and an effect it applies.
+
+---
+
+### D46. Dialogue: trees now, ink after Missions, compiled into talks; talks edited with forms and a map; a speaker is a record. LOCKED, 2026-10-19 (Evan's calls, M3.8)
+
+**Decision.**
+- **Trees first** (Evan's call). M3.8 is dialogue trees: talks as records, with forms, a map of each talk and checks for lines nothing reaches. ink scenes become M3.10, after Missions and still in Phase 3, so Phase 3's gate keeps its ink scene. No milestone is renumbered.
+- **ink is compiled into talks** (Evan's call). When M3.10 comes, a scene's knots, choices, conditions on the game's facts and `# fx:` tags become the same talk records the sim plays, so bots, saves and previews cover ink scenes as they cover trees. ink's variables, functions, `RANDOM` and tunnels are errors, each with its line. chooser-of-the-dead's 61 scenes use only that subset.
+- **A talk is edited with forms and a map** (Evan's call). Each line and its options are a form, as an event's choices are. The map shows every line of the talk and where its options lead; tapping a box opens its line's form. It works the same by touch on a phone.
+- **A speaker is a record** (Evan's call), of the dialogue kit's type `speaker`: a name and a portrait from Assets. A talk names its speaker, and a line can name another. It works without the stats kit.
+
+Evan chose on 2026-10-19, from these options:
+- scope: trees now and ink after Missions; both in M3.8; or trees only, ink leaving Phase 3;
+- ink: compiled into talks; inkjs's player ported into a pure package; or played outside the sim, chooser's way, its effects landing when a scene ends;
+- editing: forms plus a map; or a graph drawn by dragging boxes and wires, as Twine and articy do, on desktop;
+- speakers: a speaker record; the stats kit's actors; or a name typed into each line.
+
+Also settled, as the session's calls:
+- **a dialogue kit,** switched on in `project.json`, with two record types, `speaker` and `talk`. With the kit off, both names are free for a project's own types;
+- **a talk is one record,** in dirtbag's `TalkDef` shape: starts chosen by condition, and lines, each with a speaker, text, effects and options. One record holds the whole tree, so its map and its checks see all of it;
+- **an option is an event's choice** (D45): shown under an If, locked by its Needs or by a Cost the party can't pay, with effects and outcomes, plus the line it leads to and `once`. Outcomes can lead to lines of their own, so a check in talk branches (Landnam's success or failure). The verdict and the view are the events kit's, so locks and odds read the same in both;
+- **effects land as they are picked,** as in dirtbag, sandbagged, rule-or-drool and ludus, not at the talk's end as in chooser: a talk saved half way keeps what was said;
+- **the open talk and its line are saved,** as Landnam, Space-Wrecked and Wasteland saved their open cards. Dirtbag and Sandbagged lost the open talk on reload, and chooser played its scene again from the start;
+- **a talk opened while another is open waits its turn,** as an event does; a mode an option's effects open, such as a shop or an event, comes before the talk goes on;
+- **once options** are hidden once said: dirtbag's "said once and for good";
+- **checks for content nothing reaches,** the survey's commonest failure: a line no start, option or line leads to (W121), a line whose options can all be locked (W122) and a talk nothing opens (W123), beside E035 for a talk that doesn't hold together and E042 for a condition naming a line or option a talk doesn't have;
+- **lines are plain text** in M3.8. Text filled in from the game's state is an idea, for events too.
+
+The spec is [specs/dialogue.md](specs/dialogue.md), and the survey behind it [research/dialogue.md](research/dialogue.md).
+
+**Why.**
+- **Trees first.** The games the demo stands for, Dirtbag and Space-Wrecked, talk in trees and cards. Only chooser wrote ink, and only a subset of it.
+- **ink compiled into talks.** One player in the sim, so a scene saves half way, the bots play it headless as Phase 3's gate asks, and what a player sees of a locked option is what the sim decides. inkjs can't run in the sim: it isn't a pure package, and pure packages import only each other. A port would be the largest job in the roadmap, for features chooser never used.
+- **Forms and a map.** Every other record is edited with forms, by touch as by mouse. A graph you drag and wire is a desktop tool; a map you tap keeps the phone a first-class editor.
+- **A speaker record.** A portrait and a name in one place, renamed once, and talk that needs no stats.
+
+**Cost.**
+- **ink's subset only.** Scenes that keep ink variables, call functions or roll ink's `RANDOM` must be rewritten as facts, effects and outcomes.
+- **The map is for seeing and getting around.** A line is moved in its list, not by dragging its box.
+- **A whole talk is one file,** so two people editing one talk at once merge it by hand, as with any record.
 
 ---
 
