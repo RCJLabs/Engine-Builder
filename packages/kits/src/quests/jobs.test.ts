@@ -87,6 +87,20 @@ describe('a job', () => {
     expect(JSON.stringify(journal)).not.toMatch(/clean|caught/);
   });
 
+  it('is not rolled when its stage’s own effects move the quest on', () => {
+    const moved = withBoard({
+      raid: {
+        ...RAID,
+        stages: RAID.stages.map((stage, i) =>
+          i === 0 ? { ...stage, effects: [{ effect: 'set-stage', quest: 'raid', stage: 'aside' }] } : stage,
+        ),
+      },
+    });
+    const state = moved.apply(moved.start('moved'), start('raid'));
+    expect(quests(state).raid?.stage).toBe('aside');
+    expect(moved.fact(state, 'time.pending', { timer: 'quests-raid' })).toBe(false);
+  });
+
   it.each([
     ['set-stage', { effect: 'set-stage', quest: 'raid', stage: 'aside' }],
     ['fail-quest', { effect: 'fail-quest', quest: 'raid' }],

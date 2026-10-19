@@ -28,10 +28,9 @@ export const canBeDone = (stage: Stage): boolean =>
   stage.job === undefined &&
   ((stage.objectives ?? []).length === 0 || (stage.objectives ?? []).some((objective) => objective.next === undefined));
 
-/** Whether reaching the stage can end the quest: done with no Then, failing, or able to fail. */
+/** Whether reaching the stage can end the quest: done with no Then, failing, or able to fail. A job can't be done. */
 export function canEnd(stage: Stage): boolean {
   if (stage.fails === true) return true;
-  if (stage.job !== undefined) return false;
   const waits = (stage.objectives ?? []).length > 0;
   if (waits && (stage['fail-when'] !== undefined || stage.days !== undefined)) return true;
   return canBeDone(stage) && stage.next === undefined;

@@ -5,8 +5,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from './diagnostics.ts';
-import { kitTypeFiles } from './kitTypes.ts';
-import { readTypeFile } from './typeFile.ts';
+import { joinKitType, kitTypeFiles } from './kitTypes.ts';
+import { readTypeFile, type TypeFile } from './typeFile.ts';
+import { typeFromFile } from './typeSchema.ts';
 import { type RecordInput, type ValidateOptions, validateRecords } from './validate.ts';
 
 const ON = ['time', 'stats', 'roster', 'quests'];
@@ -275,8 +276,59 @@ describe('E045, W127 and W128', () => {
   it('W128: {x} naming no slot, in every text the journal shows', () => {
     const records = withBooking({
       slots: [MAN, { ...FOE, why: '{fo} left' }],
-      stages: STAGES.map((stage, i) => (i === 0 ? { ...stage, log: 'Booked {mann}.' } : stage)),
+      stages: STAGES.map((stage, i) =>
+        i === 0
+          ? { ...stage, log: 'Booked {mann}.', objectives: [{ ...stage.objectives?.[0], text: 'Ready {nan}' }] }
+          : stage,
+      ),
     });
-    expect(check(records)).toEqual(['W128 booking /slots/1/why', 'W128 booking /stages/0/log']);
+    expect(check(records)).toEqual([
+      'W128 booking /slots/1/why',
+      'W128 booking /stages/0/log',
+      'W128 booking /stages/0/objectives/0/text',
+    ]);
+  });
+});
+
+describe('jobs and gone records in the quest’s paths', () => {
+  it('takes a job leading back to its own stage as waiting on time, not a loop with nothing to wait on', () => {
+    const outcomes = [
+      { chance: 50, next: 'won' },
+      { chance: 25, next: 'beaten' },
+      { chance: 25, text: 'Again', next: 'festival' },
+    ];
+    expect(check(withJob({ outcomes }))).toEqual([]);
+  });
+
+  it('takes a slot that can be lost as a way to end from every stage (W126)', () => {
+    // Two stages waiting on each other, with nothing that fails: the quest can never end from them.
+    const round = [
+      { id: 'one', objectives: [{ id: 'a', text: 'A', 'done-when': 'roster.member(@man)', next: 'two' }] },
+      { id: 'two', objectives: [{ id: 'b', text: 'B', 'done-when': 'roster.member(@man)', next: 'one' }] },
+    ];
+    const kept = { ...MAN, gone: undefined };
+    expect(check(withBooking({ slots: [{ ...kept, keeps: undefined }], stages: round }))).toEqual([
+      'W126 booking /stages/0/id',
+      'W126 booking /stages/1/id',
+    ]);
+    expect(check(withBooking({ slots: [kept], stages: round }))).toEqual([]);
+  });
+});
+
+describe('a project’s own field on the quest naming records of two types (D41)', () => {
+  // The quest kit's type with a field the project adds, as the compiler joins types/quest.json.
+  const own = (file: TypeFile | undefined) => {
+    const { joined } = joinKitType(file as TypeFile, {
+      fields: { rival: { kind: 'ref', to: ['actor', 'stat'], optional: true } },
+    });
+    return typeFromFile('quest', joined).recordType;
+  };
+  const withRival = (rival: string) => [...BASE, record('quest', 'booking', { ...BOOKING, rival })];
+  const rivalCheck = (rival: string) =>
+    codes(validateRecords([own(kitTypeFiles(ON).get('quest'))], withRival(rival), { kits: ON }).diagnostics);
+
+  it('takes a slot holding a record of either type, and no slot of neither', () => {
+    expect(rivalCheck('@foe')).toEqual([]);
+    expect(rivalCheck('@nobody')).toEqual(['E044 booking /rival']);
   });
 });

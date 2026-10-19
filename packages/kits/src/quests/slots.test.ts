@@ -8,6 +8,7 @@ import type { GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { fameAtLeast, withBoard } from '../../test/board.ts';
 import { flagOn, set } from '../../test/dock.ts';
+import { bind } from './slots.ts';
 import type { QuestsSlice } from './types.ts';
 
 const quests = (state: GameState) => (state.quests as QuestsSlice).quests;
@@ -102,6 +103,20 @@ describe('filling', () => {
   });
 });
 
+describe('binding', () => {
+  it('puts each slot’s record for @slot, as a value, in a list or as a key, and leaves the rest', () => {
+    const slots = { man: 'bo', coin: 'credits' };
+    expect(bind({ cost: { '@coin': 2 }, who: ['@man', 'x'], other: '@nobody', at: 'man@' }, slots)).toEqual({
+      cost: { credits: 2 },
+      who: ['bo', 'x'],
+      other: '@nobody',
+      at: 'man@',
+    });
+    // A slot is read by its own key: one named as Object.prototype's is no slot at all.
+    expect(bind({ who: '@constructor' }, slots)).toEqual({ who: '@constructor' });
+  });
+});
+
 describe('a slot no record fills', () => {
   const lonely = {
     name: 'Lonely',
@@ -123,6 +138,12 @@ describe('a slot no record fills', () => {
       state: 'waiting',
       unfilled: 'man',
     });
+  });
+
+  it('is one whose named record isn’t there, though a record of its type is', () => {
+    const named = { ...lonely, slots: [{ id: 'man', type: 'flag', record: 'nobody' }] };
+    const board = withBoard({ named });
+    expect(board.run(board.start(), start('named')).beats[0]).toMatchObject({ reason: 'unfilled', slot: 'man' });
   });
 
   it('leaves a quest that starts with the game waiting, and starts it once one matches', () => {
@@ -189,6 +210,37 @@ describe('gone', () => {
     expect(quests(lost).kept).toMatchObject({ state: 'active', stage: 'mourn', lost: ['man'] });
     expect(board.journal(lost, 'kept').log).toEqual(['Mourn Bo.']);
     expect(quests(board.apply(lost, set('loop'))).kept?.state).toBe('done');
+  });
+
+  it('is a Keeps while that can’t be answered: unknown is not holding', () => {
+    // flag.number has no value for a flag that is on or off.
+    const board = withBoard({
+      kept: { ...kept(), slots: [{ id: 'man', type: 'flag', record: 'ready', keeps: fameAtLeast('man', 0) }] },
+    });
+    expect(quests(board.apply(board.start(), start('kept'))).kept).toMatchObject({
+      state: 'failed',
+      why: 'ready is gone.',
+    });
+  });
+
+  it('comes before the stage’s own failing, which the same event brings', () => {
+    const board = withBoard({
+      kept: {
+        ...kept(),
+        stages: [
+          {
+            id: 'out',
+            objectives: [{ id: 'x', text: 'Back', 'done-when': flagOn('ready') }],
+            'fail-when': { not: fameAtLeast('man', 5) },
+            why: 'Too late.',
+          },
+        ],
+      },
+    });
+    expect(quests(board.apply(board.apply(board.start(), start('kept')), drop)).kept).toMatchObject({
+      state: 'failed',
+      why: 'Bo is gone.',
+    });
   });
 
   it('comes after success: the event that takes the record and does the objective is done', () => {

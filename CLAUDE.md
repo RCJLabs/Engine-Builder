@@ -92,7 +92,8 @@ apps/editor/           the editor PWA
                        a plain function of the talk's value) and TalkMap.tsx, above a talk's form; its styles,
                        styles/kitMap.css, the quest map's too
   src/quests/          the quest map (M3.9, D47): questMap.ts (rows by steps from the first stage, where each stage
-                       leads and how it ends, over the kit's quests/graph.ts) and QuestMap.tsx, above a quest's form
+                       leads and how it ends, over the kit's quests/graph.ts; a job's outcomes and gone lines, M3.10)
+                       and QuestMap.tsx, above a quest's form; forms/refChoices.ts offers a quest's slots (M3.10)
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
@@ -156,7 +157,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        dialogueEffects.ts (open-talk as fields), dialogueCheck.ts (E035, E042, W119, W121 to
                        W123); M3.9: questTypes.ts (quest), questEffects.ts (start-quest, set-stage, fail-quest as
                        fields), questCheck.ts (E035, E043, W120, W124 to W126, and counts' E022 and E023 through
-                       sheetCheck.ts's checkWhen); not pure
+                       sheetCheck.ts's checkWhen); M3.10: questSlots.ts (slots and jobs: E035, E044, E045, W127,
+                       W128, and slotScope, the slots each field of a quest can name as @slot); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -181,13 +183,16 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        is on); M3.8 (D46): dialogue/ (records.ts; view.ts: the line shown, its options from the
                        events kit's verdict; open.ts: opening, waiting, ending; say.ts: saying and going on;
                        graph.ts: where lines lead; module.ts, built knowing whether economy is on); M3.9 (D47):
-                       quests/ (records.ts; run.ts: starting, checking, moving and ending quests; journal.ts: what
-                       a quest shows, start-quest's preview; graph.ts: where stages lead, for the checks and the
-                       map; metrics.ts: kitMetrics, each quest's state for sweeps; module.ts); kits.ts (KITS,
+                       quests/ (records.ts; run.ts: checking, moving and ending quests; start.ts: starting them,
+                       and repeats (M3.10); slots.ts: slots filled, bound and gone (M3.10, D48); jobs.ts: jobs
+                       rolled and kept as timers (M3.10); journal.ts: what a quest shows, start-quest's preview;
+                       facts.ts; graph.ts: where stages lead, for the checks and the map; metrics.ts: kitMetrics,
+                       each quest's state for sweeps; module.ts); kits.ts (KITS,
                        kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
-  test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts and dock.ts: the records
-                       and games the kit tests share
+  test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
+                       dock with a crew for slots, M3.10): the records and games the kit tests share;
+                       fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -209,7 +214,9 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        the roster kit, and crew-captain.golden.json (M3.6); convoy/, a slice of Wasteland Protocol
                        made with the events kit, and convoy-scout.golden.json (M3.7); crag/, a slice of Dirtbag
                        made with the dialogue kit, and crag-climber.golden.json (M3.8); yard/, a slice of
-                       Space-Wrecked's first act made with the quests kit, and yard-scavenger.golden.json (M3.9)
+                       Space-Wrecked's first act made with the quests kit, and yard-scavenger.golden.json (M3.9);
+                       school/, a slice of Ludus made with slots, repeats and jobs, and school-lanista.golden.json
+                       (M3.10)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

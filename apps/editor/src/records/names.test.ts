@@ -4,7 +4,7 @@ import { SHEET_TYPE_FILE } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
-import { refChoices } from '../forms/refChoices.ts';
+import { refChoices, slotChoices } from '../forms/refChoices.ts';
 import { copyName, nameIn, namesOf } from './names.ts';
 import { describePath } from './paths.ts';
 import { EMPTY_INDEX, updateIndex } from './recordIndex.ts';
@@ -78,5 +78,18 @@ describe('describePath', () => {
     expect(describePath(gladiator, '/nowhere/3')).toBe('/nowhere/3');
     expect(describePath(gladiator, '/skills/x')).toBe('/skills/x');
     expect(describePath(undefined, '/school')).toBe('/school');
+  });
+});
+
+describe('a quest’s slots in a ref field’s picker (M3.10)', () => {
+  const slots = { man: 'actor', prize: 'item', foe: 'actor' };
+  it('offers each slot holding a record of a type the field takes', () => {
+    expect(slotChoices({ kind: 'ref', to: 'actor' }, slots)).toEqual([
+      { value: '@man', label: 'The actor in the slot man (@man)', keywords: 'slot man' },
+      { value: '@foe', label: 'The actor in the slot foe (@foe)', keywords: 'slot foe' },
+    ]);
+    expect(slotChoices({ kind: 'ref', to: ['item', 'stat'] }, slots).map((c) => c.value)).toEqual(['@prize']);
+    expect(slotChoices({ kind: 'ref', to: 'stat' }, slots)).toEqual([]);
+    expect(slotChoices({ kind: 'ref', to: 'actor' }, undefined)).toEqual([]);
   });
 });
