@@ -7,7 +7,17 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { expectFits, game, nextPress, topScreen } from './hutScreens.ts';
-import { announcer, type Direction, fakePad, focusBy, openHut, PAD, padPress, stepWith } from './inputHelpers.ts';
+import {
+  announcer,
+  type Direction,
+  fakePad,
+  focusBy,
+  hutGame,
+  openHut,
+  PAD,
+  padPress,
+  stepWith,
+} from './inputHelpers.ts';
 
 test.use({ viewport: { width: 1280, height: 900 }, actionTimeout: 20_000 });
 
@@ -48,8 +58,21 @@ async function playHut(page: Page, player: Player): Promise<void> {
     const store = game(page).getByRole('dialog', { name: 'The store' });
     await take(page, player, store.getByRole('button', { name: /^Rope: \d+ coins, 2 left$/ }));
     await expect(announcer(page)).toHaveText(/^Coins: -\d+ Rope ×1 into the bag$/);
-    await expect(game(page).locator('.eb-toast')).toHaveText('Rope ×1 into the bag');
+    const toast = game(page).locator('.eb-toast');
+    await expect(toast).toHaveText('Rope ×1 into the bag');
+    // The announcer speaks the toast's words, so screen readers don't hear the toast as well.
+    await expect(toast).toHaveAttribute('aria-hidden', 'true');
     await expectFits(page);
+    // The same words again are still spoken: the region empties, then fills.
+    const heard = await watchRegion(page);
+    await take(page, player, store.getByRole('button', { name: /^Rope: \d+ coins, 1 left$/ }));
+    const emptiedThenSaid = async () => {
+      const seen = await heard();
+      return { emptied: seen.includes(''), last: seen.at(-1) };
+    };
+    await expect
+      .poll(emptiedThenSaid)
+      .toEqual({ emptied: true, last: expect.stringMatching(/^Coins: -\d+ Rope ×1 into the bag$/) });
     await take(page, player, store.getByRole('button', { name: 'Leave the store' }));
     await expect(store).toHaveCount(0);
     // Back on the hut, focus is where it was when the store opened.
@@ -67,11 +90,17 @@ async function playHut(page: Page, player: Player): Promise<void> {
     await player.nextTab();
     await expect(journal.getByRole('tab', { name: 'Log' })).toHaveAttribute('aria-selected', 'true');
     const log = journal.getByRole('log', { name: 'The season so far' });
-    await expect(log.getByRole('listitem')).toHaveText(['Rope ×1 into the bag', /^Coins: -\d+$/]);
+    const bought = ['Rope ×1 into the bag', /^Coins: -\d+$/];
+    await expect(log.getByRole('listitem')).toHaveText([...bought, ...bought]);
+    // The log is read back, not spoken: the announcer has said each line once already.
+    await expect(log).toHaveAttribute('aria-live', 'off');
     await expectFits(page);
     await player.back();
     await expect(journal).toHaveCount(0);
     await expect(journalButton).toBeFocused();
+    // The hut's own log shows its last three lines of the four, newest first.
+    const lately = top.getByRole('log', { name: 'Lately' }).getByRole('listitem');
+    await expect(lately).toHaveText(['Rope ×1 into the bag', /^Coins: -\d+$/, 'Rope ×1 into the bag']);
   });
 
   await test.step('the season played to its end', async () => {
@@ -84,6 +113,20 @@ async function playHut(page: Page, player: Player): Promise<void> {
     await expect(announcer(page)).toHaveText(/The hut is shut for the winter\.$/);
     await expectFits(page);
   });
+}
+
+/** The announcer's words as they change from now on: what a screen reader is given, in order. */
+async function watchRegion(page: Page): Promise<() => Promise<string[]>> {
+  await announcer(page).evaluate((region) => {
+    const seen: string[] = [];
+    (window as unknown as { __heard: string[] }).__heard = seen;
+    new MutationObserver(() => seen.push(region.textContent ?? '')).observe(region, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+  });
+  return () => page.evaluate(() => (window as unknown as { __heard: string[] }).__heard);
 }
 
 test('the hut played to its end at /play/ by keyboard alone', async ({ page }) => {
@@ -101,6 +144,13 @@ test('the hut played to its end at /play/ by keyboard alone', async ({ page }) =
   await expect(topScreen(page).getByRole('log', { name: 'Lately' })).toHaveText('Nothing has happened yet.');
   await expectFits(page);
   await playHut(page, keys(page));
+  // Another game opened in the same page starts with nothing in its log.
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: 'Open another game' }).click(),
+  ]);
+  await chooser.setFiles(hutGame());
+  await expect(topScreen(page).getByRole('log', { name: 'Lately' })).toHaveText('Nothing has happened yet.');
   expect(errors).toEqual([]);
 });
 
