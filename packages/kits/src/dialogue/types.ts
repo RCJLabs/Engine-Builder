@@ -34,16 +34,25 @@ export interface TalkOption extends Omit<Choice, 'result' | 'outcomes'> {
   readonly outcomes?: readonly TalkOutcome[];
 }
 
+/** Where a line goes on to when its If holds (M3.11): the talk ends when it names no line. */
+export interface Branch {
+  readonly if: Condition;
+  readonly line?: string;
+}
+
 export interface Line {
   /** Lowercase words joined by hyphens, once in the talk. */
   readonly id: string;
   /** Who says it, when not the talk's speaker. */
   readonly speaker?: string;
-  readonly text: string;
+  /** Without it, a line that shows no option passes: the talk goes on from it at once (M3.11). */
+  readonly text?: string;
   /** What hearing it does, as it is shown. */
   readonly effects?: readonly Effect[];
   readonly options?: readonly TalkOption[];
-  /** Where the talk goes on to when no option is shown; it ends when there is none. */
+  /** When no option is shown, the first whose If holds is where the talk goes on to, before `next` (M3.11). */
+  readonly branches?: readonly Branch[];
+  /** Where the talk goes on to when no option is shown and no branch holds; it ends when there is none. */
   readonly next?: string;
 }
 

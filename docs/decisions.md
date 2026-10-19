@@ -95,7 +95,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 ### D9. Dialogue: visual trees plus ink scenes. LOCKED, 2026-10-19, as D46 settles it
 
 - Trees in dirtbag's `TalkDef` shape for most talk, edited with forms and a map, by touch on a phone (M3.8).
-- ink for long-form writing, compiled into the same talks (M3.10, now M3.11 since D47), rather than played by chooser-of-the-dead's stateless scene player.
+- ink for long-form writing, compiled into the same talks (M3.10, now M3.11 since D47), rather than played by chooser-of-the-dead's stateless scene player. D49 settles how: our own parser of chooser's subset, `scenes/<id>.ink`, facts named by EXTERNALs.
 - Both use the shared conditions and effects, and one player in the sim.
 
 ### D10. Editor storage: projects in OPFS written by one worker, folders opened on desktop, zips that carry only the project; GitHub sync in Phase 4. LOCKED, 2026-10-17 (M2.1)
@@ -1033,6 +1033,53 @@ The spec is [specs/quests.md](specs/quests.md#aliases), and the survey behind it
 - **E045 reads the game's events, as W120 does:** a project whose game isn't known isn't warned, since a game's own time module may be there.
 - **W127 sees what the kits make,** not a game's own modules: a slot of a type only a game's module makes is warned of anyway.
 - **A record field's picker offers the slots first,** by the scope the checks use, so a slot a field can't name is never offered.
+
+### D49. ink scenes read by our own parser of chooser's subset, as scenes/<id>.ink, their conditions naming facts through EXTERNALs. LOCKED, 2026-10-19 (Evan's calls, M3.11)
+
+**Decision.**
+- **Our own parser of the subset** (Evan's call). `@eb/ink`, a small pure package, reads the ink chooser-of-the-dead wrote and compiles it into a talk, in the browser and in `eb` alike, every problem at its line, anything outside the subset refused by name. inkjs is not in the editor or in games.
+- **Scenes are `scenes/<id>.ink` files** (Evan's call), each compiled into the talk of that id. The editor edits them as text, with problems at their lines and the talk's map beside; Inky opens them on a PC.
+- **Conditions name facts through EXTERNALs** (Evan's call): `EXTERNAL flag_on(flag)` stands for `flag.on`, a fact's name with its dot and hyphens as underscores. A scene stays valid ink; an EXTERNAL naming no fact is an error.
+- **chooser's subset** (Evan's call): knots, once-only choices, gathers with labels, one-line and block conditionals, diverts to knots, labels and `END`, and the speaker, fx and needs tags: enough for chooser's scenes. Sticky choices and stitches are not in it.
+
+Evan chose on 2026-10-19, from these options:
+- reading: our own parser of the subset; or inkjs's compiler, its JSON translated into talks;
+- where: `scenes/<id>.ink` files; or ink text in a talk's field;
+- conditions: EXTERNAL per fact, valid ink; or the engine's condition text, which Inky would refuse;
+- subset: chooser's; chooser's plus sticky choices and stitches; or smaller, without gathers or labels.
+
+Also settled, as the session's calls:
+- **effects are tags,** `# fx: change-standing(faction: hel, by: 3)`, an effect's name and its fields as a condition gives a fact's arguments, so any effect the game has can be written, and is checked by its schema;
+- **a choice's cost and needs go inside its brackets,** `# cost: rings 5` and `# needs: <ink condition>`, where ink gives the tag to the choice; chooser's `#needs: rings N` and the `# fx: rings -N` that paid it are one `# cost:`;
+- **a line of the talk is one speaker's run of lines,** a new speaker, a gather, a block, a choice, a divert or `# beat` starting the next, so a talk taps on between speakers, as dirtbag's talks do, where chooser showed a passage at once;
+- **talks gain lines that pass and branch:** a line may leave out its text, and goes on by `branches`, the first whose If holds, before its Then; ink's blocks compile into them, and forms can write them too;
+- **a choice point that shows no choice ends the talk,** as ink's story ends there, which the comparison with inkjs found;
+- **a choice is once-only within a play:** an option is `once` only on a line its talk can come back to, so a scene opened again offers its choices again, as chooser played its scenes afresh, and W122 doesn't warn of every ink line with a cost;
+- **the talk's checks follow the scene,** each at the scene's line, and gain E035 for lines that pass in a loop, W129 for what the conditions on every way to it rule out (the lint that walks every path) and W130 for a line the talk can never end from;
+- **inkjs is a dev dependency only,** for a test that plays every way through each scene by inkjs and by the talk and holds them to the same lines, effects and choices; never in the editor or a game;
+- **chooser's scenes stay in chooser:** their text is RCJLabs's, all rights reserved, so the fixture's scenes are written fresh, and the reading over chooser's 61 runs locally, uncommitted.
+
+The spec is [specs/ink.md](specs/ink.md), and the survey behind it [research/ink.md](research/ink.md).
+
+**Why.**
+- **Our own parser.** One reading of a scene in the sim and the editor, pure, so it compiles the same in a worker as in `eb`; exact lines for every problem, which a translation from inkjs's JSON would lose; no compiler of inkle's in the editor's download. The risk, that our reading of ink isn't inkle's, is measured: every way through chooser's scenes and the fixture's plays as inkjs plays it.
+- **Files.** Long prose belongs in a text file, not a JSON string; Inky and diff read it.
+- **EXTERNALs.** Scenes stay ink, so Inky previews them, and the one list of facts a scene reads is at its top.
+- **chooser's subset.** It is what the only ink the portfolio has uses, and every part of it has a place in a talk.
+
+**Cost.**
+- **Our reading of ink,** held to inkle's by a test rather than shared code: ink outside the subset, or a corner the tests don't play, could read differently.
+- **Two facts can't be compared:** one of chooser's 61 scenes needs rewriting.
+- **A line at a time:** a passage of several speakers taps on between them.
+- **Generated ids move:** a line named by neither a knot nor a label is numbered within its knot, so adding a line before it renames it.
+
+**Settled while building it** (the session's calls, 2026-10-19):
+- **An EXTERNAL that names no fact is still declared:** its problem is said once, at its line, not again at each use.
+- **A scene with the dialogue kit off is one problem and no record,** so nothing cascades from a talk type that isn't there; **a scene beside a talk record of its id** is E004 at both and isn't checked, in `eb` and the editor alike.
+- **The walk keeps each condition once,** so a loop that passes the same branch again settles rather than running to its limit of 20,000 steps.
+- **A condition is bracketed only where it joins others,** in a choice's two `{…}` or a line's `{condition: this|that}`s; alone, as a branch's If, it is written bare.
+- **The fourth `{condition: this|that}` on a line is reported at its own line,** since a paragraph runs over lines.
+- **In the editor, a scene's talk opens the scene,** never a form, from Records, the Problems panel or a map; Records lists it among the talks by its name, but it can't be ticked for a bulk edit, a duplicate or a delete, which are for records written as JSON; the map shows once the scene has no errors.
 
 ---
 

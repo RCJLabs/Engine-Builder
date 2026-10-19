@@ -457,12 +457,31 @@ describe('the code table', () => {
       {},
       { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
     );
+    // M3.11: a scene outside the subset, one in a folder, a note beside them, a scene and a talk
+    // record with one id, and a scene whose ways rule a branch out and can never end.
+    const scened = await kitted(['dialogue'], {
+      'scenes/bad.ink': 'VAR x = 1\nHi.',
+      'scenes/old/a.ink': 'Hi.',
+      'scenes/notes.md': '',
+      'scenes/twice.ink': 'Hi.',
+      'records/talk/twice.json': JSON.stringify({ starts: [{ line: 'a' }], lines: [{ id: 'a', text: 'A' }] }),
+      'scenes/ways.ink': [
+        'EXTERNAL flag_on(flag)',
+        '{ flag_on("paid"):',
+        '  { not flag_on("paid"): Never. }',
+        '}',
+        '-> round',
+        '=== round ===',
+        'Round again.',
+        '-> round',
+      ].join('\n'),
+      'records/flag/paid.json': '{}',
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested, slotted];
+    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
-    // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).
-    expect([...seen, 'E004', 'E031', 'E032'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
+    expect([...seen, 'E031', 'E032'].sort()).toEqual(Object.keys(DIAGNOSTIC_CODES).sort());
   });
 });

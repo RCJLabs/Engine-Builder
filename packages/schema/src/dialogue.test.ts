@@ -1,6 +1,7 @@
 /**
  * The dialogue kit's types and checks (M3.8, docs/specs/dialogue.md#checks): E035 at each rule's
- * place, E042 in each kind of record a condition can sit in, W119, W121, W122 and W123.
+ * place, E042 in each kind of record a condition can sit in, W119, W121, W122 and W123; and
+ * M3.11's, which follow the talk's ways: E035 for lines that pass in a loop, W129 and W130.
  */
 import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from './diagnostics.ts';
@@ -88,7 +89,9 @@ describe('the dialogue kit’s types', () => {
     // A line's text keeps its line breaks: a box that drops them would lose a speech's lines.
     const lines = files.get('talk')?.fields.lines;
     const text = lines?.kind === 'list' && lines.of.kind === 'group' ? lines.of.fields.text : undefined;
-    expect(text).toMatchObject({ kind: 'text', min: 1, multiline: true });
+    expect(text).toMatchObject({ kind: 'text', min: 1, multiline: true, optional: true });
+    const branches = lines?.kind === 'list' && lines.of.kind === 'group' ? lines.of.fields.branches : undefined;
+    expect(branches).toMatchObject({ kind: 'list', optional: true, of: { kind: 'group' } });
     expect(costOf(['inventory', 'dialogue'])).not.toHaveProperty('key');
     // Off, its type names are free for a project's own types (D41).
     expect(kitTypeFiles(['inventory', 'economy']).has('talk')).toBe(false);
@@ -113,6 +116,11 @@ describe('E035', () => {
     ['an option id a condition can’t write', withLines(option(3, { id: 'Bye' })), 'E035 marge /lines/2/options/3/id'],
     ['a start naming no line', withMarge({ starts: [...MARGE.starts, { line: 'top' }] }), 'E035 marge /starts/2/line'],
     ['a line’s Then naming no line', withLines(line(1, { next: 'agian' })), 'E035 marge /lines/1/next'],
+    [
+      'a branch naming no line',
+      withLines(line(1, { branches: [{ if: BONDED, line: 'nowhere' }] })),
+      'E035 marge /lines/1/branches/0/line',
+    ],
     ['an option leading to no line', withLines(option(3, { next: 'farewell' })), 'E035 marge /lines/2/options/3/next'],
     [
       'an outcome leading to no line',
@@ -259,5 +267,79 @@ describe('the warnings', () => {
       }),
     ];
     for (const lines of places) expect(check([...withLines(lines), ranger])).toEqual([]);
+  });
+});
+
+describe('the checks that follow a talk’s ways (M3.11)', () => {
+  // x is read here and set by nothing (W109), which these checks don't care about.
+  const X = record('flag', 'x', {});
+  const withX = (lines: object[]) => [...withLines(lines), X];
+  const ways = (records: RecordInput[]) => check(records).filter((c) => !c.startsWith('W109'));
+  const tour = (changes: object) => line(1, changes);
+
+  it('E035: lines without text that pass to each other in a loop, and W130 for what can only reach them', () => {
+    const loop = [...tour({ next: 'pass-a' }), { id: 'pass-a', next: 'pass-b' }, { id: 'pass-b', next: 'pass-a' }];
+    expect(check(withLines(loop))).toEqual([
+      'W130 marge /lines/1/id',
+      'E035 marge /lines/6/id',
+      'W130 marge /lines/7/id',
+    ]);
+    // One that shows an option that is always there never passes.
+    const held = [...tour({ next: 'pass-a' }), { id: 'pass-a', next: 'pass-b' }];
+    const stop = { id: 'pass-b', options: [{ id: 'stop', label: 'Stop' }], next: 'pass-a' };
+    expect(check(withLines([...held, stop]))).toEqual([]);
+  });
+
+  it('W130: a line every way on from which leads back', () => {
+    const pair = [
+      { id: 'tick', text: 'Tick', next: 'tock' },
+      { id: 'tock', text: 'Tock', next: 'tick' },
+    ];
+    expect(check(withLines([...option(3, { next: 'tick' }), ...pair]))).toEqual([
+      'W130 marge /lines/6/id',
+      'W130 marge /lines/7/id',
+    ]);
+    // A way out by an option is a way to end.
+    const out = { ...pair[1], options: [{ id: 'out', label: 'Out' }] };
+    expect(check(withLines([...option(3, { next: 'tick' }), pair[0] as object, out]))).toEqual([]);
+  });
+
+  it('W129: a branch the ways to it rule out, and the line only it leads to', () => {
+    const ruled = tour({
+      branches: [
+        { if: BONDED, line: 'thanks' },
+        { if: 'flag.number(bond) >= 3', line: 'sent' },
+      ],
+    });
+    expect(check(withLines(ruled))).toEqual(['W129 marge /lines/1/branches/1/if']);
+    const nested = [
+      ...tour({ branches: [{ if: 'flag.on(x)', line: 'inner' }] }),
+      { id: 'inner', text: 'Inner.', branches: [{ if: 'not flag.on(x)', line: 'deep' }], next: 'again' },
+      { id: 'deep', text: 'Deep.', next: 'again' },
+    ];
+    expect(ways(withX(nested))).toEqual(['W129 marge /lines/6/branches/0/if', 'W129 marge /lines/7/id']);
+  });
+
+  it('W129 leaves a condition that can never hold to W102, and a branch may name no line', () => {
+    const never = tour({ branches: [{ if: 'flag.on(x) and not flag.on(x)', line: 'thanks' }] });
+    expect(ways(withX(never))).toEqual(['W102 marge /lines/1/branches/0/if']);
+    expect(check(withLines(tour({ branches: [{ if: BONDED }] })))).toEqual([]);
+  });
+
+  it('W129: an option the ways to its line rule out, until an effect on the way could change it', () => {
+    const inner = (effects: object[]) => [
+      ...tour({ branches: [{ if: 'flag.on(x)', line: 'inner' }] }),
+      {
+        id: 'inner',
+        text: 'Inner.',
+        ...(effects.length > 0 ? { effects } : {}),
+        options: [
+          { id: 'never', label: 'Never', if: 'not flag.on(x)', next: 'again' },
+          { id: 'ok', label: 'Ok', next: 'again' },
+        ],
+      },
+    ];
+    expect(ways(withX(inner([])))).toEqual(['W129 marge /lines/6/options/0/if']);
+    expect(ways(withX(inner([{ effect: 'set-flag', flag: 'x', to: false }])))).toEqual([]);
   });
 });

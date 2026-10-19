@@ -113,7 +113,7 @@ export class KitChecks {
     this.factions = new FactionChecks(known);
     this.roster = on.includes(ROSTER) ? new RosterChecks(on) : undefined;
     this.events = on.includes(EVENTS) ? new EventChecks(on, known) : undefined;
-    this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on) : undefined;
+    this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on, known.facts) : undefined;
     this.quests = on.includes(QUESTS) ? new QuestChecks(known, { records, made: madeTypes(on) }) : undefined;
   }
 

@@ -26,6 +26,9 @@ importers:
       fast-check:
         specifier: 4.10.2
         version: 4.10.2
+      inkjs:
+        specifier: 2.4.0
+        version: 2.4.0
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -62,6 +65,9 @@ importers:
       '@eb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@eb/ink':
+        specifier: workspace:*
+        version: link:../../packages/ink
       '@eb/kits':
         specifier: workspace:*
         version: link:../../packages/kits
@@ -130,6 +136,9 @@ importers:
       '@eb/core':
         specifier: workspace:*
         version: link:../core
+      '@eb/ink':
+        specifier: workspace:*
+        version: link:../ink
       '@eb/kits':
         specifier: workspace:*
         version: link:../kits
@@ -144,6 +153,12 @@ importers:
         version: 0.8.3
 
   packages/core: {}
+
+  packages/ink:
+    dependencies:
+      '@eb/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/kits:
     dependencies:
@@ -1774,6 +1789,10 @@ packages:
 
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
+
+  inkjs@2.4.0:
+    resolution: {integrity: sha512-EoPCYESIbMtfI8SqEDZCJwn+A5is0QozMLw250iic1ReJCgZpRKIezWj0VqgRUzAx0f3MmEbsUjY/ILe2815JQ==}
+    hasBin: true
 
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
@@ -4267,6 +4286,8 @@ snapshots:
   he@1.2.0: {}
 
   idb@7.1.1: {}
+
+  inkjs@2.4.0: {}
 
   internal-slot@1.1.0:
     dependencies:

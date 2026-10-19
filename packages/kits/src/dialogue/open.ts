@@ -8,19 +8,31 @@ import type { Choosing } from '../events/choices.ts';
 import { own } from '../own.ts';
 import { namedLine, talkRecord } from './records.ts';
 import { type DialogueSlice, type OpenTalk, TALKING } from './types.ts';
-import { openingLine } from './view.ts';
+import { openingLine, saidIn, shownOptions, wayOn } from './view.ts';
 
 type Ctx = ModuleContext<DialogueSlice>;
 
-/** Moves the open talk to the line and shows it: counted, `heard` raised, then its effects. */
-export function showLine(ctx: Ctx, talk: string, id: string): void {
-  const line = namedLine(ctx.content, talk, id);
-  const draft = ctx.write();
-  draft.open = { talk, line: id };
-  const heard = own(draft.heard, talk) ?? {};
-  draft.heard[talk] = { ...heard, [id]: (own(heard, id) ?? 0) + 1 };
-  ctx.emit('heard', { talk, line: id });
-  for (const effect of line.effects ?? []) ctx.apply(effect);
+/**
+ * Moves the open talk to the line and shows it: counted, `heard` raised, then its effects. A line
+ * without text that shows no option passes (M3.11): the talk goes on from it at once, to the line
+ * its branches or Then give, or ends. E035 stops lines that pass to each other in a loop; past as
+ * many passes as the talk has lines, it throws.
+ */
+export function showLine(ctx: Ctx, choosing: Choosing, talk: string, id: string): void {
+  let at: string | undefined = id;
+  for (let passes = 0; at !== undefined; passes++) {
+    const line = namedLine(ctx.content, talk, at);
+    if (passes > talkRecord(ctx.content, talk).lines.length) throw new Error(`The talk "${talk}" passes in a loop`);
+    const draft = ctx.write();
+    draft.open = { talk, line: at };
+    const heard = own(draft.heard, talk) ?? {};
+    draft.heard[talk] = { ...heard, [at]: (own(heard, at) ?? 0) + 1 };
+    ctx.emit('heard', { talk, line: at });
+    for (const effect of line.effects ?? []) ctx.apply(effect);
+    if (line.text !== undefined || shownOptions(choosing, line, saidIn(ctx.read(), talk)).length > 0) return;
+    at = wayOn(choosing, line);
+    if (at === undefined) endTalk(ctx, choosing);
+  }
 }
 
 /** Opens the talk at its first holding start's line; when none holds, `nothing-to-say` instead. */
@@ -35,7 +47,7 @@ function begin(ctx: Ctx, choosing: Choosing, talk: string): void {
   draft.talked[talk] = (own(draft.talked, talk) ?? 0) + 1;
   draft.open = { talk, line };
   ctx.emit('opened', { talk, line });
-  showLine(ctx, talk, line);
+  showLine(ctx, choosing, talk, line);
 }
 
 /** Opens the talk now, or puts it last among those waiting while another is open. */

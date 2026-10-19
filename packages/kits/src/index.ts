@@ -9,10 +9,11 @@
  * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
  * M3.9, docs/specs/quests.md). Their record types and checks are in @eb/schema.
  */
-export { leadsFrom, stepsFrom } from './dialogue/graph.ts';
+export { goesOnTo, leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
 export { lineOf, namedLine, namedOption, optionOf, talkRecord } from './dialogue/records.ts';
 export {
+  type Branch as TalkBranch,
   DIALOGUE,
   type DialogueSlice,
   type Line,
@@ -26,7 +27,7 @@ export {
   type TalkOutcome,
   type TalkRecord,
 } from './dialogue/types.ts';
-export { openingLine, saidIn, shownOptions, talkView } from './dialogue/view.ts';
+export { openingLine, saidIn, shownOptions, talkView, wayOn } from './dialogue/view.ts';
 export { addAmount, amountOf, highest, lowest, resourceRecord } from './economy/amounts.ts';
 export { economyKit } from './economy/module.ts';
 export { buyPrice, buysItem, type Quoting, quoteBuy, quoteSell, sellPrice } from './economy/quote.ts';

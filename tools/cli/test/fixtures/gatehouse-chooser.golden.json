@@ -1,0 +1,1609 @@
+{
+  "format": 1,
+  "game": "gatehouse",
+  "content": "9359d39d5adbb3a9",
+  "policy": "chooser",
+  "maxTurns": 1000,
+  "runs": {
+    "seed-0": {
+      "hash": "afdbf91001af4c4d",
+      "facets": {
+        "dialogue": "65701c849c9430c0",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "8fe2cfb15eb15cf1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-1": {
+      "hash": "953f84007c559915",
+      "facets": {
+        "dialogue": "f0a631b8ae8a5b63",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "0aa46a9cfd6bda54",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-2": {
+      "hash": "35b9223a95d03c91",
+      "facets": {
+        "dialogue": "2536e65d4d3b9d0c",
+        "economy": "9892592aa6fda931",
+        "factions": "54fc59aa8f409dff",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b1b4b9c50eee6205",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-3": {
+      "hash": "36d0c6ff67ceef58",
+      "facets": {
+        "dialogue": "b3d3f734b0aca27f",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "d78de614bb9becba",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b2244f6c9bbe0700",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-4": {
+      "hash": "6d2ffdf29f37e469",
+      "facets": {
+        "dialogue": "498222446707cb34",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "7509ecfb32fbed75",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "2e29b01146d40b1c",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-5": {
+      "hash": "18f3d74576b9e561",
+      "facets": {
+        "dialogue": "4aae11484869e891",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "8e0f50134513268b",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "411ee699c5d01584",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-6": {
+      "hash": "16e45eae722d20c9",
+      "facets": {
+        "dialogue": "cdd5f62751fb05f8",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "27061778f170f99c",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9716f28cad1fc652",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-7": {
+      "hash": "ec495e539eca4243",
+      "facets": {
+        "dialogue": "35a79b3a6f265990",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "d78de614bb9becba",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b67af1417aeb6e1a",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-8": {
+      "hash": "f64d6c95238260f9",
+      "facets": {
+        "dialogue": "8751a5d97dc45dca",
+        "economy": "dce3b981fbc8ba23",
+        "factions": "7b6a47cb909e9f9b",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ca361e2cced3352b",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-9": {
+      "hash": "e9a0d9d2fab18431",
+      "facets": {
+        "dialogue": "b1a99de8574377b0",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ce2fbb6db7443678",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-10": {
+      "hash": "eeab12e4bc1b14da",
+      "facets": {
+        "dialogue": "fcb4a7585065c91f",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "244eeb9c267b3777",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "59963140ea74931a",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-11": {
+      "hash": "86322bc605214215",
+      "facets": {
+        "dialogue": "49edf7b98cac94de",
+        "economy": "4a899d91128c73b3",
+        "factions": "8a5c94975740509b",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6359633a91198ee5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-12": {
+      "hash": "659395c2ff4ca783",
+      "facets": {
+        "dialogue": "ab77eab35624535b",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "8049684506ba3fd2",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-13": {
+      "hash": "a9cf16451346016f",
+      "facets": {
+        "dialogue": "65701c849c9430c0",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "2c3a3261ccfbbf4f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-14": {
+      "hash": "3e9272c037db4eb9",
+      "facets": {
+        "dialogue": "ce0bda13c0e4e15d",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "d78de614bb9becba",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7768f463fbb58cb2",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-15": {
+      "hash": "bccb7d23a6719031",
+      "facets": {
+        "dialogue": "d94d244258e33cca",
+        "economy": "9892592aa6fda931",
+        "factions": "54fc59aa8f409dff",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "cd4eb0b14ae76d3f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-16": {
+      "hash": "d3cae102c0073a37",
+      "facets": {
+        "dialogue": "ef75d411ad552035",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d9e62f3b1455480e",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-17": {
+      "hash": "1f51f10c8d99fe3d",
+      "facets": {
+        "dialogue": "5a8f7112783f2a10",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "4dbb30aa8b8ad3b0",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9e2c164c1bfbe279",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-18": {
+      "hash": "b4bf73a9b1c7174e",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "488b060619773d6f",
+        "factions": "7509ecfb32fbed75",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "85bf7fb2f8dc4c64",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-19": {
+      "hash": "179bd1142a121f4e",
+      "facets": {
+        "dialogue": "7f65fa836061e69f",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d84a07761cc882a9",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-20": {
+      "hash": "e83b272265a2b0fe",
+      "facets": {
+        "dialogue": "8b9426ae8248d762",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "38164b8abef4a2ea",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "dc6e2b2fb0ea0b53",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-21": {
+      "hash": "ba7630053dec82b9",
+      "facets": {
+        "dialogue": "a22b2c6d28d28b24",
+        "economy": "488b060619773d6f",
+        "factions": "7509ecfb32fbed75",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f8b099f984281cda",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-22": {
+      "hash": "17de330b583a2df0",
+      "facets": {
+        "dialogue": "87286b094c3a7e0d",
+        "economy": "4a899d91128c73b3",
+        "factions": "7cad0d63665ef414",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4523d5f5fb6c2c1c",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 27,
+      "end": "ended"
+    },
+    "seed-23": {
+      "hash": "09c3a879cb3e83b7",
+      "facets": {
+        "dialogue": "99c90696484d8fc6",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "80d8817a4b539069",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-24": {
+      "hash": "cae052116d295131",
+      "facets": {
+        "dialogue": "04e6170e1408e9e8",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "eab0cd41d8db843a",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-25": {
+      "hash": "6bc23bd74298dfa5",
+      "facets": {
+        "dialogue": "abbc2e2cb2ef0f7d",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "19a7c29c1fe24428",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "96bc54a91ed391ce",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-26": {
+      "hash": "d3f12a2317bd17e8",
+      "facets": {
+        "dialogue": "65701c849c9430c0",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "244eeb9c267b3777",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d65c51b6c41d52e3",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-27": {
+      "hash": "350651445bacf7fc",
+      "facets": {
+        "dialogue": "2536e65d4d3b9d0c",
+        "economy": "9892592aa6fda931",
+        "factions": "54fc59aa8f409dff",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "27ea3a0419c79966",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-28": {
+      "hash": "98f86a6b3351e00e",
+      "facets": {
+        "dialogue": "b1a99de8574377b0",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c06d335661f8295b",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-29": {
+      "hash": "0676388d6cab0435",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "2234a6d936f94dcc",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-30": {
+      "hash": "73971c96e2ed5bb8",
+      "facets": {
+        "dialogue": "236d6bb09f390421",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "38164b8abef4a2ea",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ed1e14111f9d5ab1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-31": {
+      "hash": "893b8c5bec8f85d4",
+      "facets": {
+        "dialogue": "87286b094c3a7e0d",
+        "economy": "9892592aa6fda931",
+        "factions": "4dbb30aa8b8ad3b0",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "36fad9d95414de60",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 27,
+      "end": "ended"
+    },
+    "seed-32": {
+      "hash": "ec84573799746100",
+      "facets": {
+        "dialogue": "45cef024bf97ba03",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "38164b8abef4a2ea",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e6eda69dc41c6aa0",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-33": {
+      "hash": "3d0c33a5862a07c4",
+      "facets": {
+        "dialogue": "5a85a4c69a51c28a",
+        "economy": "7831f66da7272c07",
+        "factions": "27061778f170f99c",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "153ce856941de2f5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-34": {
+      "hash": "062e159e6712972b",
+      "facets": {
+        "dialogue": "3bbe0e7f033ba607",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4f4c43fc939a40a5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-35": {
+      "hash": "f4364fc9c3f44c15",
+      "facets": {
+        "dialogue": "2d02a48c1d75372b",
+        "economy": "7831f66da7272c07",
+        "factions": "27061778f170f99c",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9adc4624be66375b",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-36": {
+      "hash": "050f6f4dcea69c9c",
+      "facets": {
+        "dialogue": "92d979b71f14623a",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "78e58c30a72730aa",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-37": {
+      "hash": "0f5527e3f9e364f0",
+      "facets": {
+        "dialogue": "5a72d2f727f4c377",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4770dac96ac7ed4d",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-38": {
+      "hash": "d308f9c3c38196c3",
+      "facets": {
+        "dialogue": "1c8b2293bae67bf0",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "38164b8abef4a2ea",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "269770cc8112b988",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-39": {
+      "hash": "4e58fbf3bcf875a7",
+      "facets": {
+        "dialogue": "d9485edef0dc1349",
+        "economy": "4a899d91128c73b3",
+        "factions": "7cad0d63665ef414",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a2f3f9d50089c429",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-40": {
+      "hash": "d36b6edae93d6d80",
+      "facets": {
+        "dialogue": "735b72c984677870",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "80174b89527be126",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-41": {
+      "hash": "7d9d48b1070a283e",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "9892592aa6fda931",
+        "factions": "1ed0d08ab0d7a045",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "990084bc7c9759f6",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-42": {
+      "hash": "d3ba9b9fb73dbfc1",
+      "facets": {
+        "dialogue": "ce0bda13c0e4e15d",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "e6f4d09c0386f396",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c306183799b4cf21",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-43": {
+      "hash": "ca8aa6cc996f0a97",
+      "facets": {
+        "dialogue": "87286b094c3a7e0d",
+        "economy": "4a899d91128c73b3",
+        "factions": "7cad0d63665ef414",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d05a8a0eea756d75",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 27,
+      "end": "ended"
+    },
+    "seed-44": {
+      "hash": "1263199c71f25029",
+      "facets": {
+        "dialogue": "35a79b3a6f265990",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "e6f4d09c0386f396",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e4133bb16a6084b1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-45": {
+      "hash": "3e10d3201e756577",
+      "facets": {
+        "dialogue": "b009a0a5d1b2fea4",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "755ee863629ea635",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e24873f716e8cf25",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-46": {
+      "hash": "03ff5241fc776bd3",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c63165d8e9fb8b9f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-47": {
+      "hash": "a738aec6e849d8cf",
+      "facets": {
+        "dialogue": "eae132ff01c5a7bb",
+        "economy": "703935a043d0dc13",
+        "factions": "70c21ecb8a03f94c",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "59f9534f19b8ca31",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 27,
+      "end": "ended"
+    },
+    "seed-48": {
+      "hash": "139cd2c7bf83d173",
+      "facets": {
+        "dialogue": "c7866ec424d6ae0c",
+        "economy": "dce3b981fbc8ba23",
+        "factions": "70c21ecb8a03f94c",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "21438b3d8f61ecaf",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-49": {
+      "hash": "3d9241d23912e793",
+      "facets": {
+        "dialogue": "4cb3dcdde1e200b1",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "244eeb9c267b3777",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6f5e99298ffb3e7f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-50": {
+      "hash": "78a02f1a63833ed5",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "014cb31293390930",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-51": {
+      "hash": "f0908befb7311869",
+      "facets": {
+        "dialogue": "007b842cdd838d1b",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "755ee863629ea635",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "911f00f6b53d0b1b",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-52": {
+      "hash": "73fffd2e8c5448d0",
+      "facets": {
+        "dialogue": "2c04f37fab6328f0",
+        "economy": "9892592aa6fda931",
+        "factions": "54fc59aa8f409dff",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6c8acd5c77e9feaa",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-53": {
+      "hash": "7e6ce1608667a78e",
+      "facets": {
+        "dialogue": "fe18a433737c86d4",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "2dc45bd151f48f44",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 34,
+      "end": "ended"
+    },
+    "seed-54": {
+      "hash": "dc7b795f7db4911c",
+      "facets": {
+        "dialogue": "1004122e2fd087fa",
+        "economy": "703935a043d0dc13",
+        "factions": "54d8f264b3b64406",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "deadb61f317b4cd6",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-55": {
+      "hash": "ad3e01bd7144dba2",
+      "facets": {
+        "dialogue": "cce6242011c2d4c6",
+        "economy": "7831f66da7272c07",
+        "factions": "38164b8abef4a2ea",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "8269f39df832856f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-56": {
+      "hash": "1992021e73d04ba2",
+      "facets": {
+        "dialogue": "568d59bab24f6aa4",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "5335effa9d6244b4",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-57": {
+      "hash": "06643f8d642e23cc",
+      "facets": {
+        "dialogue": "4b7407a03756818b",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "54fc59aa8f409dff",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "306adbc2ed02eac1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-58": {
+      "hash": "9b65da261799fa2d",
+      "facets": {
+        "dialogue": "3bbe0e7f033ba607",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "73734684fedca8cf",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-59": {
+      "hash": "791bb5f973fee04d",
+      "facets": {
+        "dialogue": "49edf7b98cac94de",
+        "economy": "703935a043d0dc13",
+        "factions": "be486b14ad7eea15",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "95a0760bfeb334b9",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-60": {
+      "hash": "cf5a40029e5a4c24",
+      "facets": {
+        "dialogue": "94d6a046bd9b262c",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "755ee863629ea635",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "41b607ce4ce9abbd",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-61": {
+      "hash": "08af035365e33f9c",
+      "facets": {
+        "dialogue": "b1a99de8574377b0",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "27061778f170f99c",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "1aef0fa0693a744c",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-62": {
+      "hash": "799bda7debb8d2b2",
+      "facets": {
+        "dialogue": "99c90696484d8fc6",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b549b3953c40f58a",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-63": {
+      "hash": "d335dcdc48a374f3",
+      "facets": {
+        "dialogue": "568d59bab24f6aa4",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "19a7c29c1fe24428",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e10bbd42f8ffd9e8",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-64": {
+      "hash": "7a392397c5772901",
+      "facets": {
+        "dialogue": "d69f50af359f8b8a",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b41667908a1162a1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-65": {
+      "hash": "9899817b79b716af",
+      "facets": {
+        "dialogue": "203af921b76d183e",
+        "economy": "4a899d91128c73b3",
+        "factions": "7cad0d63665ef414",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "567631c9d0982ebc",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-66": {
+      "hash": "0dc395ae16cb0d0e",
+      "facets": {
+        "dialogue": "0c47dd19407e1399",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "506a88510f7779cd",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-67": {
+      "hash": "9f136346735e2ca1",
+      "facets": {
+        "dialogue": "9c3cbd817bc7819d",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "54fc59aa8f409dff",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "afad054be46a2cec",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-68": {
+      "hash": "ed80e184eb8614ec",
+      "facets": {
+        "dialogue": "bb01f561db0545e0",
+        "economy": "91d4e41bc9500cf2",
+        "factions": "3c5240e5f4df5e0e",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "78abc68bdb393eeb",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-69": {
+      "hash": "27d6be9d3903c0fe",
+      "facets": {
+        "dialogue": "99c90696484d8fc6",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "4dbb30aa8b8ad3b0",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7ff87c4099445cff",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-70": {
+      "hash": "88e3480dfb703365",
+      "facets": {
+        "dialogue": "1f3ead7f02988fa3",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7e31522ca61dcfd5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-71": {
+      "hash": "063c7950505f723a",
+      "facets": {
+        "dialogue": "3bbe0e7f033ba607",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "5c87d2d3d9efaa0a",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-72": {
+      "hash": "40a92de5e5bb3ab9",
+      "facets": {
+        "dialogue": "50fff928d52126cd",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6a45d9ebd6d3d8c5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-73": {
+      "hash": "16bef2371c183826",
+      "facets": {
+        "dialogue": "189b5bf3ef71861a",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "27061778f170f99c",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6f6a5b2a343899d3",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-74": {
+      "hash": "a44e2a1d3f112ff9",
+      "facets": {
+        "dialogue": "1d701d26f4ae566e",
+        "economy": "7831f66da7272c07",
+        "factions": "2e474078f526c3eb",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "41b7c2c73728ef35",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-75": {
+      "hash": "e8b2782bf19ac925",
+      "facets": {
+        "dialogue": "7f65fa836061e69f",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "4dbb30aa8b8ad3b0",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d3d48876bf12fdb7",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-76": {
+      "hash": "1d9ce624a5f0a80e",
+      "facets": {
+        "dialogue": "df57b083a5974a8e",
+        "economy": "9892592aa6fda931",
+        "factions": "54fc59aa8f409dff",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "115e3d542649e4a6",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-77": {
+      "hash": "fecee4cea210a875",
+      "facets": {
+        "dialogue": "df328a95b0dba92d",
+        "economy": "02a950866785c9b6",
+        "factions": "be486b14ad7eea15",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "07b471412f1f887b",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-78": {
+      "hash": "8662a048fd0faa3f",
+      "facets": {
+        "dialogue": "88c485f9d49c06b0",
+        "economy": "7831f66da7272c07",
+        "factions": "27061778f170f99c",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "463deee3c51216f2",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-79": {
+      "hash": "81b72999dd999fa5",
+      "facets": {
+        "dialogue": "d9485edef0dc1349",
+        "economy": "7831f66da7272c07",
+        "factions": "27061778f170f99c",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "64582a005d0436dd",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-80": {
+      "hash": "1caf0cd415fd9b1d",
+      "facets": {
+        "dialogue": "50fff928d52126cd",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "27061778f170f99c",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d1d2934372534324",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-81": {
+      "hash": "debf356bfe135e1e",
+      "facets": {
+        "dialogue": "05ce11b5b826cca6",
+        "economy": "703935a043d0dc13",
+        "factions": "54d8f264b3b64406",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "67c40ffb3876cd85",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 32,
+      "end": "ended"
+    },
+    "seed-82": {
+      "hash": "3841dac45a74e862",
+      "facets": {
+        "dialogue": "df328a95b0dba92d",
+        "economy": "4a899d91128c73b3",
+        "factions": "755ee863629ea635",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ab9a9fab7c94357f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-83": {
+      "hash": "4e6d1528b8af4721",
+      "facets": {
+        "dialogue": "4b7407a03756818b",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a1d77ce90e8a2bd0",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-84": {
+      "hash": "f3d1c3df892c228b",
+      "facets": {
+        "dialogue": "4b7407a03756818b",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "755ee863629ea635",
+        "flag": "267a26bca31962f6",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "dec0e18834beb515",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-85": {
+      "hash": "3dce340e4abd438a",
+      "facets": {
+        "dialogue": "d6995945a5a35843",
+        "economy": "7831f66da7272c07",
+        "factions": "2e474078f526c3eb",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ec112ce69e7109a5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-86": {
+      "hash": "0fac2efbd1690a21",
+      "facets": {
+        "dialogue": "8bb84e7c9a619022",
+        "economy": "9892592aa6fda931",
+        "factions": "4dbb30aa8b8ad3b0",
+        "flag": "1936937498b41387",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "5a599e84cac8077c",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-87": {
+      "hash": "53049e768e505245",
+      "facets": {
+        "dialogue": "50fff928d52126cd",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "54a99cd55927ccd1",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-88": {
+      "hash": "278c5895be88eced",
+      "facets": {
+        "dialogue": "67a4fc6395e31578",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "40ceccf494a8ce59",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-89": {
+      "hash": "0878f5c35fa4ccc4",
+      "facets": {
+        "dialogue": "c574267f5eb3b87a",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "87cd762ee6156722",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-90": {
+      "hash": "e4f74ad39a7f019f",
+      "facets": {
+        "dialogue": "7974d0ad9ae2a05f",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9cfa9e84d44c9da0",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-91": {
+      "hash": "f87e4b5abcfb7f8e",
+      "facets": {
+        "dialogue": "5a8f7112783f2a10",
+        "economy": "fd54024df4ea6bcd",
+        "factions": "7cad0d63665ef414",
+        "flag": "75f99acbb30e51ef",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9705a9343931224f",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-92": {
+      "hash": "dda98f567aca03dc",
+      "facets": {
+        "dialogue": "3248dfef37d78a0a",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "54fc59aa8f409dff",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d37f7d4e3743dfc6",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-93": {
+      "hash": "7be751e7cf9c323a",
+      "facets": {
+        "dialogue": "88c485f9d49c06b0",
+        "economy": "4a899d91128c73b3",
+        "factions": "7cad0d63665ef414",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "0d7cfb62e6114df5",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-94": {
+      "hash": "c23b4275ea6e0679",
+      "facets": {
+        "dialogue": "ec9b137376cdc889",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "2e474078f526c3eb",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e1c441f35c6a9a74",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 35,
+      "end": "ended"
+    },
+    "seed-95": {
+      "hash": "f0e5552a4265b08d",
+      "facets": {
+        "dialogue": "d9084b159656ecda",
+        "economy": "703935a043d0dc13",
+        "factions": "e99f3414c60da8a0",
+        "flag": "1dff1b5e0bf63105",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "57b49d47558cf5ba",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    },
+    "seed-96": {
+      "hash": "a8cd6357e7ed11e5",
+      "facets": {
+        "dialogue": "3502f7b08773aa11",
+        "economy": "6044cd7d27ddb5fe",
+        "factions": "54fc59aa8f409dff",
+        "flag": "5ca723cba4e6cbba",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "10b9c4fdb36e47b4",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-97": {
+      "hash": "c33fc356bba8e2bb",
+      "facets": {
+        "dialogue": "70780a60b8c0ae23",
+        "economy": "d47a2de8d7e8b2a2",
+        "factions": "19a7c29c1fe24428",
+        "flag": "169327cfca483dbc",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "addc2881b875e0b7",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-98": {
+      "hash": "0ebf113a45e892e0",
+      "facets": {
+        "dialogue": "2536e65d4d3b9d0c",
+        "economy": "7831f66da7272c07",
+        "factions": "2e474078f526c3eb",
+        "flag": "aaee6f5a2ae7ccbf",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "8f3876deb3aabf4c",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-99": {
+      "hash": "34d5d5fdba3d68c9",
+      "facets": {
+        "dialogue": "8f43728ec73e4051",
+        "economy": "338a2e5d36ad16c4",
+        "factions": "38164b8abef4a2ea",
+        "flag": "f98b778b8d49d02f",
+        "gate": "5ad8305429d97526",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "fc92099ee100ca76",
+        "logic": "08f44b07b5901a25",
+        "sheet": "da9d0cae103b40df"
+      },
+      "turns": 30,
+      "end": "ended"
+    }
+  }
+}

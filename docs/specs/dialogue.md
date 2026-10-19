@@ -9,7 +9,7 @@ It follows the games that came before ([research/dialogue.md](../research/dialog
 - **Landnam's checks:** an outcome leads to a line of its own, so success and failure go on differently.
 - **Rule-or-Drool's and Sandbagged's validators:** a line nothing reaches, and a talk nothing opens, are found before a player has to.
 
-ink scenes (M3.11) compile into these same talks.
+ink scenes (M3.11) compile into these same talks ([ink.md](ink.md)); for them a line can leave out its text and branch on conditions.
 
 ## Switching it on
 
@@ -54,10 +54,11 @@ Each line:
 | --- | --- |
 | `id` | what options, starts and conditions call it: lowercase words joined by hyphens, once in the talk. Required |
 | `speaker` | who says it, when not the talk's speaker |
-| `text` | what is said. Required |
+| `text` | what is said. Without it, a line that shows no option passes ([showing a line](#showing-a-line)) |
 | `effects` | what hearing it does, in order, as it is shown |
 | `options` | what the player can say back, in the order shown |
-| `next` | the line the talk goes on to when no option is shown. The talk ends when there is none |
+| `branches` | `[{ "if": "...", "line": "early" }]`: when no option is shown, the first whose `if` holds is where the talk goes on to, before `next`; one with no `line` ends the talk (M3.11) |
+| `next` | the line the talk goes on to when no option is shown and no branch holds. The talk ends when there is none |
 
 Each option is an event's choice ([events.md](events.md#event)) without `result`, plus two fields:
 
@@ -100,6 +101,8 @@ An open talk puts the game in the mode `talking`, whose data is `{ "talk": "marg
 
 `open` moves to the line, its `heard` is counted, `heard` is raised, and its `effects` apply, in order. A mode they open, such as a shop or an event, comes before the talk goes on, as it sits over the mode `talking`.
 
+A line without text that shows no option **passes** (M3.11): shown as above, then the talk goes on from it at once, as [going on](#going-on) does, to the next line or the end, all in the same action. ink's conditional blocks and the lines that only branch compile into such lines. E035 stops lines that pass to each other in a loop; past as many passes in a row as the talk has lines, the kit throws.
+
 ### What a line shows
 
 `game.preview(state, [{ "effect": "open-talk", "talk": id }], sim)` gives what the talk shows now: its line and options, from the same verdict saying makes, so what is shown open is what can be said ([CLAUDE.md](../../CLAUDE.md)'s odds rule). For the open talk, that is the line it is at; for another, the line its starts would open it at.
@@ -120,7 +123,8 @@ An open talk puts the game in the mode `talking`, whose data is `{ "talk": "marg
 ```
 
 - **Options** are shown as an event's choices are ([events.md](events.md#what-each-choice-shows)): left out while their `if` doesn't hold, and left out once said when `once`; `open`, `needs`, `short` and `cost` as a choice's; `effects` and `outcomes` only with `show-odds`.
-- **`go-on`** is there when no option is shown: `"next"` when the talk goes on to the line's `next`, `"end"` when it ends. The stage shows Continue, or Close.
+- **`text`** is left out for a line without text, which shows only its options.
+- **`go-on`** is there when no option is shown: `"next"` when the talk goes on to another line, by a branch or `next`, `"end"` when it ends. The stage shows Continue, or Close.
 - A talk none of whose starts holds shows `{ "effect": "open-talk", "talk": "marge" }` alone.
 
 ### Saying
@@ -145,7 +149,7 @@ The outcome is rolled before the effects, unlike an event's, because the line it
 
 ### Going on
 
-`dialogue/go-on` `{}`, offered when the line shows no option. It goes to the line's `next`, showing it, or ends the talk when there is none. It is refused with `not-talking`, or `has-options` while an option is shown.
+`dialogue/go-on` `{}`, offered when the line shows no option. It goes to the line its first branch whose `if` holds names, else to its `next`, showing it, or ends the talk when there is none. It is refused with `not-talking`, or `has-options` while an option is shown.
 
 ### Ending
 
@@ -183,12 +187,14 @@ A line or an option its talk doesn't have, named in `dialogue.heard` or `dialogu
 
 ## Checks
 
-- **E035** (a kit's record that doesn't hold together), in a talk: a line id twice, or one a condition can't write; an option id twice in the talk, or one a condition can't write; a start's `line`, or a `next` of a line, an option or an outcome, naming no line of the talk; outcomes whose chances don't add up to 100.
+- **E035** (a kit's record that doesn't hold together), in a talk: a line id twice, or one a condition can't write; an option id twice in the talk, or one a condition can't write; a start's `line`, a branch's `line`, or a `next` of a line, an option or an outcome, naming no line of the talk; outcomes whose chances don't add up to 100; lines without text that pass to each other in a loop, which a talk would pass round forever (M3.11).
 - **E042:** a condition naming a line or option a talk doesn't have, in `dialogue.heard(talk: …, line: …)` or `dialogue.said(talk: …, option: …)`.
 - **W119:** a cost in a game without the economy kit: nothing charges it.
 - **W121:** a line no start reaches, by the options, outcomes and `next`s of the lines between: nothing can show it. Two lines that lead only to each other are warned of too.
 - **W122:** a line with an option that can be shown locked, by `needs` or `cost`, and none that is always open, free of `if`, `needs`, `cost` and `once`: a party that can say none of them is stuck there, as W118 warns of an event. A line whose options can only be hidden, by `if` or `once`, isn't warned of: with none shown, the talk goes on ([going on](#going-on)).
 - **W123:** a talk nothing in the records opens: no row, choice, line, consequence or outcome has an `open-talk` naming it. One a game's scripts open is still warned of, as a flag only scripts read is (W108).
+- **W129** (M3.11), the lint that walks every path: from each start, every way through the talk, by options, outcomes, branches and Thens, carrying the conditions that held on the way (a start's If and the ones before it not holding, a branch's If and the ones before it not holding, an option's Shown if), each tested with the condition lint's satisfiability. A line, a branch or an option that every way to it rules out is warned of: on every way here, the conditions before rule it out. What the walk knows is forgotten at each effect and cost, since an effect can change any fact, and a fact of the dialogue kit's is forgotten as a line is shown or an option said. A condition that can't hold even alone is W102's, not W129's. The walk stops after 20,000 steps and then says nothing of what it didn't reach.
+- **W130** (M3.11): a line no way on from which reaches an end of the talk: every way leads back. A line ends the talk when it can show no option and has no `next`, or a branch with no line, and an option ends it when it, or an outcome of it, leads to no line.
 
 ## The map
 
@@ -197,7 +203,8 @@ The editor draws each talk as a map above its form ([editor-kits.md](editor-kits
 ## Proof
 
 - **Unit tests** (`packages/kits/src/dialogue/`, with the crag game in `packages/kits/test/crag.ts`): starts by condition, and nothing to say; the view equal to saying's verdicts, in every lock, with `once` and `show-odds`; costs paid once; outcomes rolled by the table and leading to their own lines; going on and ending; a talk ending before its option's effects, and a mode they open coming before the talk goes on; talks waiting their turn; the facts; a game that starts in the mode `talking`.
-- **Schema tests:** every E035 rule; E042; W119, W121, W122 and W123.
+- **Schema tests:** every E035 rule; E042; W119, W121, W122 and W123; W129 and W130 (M3.11).
+- **Lines that pass and branch** (`packages/kits/src/dialogue/passing.test.ts`): passed over, counted, their effects applied; shown with only their options; ended by a branch that names no line; a loop of them throwing.
 - **The crag fixture** (`tools/cli/test/fixtures/crag`), a slice of Dirtbag: a partner at the crag whose beta comes with a bond, gas money that costs, a send that is rolled, and a ranger checking permits. Its golden runs, and a test over 30 seeds' runs that every line of both talks is heard and every option said open in the view at that state.
 
 ## Open questions

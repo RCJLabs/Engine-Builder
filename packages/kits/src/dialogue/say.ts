@@ -10,7 +10,7 @@ import { own } from '../own.ts';
 import { endTalk, showLine, talkingIn } from './open.ts';
 import { namedLine } from './records.ts';
 import type { DialogueSlice, TalkOutcome } from './types.ts';
-import { openOptions, sayVerdict } from './view.ts';
+import { openOptions, sayVerdict, wayOn } from './view.ts';
 
 type Ctx = ModuleContext<DialogueSlice>;
 
@@ -43,14 +43,14 @@ export function say(ctx: Ctx, choosing: Choosing, id: unknown) {
   if (next === undefined) endTalk(ctx, choosing);
   for (const effect of option.effects ?? []) ctx.apply(effect);
   for (const effect of outcome?.effects ?? []) ctx.apply(effect);
-  if (next !== undefined) showLine(ctx, talk, next);
+  if (next !== undefined) showLine(ctx, choosing, talk, next);
 }
 
 export function goOn(ctx: Ctx, choosing: Choosing) {
   const open = talkingIn(ctx);
   if (open === undefined) return ctx.refuse('not-talking');
   if (openOptions(choosing, ctx.read(), open).length > 0) return ctx.refuse('has-options');
-  const { next } = namedLine(ctx.content, open.talk, open.line);
+  const next = wayOn(choosing, namedLine(ctx.content, open.talk, open.line));
   if (next === undefined) endTalk(ctx, choosing);
-  else showLine(ctx, open.talk, next);
+  else showLine(ctx, choosing, open.talk, next);
 }

@@ -2,7 +2,8 @@
  * The dialogue kit's record types (M3.8, D46, docs/specs/dialogue.md), as type files: speakers and
  * talks. An option is an event's choice with the line it leads to; its cost names resources with
  * the economy kit on, and without it is still allowed, and is W119, since nothing charges it. A
- * line's id is text a talk's starts and options name: that each names a line there is E035's.
+ * line's id is text a talk's starts and options name: that each names a line there is E035's. A
+ * line's branches and a line without text, which passes, came with ink scenes (M3.11).
  */
 import { RESOURCE, SPEAKER } from '@eb/kits';
 import { NAME } from './kitFields.ts';
@@ -111,7 +112,15 @@ export function talkTypeFile(economy: boolean): TypeFile {
           fields: {
             id: { kind: 'text', min: 1, label: 'Id', description: `What starts and options call it: ${ID_WORDS}` },
             speaker: SPEAKER_REF('Who says it, when not the talk’s speaker'),
-            text: { kind: 'text', min: 1, multiline: true, label: 'Text', description: 'What is said' },
+            text: {
+              kind: 'text',
+              min: 1,
+              multiline: true,
+              optional: true,
+              label: 'Text',
+              description:
+                'What is said. Without it, a line that shows no option passes: the talk goes on from it at once',
+            },
             effects: { kind: 'effects', optional: true, label: 'Effects', description: 'What hearing it does' },
             options: {
               kind: 'list',
@@ -120,6 +129,21 @@ export function talkTypeFile(economy: boolean): TypeFile {
               label: 'Options',
               description: 'What the player can say back, in the order shown',
               of: { kind: 'group', fields: optionFields(economy) },
+            },
+            branches: {
+              kind: 'list',
+              min: 1,
+              optional: true,
+              label: 'Branches',
+              description:
+                'When no option is shown, the first whose If is true is where the talk goes on, before its Then',
+              of: {
+                kind: 'group',
+                fields: {
+                  if: { kind: 'condition', label: 'If' },
+                  line: leadsTo('A line’s id: the talk ends when there is none'),
+                },
+              },
             },
             next: {
               kind: 'text',

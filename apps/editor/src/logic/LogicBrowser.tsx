@@ -1,7 +1,7 @@
 /**
  * What the Logic panel lists (M3.1, D36): each trigger sheet with its rows as cards in the order
- * they run, each flag with what it holds and what the lint says of it, and the project's scripts
- * (M3.2). A card opens the sheet in the inspector at its row; New sheet and New flag name a record
+ * they run, each flag with what it holds and what the lint says of it, the project's scripts
+ * (M3.2) and its ink scenes (M3.11). A card opens the sheet in the inspector at its row; New sheet and New flag name a record
  * as New does in the Records panel.
  */
 import { type EventCatalog, type FactCatalog, FLAG, type FlagRecord, formatRef, SHEET } from '@eb/core';
@@ -18,6 +18,7 @@ import { namesOf } from '../records/names.ts';
 import type { IndexedRecord } from '../records/recordIndex.ts';
 import { eventsOf, factsOf } from '../scripts/known.ts';
 import { doText, ifText, whenText } from './rowText.ts';
+import { ScenesSection } from './ScenesSection.tsx';
 import { ScriptsSection } from './ScriptsSection.tsx';
 import '../styles/logic.css';
 
@@ -54,6 +55,7 @@ export function LogicBrowser({ project }: { project: OpenProject }) {
       <SheetsSection project={project} shown={shown} />
       <FlagsSection project={project} shown={shown} />
       <ScriptsSection project={project} />
+      <ScenesSection project={project} />
     </div>
   );
 }

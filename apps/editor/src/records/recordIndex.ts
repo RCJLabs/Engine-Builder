@@ -13,10 +13,24 @@
  * names a flag checks all of them again (flagRelated), and so do loot tables and shops (M3.3,
  * lootRelated), and stats, actors and, with gear, items (M3.4, statRelated, wornRelated). The game's facts, events and effects (M3.2) are grounds like the types: a script
  * that changes what the game declares checks them all.
+ *
+ * A scene (M3.11, D49) is a talk whose file is scenes/<id>.ink: it is compiled as it is read, and
+ * again when the grounds change, since its EXTERNALs name the game's facts; its own problems
+ * stand in for its checks, and its checks are given at the scene's lines.
  */
-import { type ProjectSource, parseJsonFile, readFiles } from '@eb/compiler';
-import { formatRef } from '@eb/core';
-import { compareText, type Diagnostic, type RecordInput, type Usage, validateRecords } from '@eb/schema';
+import { atSceneLine, type ProjectSource, parseJsonFile, readFiles, scenePath } from '@eb/compiler';
+import { type FactCatalog, formatRef } from '@eb/core';
+import { compileScene, type SourceMap } from '@eb/ink';
+import { TALK } from '@eb/kits';
+import {
+  compareText,
+  type Diagnostic,
+  knownFrom,
+  type RecordInput,
+  severityOf,
+  type Usage,
+  validateRecords,
+} from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
 import type { GameChecks } from '../scripts/gameState.ts';
 import { relatedFor } from './flagRelated.ts';
@@ -44,6 +58,8 @@ export interface IndexedRecord {
   readonly refs: readonly Ref[];
   /** The files under assets/ its asset fields name (M2.7): `to` is the path inside assets/. */
   readonly assets: readonly Ref[];
+  /** A talk compiled from a scene (M3.11): where each part of it was written, and the scene's own problems. */
+  readonly scene?: { readonly map: SourceMap; readonly problems: readonly Diagnostic[] };
 }
 
 export interface RecordIndex {
@@ -121,6 +137,48 @@ function readRecord(type: string, id: string, file: string, bytes: Uint8Array, c
     : { ...at, value: undefined, unreadable: parsed.message, problems: [] };
 }
 
+const utf8 = new TextDecoder('utf-8', { fatal: true });
+
+/** A scene as its file reads, compiled into its talk with the game's facts: the talk to check, or its own problems. */
+function readScene(id: string, file: string, bytes: Uint8Array, catalog: Catalog, facts: FactCatalog): IndexedRecord {
+  const at = {
+    key: formatRef(TALK, id),
+    type: TALK,
+    id,
+    file,
+    bytes,
+    checked: catalog.types.has(TALK),
+    refs: [],
+    assets: [],
+  };
+  const own = (code: Diagnostic['code'], message: string, line?: number, column?: number): Diagnostic => ({
+    code,
+    severity: severityOf(code),
+    message,
+    type: TALK,
+    id,
+    file,
+    path: '',
+    ...(line === undefined ? {} : { line }),
+    ...(column === undefined ? {} : { column }),
+  });
+  let text: string;
+  try {
+    text = utf8.decode(bytes);
+  } catch {
+    const problems = [own('E046', 'Not valid UTF-8 text')];
+    return { ...at, value: undefined, unreadable: 'not UTF-8', scene: { map: {}, problems }, problems: [] };
+  }
+  const { talk, map, problems } = compileScene(text, { facts });
+  if (talk !== undefined) return { ...at, value: talk, scene: { map, problems: [] }, problems: [] };
+  const found = problems.map((p) => own(p.code, p.message, p.line, p.column));
+  return { ...at, value: undefined, unreadable: 'scene', scene: { map, problems: found }, problems: [] };
+}
+
+/** The facts a scene's EXTERNALs name: the game's and the kits', as compileProject reads them. */
+const factsOf = (catalog: Catalog, game: GameChecks): FactCatalog =>
+  knownFrom({ ...game, kits: catalog.kits, ...(catalog.calendar ? { calendar: catalog.calendar } : {}) }).facts;
+
 /**
  * The index after `paths` changed, or after anything may have changed (`paths` null, as when the
  * project opens). Only files that are named, or not in the index yet, are read; a record whose
@@ -135,9 +193,17 @@ export async function updateIndex(
 ): Promise<RecordIndex> {
   const named = new Set(paths ?? []);
   const listed: { type: string; id: string; file: string; key: string }[] = [];
+  const sceneOf = (type: string, id: string) => type === TALK && catalog.scenes.has(id);
   for (const [type, ids] of catalog.records) {
-    for (const id of ids) listed.push({ type, id, file: recordFile(type, id), key: formatRef(type, id) });
+    for (const id of ids) {
+      const file = sceneOf(type, id) ? scenePath(id) : recordFile(type, id);
+      listed.push({ type, id, file, key: formatRef(type, id) });
+    }
   }
+  const grounds = groundsOf(catalog, game);
+  const facts = factsOf(catalog, game);
+  const reread = (type: string, id: string, file: string, bytes: Uint8Array) =>
+    sceneOf(type, id) ? readScene(id, file, bytes, catalog, facts) : readRecord(type, id, file, bytes, catalog);
   const stale = listed.filter(({ file, key }) => paths === null || named.has(file) || !before.records.has(key));
   const read = await readFiles(
     source,
@@ -151,12 +217,17 @@ export async function updateIndex(
     // A type file that came or went since: checked again below, with everything else.
     const old = known && known.checked !== catalog.types.has(type) ? { ...known, checked: !known.checked } : known;
     const bytes = read.get(file);
-    if (!reading.has(key) && old) records.set(key, old);
+    // A record that became a scene or stopped being one, or a scene whose EXTERNALs' facts may have changed.
+    const recompiled = old && (old.file !== file || (sceneOf(type, id) && grounds !== before.grounds));
+    if (recompiled) {
+      records.set(key, reread(type, id, file, bytes ?? old.bytes));
+      dirty.add(key);
+    } else if (!reading.has(key) && old) records.set(key, old);
     // Read again and the same: nothing about it changed.
     else if (bytes !== undefined && old && sameBytes(old.bytes, bytes)) records.set(key, old);
     // Gone between the listing and the read: left out, like a file deleted.
     else if (bytes !== undefined) {
-      records.set(key, readRecord(type, id, file, bytes, catalog));
+      records.set(key, reread(type, id, file, bytes));
       dirty.add(key);
     }
   }
@@ -166,7 +237,6 @@ export async function updateIndex(
   for (const key of [...appeared, ...went]) {
     for (const usage of before.usedBy.get(key) ?? []) if (records.has(usage.from)) dirty.add(usage.from);
   }
-  const grounds = groundsOf(catalog, game);
   const checking = grounds === before.grounds ? dirty : new Set(records.keys());
   check(records, checking, catalog, game);
   // Read after the check, so the records just checked count by what they name now.
@@ -220,12 +290,24 @@ function check(
     records.set(key, {
       ...record,
       problems:
-        record.unreadable === undefined ? (validated(record) ? (problems.get(key) ?? []) : []) : [unreadable(record)],
+        record.unreadable === undefined
+          ? validated(record)
+            ? placed(record, problems.get(key) ?? [])
+            : []
+          : (record.scene?.problems ?? [unreadable(record)]),
       refs: checked ? (refs.get(key) ?? []) : [],
       assets: checked ? (assets.get(key) ?? []) : [],
     });
   }
 }
+
+/** A scene's checks at the scene's lines, as `eb` gives them. */
+const placed = (record: IndexedRecord, found: readonly Diagnostic[]): readonly Diagnostic[] => {
+  const map = record.scene?.map;
+  if (map === undefined) return found;
+  const maps = new Map([[record.file, map]]);
+  return found.map((d) => atSceneLine(d, maps));
+};
 
 function push<T>(map: Map<string, T[]>, key: string, item: T): void {
   const list = map.get(key);

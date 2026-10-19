@@ -4,9 +4,17 @@
  * reads them (readProjectFiles), with the problems it finds there. It is read again after every
  * change, beside the Project panel's summary (projects/opened.ts).
  */
-import { type ProjectSource, RECORDS_DIR, readProjectFiles, type TypeReport } from '@eb/compiler';
+import {
+  classifyScene,
+  type ProjectSource,
+  RECORDS_DIR,
+  readProjectFiles,
+  SCENES_DIR,
+  type TypeReport,
+} from '@eb/compiler';
 import type { CalendarDef } from '@eb/core';
-import { type DataType, type Diagnostic, isEngineType, type RecordType } from '@eb/schema';
+import { DIALOGUE, TALK } from '@eb/kits';
+import { type DataType, type Diagnostic, isEngineType, type RecordType, severityOf } from '@eb/schema';
 
 export interface Catalog {
   /** The project's types whose files are sound, by name, the engine's flag and sheet (D36) and the kits' (D41). */
@@ -15,8 +23,13 @@ export interface Catalog {
   readonly broken: ReadonlyMap<string, TypeReport>;
   /** Every type that types/ or records/ names, sorted: the engine's own once the project has records of them. */
   readonly names: readonly string[];
-  /** Record ids by type, sorted. */
+  /** Record ids by type, sorted: the talks among them include the scenes'. */
   readonly records: ReadonlyMap<string, readonly string[]>;
+  /**
+   * The ids of the scenes under scenes/ the record index compiles into talks (M3.11, D49): with the
+   * dialogue kit on, placed and named right, and no talk record of the same id.
+   */
+  readonly scenes: ReadonlySet<string>;
   /** Paths inside assets/, sorted: every file there but the provenance log. */
   readonly assets: readonly string[];
   /**
@@ -33,7 +46,8 @@ export interface Catalog {
   readonly calendar?: CalendarDef;
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
-   * files under records/ that aren't records, and the assets' log. The record index has the rest.
+   * files under records/ that aren't records, and the assets' log; files under scenes/ that aren't
+   * scenes, and scenes the index can't compile (M3.11). The record index has the rest.
    */
   readonly problems: readonly Diagnostic[];
 }
@@ -43,6 +57,7 @@ export const EMPTY_CATALOG: Catalog = {
   broken: new Map(),
   names: [],
   records: new Map(),
+  scenes: new Set(),
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
@@ -68,6 +83,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     ids.push(id);
     records.set(type, ids);
   }
+  const scenes = await readScenes(source, records, read.kits);
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
@@ -78,14 +94,50 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     broken,
     names,
     records,
+    scenes: scenes.ids,
     assets,
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
     kits: read.kits,
     ...(read.calendar ? { calendar: read.calendar } : {}),
-    problems: read.diagnostics,
+    problems: [...read.diagnostics, ...scenes.problems],
   };
+}
+
+const problem = (code: 'E004' | 'E046' | 'W131', message: string, file: string, id?: string): Diagnostic => ({
+  code,
+  severity: severityOf(code),
+  message,
+  ...(id === undefined ? {} : { type: TALK, id }),
+  file,
+  path: '',
+});
+
+/**
+ * The scenes under scenes/, each a talk (M3.11): their ids join the talks', and what the compiler
+ * would say of a file there that is no scene, as `eb` says it (compiler/scenes.ts), is the
+ * catalog's. A scene beside a talk record of its id is E004 on both files, and isn't compiled.
+ */
+async function readScenes(source: ProjectSource, records: Map<string, string[]>, kits: readonly string[]) {
+  const ids = new Set<string>();
+  const problems: Diagnostic[] = [];
+  const talks = records.get(TALK) ?? [];
+  for (const file of [...(await source.files(SCENES_DIR))].sort(byText)) {
+    const role = classifyScene(file);
+    if (role.kind === 'ignored') problems.push(problem('W131', 'Ignored: scenes are scenes/<id>.ink', file));
+    else if (role.kind === 'misplaced') problems.push(problem('E046', role.reason, file));
+    else if (!kits.includes(DIALOGUE)) {
+      problems.push(
+        problem('E046', 'A scene compiles into a talk: turn the dialogue kit on in project.json', file, role.id),
+      );
+    } else if (talks.includes(role.id)) {
+      const twice = `2 talk records have the id "${role.id}"`;
+      problems.push(problem('E004', twice, file, role.id), problem('E004', twice, recordFile(TALK, role.id), role.id));
+    } else ids.add(role.id);
+  }
+  if (ids.size > 0) records.set(TALK, [...talks, ...ids]);
+  return { ids, problems };
 }
 
 export const recordFile = (type: string, id: string): string => `${RECORDS_DIR}/${type}/${id}.json`;

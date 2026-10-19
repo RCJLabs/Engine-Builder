@@ -3,14 +3,17 @@
  * a talk whose ids, or the lines they lead to, don't hold together; E042 for a condition naming a
  * line or an option its talk doesn't have; W119 for a cost in a game without the economy kit;
  * W121 for a line no start reaches; W122 for a line that can show only locked options; and W123
- * for a talk nothing opens. A condition or an open-talk can name a talk before its record is
- * read, so E042 and W123 wait for finish().
+ * for a talk nothing opens. M3.11's, which follow a talk's ways (talkPaths.ts): E035 for lines
+ * without text that pass in a loop, W129 for what no way to it lets hold, W130 for a line the
+ * talk can't end from. A condition or an open-talk can name a talk before its record is read, so
+ * E042 and W123 wait for finish().
  */
-import { type Effect, NAME_PATTERN } from '@eb/core';
+import { type Effect, type FactCatalog, NAME_PATTERN, satisfiability } from '@eb/core';
 import { ECONOMY, type Line, stepsFrom, TALK, type TalkOption, type TalkRecord } from '@eb/kits';
 import type { SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { factTests } from './flagCheck.ts';
+import { endless, passingLoops, treeOf, walkTalk } from './talkPaths.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
 
@@ -59,6 +62,9 @@ function checkLine(line: Line, at: string, talking: Talking): void {
   options.forEach((option, j) => {
     checkOption(option, `${at}/options/${j}`, talking);
   });
+  (line.branches ?? []).forEach((branch, k) => {
+    checkLeads(branch.line, `${at}/branches/${k}/line`, talking);
+  });
   checkLeads(line.next, `${at}/next`, talking);
   if (options.some(locks) && !options.some(alwaysOpen)) {
     talking.report(
@@ -69,22 +75,76 @@ function checkLine(line: Line, at: string, talking: Talking): void {
   }
 }
 
-function checkTalk(talk: TalkRecord, economy: boolean, report: Report): void {
+function checkTalk(talk: TalkRecord, economy: boolean, report: Report): Set<string> {
   const talking: Talking = { economy, lines: new Set(talk.lines.map((l) => l.id)), options: new Set(), report };
   talk.starts.forEach((start, i) => {
     checkLeads(start.line, `/starts/${i}/line`, talking);
   });
   const seen = new Set<string>();
-  const reached = stepsFrom(talk);
+  const reached = new Set(stepsFrom(talk).keys());
   talk.lines.forEach((line, i) => {
     const at = `/lines/${i}`;
     if (!NAME_PATTERN.test(line.id)) report('E035', `${at}/id`, `"${line.id}" ${UNWRITABLE}`);
     else if (seen.has(line.id)) report('E035', `${at}/id`, `${line.id} is a line twice in this talk`);
     else if (!reached.has(line.id)) {
-      report('W121', `${at}/id`, 'No start leads here, by an option, an outcome or a Then: it is never shown');
+      report(
+        'W121',
+        `${at}/id`,
+        'No start leads here, by an option, an outcome, a branch or a Then: it is never shown',
+      );
     }
     seen.add(line.id);
     checkLine(line, at, talking);
+  });
+  return reached;
+}
+
+/** E035 for passing loops, W130 for lines the talk can't end from, W129 for what no way to it lets hold. */
+function checkWays(talk: TalkRecord, reached: ReadonlySet<string>, facts: FactCatalog, report: Report): void {
+  const loops = passingLoops(talk);
+  const stuck = endless(talk);
+  const walk = walkTalk(talk, facts);
+  const alone = (value: unknown) => {
+    const tree = treeOf(value, facts);
+    return tree === undefined || satisfiability(tree, { catalog: facts }).canBeTrue !== false;
+  };
+  const first = new Set<string>();
+  talk.lines.forEach((line, i) => {
+    const at = `/lines/${i}`;
+    if (first.has(line.id) || !reached.has(line.id)) return;
+    first.add(line.id);
+    if (loops.has(line.id)) {
+      report(
+        'E035',
+        `${at}/id`,
+        'Lines without text pass to each other in a loop from here: the talk would pass round it forever',
+      );
+    } else if (stuck.has(line.id)) {
+      report('W130', `${at}/id`, 'Every way on from here leads back: the talk can never end');
+    }
+    if (!walk.complete) return;
+    if (!walk.lines.has(line.id)) {
+      report('W129', `${at}/id`, 'On every way here, the conditions before rule it out: it is never shown');
+      return;
+    }
+    (line.options ?? []).forEach((option, j) => {
+      if (!walk.options.has(`${line.id}/${j}`) && alone(option.if)) {
+        report(
+          'W129',
+          `${at}/options/${j}/if`,
+          'On every way to this line, the conditions before rule this out: it is never shown',
+        );
+      }
+    });
+    (line.branches ?? []).forEach((branch, k) => {
+      if (!walk.branches.has(`${line.id}/${k}`) && alone(branch.if)) {
+        report(
+          'W129',
+          `${at}/branches/${k}/if`,
+          'On every way here, the conditions before rule this out: it is never taken',
+        );
+      }
+    });
   });
 }
 
@@ -104,18 +164,21 @@ function idsOf(talk: TalkRecord, kind: Named['kind']): string[] {
 
 export class DialogueChecks {
   private readonly economy: boolean;
+  private readonly facts: FactCatalog;
   private readonly talks = new Map<string, { readonly talk: TalkRecord; readonly report: Report }>();
   private readonly opened = new Set<string>();
   private readonly named: Named[] = [];
 
-  constructor(on: readonly string[]) {
+  constructor(on: readonly string[], facts: FactCatalog) {
     this.economy = on.includes(ECONOMY);
+    this.facts = facts;
   }
 
   /** One record that passed its schema. */
   record(type: string, id: string, value: unknown, report: Report): void {
     if (type !== TALK) return;
-    checkTalk(value as TalkRecord, this.economy, report);
+    const reached = checkTalk(value as TalkRecord, this.economy, report);
+    checkWays(value as TalkRecord, reached, this.facts, report);
     this.talks.set(id, { talk: value as TalkRecord, report });
   }
 

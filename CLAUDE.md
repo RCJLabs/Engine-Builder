@@ -87,18 +87,22 @@ apps/editor/           the editor PWA
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
                        (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form; M3.2's
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
-                       (a kit's effect, its form drawn from its fields, M3.3)
+                       (a kit's effect, its form drawn from its fields, M3.3); ScenesSection (M3.11)
   src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
-                       a plain function of the talk's value) and TalkMap.tsx, above a talk's form; its styles,
-                       styles/kitMap.css, the quest map's too
+                       a plain function of the talk's value; branches and lines that pass, M3.11) and TalkMap.tsx,
+                       above a talk's form or beside a scene; its styles, styles/kitMap.css, the quest map's too
+  src/scenes/          ink scenes in the editor (M3.11, D49): open.ts, templates.ts, inkLanguage.ts (ink's colours),
+                       the lazy SceneEditor; the catalog lists scenes/ and the record index compiles each into its
+                       talk with the game's facts
   src/quests/          the quest map (M3.9, D47): questMap.ts (rows by steps from the first stage, where each stage
                        leads and how it ends, over the kit's quests/graph.ts; a job's outcomes and gone lines, M3.10)
                        and QuestMap.tsx, above a quest's form; forms/refChoices.ts offers a quest's slots (M3.10)
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
-                       scriptEdits.ts, playFiles.ts; the lazy ScriptEditor with CodeMirror (codeEditor.ts,
-                       completions.ts, typedAhead.ts); open.ts
+                       scriptEdits.ts (text files' steps, a scene's too), playFiles.ts; the lazy ScriptEditor with
+                       CodeMirror (codeEditor.ts, completions.ts, typedAhead.ts; codeFile.tsx, the parts the scene
+                       editor shares); open.ts
   src/assets/          the asset browser (M2.7): assetLog.ts (the provenance log's JSON), assetPaths.ts (names and
                        free paths), assetEdits.ts (steps over the working copy), assetList.ts (rows and the
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
@@ -117,7 +121,7 @@ apps/editor/           the editor PWA
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
                        is the save journal with big files; loot-, stats-, factions-, roster-, events- and dialogue-bench.ts
-                       the index with kits)
+                       the index with kits; scenes-bench.ts, with ink scenes)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
@@ -158,14 +162,18 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        W123); M3.9: questTypes.ts (quest), questEffects.ts (start-quest, set-stage, fail-quest as
                        fields), questCheck.ts (E035, E043, W120, W124 to W126, and counts' E022 and E023 through
                        sheetCheck.ts's checkWhen); M3.10: questSlots.ts (slots and jobs: E035, E044, E045, W127,
-                       W128, and slotScope, the slots each field of a quest can name as @slot); not pure
+                       W128, and slotScope, the slots each field of a quest can name as @slot); M3.11: talkPaths.ts
+                       (lines that pass in a loop: E035; the walk of every path: W129; lines that can't end:
+                       W130); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
                        reads before the records, shared with the editor's catalog, M2.8); M3.2: scripts.ts (scripts/
                        read and checked, never run) and projectGame.ts (game.ts run, for eb and the script worker,
                        compileWithGame); M3.5: project.json's calendar (manifest.ts: E038, W116) and
-                       readKitSettings (the kits and calendar a game's kits are built from); not pure
+                       readKitSettings (the kits and calendar a game's kits are built from); M3.11: scenes.ts
+                       (scenes/<id>.ink compiled into talks, E046, W131, atSceneLine) and sceneFiles.ts (where
+                       scenes sit, apart so the editor names them without loading the ink compiler); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -182,7 +190,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        waiting; decks.ts: draws; laters.ts: consequences; module.ts, built knowing whether economy
                        is on); M3.8 (D46): dialogue/ (records.ts; view.ts: the line shown, its options from the
                        events kit's verdict; open.ts: opening, waiting, ending; say.ts: saying and going on;
-                       graph.ts: where lines lead; module.ts, built knowing whether economy is on); M3.9 (D47):
+                       graph.ts: where lines lead; module.ts, built knowing whether economy is on; lines that
+                       pass and branch, M3.11); M3.9 (D47):
                        quests/ (records.ts; run.ts: checking, moving and ending quests; start.ts: starting them,
                        and repeats (M3.10); slots.ts: slots filled, bound and gone (M3.10, D48); jobs.ts: jobs
                        rolled and kept as timers (M3.10); journal.ts: what a quest shows, start-quest's preview;
@@ -193,6 +202,11 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10): the records and games the kit tests share;
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading
+packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
+                       its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
+                       conditions.ts (ink conditions as the engine's, through EXTERNALs), tags.ts and fx.ts,
+                       weave.ts (choices and gathers nested), lower.ts (lines to be), emit.ts (ids, the talk, the
+                       map); inkjs.test.ts holds it to inkjs, a dev dependency, way by way
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -216,7 +230,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        made with the dialogue kit, and crag-climber.golden.json (M3.8); yard/, a slice of
                        Space-Wrecked's first act made with the quests kit, and yard-scavenger.golden.json (M3.9);
                        school/, a slice of Ludus made with slots, repeats and jobs, and school-lanista.golden.json
-                       (M3.10)
+                       (M3.10); gatehouse/, a slice of Chooser of the Slain whose dusk scenes are ink, written
+                       fresh, and gatehouse-chooser.golden.json (M3.11)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

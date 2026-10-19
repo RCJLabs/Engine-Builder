@@ -1,0 +1,20 @@
+{
+  "name": "@eb/ink",
+  "private": true,
+  "version": "0.0.1",
+  "description": "ink scenes compiled into the dialogue kit's talks (M3.11, D49): a parser of the subset chooser-of-the-dead wrote, every problem at its line. Pure, so a scene compiles the same in the editor and in eb.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "eb": {
+    "pure": true
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*"
+  }
+}

@@ -3,6 +3,7 @@
  * back: a new record, a copy, several deleted, a field set on several. Each names its record or
  * its count, as M2.4's steps do: "Duplicate spiculus as spiculus-2", "Set Might on 3 records".
  */
+import { TALK } from '@eb/kits';
 import type { DataType, TypeFile } from '@eb/schema';
 import { showPanel } from '../app/panelControl.ts';
 import { editing } from '../editing/current.ts';
@@ -10,9 +11,18 @@ import { recordFile } from '../forms/catalog.ts';
 import { changeRecords, createRecordFile, deleteRecordFiles, duplicateRecordFile } from '../forms/recordEdits.ts';
 import { chosen } from '../forms/selection.ts';
 import { newRecord, setIn } from '../forms/values.ts';
+import { current } from '../projects/opened.ts';
+import { openScene } from '../scenes/open.ts';
 
-/** Shows the record in the inspector: the dock's or the zone's, or the sheet on a phone. */
+/**
+ * Shows the record in the inspector: the dock's or the zone's, or the sheet on a phone. A talk
+ * that is an ink scene's opens the scene (M3.11), from a table, Used by or the Problems panel.
+ */
 export function openRecord(type: string, id: string): void {
+  if (type === TALK && current.value?.catalog.scenes.has(id)) {
+    openScene(id);
+    return;
+  }
   chosen.value = { kind: 'record', type, id };
   showPanel('inspector');
 }
