@@ -66,7 +66,7 @@ The runtime never reads the sim's state itself. At the start of a session, the p
 ## Actions
 
 A button's `action` is one of:
-- **`{"take": "<module>/<action>", "args": {…}}`**: the game's action. The button is enabled only while an action of that type is on offer with those arguments; `args` may be left out when there is just one. This is how the sim decides: a screen can only ask for what the game offers.
+- **`{"take": "<module>/<action>", "args": {…}}`**: the game's action. The button is enabled only while an action of that type is on offer with those arguments; without `args`, it takes the first of that type on offer. This is how the sim decides: a screen can only ask for what the game offers, and the session refuses anything else before the sim sees it.
 - **`{"open": "<screen>"}`**: opens a screen above the rest.
 - **`{"close": true}`**: closes the top screen that a button opened.
 
@@ -91,10 +91,12 @@ The talk's own line, its speaker and the event's text are views too, read as `{t
 
 - **Regions keep clear of the safe area:** `top` is padded by the top inset, `bottom` by the bottom inset, and all three by the side insets.
 - **Breakpoints:**
-  - `phone` is narrower than 600 px in portrait;
-  - `landscape` is lower than 500 px;
+  - `landscape` is lower than 500 px and wider than it is high;
+  - otherwise `phone` is narrower than 600 px;
   - `tablet` is up to 1,024 px wide;
   - `desktop` is wider.
+
+  The sizes are the game's box, not the window's, so a game in the editor's Play panel lays out as it would on a phone of that width.
 
   A widget's `at` gives fields that apply at a breakpoint, such as a stack that is a row in landscape.
 - **Nothing scrolls sideways.** Text wraps, and rows wrap when `wrap` is set.
@@ -131,9 +133,11 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 - **A view holds:**
   - `modes`, the stack of mode ids;
   - `offered`, the actions on offer;
-  - `facts` and `conditions`, the values of what the screens name;
-  - `talk`, `event`, `shop` and `journal`, each only while it applies;
-  - `ended`, true once nothing is offered.
+  - `facts` and `conditions`, the values of what the screens name. A fact or condition the game can't read is no value;
+  - `fields`, the views' own fields (`talk.text`, `event.text`, `shop.name`…) while they apply;
+  - `lists`, each source's entries while it applies, each entry with its fields, its action and whether that action is on offer;
+  - `turn`, and `ended`, true once nothing is offered.
+- **The words in entries** come from the sim's reports: a locked choice's reason is the condition it needs in words (`describeCondition`) or the resource it is short of; its cost names each resource; its odds are the chances its preview gives.
 - **Every view is JSON,** as the kernel's state and beats are, so nothing that crosses to the page can run there.
 
 ## Where it plays

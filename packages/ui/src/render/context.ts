@@ -1,0 +1,27 @@
+/**
+ * What every widget draws from: the view, the breakpoint, and how to act. Passed down as a prop
+ * rather than through Preact's context, so a widget is a plain function of what it is given.
+ */
+import type { Action } from '@eb/core';
+import type { Breakpoint } from '../format/screen.ts';
+import type { View } from '../session/types.ts';
+
+export interface Drawing {
+  readonly view: View;
+  readonly breakpoint: Breakpoint;
+  /** A step is on its way: every button waits for its view. */
+  readonly busy: boolean;
+  act(action: Action): void;
+  open(screen: string): void;
+  /** Closes the top screen a button opened; undefined when none is open. */
+  readonly close: (() => void) | undefined;
+  /** An asset's URL, for images. Without one, an image shows its alt text. */
+  assetUrl(path: string): string | undefined;
+}
+
+let next = 0;
+/**
+ * An id no other element of the page has. Not Preact's useId: the editor's dock renders panels in
+ * roots of their own, whose ids would repeat (the editor's ids.ts).
+ */
+export const freshId = (prefix: string) => `eb-ui-${prefix}-${++next}`;

@@ -49,7 +49,7 @@ export const SOURCE_KITS: Readonly<Record<Source, string | undefined>> = {
   talk: 'dialogue',
   event: 'events',
   shelf: 'economy',
-  bag: 'economy',
+  bag: 'inventory',
   journal: 'quests',
   offered: undefined,
 };
