@@ -164,7 +164,11 @@ describe('made records', () => {
         ids: ({ state }) => Array.from({ length: state.laid }, (_, i) => `egg-${i}`),
         get: ({ state }, _type, id) => (Number(id.slice(4)) < state.laid ? { laid: id } : undefined),
       },
-      actions: { lay: (ctx) => void (ctx.write().laid += 1) },
+      actions: {
+        lay(ctx) {
+          ctx.write().laid += 1;
+        },
+      },
       modes: { coop: { actions: ['hatchery/lay'] } },
     });
     const coop = createGame({ modules: [hatchery], start: 'coop' });
