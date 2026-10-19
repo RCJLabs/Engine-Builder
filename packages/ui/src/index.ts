@@ -3,4 +3,11 @@ export type { Drawing } from './render/context.ts';
 export { actionFor, amount, fill, holds, shownText } from './render/fill.ts';
 export { GameScreens, type GameScreensProps } from './render/GameScreens.tsx';
 export { breakpointOf, layoutAt, layoutStyle, themeVars } from './render/layout.ts';
-export { drawn, type Shown as ShownScreen, screenFor, screenStack } from './render/stack.ts';
+export {
+  drawn,
+  type Opened,
+  type Shown as ShownScreen,
+  screenFor,
+  screenStack,
+  stillOpen,
+} from './render/stack.ts';

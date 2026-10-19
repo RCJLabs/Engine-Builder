@@ -1152,6 +1152,12 @@ Also settled, as the session's calls ([specs/screens.md](specs/screens.md)):
 - **the exported page is the player at `/play/`,** opening the game file the Project panel exports, a pack of format 4 that carries the screens and the theme; a page that is a single file comes with M4.9's export;
 - **screens are written as JSON in the editor** until M4.4's designer, opened from the Play panel with their problems at their lines.
 
+As built (M4.1):
+- **the Play panel's game runs in a copy of the script worker of its own,** so the compiler and kits ship once, and a check that runs too long in the script worker never ends a game in play;
+- **the player page is a page of the editor's own build** (`play/index.html`), so the editor's service worker holds it and a game opened once plays offline; its worker takes the host's ways out away before a game's scripts run, as the script worker does;
+- **a screen's problems are given at their lines** in its file, by `eb validate` as in the editor, from their JSON paths;
+- **a list's entries come from the kits' own previews and facts,** and the `bag` is the inventory kit's, not the economy kit's, as first written; a fact or condition the game can't read shows as no value rather than stopping the game.
+
 Evan chose on 2026-10-19, from these options:
 - the framework: Preact with signals; or plain DOM, as Space-Wrecked;
 - screens: data, as JSON widget trees; code, as Preact components in the project's scripts; or data with script widgets;

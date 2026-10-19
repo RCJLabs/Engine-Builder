@@ -213,7 +213,7 @@ The journal is `start-quest`'s preview: what the sim holds, never a second copy.
 
 ## UI
 
-Screens are data: a widget tree with layout, a theme, bindings and actions. A small runtime renders them with Preact.
+Screens are data: a widget tree with layout, a theme, bindings and actions. A small runtime renders them with Preact (`@eb/ui`, M4.1, D51). The game plays in a worker; after each step the page gets a JSON view, the game's modes, the actions on offer, the values of what its screens name and the kits' lists, and draws only that. The stack follows the game's modes ([specs/screens.md](specs/screens.md)).
 
 - **Widgets:** panel, stack, grid, text, image, button, toggle, slider, select, progress bar, list (bound to a collection), tabs, modal, tooltip, toast, touch stick, touch button.
 - **Layout:** flex and anchors, safe-area insets, and breakpoints at phone portrait, phone landscape, tablet and desktop.
@@ -320,12 +320,12 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI renderer, widgets, themes, stock screens, input, a11y
+packages/ui         runtime UI (M4.1): the screens' format, the session that plays a game in a worker, the Preact renderer; input, a11y and stock screens later
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
-apps/player         the runtime shell that exports ship                    Phase 4
+apps/player         the runtime shell that exports ship (M4.9); until then the player page at /play/ is a page of the editor's build (M4.1)
 tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8); export | test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)

@@ -14,8 +14,9 @@ type Packed =
 
 export async function packFiles(id: number, files: readonly SentFile[]): Promise<Packed> {
   const compiled = await compileWithGame(memorySource(Object.fromEntries(files)));
-  const errors = compiled.diagnostics.filter((d) => d.severity === 'error');
-  if (!compiled.pack || errors.length > 0) return { id, kind: 'refused', errors };
+  // A project with any error has no pack.
+  if (!compiled.pack)
+    return { id, kind: 'refused', errors: compiled.diagnostics.filter((d) => d.severity === 'error') };
   return { ok: true, pack: JSON.parse(JSON.stringify(compiled.pack)), name: compiled.pack.project.id };
 }
 

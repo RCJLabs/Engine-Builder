@@ -45,10 +45,11 @@ const matches = (offer: Action, type: string, args: Readonly<Record<string, unkn
 
 /**
  * The action a button takes now, or undefined while none it names is on offer, which disables it.
- * With no arguments given, the first on offer of its type.
+ * With no arguments given, the first on offer of its type. While a step is on its way (`busy`),
+ * none: the view it was drawn from is about to change, and a second press would act on the old one.
  */
-export function actionFor(action: ScreenAction, view: View, entry?: Entry): Action | undefined {
-  if (!('take' in action)) return undefined;
+export function actionFor(action: ScreenAction, view: View, entry?: Entry, busy = false): Action | undefined {
+  if (!('take' in action) || busy) return undefined;
   if (action.take === 'entry') return entry?.enabled ? entry.action : undefined;
   return view.offered.find((offer) => matches(offer, action.take, action.args));
 }

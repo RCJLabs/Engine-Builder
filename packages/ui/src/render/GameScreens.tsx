@@ -11,7 +11,7 @@ import type { Theme } from '../format/theme.ts';
 import type { View } from '../session/types.ts';
 import { type Drawing, freshId } from './context.ts';
 import { breakpointOf, themeVars } from './layout.ts';
-import { drawn, type Shown, screenStack } from './stack.ts';
+import { drawn, type Opened, type Shown, screenStack, stillOpen } from './stack.ts';
 import { WidgetView } from './Widget.tsx';
 import './screens.css';
 
@@ -43,9 +43,9 @@ export function GameScreens({ screens, theme, view, busy = false, act, assetUrl 
   const box = useRef<HTMLDivElement>(null);
   const breakpoint = useBreakpoint(box);
   // Screens a button opened belong to the modes they were opened in: a step that changes the modes closes them.
-  const modes = view.modes.join('\n');
-  const [opened, setOpened] = useState<{ readonly modes: string; readonly ids: readonly string[] }>({ modes, ids: [] });
-  const ids = opened.modes === modes ? opened.ids : [];
+  const { modes } = view;
+  const [opened, setOpened] = useState<Opened>({ modes, ids: [] });
+  const ids = stillOpen(opened, modes);
   const shown = drawn(screenStack(screens, view.modes, ids));
   const drawing: Drawing = {
     view,

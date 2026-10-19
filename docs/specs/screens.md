@@ -61,7 +61,7 @@ Every widget has `widget`, its kind, and may have:
 - **A number field** (`progress`'s `value` and `max`) takes a number or a fact in braces.
 - **A list item's template** may also name the entry's own fields, as `{.label}` or `{.price}`.
 
-The runtime never reads the sim's state itself. At the start of a session, the page sends the worker every fact and condition its screens name. After every step, the worker sends back their values and the current views (see Session).
+The runtime never reads the sim's state itself. At the start of a session, the worker reads every fact and condition the pack's screens name. After every step, it sends back their values and the current views (see Session).
 
 ## Actions
 
@@ -128,8 +128,8 @@ The talk's own line, its speaker and the event's text are views too, read as `{t
 
 A game plays in a worker, never on the page: its scripts run where `lockDown` has taken the page's powers away, as M3.2's checks and Run do.
 
-- **`start`:** the page sends the project's files (or a pack), the seed, and what its screens name. The worker answers with the first view.
-- **`act`:** the page sends one of the offered actions. The worker reduces it and answers with the next view and the step's beats.
+- **`start`:** the page sends a pack, as a game file holds it, and a seed. The worker checks the pack (`readPack`), loads its game from its scripts with the kits it lists, and answers with the game's name, its screens and theme, and the first view. The editor's Play panel sends the project's files instead, which the worker compiles into that pack first, as Export game does.
+- **`act`:** the page sends one of the offered actions. The worker refuses one that isn't on offer; otherwise it reduces it and answers with the next view and the step's beats. A script that throws ends the game, and the page is told why.
 - **A view holds:**
   - `modes`, the stack of mode ids;
   - `offered`, the actions on offer;
@@ -142,8 +142,8 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 
 ## Where it plays
 
-- **The editor's Play panel:** the open project, compiled as Run compiles it, played through its screens. Beside the game, a list of its screens opens each in the inspector as JSON, with its problems at their lines. M4.4's designer replaces the JSON.
-- **The player page,** at `/play/` on the editor's domain, plays an exported game: the pack that the Project panel's Export game writes, holding the records, the compiled scripts, the screens and the theme. A page that is a single file comes with M4.9's export.
+- **The editor's Play panel:** the open project, compiled as Export game compiles it, played through its screens in a copy of the script worker of its own, so a check that runs too long never ends a game in play. It needs the game's scripts let to run, as Run does, and waits while the project has errors. Beside the game, its screens and theme, each opening in the inspector as JSON with its problems at their lines, and New screen and New theme. The game's box sets its breakpoint, so a narrow panel lays a game out as a phone. M4.4's designer replaces the JSON.
+- **The player page,** at `/play/` on the editor's domain, plays an exported game: the `<id>-<version>.game.json` file that the Project panel's Export game writes, holding the records, the compiled scripts, the screens and the theme. The file is read in the browser and played in a worker whose ways out are taken away before the game's scripts run; nothing is sent anywhere. It is a page of the editor's own build, so the service worker holds it and a game opened once plays offline after. A page that is a single file comes with M4.9's export.
 
 ## Pack
 

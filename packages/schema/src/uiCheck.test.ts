@@ -253,6 +253,10 @@ describe('checkUi', () => {
       { code: 'E047', file: 'ui/theme.json', path: '/colors/text', message: 'A colour as #rrggbb' },
       expect.objectContaining({ code: 'E047', path: '/size' }),
     ]);
+    // A colour is six digits: three, as CSS allows, isn't read.
+    expect(check({}, {}, { colors: { ...DEFAULT_THEME.colors, accent: '#fc0' } })).toEqual([
+      { code: 'E047', file: 'ui/theme.json', path: '/colors/accent', message: 'A colour as #rrggbb' },
+    ]);
     const faint = { colors: { ...DEFAULT_THEME.colors, muted: '#5a606a', 'on-accent': '#ffffff' } };
     expect(check({}, {}, faint)).toEqual([
       {

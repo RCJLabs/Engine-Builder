@@ -96,14 +96,9 @@ function ButtonView({ widget, drawing, entry }: Props & { readonly widget: Extra
       </button>
     );
   }
-  const taken = actionFor(action, drawing.view, entry);
+  const taken = actionFor(action, drawing.view, entry, drawing.busy);
   return (
-    <button
-      type="button"
-      class={style}
-      disabled={taken === undefined || drawing.busy}
-      onClick={() => taken && drawing.act(taken)}
-    >
+    <button type="button" class={style} disabled={taken === undefined} onClick={() => taken && drawing.act(taken)}>
       {label}
     </button>
   );

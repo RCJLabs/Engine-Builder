@@ -4,7 +4,7 @@ import { DEFAULT_THEME } from '../format/theme.ts';
 import type { Entry, View } from '../session/types.ts';
 import { actionFor, amount, fill, holds, shownText } from './fill.ts';
 import { breakpointOf, layoutAt, layoutStyle, themeVars } from './layout.ts';
-import { drawn, screenFor, screenStack } from './stack.ts';
+import { drawn, screenFor, screenStack, stillOpen } from './stack.ts';
 
 const text = (t: string): Widget => ({ widget: 'text', text: t });
 const screens: Record<string, Screen> = {
@@ -37,6 +37,14 @@ describe('the stack', () => {
     expect(at(['hut'], ['map', 'journal'])).toEqual(['map', 'journal']);
     expect(at(['sea', 'talking'])).toEqual(['(sea)', 'talk']);
     expect(at([])).toEqual([]);
+  });
+
+  it('keeps the screens a button opened only while the modes are the ones they were opened in', () => {
+    const opened = { modes: ['hut'], ids: ['journal'] };
+    expect(stillOpen(opened, ['hut'])).toEqual(['journal']);
+    expect(stillOpen(opened, ['hut', 'talking'])).toEqual([]);
+    expect(stillOpen(opened, ['closed'])).toEqual([]);
+    expect(stillOpen({ modes: ['hut', 'talking'], ids: ['map'] }, ['hut', 'shopping'])).toEqual([]);
   });
 });
 
@@ -99,6 +107,12 @@ describe('what a button takes', () => {
     expect(actionFor({ open: 'map' }, view)).toBeUndefined();
   });
 
+  it('takes nothing while a step is on its way, so a second press can’t act on the old view', () => {
+    expect(actionFor({ take: 'hut/rest' }, view, undefined, true)).toBeUndefined();
+    expect(actionFor({ take: 'entry' }, view, entry, true)).toBeUndefined();
+    expect(actionFor({ take: 'hut/rest' }, view, undefined, false)).toEqual({ type: 'hut/rest' });
+  });
+
   it('takes an entry’s action only while the entry is enabled', () => {
     expect(actionFor({ take: 'entry' }, view, entry)).toEqual({ type: 'economy/buy', item: 'rope' });
     expect(actionFor({ take: 'entry' }, view, { ...entry, enabled: false })).toBeUndefined();
@@ -121,6 +135,10 @@ describe('layout', () => {
     const row: Widget = { widget: 'stack', children: [], gap: 2, at: { landscape: { direction: 'row', wrap: true } } };
     expect(layoutAt(row, 'phone')).toEqual({ gap: 2 });
     expect(layoutAt(row, 'landscape')).toEqual({ gap: 2, direction: 'row', wrap: true });
+    // A field the widget has itself gives way to its `at`.
+    const column: Widget = { widget: 'stack', children: [], direction: 'column', at: { tablet: { direction: 'row' } } };
+    expect(layoutAt(column, 'phone').direction).toBe('column');
+    expect(layoutAt(column, 'tablet').direction).toBe('row');
     expect(layoutStyle(row, 'landscape')).toEqual({
       gap: 'calc(var(--eb-space) * 2)',
       'flex-direction': 'row',

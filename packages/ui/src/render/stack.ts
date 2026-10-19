@@ -42,6 +42,16 @@ export function screenStack(
   return stack;
 }
 
+/** Screens a button opened, kept with the modes they were opened in. */
+export interface Opened {
+  readonly modes: readonly string[];
+  readonly ids: readonly string[];
+}
+
+/** The screens still open: a step that changed the modes closed them all. */
+export const stillOpen = (opened: Opened, modes: readonly string[]): readonly string[] =>
+  opened.modes.length === modes.length && opened.modes.every((mode, i) => mode === modes[i]) ? opened.ids : [];
+
 const sameAs = (a: Shown, b: Shown) =>
   a.kind === 'screen' && b.kind === 'screen'
     ? a.id === b.id

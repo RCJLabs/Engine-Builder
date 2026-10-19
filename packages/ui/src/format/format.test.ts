@@ -110,6 +110,8 @@ describe('contrast', () => {
     expect(contrast('#5a606a', '#14161a')).toBe(contrast('#14161a', '#5a606a'));
     // Worked by hand from WCAG 2's formula, and by a separate script.
     expect(contrast('#5a606a', '#14161a')).toBeCloseTo(2.86, 2);
+    // A channel at or under 10 of 255 is on the formula's straight part, c / 12.92: 1.0607.
+    expect(contrast('#000000', '#0a0a0a')).toBeCloseTo(1.0607, 4);
   });
 
   it('passes every pair of the engine’s own theme', () => {

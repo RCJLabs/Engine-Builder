@@ -73,10 +73,12 @@ export function checkProjectUi(ui: UiRead, options: UiCheckOptions): Diagnostic[
   });
 }
 
-/** What the pack carries: the screens by id, sorted, and the theme. Only once they are checked. */
+/**
+ * What the pack carries: the screens by id and the theme. Only once they are checked. They are in
+ * id order already, read from files in that order, and the pack's hash sorts keys besides.
+ */
 export function packUi(ui: UiRead): PackUi | undefined {
   if (ui.screens.size === 0) return undefined;
-  const ids = [...ui.screens.keys()].sort(byText);
-  const screens = Object.fromEntries(ids.map((id) => [id, (ui.screens.get(id) as UiFile).value]));
+  const screens = Object.fromEntries([...ui.screens].map(([id, { value }]) => [id, value]));
   return { screens, ...(ui.theme !== undefined ? { theme: ui.theme.value } : {}) };
 }

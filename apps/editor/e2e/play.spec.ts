@@ -5,12 +5,15 @@
  * /play/, which opens again offline. Each screen in reach, with nothing past the edges and nothing
  * axe finds.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createPack } from '@eb/core';
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { expectFits, game, playSeason, press, startHut, topScreen } from './hutScreens.ts';
+import { fixtureText, HUT } from './hutHelpers.ts';
+import { replaceText } from './hutLogic.ts';
+import { expectFits, game, playSeason, press, showPlay, startHut, topScreen } from './hutScreens.ts';
+import { fixtureZip } from './kitHelpers.ts';
 import { openProject, scratch, showProject } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 900 }, actionTimeout: 20_000 });
@@ -142,9 +145,14 @@ test('a game’s scripts at /play/ run where the network and storage are out of 
   // A pack by hand, as no project could compile it: its script looks for the host's ways out as it loads.
   const reach = ['fetch', 'indexedDB', 'XMLHttpRequest', 'importScripts'];
   const script = `const found = ${JSON.stringify(reach)}.filter((name) => typeof self[name] !== 'undefined'); if (found.length > 0) throw new Error('reached ' + found.join(', '));`;
-  const pack = createPack({ id: 'reach', name: 'Reach', version: '0.1.0' }, {}, { game: script }, {
-    screens: { main: { main: { widget: 'text', text: 'Hi' } } },
-  });
+  const pack = createPack(
+    { id: 'reach', name: 'Reach', version: '0.1.0' },
+    {},
+    { game: script },
+    {
+      screens: { main: { main: { widget: 'text', text: 'Hi' } } },
+    },
+  );
   const file = join(scratch, `reach-${Date.now()}.game.json`);
   writeFileSync(file, JSON.stringify(pack));
   await page.goto('play/');
@@ -156,5 +164,41 @@ test('a game’s scripts at /play/ run where the network and storage are out of 
   // The script found nothing to reach, so it got as far as the game's shape, which it lacks.
   await expect(page.getByRole('alert')).toContainText('The game didn’t load');
   await expect(page.getByRole('alert')).not.toContainText('reached');
+  expect(errors).toEqual([]);
+});
+
+test('Play waits while the project has errors, and a screen’s problem opens it at its line', async ({ page }) => {
+  test.setTimeout(120_000);
+  const errors = watchErrors(page);
+  const dir = join(scratch, `hut-misspelt-${Date.now()}`);
+  cpSync(HUT, dir, { recursive: true });
+  writeFileSync(join(dir, 'ui/hut.json'), fixtureText('ui/hut.json').replace('{time.day} of 10', '{time.dya} of 10'));
+  await page.goto('./');
+  await showProject(page);
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: 'Import zip' }).click(),
+  ]);
+  await chooser.setFiles(fixtureZip(dir, 'the-hut'));
+  await expect(openProject(page).getByRole('heading', { name: 'The hut' })).toBeVisible();
+  const panel = await showPlay(page);
+  await panel.getByRole('button', { name: 'Run its scripts' }).click();
+  // Checked against the game once its scripts run: the misspelt fact, at its line.
+  await expect(
+    panel.getByText('Play plays what Export game would write, so it waits until the project’s error is fixed.'),
+  ).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Play', exact: true })).toBeDisabled();
+  await expect(panel.getByRole('button', { name: /^hut 1 problem$/ })).toBeVisible();
+  await page.getByRole('tab', { name: /^Problems \(\d+\)$/ }).click();
+  await page.getByRole('button', { name: /No fact "time\.dya"/ }).click();
+  const screen = page.getByRole('region', { name: 'Screen hut' });
+  await expect(screen.locator('.cm-content')).toBeFocused();
+  await expect(screen.locator('.cm-activeLine')).toContainText('{time.dya} of 10');
+  // Fixed in the screen editor, it plays.
+  await replaceText(page, screen, fixtureText('ui/hut.json'));
+  await showPlay(page);
+  await expect(panel.getByRole('button', { name: 'Play', exact: true })).toBeEnabled();
+  await panel.getByRole('button', { name: 'Play', exact: true }).click();
+  await expect(game(page).getByText(/^Day \d+ of 10$/)).toBeVisible();
   expect(errors).toEqual([]);
 });
