@@ -1,7 +1,8 @@
 /**
  * What each choice of an event shows and whether it can be made (docs/specs/events.md#choosing).
  * The view the stage shows, the options a bot is offered and the action itself share one verdict,
- * so what is shown open is what choosing accepts, and the odds shown are the table rolled.
+ * so what is shown open is what choosing accepts, and the odds shown are the table rolled. A
+ * talk's options are choices too, and share both (M3.8, docs/specs/dialogue.md).
  */
 import {
   type Condition,
@@ -15,7 +16,7 @@ import {
 } from '@eb/core';
 import { lowest, resourceRecord } from '../economy/amounts.ts';
 import { choiceOf, eventRecord } from './records.ts';
-import type { Choice, Cost, EventRecord, Outcome } from './types.ts';
+import type { Choice, Cost, Outcome } from './types.ts';
 
 /** What a verdict reads, from an action's context, its options' view or a preview's. */
 export interface Choosing {
@@ -32,9 +33,19 @@ export interface Short {
   readonly need: number;
 }
 
-export type ChoiceVerdict =
-  | { readonly ok: true; readonly choice: Choice }
+export type ChoiceVerdict<C extends Choice = Choice> =
+  | { readonly ok: true; readonly choice: C }
   | { readonly ok: false; readonly reason: string; readonly data: Readonly<Record<string, unknown>> };
+
+/** What a refusal says a choice was asked of: an event's, or a talk's option (M3.8). */
+export interface Asked {
+  /** The reason for a choice that isn't there or isn't shown. */
+  readonly missing: string;
+  /** Where it was asked: `{ event }`, or `{ talk }`. */
+  readonly at: Readonly<Record<string, unknown>>;
+  /** The key the choice's id goes under: `choice`, or `option`. */
+  readonly key: string;
+}
 
 const holds = (choosing: Choosing, condition: Condition | undefined) =>
   condition === undefined || choosing.check(condition) === true;
@@ -50,17 +61,28 @@ export function shortOf(choosing: Choosing, cost: Cost | undefined): Short | und
   return undefined;
 }
 
-/** Whether the choice of that id can be made now: there, shown, its needs held and its cost paid. */
-export function choiceVerdict(choosing: Choosing, event: string, id: unknown): ChoiceVerdict {
-  const choice = choiceOf(eventRecord(choosing.content, event), id);
-  if (!choice || !holds(choosing, choice.if)) {
-    return { ok: false, reason: 'no-such-choice', data: { event, choice: String(id) } };
-  }
-  if (!holds(choosing, choice.needs)) return { ok: false, reason: 'locked', data: { event, choice: choice.id } };
+/** Whether a choice can be made now: there, shown, its needs held and its cost paid. A talk's options share it. */
+export function verdictOn<C extends Choice>(
+  choosing: Choosing,
+  choice: C | undefined,
+  id: unknown,
+  asked: Asked,
+): ChoiceVerdict<C> {
+  const at = (named: unknown) => ({ ...asked.at, [asked.key]: named });
+  if (!choice || !holds(choosing, choice.if)) return { ok: false, reason: asked.missing, data: at(String(id)) };
+  if (!holds(choosing, choice.needs)) return { ok: false, reason: 'locked', data: at(choice.id) };
   const short = shortOf(choosing, choice.cost);
-  if (short) return { ok: false, reason: 'cant-afford', data: { event, choice: choice.id, ...short } };
+  if (short) return { ok: false, reason: 'cant-afford', data: { ...at(choice.id), ...short } };
   return { ok: true, choice };
 }
+
+/** Whether the event's choice of that id can be made now. */
+export const choiceVerdict = (choosing: Choosing, event: string, id: unknown): ChoiceVerdict =>
+  verdictOn(choosing, choiceOf(eventRecord(choosing.content, event), id), id, {
+    missing: 'no-such-choice',
+    at: { event },
+    key: 'choice',
+  });
 
 /** The choices that can be made now, in the event's order: what `events/choose` offers. */
 export function chooseOptions(choosing: Choosing, event: string): { choice: string }[] {
@@ -73,11 +95,13 @@ export function chooseOptions(choosing: Choosing, event: string): { choice: stri
 export const outcomeTable = (outcomes: readonly Outcome[]): readonly RollRow[] =>
   rollTable({ effect: 'roll', outcomes } as Effect);
 
-/** One choice as the player sees it before choosing: its lock, its cost, and with show-odds what it does. */
-function choiceView(choosing: Choosing, event: EventRecord, choice: Choice, preview: (e: Effect) => EffectPreview) {
+/**
+ * One choice as the player sees it before choosing: its lock, its cost, and with the odds shown
+ * what it does. An event's choice, or a talk's option.
+ */
+export function choiceShown(choosing: Choosing, choice: Choice, odds: boolean, preview: (e: Effect) => EffectPreview) {
   const needs = holds(choosing, choice.needs) ? undefined : choice.needs;
   const short = shortOf(choosing, choice.cost);
-  const odds = event['show-odds'] === true;
   return {
     id: choice.id,
     label: choice.label,
@@ -101,5 +125,6 @@ function choiceView(choosing: Choosing, event: EventRecord, choice: Choice, prev
 export function eventView(choosing: Choosing, event: unknown, preview: (e: Effect) => EffectPreview) {
   const record = eventRecord(choosing.content, event);
   const shown = record.choices.filter((choice) => holds(choosing, choice.if));
-  return { event, choices: shown.map((choice) => choiceView(choosing, record, choice, preview)) };
+  const odds = record['show-odds'] === true;
+  return { event, choices: shown.map((choice) => choiceShown(choosing, choice, odds, preview)) };
 }
