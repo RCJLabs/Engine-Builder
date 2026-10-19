@@ -285,14 +285,17 @@ textarea.form-input {
   overflow-wrap: anywhere;
 }
 
-/* M2.5: a ref field's Open beside its picker button. */
+/* M2.5: a ref field's Open beside its picker button, or below it where the two don't fit: a
+   picker breaks its words anywhere, so beside Open in a list of effects inside a consequence on a
+   phone it was squeezed to 32 px (M3.7). */
 .form-pick-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .form-pick-row .form-pick {
-  flex: 1 1 auto;
+  flex: 1 1 8rem;
   min-width: 0;
 }
 

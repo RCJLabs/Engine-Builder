@@ -22,6 +22,10 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     name: 'Roster',
     brings: 'Members who join and leave, recruits rolled in halls, ranks on a stat, and bonds. Needs Stats.',
   },
+  events: {
+    name: 'Events',
+    brings: 'Choice events, the decks they’re drawn from, and consequences that land days or choices later.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

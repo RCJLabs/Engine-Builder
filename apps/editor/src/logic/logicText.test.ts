@@ -175,6 +175,33 @@ describe('sheet edits', () => {
     expect(kitEffectFile('recruit', ['stats'])).toBeUndefined();
   });
 
+  it('says the events kit’s effects in a few words (M3.7)', () => {
+    const open = { effect: 'open-event', event: 'debt-due' };
+    expect(
+      doText([
+        { effect: 'open-event', event: 'raiders' },
+        { effect: 'draw-event', deck: 'road' },
+        { effect: 'later', id: 'debt', after: { flag: 'nodes', by: 3 }, do: [open] },
+        { effect: 'later', after: { days: 2 }, do: [open, open] },
+        { effect: 'later', after: { choices: 1 }, do: [] },
+        { effect: 'cancel-later', id: 'debt' },
+      ]),
+    ).toBe(
+      'Do: open the event raiders, then draw an event from road, then debt: do 1 effect once nodes has ' +
+        'risen by 3, then do 2 effects after 2 days, then do 0 effects after 1 choice, then cancel the consequence debt',
+    );
+    expect(effectText({ effect: 'later', after: { flag: 'nodes' }, do: [open] })).toBe(
+      'do 1 effect once nodes has risen by 1',
+    );
+    expect(effectText({ effect: 'later', after: { days: 1, choices: 2 }, do: [] })).toBe(
+      'do 0 effects later, when is not yet set',
+    );
+    expect(effectText({ effect: 'open-event' })).toBe('open the event an event not yet chosen');
+    expect(effectText({ effect: 'cancel-later', id: '' })).toBe('cancel the consequence a consequence not yet chosen');
+    expect(kitEffectFile('later', ['events'])?.fields.do).toEqual({ kind: 'effects', label: 'Do' });
+    expect(kitEffectFile('later', ['roster'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

@@ -23,6 +23,7 @@ export const FIELD_KINDS = [
   'colour',
   'asset',
   'condition',
+  'effects',
 ] as const;
 export type FieldKind = (typeof FIELD_KINDS)[number];
 
@@ -59,7 +60,9 @@ export type ValueDef =
   | { readonly kind: 'group'; readonly fields: Fields }
   | { readonly kind: 'colour' }
   | { readonly kind: 'asset'; readonly of?: AssetKind }
-  | { readonly kind: 'condition' };
+  | { readonly kind: 'condition' }
+  /** A list of effects, in order (M3.7): an event's choices, a consequence's, a project's own. */
+  | { readonly kind: 'effects' };
 
 /** What a named field adds. A list's items and a map's values are values, never optional. */
 export interface FieldInfo {
@@ -113,6 +116,7 @@ const SHAPES: Record<FieldKind, z.core.$ZodShape> = {
   colour: {},
   asset: { of: z.enum(ASSET_KINDS, { error: `Expected an asset kind: ${ASSET_KINDS.join(', ')}` }).optional() },
   condition: {},
+  effects: {},
 };
 
 const INFO: z.core.$ZodShape = {

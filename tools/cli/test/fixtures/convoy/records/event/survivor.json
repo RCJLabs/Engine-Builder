@@ -1,0 +1,41 @@
+{
+  "name": "A survivor",
+  "text": "Someone waving from the roof of a stalled truck.",
+  "choices": [
+    {
+      "id": "take-in",
+      "label": "Take them in",
+      "needs": "economy.amount(resource: fuel) >= 1",
+      "result": "They ride with you, and talk of their people.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "fuel",
+          "by": -1
+        },
+        {
+          "effect": "set-flag",
+          "flag": "helped",
+          "to": true
+        },
+        {
+          "effect": "later",
+          "id": "thanks",
+          "after": {
+            "choices": 2
+          },
+          "do": [
+            {
+              "effect": "open-event",
+              "event": "survivor-returns"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave them"
+    }
+  ]
+}

@@ -59,9 +59,11 @@
   margin: 0;
 }
 
+/* No width of its own: `.form-select`'s 100% lets a select shrink below its longest option, so an
+   effect added in a consequence inside an outcome still fits a 320 px inspector in CI's DejaVu
+   Sans; `width: auto` held it at its longest option, 218 px, past the screen's edge (M3.7). */
 .logic-add-effect .form-select {
   flex: 1 1 10rem;
-  width: auto;
 }
 
 .logic-json {

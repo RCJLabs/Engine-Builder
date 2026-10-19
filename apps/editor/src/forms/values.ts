@@ -31,6 +31,7 @@ export function emptyValue(def: ValueDef): unknown {
     case 'enum':
       return def.values[0];
     case 'list':
+    case 'effects':
       return [];
     case 'map':
       return {};

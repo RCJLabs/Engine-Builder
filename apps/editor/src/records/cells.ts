@@ -6,6 +6,7 @@
 import { type Condition, checkCondition, printCondition } from '@eb/core';
 import type { ValueDef } from '@eb/schema';
 import { labelOf } from '../forms/labels.ts';
+import { effectText } from '../logic/rowText.ts';
 
 /** A record's name by "type:id", when its type names records and it has one. */
 export type NameOf = (key: string) => string | undefined;
@@ -52,6 +53,9 @@ export function cellText(def: ValueDef, value: unknown, nameOf: NameOf): string 
         : written(value);
     case 'list':
       return Array.isArray(value) ? joined(value.map((item) => cellText(def.of, item, nameOf))) : written(value);
+    case 'effects':
+      // As a sheet row's card says them (M3.1): "give 2 × medkit, open dutch-yard".
+      return Array.isArray(value) ? joined(value.map(effectText)) : written(value);
     case 'map': {
       if (!isObject(value)) return written(value);
       const keyDef = def.key;

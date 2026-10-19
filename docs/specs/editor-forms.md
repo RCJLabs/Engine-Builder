@@ -37,10 +37,11 @@ M2.4's record forms: a record's fields, drawn from its type's file ([type-files.
 | enum | the platform's own picker, full size on a phone | a value the file holds that isn't one of the choices stays on the list, marked "(not one of the choices)". An optional or missing one adds "None" or "Choose…" |
 | ref, asset | a button showing what the field holds, which opens a picker | see below. A ref to a record that is there has Open beside it (M2.5) |
 | colour | the platform's colour picker, and the hex it holds | the picker shows black for no colour; the words beside it say so |
-| list | its items, each with Move up, Move down and Remove, then Add | buttons, not dragging, so a thumb and a keyboard work the same. Focus follows the moved item, or goes to the new one. Add stops at `max` |
+| list | its items, each with Move up, Move down and Remove, then Add | buttons, not dragging, so a thumb and a keyboard work the same. Focus follows the moved item, or goes to the new one, unless a tap, a key or a move of focus comes first (M3.7). Add stops at `max` |
 | map | its entries in file order, each key, value and Remove, then Add | keys of records or values are chosen from those not taken; other keys are typed, and a rename keeps the entry in place |
 | group | its fields in a fieldset | one the record leaves out is added whole, with its required fields |
 | condition | a box for its text, then the condition in words | see below |
+| effects | the trigger sheet's list of effects (M3.7): each in words, with Up, Down and Remove, then the kind to add and Add | the engine's and the kits' effects get forms; any other is edited as JSON ([editor-logic.md](editor-logic.md)) |
 
 **Number boxes are text boxes** with `inputmode`, not `type="number"`, following GOV.UK's reasons: a scroll wheel can change a number box by accident, and it hides half-typed input from the page. The keyboard a phone shows:
 - digits for an `int` with a min of 0 or more;

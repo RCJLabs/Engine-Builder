@@ -44,6 +44,7 @@ export const DIAGNOSTIC_CODES = {
   E038: "project.json's calendar doesn't hold together",
   E039: 'A condition names a band its faction does not have',
   E040: 'A condition names a rank, a bond band or a bond the roster does not have',
+  E041: 'A condition names a choice its event does not have',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -61,6 +62,9 @@ export const DIAGNOSTIC_CODES = {
   W115: 'A faction drifts in a game without the time module',
   W116: "project.json's calendar is read by no time module",
   W117: 'A recruit has a fee in a game without the economy kit',
+  W118: 'An event has no choice that is always open',
+  W119: 'A choice has a cost in a game without the economy kit',
+  W120: 'A consequence counts days in a game without the time module',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

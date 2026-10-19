@@ -1,0 +1,41 @@
+{
+  "name": "Pursuit",
+  "text": "Dust on the horizon behind you: the raiders have friends.",
+  "choices": [
+    {
+      "id": "outrun",
+      "label": "Outrun them",
+      "needs": "economy.amount(resource: fuel) >= 1",
+      "result": "The engine screams, and holds.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "fuel",
+          "by": -1
+        }
+      ]
+    },
+    {
+      "id": "stand",
+      "label": "Stand and fight",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "They break first.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "scrap",
+              "by": 10
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "You trade shots until both sides give up.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

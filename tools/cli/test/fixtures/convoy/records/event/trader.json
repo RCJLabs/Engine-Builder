@@ -1,0 +1,47 @@
+{
+  "name": "Trader",
+  "text": "A trader under a tarp, with jerry cans stacked to the roof.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "buy",
+      "label": "Buy fuel",
+      "cost": {
+        "scrap": 10
+      },
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "fuel",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "haggle",
+      "label": "Haggle",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "A deal: one can, for a smile.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "fuel",
+              "by": 1
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "No deal.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Drive on"
+    }
+  ]
+}

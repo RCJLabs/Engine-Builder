@@ -27,6 +27,7 @@ import {
 } from '@eb/kits';
 import { z } from 'zod';
 import { named } from './effect.ts';
+import { EVENT_EFFECT_FILES } from './eventEffects.ts';
 import { timeEffectFiles, timeEffectSchemas } from './timeEffects.ts';
 import type { Fields } from './typeFile.ts';
 import { fieldShape } from './typeSchema.ts';
@@ -240,6 +241,7 @@ const FILES: EffectFile[] = [
     label: 'Start a hall’s next round',
     fields: { hall: { kind: 'ref', to: HALL, label: 'Hall', description: 'New offers, none of them hired' } },
   },
+  ...EVENT_EFFECT_FILES,
 ];
 
 export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);

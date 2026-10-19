@@ -68,7 +68,7 @@ Every record of the open project, read and checked: each record's value, its pro
 | record | contains, is |
 | int, number | is, is not, is less than, is at most, is more than, is at least, is set, is not set |
 | bool, enum, ref | is, is not, is set, is not set; the value is chosen from a list |
-| list, map | has an item with, is empty, is not empty |
+| list, map, effects | has an item with, is empty, is not empty |
 | group | is set, is not set |
 | text, colour, asset, condition | contains, is, is not, is set, is not set |
 | Problems | some, none |

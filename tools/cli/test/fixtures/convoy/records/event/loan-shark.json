@@ -1,0 +1,36 @@
+{
+  "name": "The loan shark",
+  "text": "A smiling man with a ledger offers scrap now, for more later.",
+  "choices": [
+    {
+      "id": "borrow",
+      "label": "Borrow 40 scrap",
+      "result": "He writes your name in the ledger.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "scrap",
+          "by": 40
+        },
+        {
+          "effect": "later",
+          "id": "debt",
+          "after": {
+            "flag": "nodes",
+            "by": 3
+          },
+          "do": [
+            {
+              "effect": "open-event",
+              "event": "debt-due"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decline",
+      "label": "Decline"
+    }
+  ]
+}

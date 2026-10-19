@@ -5,10 +5,10 @@
  * picks its kind first.
  */
 import type { Effect } from '@eb/core';
-import { kitEffectFiles } from '@eb/schema';
+import { type FieldInfo, kitEffectFiles } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
-import { FieldNotes } from '../forms/FieldShell.tsx';
+import { describedBy, FieldNotes } from '../forms/FieldShell.tsx';
 import { FieldView } from '../forms/FieldView.tsx';
 import { pointerOf, useForm } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
@@ -23,7 +23,9 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 const listOf = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
-export function EffectsField({ label, path, value }: { label: string; path: Path; value: unknown }) {
+/** A list of effects at `path`: a row's Do, a roll outcome's, or a field of the `effects` kind (M3.7), with its help. */
+export function EffectsField(props: { label: string; path: Path; value: unknown; info?: FieldInfo }) {
+  const { label, path, value, info = {} } = props;
   const form = useForm();
   const effects = listOf(value);
   const id = useUniqueId();
@@ -34,9 +36,12 @@ export function EffectsField({ label, path, value }: { label: string; path: Path
     <fieldset
       class="form-group logic-effects"
       data-at={pointerOf(path)}
-      aria-describedby={problems.length > 0 ? `${id}-problems` : undefined}
+      aria-describedby={describedBy(id, info, problems)}
     >
-      <legend class="form-legend">{label}</legend>
+      <legend class="form-legend">
+        {label}
+        {info.optional ? <span class="form-optional"> (optional)</span> : null}
+      </legend>
       {effects.length === 0 ? <p class="muted">Nothing yet.</p> : null}
       {effects.length > 0 ? (
         <ol class="logic-effect-list">
@@ -60,7 +65,7 @@ export function EffectsField({ label, path, value }: { label: string; path: Path
         </ol>
       ) : null}
       <AddEffect to={label} add={(effect, said) => change(`Add ${said}`, (l) => [...l, effect])} />
-      <FieldNotes id={id} info={{}} shown={problems} />
+      <FieldNotes id={id} info={info} shown={problems} />
     </fieldset>
   );
 }

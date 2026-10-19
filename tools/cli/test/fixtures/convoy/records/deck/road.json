@@ -1,0 +1,33 @@
+{
+  "name": "The road",
+  "description": "What each node holds.",
+  "recent": 2,
+  "unseen": 2,
+  "events": [
+    {
+      "event": "raiders",
+      "weight": 3
+    },
+    {
+      "event": "trader",
+      "weight": 2
+    },
+    {
+      "event": "loan-shark",
+      "once": true,
+      "if": "flag.number(nodes) <= 4"
+    },
+    {
+      "event": "survivor",
+      "once": true,
+      "if": "flag.number(nodes) <= 5"
+    },
+    {
+      "event": "ruins",
+      "weight": 2
+    },
+    {
+      "event": "quiet"
+    }
+  ]
+}

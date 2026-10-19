@@ -74,6 +74,13 @@ describe('cellText', () => {
     expect(cellText({ kind: 'list', of: int }, { a: 1 }, noNames)).toBe('{"a":1}');
     expect(cellText({ kind: 'ref', to: ['school', 'weapon'] }, 'weapon:net', (key) => `<${key}>`)).toBe('<weapon:net>');
     expect(cellText({ kind: 'ref', to: 'school' }, 'nowhere', noNames)).toBe('nowhere');
+    // A list of effects reads as a sheet row's card does (M3.7).
+    const deeds = [
+      { effect: 'give-item', item: 'medkit', count: 2 },
+      { effect: 'open-shop', shop: 'dutch-yard' },
+    ];
+    expect(cellText({ kind: 'effects' }, deeds, noNames)).toBe('give 2 × medkit, open dutch-yard');
+    expect(cellText({ kind: 'effects' }, { effect: 'open-shop' }, noNames)).toBe('{"effect":"open-shop"}');
     const long = cellText({ kind: 'list', of: { kind: 'text' } }, Array(100).fill('shield wall'), noNames);
     expect(long.length).toBe(160);
     expect(long.endsWith('…')).toBe(true);
@@ -197,6 +204,20 @@ describe('viewRows', () => {
     expect(contains('magnus')).toEqual(['t1']);
     // The id, which the cell shows by name only.
     expect(contains('ludus-mag')).toEqual(['t1']);
+  });
+
+  it('filters a list of effects by its words or what it names (M3.7)', async () => {
+    const { rows, columns, column, text, ids } = await table('omen', {
+      'types/omen.json': { title: 'Omen', fields: { does: { kind: 'effects' } } },
+      'records/omen/thunder.json': { does: [{ effect: 'set-flag', flag: 'storm-coming', to: true }] },
+      'records/omen/calm.json': { does: [] },
+    });
+    expect(testsFor(column('field:does')).map((t) => t.test)).toEqual(['contains', 'empty', 'not-empty']);
+    expect(text('thunder', 'field:does')).toBe('set storm-coming to on');
+    const shown = (filter: Filter) => ids(viewRows(rows, columns, { ...DEFAULT_VIEW, filters: [filter] }));
+    expect(shown({ column: 'field:does', test: 'contains', value: 'storm' })).toEqual(['thunder']);
+    expect(shown({ column: 'field:does', test: 'contains', value: 'set-flag' })).toEqual(['thunder']);
+    expect(shown({ column: 'field:does', test: 'empty', value: '' })).toEqual(['calm']);
   });
 
   it('lets an incomplete filter through, saying why', async () => {

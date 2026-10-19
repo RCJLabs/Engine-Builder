@@ -42,7 +42,7 @@ M2.6's type designer: a project's record types ([type-files.md](type-files.md)) 
 | map | its keys (names, choices or records) and each value |
 | group | its own fields, a list like the type's |
 | asset | the kind of file, or any |
-| bool, colour, condition | nothing more |
+| bool, colour, condition, effects | nothing more |
 
 - **The title, labels, help and bounds are boxes from the record form** (M2.4), over the type file instead of a record: typing joins into one step per box, the editor's undo keys undo it, and problems show once a box is left.
 - **The records,** below the fields: how many, how many have problems, and buttons to show them in the Records panel, all of them or only those with problems.

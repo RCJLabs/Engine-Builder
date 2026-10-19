@@ -1,6 +1,8 @@
 import { FLAG } from '@eb/core';
 import {
   ACTOR,
+  EVENT,
+  EVENTS,
   FACTION,
   FACTIONS,
   GEAR,
@@ -74,6 +76,13 @@ export const rosterRelated = (record: IndexedRecord | undefined): boolean =>
 export const recruitRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === ACTOR || record.type === RECRUIT);
 
+/**
+ * An event, or a record that names one (M3.7): a condition naming a choice is checked against its
+ * event's choices (E041), so a change to an event checks everything naming it again.
+ */
+export const eventRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === EVENT || record.refs.some((ref) => ref.to.startsWith(`${EVENT}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -82,4 +91,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(GEAR) ? [wornRelated] : []),
   ...(kits.includes(FACTIONS) ? [factionRelated] : []),
   ...(kits.includes(ROSTER) ? [rosterRelated, recruitRelated] : []),
+  ...(kits.includes(EVENTS) ? [eventRelated] : []),
 ];

@@ -1,0 +1,43 @@
+{
+  "name": "Ruins",
+  "text": "A town with its roofs gone.",
+  "choices": [
+    {
+      "id": "search",
+      "label": "Search it",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "Copper wire, and plenty of it.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "scrap",
+              "by": 25
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "A can of fuel in a cellar.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "fuel",
+              "by": 1
+            }
+          ]
+        },
+        {
+          "chance": 20,
+          "result": "Nothing but dust.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "move-on",
+      "label": "Move on"
+    }
+  ]
+}
