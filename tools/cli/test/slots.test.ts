@@ -78,7 +78,8 @@ describe('the school, played', () => {
     const quests = sim.content.entries(QUEST) as [string, QuestRecord][];
     const ends = new Set<string>();
     const booked = new Set<string>();
-    const bouts: Record<string, number> = { won: 0, beaten: 0, killed: 0 };
+    const bouts = { won: 0, beaten: 0, killed: 0 };
+    type Bout = keyof typeof bouts;
     let checked = 0;
     for (let seed = 0; seed < 30; seed++) {
       const rng = Rng.create(`school-gate:${seed}`);
@@ -90,9 +91,8 @@ describe('the school, played', () => {
         expect(step.accepted, `seed ${seed}, turn ${turn}`).toBe(true);
         state = step.state;
         for (const beat of step.beats) {
-          if (beat.type === 'quests/staged' && beat.quest === 'booking' && beat.stage in bouts) {
-            bouts[beat.stage as string] = (bouts[beat.stage as string] ?? 0) + 1;
-          }
+          const stage = beat.stage as string;
+          if (beat.type === 'quests/staged' && beat.quest === 'booking' && stage in bouts) bouts[stage as Bout] += 1;
           if (beat.type === 'quests/gone') ends.add(`${beat.quest} gone`);
         }
         const slice = state.quests as QuestsSlice;
@@ -139,7 +139,7 @@ describe('the school, played', () => {
       ['killed', 0.1],
     ] as const) {
       const sd = Math.sqrt(total * chance * (1 - chance));
-      expect(Math.abs((bouts[stage] as number) - total * chance), stage).toBeLessThan(3 * sd);
+      expect(Math.abs(bouts[stage] - total * chance), stage).toBeLessThan(3 * sd);
     }
     expect(checked).toBeGreaterThan(30 * 2 * 40);
   });
