@@ -1,0 +1,17 @@
+{
+  "name": "The hut’s store",
+  "currency": "coins",
+  "stock": {
+    "items": [
+      {
+        "item": "rope",
+        "count": 2
+      },
+      {
+        "item": "bread",
+        "count": 5
+      }
+    ]
+  },
+  "faction": "village"
+}

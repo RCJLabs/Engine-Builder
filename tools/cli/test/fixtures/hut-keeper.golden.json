@@ -1,0 +1,1909 @@
+{
+  "format": 1,
+  "game": "hut",
+  "content": "72ce172a652c3e5f",
+  "policy": "random",
+  "maxTurns": 1000,
+  "runs": {
+    "seed-0": {
+      "hash": "242523ba4f5a3fe8",
+      "facets": {
+        "dialogue": "4646c8f922c607b1",
+        "economy": "d85f28e4bd5b11d3",
+        "events": "cf71ca3e4d317351",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "9666ea66ebd40744",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-1": {
+      "hash": "523b14e223c17621",
+      "facets": {
+        "dialogue": "3d55eef188e7d682",
+        "economy": "ea17f3942f1b8bcd",
+        "events": "02a3319a5c0bc9a4",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "e8a666bb0bd59236",
+        "kernel": "f78c17f015256273",
+        "logic": "08f44b07b5901a25",
+        "quests": "90b74716fec02361",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 29,
+      "end": "ended"
+    },
+    "seed-2": {
+      "hash": "2f5102a4d330ef6a",
+      "facets": {
+        "dialogue": "04bee22b6a24dee2",
+        "economy": "4d6d09fd840e66cd",
+        "events": "91ac293653872d9b",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "ecd2326ef5e850d4",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-3": {
+      "hash": "2c6ac9bed4c34d97",
+      "facets": {
+        "dialogue": "fbbbe50f925e58c4",
+        "economy": "d31f50e16aa38937",
+        "events": "00043e4b8ff037e8",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "77f617daeb0fa2e5",
+        "kernel": "00e8b735bceb70a9",
+        "logic": "08f44b07b5901a25",
+        "quests": "00ccc7c14ac858c2",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 42,
+      "end": "ended"
+    },
+    "seed-4": {
+      "hash": "1cd3a663215a0346",
+      "facets": {
+        "dialogue": "0f49531bf7c9d40c",
+        "economy": "d85f28e4bd5b11d3",
+        "events": "9205890a10e3fd7e",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "536d58e688ac7e1e",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 39,
+      "end": "ended"
+    },
+    "seed-5": {
+      "hash": "0b2e0c117ae64a4b",
+      "facets": {
+        "dialogue": "a5a2ecc54d0ab639",
+        "economy": "be568bed2487ec05",
+        "events": "42b1fe776433bc94",
+        "factions": "d1f3de254438354b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4359cd0117a6a719",
+        "kernel": "e00a5db8b4fffcc7",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 48,
+      "end": "ended"
+    },
+    "seed-6": {
+      "hash": "0668731d1a62a3ee",
+      "facets": {
+        "dialogue": "48c1fdbb0d325699",
+        "economy": "d31f50e16aa38937",
+        "events": "325b705ece534edf",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "77f617daeb0fa2e5",
+        "kernel": "52beaec758e97ed1",
+        "logic": "08f44b07b5901a25",
+        "quests": "9aea8d117c2213ad",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-7": {
+      "hash": "38da93b28c98d98f",
+      "facets": {
+        "dialogue": "5de74904a364b944",
+        "economy": "4ed7341a9f701f18",
+        "events": "84de06e4e2471c5d",
+        "factions": "b93afb729fec858e",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "a1a7e2d99d1fdc93",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 40,
+      "end": "ended"
+    },
+    "seed-8": {
+      "hash": "4d732b309a659284",
+      "facets": {
+        "dialogue": "3cff4628578830f3",
+        "economy": "4dfaed9d40e52f38",
+        "events": "03b4175aaf27f6a6",
+        "factions": "f2d12b70d146f36d",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "3d9ba7b1311d04b8",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 73,
+      "end": "ended"
+    },
+    "seed-9": {
+      "hash": "7fae9c21f70d43bb",
+      "facets": {
+        "dialogue": "3e58d9c4f8764eb8",
+        "economy": "4ed7341a9f701f18",
+        "events": "f42d8c1eef98d4cf",
+        "factions": "982b6fd7d019359f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "6d15bec7fc02d667",
+        "logic": "08f44b07b5901a25",
+        "quests": "6d812252380efbeb",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-10": {
+      "hash": "bc6b0d8403fc3622",
+      "facets": {
+        "dialogue": "afdc256bca777e4a",
+        "economy": "4dfaed9d40e52f38",
+        "events": "e433ded7786a8d2a",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "2e8f2fa0922b9d67",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-11": {
+      "hash": "99a9ec050e19e647",
+      "facets": {
+        "dialogue": "d9c671cab58ad762",
+        "economy": "07e257625092c380",
+        "events": "83b5193e1dea97e9",
+        "factions": "833880a138853ea8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "c95448acea9754e8",
+        "kernel": "efd40a9246142840",
+        "logic": "08f44b07b5901a25",
+        "quests": "0084b242fe19bd17",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 21,
+      "end": "ended"
+    },
+    "seed-12": {
+      "hash": "2f1014d0a743d744",
+      "facets": {
+        "dialogue": "ec7c1fb6c6c697c5",
+        "economy": "d85f28e4bd5b11d3",
+        "events": "d68d53dbac40416d",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "5897609a0b3fce6e",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-13": {
+      "hash": "b4012d4ba5de7760",
+      "facets": {
+        "dialogue": "8f0bde8317409ebd",
+        "economy": "35b6b3cbdc042a53",
+        "events": "ab5d0ab9a2eb5c84",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "1cf981ba4f1583d8",
+        "kernel": "e972454dffc84705",
+        "logic": "08f44b07b5901a25",
+        "quests": "b0bfcb3153a4dff6",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 41,
+      "end": "ended"
+    },
+    "seed-14": {
+      "hash": "c426b03db31ac220",
+      "facets": {
+        "dialogue": "2a3b4a27c882151c",
+        "economy": "4dfaed9d40e52f38",
+        "events": "2b649516d5ff2c70",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "7d33930844b5a834",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-15": {
+      "hash": "729170e65df3339b",
+      "facets": {
+        "dialogue": "82200ad17ec66f52",
+        "economy": "4dfaed9d40e52f38",
+        "events": "fb2bf76bcf8a1ac9",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "6798fef1d4ae8c1f",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-16": {
+      "hash": "7598784cd2b4cb20",
+      "facets": {
+        "dialogue": "42cd1dd68cd5f6d7",
+        "economy": "4dfaed9d40e52f38",
+        "events": "701b9a8134de7a39",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "136389215607e06c",
+        "logic": "08f44b07b5901a25",
+        "quests": "46ddd08fed29ef38",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 84,
+      "end": "ended"
+    },
+    "seed-17": {
+      "hash": "cfb2f168b2e6ca80",
+      "facets": {
+        "dialogue": "f41402a656b15073",
+        "economy": "4d6d09fd840e66cd",
+        "events": "59a96dfcf20770f8",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "ef46cf3274a4dd90",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-18": {
+      "hash": "5ea041c5cb806ec2",
+      "facets": {
+        "dialogue": "2f84bbc1c61af51e",
+        "economy": "4dfaed9d40e52f38",
+        "events": "b0d291695aad66d7",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "b8be8c4fecbc5ff8",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-19": {
+      "hash": "1296cf0058d31337",
+      "facets": {
+        "dialogue": "ad1c6a277c1de56f",
+        "economy": "4dfaed9d40e52f38",
+        "events": "5f2b02862df352a1",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "584f3697f0f6724d",
+        "logic": "08f44b07b5901a25",
+        "quests": "46ddd08fed29ef38",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-20": {
+      "hash": "4120e415fe4a3007",
+      "facets": {
+        "dialogue": "6a04eb28967305d1",
+        "economy": "27accd82bc14de5e",
+        "events": "7ca42c26f01b3f2d",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "de41d155a0a42a06",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 71,
+      "end": "ended"
+    },
+    "seed-21": {
+      "hash": "0c9eaada87e50171",
+      "facets": {
+        "dialogue": "6847adf90d3bc8d0",
+        "economy": "4c608414de7a99f1",
+        "events": "aea0f1bd0f9b5f70",
+        "factions": "d1f3de254438354b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "33bc054c172f03fb",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-22": {
+      "hash": "09dbe67083ebec5c",
+      "facets": {
+        "dialogue": "57c791832904d613",
+        "economy": "4dfaed9d40e52f38",
+        "events": "09db9e396496ed90",
+        "factions": "f2d12b70d146f36d",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "d10d4c58a8d58c13",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 50,
+      "end": "ended"
+    },
+    "seed-23": {
+      "hash": "1355d4cb9ae60837",
+      "facets": {
+        "dialogue": "72333ac5f078cd9a",
+        "economy": "69726b44452d7c08",
+        "events": "9bf844fe62e6f53c",
+        "factions": "899b21d7c8a16a71",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "bc72cbc9e555ba61",
+        "logic": "08f44b07b5901a25",
+        "quests": "ba252bd2ea071f1f",
+        "sheet": "da9d0cae103b40df",
+        "time": "8f77763575e1f38a"
+      },
+      "turns": 39,
+      "end": "ended"
+    },
+    "seed-24": {
+      "hash": "8bb9e3af464f1647",
+      "facets": {
+        "dialogue": "12e550dda1e5ec3e",
+        "economy": "4d6d09fd840e66cd",
+        "events": "e1916472e8396ad6",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "3e03f153d598cb6e",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "seed-25": {
+      "hash": "d20a0529eda0ce95",
+      "facets": {
+        "dialogue": "0957d34c505e2bfd",
+        "economy": "9dcc839864c53aa1",
+        "events": "0767c362a90ed36f",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "82ab3cdaf1b4ccc4",
+        "kernel": "f3a8b7787be2fc52",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 46,
+      "end": "ended"
+    },
+    "seed-26": {
+      "hash": "6e3b32c003738a1c",
+      "facets": {
+        "dialogue": "aef9f4b0fbe89a77",
+        "economy": "ddf6a703f08b6112",
+        "events": "d15576dbe5189a0b",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f9dd6e887293c92f",
+        "logic": "08f44b07b5901a25",
+        "quests": "971cbb008253e540",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 36,
+      "end": "ended"
+    },
+    "seed-27": {
+      "hash": "552c650fa8d96644",
+      "facets": {
+        "dialogue": "34db0d1bb42308dc",
+        "economy": "5cc63fe4fc9dae57",
+        "events": "f49ceabe3a4f3669",
+        "factions": "27cd2b75d848113f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "748b802822546d18",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-28": {
+      "hash": "02d0aed3715ddf32",
+      "facets": {
+        "dialogue": "6c6d8c2b6872e98b",
+        "economy": "5927d4f47cf39718",
+        "events": "d8ae0579c831d392",
+        "factions": "899b21d7c8a16a71",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "01f8ddbb19fd186b",
+        "kernel": "acf3bd247ac1931e",
+        "logic": "08f44b07b5901a25",
+        "quests": "0905951fa2b518f0",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 31,
+      "end": "ended"
+    },
+    "seed-29": {
+      "hash": "2e38e7904c3b72e6",
+      "facets": {
+        "dialogue": "e35e9f2750183239",
+        "economy": "4dfaed9d40e52f38",
+        "events": "c932cadaacdcba5b",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "4489d8be773a94f9",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 48,
+      "end": "ended"
+    },
+    "seed-30": {
+      "hash": "7d03a195c3e53da7",
+      "facets": {
+        "dialogue": "455c90d9f637f29a",
+        "economy": "4dfaed9d40e52f38",
+        "events": "c2d6882b0b06226d",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "ba6ad4076d88a6ea",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-31": {
+      "hash": "0ed2453eb6741873",
+      "facets": {
+        "dialogue": "aace9636a7225577",
+        "economy": "83d25622d7becd15",
+        "events": "260aae066c948fa4",
+        "factions": "8ddfa9a13f1e31f7",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "c95448acea9754e8",
+        "kernel": "292e70975a7835b2",
+        "logic": "08f44b07b5901a25",
+        "quests": "95c4a6bf24382c1e",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 34,
+      "end": "ended"
+    },
+    "seed-32": {
+      "hash": "c5c2a1c236a6e43e",
+      "facets": {
+        "dialogue": "21933f22ba67211e",
+        "economy": "4d6d09fd840e66cd",
+        "events": "c8fa621a20497fc8",
+        "factions": "25681d70ed89c947",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "7f9f6eb4cf76fc70",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-33": {
+      "hash": "ed4dc02f324db4f5",
+      "facets": {
+        "dialogue": "dbfa708b2710d13a",
+        "economy": "4d6d09fd840e66cd",
+        "events": "fc7ef40aaf417433",
+        "factions": "f1cf3975b9205f65",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "af3a93970529d876",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-34": {
+      "hash": "fb806a1c79a5c77d",
+      "facets": {
+        "dialogue": "ce7418ead9210647",
+        "economy": "ba0636d2e08a3e56",
+        "events": "0d98f203ce67cd72",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "26501e9287475397",
+        "logic": "08f44b07b5901a25",
+        "quests": "550b9ff65731848b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 71,
+      "end": "ended"
+    },
+    "seed-35": {
+      "hash": "687686ec15868d6a",
+      "facets": {
+        "dialogue": "ce8f12693fce1a7c",
+        "economy": "860927d2eea95fe5",
+        "events": "fe140ebfcdb0e396",
+        "factions": "f6951672c2e0c96f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "49f873165de5d4cd",
+        "logic": "08f44b07b5901a25",
+        "quests": "1d6769e9c05294fe",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-36": {
+      "hash": "fb8d853cbaf0ee63",
+      "facets": {
+        "dialogue": "b21f3607a0433c03",
+        "economy": "e473851364170767",
+        "events": "2d804e475c1b84ba",
+        "factions": "e80e0270ca958566",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b0928c386d51d045",
+        "kernel": "8308c8d07c6079b1",
+        "logic": "08f44b07b5901a25",
+        "quests": "3aae26c249c5f167",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 41,
+      "end": "ended"
+    },
+    "seed-37": {
+      "hash": "642633acc470d1e3",
+      "facets": {
+        "dialogue": "d27459b857e33fc8",
+        "economy": "5cc63fe4fc9dae57",
+        "events": "23e8cfb8ccb3379a",
+        "factions": "27cd2b75d848113f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "830749462ad3ff98",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 82,
+      "end": "ended"
+    },
+    "seed-38": {
+      "hash": "6cae4e9c03695f39",
+      "facets": {
+        "dialogue": "3ac665e9129fd58e",
+        "economy": "ea17f3942f1b8bcd",
+        "events": "bb01f62ebe610e6a",
+        "factions": "f1cf3975b9205f65",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "e8a666bb0bd59236",
+        "kernel": "993003ec59a38527",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 34,
+      "end": "ended"
+    },
+    "seed-39": {
+      "hash": "5e6ed74f69ab3cc4",
+      "facets": {
+        "dialogue": "ed9f8046b30fdfec",
+        "economy": "4c608414de7a99f1",
+        "events": "b77c7cf7dccd1f17",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "2737801b9d40aeec",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-40": {
+      "hash": "602a8c5611cc89e3",
+      "facets": {
+        "dialogue": "6231622c7e225bef",
+        "economy": "4dfaed9d40e52f38",
+        "events": "b17aa43728b7d763",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "ba03a80229a60a3b",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 81,
+      "end": "ended"
+    },
+    "seed-41": {
+      "hash": "af5117c6d0749920",
+      "facets": {
+        "dialogue": "3adf11f36bfac251",
+        "economy": "4dfaed9d40e52f38",
+        "events": "ea29a81b42afd5fa",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "e58af127ecdc77ef",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-42": {
+      "hash": "fb5ab8115afd41cf",
+      "facets": {
+        "dialogue": "4ac5f747d786823a",
+        "economy": "d4386703fe99620d",
+        "events": "ee69562e3fe3b24f",
+        "factions": "c3fd2472a69c4095",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "82ab3cdaf1b4ccc4",
+        "kernel": "b3ed89e0705600d1",
+        "logic": "08f44b07b5901a25",
+        "quests": "550b9ff65731848b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-43": {
+      "hash": "3ab4e2c22a15c962",
+      "facets": {
+        "dialogue": "bf24be2ff2e0d569",
+        "economy": "ba0636d2e08a3e56",
+        "events": "fe8dd4ab1a715f36",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "d5dbb80119d74010",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e1415dcc890d184",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 51,
+      "end": "ended"
+    },
+    "seed-44": {
+      "hash": "706bd6a91fd704b1",
+      "facets": {
+        "dialogue": "5038c53ecb3094ab",
+        "economy": "4d6d09fd840e66cd",
+        "events": "dab7b307010f1164",
+        "factions": "f1cf3975b9205f65",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "afa4ae687f0c89ec",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 75,
+      "end": "ended"
+    },
+    "seed-45": {
+      "hash": "d6becc5835e4d055",
+      "facets": {
+        "dialogue": "606c4b92f56cbd1a",
+        "economy": "960c3d94a1d9b25c",
+        "events": "1a96d9a53ede4f27",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "be9f23ace3f22b09",
+        "kernel": "4feca872d339ac2f",
+        "logic": "08f44b07b5901a25",
+        "quests": "9bb0dc5de9fdd5d3",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 36,
+      "end": "ended"
+    },
+    "seed-46": {
+      "hash": "6568e4031a4b67b8",
+      "facets": {
+        "dialogue": "2f82744f543784ab",
+        "economy": "4dfaed9d40e52f38",
+        "events": "e553328b5b07fe2a",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "d9623c5c42a7931b",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "seed-47": {
+      "hash": "088c00435fc1ae0e",
+      "facets": {
+        "dialogue": "a256d5d28110a94c",
+        "economy": "4d6d09fd840e66cd",
+        "events": "0c78baab8a505d89",
+        "factions": "25681d70ed89c947",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "41f99afb8697d8a3",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-48": {
+      "hash": "093ae014f01d5218",
+      "facets": {
+        "dialogue": "c26591b685b77607",
+        "economy": "ba0636d2e08a3e56",
+        "events": "7d54724e6e2473cb",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "6fb4063425e000b4",
+        "logic": "08f44b07b5901a25",
+        "quests": "550b9ff65731848b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 81,
+      "end": "ended"
+    },
+    "seed-49": {
+      "hash": "ee69bdde30b1ab8e",
+      "facets": {
+        "dialogue": "c52cf3bdd9789526",
+        "economy": "d4386703fe99620d",
+        "events": "02bfee254378b2f6",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "82ab3cdaf1b4ccc4",
+        "kernel": "d81f80cea38ad2a2",
+        "logic": "08f44b07b5901a25",
+        "quests": "5de2caa16c2cccbe",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-50": {
+      "hash": "bcf629c8fb839aa6",
+      "facets": {
+        "dialogue": "bdd9c0ff150b7bdf",
+        "economy": "3595681a273becc4",
+        "events": "f1593424a01650b3",
+        "factions": "899b21d7c8a16a71",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b7e1b1387113d124",
+        "kernel": "5552e0bf6c634d11",
+        "logic": "08f44b07b5901a25",
+        "quests": "f88f7c56bea31e3c",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 40,
+      "end": "ended"
+    },
+    "seed-51": {
+      "hash": "bf2ea20b6cb55c1a",
+      "facets": {
+        "dialogue": "35a8f9c00f618b23",
+        "economy": "4dfaed9d40e52f38",
+        "events": "3f89f882830581da",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "84d75a09381e8c5f",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 81,
+      "end": "ended"
+    },
+    "seed-52": {
+      "hash": "f8392695487f74d1",
+      "facets": {
+        "dialogue": "db92d53cb7e8d99a",
+        "economy": "5cc63fe4fc9dae57",
+        "events": "4511853fa8255a19",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "bc369cbc547cd449",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-53": {
+      "hash": "c98d0e91678135b9",
+      "facets": {
+        "dialogue": "9df672f092109c60",
+        "economy": "4dfaed9d40e52f38",
+        "events": "58a968111bb2225f",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "8a9956ae88d61002",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-54": {
+      "hash": "a9749e0df1afe478",
+      "facets": {
+        "dialogue": "324a7abecfa948c3",
+        "economy": "e72ee1dbd870ff5c",
+        "events": "d1cb603dc512b923",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4359cd0117a6a719",
+        "kernel": "f27e3e4d55629522",
+        "logic": "08f44b07b5901a25",
+        "quests": "550b9ff65731848b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 50,
+      "end": "ended"
+    },
+    "seed-55": {
+      "hash": "1756420f3e36a623",
+      "facets": {
+        "dialogue": "a3eea32464672bc2",
+        "economy": "f39bb39185399640",
+        "events": "4901fa17133b0580",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4359cd0117a6a719",
+        "kernel": "c296190ddb8e551a",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-56": {
+      "hash": "d0761f2f8fbe65f8",
+      "facets": {
+        "dialogue": "a4d91bcba38c83d8",
+        "economy": "90f908c36b60cd2d",
+        "events": "c6e2dff7254e847f",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "77f617daeb0fa2e5",
+        "kernel": "6207f9d7cf557869",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 42,
+      "end": "ended"
+    },
+    "seed-57": {
+      "hash": "fd468199b82e519c",
+      "facets": {
+        "dialogue": "845345388c261e77",
+        "economy": "4d6d09fd840e66cd",
+        "events": "b6037a4f877150ff",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "0340e31750bd5859",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-58": {
+      "hash": "fe77617e9fc6d77e",
+      "facets": {
+        "dialogue": "c86ba7ca8f7e3b53",
+        "economy": "4c608414de7a99f1",
+        "events": "b196905d4b8cb71e",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "0d740890ade11008",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-59": {
+      "hash": "1cd8eb9b600388f9",
+      "facets": {
+        "dialogue": "87c74114c7554386",
+        "economy": "5cc63fe4fc9dae57",
+        "events": "d38d30b8c1ebc88e",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "11e3fd8841ca1393",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-60": {
+      "hash": "11b13b0f2bafcf29",
+      "facets": {
+        "dialogue": "ee2f8975ebddc9b0",
+        "economy": "8cd5dab5eb2c2ab4",
+        "events": "0eb383416b35f6f9",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "01f8ddbb19fd186b",
+        "kernel": "0a161432b52da7af",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-61": {
+      "hash": "7ec2cbd1154dbfb5",
+      "facets": {
+        "dialogue": "51401c5fdb51b36b",
+        "economy": "ba0636d2e08a3e56",
+        "events": "c82c6bfdadc8200d",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "6941b878d4073287",
+        "logic": "08f44b07b5901a25",
+        "quests": "0905951fa2b518f0",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-62": {
+      "hash": "dde64550b4532e30",
+      "facets": {
+        "dialogue": "ce7b9349a0a10f7b",
+        "economy": "4c608414de7a99f1",
+        "events": "26a61a94a57c8f60",
+        "factions": "d1f3de254438354b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "954256dcac06332b",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-63": {
+      "hash": "76a66e89fcd28c89",
+      "facets": {
+        "dialogue": "576cdbed4a8c52d6",
+        "economy": "d5f8b45764ee447f",
+        "events": "dcb1d1f075130e78",
+        "factions": "d9430b2547fa43c2",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "ad998038e5c393d7",
+        "kernel": "0200acea26e3885c",
+        "logic": "08f44b07b5901a25",
+        "quests": "1d6769e9c05294fe",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 36,
+      "end": "ended"
+    },
+    "seed-64": {
+      "hash": "15c90411b4580cbe",
+      "facets": {
+        "dialogue": "71cb32e94f8eeebf",
+        "economy": "a4475aa8faa96fb1",
+        "events": "17d5a413814b05d2",
+        "factions": "1d260275d1af1df0",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "01f8ddbb19fd186b",
+        "kernel": "75283149b2186541",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-65": {
+      "hash": "89e83398a7f30337",
+      "facets": {
+        "dialogue": "5e168bd1f1ded78e",
+        "economy": "c471e3dc8a33aef9",
+        "events": "a50408aca725ccf5",
+        "factions": "4bfabbecc1ded81d",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b742faace0259902",
+        "kernel": "73329a6b4cd43782",
+        "logic": "08f44b07b5901a25",
+        "quests": "dc52d821716cc562",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 41,
+      "end": "ended"
+    },
+    "seed-66": {
+      "hash": "b5256f405d3d2293",
+      "facets": {
+        "dialogue": "572feafb74b022b2",
+        "economy": "4d6d09fd840e66cd",
+        "events": "4e577d4f8d2fdd8d",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "9e306be77c61f601",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-67": {
+      "hash": "f5f03940349fecc6",
+      "facets": {
+        "dialogue": "d885b76089924819",
+        "economy": "fcf385b41d5b55de",
+        "events": "192976607fc20d33",
+        "factions": "8ddfa9a13f1e31f7",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b7e1b1387113d124",
+        "kernel": "20656144b434d09e",
+        "logic": "08f44b07b5901a25",
+        "quests": "a1a20face44e1a5b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 28,
+      "end": "ended"
+    },
+    "seed-68": {
+      "hash": "3f65e1532b71c6f0",
+      "facets": {
+        "dialogue": "efd4c21acb0e4fcb",
+        "economy": "ba0636d2e08a3e56",
+        "events": "5f6dfb03ae64cd34",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "8965b603330fa1fd",
+        "logic": "08f44b07b5901a25",
+        "quests": "36751036c0fdcf31",
+        "sheet": "da9d0cae103b40df",
+        "time": "81a3747d979e09a0"
+      },
+      "turns": 76,
+      "end": "ended"
+    },
+    "seed-69": {
+      "hash": "89d88318cf4b7cbe",
+      "facets": {
+        "dialogue": "efccec77b6c77b64",
+        "economy": "c54a799204035757",
+        "events": "0126844804ed229a",
+        "factions": "d1f3de254438354b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b7e1b1387113d124",
+        "kernel": "0b8eaa73a1939d1d",
+        "logic": "08f44b07b5901a25",
+        "quests": "1d6769e9c05294fe",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 37,
+      "end": "ended"
+    },
+    "seed-70": {
+      "hash": "f92a5cbeccd8966f",
+      "facets": {
+        "dialogue": "220e86513a552ae7",
+        "economy": "4dfaed9d40e52f38",
+        "events": "bbcbf0d392af247c",
+        "factions": "27cd2b75d848113f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "303e875d14f22bc8",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-71": {
+      "hash": "fab25bb577cf2d8a",
+      "facets": {
+        "dialogue": "5768fbfa9aaa7c0e",
+        "economy": "ba0636d2e08a3e56",
+        "events": "d76c8f47d61632a7",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "79d56c8860dd5b6f",
+        "logic": "08f44b07b5901a25",
+        "quests": "d353be2168ccc73e",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-72": {
+      "hash": "5d8fccf7a814f991",
+      "facets": {
+        "dialogue": "a4837652af762923",
+        "economy": "fcf385b41d5b55de",
+        "events": "6f88436a773bb66c",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b7e1b1387113d124",
+        "kernel": "d411fd83458f27dc",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 33,
+      "end": "ended"
+    },
+    "seed-73": {
+      "hash": "d794161adc6f2e0f",
+      "facets": {
+        "dialogue": "b58e8014f42662db",
+        "economy": "4d6d09fd840e66cd",
+        "events": "02169cb00304564d",
+        "factions": "e80e0270ca958566",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "6b1284a1aec07038",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 45,
+      "end": "ended"
+    },
+    "seed-74": {
+      "hash": "605a8e8ec062921b",
+      "facets": {
+        "dialogue": "81229f27e0c1ef36",
+        "economy": "f859bbfb312f7d51",
+        "events": "1053c91db54219c5",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "77f617daeb0fa2e5",
+        "kernel": "1b1ae80778a44b34",
+        "logic": "08f44b07b5901a25",
+        "quests": "29de852bd528f580",
+        "sheet": "da9d0cae103b40df",
+        "time": "81a3747d979e09a0"
+      },
+      "turns": 40,
+      "end": "ended"
+    },
+    "seed-75": {
+      "hash": "2093c45249c5c45b",
+      "facets": {
+        "dialogue": "802abae38f14d892",
+        "economy": "2fc62b6d61b32d92",
+        "events": "f615d366dfed40db",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b0928c386d51d045",
+        "kernel": "4861872b597cedb5",
+        "logic": "08f44b07b5901a25",
+        "quests": "d4725a672c2e31a1",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-76": {
+      "hash": "4b5934994b7b0b98",
+      "facets": {
+        "dialogue": "60b0c96d88fd6e0e",
+        "economy": "a4475aa8faa96fb1",
+        "events": "fcc67860d85158a1",
+        "factions": "4bfabbecc1ded81d",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "01f8ddbb19fd186b",
+        "kernel": "f90c988367851a1e",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-77": {
+      "hash": "52afc44ca8dfa3ab",
+      "facets": {
+        "dialogue": "c7c8e68f7c95ed23",
+        "economy": "4dfaed9d40e52f38",
+        "events": "e8ce2c9ac69494e3",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "86674034254b0109",
+        "logic": "08f44b07b5901a25",
+        "quests": "46ddd08fed29ef38",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-78": {
+      "hash": "016c2bad0b00012e",
+      "facets": {
+        "dialogue": "968d64335b1b9304",
+        "economy": "4dfaed9d40e52f38",
+        "events": "a57cffcd537d181c",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "9fca57e133022789",
+        "logic": "08f44b07b5901a25",
+        "quests": "46903fd516df47a5",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 81,
+      "end": "ended"
+    },
+    "seed-79": {
+      "hash": "00e702946419b50d",
+      "facets": {
+        "dialogue": "ed7c92fb719cc228",
+        "economy": "e4744f7e429ae326",
+        "events": "f7f23896377de046",
+        "factions": "25681d70ed89c947",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "4c9b268e7947d84c",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-80": {
+      "hash": "3975879ee2b0e9c0",
+      "facets": {
+        "dialogue": "20fef9eccde00c8d",
+        "economy": "ba0636d2e08a3e56",
+        "events": "c22d50efb1462390",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "c8612ab3f72400a2",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e1415dcc890d184",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 89,
+      "end": "ended"
+    },
+    "seed-81": {
+      "hash": "c8ba579d7a9274e5",
+      "facets": {
+        "dialogue": "a658b3395d852fab",
+        "economy": "ba0636d2e08a3e56",
+        "events": "f42f2e6b69663c7f",
+        "factions": "27cd2b75d848113f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "86ea3a435268b1cf",
+        "logic": "08f44b07b5901a25",
+        "quests": "550b9ff65731848b",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-82": {
+      "hash": "b1f64675858d6aec",
+      "facets": {
+        "dialogue": "80b32f923033bfb2",
+        "economy": "4c608414de7a99f1",
+        "events": "d2507d890db0ed8c",
+        "factions": "f6951672c2e0c96f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "5658564f1738c66a",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-83": {
+      "hash": "44aa27e11f155be1",
+      "facets": {
+        "dialogue": "559c769eef1e8f14",
+        "economy": "4ce7d78f032a9739",
+        "events": "5087511256a42df0",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "aba0ce4907ee0441",
+        "logic": "08f44b07b5901a25",
+        "quests": "9aea8d117c2213ad",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-84": {
+      "hash": "e6d5eed3858251a1",
+      "facets": {
+        "dialogue": "9d01a3ab4f84e5fa",
+        "economy": "4c608414de7a99f1",
+        "events": "dd4f856496fdc16b",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "9ea140f3017843ab",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 72,
+      "end": "ended"
+    },
+    "seed-85": {
+      "hash": "931f1b234c0792ba",
+      "facets": {
+        "dialogue": "fe1232244df915f8",
+        "economy": "960c3d94a1d9b25c",
+        "events": "370ef22536cd2f53",
+        "factions": "5df009eccc38194b",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "be9f23ace3f22b09",
+        "kernel": "b26ffd3c3f1ff1a3",
+        "logic": "08f44b07b5901a25",
+        "quests": "971cbb008253e540",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 41,
+      "end": "ended"
+    },
+    "seed-86": {
+      "hash": "c0e6328be128df1e",
+      "facets": {
+        "dialogue": "c5e9b4f25db14a95",
+        "economy": "ba0636d2e08a3e56",
+        "events": "0e703e91efbd7b4c",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "06e27fb0ddde40ec",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e1415dcc890d184",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-87": {
+      "hash": "d5afd5877c45b57c",
+      "facets": {
+        "dialogue": "48b457bde1a107db",
+        "economy": "4dfaed9d40e52f38",
+        "events": "7e8c497aa0204390",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "cdd5d3e0b7af05d1",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-88": {
+      "hash": "6c286c6c6c79cc63",
+      "facets": {
+        "dialogue": "711dbdea5440828c",
+        "economy": "4dfaed9d40e52f38",
+        "events": "2f7b99d537ff2f38",
+        "factions": "449d92ecbe109316",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "7e6e0466f2eaf7a1",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 76,
+      "end": "ended"
+    },
+    "seed-89": {
+      "hash": "0cc33015dbb38ea9",
+      "facets": {
+        "dialogue": "1d31a2ed85f66d78",
+        "economy": "ba0636d2e08a3e56",
+        "events": "d790b3a8e96fe630",
+        "factions": "27cd2b75d848113f",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "97dc904fe3222fca",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e1415dcc890d184",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-90": {
+      "hash": "1ae11988229d32cd",
+      "facets": {
+        "dialogue": "6c6d8c2b6872e98b",
+        "economy": "c54a799204035757",
+        "events": "ee0a918760b4ae65",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "b7e1b1387113d124",
+        "kernel": "dc523ca03ba6f2f9",
+        "logic": "08f44b07b5901a25",
+        "quests": "f5227ab54dfb47c9",
+        "sheet": "da9d0cae103b40df",
+        "time": "d864e0f9b3407a13"
+      },
+      "turns": 26,
+      "end": "ended"
+    },
+    "seed-91": {
+      "hash": "e4fa624ba2086414",
+      "facets": {
+        "dialogue": "55a2a4157671cddf",
+        "economy": "e4744f7e429ae326",
+        "events": "747630943afb7aa6",
+        "factions": "775084ecda6be3a8",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "94470938d79c0da2",
+        "kernel": "6679c593e21ad4eb",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 59,
+      "end": "ended"
+    },
+    "seed-92": {
+      "hash": "c6c3ed92ec9dda20",
+      "facets": {
+        "dialogue": "2729ae3bfb338fca",
+        "economy": "5501a28f8625559a",
+        "events": "1f4a38de3cfd74e2",
+        "factions": "1d260275d1af1df0",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "c95448acea9754e8",
+        "kernel": "f072259ccd9b5382",
+        "logic": "08f44b07b5901a25",
+        "quests": "dc52d821716cc562",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 47,
+      "end": "ended"
+    },
+    "seed-93": {
+      "hash": "b0dff6ba93f1a9fc",
+      "facets": {
+        "dialogue": "356547b783ac0411",
+        "economy": "8cd5dab5eb2c2ab4",
+        "events": "8f9e9f43489ca4b4",
+        "factions": "f2d12b70d146f36d",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "01f8ddbb19fd186b",
+        "kernel": "1dafab385d65e69e",
+        "logic": "08f44b07b5901a25",
+        "quests": "4dd6bd8e66c1b2c3",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-94": {
+      "hash": "307b5f5452b3635b",
+      "facets": {
+        "dialogue": "337704f2d702dfc8",
+        "economy": "ba0636d2e08a3e56",
+        "events": "f0bdb342e53aaf1e",
+        "factions": "e40534254ea9fec9",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "b2e5bfcb01010a16",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e1415dcc890d184",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 75,
+      "end": "ended"
+    },
+    "seed-95": {
+      "hash": "42c7ce3c2d86d2e7",
+      "facets": {
+        "dialogue": "2e0876d3ccbf6259",
+        "economy": "4ed7341a9f701f18",
+        "events": "c212908f73072be9",
+        "factions": "5e3754d7b0081abe",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "12445cba487059f9",
+        "kernel": "64adab31f23480bc",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b444b2e3e16093a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-96": {
+      "hash": "9ebe8dfceb15db1c",
+      "facets": {
+        "dialogue": "b7b4d99a986f11a6",
+        "economy": "4dfaed9d40e52f38",
+        "events": "31dfd08f9a422139",
+        "factions": "90ea46d7cc636b50",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "2c09905cd6bf2923",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-97": {
+      "hash": "81d8b61a0c136a3b",
+      "facets": {
+        "dialogue": "1008b7473a99e85d",
+        "economy": "4d6d09fd840e66cd",
+        "events": "5cce99c55090d452",
+        "factions": "f1cf3975b9205f65",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "f5c2a6a2747e67e4",
+        "logic": "08f44b07b5901a25",
+        "quests": "51cd7fb425e7ec64",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-98": {
+      "hash": "4edb9b852fa05ee3",
+      "facets": {
+        "dialogue": "f7dc756586ab58fb",
+        "economy": "4dfaed9d40e52f38",
+        "events": "ba04db1f8bfa5483",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "4e0ef2011e4bd0f8",
+        "kernel": "f9bec8a18b0a2eb1",
+        "logic": "08f44b07b5901a25",
+        "quests": "cfb23b68aab2870a",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 47,
+      "end": "ended"
+    },
+    "seed-99": {
+      "hash": "63f90980be873326",
+      "facets": {
+        "dialogue": "3b3552f46eadf341",
+        "economy": "513cd7fbae9813c0",
+        "events": "751a095dbaa8605a",
+        "factions": "0b14b475c73d620a",
+        "flag": "1dff1b5e0bf63105",
+        "hut": "08f44b07b5901a25",
+        "inventory": "e8a666bb0bd59236",
+        "kernel": "3cd0953a55b533f5",
+        "logic": "08f44b07b5901a25",
+        "quests": "46ddd08fed29ef38",
+        "sheet": "da9d0cae103b40df",
+        "time": "656af282e4f3255a"
+      },
+      "turns": 48,
+      "end": "ended"
+    }
+  }
+}

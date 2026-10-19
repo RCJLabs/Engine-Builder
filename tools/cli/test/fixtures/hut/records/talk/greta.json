@@ -1,0 +1,47 @@
+{
+  "name": "Greta",
+  "speaker": "greta",
+  "starts": [
+    {
+      "line": "hello"
+    }
+  ],
+  "lines": [
+    {
+      "id": "hello",
+      "text": "The season up here is short. Rope and bread first; the guides come after.",
+      "options": [
+        {
+          "id": "guild",
+          "label": "Ask about the guild",
+          "next": "guild"
+        },
+        {
+          "id": "village",
+          "label": "Ask about the village",
+          "once": true,
+          "effects": [
+            {
+              "effect": "change-standing",
+              "faction": "village",
+              "by": 1
+            }
+          ],
+          "next": "village"
+        },
+        {
+          "id": "thanks",
+          "label": "Thank her"
+        }
+      ]
+    },
+    {
+      "id": "guild",
+      "text": "Anselm leads their parties. Feed them, and the guild pays."
+    },
+    {
+      "id": "village",
+      "text": "Carry their loads up, and the village remembers."
+    }
+  ]
+}

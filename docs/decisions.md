@@ -1081,6 +1081,49 @@ The spec is [specs/ink.md](specs/ink.md), and the survey behind it [research/ink
 - **The fourth `{condition: this|that}` on a line is reported at its own line,** since a paragraph runs over lines.
 - **In the editor, a scene's talk opens the scene,** never a form, from Records, the Problems panel or a map; Records lists it among the talks by its name, but it can't be ticked for a bulk edit, a duplicate or a delete, which are for records written as JSON; the map shows once the scene has no errors.
 
+### D50. Phase 3's gate: an original adventure at an alpine hut, built by one e2e from an empty project, no bigger than the gate's list. LOCKED, 2026-10-19 (Evan's calls, Phase 3's gate)
+
+**Decision.**
+- **An original adventure** (Evan's call), **at an alpine hut** (Evan's call): a hut kept for a short season above a valley village. The guides' guild and the village are its factions; the hut's store is its shop. Its quests cover the mission families:
+  - guiding a party up is its timed job;
+  - loads carried up are its counted objective;
+  - a storm is its choice event;
+  - stocking the hut is its quest of steps.
+
+  Two talks are made with forms, and one scene is written in ink.
+- **One e2e builds it all** (Evan's call), on every push:
+  - it starts from an empty project and works through the editor's panels and forms;
+  - its game's script is typed in the script editor, and its scene in the scene editor;
+  - it is exported, checked clean by `eb validate`, and played by its bot, every quest done in some run.
+- **The gate's list and no more** (Evan's call): what the gate names, with enough for a bot to finish every quest, about 20 to 30 records.
+
+Evan chose on 2026-10-19, from these options:
+- the adventure:
+  - a Dirtbag slice;
+  - Space-Wrecked's first act;
+  - an original adventure;
+- the setting, once original was chosen:
+  - a river trading post;
+  - an alpine hut;
+  - a lighthouse coast;
+- the proof:
+  - one e2e that builds it all;
+  - built once and kept as a fixture;
+  - built in parts by several specs;
+- the size:
+  - the gate's list;
+  - a short playable act.
+
+**Why.**
+- **Original.** It shows the editor making a game that didn't exist first, as Proof #4 will, while Space-Wrecked keeps Proof #1.
+- **One e2e.** Every push shows again that the whole game can be made in the editor, not that it once was.
+- **Small.** It holds the gate's proof without making every CI run much longer.
+
+**Cost.**
+- **CI grows** by the time the e2e takes to build the game, a few minutes.
+- **The e2e breaks as the editor's forms change,** and has to change with them. That is the price of the proof.
+- **The adventure's text is written fresh,** and is the session's to write. Its tone is yours to correct.
+
 ---
 
 ## Open
