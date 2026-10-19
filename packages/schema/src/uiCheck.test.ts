@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { knownFrom } from './known.ts';
 import { checkUi, type UiCheckOptions, type UiFile } from './uiCheck.ts';
 
-const KITS = ['economy', 'dialogue', 'time'];
+const KITS = ['inventory', 'economy', 'dialogue', 'time'];
 const records: RecordIndex = {
   ids: (type) => (type === 'resource' ? ['coins'] : []),
   has: (type, id) => type === 'resource' && id === 'coins',
@@ -196,6 +196,19 @@ describe('checkUi', () => {
       at('/main/children/5/item/text', '{event.text} needs the events kit: turn it on in project.json'),
       at('/main/children/5/of', 'A list of event needs the events kit: turn it on in project.json'),
     ]);
+  });
+
+  it('asks for the kit each source is the view of: the bag is the inventory kit’s', () => {
+    const bag = { widget: 'list', of: 'bag', item: { widget: 'text', text: '{.name}' } };
+    expect(only(bag, { kits: ['economy'] })).toEqual([
+      {
+        code: 'E049',
+        file: 'ui/hud.json',
+        path: '/main/of',
+        message: 'A list of bag needs the inventory kit: turn it on in project.json',
+      },
+    ]);
+    expect(only(bag, { kits: ['inventory'] })).toEqual([]);
   });
 
   it('leaves actions and modes unchecked until the game has run', () => {

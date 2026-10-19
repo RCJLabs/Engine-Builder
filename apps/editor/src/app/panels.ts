@@ -9,7 +9,7 @@ export interface PanelInfo {
 }
 
 /** The panels no phase has built yet: Panel draws them from PANELS, and More's list says when they come. */
-export const PLACEHOLDERS: ReadonlySet<PanelId> = new Set(['world', 'play']);
+export const PLACEHOLDERS: ReadonlySet<PanelId> = new Set(['world']);
 
 /** Phase 0 placeholders: each panel says what it will hold and when (ROADMAP.md). */
 export const PANELS: Record<PanelId, PanelInfo> = {
@@ -68,7 +68,7 @@ export const PANELS: Record<PanelId, PanelInfo> = {
   play: {
     label: 'Play',
     phase: 'Phase 4',
-    summary: 'Play the game inside the editor and see exactly what the simulation is doing.',
+    summary: 'Play the game inside the editor through its screens, and write the screens.',
     coming: ['State inspector and event log', 'Time controls and save states', 'Quest debugger'],
   },
 };

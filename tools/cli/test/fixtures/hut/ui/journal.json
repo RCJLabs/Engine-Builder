@@ -1,0 +1,66 @@
+{
+  "title": "Journal",
+  "modal": true,
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Quests",
+        "children": [
+          {
+            "widget": "list",
+            "of": "journal",
+            "empty": "Nothing in the journal yet.",
+            "item": {
+              "widget": "panel",
+              "children": [
+                {
+                  "widget": "text",
+                  "text": "{.name}",
+                  "style": "heading"
+                },
+                {
+                  "widget": "text",
+                  "text": "{.log}"
+                },
+                {
+                  "widget": "text",
+                  "text": "{.objectives}",
+                  "style": "caption"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "label": "Bag",
+        "children": [
+          {
+            "widget": "list",
+            "of": "bag",
+            "empty": "The bag is empty.",
+            "item": {
+              "widget": "text",
+              "text": "{.name} ×{.count}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close the journal",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

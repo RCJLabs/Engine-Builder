@@ -16,6 +16,7 @@
   "dependencies": {
     "@eb/core": "workspace:*",
     "@eb/kits": "workspace:*",
+    "@eb/script": "workspace:*",
     "@preact/signals": "2.11.3",
     "preact": "11.0.1"
   }

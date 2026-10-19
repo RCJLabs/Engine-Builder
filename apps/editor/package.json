@@ -26,6 +26,7 @@
     "@eb/platform": "workspace:*",
     "@eb/schema": "workspace:*",
     "@eb/script": "workspace:*",
+    "@eb/ui": "workspace:*",
     "@lezer/highlight": "1.2.5",
     "@preact/signals": "2.11.3",
     "dockview": "8.5.1",

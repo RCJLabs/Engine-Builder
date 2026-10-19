@@ -6,11 +6,13 @@
  */
 import {
   classifyScene,
+  classifyUi,
   type ProjectSource,
   RECORDS_DIR,
   readProjectFiles,
   SCENES_DIR,
   type TypeReport,
+  UI_DIR,
 } from '@eb/compiler';
 import type { CalendarDef } from '@eb/core';
 import { DIALOGUE, TALK } from '@eb/kits';
@@ -30,6 +32,10 @@ export interface Catalog {
    * dialogue kit on, placed and named right, and no talk record of the same id.
    */
   readonly scenes: ReadonlySet<string>;
+  /** The screens under ui/ by id, sorted (M4.1, D51). */
+  readonly screens: readonly string[];
+  /** Whether there is a ui/theme.json. */
+  readonly theme: boolean;
   /** Paths inside assets/, sorted: every file there but the provenance log. */
   readonly assets: readonly string[];
   /**
@@ -47,7 +53,8 @@ export interface Catalog {
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log; files under scenes/ that aren't
-   * scenes, and scenes the index can't compile (M3.11). The record index has the rest.
+   * scenes, and scenes the index can't compile (M3.11); files under ui/ that are no screen (M4.1).
+   * The record index has the rest, and the screens' own checks follow the game (screenChecks.ts).
    */
   readonly problems: readonly Diagnostic[];
 }
@@ -58,6 +65,8 @@ export const EMPTY_CATALOG: Catalog = {
   names: [],
   records: new Map(),
   scenes: new Set(),
+  screens: [],
+  theme: false,
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
@@ -84,6 +93,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     records.set(type, ids);
   }
   const scenes = await readScenes(source, records, read.kits);
+  const ui = await readUiFiles(source);
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
@@ -95,14 +105,30 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     names,
     records,
     scenes: scenes.ids,
+    screens: ui.screens,
+    theme: ui.theme,
     assets,
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
     kits: read.kits,
     ...(read.calendar ? { calendar: read.calendar } : {}),
-    problems: [...read.diagnostics, ...scenes.problems],
+    problems: [...read.diagnostics, ...scenes.problems, ...ui.problems],
   };
+}
+
+/** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, and W132 for the rest. */
+async function readUiFiles(source: ProjectSource) {
+  const screens: string[] = [];
+  const problems: Diagnostic[] = [];
+  let theme = false;
+  for (const file of [...(await source.files(UI_DIR))].sort(byText)) {
+    const role = classifyUi(file);
+    if (role.kind === 'screen') screens.push(role.id);
+    else if (role.kind === 'theme') theme = true;
+    else problems.push({ code: 'W132', severity: 'warning', message: role.reason, file, path: '' });
+  }
+  return { screens, theme, problems };
 }
 
 const problem = (code: 'E004' | 'E046' | 'W131', message: string, file: string, id?: string): Diagnostic => ({

@@ -1,6 +1,7 @@
 import { AssetsPanel } from '../assets/AssetsPanel.tsx';
 import { InspectorPanel } from '../forms/InspectorPanel.tsx';
 import { LogicPanel } from '../logic/LogicPanel.tsx';
+import { PlayPanel } from '../play/PlayPanel.tsx';
 import { ProblemsPanel } from '../problems/ProblemsPanel.tsx';
 import { RecordsPanel } from '../records/RecordsPanel.tsx';
 import { Console } from './Console.tsx';
@@ -10,7 +11,7 @@ import { PANELS } from './panels.ts';
 
 /**
  * A panel: the Project panel (M2.1), the Inspector (M2.4), the Records panel (M2.5), the Assets
- * panel (M2.7), Problems and the Console (M2.8) and Logic (M3.1) are real; the rest still say
+ * panel (M2.7), Problems and the Console (M2.8), Logic (M3.1) and Play (M4.1) are real; the rest still say
  * what they will hold and which phase builds it.
  */
 export function Panel({ id }: { id: PanelId }) {
@@ -20,6 +21,7 @@ export function Panel({ id }: { id: PanelId }) {
   if (id === 'assets') return <AssetsPanel />;
   if (id === 'problems') return <ProblemsPanel />;
   if (id === 'logic') return <LogicPanel />;
+  if (id === 'play') return <PlayPanel />;
   // In a zone (a phone's tab) the zone's tabpanel already names it, as the dock's group does.
   if (id === 'console') return <Console docked />;
   const info = PANELS[id];

@@ -1,7 +1,6 @@
 import { createPack, type Pack, type RecordIndex } from '@eb/core';
 import { TALK } from '@eb/kits';
 import {
-  checkUi,
   compareDiagnostics,
   type DataType,
   type Diagnostic,
@@ -18,7 +17,7 @@ import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from '
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
-import { packUi, readUi } from './ui.ts';
+import { checkProjectUi, packUi, readUi } from './ui.ts';
 
 export interface CompileResult {
   /** Sorted by compareDiagnostics. */
@@ -77,7 +76,7 @@ export async function compileProject(
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
   diagnostics.push(
-    ...checkUi(ui.screens, ui.theme, {
+    ...checkProjectUi(ui, {
       facts: grounds.facts,
       openFacts: grounds.openFacts,
       kits: files.kits,

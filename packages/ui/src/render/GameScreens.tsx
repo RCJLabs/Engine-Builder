@@ -57,7 +57,14 @@ export function GameScreens({ screens, theme, view, busy = false, act, assetUrl 
     assetUrl: (path) => assetUrl?.(path),
   };
   return (
-    <div class={`eb-game eb-at-${breakpoint}`} ref={box} style={themeVars(theme)}>
+    // The turn and whether a step is on its way, for a test or a stage to wait on.
+    <div
+      class={`eb-game eb-at-${breakpoint}`}
+      ref={box}
+      style={themeVars(theme)}
+      data-turn={view.turn}
+      data-busy={busy ? 'true' : undefined}
+    >
       {shown.map((each, i) => (
         <ScreenView
           key={each.kind === 'screen' ? `screen:${each.id}:${i}` : `mode:${each.mode}:${i}`}

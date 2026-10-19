@@ -74,6 +74,13 @@ function loadIndex() {
   return indexModule;
 }
 
+/** The screens' checks (M4.1) load with the index, after it. */
+let screenChecks: Promise<typeof import('../screens/screenChecks.ts')> | null = null;
+function loadScreenChecks() {
+  if (!screenChecks) screenChecks = import('../screens/screenChecks.ts');
+  return screenChecks;
+}
+
 /** Checks scripts, and runs them, for whichever project is open. Started by the first project with scripts. */
 let checker: ScriptWorker | null = null;
 
@@ -100,7 +107,9 @@ function refresher(copy: WorkingCopy): Refresh {
       }
       const { EMPTY_INDEX, updateIndex } = await loadIndex();
       const checks = gameChecks(game);
-      const index = await updateIndex(open.index ?? EMPTY_INDEX, copy, catalog, open.index ? paths : null, checks);
+      const updated = await updateIndex(open.index ?? EMPTY_INDEX, copy, catalog, open.index ? paths : null, checks);
+      const { screenProblems } = await loadScreenChecks();
+      const index = { ...updated, screens: await screenProblems(copy, catalog, updated, game) };
       open = current.value;
       if (open?.source !== copy) return false;
       current.value = { ...open, index };

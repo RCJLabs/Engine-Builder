@@ -6,6 +6,7 @@
 export { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
 export { type ParsedFile, parseJsonFile } from './decode.ts';
 export { type DirectoryHandleLike, directorySource, type FileHandleLike, type HandleLike } from './directorySource.ts';
+export { placeOfPointer, type TextPlace } from './jsonLines.ts';
 export {
   ASSETS_DIR,
   ASSETS_LOG,
@@ -33,6 +34,6 @@ export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
-export { packUi, readUi, type UiRead } from './ui.ts';
+export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';

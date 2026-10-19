@@ -48,6 +48,16 @@ export default defineConfig(({ command, isPreview }) => ({
   // Dev serves from `/`; the build and `vite preview` (which serves the build) use BASE.
   base: command === 'build' || isPreview ? BASE : '/',
   define: { __EB_BUILD__: JSON.stringify(build) },
+  // The player page (M4.1) is a page of the editor's own build, so the service worker precaches
+  // it with the rest and an exported game plays offline at /play/.
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        play: resolve(import.meta.dirname, 'play/index.html'),
+      },
+    },
+  },
   plugins: [
     preact(),
     versionFile(),

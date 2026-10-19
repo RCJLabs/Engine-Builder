@@ -4,8 +4,16 @@
  * actions and modes, which compileProject has; reading them doesn't.
  */
 import type { PackUi } from '@eb/core';
-import { type Diagnostic, type DiagnosticCode, severityOf, type UiFile } from '@eb/schema';
+import {
+  checkUi,
+  type Diagnostic,
+  type DiagnosticCode,
+  severityOf,
+  type UiCheckOptions,
+  type UiFile,
+} from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
+import { placeOfPointer } from './jsonLines.ts';
 import type { ProjectSource } from './source.ts';
 import { classifyUi, UI_DIR } from './uiFiles.ts';
 
@@ -15,6 +23,8 @@ export interface UiRead {
   readonly theme: UiFile | undefined;
   /** E007 and W132, in no order. */
   readonly diagnostics: readonly Diagnostic[];
+  /** Each file's text, for the lines its problems are at. */
+  readonly texts: ReadonlyMap<string, string>;
 }
 
 // UTF-16 order, the same in every locale.
@@ -32,6 +42,7 @@ export async function readUi(source: ProjectSource): Promise<UiRead> {
   const diagnostics: Diagnostic[] = [];
   const screens = new Map<string, UiFile>();
   let theme: UiFile | undefined;
+  const texts = new Map<string, string>();
   for (const file of [...(await source.files(UI_DIR))].sort(byText)) {
     const role = classifyUi(file);
     if (role.kind === 'ignored') {
@@ -40,12 +51,26 @@ export async function readUi(source: ProjectSource): Promise<UiRead> {
     }
     const bytes = await source.read(file);
     const parsed = bytes === undefined ? ({ ok: false, message: 'Missing file' } as const) : parseJsonFile(bytes);
+    if (parsed.ok && bytes) texts.set(file, new TextDecoder().decode(bytes));
     if (!parsed.ok) diagnostics.push(diagnostic(file, 'E007', parsed.message));
     const read: UiFile = parsed.ok ? { file, value: parsed.value } : { file, value: undefined, unreadable: true };
     if (role.kind === 'theme') theme = read;
     else screens.set(role.id, read);
   }
-  return { screens, theme, diagnostics };
+  return { screens, theme, diagnostics, texts };
+}
+
+/**
+ * The screens and theme checked against the game (checkUi), each problem at its line and column
+ * in its file as well as its JSON path, so the editor's screen editor and `eb validate` place it
+ * as a scene's problems are placed. The editor's checks call this too.
+ */
+export function checkProjectUi(ui: UiRead, options: UiCheckOptions): Diagnostic[] {
+  return checkUi(ui.screens, ui.theme, options).map((d) => {
+    const text = d.file === undefined ? undefined : ui.texts.get(d.file);
+    const at = text === undefined ? undefined : placeOfPointer(text, d.path);
+    return at ? { ...d, ...at } : d;
+  });
 }
 
 /** What the pack carries: the screens by id, sorted, and the theme. Only once they are checked. */
