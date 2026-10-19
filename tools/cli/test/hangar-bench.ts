@@ -3,9 +3,9 @@
  * per turn. The hangar (M3.3, the inventory and economy kits) with its worker bot by default; the
  * arena (M3.4, all four kits) with its lanista; the steading (M3.5, with factions and time) with its
  * jarl; the crew (M3.6, with the roster) with its captain; the convoy (M3.7, with the events kit)
- * with its scout. Each turn lists the options, lets the bot choose and reduces the action. The
- * instrument behind the "hangar sweep", "arena sweep", "steading sweep", "crew sweep" and "convoy
- * sweep" readings in ROADMAP.md.
+ * with its scout; the crag (M3.8, with the dialogue kit) with its climber; the yard (M3.9, with the
+ * quests kit) with its scavenger. Each turn lists the options, lets the bot choose and reduces the
+ * action. The instrument behind the sweep readings in ROADMAP.md, one for each.
  *
  *   node tools/cli/test/hangar-bench.ts [fixture] [bot]
  */
