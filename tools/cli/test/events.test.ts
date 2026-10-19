@@ -94,7 +94,7 @@ describe('the convoy, played', () => {
         if (action.type === 'events/choose') {
           const open = (state.events as EventsSlice).open;
           const [view] = game.preview(state, [{ effect: 'open-event', event: open }], sim);
-          shown = (view?.choices as ChoiceShown[]).find((c) => c.id === action.choice);
+          shown = ((view?.choices ?? []) as ChoiceShown[]).find((c) => c.id === action.choice);
           expect(shown?.open, `seed ${seed}, turn ${turn}: ${open}/${String(action.choice)}`).toBe(true);
           const record: EventRecord = eventRecord(sim.content, open);
           expect(shown?.cost).toEqual(record.choices.find((c) => c.id === action.choice)?.cost);
