@@ -1,6 +1,6 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { DIALOGUE, QUEST, QUESTS, TALK } from '@eb/kits';
-import type { DataType, Diagnostic } from '@eb/schema';
+import { type DataType, type Diagnostic, slotScope } from '@eb/schema';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
@@ -162,10 +162,12 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     () => routeProblems(diagnostics, fieldPointers(typeFile, value)),
     [diagnostics, typeFile, value],
   );
+  const quest = type === QUEST && catalog.kits.includes(QUESTS);
   const api: FormApi = {
     canEdit,
     catalog,
     names: namesOf(project.index, catalog),
+    ...(quest ? { slots: slotScope(value) } : {}),
     typeFile,
     id,
     problemsAt: (pointer) => routed.get(pointer) ?? [],

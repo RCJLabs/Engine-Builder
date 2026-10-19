@@ -22,6 +22,8 @@ export interface FormApi {
   readonly catalog: Catalog;
   /** Records' names by "type:id", for pickers to show beside ids (M2.5). */
   readonly names?: (key: string) => string | undefined;
+  /** A quest's slots a field at a pointer can name, with their records' types (M3.10): pickers offer them. */
+  readonly slots?: (pointer: string) => Readonly<Record<string, string>>;
   readonly typeFile: TypeFile;
   readonly id: string;
   problemsAt(pointer: string): readonly Diagnostic[];

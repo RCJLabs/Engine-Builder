@@ -35,3 +35,18 @@ export function refChoices(
     }),
   );
 }
+
+/**
+ * A quest's slots a ref field can name, first in its picker (M3.10): each "@slot" whose record's
+ * type the field takes, as a fact's argument or an effect's field takes one.
+ */
+export function slotChoices(def: RefDef, slots: Readonly<Record<string, string>> | undefined): Choice[] {
+  const types = typeof def.to === 'string' ? [def.to] : def.to;
+  return Object.entries(slots ?? {})
+    .filter(([, type]) => types.includes(type))
+    .map(([slot, type]) => ({
+      value: `@${slot}`,
+      label: `The ${type} in the slot ${slot} (@${slot})`,
+      keywords: `slot ${slot}`,
+    }));
+}
