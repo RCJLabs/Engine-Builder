@@ -321,7 +321,7 @@ describe('a project’s own field on the quest naming records of two types (D41)
     const { joined } = joinKitType(file as TypeFile, {
       fields: { rival: { kind: 'ref', to: ['actor', 'stat'], optional: true } },
     });
-    return typeFromFile('quest', joined).recordType;
+    return typeFromFile('quest', joined as TypeFile).recordType;
   };
   const withRival = (rival: string) => [...BASE, record('quest', 'booking', { ...BOOKING, rival })];
   const rivalCheck = (rival: string) =>
