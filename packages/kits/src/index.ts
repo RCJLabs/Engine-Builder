@@ -102,6 +102,7 @@ export {
   canBeDone,
   canEnd,
   endingStages,
+  goneStages,
   type Lead,
   leadsByStage,
   leadsFrom as questLeadsFrom,
@@ -114,7 +115,11 @@ export { namedObjective, namedStage, objectiveOf, questRecord, stageOf } from '.
 export { FAILED } from './quests/run.ts';
 export {
   type Count,
+  type Job,
+  type JobOutcome,
   type Objective,
+  PICKS,
+  type Pick,
   QUEST,
   QUEST_STATES,
   QUESTS,
@@ -122,6 +127,8 @@ export {
   type QuestRecord,
   type QuestState,
   type QuestsSlice,
+  type Slot,
+  type SlotRank,
   type Stage,
 } from './quests/types.ts';
 export { bondOf, pairKey } from './roster/bonds.ts';

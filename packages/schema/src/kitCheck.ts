@@ -5,14 +5,16 @@
  * every loot table waits for finish(). The stats, factions, roster, events and dialogue kits' are
  * in their own files, as are the quests kit's.
  */
-import type { Effect } from '@eb/core';
+import type { Effect, RecordIndex } from '@eb/core';
 import {
   DIALOGUE,
   EVENTS,
   ITEM,
+  kitModules,
   LOOT_TABLE,
   type LootEntry,
   type LootTableRecord,
+  QUEST,
   QUESTS,
   type Range,
   RESOURCE,
@@ -30,6 +32,7 @@ import { FactionChecks } from './factionCheck.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
 import { QuestChecks } from './questCheck.ts';
+import { slotScope } from './questSlots.ts';
 import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
 
@@ -86,6 +89,10 @@ interface Seen<T> {
   readonly report: Report;
 }
 
+/** The types records of which the kits on make in play (D44): the roster's actors. */
+const madeTypes = (on: readonly string[]): ReadonlySet<string> =>
+  new Set(kitModules(on).flatMap((module) => module.made?.types ?? []));
+
 export class KitChecks {
   private readonly on: readonly string[];
   private readonly known: Known;
@@ -99,7 +106,7 @@ export class KitChecks {
   private readonly dialogue: DialogueChecks | undefined;
   private readonly quests: QuestChecks | undefined;
 
-  constructor(on: readonly string[], known: Known) {
+  constructor(on: readonly string[], known: Known, records: RecordIndex) {
     this.on = on;
     this.known = known;
     this.stats = new StatChecks(on, known);
@@ -107,7 +114,12 @@ export class KitChecks {
     this.roster = on.includes(ROSTER) ? new RosterChecks(on) : undefined;
     this.events = on.includes(EVENTS) ? new EventChecks(on, known) : undefined;
     this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on) : undefined;
-    this.quests = on.includes(QUESTS) ? new QuestChecks(known) : undefined;
+    this.quests = on.includes(QUESTS) ? new QuestChecks(known, { records, made: madeTypes(on) }) : undefined;
+  }
+
+  /** The slots each field of a record can name (M3.10): a quest's, with the quests kit on. */
+  slotsOf(type: string, value: unknown): ((path: string) => Readonly<Record<string, string>>) | undefined {
+    return this.quests && type === QUEST ? slotScope(value) : undefined;
   }
 
   /** One record that passed its type's schema. */

@@ -13,6 +13,7 @@ import type { SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { factTests } from './flagCheck.ts';
 import type { Known } from './known.ts';
+import { checkJob, checkSlots, isJobTimer, type SlotContext } from './questSlots.ts';
 import { checkWhen, type SheetContext } from './sheetCheck.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
@@ -100,11 +101,17 @@ function loopFrom(start: string, leads: (from: string) => readonly Lead[]) {
   return undefined;
 }
 
-/** Each count's event and its arguments, as a row's When is checked (E022, E023). */
-export function checkCounts(quest: QuestRecord, ctx: SheetContext): void {
+/** Each count's event and its arguments, as a row's When is checked (E022, E023), naming the quest's slots (E044). */
+export function checkCounts(
+  quest: QuestRecord,
+  ctx: SheetContext,
+  slotsAt?: (path: string) => Readonly<Record<string, string>>,
+): void {
   quest.stages.forEach((stage, i) => {
     (stage.objectives ?? []).forEach((objective, j) => {
-      if (objective.count) checkWhen(objective.count, `/stages/${i}/objectives/${j}/count`, ctx);
+      const path = `/stages/${i}/objectives/${j}/count`;
+      const slots = slotsAt?.(path);
+      if (objective.count) checkWhen(objective.count, path, slots ? { ...ctx, slots } : ctx);
     });
   });
 }
@@ -159,7 +166,12 @@ export class QuestChecks {
   private readonly staged: Named[] = [];
   private readonly named: Named[] = [];
 
-  constructor(known: Known) {
+  private readonly known: Known;
+  private readonly slots: SlotContext;
+
+  constructor(known: Known, ctx: Omit<SlotContext, 'known'>) {
+    this.known = known;
+    this.slots = { known, ...ctx };
     this.days = known.openEvents || known.events['time/day-started'] !== undefined;
   }
 
@@ -169,8 +181,10 @@ export class QuestChecks {
     const quest = value as QuestRecord;
     checkIds(quest, report);
     const stages = new Set(quest.stages.map((stage) => stage.id));
+    checkSlots(quest, report, this.slots);
     quest.stages.forEach((stage, i) => {
       checkStage(stage, `/stages/${i}`, stages, report);
+      checkJob(stage, `/stages/${i}`, stages, report, this.known);
       if (stage.days !== undefined && !this.days) {
         report(
           'W120',
@@ -185,6 +199,13 @@ export class QuestChecks {
 
   /** An effect whose schema passed: start-quest and set-stage start the quest they name (W125), and set-stage brings it to a stage (W124). */
   effect(report: Report, path: string, effect: Effect): void {
+    if ((effect.effect === 'schedule' || effect.effect === 'cancel-timer') && isJobTimer(effect.timer)) {
+      report(
+        'E035',
+        `${path}/timer`,
+        'Timers named quests-… are the quests kit’s own, for its jobs: name it otherwise',
+      );
+    }
     if (effect.effect !== 'start-quest' && effect.effect !== 'set-stage') return;
     if (typeof effect.quest !== 'string') return;
     this.started.add(effect.quest);

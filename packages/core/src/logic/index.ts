@@ -23,8 +23,11 @@ export {
   domainProblem,
   FACT_PATTERN,
   isPrintableNumber,
+  isSlotName,
   isValue,
   NAME_PATTERN,
   type RecordIndex,
+  SLOT_PATTERN,
+  slotProblem,
   valueProblem,
 } from './values.ts';

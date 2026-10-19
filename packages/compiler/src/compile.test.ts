@@ -434,8 +434,31 @@ describe('the code table', () => {
       }),
       'records/flag/paid.json': '{}',
     });
+    // M3.10: a slot the quest lacks, a slot of a type nothing has, {x} naming no slot, and a job in
+    // a game whose events have no time module.
+    const slotted = await kitted(
+      ['quests'],
+      {
+        'records/quest/bounty.json': JSON.stringify({
+          name: 'Bounty',
+          'at-start': true,
+          slots: [{ id: 'mark', type: 'item', where: 'flag.on(paid)' }],
+          stages: [
+            {
+              id: 'hunt',
+              log: 'Find {who}.',
+              objectives: [{ id: 'find', text: 'Find', 'done-when': 'flag.on(@who)' }],
+            },
+            { id: 'go', job: { takes: { days: 1 }, outcomes: [{ chance: 100, next: 'hunt' }] } },
+          ],
+        }),
+        'records/flag/paid.json': '{}',
+      },
+      {},
+      { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
+    );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested];
+    const late = [timed, drifting, rostered, evented, talked, quested, slotted];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

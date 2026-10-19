@@ -1,4 +1,4 @@
-import { isRecordId, QUALIFIED_REF_PATTERN, RECORD_ID_PATTERN } from '@eb/core';
+import { isRecordId, QUALIFIED_REF_PATTERN, RECORD_ID_PATTERN, SLOT_PATTERN } from '@eb/core';
 import { z } from 'zod';
 
 /**
@@ -13,14 +13,19 @@ export const REF_KEY = 'x-eb-ref';
  */
 export type RefTarget = string | readonly string[];
 
-/** A field holding the bare id of a `type` record: `"loot": "salvage"`. */
+const inner = (pattern: RegExp) => pattern.source.slice(1, -1);
+// A quest's slot stands where a record goes (M3.10): which slot, and where, is E044's.
+export const ID_OR_SLOT_PATTERN = new RegExp(`^(?:${inner(RECORD_ID_PATTERN)}|${inner(SLOT_PATTERN)})$`);
+export const QUALIFIED_OR_SLOT_PATTERN = new RegExp(`^(?:${inner(QUALIFIED_REF_PATTERN)}|${inner(SLOT_PATTERN)})$`);
+
+/** A field holding the bare id of a `type` record: `"loot": "salvage"`, or a quest's slot, `"@mark"`. */
 export function ref(type: string): z.ZodString {
   if (!isRecordId(type)) throw new RangeError(`ref(): "${type}" is not a valid record type name`);
   // An empty ref is one not yet chosen, as a new record's are (M2.4): it gets its own words.
   return z
     .string()
     .min(1, { error: `No ${type} chosen yet`, abort: true })
-    .regex(RECORD_ID_PATTERN, { error: `Not a valid ${type} id: use lowercase words joined by hyphens` })
+    .regex(ID_OR_SLOT_PATTERN, { error: `Not a valid ${type} id: use lowercase words joined by hyphens` })
     .meta({ [REF_KEY]: type });
 }
 
@@ -36,7 +41,7 @@ export function refAny(types: readonly string[]): z.ZodString {
   return z
     .string()
     .min(1, { error: `No record chosen yet: a ${sorted.join(' or ')}`, abort: true })
-    .regex(QUALIFIED_REF_PATTERN, { error: `Expected "type:id", where type is one of: ${sorted.join(', ')}` })
+    .regex(QUALIFIED_OR_SLOT_PATTERN, { error: `Expected "type:id", where type is one of: ${sorted.join(', ')}` })
     .meta({ [REF_KEY]: sorted });
 }
 

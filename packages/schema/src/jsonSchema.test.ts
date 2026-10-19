@@ -1,7 +1,7 @@
-import { QUALIFIED_REF_PATTERN, RECORD_ID_PATTERN } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { actor, item, lootTable } from '../test/samples.ts';
 import { defineRecordType, FIELD_KINDS, recordJsonSchema, typeFileJsonSchema, z } from './index.ts';
+import { ID_OR_SLOT_PATTERN, QUALIFIED_OR_SLOT_PATTERN } from './refs.ts';
 
 describe('recordJsonSchema', () => {
   it('exports a record type as draft 2020-12 with its id, title and description', () => {
@@ -21,19 +21,19 @@ describe('recordJsonSchema', () => {
     });
   });
 
-  it('marks reference fields with their target and the id pattern', () => {
+  it('marks reference fields with their target and the id pattern, a quest’s slot among it (M3.10)', () => {
     const { properties } = recordJsonSchema(actor) as { properties: Record<string, Record<string, unknown>> };
     expect(properties.drops).toEqual({
       type: 'string',
       minLength: 1,
-      pattern: RECORD_ID_PATTERN.source,
+      pattern: ID_OR_SLOT_PATTERN.source,
       'x-eb-ref': 'loot-table',
       description: 'What a search of the body turns up',
     });
     expect(properties.carries?.propertyNames).toEqual({
       type: 'string',
       minLength: 1,
-      pattern: RECORD_ID_PATTERN.source,
+      pattern: ID_OR_SLOT_PATTERN.source,
       'x-eb-ref': 'item',
     });
   });
@@ -41,7 +41,7 @@ describe('recordJsonSchema', () => {
   it('keeps qualified references and recursive conditions', () => {
     const schema = recordJsonSchema(lootTable);
     const text = JSON.stringify(schema);
-    expect(text).toContain(`"pattern":${JSON.stringify(QUALIFIED_REF_PATTERN.source)},"x-eb-ref":["actor","item"]`);
+    expect(text).toContain(`"pattern":${JSON.stringify(QUALIFIED_OR_SLOT_PATTERN.source)},"x-eb-ref":["actor","item"]`);
     expect(Object.keys(schema.$defs as object)).toHaveLength(1);
     expect(text.match(/"additionalProperties":false/g)?.length).toBe(8);
   });

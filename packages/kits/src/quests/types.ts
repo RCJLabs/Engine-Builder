@@ -27,6 +27,19 @@ export interface Objective {
   readonly next?: string;
 }
 
+/** One way a job can end: its chance in whole percents, and the stage it leads to. */
+export interface JobOutcome {
+  readonly chance: number;
+  readonly text?: string;
+  readonly next: string;
+}
+
+/** A stage's timed job (M3.10): how long it takes, in the calendar's units, and how it can end. */
+export interface Job {
+  readonly takes: Readonly<Record<string, number>>;
+  readonly outcomes: readonly JobOutcome[];
+}
+
 export interface Stage {
   /** Lowercase words joined by hyphens, once in the quest. */
   readonly id: string;
@@ -43,6 +56,38 @@ export interface Stage {
   readonly days?: number;
   /** What the journal says when it fails by fail-when or days. */
   readonly why?: string;
+  readonly job?: Job;
+}
+
+/** How a slot picks among the records that match: the first by id, at random, or by a fact's number. */
+export const PICKS = ['first', 'random', 'most', 'least'] as const;
+export type Pick = (typeof PICKS)[number];
+
+/** The fact whose number ranks the records a slot could hold: `stats.value` with `actor: @man`. */
+export interface SlotRank {
+  readonly fact: string;
+  readonly args?: Readonly<Record<string, unknown>>;
+}
+
+/** A record the quest picks as it starts (M3.10, D48), named `@id` in its fields. */
+export interface Slot {
+  /** Lowercase words joined by hyphens, once in the quest. */
+  readonly id: string;
+  /** The type of record it holds. */
+  readonly type: string;
+  /** The one record it holds; or `where`, which each record of the type is tried against. */
+  readonly record?: string;
+  readonly where?: Condition;
+  readonly pick?: Pick;
+  readonly by?: SlotRank;
+  /** The record is sent: away until the quest ends. */
+  readonly goes?: boolean;
+  /** While the quest is active, the slot keeps its record only while this holds. */
+  readonly keeps?: Condition;
+  /** The stage the quest goes to when the record is gone; it fails when there is none. */
+  readonly gone?: string;
+  /** What the journal says when it fails because the record is gone. */
+  readonly why?: string;
 }
 
 /** records/quest/<id>.json. */
@@ -50,6 +95,10 @@ export interface QuestRecord {
   readonly name: string;
   readonly 'at-start'?: boolean;
   readonly 'starts-when'?: Condition;
+  /** It can run again once it has ended (M3.10). */
+  readonly repeats?: boolean;
+  /** Filled in order as it starts. */
+  readonly slots?: readonly Slot[];
   /** At least one; the first is where it starts. */
   readonly stages: readonly Stage[];
 }
@@ -63,7 +112,7 @@ export interface QuestEntry {
   state: QuestState;
   /** The stage it is at, or ended at. */
   stage: string;
-  /** The stages reached, in order: one reached twice is here twice. */
+  /** The stages reached, each once, in the order last reached. */
   log: string[];
   /** The current stage's objectives done, sorted. */
   done: string[];
@@ -73,6 +122,12 @@ export interface QuestEntry {
   days: number;
   /** Why it failed, once it has. */
   why?: string;
+  /** Each slot's record, by the slot's id (M3.10). None for a quest with no slots. */
+  slots?: Record<string, string>;
+  /** A quest that repeats: its runs before this one, done and failed. None before it has repeated. */
+  times?: { done: number; failed: number };
+  /** A quest that repeats and has ended: its starts-when has stopped holding, so it can start it again. */
+  again?: boolean;
 }
 
 /** The kit's slice: each quest started, by id. */

@@ -989,6 +989,43 @@ The spec is [specs/quests.md](specs/quests.md), and the survey behind it [resear
 - **A count's arguments are text,** the ids an event names. A number is read by a Done when instead.
 - **The bots' quest metrics come after a game's own,** each named by its quest's name and id, in `eb sim` and the editor's Run alike.
 
+### D48. Aliases filled by rule, a quest that fails or moves on when one is gone, repeats counted, timed jobs sealed in game time. LOCKED, 2026-10-19 (Evan's calls, M3.10)
+
+**Decision.**
+- **Aliases are filled by rule** (Evan's call). A quest's slot holds a named record, or one of the records of its type that match its conditions: the one with the most or least of a fact, or one at random from the quest's own stream. They are filled as the quest starts; when one can't be, the quest doesn't start. The player picking who fills a slot comes later, with odds moved by stats.
+- **A slot whose record is gone** (Evan's call), because the record no longer exists or the slot's Keeps while stops holding, fails the quest with the journal saying who is gone, unless the slot names a stage to go to instead.
+- **A repeat is a fresh run, its past counted** (Evan's call). A quest that repeats starts again after it ends, by the same ways a quest starts, with its slots filled again. Its entry is replaced; the journal and the facts count the runs done and failed. The save holds one run per quest.
+- **Timed jobs run in game time, sealed, and those sent are away** (Evan's call). A job is a stage with a duration in the calendar's units and outcomes with chances, each leading to a stage. Its outcome is rolled as it is reached and kept in the save; the odds shown come from the same table. A record in a slot marked Goes is away until its quest ends, and is never sent on a second. A job is called off by moving the quest off its stage, as content's own choice.
+
+Evan chose on 2026-10-19, from these options:
+- filling: by rule only; rule plus the player's pick; or named and random only;
+- gone: fail, or go to the slot's stage; refill, else fail; or a fourth end state, gone;
+- repeats: a fresh run with past runs counted; each run kept in the journal; or no repeats in M3.10;
+- jobs: game time, sealed, those sent away; game time, sealed, with no away; or real hours.
+
+Also settled, as the session's calls:
+- **a slot is named `@slot`** wherever a record's id goes in its quest, in conditions and effects, and `{slot}` in a log line, an objective's text or a why is its record's name, read as the journal is. No other record can name a quest's slot (E044);
+- **slots fill in the order written,** from every record of the slot's type, those made in play among them, each record in one slot of a quest at most; at random from the kit's own stream, so a fill shifts no other roll;
+- **a quest whose slots can't be filled doesn't start:** `start-quest` refuses the action (`unfilled`), so a choice that would start it says why; one that starts with the game or by Starts when waits and is tried again;
+- **gone is checked after success** and before Fails when and days: an objective done by the event that took the record wins, and the journal then says who is gone rather than that time ran out;
+- **a repeat starts by Starts when only once it has stopped holding,** so a condition that always holds can't restart a quest that is done at once in a loop; a run a week is `time.weekday == mon`;
+- **a job's outcome is a timer of the time module's,** named `quests-<quest>`, which moves the quest to the outcome's stage when it fires and is cancelled when the quest leaves the stage, so time passed while a game is closed, and the cap on it, are the time module's alone. A job needs a time module (E045);
+- **away lasts the whole quest,** not only its job, so "who is away" has one answer: `quests.away`;
+- **the kit's slice is version 2,** with a migration and a save made by version 1 that must still load.
+
+The spec is [specs/quests.md](specs/quests.md#aliases), and the survey behind it [research/aliases.md](research/aliases.md).
+
+**Why.**
+- **By rule.** Ludus, Landnam, Dirtbag and Space-Wrecked pick their targets by rule; only Spliceworld lets the player pick, and there the pick matters because each creature's odds differ, which odds moved by stats would bring.
+- **Gone.** The games before broke where a target left by a way nobody handled: Ludus's poach pointing at a dead man, Space-Wrecked's loyalty quest that a death would not end. One condition per slot covers every way out, and the journal says it.
+- **Repeats counted.** A save that grows with each run is what M3.9's log already refuses.
+- **Sealed, in game time.** A reload, or doing things in another order, can't roll a job again. The time module already settles time passed while a game is closed for a game whose clock follows real time. One fact saying who is away keeps Spliceworld's four answers to one.
+
+**Cost.**
+- **No player's pick** until odds move by stats.
+- **One run kept:** a repeat's past log lines are gone; only the counts remain.
+- **Away lasts the whole quest,** not only its job.
+
 ---
 
 ## Open

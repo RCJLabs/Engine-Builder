@@ -112,7 +112,7 @@ export function validateRecords(
   const usages = new Map<string, Usage[]>();
   const assetUsages = new Map<string, Usage[]>();
   const flags = new FlagChecks();
-  const kits = new KitChecks(on, known);
+  const kits = new KitChecks(on, known, index);
   for (const record of records) {
     const from = formatRef(record.type, record.id);
     const report = (code: DiagnosticCode, path: string, message: string) =>
@@ -152,13 +152,15 @@ export function validateRecords(
         kits.effect(report, path, value);
       },
     };
+    const slotsAt = kits.slotsOf(record.type, record.value);
+    if (slotsAt) ctx.slotsAt = slotsAt;
     const sound = checkPart(recordType.schema, record.value, '', ctx);
     const heard = (type: string, id: string) => {
       if (type === FLAG) flags.heard(id, from);
     };
     if (record.type === SHEET) checkSheet(record.value, { ...ctx, heard });
     if (sound && record.type === QUEST && on.includes(QUESTS))
-      checkCounts(record.value as QuestRecord, { ...ctx, heard });
+      checkCounts(record.value as QuestRecord, { ...ctx, heard }, slotsAt);
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);

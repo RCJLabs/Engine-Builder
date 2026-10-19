@@ -1,6 +1,6 @@
 /**
  * The quests kit's record type (M3.9, D47, docs/specs/quests.md#records), as a type file: a quest
- * of stages, each with its log line, effects and objectives. Stage and objective ids are text that
+ * of stages, each with its log line, effects and objectives; M3.10's slots (D48), and a stage's job. Stage and objective ids are text that
  * Then, Leads to, set-stage and conditions name: that each names one the quest has is E035's and
  * E043's. A count's arguments are text, the ids an event names.
  */
@@ -49,6 +49,105 @@ const OBJECTIVE: FieldDef = {
   },
 };
 
+const SLOT: FieldDef = {
+  kind: 'group',
+  fields: {
+    id: { kind: 'text', min: 1, label: 'Id', description: `What @ and {} call it: ${ID_WORDS}` },
+    type: {
+      kind: 'text',
+      min: 1,
+      label: 'Type',
+      description: 'The type of record it holds: actor, item, or a type of your own',
+    },
+    record: {
+      kind: 'text',
+      min: 1,
+      optional: true,
+      label: 'Record',
+      description: 'The one record it holds, by its id. Give this or Where',
+    },
+    where: {
+      kind: 'condition',
+      optional: true,
+      label: 'Where',
+      description: 'Each record of its type is tried, @ and this slot’s id standing for it. Give this or Record',
+    },
+    pick: {
+      kind: 'enum',
+      values: ['first', 'random', 'most', 'least'],
+      optional: true,
+      label: 'Pick',
+      description:
+        'Among the records that match: the first by id when left out, one at random, or the most or least By',
+    },
+    by: {
+      kind: 'group',
+      optional: true,
+      label: 'By',
+      description: 'For Most and Least: the fact whose number ranks them, like stats.value',
+      fields: {
+        fact: { kind: 'text', min: 1, label: 'Fact', description: 'Like stats.value' },
+        args: {
+          kind: 'map',
+          optional: true,
+          label: 'With',
+          description: 'Its arguments: actor @man, stat fame',
+          of: { kind: 'text', min: 1 },
+        },
+      },
+    },
+    goes: {
+      kind: 'bool',
+      optional: true,
+      label: 'Goes',
+      description: 'The record is sent: away until the quest ends, and never sent on another quest',
+    },
+    keeps: {
+      kind: 'condition',
+      optional: true,
+      label: 'Keeps while',
+      description: 'While the quest runs, the slot keeps its record only while this is true',
+    },
+    gone: stageId('When gone, goes to', 'The stage the quest goes to when its record is gone: it fails when left out'),
+    why: {
+      kind: 'text',
+      min: 1,
+      optional: true,
+      label: 'Why it fails',
+      description: 'What the journal says when it fails because the record is gone: “{id} is gone.” when left out',
+    },
+  },
+};
+
+const JOB: FieldDef = {
+  kind: 'group',
+  optional: true,
+  label: 'Job',
+  description: 'It takes time, and how it ends is rolled as it is reached: the stage waits until it is over',
+  fields: {
+    takes: {
+      kind: 'map',
+      label: 'Takes',
+      description: 'How long, in the calendar’s units: days, or hours if it has them',
+      of: { kind: 'int', min: 0 },
+    },
+    outcomes: {
+      kind: 'list',
+      min: 1,
+      label: 'Outcomes',
+      description: 'How it can end: their chances add up to 100',
+      of: {
+        kind: 'group',
+        fields: {
+          chance: { kind: 'int', min: 1, max: 100, label: 'Chance', description: 'Whole percents' },
+          text: { kind: 'text', min: 1, optional: true, label: 'Text', description: 'What the journal shows of it' },
+          next: { kind: 'text', min: 1, label: 'Leads to', description: 'The stage the quest goes to once it is over' },
+        },
+      },
+    },
+  },
+};
+
 export const QUEST_TYPE_FILE: TypeFile = {
   title: 'Quest',
   description: 'Stages the player goes through, each with objectives that check themselves, kept in the journal.',
@@ -61,6 +160,20 @@ export const QUEST_TYPE_FILE: TypeFile = {
       optional: true,
       label: 'Starts when',
       description: 'It starts once this is true',
+    },
+    repeats: {
+      kind: 'bool',
+      optional: true,
+      label: 'Repeats',
+      description: 'Once it has ended it can run again, its slots filled afresh',
+    },
+    slots: {
+      kind: 'list',
+      min: 1,
+      optional: true,
+      label: 'Slots',
+      description: 'Records it picks as it starts, which @ and the slot’s id name in its fields',
+      of: SLOT,
     },
     stages: {
       kind: 'list',
@@ -120,6 +233,7 @@ export const QUEST_TYPE_FILE: TypeFile = {
             label: 'Why it fails',
             description: 'What the journal says when Fails when or Days fail it: “It failed.” when left out',
           },
+          job: JOB,
         },
       },
     },

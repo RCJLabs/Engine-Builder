@@ -9,7 +9,7 @@ import { canonicalJson } from '../canonical.ts';
 import { Rng } from '../rng.ts';
 import { evaluate } from './evaluate.ts';
 import type { Condition, Domain, FactCatalog, FactTest, Truth, Value } from './types.ts';
-import type { RecordIndex } from './values.ts';
+import { isSlotName, type RecordIndex } from './values.ts';
 
 /** Up to this many combinations of fact values, every one is tried. */
 export const EXHAUSTIVE_LIMIT = 100_000;
@@ -130,7 +130,8 @@ function domainPoints(domain: Domain, strings: string[], numbers: number[], reco
     }
     case 'ref': {
       if (!records) return withOther(strings);
-      const named = strings.filter((id) => records.has(domain.to, id));
+      // A slot stands for one of the records, and may be any of them.
+      const named = strings.filter((id) => records.has(domain.to, id) || isSlotName(id));
       const other = records.ids(domain.to).find((id) => !named.includes(id));
       return other === undefined ? named : [...named, other];
     }

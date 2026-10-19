@@ -67,6 +67,11 @@ describe('satisfiability', () => {
     expect(sat(text)).toEqual({ canBeTrue, canBeFalse });
   });
 
+  it('takes a slot as any of the records (M3.10)', () => {
+    expect(sat('a.r == @mark')).toEqual({ canBeTrue: true, canBeFalse: true });
+    expect(sat('a.r == @mark or a.r != @mark')).toEqual({ canBeTrue: true, canBeFalse: false });
+  });
+
   it('assumes another record exists when it is not told which do', () => {
     expect(sat('a.r == kit or a.r == mara or a.r == rook', false)).toEqual({ canBeTrue: true, canBeFalse: true });
   });

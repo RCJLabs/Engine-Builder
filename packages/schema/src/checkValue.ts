@@ -3,7 +3,7 @@
  * issues (E001), references (E005, E006), conditions (E011 to E014, W102 to W104), asset paths and
  * effects, each of which is checked against its own schema the same way (M3.1).
  */
-import { type Effect, formatRef, isRecordId, parseRef, type RecordIndex } from '@eb/core';
+import { type Effect, formatRef, isRecordId, isSlotName, parseRef, type RecordIndex, slotProblem } from '@eb/core';
 import type { z } from 'zod';
 import { checkConditionField, type SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
@@ -26,6 +26,11 @@ export interface PartContext {
   condition(path: string, sound: SoundCondition): void;
   /** An effect whose schema passed, at path. */
   effect(path: string, value: Effect): void;
+  /**
+   * The slots the field at path can name as "@slot", each with its record's type: a quest's own
+   * fields (M3.10). Without it, or where it gives none, no slot can be named (E044).
+   */
+  slotsAt?(path: string): Readonly<Record<string, string>> | undefined;
 }
 
 const inside = (path: string, at: string) => path === at || path.startsWith(`${at}/`);
@@ -49,6 +54,10 @@ export function checkPart(
     if (!conditions.some((c) => inside(issue.path, c.path))) ctx.report('E001', base + issue.path, issue.message);
   }
   for (const found of refs) {
+    if (isSlotName(found.value)) {
+      checkSlot(found, ctx.slotsAt?.(base + found.path), (message) => ctx.report('E044', base + found.path, message));
+      continue;
+    }
     const key = resolve(found, (code, path, message) => ctx.report(code, base + path, message));
     if (key === undefined) continue;
     ctx.use(key, base + found.path);
@@ -57,9 +66,17 @@ export function checkPart(
   }
   for (const found of conditions) {
     const path = base + found.path;
+    const slots = ctx.slotsAt?.(path);
     const sound = checkConditionField(
       { path, value: found.value },
-      { facts: ctx.known.facts, open: ctx.known.openFacts, records: ctx.records, report: ctx.report, use: ctx.use },
+      {
+        facts: ctx.known.facts,
+        open: ctx.known.openFacts,
+        records: ctx.records,
+        report: ctx.report,
+        use: ctx.use,
+        ...(slots ? { slots } : {}),
+      },
     );
     if (sound) ctx.condition(path, sound);
   }
@@ -90,6 +107,17 @@ function checkEffect(value: unknown, at: string, ctx: PartContext): void {
     return;
   }
   if (checkPart(schema, value, at, ctx, true)) ctx.effect(at, value);
+}
+
+/** A slot where a reference goes: one its quest has, holding a record of a type the field takes. */
+function checkSlot(
+  found: FoundRef,
+  slots: Readonly<Record<string, string>> | undefined,
+  report: (message: string) => void,
+) {
+  const targets = typeof found.target === 'string' ? [found.target] : found.target;
+  const problems = targets.map((to) => slotProblem(found.value, { type: 'ref', to }, slots));
+  if (problems.every((problem) => problem !== undefined)) report(problems[0] as string);
 }
 
 /**

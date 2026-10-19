@@ -47,6 +47,8 @@ export const DIAGNOSTIC_CODES = {
   E041: 'A condition names a choice its event does not have',
   E042: 'A condition names a line or an option its talk does not have',
   E043: 'A condition or a set-stage names a stage or an objective its quest does not have',
+  E044: "A slot named where it can't be: one its quest doesn't have, of another type, not yet filled, or outside a quest",
+  E045: 'A quest has a job in a game without the time module',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -73,6 +75,8 @@ export const DIAGNOSTIC_CODES = {
   W124: 'Nothing brings a quest to a stage',
   W125: 'Nothing starts a quest',
   W126: 'A quest can never end from a stage',
+  W127: 'No record can ever fill a slot',
+  W128: "A text names a slot its quest doesn't have",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;
