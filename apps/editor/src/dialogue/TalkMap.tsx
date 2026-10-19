@@ -8,7 +8,7 @@ import { useMemo } from 'preact/hooks';
 import { fieldToFocus } from '../forms/focusField.ts';
 import { useForm } from '../forms/formContext.ts';
 import { type Box, type Exit, type MapRow, talkMap } from './talkMap.ts';
-import '../styles/talkMap.css';
+import '../styles/kitMap.css';
 
 const CLIP = 90;
 const clip = (text: string) => (text.length > CLIP ? `${text.slice(0, CLIP - 1).trimEnd()}…` : text);
@@ -27,18 +27,18 @@ function MapBox({ box, file, reached }: { box: Box; file: string; reached: boole
   return (
     <button
       type="button"
-      class={reached ? 'talk-map-box' : 'talk-map-box unreached'}
+      class={reached ? 'kit-map-box' : 'kit-map-box unreached'}
       onClick={() => {
         fieldToFocus.value = { file, at: `/lines/${box.index}/text` };
       }}
     >
-      <span class="talk-map-head">
+      <span class="kit-map-head">
         <strong>{box.id}</strong>
         {speaker ? <span class="muted"> · {speaker}</span> : null}
       </span>
-      {box.text ? <span class="talk-map-text">{clip(box.text)}</span> : null}
+      {box.text ? <span class="kit-map-text">{clip(box.text)}</span> : null}
       {box.exits.map((exit, i) => (
-        <span key={i} class={exit.found ? 'talk-map-exit' : 'talk-map-exit lost'}>
+        <span key={i} class={exit.found ? 'kit-map-exit' : 'kit-map-exit lost'}>
           {exitText(exit)}
         </span>
       ))}
@@ -50,12 +50,12 @@ export function TalkMap({ value, file }: { value: unknown; file: string }) {
   const rows = useMemo(() => talkMap(value), [value]);
   if (rows.length === 0) return null;
   return (
-    <section class="talk-map" aria-label="Map of the talk">
+    <section class="kit-map" aria-label="Map of the talk">
       <h4>Map</h4>
       {rows.map((row) => (
-        <div key={row.steps ?? 'none'} class="talk-map-row">
-          <h5 class={row.steps === undefined ? 'talk-map-steps unreached' : 'talk-map-steps'}>{rowTitle(row.steps)}</h5>
-          <div class="talk-map-boxes">
+        <div key={row.steps ?? 'none'} class="kit-map-row">
+          <h5 class={row.steps === undefined ? 'kit-map-steps unreached' : 'kit-map-steps'}>{rowTitle(row.steps)}</h5>
+          <div class="kit-map-boxes">
             {row.boxes.map((box) => (
               <MapBox key={box.index} box={box} file={file} reached={row.steps !== undefined} />
             ))}

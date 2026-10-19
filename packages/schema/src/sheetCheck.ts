@@ -33,7 +33,8 @@ export function checkSheet(value: unknown, ctx: SheetContext): void {
   }
 }
 
-function checkWhen(when: unknown, path: string, ctx: SheetContext): void {
+/** A When's event (E022) and its argument values (E023): a sheet row's, or a quest count's (M3.9). */
+export function checkWhen(when: unknown, path: string, ctx: SheetContext): void {
   if (!isObject(when) || typeof when.event !== 'string' || !EVENT_PATTERN.test(when.event)) return;
   const info = ctx.known.events[when.event];
   if (!info) {

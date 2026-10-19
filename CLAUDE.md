@@ -76,11 +76,11 @@ apps/editor/           the editor PWA
                        key order), problems.ts (the compiler's diagnostics per field), one component per field kind
                        in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
                        and tables make); focusField.ts (opening a form at a field, M2.8); pressing.ts (problems
-                       shown as a field is left wait for the press to lift, M3.8)
+                       shown as a field is left wait for the press to be over, at its click: M3.8, M3.9 on touch)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
                        file, used by; records whose checks read each other checked together, flagRelated.ts:
                        flags (M3.1), loot tables and shops (M3.3), stats, actors and items (M3.4), factions
-                       (M3.5), the roster and recruits (M3.6), events (M3.7), talks (M3.8)), table.ts,
+                       (M3.5), the roster and recruits (M3.6), events (M3.7), talks (M3.8), quests (M3.9)), table.ts,
                        cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
                        (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
@@ -89,7 +89,10 @@ apps/editor/           the editor PWA
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
                        (a kit's effect, its form drawn from its fields, M3.3)
   src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
-                       a plain function of the talk's value) and TalkMap.tsx, above a talk's form
+                       a plain function of the talk's value) and TalkMap.tsx, above a talk's form; its styles,
+                       styles/kitMap.css, the quest map's too
+  src/quests/          the quest map (M3.9, D47): questMap.ts (rows by steps from the first stage, where each stage
+                       leads and how it ends, over the kit's quests/graph.ts) and QuestMap.tsx, above a quest's form
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
@@ -151,7 +154,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        eventTypes.ts (event, deck), eventEffects.ts (open-event, draw-event, later, cancel-later as
                        fields), eventCheck.ts (E035, E041, W118 to W120); M3.8: dialogueTypes.ts (speaker, talk),
                        dialogueEffects.ts (open-talk as fields), dialogueCheck.ts (E035, E042, W119, W121 to
-                       W123); not pure
+                       W123); M3.9: questTypes.ts (quest), questEffects.ts (start-quest, set-stage, fail-quest as
+                       fields), questCheck.ts (E035, E043, W120, W124 to W126, and counts' E022 and E023 through
+                       sheetCheck.ts's checkWhen); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -175,11 +180,14 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        waiting; decks.ts: draws; laters.ts: consequences; module.ts, built knowing whether economy
                        is on); M3.8 (D46): dialogue/ (records.ts; view.ts: the line shown, its options from the
                        events kit's verdict; open.ts: opening, waiting, ending; say.ts: saying and going on;
-                       graph.ts: where lines lead; module.ts, built knowing whether economy is on);
-                       kits.ts (KITS, kitsOn: what project.json's kits
+                       graph.ts: where lines lead; module.ts, built knowing whether economy is on); M3.9 (D47):
+                       quests/ (records.ts; run.ts: starting, checking, moving and ending quests; journal.ts: what
+                       a quest shows, start-quest's preview; graph.ts: where stages lead, for the checks and the
+                       map; metrics.ts: kitMetrics, each quest's state for sweeps; module.ts); kits.ts (KITS,
+                       kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
-  test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts and crag.ts: the records and games
-                       the kit tests share
+  test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts and dock.ts: the records
+                       and games the kit tests share
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -200,7 +208,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        time kit joins with project.json's calendar (M3.5); crew/, a slice of Space-Wrecked made with
                        the roster kit, and crew-captain.golden.json (M3.6); convoy/, a slice of Wasteland Protocol
                        made with the events kit, and convoy-scout.golden.json (M3.7); crag/, a slice of Dirtbag
-                       made with the dialogue kit, and crag-climber.golden.json (M3.8)
+                       made with the dialogue kit, and crag-climber.golden.json (M3.8); yard/, a slice of
+                       Space-Wrecked's first act made with the quests kit, and yard-scavenger.golden.json (M3.9)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

@@ -210,6 +210,22 @@ describe('sheet edits', () => {
     expect(kitEffectFile('open-talk', ['events'])).toBeUndefined();
   });
 
+  it('says the quests kit’s effects in a few words (M3.9)', () => {
+    expect(
+      doText([
+        { effect: 'start-quest', quest: 'debt' },
+        { effect: 'set-stage', quest: 'debt', stage: 'square' },
+        { effect: 'fail-quest', quest: 'debt', why: 'You left the yard.' },
+      ]),
+    ).toBe(
+      'Do: start the quest debt, then move debt to its stage square, then fail the quest debt: You left the yard.',
+    );
+    expect(effectText({ effect: 'set-stage', quest: 'debt' })).toBe('move debt to a stage not yet chosen');
+    expect(effectText({ effect: 'fail-quest' })).toBe('fail the quest a quest not yet chosen');
+    expect(kitEffectFile('set-stage', ['quests'])?.fields.stage).toMatchObject({ kind: 'text', min: 1 });
+    expect(kitEffectFile('start-quest', ['dialogue'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

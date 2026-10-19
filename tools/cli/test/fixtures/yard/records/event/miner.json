@@ -1,0 +1,38 @@
+{
+  "name": "The miner calls",
+  "text": "The miner leans on your gate. “Thirty credits. You know what for.”",
+  "choices": [
+    {
+      "id": "pay",
+      "label": "Pay him 30 credits",
+      "cost": {
+        "credits": 30
+      },
+      "result": "He counts it twice.",
+      "effects": [
+        {
+          "effect": "set-flag",
+          "flag": "paid-miner",
+          "to": true
+        }
+      ]
+    },
+    {
+      "id": "refuse",
+      "label": "Tell him no",
+      "result": "He spits and walks off.",
+      "effects": [
+        {
+          "effect": "set-flag",
+          "flag": "refused-miner",
+          "to": true
+        }
+      ]
+    },
+    {
+      "id": "later",
+      "label": "“Tomorrow.”",
+      "result": "He doesn’t like it."
+    }
+  ]
+}

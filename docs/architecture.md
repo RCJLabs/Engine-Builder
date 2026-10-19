@@ -85,7 +85,7 @@ my-game/
   scenes/<id>.json         3D/2D scenes: entity trees with placed references
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
-  dialogue/*.ink           ink scenes, compiled into talks (M3.10)
+  dialogue/*.ink           ink scenes, compiled into talks (M3.11)
   assets/…                 images, audio, models, fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
 ```
@@ -162,30 +162,29 @@ A project made in the editor runs its scripts at once; one from a zip or a folde
 
 ## Missions
 
-The existing games use four families of mission. One quest model covers all four, plus Bethesda-style structure.
+The existing games use four families of mission ([research/missions.md](research/missions.md)). One quest model covers them, in kits ([D45](decisions.md), [D47](decisions.md)).
 
 | Family | Seen in | In the engine |
 | --- | --- | --- |
-| Choice events | space-wrecked events, dirtbag knocks, afterglass visitors, wasteland events | An `event` record: choices with `needs` (shown as costs) and weighted `outcomes` with effects |
-| Multi-step quests | space-wrecked quests (`done` / `cold` steps, `payoff`), dirtbag goal ladders, afterglass chapters | A `quest` record: steps that advance or go cold on outcomes, and a payoff |
-| Timed or contract jobs | spliceworld operations, space-wrecked contracts | A step of type `job`: duration, odds formula, outcome sealed at launch, cooldown, pitch template |
-| Counter objectives | wasteland bounties, achievements, live-ops style hunts | An objective of type `count`: a metric, a filter and a target |
+| Choice events | space-wrecked events, dirtbag knocks, afterglass visitors, wasteland events | The events kit's `event` record (M3.7): choices with needs, costs and weighted outcomes |
+| Multi-step quests | space-wrecked quests (`done` / `cold` steps, `payoff`), dirtbag goal ladders, afterglass chapters | The quests kit's `quest` record (M3.9): stages whose objectives check themselves, branches, failure |
+| Timed or contract jobs | spliceworld operations, space-wrecked contracts | A timed job (M3.10): a duration and odds, its outcome sealed at launch |
+| Counter objectives | wasteland bounties, achievements, live-ops style hunts | An objective that counts events (M3.9): an event, the argument values to match, and a target |
 
-A quest has the following parts:
+A quest ([specs/quests.md](specs/quests.md)) has the following parts:
 
-- **Stages:** numbered, each with journal text and effects on entry.
-- **Objectives:** shown while their stage is current, each with a marker bound to an alias.
-- **Aliases:** named slots filled when the quest starts. One can be a specific reference, a unique actor, or "find a matching reference" by conditions, which is how radiant quests work.
-- **Variables, start conditions, fail conditions and rewards.**
+- **Stages,** in a list, the first where it starts. Each has a log line added to the journal as it is reached, effects, objectives, the stage it goes to once they are done (Then), and ways to fail: on reaching it, on a condition, or after a number of days.
+- **Objectives,** each a condition or a count of events, checked as each event is heard and done once. One can lead to a stage of its own, so a quest branches on what the player did.
+- **Aliases** (M3.10): named slots filled when the quest starts. One can be a specific reference, a unique actor, or "find a matching reference" by conditions, which is how radiant quests repeat with new targets.
 
-The mission designer shows a step list and a graph built from the transitions. Validation finds unreachable stages, dead ends and objectives with no way to complete them. Bots prove every quest can be completed.
+The journal is `start-quest`'s preview: what the sim holds, never a second copy. The editor shows each quest as forms with a map above them, as it shows talks. Validation finds stages nothing reaches, quests nothing starts and stages a quest can't end from. The bots' sweep reports each quest's state at its runs' end, so a quest no run finishes, or one left open, shows.
 
 ## Dialogue
 
 - **Dialogue trees** for most talk (M3.8, D46, [specs/dialogue.md](specs/dialogue.md)): the dialogue kit's talks.
   - Data in dirtbag's `TalkDef` shape: starts chosen by condition, and lines with a speaker, text, effects and options. Each option is an event's choice, with the line it leads to.
   - Edited with forms and a map of the talk, the same by touch on a phone.
-- **ink scenes** for long-form writing (M3.10, D46), compiled into the same talks:
+- **ink scenes** for long-form writing (M3.11, D46, D47), compiled into the same talks:
   - a subset of ink: knots, choices, conditions and `# fx:` tags, anything else an error with its line;
   - a scene reads game state only through whitelisted EXTERNALs, which are facts;
   - its `# fx:` tags become a line's or an option's effects;

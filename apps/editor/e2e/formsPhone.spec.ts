@@ -88,3 +88,24 @@ test.describe('the Phase 2 gate, desktop 1280×800', () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe('a tap that leaves a field, phone 390×1600', () => {
+  // Tall enough that the field and the button are both in view, as in forms.spec.ts's press: scrolled
+  // to the button, the field would sit above what shows, and scroll anchoring would hide the shift.
+  test.use({ viewport: { width: 390, height: 1600 }, hasTouch: true, isMobile: true });
+
+  test('still lands where it was tapped, its problem shown once the tap is done', async ({ page }) => {
+    await importLudus(page);
+    const form = await openRecord(page, 'Gladiator', 'spiculus');
+    const before = ((await stored(page, SPICULUS)) as { skills: unknown[] }).skills.length;
+    // On touch the focus moves after the finger lifts, as the tap's mouse events follow it: shown
+    // then, At most 100 pushed Add to Skills down before the click, which was lost (M3.9, with a
+    // quest's Leads to naming a stage not yet written, on a phone).
+    await form.getByLabel('Might', { exact: true }).fill('150');
+    await form.getByRole('button', { name: 'Add to Skills', exact: true }).tap({ position: { x: 8, y: 2 } });
+    await expect(form.getByRole('textbox', { name: `Skills, item ${before + 1}`, exact: true })).toBeVisible();
+    await expect(form.locator('.form-field', { has: page.getByLabel('Might', { exact: true }) })).toContainText(
+      'At most 100',
+    );
+  });
+});

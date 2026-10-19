@@ -11,6 +11,7 @@ import { gearKit } from './gear/module.ts';
 import { GEAR } from './gear/types.ts';
 import { inventoryKit } from './inventory/module.ts';
 import { KITS } from './kits.ts';
+import { questsModule } from './quests/module.ts';
 import { rosterModule } from './roster/module.ts';
 import { ROSTER } from './roster/types.ts';
 import { statsModule } from './stats/module.ts';
@@ -19,7 +20,7 @@ import { timeKit } from './time/module.ts';
 import { TIME } from './time/types.ts';
 
 const MODULES: ReadonlyMap<string, Module> = new Map(
-  [inventoryKit, economyKit, gearKit, factionsKit].map((module) => [module.id, module]),
+  [inventoryKit, economyKit, gearKit, factionsKit, questsModule].map((module) => [module.id, module]),
 );
 // The stats module reads the gear kit's sums when gear is on (D42), so it comes in two builds.
 const STATS_ALONE = statsModule(false);

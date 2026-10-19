@@ -5,8 +5,9 @@
  * M3.4, docs/specs/stats.md), the factions kit (standing, bands, drift; M3.5,
  * docs/specs/factions.md), the time kit (the calendar as data) and the roster kit (members,
  * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md), the events kit
- * (choice events, decks, consequences; M3.7, docs/specs/events.md) and the dialogue kit (speakers
- * and talks; M3.8, docs/specs/dialogue.md). Their record types and checks are in @eb/schema.
+ * (choice events, decks, consequences; M3.7, docs/specs/events.md), the dialogue kit (speakers
+ * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
+ * M3.9, docs/specs/quests.md). Their record types and checks are in @eb/schema.
  */
 export { leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
@@ -97,6 +98,32 @@ export {
 export { KIT_IDS, KITS, type Kit, type KitProblem, kitsOn } from './kits.ts';
 export { type Drawn, draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from './loot/draw.ts';
 export { kitModules } from './modules.ts';
+export {
+  canBeDone,
+  canEnd,
+  endingStages,
+  type Lead,
+  leadsByStage,
+  leadsFrom as questLeadsFrom,
+  stepsFrom as questStepsFrom,
+} from './quests/graph.ts';
+export { type ObjectiveShown, type QuestShown, questShown } from './quests/journal.ts';
+export { kitMetrics } from './quests/metrics.ts';
+export { questsModule } from './quests/module.ts';
+export { namedObjective, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';
+export { FAILED } from './quests/run.ts';
+export {
+  type Count,
+  type Objective,
+  QUEST,
+  QUEST_STATES,
+  QUESTS,
+  type QuestEntry,
+  type QuestRecord,
+  type QuestState,
+  type QuestsSlice,
+  type Stage,
+} from './quests/types.ts';
 export { bondOf, pairKey } from './roster/bonds.ts';
 export { type HireVerdict, hallIn, hireVerdict } from './roster/hall.ts';
 export { capOf, rankOf, roomOf, rosterRecord } from './roster/members.ts';

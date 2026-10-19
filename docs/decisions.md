@@ -95,7 +95,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 ### D9. Dialogue: visual trees plus ink scenes. LOCKED, 2026-10-19, as D46 settles it
 
 - Trees in dirtbag's `TalkDef` shape for most talk, edited with forms and a map, by touch on a phone (M3.8).
-- ink for long-form writing, compiled into the same talks (M3.10), rather than played by chooser-of-the-dead's stateless scene player.
+- ink for long-form writing, compiled into the same talks (M3.10, now M3.11 since D47), rather than played by chooser-of-the-dead's stateless scene player.
 - Both use the shared conditions and effects, and one player in the sim.
 
 ### D10. Editor storage: projects in OPFS written by one worker, folders opened on desktop, zips that carry only the project; GitHub sync in Phase 4. LOCKED, 2026-10-17 (M2.1)
@@ -907,7 +907,7 @@ The spec is [specs/events.md](specs/events.md), and the survey behind it [resear
 ### D46. Dialogue: trees now, ink after Missions, compiled into talks; talks edited with forms and a map; a speaker is a record. LOCKED, 2026-10-19 (Evan's calls, M3.8)
 
 **Decision.**
-- **Trees first** (Evan's call). M3.8 is dialogue trees: talks as records, with forms, a map of each talk and checks for lines nothing reaches. ink scenes become M3.10, after Missions and still in Phase 3, so Phase 3's gate keeps its ink scene. No milestone is renumbered.
+- **Trees first** (Evan's call). M3.8 is dialogue trees: talks as records, with forms, a map of each talk and checks for lines nothing reaches. ink scenes become M3.10, after Missions and still in Phase 3, so Phase 3's gate keeps its ink scene. No milestone is renumbered. (M3.11 since D47 split Missions.)
 - **ink is compiled into talks** (Evan's call). When M3.10 comes, a scene's knots, choices, conditions on the game's facts and `# fx:` tags become the same talk records the sim plays, so bots, saves and previews cover ink scenes as they cover trees. ink's variables, functions, `RANDOM` and tunnels are errors, each with its line. chooser-of-the-dead's 61 scenes use only that subset.
 - **A talk is edited with forms and a map** (Evan's call). Each line and its options are a form, as an event's choices are. The map shows every line of the talk and where its options lead; tapping a box opens its line's form. It works the same by touch on a phone.
 - **A speaker is a record** (Evan's call), of the dialogue kit's type `speaker`: a name and a portrait from Assets. A talk names its speaker, and a line can name another. It works without the stats kit.
@@ -941,6 +941,53 @@ The spec is [specs/dialogue.md](specs/dialogue.md), and the survey behind it [re
 - **ink's subset only.** Scenes that keep ink variables, call functions or roll ink's `RANDOM` must be rewritten as facts, effects and outcomes.
 - **The map is for seeing and getting around.** A line is moved in its list, not by dragging its box.
 - **A whole talk is one file,** so two people editing one talk at once merge it by hand, as with any record.
+
+### D47. Quests: stages whose objectives check themselves, failure by condition or deadline, a journal of log lines and live objectives; aliases and timed jobs next. LOCKED, 2026-10-19 (Evan's calls, M3.9)
+
+**Decision.**
+- **Quests now, aliases next** (Evan's call). M3.9 is quests: stages, objectives, deadlines, a journal, the quest's map in the editor, checks, and bots that show each quest can finish. A new M3.10 brings aliases (slots filled as a quest starts, for quests that repeat with new targets) and timed jobs sealed at launch, as Spliceworld's operations are. ink scenes move from M3.10 to M3.11, still in Phase 3, so Phase 3's gate keeps every mission family.
+- **Objectives check themselves** (Evan's call). An objective is a condition ("has 3 rope") or a count of events ("deliver 3 crates"), checked as the game runs, as Dirtbag's goals are. Once a stage's objectives are done, the quest moves on. A `set-stage` effect also moves it, from a row, a talk or an event.
+- **A quest can fail** (Evan's call): when its stage's condition for failing holds, or when a number of days start while the stage is current. The journal says why. A quest still open when the bots' runs end is reported: started too late to finish, or stuck.
+- **The journal is a log plus live objectives** (Evan's call). Each stage reached adds its line, the current stage's objectives show with their counts ("2 of 3"), and finished and failed quests stay readable. It is the sim's preview, so the journal says what the sim holds.
+
+Evan chose on 2026-10-19, from these options:
+- scope: quests now and aliases with timed jobs next; all of it in M3.9; or aliases after Phase 3;
+- advancing: objectives that check themselves, plus set-stage; or only effects setting stages, Bethesda's way;
+- failing: by condition or deadline; or never;
+- journal: a log plus live objectives; or only what to do next.
+
+Also settled, as the session's calls:
+- **a quests kit,** switched on in `project.json`, with one record type, `quest`. With the kit off, the name is free for a project's own type;
+- **a quest is one record:** its stages in a list, the first where it starts, so its map and its checks see all of it;
+- **an objective is done once,** and stays done while its stage is current: a condition met and then lost doesn't take it back, so the journal never unticks a line;
+- **an objective can lead somewhere:** once done, the quest goes to its stage at once. The others must all be done, and then the quest goes to its stage's Then, or is done when there is none. A branch is in the quest, so its map shows it;
+- **a stage can fail the quest** as it is reached (Space-Wrecked's "gone cold");
+- **checked as each event is heard,** in the order of the quests' ids, as the events kit hears every event; a condition no event follows is read at the next one;
+- **a quest starts once:** by `start-quest`, by `set-stage`, with the game, or when its start condition holds. Starting it again does nothing; repeating quests come with aliases (M3.10);
+- **deadlines count the days started,** `time/day-started` as the events kit's consequences do, so a quest needs a time module only if a stage has days (W120);
+- **what a quest shows is `start-quest`'s preview,** as what a talk shows is `open-talk`'s;
+- **the bots' sweep reports each quest's state at its runs' end,** so a quest no run finishes, or one left open, shows in `eb sim` and in the editor's Run.
+
+The spec is [specs/quests.md](specs/quests.md), and the survey behind it [research/missions.md](research/missions.md).
+
+**Why.**
+- **Quests now, aliases next.** Aliases need records the game picks at a quest's start (actors made in play, places), with their own checks. Quests are what the demo game and Phase 3's gate need first. Splitting keeps each merge reviewable.
+- **Objectives that check themselves.** The commonest quests in the games before (goals, bounties, counters) check themselves. Wiring every move by hand is how Bethesda's quests come to have stages nothing sets, and the checks can't follow a move made from anywhere.
+- **Failure and deadlines.** Dirtbag's audit found "No quest has a deadline or a failure state"; Space-Wrecked's cold steps and Landnam's oaths are failure states players understood.
+- **The journal.** A log is what a text adventure has instead of a map marker, and counts tell the player how far they are, which Dirtbag's Next pill showed works.
+
+**Cost.**
+- **A condition is read only as events are heard.** A fact a module changes without an event is caught at the next event, not at once.
+- **An objective met and then lost stays done.** A quest that must hold a condition at its end needs a condition to fail on, or a last stage that reads it.
+- **One run per quest.** A quest done or failed stays so until M3.10's repeatable quests.
+
+**Settled while building it** (the session's calls, 2026-10-19):
+- **The log keeps each stage once,** in the order last reached, so a quest that loops can't grow its save, and the journal reads as its latest pass.
+- **A stage's effects are one attempt,** as a consequence the events kit lands: one that refuses, such as a cost the party can't meet, undoes them with `quests/refused`, and never the action that moved the quest. Playing the yard found it: a stage charging 20 credits refused the choice that reached it, so a party with less couldn't refuse the miner at all.
+- **A stage that fails fails on any check.** Its effects' events are heard before reaching it is done, and the yard's day lost to bruises, heard first, read the stage as done.
+- **The kit hears its own events,** so a quest can wait on another. A check moves a quest at most as many stages as it has, so no check runs for ever; a quest whose objectives are always met round a loop is checked again as it hears its own moves, until the kernel stops the action 64 events deep. E035 catches the loops that show in a quest's own fields.
+- **A count's arguments are text,** the ids an event names. A number is read by a Done when instead.
+- **The bots' quest metrics come after a game's own,** each named by its quest's name and id, in `eb sim` and the editor's Run alike.
 
 ---
 

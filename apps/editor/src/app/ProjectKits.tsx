@@ -30,6 +30,11 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     name: 'Dialogue',
     brings: 'Speakers, and talks of lines and what the player says back, with a map of where each line leads.',
   },
+  quests: {
+    name: 'Quests',
+    brings:
+      'Quests of stages whose objectives check themselves, kept in a journal, with a map of where each stage leads.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

@@ -6,6 +6,7 @@
  */
 import { compileWithGame, gameOf, memorySource, projectGame, readKitSettings, readScripts } from '@eb/compiler';
 import { createGame, createRecordStore, formatSweep, MAX_TURNS, randomPolicy, seedsOf, sweep } from '@eb/core';
+import { kitMetrics } from '@eb/kits';
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
 import type { GameCatalog } from '@eb/script';
 import type { CheckResult, PlayResult, SentFile } from './protocol.ts';
@@ -40,7 +41,9 @@ export async function playJob(files: readonly SentFile[], seeds: number, policyN
   if (!policy) throw new Error(`No bot "${policyName}": this game has ${policyNames(scripted.catalog).join(', ')}`);
   const game = createGame({ modules, start });
   const sim = { content: createRecordStore(compiled.pack.records) };
-  const { report } = sweep(game, sim, { seeds: seedsOf(seeds, 'seed'), policy, maxTurns: MAX_TURNS, metrics });
+  // The kits' metrics come after the game's own, as eb sim's do (M3.9).
+  const all = [...metrics, ...kitMetrics(compiled.pack.project.kits ?? [], sim.content)];
+  const { report } = sweep(game, sim, { seeds: seedsOf(seeds, 'seed'), policy, maxTurns: MAX_TURNS, metrics: all });
   return {
     kind: 'played',
     lines: formatSweep(compiled.pack.project.id, report, MAX_TURNS),

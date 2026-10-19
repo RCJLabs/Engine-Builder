@@ -1,0 +1,19 @@
+{
+  "name": "Trusted",
+  "starts-when": "quests.state(quest: bounty) == done",
+  "stages": [
+    {
+      "id": "word",
+      "log": "The chief has steady work, for someone square with the miners.",
+      "objectives": [
+        {
+          "id": "settle",
+          "text": "Settle with the miner",
+          "done-when": "quests.reached(quest: debt, stage: square)"
+        }
+      ],
+      "fail-when": "quests.state(quest: debt) == failed",
+      "why": "The chief won’t hire someone the miners are hunting."
+    }
+  ]
+}
