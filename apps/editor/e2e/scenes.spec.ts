@@ -4,7 +4,8 @@
  * panel's way to it; a speaker the scene names that isn't there (E005) at the scene's line until
  * the speaker is made; the talk the scene makes on its map, a box opening the scene at its line;
  * the scene among the talks in Records; a row opening its talk; and the export checked clean by
- * `eb validate`, its talk the same as `eb build` makes of the scene.
+ * `eb validate`, its talk the same as `eb build` makes of the scene; then, with the kit off, the scene
+ * opened from the Problems panel saying why it is no talk.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -159,5 +160,15 @@ test('a scene written in the editor, its problems at their lines, its talk on th
     'start-5',
     'start-6',
   ]);
+
+  // With the kit off a scene is no talk: the Problems panel opens it, saying why.
+  await kitsBox(page).getByLabel('Dialogue', { exact: true }).uncheck();
+  await page.getByRole('tab', { name: /^Problems \(\d+\)$/ }).click();
+  await page.getByRole('button', { name: /turn the dialogue kit on/ }).click();
+  await expect(
+    sceneRegion(page, 'first-dusk').getByText(
+      'E046: A scene compiles into a talk: turn the dialogue kit on in project.json',
+    ),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });

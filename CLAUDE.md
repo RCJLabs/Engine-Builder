@@ -121,7 +121,7 @@ apps/editor/           the editor PWA
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
                        is the save journal with big files; loot-, stats-, factions-, roster-, events- and dialogue-bench.ts
-                       the index with kits)
+                       the index with kits; scenes-bench.ts, with ink scenes)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
@@ -172,7 +172,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        read and checked, never run) and projectGame.ts (game.ts run, for eb and the script worker,
                        compileWithGame); M3.5: project.json's calendar (manifest.ts: E038, W116) and
                        readKitSettings (the kits and calendar a game's kits are built from); M3.11: scenes.ts
-                       (scenes/<id>.ink compiled into talks, E046, W131, atSceneLine); not pure
+                       (scenes/<id>.ink compiled into talks, E046, W131, atSceneLine) and sceneFiles.ts (where
+                       scenes sit, apart so the editor names them without loading the ink compiler); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module

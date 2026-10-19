@@ -51,6 +51,7 @@ function broken() {
     'scenes/old/a.ink': 'Hi.',
     'scenes/notes.md': '',
     'scenes/twice.ink': 'Hi.',
+    'scenes/latin.ink': new Uint8Array([0x48, 0xe9, 0x2e]),
     'records/talk/twice.json': JSON.stringify({ starts: [{ line: 'a' }], lines: [{ id: 'a', text: 'A' }] }),
   };
 }
@@ -76,6 +77,7 @@ describe('a project’s problems with its scenes', () => {
         'E005 scenes/letter.ink:6',
         'E012 scenes/keeper.ink:1',
         'E046 scenes/keeper.ink:2',
+        'E046 scenes/latin.ink',
         'E046 scenes/old/a.ink',
         'W123 records/talk/twice.json',
         'W131 scenes/notes.md',

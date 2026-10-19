@@ -78,6 +78,8 @@ describe('a line', () => {
       `not (${ab}) and flag.on(e)`,
     ]);
     expect(branchIf('flag_on("a") or flag_on("b")')).toEqual([{ if: 'flag.on(a) or flag.on(b)', line: 'start-2' }]);
+    const [alone] = linesOf([...FLAGS, 'You {flag_on("a") or flag_on("b"): x|y}.']);
+    expect(((alone?.branches ?? []) as { if: string }[]).map((b) => b.if)).toEqual(['flag.on(a) or flag.on(b)']);
     const [pick] = linesOf([...FLAGS, 'Pick.', '* {flag_on("a") or flag_on("b")} {flag_on("c")} [Go.] -> END']);
     expect(((pick?.options ?? []) as { if: string }[])[0]?.if).toBe('(flag.on(a) or flag.on(b)) and flag.on(c)');
   });

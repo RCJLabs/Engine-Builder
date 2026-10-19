@@ -28,15 +28,8 @@ export {
 } from './projectCheck.ts';
 export { compileWithGame, gameOf, gameOptions, projectGame, type ScriptedGame } from './projectGame.ts';
 export { projectFiles, readFiles, zipProject } from './projectZip.ts';
-export {
-  atSceneLine,
-  classifyScene,
-  readScenes,
-  SCENES_DIR,
-  type SceneFile,
-  type ScenesRead,
-  scenePath,
-} from './scenes.ts';
+export { classifyScene, SCENES_DIR, type SceneFile, scenePath } from './sceneFiles.ts';
+export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
