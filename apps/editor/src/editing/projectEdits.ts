@@ -6,7 +6,7 @@
 import { MANIFEST_FILE, type ProjectSource, projectSchema } from '@eb/compiler';
 import { KITS } from '@eb/kits';
 import type { FileChange } from './history.ts';
-import { editJson } from './jsonText.ts';
+import { editJson, readJson } from './jsonText.ts';
 
 export type ManifestField = 'name' | 'version';
 
@@ -53,6 +53,19 @@ export async function kitsChange(source: ProjectSource, kits: readonly string[])
     return kits.length === 0 ? rest : { ...(manifest as object), kits: [...kits] };
   });
   return after === before ? null : { path: MANIFEST_FILE, before, after };
+}
+
+/**
+ * The change that turns `kit` on or off, from the kits project.json lists as the edit runs rather
+ * than the boxes as last drawn: a second box ticked before the first one's edit landed undid it
+ * (M3.8, seen on CI with Dialogue then Economy).
+ */
+export async function kitToggle(source: ProjectSource, kit: string, wanted: boolean): Promise<FileChange | null> {
+  const bytes = await source.read(MANIFEST_FILE);
+  if (bytes === undefined) return null;
+  const listed = (readJson(bytes).value as { kits?: unknown }).kits;
+  const on = Array.isArray(listed) ? listed.filter((id): id is string => typeof id === 'string') : [];
+  return kitsChange(source, kitsWith(on, kit, wanted));
 }
 
 /** The kits on once `kit` is turned on or off, in the engine's order. */

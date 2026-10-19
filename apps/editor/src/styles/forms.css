@@ -257,9 +257,12 @@ textarea.form-input {
   gap: 8px;
 }
 
+/* No width of its own, as with the effect picker's select (M3.7): `width: auto` held the input at
+   its natural width, about 20 characters, past a 740 × 360 inspector's edge in an option's Cost,
+   two lists deep (M3.8). */
 .form-new-key .form-input {
   flex: 1 1 10rem;
-  width: auto;
+  min-width: 0;
 }
 
 .form-new-key .form-problems {

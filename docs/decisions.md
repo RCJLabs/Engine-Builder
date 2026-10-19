@@ -926,7 +926,7 @@ Also settled, as the session's calls:
 - **the open talk and its line are saved,** as Landnam, Space-Wrecked and Wasteland saved their open cards. Dirtbag and Sandbagged lost the open talk on reload, and chooser played its scene again from the start;
 - **a talk opened while another is open waits its turn,** as an event does; a mode an option's effects open, such as a shop or an event, comes before the talk goes on;
 - **once options** are hidden once said: dirtbag's "said once and for good";
-- **checks for content nothing reaches,** the survey's commonest failure: a line no start, option or line leads to (W121), a line whose options can all be locked (W122) and a talk nothing opens (W123), beside E035 for a talk that doesn't hold together and E042 for a condition naming a line or option a talk doesn't have;
+- **checks for content nothing reaches,** the survey's commonest failure: a line no start reaches (W121), a line that can show only locked options (W122) and a talk nothing opens (W123), beside E035 for a talk that doesn't hold together and E042 for a condition naming a line or option a talk doesn't have;
 - **lines are plain text** in M3.8. Text filled in from the game's state is an idea, for events too.
 
 The spec is [specs/dialogue.md](specs/dialogue.md), and the survey behind it [research/dialogue.md](research/dialogue.md).

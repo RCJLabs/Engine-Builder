@@ -75,11 +75,12 @@ apps/editor/           the editor PWA
   src/forms/           record forms (M2.4): the catalog (types, records, assets), values.ts (paths, empty values,
                        key order), problems.ts (the compiler's diagnostics per field), one component per field kind
                        in fields/, the picker, refChoices.ts, RecordForm; recordEdits.ts (the file changes forms
-                       and tables make); focusField.ts (opening a form at a field, M2.8)
+                       and tables make); focusField.ts (opening a form at a field, M2.8); pressing.ts (problems
+                       shown as a field is left wait for the press to lift, M3.8)
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
                        file, used by; records whose checks read each other checked together, flagRelated.ts:
                        flags (M3.1), loot tables and shops (M3.3), stats, actors and items (M3.4), factions
-                       (M3.5), the roster and recruits (M3.6), events (M3.7)), table.ts,
+                       (M3.5), the roster and recruits (M3.6), events (M3.7), talks (M3.8)), table.ts,
                        cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
                        (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
@@ -87,6 +88,8 @@ apps/editor/           the editor PWA
                        (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form; M3.2's
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
                        (a kit's effect, its form drawn from its fields, M3.3)
+  src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
+                       a plain function of the talk's value) and TalkMap.tsx, above a talk's form
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,

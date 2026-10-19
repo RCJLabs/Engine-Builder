@@ -1,6 +1,8 @@
 import { pointerSegment, SHEET } from '@eb/core';
+import { DIALOGUE, TALK } from '@eb/kits';
 import type { DataType, Diagnostic } from '@eb/schema';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import type { OpenProject } from '../projects/opened.ts';
@@ -201,6 +203,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
           remove={(key) => api.update([key], () => undefined, `Remove “${key}”`)}
           canEdit={canEdit}
         />
+        {/* A talk gets its map above its fields (M3.8): with the kit off, "talk" is a project's own type. */}
+        {type === TALK && catalog.kits.includes(DIALOGUE) ? <TalkMap value={value} file={file} /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

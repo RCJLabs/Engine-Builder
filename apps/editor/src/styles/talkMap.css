@@ -1,0 +1,75 @@
+/* M3.8's talk map, above a talk's form: rows of boxes that wrap, so a 320 px inspector shows every
+   box whole with nothing past its edge. A box is a button at least 44 px each way. */
+
+.talk-map {
+  margin: 0 0 12px;
+}
+
+.talk-map h4 {
+  margin: 8px 0 4px;
+  font-size: 1rem;
+}
+
+.talk-map-row {
+  margin: 0 0 8px;
+}
+
+.talk-map-steps {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.talk-map-steps.unreached {
+  color: var(--warning);
+}
+
+.talk-map-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.talk-map-box {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: var(--tap);
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* A line nothing leads to (W121): dashed, in the warning's colour. */
+.talk-map-box.unreached {
+  border: 1px dashed var(--warning);
+}
+
+.talk-map-box:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.talk-map-text {
+  font-style: italic;
+}
+
+.talk-map-exit {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* An exit to a line the talk doesn't have (E035). */
+.talk-map-exit.lost {
+  color: var(--warning);
+}

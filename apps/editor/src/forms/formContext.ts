@@ -9,6 +9,7 @@ import { createContext } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import type { Catalog } from './catalog.ts';
 import type { Problem } from './FieldShell.tsx';
+import { afterPress } from './pressing.ts';
 import type { Path } from './values.ts';
 
 export interface FormApi {
@@ -42,13 +43,14 @@ export const pointerOf = (path: Path): string => path.map((key) => `/${pointerSe
 
 /**
  * The problems a field shows. One that appears while the field is being typed in waits until it
- * is left; one it had already stays up while it is fixed, and goes as soon as it is.
+ * is left, and the press that left it has lifted (pressing.ts); one it had already stays up while
+ * it is fixed, and goes as soon as it is.
  */
 export function useShownProblems(problems: readonly Problem[]) {
   const [quiet, setQuiet] = useState(false);
   return {
     shown: quiet ? [] : problems,
     onFocus: () => setQuiet(problems.length === 0),
-    onBlur: () => setQuiet(false),
+    onBlur: () => afterPress(() => setQuiet(false)),
   };
 }

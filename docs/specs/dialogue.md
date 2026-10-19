@@ -192,7 +192,7 @@ A line or an option its talk doesn't have, named in `dialogue.heard` or `dialogu
 
 ## The map
 
-The editor draws each talk as a map above its form ([editor-kits.md](editor-kits.md#the-dialogue-kit-m38)): a box for each line, in rows by how many steps it is from a start, and an arrow for each option, outcome and `next`. A line nothing reaches is drawn below the rest, marked. Tapping a box opens its line's form. The layout is a plain function of the talk, so it is tested without a browser.
+The editor draws each talk as a map above its form ([editor-kits.md](editor-kits.md#the-dialogue-kit-m38)): a box for each line, in rows by the fewest steps from a start (`stepsFrom` in the kit, which W121 reads too), and in each box where each option, outcome and `next` leads, as words: "“Chip in for gas” → thanks". A line no start reaches is in a last row, marked. Tapping a box opens its line's form. The layout is a plain function of the talk, so it is tested without a browser.
 
 ## Proof
 
