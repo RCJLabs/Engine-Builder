@@ -6,12 +6,15 @@
 import { createRecordStore, type GameState, Rng } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { mustered, musterWith, RECORDS } from '../../test/muster.ts';
-import { feeOf, NAME_TRIES, nextRecruit, type Offer, offerAt, roll } from './offers.ts';
+import { feeOf, nextRecruit, type Offer, offerAt, roll } from './offers.ts';
 import type { RecruitRecord, RosterSlice } from './types.ts';
 
 const slice = (state: GameState) => state.roster as RosterSlice;
 const content = createRecordStore(RECORDS as Record<string, Record<string, unknown>>);
 type Template = RecruitRecord;
+
+// The spec's number, written out: a port draws a worn name again up to 20 times.
+const NAME_TRIES = 20;
 
 /** A recruit drawn by hand from a stream, as the spec lists the draws: name, stats by id, traits until `most`. */
 function rolledByHand(template: Template, rng: Rng, worn: ReadonlySet<string>) {

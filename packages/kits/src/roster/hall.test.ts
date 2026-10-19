@@ -109,6 +109,20 @@ describe('hiring', () => {
     expect(offerAt(content(state), slice(state), 'dock', 1)).not.toEqual(round0);
   });
 
+  it('offers a hire the fee takes below 0 when the resource goes that low, as pay-cost does', () => {
+    const debt = musterWith({ ...RECORDS, resource: { credits: { name: 'Credits', start: 10, min: -100 } } });
+    const state = debt.visit(debt.start(), 'dock');
+    expect(debt.game.options(state, debt.sim).filter((a) => a.type === 'roster/hire')).toHaveLength(2);
+    expect(debt.hire(state, 0).accepted).toBe(true);
+  });
+
+  it('takes anyone with no cap at all', () => {
+    const open = musterWith(withRoster({ cap: undefined }));
+    let state = open.visit(open.start(), 'dock');
+    state = (open.hire(state, 0) as { state: GameState }).state;
+    expect(open.hire(state, 1).accepted).toBe(true);
+  });
+
   it('charges nothing without the economy kit', () => {
     const free = musterWith(RECORDS, false);
     const state = free.visit(free.start(), 'dock');

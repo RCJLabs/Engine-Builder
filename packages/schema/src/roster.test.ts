@@ -112,6 +112,22 @@ describe('recruits, halls and the roster that hold together', () => {
     ]);
   });
 
+  it('take a chance in whole percents, at most 20 offers a round, and a bond and a leave as written', () => {
+    const chancy = { ...DECKHAND, traits: [{ status: 'steady', chance: 101 }] };
+    expect(codes(check([...BASE, record('recruit', 'deckhand', chancy)]))).toEqual(['E001 deckhand /traits/0/chance']);
+    const busy = { offers: 21, recruits: [{ recruit: 'deckhand' }] };
+    const halls = [...SOUND.filter((r) => r.type !== 'hall'), record('hall', 'dock', busy)];
+    expect(codes(check(halls))).toEqual(['E001 dock /offers']);
+    const effects = [
+      { effect: 'change-bond', actor: 'ana', with: 'nobody', by: 1 },
+      { effect: 'leave', actor: 'ana' },
+    ];
+    expect(codes(check([...SOUND, row('roster.count >= 1', effects)]))).toEqual([
+      'E005 watch /rows/0/do/0/with',
+      'E001 watch /rows/0/do/1/why',
+    ]);
+  });
+
   it('offer each recruit from one entry of a hall', () => {
     const twice = { recruits: [{ recruit: 'deckhand' }, { recruit: 'deckhand', weight: 2 }] };
     const found = check([...SOUND.filter((r) => r.type !== 'hall'), record('hall', 'dock', twice)]);
@@ -122,6 +138,9 @@ describe('recruits, halls and the roster that hold together', () => {
     const found = check([...SOUND, record('roster', 'zz-second', {}), record('roster', 'third', {})]);
     expect(codes(found)).toEqual(['E035 third ', 'E035 zz-second ']);
     expect(found[0]?.message).toBe('A game has one roster: crew is the one read, so this one does nothing');
+    // The first by id, not the first read.
+    const alpha = codes(check([...SOUND, record('roster', 'alpha', {})]));
+    expect(alpha).toEqual(['E035 crew ']);
   });
 
   it('start each member once, within the cap, and give a cap one way', () => {

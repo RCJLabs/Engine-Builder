@@ -57,6 +57,26 @@ describe('members', () => {
     expect(open.fact(open.start(), 'roster.room')).toBeUndefined();
   });
 
+  it('have no room, never less, when a flag lowers the cap below them', () => {
+    const berths = musterWith(withRoster({ cap: undefined, 'cap-flag': 'berths' }));
+    const state = berths.apply(berths.start(), { effect: 'set-flag', flag: 'berths', to: 1 });
+    expect(berths.fact(state, 'roster.room')).toBe(0);
+    expect(berths.attempt(state, { effect: 'join', actor: 'cy' }).beats[0]).toMatchObject({ reason: 'roster-full' });
+  });
+
+  it('who aren’t actors, or leave with no why, throw', () => {
+    expect(() => apply(start(), { effect: 'join', actor: 'nobody' })).toThrow('No actor "nobody"');
+    expect(() => apply(start(), { effect: 'leave', actor: 'ana' })).toThrow('leave: "why" is text, such as "dead"');
+    expect(() => apply(start(), { effect: 'leave', actor: 'ana', why: '' })).toThrow('leave: "why" is text');
+  });
+
+  it('read by an id that every object has, constructor, are never there', () => {
+    const state = start();
+    expect(fact(state, 'roster.member', { actor: 'constructor' })).toBe(false);
+    expect(fact(state, 'roster.left', { actor: 'constructor' })).toBeUndefined();
+    expect(content(state).has('actor', 'constructor')).toBe(false);
+  });
+
   it('are an empty roster with no cap, ranks or bounds when there is no roster record', () => {
     const { roster: _, ...rest } = RECORDS;
     const none = musterWith(rest);
@@ -228,6 +248,13 @@ describe('bonds', () => {
     expect(() => apply(start(), { effect: 'change-bond', actor: 'ana', with: 'bo', by: 1.5 })).toThrow(
       'change-bond: "by" is a whole number',
     );
+  });
+
+  it('start at 0 kept within the bounds when the roster gives no start', () => {
+    const high = musterWith(withRoster({ bonds: { min: 5, max: 20 } }));
+    expect(high.fact(high.start(), 'roster.bond', { actor: 'ana', with: 'bo' })).toBe(5);
+    const low = musterWith(withRoster({ bonds: { min: -20, max: -5 } }));
+    expect(low.fact(low.start(), 'roster.bond', { actor: 'ana', with: 'bo' })).toBe(-5);
   });
 
   it('move for every pair of members at once, in id order', () => {
