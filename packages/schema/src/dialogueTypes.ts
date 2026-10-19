@@ -20,7 +20,13 @@ export const SPEAKER_TYPE_FILE: TypeFile = {
 
 const ID_WORDS = 'lowercase words joined by hyphens, once in the talk';
 
-const leadsTo = (description: string): FieldDef => ({ kind: 'text', min: 1, optional: true, label: 'Leads to', description });
+const leadsTo = (description: string): FieldDef => ({
+  kind: 'text',
+  min: 1,
+  optional: true,
+  label: 'Leads to',
+  description,
+});
 
 const SPEAKER_REF = (description: string): FieldDef => ({
   kind: 'ref',

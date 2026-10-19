@@ -1,0 +1,16 @@
+{
+  "name": "Marge’s van",
+  "currency": "cash",
+  "stock": {
+    "items": [
+      {
+        "item": "rope",
+        "count": 1
+      },
+      {
+        "item": "chalk",
+        "count": 3
+      }
+    ]
+  }
+}

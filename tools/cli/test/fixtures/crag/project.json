@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "crag",
+  "name": "The crag",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "dialogue"]
+}

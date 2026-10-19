@@ -1,0 +1,44 @@
+{
+  "name": "The crag",
+  "rows": [
+    {
+      "id": "gate",
+      "note": "The ranger checks permits at the gate, every time.",
+      "when": {
+        "event": "crag/arrived"
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "ranger"
+        }
+      ]
+    },
+    {
+      "id": "partner",
+      "note": "Marge is in the lot: her talk waits for the ranger's.",
+      "when": {
+        "event": "crag/arrived"
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "marge"
+        }
+      ]
+    },
+    {
+      "id": "top",
+      "note": "Topping out says something only once the arete has gone.",
+      "when": {
+        "event": "crag/climbed"
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "summit"
+        }
+      ]
+    }
+  ]
+}

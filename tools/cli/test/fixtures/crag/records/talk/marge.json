@@ -1,0 +1,148 @@
+{
+  "name": "Marge in the lot",
+  "speaker": "marge",
+  "starts": [
+    {
+      "if": "dialogue.talked(talk: marge) >= 1",
+      "line": "again"
+    },
+    {
+      "line": "hello"
+    }
+  ],
+  "lines": [
+    {
+      "id": "hello",
+      "text": "First time at the crag?",
+      "options": [
+        {
+          "id": "first",
+          "label": "It is. Show me around?",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "bond",
+              "by": 1
+            }
+          ],
+          "next": "tour"
+        },
+        {
+          "id": "been",
+          "label": "I’ve been before.",
+          "next": "again"
+        }
+      ]
+    },
+    {
+      "id": "tour",
+      "text": "The slab is the warm-up. The arete is the prize.",
+      "next": "again"
+    },
+    {
+      "id": "again",
+      "text": "What are we doing today?",
+      "options": [
+        {
+          "id": "gas",
+          "label": "Chip in for gas",
+          "cost": {
+            "cash": 10
+          },
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "bond",
+              "by": 1
+            }
+          ],
+          "next": "thanks"
+        },
+        {
+          "id": "beta",
+          "label": "Any beta for the arete?",
+          "needs": "flag.number(bond) >= 2",
+          "once": true,
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "knows-arete",
+              "to": true
+            }
+          ],
+          "next": "beta-given"
+        },
+        {
+          "id": "send",
+          "label": "Watch me send it",
+          "if": "flag.on(knows-arete)",
+          "outcomes": [
+            {
+              "chance": 60,
+              "effects": [
+                {
+                  "effect": "add-to-flag",
+                  "flag": "sends",
+                  "by": 1
+                }
+              ],
+              "next": "sent"
+            },
+            {
+              "chance": 40,
+              "effects": [],
+              "next": "fell"
+            }
+          ]
+        },
+        {
+          "id": "gear",
+          "label": "What’s in the van?",
+          "effects": [
+            {
+              "effect": "open-shop",
+              "shop": "van"
+            }
+          ],
+          "next": "after-gear"
+        },
+        {
+          "id": "bye",
+          "label": "See you around."
+        }
+      ]
+    },
+    {
+      "id": "thanks",
+      "text": "Appreciated. Next round is on me.",
+      "next": "again"
+    },
+    {
+      "id": "beta-given",
+      "speaker": "dex",
+      "text": "Heel hook at the second bolt. Trust it.",
+      "next": "again"
+    },
+    {
+      "id": "sent",
+      "text": "Clean! Drinks on you.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "bond",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "fell",
+      "text": "Whipper! Shake it off.",
+      "next": "again"
+    },
+    {
+      "id": "after-gear",
+      "text": "Gear like that will last you.",
+      "next": "again"
+    }
+  ]
+}

@@ -146,7 +146,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        rosterTypes.ts (recruit, hall, roster), rosterCheck.ts (E035, E040, W117), bandCheck.ts (bands
                        lowest first, a faction's and the roster's); M3.7: the type files' effects kind,
                        eventTypes.ts (event, deck), eventEffects.ts (open-event, draw-event, later, cancel-later as
-                       fields), eventCheck.ts (E035, E041, W118 to W120); not pure
+                       fields), eventCheck.ts (E035, E041, W118 to W120); M3.8: dialogueTypes.ts (speaker, talk),
+                       dialogueEffects.ts (open-talk as fields), dialogueCheck.ts (E035, E042, W119, W121 to
+                       W123); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -168,11 +170,13 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        rule factions and the roster share); own.ts (a slice's map read by id); M3.7 (D45): events/
                        (choices.ts: the verdict, the view and the options in one; choose.ts; open.ts: opening and
                        waiting; decks.ts: draws; laters.ts: consequences; module.ts, built knowing whether economy
-                       is on);
+                       is on); M3.8 (D46): dialogue/ (records.ts; view.ts: the line shown, its options from the
+                       events kit's verdict; open.ts: opening, waiting, ending; say.ts: saying and going on;
+                       graph.ts: where lines lead; module.ts, built knowing whether economy is on);
                        kits.ts (KITS, kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
-  test/                market.ts, barracks.ts, embassy.ts, muster.ts and caravan.ts: the records and games the kit
-                       tests share
+  test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts and crag.ts: the records and games
+                       the kit tests share
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -192,7 +196,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        time kits, and steading-jarl.golden.json; almanac/ and almanac-game.ts, a --game module the
                        time kit joins with project.json's calendar (M3.5); crew/, a slice of Space-Wrecked made with
                        the roster kit, and crew-captain.golden.json (M3.6); convoy/, a slice of Wasteland Protocol
-                       made with the events kit, and convoy-scout.golden.json (M3.7)
+                       made with the events kit, and convoy-scout.golden.json (M3.7); crag/, a slice of Dirtbag
+                       made with the dialogue kit, and crag-climber.golden.json (M3.8)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
