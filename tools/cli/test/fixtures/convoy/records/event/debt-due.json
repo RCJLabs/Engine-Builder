@@ -1,0 +1,25 @@
+{
+  "name": "The debt comes due",
+  "text": "The ledger again, and two men behind it.",
+  "choices": [
+    {
+      "id": "pay",
+      "label": "Pay 50 scrap",
+      "cost": {
+        "scrap": 50
+      },
+      "result": "Your name is struck out."
+    },
+    {
+      "id": "refuse",
+      "label": "Refuse",
+      "result": "They send collectors.",
+      "effects": [
+        {
+          "effect": "open-event",
+          "event": "raiders"
+        }
+      ]
+    }
+  ]
+}

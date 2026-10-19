@@ -1,0 +1,8 @@
+{
+  "name": "Nodes crossed",
+  "number": {
+    "start": 0,
+    "min": 0,
+    "max": 8
+  }
+}

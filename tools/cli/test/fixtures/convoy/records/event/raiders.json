@@ -1,0 +1,86 @@
+{
+  "name": "Raiders",
+  "text": "Bikes on the ridge, and a toll chalked on a burnt-out bus.",
+  "choices": [
+    {
+      "id": "pay",
+      "label": "Pay the toll",
+      "cost": {
+        "scrap": 20
+      },
+      "result": "They take it and wave you through."
+    },
+    {
+      "id": "flee",
+      "label": "Floor it",
+      "needs": "economy.amount(resource: fuel) >= 2",
+      "result": "You leave them in the dust.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "fuel",
+          "by": -2
+        }
+      ]
+    },
+    {
+      "id": "fight",
+      "label": "Fight",
+      "needs": "economy.amount(resource: fuel) >= 1",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "They scatter, and leave their scrap.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "scrap",
+              "by": 15
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "They hole the tank and ride off to tell their friends.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "fuel",
+              "by": -1
+            },
+            {
+              "effect": "later",
+              "id": "pursuit",
+              "after": {
+                "days": 2
+              },
+              "do": [
+                {
+                  "effect": "open-event",
+                  "event": "pursuit"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "parley",
+      "label": "Name the survivor",
+      "if": "flag.on(helped)",
+      "result": "They know the name, and let you pass."
+    },
+    {
+      "id": "hide",
+      "label": "Hide in the rocks",
+      "result": "You lose a day, and they lose interest.",
+      "effects": [
+        {
+          "effect": "wait",
+          "days": 1
+        }
+      ]
+    }
+  ]
+}

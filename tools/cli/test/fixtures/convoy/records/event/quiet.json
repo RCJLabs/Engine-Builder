@@ -1,0 +1,9 @@
+{
+  "name": "A quiet stretch",
+  "choices": [
+    {
+      "id": "go-on",
+      "label": "Drive on"
+    }
+  ]
+}

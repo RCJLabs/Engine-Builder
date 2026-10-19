@@ -1,0 +1,23 @@
+{
+  "name": "The road",
+  "rows": [
+    {
+      "id": "next-node",
+      "note": "Each node crossed is counted, then holds what the road deck draws.",
+      "when": {
+        "event": "convoy/traveled"
+      },
+      "do": [
+        {
+          "effect": "add-to-flag",
+          "flag": "nodes",
+          "by": 1
+        },
+        {
+          "effect": "draw-event",
+          "deck": "road"
+        }
+      ]
+    }
+  ]
+}

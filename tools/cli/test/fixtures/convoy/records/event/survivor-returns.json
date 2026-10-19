@@ -1,0 +1,23 @@
+{
+  "name": "The survivor’s people",
+  "text": "A camp flies the survivor’s colours, and waves you in.",
+  "choices": [
+    {
+      "id": "accept",
+      "label": "Take what they give",
+      "result": "Scrap and a can of fuel, for a life.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "scrap",
+          "by": 20
+        },
+        {
+          "effect": "add-resource",
+          "resource": "fuel",
+          "by": 2
+        }
+      ]
+    }
+  ]
+}

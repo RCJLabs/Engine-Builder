@@ -363,8 +363,31 @@ describe('the code table', () => {
         rows: [{ id: 'a', when: { event: 'roster/joined' }, if: 'roster.ranked(veteran) >= 1', do: [] }],
       }),
     });
+    // M3.7: an event every choice of which costs, in a game without the economy kit or a time module,
+    // a consequence counting days, and a row naming a choice the event lacks.
+    const evented = await kitted(
+      ['events'],
+      {
+        'records/event/toll.json': JSON.stringify({
+          choices: [
+            {
+              id: 'pay',
+              label: 'Pay',
+              cost: { scrap: 5 },
+              effects: [{ effect: 'later', after: { days: 2 }, do: [] }],
+            },
+          ],
+        }),
+        'records/sheet/watch.json': JSON.stringify({
+          rows: [{ id: 'a', when: { event: 'events/chosen' }, if: 'events.chose(event: toll, choice: run)', do: [] }],
+        }),
+      },
+      undefined,
+      { facts: ENGINE_FACTS, events: ENGINE_EVENTS },
+    );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const seen = new Set([...results, timed, drifting, rostered].flatMap((r) => r.diagnostics.map((d) => d.code)));
+    const late = [timed, drifting, rostered, evented];
+    const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

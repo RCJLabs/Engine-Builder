@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "convoy",
+  "name": "The convoy",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "time", "events"],
+  "calendar": {
+    "ticksPerDay": 1
+  }
+}
