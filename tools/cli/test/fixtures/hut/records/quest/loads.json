@@ -1,0 +1,39 @@
+{
+  "name": "Loads for the village",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "carry",
+      "log": "The village needs five loads carried up before the season ends.",
+      "objectives": [
+        {
+          "id": "loads",
+          "text": "Carry five loads up",
+          "count": {
+            "event": "hut/carried",
+            "to": 5
+          }
+        }
+      ],
+      "next": "thanked",
+      "days": 9,
+      "why": "The season ended first."
+    },
+    {
+      "id": "thanked",
+      "log": "The village thanked you with coins.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "coins",
+          "by": 10
+        },
+        {
+          "effect": "change-standing",
+          "faction": "village",
+          "by": 2
+        }
+      ]
+    }
+  ]
+}

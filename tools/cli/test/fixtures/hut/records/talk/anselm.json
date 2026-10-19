@@ -1,0 +1,44 @@
+{
+  "name": "Anselm",
+  "speaker": "anselm",
+  "starts": [
+    {
+      "if": "quests.state(quest: guiding) == waiting",
+      "line": "ask"
+    },
+    {
+      "line": "busy"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "A party wants the ridge. Will you take them up with me?",
+      "options": [
+        {
+          "id": "take",
+          "label": "Take them up",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "guiding"
+            }
+          ],
+          "next": "set"
+        },
+        {
+          "id": "not-now",
+          "label": "Not now"
+        }
+      ]
+    },
+    {
+      "id": "set",
+      "text": "Two days, then. Bring the rope."
+    },
+    {
+      "id": "busy",
+      "text": "Good luck with the season."
+    }
+  ]
+}

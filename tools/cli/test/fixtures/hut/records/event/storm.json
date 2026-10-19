@@ -1,0 +1,40 @@
+{
+  "name": "A storm",
+  "text": "A storm comes over the col in the afternoon, and a party is still out on the ridge.",
+  "choices": [
+    {
+      "id": "search",
+      "label": "Go out and look for them",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "You find them below the col and bring them in.",
+          "effects": [
+            {
+              "effect": "change-standing",
+              "faction": "guild",
+              "by": 2
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "The snow drives you back alone.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "lamp",
+      "label": "Keep a lamp in the window",
+      "result": "They find their own way in at midnight.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "guild",
+          "by": 1
+        }
+      ]
+    }
+  ]
+}

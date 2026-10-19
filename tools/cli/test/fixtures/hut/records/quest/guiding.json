@@ -1,0 +1,47 @@
+{
+  "name": "The ridge",
+  "stages": [
+    {
+      "id": "up",
+      "log": "You and Anselm take a party up the ridge.",
+      "job": {
+        "takes": {
+          "days": 2
+        },
+        "outcomes": [
+          {
+            "chance": 70,
+            "text": "the party tops out",
+            "next": "topped"
+          },
+          {
+            "chance": 30,
+            "text": "the weather turns them back",
+            "next": "turned"
+          }
+        ]
+      }
+    },
+    {
+      "id": "topped",
+      "log": "The party topped out, and the guild paid you.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "coins",
+          "by": 15
+        },
+        {
+          "effect": "change-standing",
+          "faction": "guild",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "turned",
+      "log": "The weather turned the party back.",
+      "fails": true
+    }
+  ]
+}

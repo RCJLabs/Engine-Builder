@@ -1,0 +1,47 @@
+{
+  "name": "Stock the hut",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "buy",
+      "log": "The shelves are bare. A rope from the store comes first.",
+      "objectives": [
+        {
+          "id": "rope",
+          "text": "Buy a rope",
+          "done-when": "inventory.count(item: rope) >= 1"
+        }
+      ],
+      "next": "ask"
+    },
+    {
+      "id": "ask",
+      "log": "Greta will know what else the season needs.",
+      "objectives": [
+        {
+          "id": "greta",
+          "text": "Talk to Greta",
+          "count": {
+            "event": "dialogue/ended",
+            "args": {
+              "talk": "greta"
+            },
+            "to": 1
+          }
+        }
+      ],
+      "next": "stocked"
+    },
+    {
+      "id": "stocked",
+      "log": "The hut is ready for the season.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "village",
+          "by": 1
+        }
+      ]
+    }
+  ]
+}

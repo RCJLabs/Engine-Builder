@@ -1,0 +1,61 @@
+{
+  "name": "The season",
+  "rows": [
+    {
+      "id": "storm",
+      "when": {
+        "event": "time/day-started"
+      },
+      "if": "time.day == 3",
+      "do": [
+        {
+          "effect": "open-event",
+          "event": "storm"
+        }
+      ]
+    },
+    {
+      "id": "evening",
+      "when": {
+        "event": "time/day-started"
+      },
+      "if": "time.day == 5",
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "evening"
+        }
+      ]
+    },
+    {
+      "id": "greta",
+      "when": {
+        "event": "hut/visited",
+        "args": {
+          "who": "greta"
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "greta"
+        }
+      ]
+    },
+    {
+      "id": "anselm",
+      "when": {
+        "event": "hut/visited",
+        "args": {
+          "who": "anselm"
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "anselm"
+        }
+      ]
+    }
+  ]
+}
