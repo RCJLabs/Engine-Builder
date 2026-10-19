@@ -9,7 +9,7 @@ It follows the games that came before ([research/dialogue.md](../research/dialog
 - **Landnam's checks:** an outcome leads to a line of its own, so success and failure go on differently.
 - **Rule-or-Drool's and Sandbagged's validators:** a line nothing reaches, and a talk nothing opens, are found before a player has to.
 
-ink scenes (M3.10) compile into these same talks.
+ink scenes (M3.11) compile into these same talks.
 
 ## Switching it on
 
