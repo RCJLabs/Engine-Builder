@@ -1,0 +1,41 @@
+{
+  "name": "The miner’s debt",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "owed",
+      "log": "A miner wants 30 credits back within six days. He’ll come by from the third.",
+      "objectives": [
+        {
+          "id": "pay",
+          "text": "Pay the miner 30 credits",
+          "done-when": "flag.on(paid-miner)",
+          "next": "square"
+        },
+        {
+          "id": "refuse",
+          "text": "Or tell him no",
+          "done-when": "flag.on(refused-miner)",
+          "next": "hunted"
+        }
+      ],
+      "days": 6,
+      "why": "The miner came for it."
+    },
+    {
+      "id": "square",
+      "log": "The miner shook your hand."
+    },
+    {
+      "id": "hunted",
+      "log": "You refused, and his friends found you: a day lost to the bruises.",
+      "effects": [
+        {
+          "effect": "wait",
+          "days": 1
+        }
+      ],
+      "fails": true
+    }
+  ]
+}

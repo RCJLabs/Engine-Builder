@@ -22,7 +22,7 @@ import {
   seedsOf,
   sweep,
 } from '@eb/core';
-import { kitModules } from '@eb/kits';
+import { kitMetrics, kitModules } from '@eb/kits';
 import { type GameModule, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
 import { formatGolden } from './simReport.ts';
@@ -65,7 +65,9 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const game = createGame({ modules, start: loaded.start });
   const sim = { content: createRecordStore(pack.records) };
   const { maxTurns } = settings;
-  const { report, runs } = sweep(game, sim, { seeds: settings.seeds, policy, maxTurns, metrics: loaded.metrics });
+  // The kits' metrics come after the game's own (M3.9): each quest's state at the end.
+  const metrics = [...loaded.metrics, ...kitMetrics(project.kits, sim.content)];
+  const { report, runs } = sweep(game, sim, { seeds: settings.seeds, policy, maxTurns, metrics });
   const now = goldenOf({ game: pack.project.id, content: pack.hash, policy: policy.name, maxTurns }, runs);
   let comparison: GoldenComparison | 'wrote' | undefined;
   if (flags.golden && flags.update) {

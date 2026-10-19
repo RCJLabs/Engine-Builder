@@ -1,0 +1,44 @@
+{
+  "name": "A name in the yard",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "rookie",
+      "log": "Nobody in the yard knows your name.",
+      "objectives": [
+        {
+          "id": "first-haul",
+          "text": "Hold 40 credits",
+          "done-when": "economy.amount(credits) >= 40"
+        }
+      ],
+      "next": "hand"
+    },
+    {
+      "id": "hand",
+      "log": "The crews nod at you now.",
+      "objectives": [
+        {
+          "id": "hauls",
+          "text": "Salvage six times",
+          "count": {
+            "event": "yard/salvaged",
+            "to": 6
+          }
+        }
+      ],
+      "next": "boss"
+    },
+    {
+      "id": "boss",
+      "log": "They say you could run this yard.",
+      "objectives": [
+        {
+          "id": "fortune",
+          "text": "Hold 100 credits",
+          "done-when": "economy.amount(credits) >= 100"
+        }
+      ]
+    }
+  ]
+}

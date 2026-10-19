@@ -118,6 +118,9 @@ Starting: the entry is made `active`, `quests/started` is raised, and the quest 
 
 The stage becomes `stage`, it is added to `log`, `done`, `counts` and `days` start empty, `quests/staged` is raised, and the stage's `effects` apply, in order. A stage that `fails` then ends the quest, failed, its `log` the reason, unless its effects moved the quest on or ended it. Otherwise the quest is checked at once, since its objectives may be met already.
 
+- **The effects are one attempt,** as a consequence the events kit lands ([events.md](events.md)): one that refuses, such as a cost the party can't meet, undoes them all, `quests/refused` says why, and the stage is still reached. A quest never refuses the action that moved it.
+- **The events the effects raise are heard before reaching the stage is done,** by every listener and by the kit itself. A stage that `fails` is failed by any check, so such an event can't finish it first.
+
 ### Checking
 
 As each event is heard, each quest active when it was raised is checked, in the order of the quests' ids; waiting quests with `starts-when` are checked first, and start when it holds. The kit hears every event, as the events kit does, its own included, so a quest can wait on another: `"starts-when": "quests.state(bounty) == done"`. A quest is also checked as it starts and as it reaches a stage.
@@ -189,6 +192,7 @@ A stage or an objective its quest doesn't have, named in a fact, throws; validat
 | `quests/objective-done` | `quest`, `stage`, `objective` |
 | `quests/done` | `quest` |
 | `quests/failed` | `quest`, `why` |
+| `quests/refused` | `quest`, `stage`, `reason`: the stage's effects refused, and were undone |
 
 ## Checks
 

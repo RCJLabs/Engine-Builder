@@ -108,6 +108,7 @@ export {
   stepsFrom as questStepsFrom,
 } from './quests/graph.ts';
 export { type ObjectiveShown, type QuestShown, questShown } from './quests/journal.ts';
+export { kitMetrics } from './quests/metrics.ts';
 export { questsModule } from './quests/module.ts';
 export { namedObjective, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';
 export { FAILED } from './quests/run.ts';

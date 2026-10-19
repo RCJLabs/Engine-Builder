@@ -3,9 +3,9 @@
  * fail-when, by days or by fail-quest; success before failure in one check; and content that
  * loops for ever stopped by the kernel rather than holding the game.
  */
-import type { GameState } from '@eb/core';
+import { defineModule, type GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
-import { dockGame, set } from '../../test/dock.ts';
+import { dockGame, dockWith, flagOn, set, withQuest } from '../../test/dock.ts';
 import type { QuestsSlice } from './types.ts';
 
 const { start, apply, run, rest, fact } = dockGame;
@@ -82,5 +82,57 @@ describe('a quest is done', () => {
 describe('content that loops', () => {
   it('stops in the kernel’s error, 64 events deep, rather than holding the game', () => {
     expect(() => apply(start(), set('loop'), { effect: 'start-quest', quest: 'loop' })).toThrow(/64 deep/);
+  });
+});
+
+describe('a stage’s effects', () => {
+  it('that refuse are undone with a beat saying why, and the action that moved the quest stands', () => {
+    const broke = defineModule<Record<string, never>>({
+      id: 'broke',
+      init: () => ({}),
+      effects: { 'pay-up': { run: (ctx) => ctx.refuse('not-enough', { need: 30 }) } },
+    });
+    const records = withQuest('fine', {
+      name: 'The fine',
+      'at-start': true,
+      stages: [
+        { id: 'due', objectives: [{ id: 'caught', text: 'Get caught', 'done-when': flagOn('alarm') }], next: 'paid' },
+        {
+          id: 'paid',
+          log: 'You paid the fine.',
+          effects: [{ effect: 'add-to-flag', flag: 'rep', by: 1 }, { effect: 'pay-up' }],
+        },
+      ],
+    });
+    const dock = dockWith(records, [broke]);
+    const caught = dock.run(dock.start(), set('alarm'));
+    expect(caught.accepted).toBe(true);
+    expect(caught.beats.filter((b) => b.type === 'quests/refused')).toEqual([
+      { type: 'quests/refused', quest: 'fine', stage: 'paid', reason: 'not-enough' },
+    ]);
+    expect(quests(caught.state).fine).toMatchObject({ state: 'done', stage: 'paid' });
+    expect(dock.fact(caught.state, 'flag.number', { flag: 'rep' })).toBe(0);
+    expect(dock.fact(caught.state, 'flag.on', { flag: 'alarm' })).toBe(true);
+  });
+});
+
+describe('a stage that fails', () => {
+  it('fails the quest even when its effects raise events the kit hears first', () => {
+    const records = withQuest('heist', {
+      name: 'The heist',
+      'at-start': true,
+      stages: [
+        { id: 'plan', objectives: [{ id: 'go', text: 'Go', 'done-when': flagOn('ready'), next: 'caught' }] },
+        {
+          id: 'caught',
+          log: 'The guards were waiting.',
+          effects: [set('alarm'), { effect: 'wait', days: 1 }],
+          fails: true,
+        },
+      ],
+    });
+    const dock = dockWith(records);
+    const caught = dock.apply(dock.start(), set('ready'));
+    expect(quests(caught).heist).toMatchObject({ state: 'failed', stage: 'caught', why: 'The guards were waiting.' });
   });
 });

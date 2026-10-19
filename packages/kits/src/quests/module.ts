@@ -96,6 +96,7 @@ const events: Def['events'] = {
   'objective-done': { args: { ...QUEST_ARG, stage: TEXT, objective: TEXT }, label: 'An objective is done' },
   done: { args: QUEST_ARG, label: 'A quest is done' },
   failed: { args: { ...QUEST_ARG, why: TEXT }, label: 'A quest fails' },
+  refused: { args: { ...QUEST_ARG, stage: TEXT, reason: TEXT }, label: 'A stage’s effects are refused' },
 };
 
 export const questsModule: Module = defineModule<QuestsSlice>({

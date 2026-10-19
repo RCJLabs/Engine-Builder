@@ -1,0 +1,19 @@
+{
+  "name": "The yard",
+  "rows": [
+    {
+      "id": "miner-calls",
+      "note": "While the debt is owed, the miner comes by each morning from the third: after the quests have heard the day start, so not on the day it comes due.",
+      "when": {
+        "event": "yard/dawn"
+      },
+      "if": "quests.state(quest: debt) == active and time.day >= 3",
+      "do": [
+        {
+          "effect": "open-event",
+          "event": "miner"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "Drone bounty",
+  "starts-when": "time.day >= 2",
+  "stages": [
+    {
+      "id": "hunt",
+      "log": "The yard chief pays 40 credits for three rogue drones, brought in within six days.",
+      "objectives": [
+        {
+          "id": "drones",
+          "text": "Scrap three rogue drones",
+          "count": {
+            "event": "yard/salvaged",
+            "args": {
+              "kind": "drone"
+            },
+            "to": 3
+          }
+        }
+      ],
+      "next": "paid",
+      "days": 6,
+      "why": "Another crew brought the drones in first."
+    },
+    {
+      "id": "paid",
+      "log": "The chief paid 40 credits.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 40
+        }
+      ]
+    }
+  ]
+}

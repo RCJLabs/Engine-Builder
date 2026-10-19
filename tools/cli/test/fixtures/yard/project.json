@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "yard",
+  "name": "The yard",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "time", "events", "quests"],
+  "calendar": {
+    "ticksPerDay": 1
+  }
+}
