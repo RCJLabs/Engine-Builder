@@ -54,6 +54,19 @@ describe('the talk map', () => {
     ]);
   });
 
+  it('orders its rows by steps, whatever order the lines are written in', () => {
+    const lines = [
+      { id: 'c', text: 'C' },
+      { id: 'a', text: 'A', next: 'b' },
+      { id: 'b', text: 'B', next: 'c' },
+    ];
+    expect(ids(talkMap({ starts: [{ line: 'a' }], lines }))).toEqual([
+      [0, ['a']],
+      [1, ['b']],
+      [2, ['c']],
+    ]);
+  });
+
   it('says where each option, outcome and Then leads, and where the talk ends', () => {
     expect(box(MARGE, 'again')?.exits).toEqual([
       { by: '“Chip in for gas”', to: 'thanks', found: true },

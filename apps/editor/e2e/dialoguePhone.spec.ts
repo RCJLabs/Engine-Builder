@@ -99,6 +99,10 @@ for (const viewport of [
       await expect(map.getByRole('heading', { name: '1 step on', exact: true })).toBeVisible();
       await map.getByRole('button', { name: /^sent/ }).tap();
       await expect(line.getByLabel(/^Text/)).toBeFocused();
+      // A line nothing leads to yet, its text still to write: the smallest box keeps 44 px.
+      const later = await tapAdd(talk, 'Lines', 3);
+      await later.getByLabel('Id', { exact: true }).fill('later');
+      await expect(map.getByRole('heading', { name: 'Nothing leads here', exact: true })).toBeVisible();
       await expectFits(page, '[data-panel="inspector"]');
       expect(errors).toEqual([]);
     });

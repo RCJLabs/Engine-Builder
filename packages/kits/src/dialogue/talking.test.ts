@@ -163,6 +163,26 @@ describe('saying', () => {
     expect([...seen].sort()).toEqual([0, 1]);
   });
 
+  it('goes to an outcome’s own line over its option’s, and to its option’s when it has none', () => {
+    const odds = (outcomes: object[]) =>
+      withTalk('marge', {
+        speaker: 'marge',
+        starts: [{ line: 'ask' }],
+        lines: [
+          { id: 'ask', text: 'Send it?', options: [{ id: 'go', label: 'Go', outcomes, next: 'fell' }] },
+          { id: 'sent', text: 'Clean!' },
+          { id: 'fell', text: 'Whipper!' },
+        ],
+      });
+    for (const [outcome, line] of [
+      [{ chance: 100, effects: [], next: 'sent' }, 'sent'],
+      [{ chance: 100, effects: [] }, 'fell'],
+    ] as const) {
+      const g = cragWith(odds([outcome]));
+      expect(slice(g.step(g.visit(g.start(), 'marge'), { type: 'dialogue/say', option: 'go' })).open?.line).toBe(line);
+    }
+  });
+
   it('is refused when one of its effects refuses, the talk staying at its line', () => {
     const records = withTalk('marge', {
       speaker: 'marge',

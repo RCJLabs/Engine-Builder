@@ -45,6 +45,22 @@ describe('the steps to each line', () => {
     ]);
   });
 
+  it('visit each line once, however many options lead to it: a map and W121 read it on every edit', () => {
+    // Each line's two options lead to the next: visited once per path, the 40th row would hold 2^39.
+    const lines = Array.from({ length: 40 }, (_, i) => ({
+      id: `l${i}`,
+      text: '',
+      options: [
+        { id: `a${i}`, label: '', next: `l${i + 1}` },
+        { id: `b${i}`, label: '', next: `l${i + 1}` },
+      ],
+    }));
+    const t0 = performance.now();
+    const steps = stepsFrom(talk(lines, [{ line: 'l0' }]));
+    expect(performance.now() - t0).toBeLessThan(500);
+    expect([steps.size, steps.get('l39')]).toEqual([40, 39]);
+  });
+
   it('follow the first of two lines with one id, as the kit shows it', () => {
     const lines = [
       { id: 'a', text: '', next: 'b' },

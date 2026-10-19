@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
 import { createProject, fixtureZip, kitsBox, newRecord, pick, showLogic, stored } from './kitHelpers.ts';
-import { openProject, REPO, scratch, showProject } from './ludus.ts';
+import { importLudus, openProject, openRecord, REPO, scratch, showProject } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 900 } });
 
@@ -216,6 +216,25 @@ test('the dialogue kit on, a talk made with forms and seen on its map, a row ope
   expect(execFileSync('node', ['tools/cli/src/cli.ts', 'validate', exported], { cwd: REPO, encoding: 'utf8' })).toMatch(
     /^5 records: no problems, hash [0-9a-f]{16}\.\n$/,
   );
+  expect(errors).toEqual([]);
+});
+
+test('a project’s own talk type, with the kit off, gets its form and no map, though shaped like a talk (D41)', async ({
+  page,
+}) => {
+  const errors = watchErrors(page);
+  // Starts and lines as the kit's talk has them, so a map would have lines to draw.
+  const lines = { kind: 'list', of: { kind: 'group', fields: { id: { kind: 'text' }, text: { kind: 'text' } } } };
+  const starts = { kind: 'list', of: { kind: 'group', fields: { line: { kind: 'text' } } } };
+  await importLudus(page, {
+    'types/talk.json': JSON.stringify({ title: 'Talk', fields: { starts, lines } }),
+    'records/talk/hello.json': JSON.stringify({ starts: [{ line: 'hi' }], lines: [{ id: 'hi', text: 'Hi there' }] }),
+  });
+  const form = await openRecord(page, 'talk', 'hello');
+  await expect(form.getByRole('group', { name: 'Lines, item 1', exact: true }).getByLabel(/^Text/)).toHaveValue(
+    'Hi there',
+  );
+  await expect(form.getByRole('region', { name: 'Map of the talk' })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

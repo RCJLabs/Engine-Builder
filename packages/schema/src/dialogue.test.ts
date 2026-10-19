@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import type { Diagnostic } from './diagnostics.ts';
 import { kitTypeFiles } from './kitTypes.ts';
 import { readTypeFile } from './typeFile.ts';
+import { typeFromFile } from './typeSchema.ts';
 import { type RecordInput, type ValidateOptions, validateRecords } from './validate.ts';
 
 const ON = ['inventory', 'economy', 'dialogue'];
@@ -84,6 +85,10 @@ describe('the dialogue kit’s types', () => {
       return options?.kind === 'list' && options.of.kind === 'group' ? options.of.fields.cost : undefined;
     };
     expect(costOf(ON)).toMatchObject({ kind: 'map', key: { kind: 'ref', to: 'resource' } });
+    // A line's text keeps its line breaks: a box that drops them would lose a speech's lines.
+    const lines = files.get('talk')?.fields.lines;
+    const text = lines?.kind === 'list' && lines.of.kind === 'group' ? lines.of.fields.text : undefined;
+    expect(text).toMatchObject({ kind: 'text', min: 1, multiline: true });
     expect(costOf(['inventory', 'dialogue'])).not.toHaveProperty('key');
     // Off, its type names are free for a project's own types (D41).
     expect(kitTypeFiles(['inventory', 'economy']).has('talk')).toBe(false);
@@ -91,6 +96,12 @@ describe('the dialogue kit’s types', () => {
 
   it('check a sound project clean', () => {
     expect(check(SOUND)).toEqual([]);
+  });
+
+  it('leave a project’s own talk type to it with the kit off, unchecked by the kit (D41)', () => {
+    const own = typeFromFile('talk', { title: 'Talk', fields: { line: { kind: 'text' } } });
+    const records = [record('talk', 'hello', { line: 'Hi' })];
+    expect(codes(validateRecords([own.recordType], records, { kits: ['inventory'] }).diagnostics)).toEqual([]);
   });
 });
 

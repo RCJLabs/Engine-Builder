@@ -4,7 +4,7 @@
  * option's effects open comes before the talk goes on; talks opened while one is open wait their
  * turn; and a game can be all talk.
  */
-import type { GameState } from '@eb/core';
+import { defineModule, type GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { cragGame, cragWith, RECORDS, withTalk } from '../../test/crag.ts';
 import type { DialogueSlice } from './types.ts';
@@ -112,6 +112,34 @@ describe('a mode an option opens', () => {
   });
 });
 
+describe('a mode over the talk', () => {
+  it('that allows every action neither offers nor accepts saying or going on, which wait for talking', () => {
+    // A game's own mode allowing every action, pushed as a talk opens: the talk is open beneath it.
+    const look = defineModule<Record<string, never>>({
+      id: 'look',
+      init: () => ({}),
+      actions: {
+        done: (ctx) => {
+          ctx.modes.pop();
+        },
+      },
+      modes: { looking: { actions: ['*'] } },
+      on: { 'dialogue/opened': (ctx) => ctx.modes.push('looking') },
+    });
+    const g = cragWith(RECORDS, { also: [look] });
+    const looking = g.visit(g.start(), 'marge');
+    expect(modes(looking)).toEqual(['crag', 'talking', 'looking']);
+    expect(g.game.options(looking, g.sim).filter((a) => a.type.startsWith('dialogue/'))).toEqual([]);
+    expect(g.say(looking, 'been').beats[0]).toMatchObject({ reason: 'not-talking' });
+    expect(g.goOn(looking).beats[0]).toMatchObject({ reason: 'not-talking' });
+    const back = g.step(looking, { type: 'look/done' });
+    expect(g.game.options(back, g.sim)).toEqual([
+      { type: 'dialogue/say', option: 'first' },
+      { type: 'dialogue/say', option: 'been' },
+    ]);
+  });
+});
+
 describe('the facts', () => {
   it('count talks, lines heard and options said, and refuse lines and options a talk lacks', () => {
     let state = accepted(say(visit(start(), 'marge'), 'first'));
@@ -121,7 +149,9 @@ describe('the facts', () => {
       fact(state, 'dialogue.heard', { talk: 'marge', line: 'again' }),
       fact(state, 'dialogue.heard', { talk: 'marge', line: 'sent' }),
       fact(state, 'dialogue.said', { talk: 'marge', option: 'first' }),
-    ]).toEqual([1, 1, 0, true]);
+      // Nothing said in a talk yet: not said.
+      fact(state, 'dialogue.said', { talk: 'ranger', option: 'buy' }),
+    ]).toEqual([1, 1, 0, true, false]);
     expect(slice(state).heard).toEqual({ marge: { hello: 1, tour: 1, again: 1 } });
     expect(() => fact(state, 'dialogue.heard', { talk: 'marge', line: 'summit' })).toThrow(
       'The talk "marge" has no line "summit"',
