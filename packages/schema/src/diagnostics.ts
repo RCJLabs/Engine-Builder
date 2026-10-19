@@ -50,6 +50,10 @@ export const DIAGNOSTIC_CODES = {
   E044: "A slot named where it can't be: one its quest doesn't have, of another type, not yet filled, or outside a quest",
   E045: 'A quest has a job in a game without the time module',
   E046: "A scene isn't ink the engine reads: a construct outside the subset, a tag it doesn't know, or a flow that runs out",
+  E047: "A screen or the theme isn't valid",
+  E048: "A screen names a fact or a field it can't read",
+  E049: 'A screen takes an action, opens a screen, shows a mode or lists a source the game lacks',
+  E050: "The theme's text falls short of AA contrast",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -81,6 +85,8 @@ export const DIAGNOSTIC_CODES = {
   W129: 'On every way through its talk, the conditions before rule out a line, an option or a branch',
   W130: 'A talk can never end from a line',
   W131: 'A file under scenes/ that the compiler ignores',
+  W132: 'A file under ui/ that the compiler ignores',
+  W133: 'A mode no screen shows',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

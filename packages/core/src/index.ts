@@ -18,6 +18,7 @@ export {
   type Pack,
   PackError,
   type PackProject,
+  type PackUi,
   packHash,
   readPack,
 } from './pack.ts';

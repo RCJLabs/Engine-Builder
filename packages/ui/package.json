@@ -1,0 +1,22 @@
+{
+  "name": "@eb/ui",
+  "private": true,
+  "version": "0.0.1",
+  "description": "A game's screens (M4.1, D51): their format and its helpers, the session a game plays in inside a worker, and the Preact renderer. Not eb.pure: the renderer draws in the DOM.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./format": "./src/format/index.ts",
+    "./session": "./src/session/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/core": "workspace:*",
+    "@eb/kits": "workspace:*",
+    "@preact/signals": "2.11.3",
+    "preact": "11.0.1"
+  }
+}

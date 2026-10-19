@@ -1,6 +1,7 @@
-import { createPack, type Pack } from '@eb/core';
+import { createPack, type Pack, type RecordIndex } from '@eb/core';
 import { TALK } from '@eb/kits';
 import {
+  checkUi,
   compareDiagnostics,
   type DataType,
   type Diagnostic,
@@ -17,6 +18,7 @@ import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from '
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
+import { packUi, readUi } from './ui.ts';
 
 export interface CompileResult {
   /** Sorted by compareDiagnostics. */
@@ -30,6 +32,14 @@ export interface CompileResult {
   readonly dataTypes: ReadonlyMap<string, DataType>;
 }
 
+/** What a project is checked against: validation's options, and the game's actions and modes for its screens (M4.1). */
+export interface CompileOptions extends Omit<ValidateOptions, 'assets'> {
+  /** The game's actions, as "module/verb": what a screen's buttons may take. Without them, unchecked. */
+  readonly actions?: readonly string[];
+  /** The game's modes, its kits' among them: what screens show. Without them, unchecked. */
+  readonly modes?: readonly string[];
+}
+
 /**
  * Reads, checks and packs a project. The same files give the same diagnostics and the same pack
  * hash in the editor and in the CLI, whatever order the source lists them in. `types` are the
@@ -37,18 +47,27 @@ export interface CompileResult {
  * catalog, for checking the conditions in records. Scripts are checked without being run, and
  * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
  * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
+ * The screens under ui/ are checked against the game and packed as they are (M4.1).
  */
 export async function compileProject(
   source: ProjectSource,
   types: readonly RecordType[],
-  options: Omit<ValidateOptions, 'assets'> = {},
+  options: CompileOptions = {},
 ): Promise<CompileResult> {
   const files = await readProjectFiles(source, types);
   const scripts = await readScripts(source);
   const known = files.types;
-  const kitted = { ...options, kits: files.kits, ...(files.calendar ? { calendar: files.calendar } : {}) };
-  const scenes = await readScenes(source, knownFrom(kitted).facts, files.kits);
-  const diagnostics: Diagnostic[] = [...files.diagnostics, ...scripts.diagnostics, ...scenes.diagnostics];
+  const { actions, modes, ...validate } = options;
+  const kitted = { ...validate, kits: files.kits, ...(files.calendar ? { calendar: files.calendar } : {}) };
+  const grounds = knownFrom(kitted);
+  const scenes = await readScenes(source, grounds.facts, files.kits);
+  const ui = await readUi(source);
+  const diagnostics: Diagnostic[] = [
+    ...files.diagnostics,
+    ...scripts.diagnostics,
+    ...scenes.diagnostics,
+    ...ui.diagnostics,
+  ];
   // A scene beside a talk record of its id is E004 at both, and isn't checked: one problem, as the editor has it.
   const talks = new Set(files.recordFiles.filter((r) => r.type === TALK).map((r) => r.id));
   const records = [
@@ -57,6 +76,17 @@ export async function compileProject(
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
+  diagnostics.push(
+    ...checkUi(ui.screens, ui.theme, {
+      facts: grounds.facts,
+      openFacts: grounds.openFacts,
+      kits: files.kits,
+      ...(actions !== undefined ? { actions } : {}),
+      ...(modes !== undefined ? { modes } : {}),
+      records: indexOf(records),
+      assets: files.assets,
+    }),
+  );
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
   return {
@@ -64,7 +94,12 @@ export async function compileProject(
     pack:
       failed || files.project === null
         ? null
-        : createPack(files.project, packRecords(records, known.types, kitted), Object.fromEntries(scripts.compiled)),
+        : createPack(
+            files.project,
+            packRecords(records, known.types, kitted),
+            Object.fromEntries(scripts.compiled),
+            packUi(ui),
+          ),
     usedBy: validation.usedBy,
     records: records.length,
     dataTypes: known.data,
@@ -87,6 +122,20 @@ async function readRecord(source: ProjectSource, { type, id, file }: ListedRecor
   report({ code: 'E007', message: parsed.message, type, id, file, path: '' });
   // Still a record, so references to it don't fail as well: one problem, one diagnostic.
   return { type, id, file, value: undefined, unreadable: true };
+}
+
+/** The records by type and id, for the facts screens read whose arguments name one. */
+function indexOf(records: readonly RecordInput[]): RecordIndex {
+  const byType = new Map<string, Set<string>>();
+  for (const { type, id } of records) {
+    const ids = byType.get(type) ?? new Set<string>();
+    byType.set(type, ids.add(id));
+  }
+  // UTF-16 order, the same in every locale.
+  return {
+    ids: (type) => [...(byType.get(type) ?? [])].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)),
+    has: (type, id) => byType.get(type)?.has(id) ?? false,
+  };
 }
 
 /**

@@ -3,7 +3,7 @@
  * It runs in the editor and in the CLI with the same results. Not pure: it imports zod through
  * @eb/schema. The runtime never imports it; it reads packs through @eb/core's readPack.
  */
-export { type CompileResult, compileProject } from './compile.ts';
+export { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
 export { type ParsedFile, parseJsonFile } from './decode.ts';
 export { type DirectoryHandleLike, directorySource, type FileHandleLike, type HandleLike } from './directorySource.ts';
 export {
@@ -33,4 +33,6 @@ export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
+export { packUi, readUi, type UiRead } from './ui.ts';
+export { classifyUi, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';

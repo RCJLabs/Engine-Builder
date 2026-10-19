@@ -218,7 +218,7 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Widgets:** panel, stack, grid, text, image, button, toggle, slider, select, progress bar, list (bound to a collection), tabs, modal, tooltip, toast, touch stick, touch button.
 - **Layout:** flex and anchors, safe-area insets, and breakpoints at phone portrait, phone landscape, tablet and desktop.
 - **Themes:** colour, type and spacing tokens, plus UI sounds. Every theme is checked for AA contrast in CI.
-- **Bindings** read state through the shared fact registry, for example `resource(credits)`, and **actions** run effects or open screens.
+- **Bindings** read the game's facts by name, for example `economy.amount(resource: credits)`, and **buttons** take the actions the game offers or open screens: the sim decides, so a screen never runs an effect itself ([specs/screens.md](specs/screens.md)).
 - **Navigation and input:**
   - A screen stack with transitions.
   - Spatial focus navigation for keyboard and gamepad, following chooser-of-the-dead's `spatial.ts` and dirtbag's `ui/spatial.ts`.

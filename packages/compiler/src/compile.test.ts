@@ -477,8 +477,33 @@ describe('the code table', () => {
       ].join('\n'),
       'records/flag/paid.json': '{}',
     });
+    // M4.1: a screen with a misspelt field, one that reads a fact and takes an action the game
+    // lacks, a theme short of contrast, a note under ui/, and a mode no screen shows.
+    const screened = await kitted(
+      ['dialogue'],
+      {
+        'ui/bad.json': JSON.stringify({ main: { widget: 'text', txt: 'Hi' } }),
+        'ui/hud.json': JSON.stringify({
+          shows: ['play'],
+          main: { widget: 'button', label: '{hold.count}', action: { take: 'hold/sail' } },
+        }),
+        'ui/theme.json': JSON.stringify({
+          colors: {
+            background: '#888888',
+            surface: '#888888',
+            text: '#777777',
+            muted: '#777777',
+            accent: '#888888',
+            'on-accent': '#777777',
+          },
+        }),
+        'ui/notes.md': '',
+      },
+      {},
+      { facts: ENGINE_FACTS, actions: ['hold/loot'], modes: ['play', 'talking'] },
+    );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened];
+    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

@@ -1145,6 +1145,13 @@ Evan chose on 2026-10-19, from these options:
 
   It plays to its end in the editor's Play panel and in an exported page, by touch at 360 and 390 px and in landscape, with every theme AA-checked.
 
+Also settled, as the session's calls ([specs/screens.md](specs/screens.md)):
+- **a button takes only an action the game offers,** or opens or closes a screen: a screen never runs an effect, so what the player can do is still the sim's to say;
+- **a game plays in the script worker,** where `lockDown` has run, and the page gets each step's view as JSON: the facts and conditions its screens name, the actions on offer, and the kits' views of the open talk, event, shop and journal;
+- **the game's modes drive the stack:** each mode's screen is the first that names it, a mode no screen names gets a plain fallback (W133), and screens a button opens sit on top until a step changes the modes;
+- **the exported page is the player at `/play/`,** opening the game file the Project panel exports, a pack of format 4 that carries the screens and the theme; a page that is a single file comes with M4.9's export;
+- **screens are written as JSON in the editor** until M4.4's designer, opened from the Play panel with their problems at their lines.
+
 Evan chose on 2026-10-19, from these options:
 - the framework: Preact with signals; or plain DOM, as Space-Wrecked;
 - screens: data, as JSON widget trees; code, as Preact components in the project's scripts; or data with script widgets;

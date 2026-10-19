@@ -561,7 +561,7 @@ How to read this file:
 - **M4.1 Runtime UI I: screens** (D51, your calls).
   - Screens are data: widget trees in `ui/<screen>.json`, checked as records are, rendered by Preact with signals in the editor's Play panel and in an exported page.
   - Widgets, and layout with safe areas and breakpoints; themes checked for AA contrast.
-  - Bindings to the game's facts by name, actions that run effects or open screens, and a screen stack.
+  - Bindings to the game's facts by name, buttons that take the actions the game offers or open screens, and a screen stack the game's modes drive.
   - The gate: the hut played to its end through its screens, by touch at 360 and 390 px and in landscape.
 - **M4.2 Runtime UI II: input and feedback** (D51, your call to split).
   - Spatial focus navigation for keyboard and gamepad, and touch gestures.
