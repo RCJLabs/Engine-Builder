@@ -113,7 +113,7 @@ How to read this file:
     - `writeSession` compaction at 200 actions;
     - `EB1` save codes with a 4 MiB unpacking cap;
     - persistence requests.
-  - A file export is the save's own JSON. The buttons for files and codes come with the save/load screen (M4.2).
+  - A file export is the save's own JSON. The buttons for files and codes come with the save/load screen (M4.3).
   - [`docs/specs/saves.md`](docs/specs/saves.md) is the spec. Seventy-one of 72 planted bugs were caught by the tests. The survivor removes the cap on a code's inflate buffer, which bounds memory where no test looks; the size check behind it was caught.
 - **M1.9 Headless runner.** Done 2026-10-17.
   - **Options.** Actions can list their options, and `game.options` gives every concrete action the current mode allows, so a bot can play any game without code of its own. What is offered must be accepted: the runner counts every refused offer, and `eb sim` fails on one.
@@ -558,27 +558,31 @@ How to read this file:
 
 **Goal:** a whole game from the editor to a phone, with title screen, menus, HUD and saves.
 
-- **M4.1 Runtime UI.**
-  - Widgets, layout with safe areas and breakpoints, themes checked for AA contrast.
-  - Bindings to state, a screen stack, spatial focus navigation (keyboard and gamepad), touch gestures.
+- **M4.1 Runtime UI I: screens** (D51, your calls).
+  - Screens are data: widget trees in `ui/<screen>.json`, checked as records are, rendered by Preact with signals in the editor's Play panel and in an exported page.
+  - Widgets, and layout with safe areas and breakpoints; themes checked for AA contrast.
+  - Bindings to the game's facts by name, actions that run effects or open screens, and a screen stack.
+  - The gate: the hut played to its end through its screens, by touch at 360 and 390 px and in landscape.
+- **M4.2 Runtime UI II: input and feedback** (D51, your call to split).
+  - Spatial focus navigation for keyboard and gamepad, and touch gestures.
   - Toasts and a log; screen-reader announcements derived from events.
-- **M4.2 Stock screens.**
+- **M4.3 Stock screens.**
   - Title (slots, Continue, New, Daily), settings (audio, display, controls, accessibility), save/load, pause, HUD.
   - Inventory, journal, map, dialogue, shop, codex built from live numbers.
   - Credits, ending, crash, update prompt.
-- **M4.3 UI designer.** WYSIWYG, with device frames at 360×740, 390×844, tablet and desktop.
-- **M4.4 World map.** A node-graph editor and a seeded route-map generator, with placement rules checked by validators.
-- **M4.5 Encounters.** A framework with auto-resolve; the odds shown are the odds rolled.
-- **M4.6 Audio.** A synth SFX designer (ZzFX-style parameters and presets), ambience beds, music stems and buses. Haptics read the same cues.
-- **M4.7 Play-in-Editor.** A state inspector, event log, time controls, quest debugger, save states and replay.
-- **M4.8 Export.**
+- **M4.4 UI designer.** WYSIWYG, with device frames at 360×740, 390×844, tablet and desktop.
+- **M4.5 World map.** A node-graph editor and a seeded route-map generator, with placement rules checked by validators.
+- **M4.6 Encounters.** A framework with auto-resolve; the odds shown are the odds rolled.
+- **M4.7 Audio.** A synth SFX designer (ZzFX-style parameters and presets), ambience beds, music stems and buses. Haptics read the same cues.
+- **M4.8 Play-in-Editor.** A state inspector, event log, time controls, quest debugger, save states and replay.
+- **M4.9 Export.**
   - A target matrix per project: Pages PWA, single-file HTML, itch, and a TWA (Bubblewrap, from dirtbag's pipeline).
   - Editions with a leak check.
   - A service worker whose cache is hashed and prefix-scoped, plus the update gate.
   - `version.json`, generated icons, and a Pages workflow template.
   - "Publish to GitHub".
-- **M4.9 Templates.** "Expedition run" (hub → map → nodes → events and contracts → aftermath) and "Story/choice".
-- **M4.10 Proof #1: Space-Wrecked acts 1–2.**
+- **M4.10 Templates.** "Expedition run" (hub → map → nodes → events and contracts → aftermath) and "Story/choice".
+- **M4.11 Proof #1: Space-Wrecked acts 1–2.**
   - The hangar job board and shop → launch → the sector run (events, contracts, stations, factions, crew, heat) → the settle choice.
   - Fights auto-resolve, because the builder and boarding tactics wait for Phase 7.
 
@@ -675,7 +679,7 @@ How to read this file:
 - **What "made here" allows** (D40):
   - art and sound from the editor's tools, or drawn by code written in its script editor;
   - the few OFL fonts the engine ships, which count as its own;
-  - store builds in a GitHub workflow the editor writes (M4.8), since Bubblewrap, the Android SDK and Electron can't run in a browser.
+  - store builds in a GitHub workflow the editor writes (M4.9), since Bubblewrap, the Android SDK and Electron can't run in a browser.
 - **Why these tools.** Dirtbag and Space-Wrecked already ship with no outside art or sound, but their art is code: 10.4k lines of Canvas2D painters in Dirtbag, and 6.6k lines for Space-Wrecked's 3D, portraits and icons. These tools are what drawing without code needs. Until they land, proofs #1 to #3 draw their art in code written in the script editor.
 - **M10.1 Painter.**
   - Vector shapes and paths, gradients and noise fills, layers, palettes, and palette swaps for the time of day.
@@ -683,13 +687,13 @@ How to read this file:
   - Drawn at runtime or baked to images.
   - The styles to reach: Dirtbag's flat poster landscapes and Space-Wrecked's blueprint parts.
 - **M10.2 Icons and type.**
-  - An icon painter for app and UI icons, as PNG and ICO for M4.8's generated icons.
+  - An icon painter for app and UI icons, as PNG and ICO for M4.9's generated icons.
   - A glyph drawer for marks the fonts lack.
   - The engine's bundled OFL fonts, with their provenance.
 - **M10.3 Figures and portraits.**
   - A 2D rig of jointed parts with automatic posing, like Dirtbag's people.
   - A layered portrait maker, like Space-Wrecked's crew, seeded so a roster can make faces.
-- **M10.4 Music.** Music generated by mood and section beside M4.6's synth, like Dirtbag's six moods, with stems on the buses.
+- **M10.4 Music.** Music generated by mood and section beside M4.7's synth, like Dirtbag's six moods, with stems on the buses.
 - **M10.5 Mesh kit.** Low-poly primitives, extrude and lathe, kitbashing, vertex colours and procedural materials, so 3D needs no glTF from outside.
 - **M10.6 Proof #4: a new small game, made only in the editor.**
   - An original short game designed around a tutorial; its theme and genre are open question 7.
@@ -808,7 +812,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | chooser's scenes in `@eb/ink` (M3.11) | 60 of 61 compile, their tags translated, into 862 talk lines; the one that doesn't compares two facts. Every way through the 60 under chooser's three sample runs, 460 ways, plays by inkjs 2.4.0 and by the talks with the same lines, speakers, effects and choices. Taken again after the session's fixes to brackets and the walk: the same | a local test over chooser's files, uncommitted since their text is RCJLabs's, all rights reserved ([research/ink.md](docs/research/ink.md#readings)) | 2026-10-19 | 61 scenes; 460 ways |
 | Hut sweep (Phase 3's gate: inventory, economy, factions, time, events, dialogue with an ink scene, quests) | 1,000 runs with the keeper bot, 47,344 turns: 4,991–5,412 ms (median 5,198), which is 105.4–114.3 µs a turn (median 109.8). Not tuned | `node tools/cli/test/hangar-bench.ts hut keeper`; Node 22.22, cloud container | 2026-10-19 | 3 runs |
 | The hut's quests at the runs' end (Phase 3's gate) | With the keeper bot: the ridge done in 63.0% of runs (95% 53.2 to 71.8), failed 23.0%, never taken 9.0%, under way as the season ends 5.0%. The loads done 93.0% (86.3 to 96.6), failed 7.0%. Stocking the hut done 63.0% (53.2 to 71.8), still under way 37.0%: the bot buys rope only when it opens the store, and talks to Greta after only by chance | `eb sim tools/cli/test/fixtures/hut --policy keeper --seeds 100`, its golden runs' seeds | 2026-10-19 | 100 runs |
-| The gate's e2e, building the hut | 1.2 minutes for the whole build, export and checks; 1.1 minutes for the build alone, before the export's checks were written. CI's time is still to read | Playwright 1.56.1, Chromium, against `vite preview`, cloud container | 2026-10-19 | 1 run each |
+| The gate's e2e, building the hut | 1.2 minutes for the whole build, export and checks; 1.1 minutes for the build alone, before the export's checks were written. In CI, the e2e step took 6:51 on the gate's PR and 7:10 on main after it merged, against 6:49 on main before it: the spec runs beside the others, so CI grows by under half a minute | Playwright 1.56.1, Chromium, against `vite preview`, cloud container; GitHub Actions' step times | 2026-10-19 | 1 run each; 3 CI runs |
 | Rapier load, no phone | Headless Chromium on a page drawing nothing: import 217–233 ms (median 226), start 75–90 ms (median 79). Node: import 27–38 ms (median 30), start 90–127 ms (median 123). On the spike's page, while drawing in software: about 0.9 s and 0.45 s | Chromium 1194 (Playwright 1.56.1) on `vite preview`, a fresh context each, and Node 22.22, both in the cloud container | 2026-10-17 | 5 each |
 
 ## Open questions

@@ -245,7 +245,7 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
   - Each slot keeps a backup: the save its last write replaced.
   - A save that won't load, that a write would destroy, or that an update changed is copied to quarantine first, and is never overwritten.
   - Logs stop growing: `writeSession` compacts the session at 200 actions.
-- **Export and import.** The save file is JSON, and a text code (`EB1.<game>.<payload>.<check>`) carries it deflated. The buttons are the save/load screen's (M4.2).
+- **Export and import.** The save file is JSON, and a text code (`EB1.<game>.<payload>.<check>`) carries it deflated. The buttons are the save/load screen's (M4.3).
 - **Storage.**
   - IndexedDB by default, then localStorage, then memory. A file adapter for Electron comes with Phase 8's desktop export.
   - A persistent-storage request on the first save.
@@ -346,7 +346,7 @@ Packages are added in the phase that first needs them, not before.
 These are set from readings, not guesses (see ROADMAP Readings).
 
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
-- **UI-only game export:** a budget set at M4.10 from the first measured template.
+- **UI-only game export:** a budget set at M4.11 from the first measured template.
 - **3D:** FPS targets per quality tier, set from the M1.10 spike on a real phone.
 
 ## Open questions
