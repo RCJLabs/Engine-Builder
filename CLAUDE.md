@@ -79,7 +79,7 @@ apps/editor/           the editor PWA
   src/records/         the Records panel (M2.5): recordIndex.ts (every record read and checked, kept up to date by
                        file, used by; records whose checks read each other checked together, flagRelated.ts:
                        flags (M3.1), loot tables and shops (M3.3), stats, actors and items (M3.4), factions
-                       (M3.5), the roster and recruits (M3.6)), table.ts,
+                       (M3.5), the roster and recruits (M3.6), events (M3.7)), table.ts,
                        cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
                        (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
@@ -109,8 +109,8 @@ apps/editor/           the editor PWA
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
-                       is the save journal with big files; loot-, stats-, factions- and roster-bench.ts the index
-                       with kits)
+                       is the save journal with big files; loot-, stats-, factions-, roster- and events-bench.ts
+                       the index with kits)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share
@@ -144,7 +144,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        kitFields.ts; M3.5: factionTypes.ts (faction, and a shop's faction), factionCheck.ts
                        (E035, E039, W115), timeEffects.ts (wait and cancel-timer in the calendar's units); M3.6:
                        rosterTypes.ts (recruit, hall, roster), rosterCheck.ts (E035, E040, W117), bandCheck.ts (bands
-                       lowest first, a faction's and the roster's); not pure
+                       lowest first, a faction's and the roster's); M3.7: the type files' effects kind,
+                       eventTypes.ts (event, deck), eventEffects.ts (open-event, draw-event, later, cancel-later as
+                       fields), eventCheck.ts (E035, E041, W118 to W120); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -163,10 +165,14 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        bands, prices, drift; module.ts) and time/ (the time module with project.json's calendar);
                        M3.6 (D44): roster/ (offers.ts: recruits rolled and made; members.ts: cap, join, leave, ranks;
                        bonds.ts; hall.ts: hiring; module.ts, built knowing whether economy is on); bands.ts (the band
-                       rule factions and the roster share); own.ts (a slice's map read by id);
+                       rule factions and the roster share); own.ts (a slice's map read by id); M3.7 (D45): events/
+                       (choices.ts: the verdict, the view and the options in one; choose.ts; open.ts: opening and
+                       waiting; decks.ts: draws; laters.ts: consequences; module.ts, built knowing whether economy
+                       is on);
                        kits.ts (KITS, kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
-  test/                market.ts, barracks.ts, embassy.ts and muster.ts: the records and games the kit tests share
+  test/                market.ts, barracks.ts, embassy.ts, muster.ts and caravan.ts: the records and games the kit
+                       tests share
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -185,7 +191,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        arena-lanista.golden.json (M3.4); steading/, a slice of Landnam made with the factions and
                        time kits, and steading-jarl.golden.json; almanac/ and almanac-game.ts, a --game module the
                        time kit joins with project.json's calendar (M3.5); crew/, a slice of Space-Wrecked made with
-                       the roster kit, and crew-captain.golden.json (M3.6)
+                       the roster kit, and crew-captain.golden.json (M3.6); convoy/, a slice of Wasteland Protocol
+                       made with the events kit, and convoy-scout.golden.json (M3.7)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

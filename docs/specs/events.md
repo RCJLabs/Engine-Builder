@@ -192,7 +192,7 @@ A game made only of events can start in the mode `choosing`, a module's `start` 
 | `events.choices` | int from 0: choices made | "the choices made" |
 | `events.booked` | int from 0: consequences still to land | "the consequences still to land" |
 | `events.pending(later)` | bool | "debt is still to land" |
-| `events.left(later)` | int from 0: days, choices or points before it is due; no value when it isn't pending | "what is left before debt is at most 1" |
+| `events.left(later)` | int from 0: days, choices or points before it is due; no value when it isn't pending | "debt’s countdown is at most 1" |
 
 A choice its event doesn't have, named in `events.chose`, throws; validation stops it in content (E041).
 
@@ -214,7 +214,7 @@ A choice its event doesn't have, named in `events.chose`, throws; validation sto
 
 - **E035** (a kit's record that doesn't hold together):
   - an event: a choice id twice, or one a condition can't write; outcomes whose chances don't add up to 100;
-  - a deck: an event named twice;
+  - a deck: an event named twice, or passing over as many of its last draws as it has events, since once each had come none could;
   - a `later`: an `after` giving none, or more than one, of days, choices and a flag; `by` without a flag; a flag that isn't a number flag; an id, a later's or a cancel-later's, that isn't lowercase words joined by hyphens.
 - **E041:** a condition naming a choice its event doesn't have, in `events.chose(event: …, choice: …)`.
 - **W118:** an event none of whose choices is free of `if`, `needs` and `cost`: a party that can't meet any of them is stuck, as Space-Wrecked's validator warns. A warning, since choices whose conditions cover every case between them are fine.

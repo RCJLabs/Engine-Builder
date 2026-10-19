@@ -38,7 +38,10 @@ export function EffectsField(props: { label: string; path: Path; value: unknown;
       data-at={pointerOf(path)}
       aria-describedby={describedBy(id, info, problems)}
     >
-      <legend class="form-legend">{label}</legend>
+      <legend class="form-legend">
+        {label}
+        {info.optional ? <span class="form-optional"> (optional)</span> : null}
+      </legend>
       {effects.length === 0 ? <p class="muted">Nothing yet.</p> : null}
       {effects.length > 0 ? (
         <ol class="logic-effect-list">

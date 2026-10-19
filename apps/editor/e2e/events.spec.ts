@@ -48,6 +48,10 @@ async function makeRaiders(page: Page): Promise<void> {
   await pay.getByRole('button', { name: 'Add to Cost' }).click();
   await page.getByRole('dialog', { name: 'Add to Cost' }).getByRole('option', { name: 'Scrap (scrap)' }).click();
   await pay.getByLabel('Cost: scrap', { exact: true }).fill('20');
+  // A list of effects says what it is for, as every other field does.
+  await expect(pay.getByRole('group', { name: 'Effects (optional)', exact: true })).toHaveAccessibleDescription(
+    'What it does for sure',
+  );
   const fight = await addChoice(raiders, 2, 'fight', 'Fight');
   const outcomes = fight.getByRole('group', { name: 'Outcomes (optional)', exact: true });
   await fight.getByRole('button', { name: 'Add to Outcomes' }).click();

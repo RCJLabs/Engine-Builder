@@ -153,17 +153,20 @@ interface Setup {
   readonly start?: string;
   /** The event the caravan's start opens. */
   readonly first?: string;
+  /** Modules after the caravan's, as a game's own. */
+  readonly also?: readonly Module[];
 }
 
 /** The caravan's game, with these records or others, with the economy kit or without: the kits a project lists. */
 export function caravanWith(records: object = RECORDS, setup: Setup = {}) {
-  const { economy = true, start = 'caravan', first } = setup;
+  const { economy = true, start = 'caravan', first, also = [] } = setup;
   const kits = economy ? ['inventory', 'economy', 'events'] : ['inventory', 'events'];
   const modules: Module[] = [
     ...engineModules,
     timeModule({ calendar: { ticksPerDay: 1 } }),
     ...kitModules(kits),
     caravanModule(first),
+    ...also,
   ];
   const game = createGame({ modules, start });
   const sim: SimContext = { content: createRecordStore(records as Record<string, Record<string, unknown>>) };

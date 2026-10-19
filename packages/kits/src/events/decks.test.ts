@@ -13,10 +13,13 @@ const travel = (state: GameState) => game.reduce(state, { type: 'caravan/travel'
 const drawn = (beats: readonly { type: string }[]) =>
   beats.filter((b) => b.type === 'events/drawn').map((b) => (b as unknown as { event: string }).event);
 
-/** Settles the open event by the first choice it offers, as a bot would. */
+/** Settles the open event by the first choice it offers, as a bot would; 20 choices on, it fails rather than hangs. */
 function settle(state: GameState): GameState {
   let now = state;
-  while (slice(now).open !== undefined) now = step(now, game.options(now, sim)[0] as never);
+  for (let n = 0; slice(now).open !== undefined; n++) {
+    if (n === 20) throw new Error(`Still choosing after 20 choices: ${JSON.stringify(slice(now).open)} is open`);
+    now = step(now, game.options(now, sim)[0] as never);
+  }
   return now;
 }
 

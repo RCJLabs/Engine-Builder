@@ -143,6 +143,22 @@ describe('E035', () => {
   });
 });
 
+describe('E001', () => {
+  const far = (deck: object) => [...SOUND, record('deck', 'far', { events: [{ event: 'quiet' }], ...deck })];
+  it.each([
+    ['an event with no choices', [...SOUND, record('event', 'empty', { choices: [] })], 'E001 empty /choices'],
+    ['a weight past 1000', far({ events: [{ event: 'quiet', weight: 1001 }] }), 'E001 far /events/0/weight'],
+    ['an unseen boost past 10', far({ unseen: 11 }), 'E001 far /unseen'],
+    [
+      'a consequence 0 days on',
+      withRaiders(choice(3, { effects: [{ effect: 'later', after: { days: 0 }, do: [] }] })),
+      'E001 raiders /choices/3/effects/0/after/days',
+    ],
+  ])('for %s', (_name, records, expected) => {
+    expect(check(records)).toEqual([expected]);
+  });
+});
+
 describe('E041', () => {
   it('is a condition naming a choice its event doesn’t have, in a row, a choice and a deck', () => {
     const records = [
@@ -162,10 +178,12 @@ describe('E041', () => {
 });
 
 describe('the warnings', () => {
-  it('W118: an event none of whose choices is always open', () => {
+  it('W118: an event none of whose choices is always open, the last locked by a Shown if, a Needs or a Cost', () => {
     const helped = 'flag.on(helped)';
-    const records = withRaiders([...RAIDERS.choices.slice(0, 2), { ...RAIDERS.choices[2], needs: helped }]);
-    expect(check(records)).toEqual(['W118 raiders /choices']);
+    for (const lock of [{ if: helped }, { needs: helped }, { cost: { scrap: 5 } }]) {
+      const records = withRaiders([...RAIDERS.choices.slice(0, 2), { ...RAIDERS.choices[2], ...lock }]);
+      expect(check(records), JSON.stringify(lock)).toEqual(['W118 raiders /choices']);
+    }
   });
 
   it('W119: a cost in a game without the economy kit', () => {

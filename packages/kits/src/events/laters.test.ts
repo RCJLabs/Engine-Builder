@@ -5,7 +5,7 @@
  */
 import type { Effect, GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
-import { caravanGame } from '../../test/caravan.ts';
+import { caravanGame, caravanWith, RECORDS } from '../../test/caravan.ts';
 import type { EventsSlice } from './types.ts';
 
 const { game, sim, start, apply, attempt, choose, fact } = caravanGame;
@@ -57,6 +57,32 @@ describe('a consequence', () => {
     expect(step.beats).toContainEqual({ type: 'events/landed', later: '#0', event: '', choice: '' });
     // `by` is 1 when left out.
     expect(slice(apply(start(), later({ flag: 'nodes' }))).laters[0]?.due).toEqual({ flag: 'nodes', at: 1 });
+  });
+
+  it('counting a number flag waits on that flag’s rise, not another’s', () => {
+    const records = { ...RECORDS, flag: { ...RECORDS.flag, heat: { number: { start: 0, min: 0, max: 9 } } } };
+    const g = caravanWith(records);
+    const raise = (state: GameState, flag: string, by: number) =>
+      g.game.reduce(state, { type: 'caravan/do', effects: [{ effect: 'add-to-flag', flag, by }] }, g.sim);
+    const booked = g.apply(
+      g.start(),
+      later({ flag: 'nodes' }, { id: 'arrive' }),
+      later({ flag: 'heat', by: 5 }, { id: 'raid' }),
+    );
+    const warmer = raise(booked, 'heat', 3);
+    expect(types(warmer.beats)).toEqual([]);
+    const moved = raise(warmer.state, 'nodes', 1);
+    expect(moved.beats).toContainEqual({ type: 'events/landed', later: 'arrive', event: '', choice: '' });
+    expect(slice(moved.state).laters.map((l) => l.id)).toEqual(['raid']);
+  });
+
+  it('lands in the order booked when several come due at once, each counted until it lands', () => {
+    const state = apply(start(), later({ days: 1 }, { id: 'first' }), later({ days: 1 }, { id: 'second' }));
+    expect(fact(state, 'events.booked')).toBe(2);
+    const step = doing(state, { effect: 'wait', days: 1 });
+    const landed = step.beats.filter((b) => b.type === 'events/landed').map((b) => (b as { later?: unknown }).later);
+    expect(landed).toEqual(['first', 'second']);
+    expect(fact(step.state, 'events.booked')).toBe(0);
   });
 
   it('is dropped when its If no longer holds as it comes due', () => {

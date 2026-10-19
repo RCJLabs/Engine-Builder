@@ -3,7 +3,7 @@
  * costs are paid once, outcomes are rolled by the table shown, and events opened while one is
  * open wait their turn.
  */
-import { type GameState, Rng } from '@eb/core';
+import { defineModule, type GameState, Rng } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { caravanGame, caravanWith, RECORDS, withRecord } from '../../test/caravan.ts';
 import type { EventsSlice } from './types.ts';
@@ -75,6 +75,32 @@ describe('an open event', () => {
     }
   });
 
+  it('finds what a cost is short of as pay-cost does: the first by id, kept at each resource’s lowest', () => {
+    const records = {
+      ...withRecord('event', 'toll', {
+        choices: [
+          { id: 'pay', label: 'Pay', cost: { scrap: 30, fuel: 5 } },
+          { id: 'leave', label: 'Leave' },
+        ],
+      }),
+      resource: { ...RECORDS.resource, scrap: { name: 'Scrap', start: 40, min: 15 } },
+    };
+    const g = caravanWith(records);
+    // Both short at the start, fuel first by id though the cost lists it second; with more fuel,
+    // scrap, which may not go below 15.
+    const fuelled = g.apply(g.start(), { effect: 'add-resource', resource: 'fuel', by: 5 });
+    for (const [state, short] of [
+      [g.start(), { resource: 'fuel', have: 3, need: 5 }],
+      [fuelled, { resource: 'scrap', have: 40, need: 30 }],
+    ] as const) {
+      const paid = g.attempt(state, { effect: 'pay-cost', cost: { scrap: 30, fuel: 5 } });
+      expect(paid.beats[0]).toMatchObject({ reason: 'cant-afford', ...short });
+      const toll = g.open(state, 'toll');
+      expect(g.view(toll).choices[0]).toMatchObject({ open: false, short });
+      expect(g.choose(toll, 'pay').beats[0]).toMatchObject({ reason: 'cant-afford', ...short });
+    }
+  });
+
   it('shows outcomes, chances and what they do only when the event shows its odds', () => {
     const trader = view(open(start(), 'trader'));
     expect(trader.choices[0]).toMatchObject({
@@ -83,7 +109,7 @@ describe('an open event', () => {
     });
     expect(trader.choices[1]).toMatchObject({
       outcomes: [
-        { chance: 50, result: 'A deal.', effects: [{ effect: 'add-resource' }] },
+        { chance: 50, result: 'A deal.', effects: [{ effect: 'add-resource', resource: 'fuel', from: 3, to: 4 }] },
         { chance: 50, result: 'No deal.', effects: [] },
       ],
     });
@@ -152,6 +178,28 @@ describe('choosing', () => {
       seen.add(outcome);
     }
     expect([...seen].sort()).toEqual([0, 1]);
+  });
+
+  it('is offered only while choosing is the mode on top, as it is only accepted then', () => {
+    // A game's own mode allowing every action, pushed as an event opens: the event is open beneath it.
+    const look = defineModule<Record<string, never>>({
+      id: 'look',
+      init: () => ({}),
+      actions: {
+        done: (ctx) => {
+          ctx.modes.pop();
+        },
+      },
+      modes: { looking: { actions: ['*'] } },
+      on: { 'events/opened': (ctx) => ctx.modes.push('looking') },
+    });
+    const g = caravanWith(RECORDS, { also: [look] });
+    const looking = g.open(g.start(), 'raiders');
+    expect(looking.kernel.modes.at(-1)?.id).toBe('looking');
+    expect(g.game.options(looking, g.sim).filter((a) => a.type === 'events/choose')).toEqual([]);
+    expect(g.choose(looking, 'pay').beats[0]).toMatchObject({ reason: 'not-choosing' });
+    const back = g.step(looking, { type: 'look/done' });
+    expect(g.game.options(back, g.sim).map((a) => a.choice)).toEqual(['pay', 'flee', 'fight', 'hide']);
   });
 
   it('charges no cost without the economy kit, nor locks a choice by one', () => {
