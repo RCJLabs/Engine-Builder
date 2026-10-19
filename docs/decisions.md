@@ -846,7 +846,10 @@ Also settled, as the session's calls:
 - **a member made in play is a record like any other.** The kernel's content, as every module reads it, holds the records a module makes from its slice beside the records content lists. So every kit reads, checks and names a recruit as it does a written actor, and events and facts that name an actor take a recruit's id;
 - a recruit's id is its template's and a number, `deckhand-4`, from one counter the game never winds back. A written actor named that way is refused (E035), so the two can't meet;
 - one roster a game, its settings a roster record: its cap (a number, or a number flag that rows raise), who starts on it, the rank ladder, and the range and bands of bonds;
-- a hall works like a shop: opening it shows its offers in a mode, where hiring is an action. A fee is paid as pay-cost pays, so with no economy kit nothing can charge one.
+- a hall works like a shop: opening it shows its offers in a mode, where hiring is an action. A fee is paid as pay-cost pays, so with no economy kit nothing can charge one;
+- found while building it: the stage needs a recruit's name outside an action ("Ketil Ash joined"), so `game.content(state, sim)` gives the content every module reads; and a module's `start`, run once after every init, gives those who start on the roster their ranks' statuses, which init can't, since it applies no effects;
+- also found: `constructor` is a valid record id, and a plain object answers it with Object.prototype's. The roster reads its slice's maps by own keys only (`own.ts`); the kits before it don't yet (ROADMAP's ideas);
+- a hall offers at most 20 a round, since every offer is worked out again whenever the hall's options are read; a leave's why is any text; a condition naming an actor's bond with itself is E040, as a change-bond naming one is E035.
 
 The spec is [specs/roster.md](specs/roster.md), and the survey behind it [research/kits-ii.md](research/kits-ii.md#rosters).
 

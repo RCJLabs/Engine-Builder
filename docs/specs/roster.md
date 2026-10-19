@@ -62,7 +62,7 @@ A place that offers recruits: a station, a market, a tavern. `records/hall/<id>.
 | Field | Means |
 | --- | --- |
 | `name`, `description` | its words |
-| `offers` | how many recruits it offers a round: 1 when left out |
+| `offers` | how many recruits it offers a round, at most 20: 1 when left out. Every offer is worked out again whenever the hall's options are read |
 | `recruits` | `[{ "recruit": "deckhand", "weight": 3 }]`: the templates each offer is drawn from, by weight, 1 when left out. At least one |
 
 ### roster
@@ -192,9 +192,10 @@ A rank or a band the roster doesn't have throws, and validation stops it in cont
 - **E035** (a kit's record that doesn't hold together):
   - a recruit: a stat whose `min` is above its `max`; a trait named twice; a written actor whose id is a template's id, a hyphen and a number, which a recruit's id could be;
   - a hall: a recruit named twice;
-  - a roster: a second roster record; a member who starts twice; a rank ladder or bond bands that don't run lowest first, or begin outside the bonds' bounds, or name a band twice; a rank's status that lasts, or that changes the ladder's stat; a bond's start outside its bounds; both `cap` and `cap-flag`, or a `cap-flag` that isn't a number flag;
+  - a roster: a second roster record, the first by id being the one read; a member who starts twice, or more members at the start than its `cap`; a rank ladder or bond bands that don't run lowest first, or begin outside the bonds' bounds, or name a band twice, or name one a condition can't write; a rank's status that lasts, or that changes the ladder's stat; a bond's start outside its bounds; both `cap` and `cap-flag`, or a `cap-flag` that isn't a number flag;
   - a change-bond naming the same actor twice.
-- **E040:** a condition naming a rank or a bond band the roster doesn't have, in `roster.reached(actor: …, rank: …)`, `roster.ranked(…)`, or compared with `roster.rank(…)` or `roster.bond-band(…)`.
+- **E040:** a condition naming a rank or a bond band the roster doesn't have, in `roster.reached(actor: …, rank: …)`, `roster.ranked(…)`, or compared with `roster.rank(…)` or `roster.bond-band(…)` by `==` or `!=`; or naming an actor's bond with itself.
+- **The flag lint** counts a roster's `cap-flag` as reading its flag, so a flag only rows set isn't W108, and one nothing sets is W109.
 - **W117:** a fee, a recruit's or a trait's, in a game without the economy kit: nothing charges it.
 
 ## Proof

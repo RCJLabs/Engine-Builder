@@ -253,6 +253,13 @@ describe('bonds', () => {
   it('start at 0 kept within the bounds when the roster gives no start', () => {
     const high = musterWith(withRoster({ bonds: { min: 5, max: 20 } }));
     expect(high.fact(high.start(), 'roster.bond', { actor: 'ana', with: 'bo' })).toBe(5);
+    // Back at that start, a bond is no longer saved.
+    const back = high.apply(
+      high.start(),
+      { effect: 'change-bond', actor: 'ana', with: 'bo', by: 2 },
+      { effect: 'change-bond', actor: 'ana', with: 'bo', by: -2 },
+    );
+    expect(slice(back).bonds).toEqual({});
     const low = musterWith(withRoster({ bonds: { min: -20, max: -5 } }));
     expect(low.fact(low.start(), 'roster.bond', { actor: 'ana', with: 'bo' })).toBe(-5);
   });

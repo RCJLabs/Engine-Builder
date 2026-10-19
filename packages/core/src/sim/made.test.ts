@@ -149,5 +149,30 @@ describe('made records', () => {
       'Module "bad": made.types must list the record types it makes',
     );
     expect(make([kennel, bad({ types: ['pet'] })])).toThrow('Module "bad": made needs ids and get functions');
+    expect(make([kennel, bad({ types: ['egg'], ids: () => [] })])).toThrow(
+      'Module "bad": made needs ids and get functions',
+    );
+  });
+
+  it('built afresh for each read, as the roster’s are, are frozen, and listed by type and entry', () => {
+    // A hatchery makes eggs, a type the pack doesn't have, building each record as it is read.
+    const hatchery = defineModule<{ laid: number }>({
+      id: 'hatchery',
+      init: () => ({ laid: 0 }),
+      made: {
+        types: ['egg'],
+        ids: ({ state }) => Array.from({ length: state.laid }, (_, i) => `egg-${i}`),
+        get: ({ state }, _type, id) => (Number(id.slice(4)) < state.laid ? { laid: id } : undefined),
+      },
+      actions: { lay: (ctx) => void (ctx.write().laid += 1) },
+      modes: { coop: { actions: ['hatchery/lay'] } },
+    });
+    const coop = createGame({ modules: [hatchery], start: 'coop' });
+    const laid = coop.reduce(coop.init('coop', sim), { type: 'hatchery/lay' }, sim).state;
+    const content = coop.content(laid, sim);
+    expect(Object.isFrozen(content.get('egg', 'egg-0'))).toBe(true);
+    expect(content.types()).toEqual(['egg', 'pet', 'toy']);
+    expect(coop.content(coop.init('coop', sim), sim).types()).toEqual(['pet', 'toy']);
+    expect(content.entries('egg')).toEqual([['egg-0', { laid: 'egg-0' }]]);
   });
 });

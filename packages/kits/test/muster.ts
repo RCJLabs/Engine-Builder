@@ -17,7 +17,7 @@ import {
   type SimContext,
   timeModule,
 } from '@eb/core';
-import { economyKit, inventoryKit, rosterModule, statsModule } from '../src/index.ts';
+import { kitModules } from '../src/index.ts';
 
 export const RECORDS = {
   stat: {
@@ -102,15 +102,13 @@ const muster = defineModule<Record<string, never>>({
   modes: { muster: { actions: ['muster/*'] } },
 });
 
-/** The muster's game, with these records or others, with the economy kit or without. */
+/** The muster's game, with these records or others, with the economy kit or without: the kits a project lists. */
 export function musterWith(records: object = RECORDS, economy = true) {
+  const kits = economy ? ['inventory', 'economy', 'stats', 'roster'] : ['inventory', 'stats', 'roster'];
   const modules: Module[] = [
     ...engineModules,
     timeModule({ calendar: { ticksPerDay: 1 } }),
-    inventoryKit,
-    ...(economy ? [economyKit] : []),
-    statsModule(false),
-    rosterModule(economy),
+    ...kitModules(kits),
     muster,
   ];
   const game = createGame({ modules, start: 'muster' });

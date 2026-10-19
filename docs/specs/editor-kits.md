@@ -1,6 +1,6 @@
 # Spec: kits in the editor
 
-This is how the editor shows and edits kits (M3.3 to M3.5, [D41](../decisions.md), [D42](../decisions.md), [D43](../decisions.md)): the Project panel's boxes that turn them on, their types among the project's, their effects in the sheet editor, and a kit's type in the type designer. The kits themselves are [kits.md](kits.md).
+This is how the editor shows and edits kits (M3.3 to M3.6, [D41](../decisions.md), [D42](../decisions.md), [D43](../decisions.md), [D44](../decisions.md)): the Project panel's boxes that turn them on, their types among the project's, their effects in the sheet editor, and a kit's type in the type designer. The kits themselves are [kits.md](kits.md).
 
 ## Turning kits on
 
@@ -62,6 +62,20 @@ The two kits of [factions.md](factions.md) and [time.md](time.md#the-time-kit) c
 - **Conditions in words.** The factions' facts word their own tests, by the faction's id: "If guild is at least friendly", "guild’s band is not hostile", "guild’s standing is at least 10".
 - **Checked together** (`records/flagRelated.ts`, `factionRelated`): a condition naming a band is checked against its faction's bands (E039), so a change to a faction checks every record naming it again. A change to the calendar checks every record again, since the time kit's effects are checked in its units (`records/recordIndex.ts`, the index's grounds).
 
+## The roster kit (M3.6)
+
+The kit of [roster.md](roster.md) comes in as the others did, with nothing written for it alone but its words and what is checked together:
+
+- **Its box:** Roster ("Members who join and leave, recruits rolled in halls, ranks on a stat, and bonds. Needs Stats"). Ticking it ticks Stats: "Turn on the roster kit, with stats".
+- **Its types** in Records: the recruit (Actor, Names, Bynames, Rolled stats, a map of stat to From and To, Traits with a Status, a Chance (%) and a Fee, Most traits, Fee), the hall (Offers a round, Recruits with a Weight) and the roster (Most members, Most members from a flag, Starts with, Ranks with a Stat and its ranks, Bonds with Lowest, Highest, Starts at and Bands). A Fee is a map keyed by resources with Economy on, and by any name without it, as W117 warns.
+- **Its effects** with forms: "Make a recruit", "Join the roster", "Leave the roster", "Change a bond", "Change every bond", "Open a hall", "Start a hall’s next round". On the cards: "recruit deckhand", "put ana on the roster", "take ana off the roster: dead", "add 2 to the bond of ana and bo", "add 1 to every bond on the roster", "open dock", "start dock’s next round".
+- **Conditions in words**, by the ids they name: "ana is on the roster", "ana’s rank is veteran", "ana is at least veteran", "the number of members at least veteran is at least 2", "the bond of ana and bo is mates".
+- **Its events** in a row's When: "A member joins", "A member leaves", "A recruit is hired", "A member’s rank changes", "A bond changes", "A bond’s band changes", "A hall opens", "A hall is left".
+- **Checked together** (`records/flagRelated.ts`):
+  - `rosterRelated`: the roster record, the statuses, and every record whose file names a roster fact, found by the text `roster.` once for each record the index keeps, since `roster.ranked(veteran)` names no record that references would find. A rank or bond band a condition names is checked against the roster's (E040), a rank's status against its ladder, and a second roster against the first (E035).
+  - `recruitRelated`: actors and recruit templates, since a written actor may not have an id a recruit could take (E035).
+  - The roster's cap-flag is a reference, so `flagRelated` already checks the roster again when its flag changes.
+
 ## Checks
 
 - **e2e on desktop** (`e2e/kits.spec.ts`):
@@ -71,7 +85,8 @@ The two kits of [factions.md](factions.md) and [time.md](time.md#the-time-kit) c
 - **Phones** (`e2e/kitsPhone.spec.ts`) at 360×740, 390×844 and 740×360: the kits ticked by touch, a kit's record in the inspector's sheet, and a kit's type with its fields locked, with nothing past the screen, 44 px targets and axe clean.
 - **The stats gate** (`e2e/stats.spec.ts`): Gear ticked with its needs; a stat, a slot, an item, a status and an actor made with forms, the actor wearing the item; a row on a stat running out that damages a stat and adds a status; the export clean for `eb validate`. The arena fixture imported and its Run the same lines `eb sim` prints. Its phones are `e2e/statsPhone.spec.ts`.
 - **The factions gate** (`e2e/factions.spec.ts`): Economy, Factions and Time ticked; the calendar filled in with its form, a season's bad name shown at its box and fixed; a faction with two bands and drift, a resource, an item and a shop naming the faction, made with forms; a row on autumn's start that reads the guild's band and changes its standing, and a row on a shop opening that waits 6 hours; the sheet's form showing no problems; the export clean for `eb validate`. The steading fixture imported, its four seasons in the calendar's form, and its Run the same lines `eb sim` prints. Its phones are `e2e/factionsPhone.spec.ts`: Factions and Time ticked by touch, a season added, a faction's band and drift in the inspector's sheet.
-- **Units** (`app`, `editing`, `records`, `logic`, `scripts`): the calendar's edits and problems; the index with factions and the calendar (`records/factionIndex.test.ts`); the four effects' words and the factions' facts'; Wait's fields from the calendar; schedule never offered as the game's own.
+- **The roster gate** (`e2e/roster.spec.ts`): Roster ticked, ticking Stats with it, and Economy; two stats, two statuses, two actors and a resource; a recruit template with two names, a rolled stat whose range runs down until fixed, a trait with a fee and a fee of its own; a hall offering it by weight; a roster with a cap, a start member, two ranks (the second's missing From shown until filled in) and bonds in two bands, all made with forms; rows on a hire, a rank changing and a member leaving, one whose If names a rank the roster lacks (E040) until fixed; the export clean for `eb validate`. The crew fixture imported and its Run the same lines `eb sim` prints. Its phones are `e2e/rosterPhone.spec.ts`: Roster ticked by touch with Stats, and a recruit's names, rolled stat and trait in the inspector's sheet.
+- **Units** (`app`, `editing`, `records`, `logic`, `scripts`): the roster's index (`records/rosterIndex.test.ts`) and its effects' words; the calendar's edits and problems; the index with factions and the calendar (`records/factionIndex.test.ts`); the four effects' words and the factions' facts'; Wait's fields from the calendar; schedule never offered as the game's own.
 
 ## Open questions
 
@@ -81,3 +96,5 @@ The two kits of [factions.md](factions.md) and [time.md](time.md#the-time-kit) c
 4. **schedule's form.** A timer's effects are a list of effects, which no field kind holds, so schedule is JSON. The sheet editor's own list of effects (`EffectsField`) could hold them, as a roll's outcomes do.
 5. **A season that starts on a month.** The engine takes `{ "month": "thaw", "day": 1 }` as a season's start, but the form's box is a day of the year: such a start shows as written, and typing in the box replaces it with a number.
 6. **The calendar with Time off.** Its form shows only with Time ticked, so a calendar left behind (W116) can be taken out only by ticking Time again and clearing its boxes, or by hand.
+7. **A recruit's offers in the editor.** A hall's form shows its templates and weights, not who it would offer: the offers are worked out from a game's salt, which only a played game has. Run's report doesn't list hires either.
+8. **Names in bulk.** A template's names are a list typed one box at a time; Ludus's and Landnam's lists run to dozens.
