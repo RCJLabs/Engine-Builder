@@ -96,6 +96,15 @@ describe('a project’s problems with its screens', () => {
     ]);
   });
 
+  it('are the feedback’s too, in a project with feedback and no screens, as eb validate says (M4.2)', async () => {
+    const files = Object.fromEntries(Object.entries(hut()).filter(([path]) => !path.startsWith('ui/')));
+    files['ui/feedback.json'] = encode({ lines: [{ on: 'hut/burned', say: 'Gone' }] });
+    const { editor, validate, catalog } = await both(files);
+    expect(catalog.screens).toEqual([]);
+    expect(editor).toEqual(validate);
+    expect(editor.map((d) => `${d.code} ${d.file}`)).toEqual(['E051 ui/feedback.json']);
+  });
+
   it('open the screen, or the theme, at their lines', async () => {
     const { editor, catalog, index } = await both(broken());
     const fact = editor.find((d) => d.code === 'E048');

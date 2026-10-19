@@ -111,10 +111,19 @@ describe('the gamepad', () => {
     ).toEqual([[{ kind: 'move', direction: 'right' }], [], [], [{ kind: 'move', direction: 'left' }]]);
     // The stronger axis wins.
     expect(frames([[0, at(0.6, -0.9)]])).toEqual([[{ kind: 'move', direction: 'up' }]]);
+    // A stick that dips to 0.4 and back is still held: no second move.
+    expect(
+      frames([
+        [0, at(0.6)],
+        [10, at(0.4)],
+        [20, at(0.6)],
+      ]),
+    ).toEqual([[{ kind: 'move', direction: 'right' }], [], []]);
   });
 
   it('reads every pad as one', () => {
-    const merged = mergePads([input([BUTTONS.a], [0.2, 0]), null, input([], [-0.8, 0.1])]);
+    // The furthest stick wins, whichever pad it is on.
+    const merged = mergePads([input([], [-0.8, 0.1]), null, input([BUTTONS.a], [0.2, 0])]);
     expect(merged.buttons[BUTTONS.a]).toBe(true);
     expect(merged.axes).toEqual([-0.8, 0.1]);
     expect(padActive(merged)).toBe(true);
