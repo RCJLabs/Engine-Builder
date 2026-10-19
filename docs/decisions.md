@@ -865,6 +865,43 @@ The spec is [specs/roster.md](specs/roster.md), and the survey behind it [resear
 - **A recruit's rolled stats and traits are kept, not worked out again,** so a content change to a template's ranges reaches only recruits made after it. What the recruit copies from its actor (its slots, the statuses it starts with) is read from content each time.
 - **The kernel's content is no longer only the pack:** a made record isn't checked by `eb validate`, only by the template it was rolled from.
 
+### D45. Choice events: a choice the party can't pay for is locked with what it needs; odds hidden unless an event shows them; consequences count days, choices or a number flag; decks draw by weight and rules. LOCKED, 2026-10-19 (Evan's calls, M3.7)
+
+**Decision.**
+- **A choice that costs more than the party has** (Evan's call) is shown locked, with what it needs: "Needs 30 scrap, and you have 12" (Space-Wrecked, Afterglass, Wasteland). A choice can also be locked by a condition it needs, shown in words, or hidden by one.
+- **Odds** (Evan's call) are hidden by default: before choosing, the player sees a choice's label, its cost and what locks it. An event can show its odds, and then each choice shows its outcomes, their chances and what they do (Space-Wrecked's "70%: +10 credits"). Either way the outcome is rolled on choosing, on a saved stream, so a reload can't roll again.
+- **A consequence that lands later** (Evan's call) counts days, choices made, or a number flag's rise, so a game counts what it moves on by: Dirtbag's days, Rule-or-Drool's cards, Wasteland's nodes kept in a flag. It is checked again as it comes due and dropped if it no longer holds.
+- **Which event comes up** (Evan's call) is drawn from a deck: events by weight, each with a condition, once or again, with the last few drawn passed over and those never seen likelier (Ludus, Dirtbag, Wasteland, Landnam).
+
+Evan chose on 2026-10-19, from these options:
+- a choice the party can't pay for: locked with what it needs; hidden; or offered and refused when chosen;
+- odds: always shown exactly; shown in words ("a third of the time"); hidden by default, an event able to show them;
+- what a consequence counts: days, choices or a number flag; days only; or choices only;
+- picking: decks with weights and rules; a game's own code only; or events in order only.
+
+Also settled, as the session's calls:
+- **an events kit,** switched on in `project.json` as the others are, with two record types: `event` (its text and choices) and `deck` (which events can come up). With the kit off, both names are free for a project's own types (the salvage-run fixture has its own `event`);
+- **a choice's cost is paid as it is chosen,** with the economy kit's pay-cost, and is what locks it. Space-Wrecked wrote each price again into every outcome, which its validator had to keep in step;
+- **one effect list a choice is sure of, and outcomes it rolls:** a choice's effects apply first, then one outcome by whole-percent chances that add up to 100, as the `roll` effect's do;
+- **an event opened while another is open waits its turn,** in the order opened. A consequence or a chain landing mid-event is never refused or lost;
+- **an `effects` kind in type files,** so a field can hold a list of effects. The event's choices and outcomes, the `later` effect and a project's own types use it, and the editor draws its forms as it draws every other kind's. Before it, only the sheet held effects, through an editor of its own;
+- a consequence lands in an attempt of its own, as a timer does, so one that refuses is dropped with a beat, while an effect of the player's choice that refuses refuses the choice: the runner then counts an offer refused, which is how `eb sim` finds a choice missing what it needs;
+- a deck draws from a stream worked out from the game's seed, the deck and its count of draws, so one deck's draws never shift another's (Afterglass's visitors), and never draws an event that is open or waiting;
+- an event with no choice free of conditions and costs is W118, as Space-Wrecked's validator asks, "so the ship is never stuck".
+
+The spec is [specs/events.md](specs/events.md), and the survey behind it [research/choice-events.md](research/choice-events.md).
+
+**Why.**
+- **Locked with what it needs.** Three of the games do this, and it teaches the player what to save for. A hidden choice is still there, by a condition, for what the player shouldn't know of yet (Dirtbag's favours).
+- **Odds hidden by default.** Most events are written to be read, not worked out; an author who wants the numbers shown (a gamble, a check) turns them on for that event.
+- **Days, choices or a number flag.** Wasteland's consequences counted sectors, and "six in seven debts were never collected" as runs ended first; counting what the game moves on by, and a test that none outlives its run, is its fix. One kind would leave out the games that count the others.
+- **Decks.** Every game surveyed keeps events from repeating some way: weights, cooldowns, a memory of recent ones, a boost for those unseen. A deck is those rules as data.
+
+**Cost.**
+- **Odds can't yet move with stats** (Landnam's checks, Spliceworld's reasons). A chance is a whole percent written in content.
+- **A consequence keeps the effects it was booked with,** as a timer does: content changed after booking reaches only those booked after.
+- **A cost is resources only.** An item a choice takes is a condition it needs and an effect it applies.
+
 ---
 
 ## Open

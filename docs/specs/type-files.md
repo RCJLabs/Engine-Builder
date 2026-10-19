@@ -68,6 +68,7 @@ The names follow the fact domains conditions already use (`bool`, `int`, `enum`,
 | `colour` | none | `"#"` and six hex digits, either case | "Expected a colour like "#3a7bd5"" |
 | `asset` | `of`: `image`, `audio`, `model` or `font` | a path inside `assets/` | see below |
 | `condition` | none | a condition, as text or as its tree ([conditions.md](conditions.md#conditions-in-records)) | the parser's and `checkCondition`'s (E011 to E014) |
+| `effects` | none | a list of effects, in order, each `{ "effect": name, … }` ([triggers.md](triggers.md#checks)) | E001 inside one, E025 for one the game doesn't have, and each effect's own checks |
 
 - **Bounds** are inclusive. `min` above `max` is a problem (E015). The bounds of `text` and `list` are counts of 0 or more; an `int`'s are whole numbers.
 - **Maps.** Keys are JSON object keys, so always strings.
@@ -100,7 +101,7 @@ An asset field holds a path inside the project's `assets/` folder: `portraits/sp
 `readTypeFile(value)` checks a file's shape with the format's own strict zod schema, then the rules a shape can't carry: bounds in order, nothing listed twice. `typeFromFile(type, file)` then builds `{ type, file, recordType }`:
 
 - the top level and every `group` become `z.strictObject`, and `optional` fields `.optional()`;
-- `ref` becomes `ref()` or `refAny()`, `asset` becomes `asset()`, and `condition` becomes `condition()`, so the walk finds them as it finds a code type's ([records.md](records.md#validation));
+- `ref` becomes `ref()` or `refAny()`, `asset` becomes `asset()`, `condition` becomes `condition()`, and `effects` becomes `z.array(effect())`, so the walk finds them as it finds a code type's ([records.md](records.md#validation));
 - `label` and `description` become the field's JSON Schema `title` and `description`;
 - `defineRecordType` checks the result like any other type.
 
@@ -141,7 +142,7 @@ Diagnostics about type files carry no record type or id.
 - **No project format bump.** `types/` is new, and a project without it loads as before. An engine from before M2.4 reports E002 for records of a project's own types, and E011 for conditions written as text: loud, never silently wrong.
 - **Adding to the format** (a kind, an option) needs no new format, as for project.json ([project-format.md](project-format.md#projectjson-format-1)). A change that would read an existing type file differently does.
 - **`nameField`** (M2.5) was added this way: an engine from before it reports E015 for a type file that uses it.
-- **The fixture.** [`packages/compiler/test/fixtures/ludus`](../../packages/compiler/test/fixtures/ludus) is a project made only of data: three types that between them use every kind, each naming its records by `name`, a condition as text and one as a tree, and an asset. It compiles to `34035cc3fb5fba7a` with no `--types` module; `nameField` changed nothing in its pack, which holds records only.
+- **The fixture.** [`packages/compiler/test/fixtures/ludus`](../../packages/compiler/test/fixtures/ludus) is a project made only of data: three types that between them use every kind there was before M3.7's `effects`, each naming its records by `name`, a condition as text and one as a tree, and an asset. It compiles to `34035cc3fb5fba7a` with no `--types` module; `nameField` changed nothing in its pack, which holds records only.
 
 ## Open questions
 
@@ -150,3 +151,4 @@ Diagnostics about type files carry no record type or id.
 3. **A required field added to a type.** Settled in M2.6: the type designer fills it in on the records there are with a value chosen as it adds the field, and offers the same for a field some records leave out ([editor-types.md](editor-types.md#changes-that-carry-the-records)).
 4. **Renaming a type or a field.** Settled in M2.6 (D33, Evan's call): renames rewrite every record and reference to match, as one step undo takes back ([editor-types.md](editor-types.md#changes-that-carry-the-records)).
 5. **Kits drawn with the same forms.** Settled in M3.3 (D41): a kit's types are type files, so their forms come free, and a project's `types/<type>.json` for one adds fields after the kit's ([kits.md](kits.md#fields-of-a-projects-own)). A kit's effects are written as fields too, which give both their schema and their form. Tuples and plain unions still have no kind.
+6. **A list of effects.** Settled in M3.7 (D45): the `effects` kind, which the events kit's choices and outcomes, its `later` effect and a project's own types use. The editor draws it with the sheet's list of effects. A record renamed isn't renamed inside one, nor in a kit's fields or a sheet's rows: a rename follows only the ref fields of a project's own `types/` files, and the compiler shows each reference left behind (E005).
