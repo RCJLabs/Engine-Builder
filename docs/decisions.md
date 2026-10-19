@@ -1026,6 +1026,14 @@ The spec is [specs/quests.md](specs/quests.md#aliases), and the survey behind it
 - **One run kept:** a repeat's past log lines are gone; only the counts remain.
 - **Away lasts the whole quest,** not only its job.
 
+**Settled while building it** (the session's calls, 2026-10-19):
+- **A Keeps while that can't be answered counts as gone,** as a condition's unknown never counts as true: a slot whose fact has no value has lost its record.
+- **A why is written as the quest fails,** its `{slot}`s named as they were then; log lines and objectives' texts are named as the journal is read.
+- **`@slot` binds as a map's key too,** since Pay a cost's resources are a map's keys.
+- **E045 reads the game's events, as W120 does:** a project whose game isn't known isn't warned, since a game's own time module may be there.
+- **W127 sees what the kits make,** not a game's own modules: a slot of a type only a game's module makes is warned of anyway.
+- **A record field's picker offers the slots first,** by the scope the checks use, so a slot a field can't name is never offered.
+
 ---
 
 ## Open
