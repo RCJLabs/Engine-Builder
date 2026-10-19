@@ -97,7 +97,7 @@ Both of `owed`'s objectives lead somewhere, so the stage moves only by one of th
 ```
 
 - **A quest not yet started** has no entry.
-- **`state`** is `active`, `done` or `failed`; **`stage`** the stage it is at, or ended at; **`log`** the stages reached, in order, a stage reached twice listed twice.
+- **`state`** is `active`, `done` or `failed`; **`stage`** the stage it is at, or ended at; **`log`** the stages reached, each once, in the order last reached: a stage reached again moves to the end, so a quest that loops can't grow its save.
 - **`done`** holds the current stage's objectives done, sorted; **`counts`** its count objectives' counts; **`days`** the days started while it has been current. All three start empty as a stage is reached.
 - **`why`** is the reason, once the quest has failed.
 
@@ -110,17 +110,17 @@ A quest starts:
 - by the effect `start-quest`;
 - by `set-stage`, at that stage;
 - with the game, when `at-start` is true, in the kit's start;
-- once its `starts-when` holds, read as each event is heard.
+- once its `starts-when` holds: read in the kit's start, after the `at-start` quests, and as each event is heard.
 
 Starting: the entry is made `active`, `quests/started` is raised, and the quest reaches its first stage (or `set-stage`'s). A quest that has started, whether active, done or failed, doesn't start again: `start-quest` does nothing to it.
 
 ### Reaching a stage
 
-The stage becomes `stage`, it is added to `log`, `done`, `counts` and `days` start empty, `quests/staged` is raised, and the stage's `effects` apply, in order. A stage that `fails` then ends the quest, failed, its `log` the reason. Otherwise the quest is checked at once, since its objectives may be met already.
+The stage becomes `stage`, it is added to `log`, `done`, `counts` and `days` start empty, `quests/staged` is raised, and the stage's `effects` apply, in order. A stage that `fails` then ends the quest, failed, its `log` the reason, unless its effects moved the quest on or ended it. Otherwise the quest is checked at once, since its objectives may be met already.
 
 ### Checking
 
-As each event is heard (the kit hears every event, as the events kit does), and as a quest starts or reaches a stage, each active quest is checked, in the order of the quests' ids. Waiting quests with `starts-when` are checked first, and start when it holds.
+As each event is heard, each quest active when it was raised is checked, in the order of the quests' ids; waiting quests with `starts-when` are checked first, and start when it holds. The kit hears every event, as the events kit does, its own included, so a quest can wait on another: `"starts-when": "quests.state(bounty) == done"`. A quest is also checked as it starts and as it reaches a stage.
 
 For a quest at a stage:
 
@@ -128,10 +128,10 @@ For a quest at a stage:
 2. **Counts.** Each count objective not yet done whose event this is, with every argument it gives equal, is counted.
 3. **Objectives.** Each objective not yet done, in the order written, is done once its `done-when` holds or its count reaches `to`: it joins `done` and `quests/objective-done` is raised. An objective once done stays done while the stage is current.
 4. **Leads to.** The first objective done in this check that has a `next` moves the quest to that stage, and the check goes on there.
-5. **Then.** When every objective without a `next` is done, the stage is done, and the quest moves to its `next`. A stage with none is done at once. With no `next`, the quest is done: `state` is `done`, and `quests/done` is raised.
+5. **Then.** The stage is done when it has no objectives, or when it has objectives without a `next` and every one of those is done. A stage whose objectives all have a `next` moves only by one of them. A done stage moves the quest to its `next`; with no `next`, the quest is done: `state` is `done`, and `quests/done` is raised.
 6. **Failing.** Otherwise, when `fail-when` holds or `days` has reached the stage's days, the quest fails: `state` is `failed`, `why` is the stage's, and `quests/failed` is raised.
 
-Success comes before failure: a stage whose objectives are done in the check its deadline comes due is done. A check moves a quest at most as many stages as it has; one still moving after that is left where it is, for the next check. E035 stops the loops content can show: stages with no objectives that lead round to each other.
+Success comes before failure: a stage whose objectives are done in the check its deadline comes due is done. A check moves a quest at most as many stages as it has, so every check ends. The next check comes at once, though, as the kit hears the stages it raised: a quest whose objectives are always met round a loop keeps moving until the kernel stops the action, 64 events deep, with an error that names `quests/staged` or `quests/objective-done`. E035 stops the loops content can show: stages that lead round to each other with nothing to wait on.
 
 ## What a quest shows
 
@@ -176,7 +176,7 @@ A count objective shows its count and target too: `{ "id": "scrap", "text": "Sal
 | `quests.reached(quest, stage)` | bool: the stage is in its log | "debt has reached square" |
 | `quests.objective(quest, objective)` | bool: done at the current stage | "pay of debt is done" |
 | `quests.count(quest, objective)` | int from 0: a count objective's count at the current stage | "the count of dig of debt is at least 2" |
-| `quests.tally(state)` | int from 0: how many quests are in that state | "the quests done are at least 3" |
+| `quests.tally(state)` | int from 0: how many quests are in that state | "the number of quests done is at least 3" |
 
 A stage or an objective its quest doesn't have, named in a fact, throws; validation stops it in content (E043).
 
@@ -192,7 +192,7 @@ A stage or an objective its quest doesn't have, named in a fact, throws; validat
 
 ## Checks
 
-- **E035** (a kit's record that doesn't hold together), in a quest: a stage id twice, or one a condition can't write; an objective id twice in the quest, or one a condition can't write; a Then or a Leads to naming no stage of the quest; an objective with both or neither of `done-when` and `count`; a stage that `fails` and also has objectives, a Then, `fail-when` or days; stages with no objectives that lead round to each other, which would never stop.
+- **E035** (a kit's record that doesn't hold together), in a quest: a stage id twice, or one a condition can't write; an objective id twice in the quest, or one a condition can't write; a Then or a Leads to naming no stage of the quest; an objective with both or neither of `done-when` and `count`; a stage that `fails` and also has objectives, a Then, `fail-when` or days; stages that lead round to each other with nothing to wait on, which would never stop: by the Then of a stage with no objectives, or by a `set-stage` of the same quest among a stage's effects.
 - **E022, E023** for a count's event and its arguments, as for a row's When.
 - **E043:** a condition, or a `set-stage`, naming a stage or an objective its quest doesn't have.
 - **W120:** days in a game without a time module.
@@ -210,7 +210,7 @@ The editor draws each quest as a map above its form, as it draws a talk ([editor
 
 ## Proof
 
-- **Unit tests** (`packages/kits/src/quests/`, with a test game in `packages/kits/test/`): each way to start; reaching a stage, its log and effects; count and condition objectives, done once; Leads to before Then; done and failed quests, by `fails`, `fail-when`, days and `fail-quest`; success before failure in one check; the move limit; the journal equal to the state; the facts.
+- **Unit tests** (`packages/kits/src/quests/`, with the dock, a test game in `packages/kits/test/dock.ts`): each way to start; reaching a stage, its log and effects; count and condition objectives, done once; Leads to before Then; done and failed quests, by `fails`, `fail-when`, days and `fail-quest`; success before failure in one check; a loop stopped by the kernel, not held; the journal equal to the state; the facts; ids called `constructor`.
 - **Schema tests:** every E035 rule, E022 and E023 for counts, E043, W120, W124, W125 and W126.
 - **The yard fixture** (`tools/cli/test/fixtures/yard`): a debt with a deadline and two ways out, a bounty counted, a ladder of goals. Its golden runs, and a test over 30 seeds' runs that every quest is done in some run and failed where it can fail, and that each journal entry agrees with the state.
 
