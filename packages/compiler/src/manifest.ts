@@ -25,20 +25,31 @@ export const projectSchema = z.strictObject({
   kits: z
     .array(z.string({ error: 'A kit is named by its id, like "inventory"' }), { error: 'Expected a list of kits' })
     .optional(),
-  calendar: calendarSchema.optional(),
+  // Checked apart (E038), so a calendar half filled in never stops project.json being read.
+  calendar: z.unknown().optional(),
 });
 
 export interface ManifestProblem extends SchemaIssue {
   readonly code: 'E008' | 'E009' | 'E033' | 'E034' | 'E038' | 'W116';
 }
 
-/** The calendar the time kit reads, or why there is none to read (E038, W116). */
-function calendarFor(calendar: CalendarDef | undefined, on: readonly string[]) {
-  if (calendar === undefined) return { problems: [] };
+/**
+ * The calendar the time kit reads, a day a tick unless it says otherwise, or why there is none to
+ * read: its shape, then its sense (E038), or the time kit off (W116). The kit then keeps a day a tick.
+ */
+function calendarFor(given: unknown, on: readonly string[]): { calendar?: CalendarDef; problems: ManifestProblem[] } {
+  if (given === undefined) return { problems: [] };
   if (!on.includes(TIME)) {
     const message = "Nothing reads this calendar: it is the time kit's, which project.json doesn't turn on";
-    return { problems: [{ code: 'W116' as const, path: '/calendar', message }] };
+    return { problems: [{ code: 'W116', path: '/calendar', message }] };
   }
+  const issues = schemaIssues(calendarSchema, given);
+  if (issues.length > 0) {
+    return {
+      problems: issues.map((issue) => ({ code: 'E038', path: `/calendar${issue.path}`, message: issue.message })),
+    };
+  }
+  const calendar = { ticksPerDay: 1, ...(given as Partial<CalendarDef>) };
   try {
     calendarOf(calendar);
     return { calendar, problems: [] };

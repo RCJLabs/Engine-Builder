@@ -1,4 +1,4 @@
-import { ENGINE_EVENTS, ENGINE_FACTS, KIT_EFFECT_FILES } from '@eb/schema';
+import { ENGINE_EVENTS, ENGINE_FACTS, KIT_EFFECT_FILES, knownFrom } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { kitEffectFile, newKitEffect } from './KitEffect.tsx';
 import { holdsText } from './LogicBrowser.tsx';
@@ -57,6 +57,18 @@ describe('a row in words', () => {
     expect(effectText({ effect: 'open-shop', shop: '' })).toBe('open a shop not yet chosen');
   });
 
+  it('reads a faction’s facts by the faction’s id (M3.5)', () => {
+    const { facts } = knownFrom({ kits: ['factions'] });
+    expect(ifText('factions.reached(faction: guild, band: friendly)', facts)).toBe('If guild is at least friendly');
+    expect(ifText('not factions.reached(faction: guild, band: friendly)', facts)).toBe(
+      'If not guild is at least friendly',
+    );
+    expect(ifText('factions.band(guild) != hostile', facts)).toBe('If guild’s band is not hostile');
+    expect(ifText('factions.standing(guild) >= 10 and factions.price(guild) < 100', facts)).toBe(
+      'If guild’s standing is at least 10 and guild’s price share is less than 100',
+    );
+  });
+
   it('says what a flag holds', () => {
     expect(holdsText({ name: 'Met' })).toBe('On or off: starts off');
     expect(holdsText({ number: { min: 0, max: 10, start: 2 } })).toBe('A number from 0 to 10: starts at 2');
@@ -112,6 +124,36 @@ describe('sheet edits', () => {
     expect(effectText({ effect: 'add-status', actor: '' })).toBe(
       'add a status not yet chosen to an actor not yet chosen',
     );
+  });
+
+  it('says the factions and time kits’ effects in a few words, lengths in the units written (M3.5)', () => {
+    expect(
+      doText([
+        { effect: 'change-standing', faction: 'guild', by: 5 },
+        { effect: 'change-standing', faction: 'guild', by: -3 },
+        { effect: 'wait', days: 1, hours: 6 },
+        { effect: 'wait', hours: 1 },
+        { effect: 'cancel-timer', timer: 'harvest' },
+        { effect: 'schedule', after: { days: 3 }, effects: [{ effect: 'set-flag', flag: 'met', to: true }] },
+        { effect: 'schedule', after: { days: 1 }, every: { weeks: 2 }, effects: [] },
+      ]),
+    ).toBe(
+      'Do: add 5 to guild’s standing, then take 3 from guild’s standing, then wait 1 day and 6 hours, ' +
+        'then wait 1 hour, then cancel the timer harvest, then do 1 effect in 3 days, ' +
+        'then do 0 effects in 1 day and every 2 weeks after',
+    );
+    expect(effectText({ effect: 'change-standing', by: 2 })).toBe('add 2 to the standing of a faction not yet chosen');
+    expect(effectText({ effect: 'wait', days: 0 })).toBe('wait a length not yet set');
+  });
+
+  it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
+    const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
+      Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});
+    expect(lengths()).toEqual(['ticks', 'days']);
+    expect(lengths({ ticksPerDay: 24, units: { hours: 1, weeks: 168 } })).toEqual(['ticks', 'days', 'hours', 'weeks']);
+    expect(kitEffectFile('schedule', ['time'])).toBeUndefined();
+    expect(kitEffectFile('change-standing', ['factions'])?.kit).toBe('factions');
+    expect(kitEffectFile('change-standing', ['time'])).toBeUndefined();
   });
 
   it('offers a kit’s effect only with its kit on', () => {

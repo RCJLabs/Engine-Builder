@@ -49,6 +49,45 @@ describe('project.json’s kits', () => {
   });
 });
 
+describe('project.json’s calendar (M3.5)', () => {
+  const timed = (calendar: unknown, kits = ['time']) => checkManifest({ ...JSON.parse(manifest(kits)), calendar });
+  const brief = (problems: readonly { code: string; path: string }[]) => problems.map((p) => `${p.code} ${p.path}`);
+
+  it('is the time kit’s, a day a tick unless it says otherwise', () => {
+    expect(timed({ ticksPerDay: 24, daysPerYear: 360 })).toEqual({
+      project: {
+        id: 'kitted',
+        name: 'Kitted',
+        version: '0.1.0',
+        kits: ['time'],
+        calendar: { ticksPerDay: 24, daysPerYear: 360 },
+      },
+      problems: [],
+    });
+    expect(timed({ weekdays: ['sun', 'moon'] }).project?.calendar).toEqual({
+      ticksPerDay: 1,
+      weekdays: ['sun', 'moon'],
+    });
+    expect(timed(undefined).project).toEqual({ id: 'kitted', name: 'Kitted', version: '0.1.0', kits: ['time'] });
+  });
+
+  it('half filled in says where, and project.json still reads with its kits on (E038)', () => {
+    const half = timed({ ticksPerDay: 'many', months: [{ id: 'thaw' }] });
+    expect(half.project).toEqual({ id: 'kitted', name: 'Kitted', version: '0.1.0', kits: ['time'] });
+    expect(brief(half.problems)).toEqual(['E038 /calendar/ticksPerDay', 'E038 /calendar/months/0/days']);
+    // A calendar of the right shape that doesn't hold together, in calendarOf's words.
+    expect(timed({ weekdays: [] }).problems).toEqual([
+      { code: 'E038', path: '/calendar', message: 'Calendar: weekdays must not be empty' },
+    ]);
+  });
+
+  it('is read by nothing with the time kit off, which project.json says (W116)', () => {
+    const off = timed({ ticksPerDay: 24 }, ['inventory']);
+    expect(off.project).toEqual({ id: 'kitted', name: 'Kitted', version: '0.1.0', kits: ['inventory'] });
+    expect(brief(off.problems)).toEqual(['W116 /calendar']);
+  });
+});
+
 describe('a project with kits', () => {
   it('compiles the hangar clean, into a format 3 pack that carries its kits and its scripts', async () => {
     const result = await compileWithGame(memorySource(hangar()));

@@ -3,11 +3,17 @@
  * faction, its band, the share of a shop's prices the band sets, and drift as each day starts.
  * Drift hears every event and picks out `time/day-started`, since a game may have no time module.
  */
-import { defineModule } from '@eb/core';
+import { defineModule, type FactTest, OP_WORDS } from '@eb/core';
 import { bandOf, changeStanding, drift, factionRecord, priceOf, reached, standingOf, within } from './standing.ts';
 import { FACTION, FACTIONS, type FactionsSlice } from './types.ts';
 
 const FACTION_ARG = { faction: { type: 'ref', to: FACTION } } as const;
+
+// "grimsgarth’s standing is at least 10": a test in words by the faction's id, as a flag's are.
+const whose = (what: string) => (test: FactTest) =>
+  test.op === undefined
+    ? undefined
+    : `${String(test.args?.faction)}’s ${what} ${OP_WORDS[test.op]} ${String(test.value)}`;
 
 export const factionsKit = defineModule<FactionsSlice>({
   id: FACTIONS,
@@ -17,12 +23,14 @@ export const factionsKit = defineModule<FactionsSlice>({
       args: FACTION_ARG,
       domain: { type: 'int' },
       label: 'standing',
+      describe: whose('standing'),
       read: ({ content, state }, { faction }) => standingOf(content, state, faction as string),
     },
     band: {
       args: FACTION_ARG,
       domain: { type: 'text' },
       label: 'the band',
+      describe: whose('band'),
       read: ({ content, state }, { faction }) =>
         bandOf(factionRecord(content, faction), standingOf(content, state, faction as string))?.id,
     },
@@ -30,6 +38,8 @@ export const factionsKit = defineModule<FactionsSlice>({
       args: { ...FACTION_ARG, band: { type: 'text' } },
       domain: { type: 'bool' },
       label: 'at least the band',
+      describe: (test) =>
+        test.op === undefined ? `${String(test.args?.faction)} is at least ${String(test.args?.band)}` : undefined,
       read: ({ content, state }, { faction, band }) =>
         reached(
           factionRecord(content, faction),
@@ -42,6 +52,7 @@ export const factionsKit = defineModule<FactionsSlice>({
       args: FACTION_ARG,
       domain: { type: 'int', min: 0 },
       label: 'the price share',
+      describe: whose('price share'),
       read: ({ content, state }, { faction }) =>
         priceOf(factionRecord(content, faction), standingOf(content, state, faction as string)),
     },

@@ -1,7 +1,9 @@
+import { TIME } from '@eb/kits';
 import { busy, closeProject, copyCurrentIn, exportCurrent, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
 import { TypeList } from '../records/TypeList.tsx';
 import { EditState } from './EditState.tsx';
+import { ProjectCalendar } from './ProjectCalendar.tsx';
 import { ProjectFields } from './ProjectFields.tsx';
 import { ProjectKits } from './ProjectKits.tsx';
 
@@ -34,6 +36,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
         <p class="muted">No problems found.</p>
       )}
       {summary.project ? <ProjectKits on={summary.project.kits ?? []} /> : null}
+      {summary.project?.kits?.includes(TIME) ? <ProjectCalendar project={project} /> : null}
       <TypeList project={project} />
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>

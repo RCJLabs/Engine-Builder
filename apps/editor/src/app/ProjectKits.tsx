@@ -13,6 +13,11 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
   economy: { name: 'Economy', brings: 'Resources such as credits, and shops. Needs Inventory.' },
   stats: { name: 'Stats', brings: 'Actors, their stats and the damage they take, and statuses.' },
   gear: { name: 'Gear', brings: 'Slots, and items actors wear in them. Needs Stats and Inventory.' },
+  factions: {
+    name: 'Factions',
+    brings: 'Standing with each faction, in bands that set shops’ prices and that conditions read.',
+  },
+  time: { name: 'Time', brings: 'Days, weeks, months and seasons, and rows that run as each one starts.' },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

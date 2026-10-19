@@ -54,7 +54,8 @@ const nameOf = z.string().regex(NAME_PATTERN, { error: 'A name is lowercase word
  * calendarOf's to check, and E038's to report.
  */
 export const calendarSchema = z.strictObject({
-  ticksPerDay: z.int().min(1),
+  // A tick is a day when left out.
+  ticksPerDay: z.int().min(1).optional(),
   units: z.record(nameOf, z.int().min(1)).optional(),
   phases: z.array(z.strictObject({ id: nameOf, from: z.int().min(0) })).optional(),
   weekdays: z.array(nameOf).optional(),

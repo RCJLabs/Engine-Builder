@@ -5,6 +5,7 @@
  * change, beside the Project panel's summary (projects/opened.ts).
  */
 import { type ProjectSource, RECORDS_DIR, readProjectFiles, type TypeReport } from '@eb/compiler';
+import type { CalendarDef } from '@eb/core';
 import { type DataType, type Diagnostic, isEngineType, type RecordType } from '@eb/schema';
 
 export interface Catalog {
@@ -28,6 +29,8 @@ export interface Catalog {
   readonly recordTypes: readonly RecordType[];
   /** The kits project.json turns on (M3.3, D41), in the engine's order. */
   readonly kits: readonly string[];
+  /** project.json's calendar, with the time kit on and the calendar sound (M3.5, D43). */
+  readonly calendar?: CalendarDef;
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log. The record index has the rest.
@@ -80,6 +83,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
     kits: read.kits,
+    ...(read.calendar ? { calendar: read.calendar } : {}),
     problems: read.diagnostics,
   };
 }

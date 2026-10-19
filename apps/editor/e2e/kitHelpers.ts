@@ -1,6 +1,6 @@
 /**
- * What the kits' e2e specs share (M3.3, M3.4): a new project, a stored file read back, a record of
- * a kit's type made in Records, the Logic panel, and a fixture folder as a zip.
+ * What the kits' e2e specs share (M3.3 to M3.5): a new project, a stored file read back, a record
+ * of a kit's type made in Records, a record picked, the Logic panel, and a fixture folder as a zip.
  */
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -63,6 +63,12 @@ export async function newRecord(page: Page, type: string, title: string, name: s
   const form = page.getByRole('region', { name: `${title} ${name.toLowerCase()}` });
   await expect(form).toBeVisible();
   return form;
+}
+
+/** Picks a record in a form's ref field: the field's button, then the option in its dialog. */
+export async function pick(page: Page, scope: Locator, field: RegExp, dialog: string, option: string): Promise<void> {
+  await scope.getByRole('button', { name: field }).click();
+  await page.getByRole('dialog', { name: dialog }).getByRole('option', { name: option }).click();
 }
 
 export async function showLogic(page: Page): Promise<Locator> {

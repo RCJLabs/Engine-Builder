@@ -6,20 +6,14 @@
  */
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { expect, type Locator, type Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, watchErrors } from './checks.ts';
-import { createProject, fixtureZip, kitsBox, newRecord, showLogic, stored } from './kitHelpers.ts';
+import { createProject, fixtureZip, kitsBox, newRecord, pick, showLogic, stored } from './kitHelpers.ts';
 import { openProject, REPO, scratch, showProject } from './ludus.ts';
 
 test.use({ viewport: { width: 1280, height: 900 } });
 
 const ARENA = join(REPO, 'tools/cli/test/fixtures/arena');
-
-/** Picks a record in a form's ref field: the field's button, then the option in its dialog. */
-async function pick(page: Page, scope: Locator, field: RegExp, dialog: string, option: string): Promise<void> {
-  await scope.getByRole('button', { name: field }).click();
-  await page.getByRole('dialog', { name: dialog }).getByRole('option', { name: option }).click();
-}
 
 test('the stats and gear kits on, their records made with forms, gear worn, a row that hurts, the export clean', async ({
   page,

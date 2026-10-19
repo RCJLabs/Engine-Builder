@@ -116,6 +116,44 @@ function statEffectText(effect: Record<string, unknown>): string | undefined {
     case 'unequip':
       return `unequip ${whose(effect.actor, effect.slot, 'a slot')}`;
     default:
+      return laterEffectText(effect);
+  }
+}
+
+// "3 days", "1 day and 6 hours": a duration's units, each said once, in the order written.
+function lengthOf(duration: unknown): string {
+  const parts = isObject(duration) ? Object.entries(duration).filter(([, n]) => typeof n === 'number' && n > 0) : [];
+  if (parts.length === 0) return 'a length not yet set';
+  return parts.map(([unit, n]) => `${n} ${n === 1 ? unit.replace(/s$/, '') : unit}`).join(' and ');
+}
+
+/**
+ * The factions and time kits' effects (M3.5): "take 45 from grimsgarth’s standing", "wait 3 days",
+ * "do 2 effects in 1 day and every 7 days after".
+ */
+function laterEffectText(effect: Record<string, unknown>): string | undefined {
+  const { effect: name, ...rest } = effect;
+  switch (name) {
+    case 'change-standing': {
+      const { faction } = effect;
+      const standing =
+        typeof faction === 'string' && faction !== ''
+          ? `${faction}’s standing`
+          : 'the standing of a faction not yet chosen';
+      return typeof effect.by === 'number' && effect.by < 0
+        ? `take ${-effect.by} from ${standing}`
+        : `add ${written(effect.by)} to ${standing}`;
+    }
+    case 'wait':
+      return `wait ${lengthOf(rest)}`;
+    case 'cancel-timer':
+      return `cancel the timer ${named(effect.timer, 'a timer')}`;
+    case 'schedule': {
+      const count = Array.isArray(effect.effects) ? effect.effects.length : 0;
+      const every = effect.every === undefined ? '' : ` and every ${lengthOf(effect.every)} after`;
+      return `do ${count === 1 ? '1 effect' : `${count} effects`} in ${lengthOf(effect.after)}${every}`;
+    }
+    default:
       return undefined;
   }
 }

@@ -135,11 +135,11 @@ From M3.5 (D43), a project made only of data can keep time. The time module is a
     "seasons": [{ "id": "spring", "from": 0 }, { "id": "summer", "from": 24 }, { "id": "autumn", "from": 48 }, { "id": "winter", "from": 72 }] } }
 ```
 
-- **`calendar`** is a calendar as above, `{ "ticksPerDay": 1 }` when left out. The editor's Project panel edits it.
+- **`calendar`** is a calendar as above, its `ticksPerDay` 1 when left out, and `{ "ticksPerDay": 1 }` when the whole of it is. The editor's Project panel edits it.
 - **The kit's module** is `timeModule({ calendar })`, joining the game after the other kits. A `--game` module that names a module `time` keeps its own; a project's game.ts that does is E031, as for any kit ([kits.md](kits.md#switching-kits-on)).
 - **Its effects** (`wait`, `schedule`, `cancel-timer`), facts and events join the project's catalogue as other kits' do, with the calendar's units in their durations and its names in their domains.
 - **Packs** carry the calendar in `project.calendar` (format 3).
-- **E038:** a calendar that doesn't hold together, with `calendarOf`'s words, at `/calendar`.
+- **E038:** a calendar whose shape is wrong, at the field, or that doesn't hold together, with `calendarOf`'s words, at `/calendar`. It is checked apart from the rest of project.json, so a calendar half filled in never stops the project being read: the kit keeps a day a tick until it holds together.
 - **W116:** a calendar given while the time kit is off: nothing reads it.
 - **Real time** (`time/elapse`) for a project made of data waits for Phase 4's stage, which sends it.
 

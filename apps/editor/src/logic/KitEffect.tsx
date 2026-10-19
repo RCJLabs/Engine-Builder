@@ -3,16 +3,14 @@
  * made from (@eb/schema's kitEffects.ts), so the form and the checks can't disagree, and no kit
  * effect needs a form written by hand.
  */
-import { type EffectFile, KIT_EFFECT_FILES } from '@eb/schema';
+import type { CalendarDef } from '@eb/core';
+import { type EffectFile, kitEffectFiles } from '@eb/schema';
 import { FieldView } from '../forms/FieldView.tsx';
 import { newGroup, type Path } from '../forms/values.ts';
 
-const FILES = new Map(KIT_EFFECT_FILES.map((file) => [file.effect, file]));
-
-/** The kit effect of this name, when one of the kits on has it. */
-export function kitEffectFile(name: unknown, kits: readonly string[]): EffectFile | undefined {
-  const file = typeof name === 'string' ? FILES.get(name) : undefined;
-  return file && kits.includes(file.kit) ? file : undefined;
+/** The kit effect of this name, when one of the kits on has it with a form: the time kit's in the calendar's units. */
+export function kitEffectFile(name: unknown, kits: readonly string[], calendar?: CalendarDef): EffectFile | undefined {
+  return typeof name === 'string' ? kitEffectFiles(kits, calendar).find((file) => file.effect === name) : undefined;
 }
 
 /** A new effect of the kit's, its fields as a new record's are: what must be filled in, empty. */

@@ -1,6 +1,7 @@
 /**
  * Edits to project.json's name and version: the first things the editor edits. M2.4's forms
- * build steps the same way, for records. Since M3.3, its kits too (D41).
+ * build steps the same way, for records. Since M3.3, its kits too (D41), and since M3.5 its
+ * calendar (D43).
  */
 import { MANIFEST_FILE, type ProjectSource, projectSchema } from '@eb/compiler';
 import { KITS } from '@eb/kits';
@@ -79,4 +80,36 @@ export function kitsStep(kit: string, wanted: boolean, before: readonly string[]
     ? after.filter((id) => id !== kit && !before.includes(id))
     : before.filter((id) => id !== kit && !after.includes(id));
   return `Turn ${wanted ? 'on' : 'off'} the ${kit} kit${also.length > 0 ? `, with ${also.join(' and ')}` : ''}`;
+}
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/**
+ * project.json with `calendar` in place of its own (M3.5). A list left empty is taken out: the
+ * engine reads an empty list of weekdays or months as a calendar that doesn't hold together, and
+ * none is what removing the last one means. A calendar with nothing left in it is taken out too.
+ */
+export function withCalendar(manifest: unknown, calendar: unknown): unknown {
+  if (!isObject(manifest)) return manifest;
+  const kept = isObject(calendar)
+    ? Object.fromEntries(Object.entries(calendar).filter(([, v]) => !(Array.isArray(v) && v.length === 0)))
+    : calendar;
+  const empty = isObject(kept) && Object.keys(kept).length === 0;
+  // Spreading keeps `calendar` where it was; a project without one gets it last.
+  const { calendar: _, ...rest } = manifest;
+  return empty || kept === undefined ? rest : { ...manifest, calendar: kept };
+}
+
+/** The change `change` makes to project.json's calendar, a calendar left out read as an empty one. */
+export async function calendarChange(
+  source: ProjectSource,
+  change: (calendar: unknown) => unknown,
+): Promise<FileChange[]> {
+  const before = await source.read(MANIFEST_FILE);
+  if (before === undefined) return [];
+  const after = editJson(before, (manifest) =>
+    withCalendar(manifest, change(isObject(manifest) ? (manifest.calendar ?? {}) : {})),
+  );
+  return after === before ? [] : [{ path: MANIFEST_FILE, before, after }];
 }
