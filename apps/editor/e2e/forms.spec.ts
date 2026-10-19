@@ -29,7 +29,8 @@ test('edits text, numbers, choices and yes or no, and keeps them through a reloa
   });
   // An optional text field emptied leaves the record.
   await form.getByLabel('Story').fill('');
-  await expect.poll(async () => Object.keys((await stored(page, SPICULUS)) as object)).not.toContain('story');
+  // Read mid-write, the file is null, which the matcher fails and the poll reads again.
+  await expect.poll(() => stored(page, SPICULUS)).not.toHaveProperty('story');
   // The phone keyboard each number asks for: digits for a whole number that can't be negative.
   await expect(form.getByLabel('Might', { exact: true })).toHaveAttribute('inputmode', 'numeric');
   // The slider moves the same value, and the box follows it.
@@ -83,7 +84,7 @@ test('chooses a record from a list it searches, and clears an optional field', a
   await spiculus(page).toMatchObject({ school: 'ludus-dacicus' });
 
   await form.getByRole('button', { name: 'Clear Portrait' }).click();
-  await expect.poll(async () => Object.keys((await stored(page, SPICULUS)) as object)).not.toContain('portrait');
+  await expect.poll(() => stored(page, SPICULUS)).not.toHaveProperty('portrait');
   await expect(form.getByRole('button', { name: 'Portrait (optional) Not chosen' })).toBeVisible();
   await form.getByRole('button', { name: 'Portrait (optional) Not chosen' }).click();
   await page
@@ -117,7 +118,7 @@ test('adds, moves and removes list items and map entries, focus following', asyn
   await form.getByRole('button', { name: 'Weapons carried: gladius, change the key' }).click();
   await page.getByRole('dialog', { name: 'A key for gladius' }).getByRole('option', { name: 'Net (net)' }).click();
   await expect
-    .poll(async () => Object.keys(((await stored(page, SPICULUS)) as { kit: object }).kit))
+    .poll(async () => Object.keys(((await stored(page, SPICULUS)) as { kit?: object } | null)?.kit ?? {}))
     .toEqual(['net', 'trident']);
   await form.getByRole('button', { name: 'Remove net from Weapons carried' }).click();
   await spiculus(page).toMatchObject({ kit: { trident: 2 } });

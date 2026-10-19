@@ -178,6 +178,8 @@ async function makeRows(page: Page): Promise<Locator> {
 test('the roster kit on, a recruit, a hall and a roster with ranks and bonds, rows on its events, the export clean', async ({
   page,
 }) => {
+  // Eleven records and three rows made by hand, each checked as it lands.
+  test.setTimeout(60_000);
   const errors = watchErrors(page);
   await createProject(page, 'Crew');
   // The roster needs Stats: ticking it ticks both, as one step.
