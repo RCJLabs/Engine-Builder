@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "gatehouse",
+  "name": "The gatehouse",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "factions", "dialogue"]
+}

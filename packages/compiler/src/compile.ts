@@ -3,6 +3,7 @@ import {
   compareDiagnostics,
   type DataType,
   type Diagnostic,
+  knownFrom,
   packValue,
   type RecordInput,
   type RecordType,
@@ -12,6 +13,7 @@ import {
 } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
+import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
 
@@ -33,6 +35,7 @@ export interface CompileResult {
  * game's code types, which the project's own types/ join; `options.facts` is the game's fact
  * catalog, for checking the conditions in records. Scripts are checked without being run, and
  * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
+ * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
  */
 export async function compileProject(
   source: ProjectSource,
@@ -42,13 +45,15 @@ export async function compileProject(
   const files = await readProjectFiles(source, types);
   const scripts = await readScripts(source);
   const known = files.types;
-  const diagnostics: Diagnostic[] = [...files.diagnostics, ...scripts.diagnostics];
-  const records = (await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))).map(
-    (record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record),
-  );
   const kitted = { ...options, kits: files.kits, ...(files.calendar ? { calendar: files.calendar } : {}) };
+  const scenes = await readScenes(source, knownFrom(kitted).facts, files.kits);
+  const diagnostics: Diagnostic[] = [...files.diagnostics, ...scripts.diagnostics, ...scenes.diagnostics];
+  const records = [
+    ...(await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))),
+    ...scenes.records,
+  ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
-  diagnostics.push(...validation.diagnostics);
+  diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
   return {

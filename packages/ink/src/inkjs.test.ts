@@ -4,6 +4,8 @@
  * makes of it played the same way. Each way must say the same paragraphs, by the same speakers,
  * fire the same effects in the same order, and offer the same choices at each turn.
  */
+import { readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { engineModules, evaluate, type FactCatalog, type FactTest, factCatalog, parseCondition } from '@eb/core';
 import { Compiler } from 'inkjs/full';
 import { describe, expect, it } from 'vitest';
@@ -11,11 +13,25 @@ import { parseEffect } from './fx.ts';
 import { compileScene } from './index.ts';
 import { tidy } from './text.ts';
 
-const facts: FactCatalog = { ...factCatalog(engineModules), 'time.day': { domain: { type: 'int', min: 1 } } };
+const facts: FactCatalog = {
+  ...factCatalog(engineModules),
+  'time.day': { domain: { type: 'int', min: 1 } },
+  'factions.standing': { args: { faction: { type: 'ref', to: 'faction' } }, domain: { type: 'int' } },
+  'economy.amount': { args: { resource: { type: 'ref', to: 'resource' } }, domain: { type: 'int' } },
+};
 
 interface State {
   readonly on: Readonly<Record<string, boolean>>;
   readonly day: number;
+  /** Every number flag, standing and amount reads this. */
+  readonly n?: number;
+}
+
+/** Each fact a scene's EXTERNAL can name here, read from the state. */
+function factValue(state: State, fact: string, arg: unknown): unknown {
+  if (fact === 'flag.on') return state.on[arg as string] ?? false;
+  if (fact === 'time.day') return state.day;
+  return state.n ?? 0;
 }
 
 interface Way {
@@ -43,8 +59,11 @@ function inkWays(source: string, state: State): Map<string, Way> {
   const compiler = new Compiler(source);
   const story = compiler.Compile();
   expect([...compiler.errors, ...compiler.warnings]).toEqual([]);
-  story.BindExternalFunction('flag_on', (flag: string) => state.on[flag] ?? false, true);
+  // inkjs counts a bound function's parameters against each call's arguments.
   story.BindExternalFunction('time_day', () => state.day, true);
+  for (const fact of ['flag.on', 'flag.number', 'factions.standing', 'economy.amount']) {
+    story.BindExternalFunction(fact.replace(/\./g, '_'), (arg: unknown) => factValue(state, fact, arg), true);
+  }
   const ways = new Map<string, Way>();
   const play = (picks: number[]) => {
     story.ResetState();
@@ -77,12 +96,7 @@ type Line = Record<string, unknown> & { id: string };
 type Option = { id: string; label: string; if?: string; once?: boolean; effects?: unknown[]; next?: string };
 
 function talkWay(talk: { starts: { line: string }[]; lines: Line[] }, state: State, picks: readonly number[]): Way {
-  const read = (test: FactTest) =>
-    test.fact === 'flag.on'
-      ? (state.on[test.args?.flag as string] ?? false)
-      : test.fact === 'time.day'
-        ? state.day
-        : undefined;
+  const read = (test: FactTest) => factValue(state, test.fact, Object.values(test.args ?? {})[0]);
   const holds = (text: unknown) => {
     if (text === undefined) return true;
     const parsed = parseCondition(text as string, facts);
@@ -116,9 +130,9 @@ function talkWay(talk: { starts: { line: string }[]; lines: Line[] }, state: Sta
 
 const STATES: State[] = [
   { on: {}, day: 1 },
-  { on: { a: true }, day: 3 },
-  { on: { b: true }, day: 5 },
-  { on: { a: true, b: true, c: true }, day: 9 },
+  { on: { a: true, 'asked-hild': true }, day: 3, n: 3 },
+  { on: { b: true, 'sent-healer': true }, day: 5, n: 5 },
+  { on: { a: true, b: true, c: true, promised: true }, day: 9, n: 1 },
 ];
 
 function sameWays(lines: string[]): void {
@@ -209,6 +223,13 @@ describe('a scene plays as inkjs plays it', () => {
       '- (done) It is decided.',
       '-> END',
     ]);
+  });
+
+  it('with the gatehouse fixture’s scenes', () => {
+    const dir = resolve(import.meta.dirname, '../../../tools/cli/test/fixtures/gatehouse/scenes');
+    const files = readdirSync(dir).filter((file) => file.endsWith('.ink'));
+    expect(files.length).toBe(3);
+    for (const file of files) sameWays(readFileSync(resolve(dir, file), 'utf8').split('\n'));
   });
 
   it('with choices that can all be hidden, and a flow that runs out at the top', () => {

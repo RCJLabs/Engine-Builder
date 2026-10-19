@@ -1,0 +1,23 @@
+{
+  "name": "Dusk at the gate",
+  "rows": [
+    {
+      "id": "first",
+      "note": "Hild comes by at the end of the first day.",
+      "when": { "event": "gate/dusk", "args": { "day": 1 } },
+      "do": [{ "effect": "open-talk", "talk": "first-dusk" }]
+    },
+    {
+      "id": "letter",
+      "note": "A letter from home on the second.",
+      "when": { "event": "gate/dusk", "args": { "day": 2 } },
+      "do": [{ "effect": "open-talk", "talk": "letter" }]
+    },
+    {
+      "id": "keeper",
+      "note": "The keeper of the bridge on the third.",
+      "when": { "event": "gate/dusk", "args": { "day": 3 } },
+      "do": [{ "effect": "open-talk", "talk": "keeper" }]
+    }
+  ]
+}

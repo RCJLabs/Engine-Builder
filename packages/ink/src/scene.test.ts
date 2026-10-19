@@ -51,11 +51,10 @@ describe('a scene', () => {
             {
               id: 'start-2-1',
               label: '"Is my grandfather there?"',
-              once: true,
               effects: [{ effect: 'add-to-flag', flag: 'truth', by: 1 }],
               next: 'start-3',
             },
-            { id: 'start-2-2', label: 'Say nothing.', once: true, next: 'start-4' },
+            { id: 'start-2-2', label: 'Say nothing.', next: 'start-4' },
           ],
         },
         { id: 'start-3', speaker: 'modgudr', text: '"Two benches down."', next: 'start-4' },
@@ -118,9 +117,8 @@ describe('choices', () => {
         if: 'flag.on(met) and time.day > 2',
         needs: 'not flag.on(broke)',
         cost: { cash: 10, rope: 1 },
-        once: true,
       },
-      { id: 'start-2', label: '"Beta?"', once: true },
+      { id: 'start-2', label: '"Beta?"' },
     ]);
   });
 
@@ -163,8 +161,10 @@ describe('choices', () => {
       ['hill-choose', undefined, undefined],
       ['hill-2', 'The hill doesn’t come down.', 'hill-choose'],
     ]);
-    const options = (lines[1]?.options ?? []) as { next?: string }[];
+    const options = (lines[1]?.options ?? []) as { next?: string; once?: boolean }[];
     expect(options.map((o) => o.next)).toEqual([undefined, 'hill-2', 'hill-choose']);
+    // On a loop, an ink choice is once-only, as within one play; elsewhere it is shown again when the talk is.
+    expect(options.map((o) => o.once)).toEqual([true, true, true]);
   });
 });
 

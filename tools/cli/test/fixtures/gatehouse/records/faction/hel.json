@@ -1,0 +1,7 @@
+{
+  "name": "Hel's hall",
+  "description": "The quiet hall below the bridge, which takes everyone the songs leave out.",
+  "min": -10,
+  "max": 10,
+  "start": 0
+}

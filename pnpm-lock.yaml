@@ -133,6 +133,9 @@ importers:
       '@eb/core':
         specifier: workspace:*
         version: link:../core
+      '@eb/ink':
+        specifier: workspace:*
+        version: link:../ink
       '@eb/kits':
         specifier: workspace:*
         version: link:../kits

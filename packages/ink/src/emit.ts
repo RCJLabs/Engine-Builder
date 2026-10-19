@@ -39,12 +39,47 @@ export function emitTalk(graph: Graph, globals: readonly Tag[], ctx: Context): T
     return undefined;
   }
   ctx.map['/starts/0'] = 1;
+  onceOnLoops(lines);
   const talk: TalkValue = {};
   for (const tag of globals) {
     if (tag.kind === 'name') talk.name = tag.text;
     if (tag.kind === 'show-odds') talk['show-odds'] = true;
   }
   return { ...talk, starts: [{ line: start }], lines };
+}
+
+/**
+ * An ink choice is once-only within a play. A play comes back to a line only round a loop, so a
+ * choice on a line on no loop keeps no `once`, and a scene opened again offers it again, as
+ * chooser played each scene afresh; and an option that is always there keeps W122 quiet.
+ */
+function onceOnLoops(lines: readonly Record<string, unknown>[]): void {
+  const leads = new Map<string, string[]>();
+  for (const line of lines) {
+    const options = (line.options ?? []) as { next?: string }[];
+    const branches = (line.branches ?? []) as { line?: string }[];
+    const to = [...options.map((o) => o.next), ...branches.map((b) => b.line), line.next as string | undefined];
+    leads.set(
+      line.id as string,
+      to.filter((id): id is string => id !== undefined),
+    );
+  }
+  const comesBack = (from: string) => {
+    const seen = new Set<string>();
+    const stack = [...(leads.get(from) ?? [])];
+    while (stack.length > 0) {
+      const id = stack.pop() as string;
+      if (id === from) return true;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      stack.push(...(leads.get(id) ?? []));
+    }
+    return false;
+  };
+  for (const line of lines) {
+    if (line.options === undefined || comesBack(line.id as string)) continue;
+    for (const option of line.options as Record<string, unknown>[]) delete option.once;
+  }
 }
 
 /** A name as an id: lowercase words joined by _ in ink, by - in the engine. */

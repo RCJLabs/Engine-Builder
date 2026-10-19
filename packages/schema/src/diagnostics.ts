@@ -80,6 +80,7 @@ export const DIAGNOSTIC_CODES = {
   W128: "A text names a slot its quest doesn't have",
   W129: 'On every way through its talk, the conditions before rule out a line, an option or a branch',
   W130: 'A talk can never end from a line',
+  W131: 'A file under scenes/ that the compiler ignores',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

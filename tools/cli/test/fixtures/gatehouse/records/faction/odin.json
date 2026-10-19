@@ -1,0 +1,7 @@
+{
+  "name": "Odin's hall",
+  "description": "The hall on the hill, which wants the brave and sings about them.",
+  "min": -10,
+  "max": 10,
+  "start": 0
+}
