@@ -6,7 +6,10 @@
 import { pointerSegment } from '@eb/core';
 import {
   ACTOR,
+  DECK,
   ECONOMY,
+  EVENT,
+  EVENTS,
   FACTION,
   FACTIONS,
   GEAR,
@@ -24,6 +27,7 @@ import {
   STATS,
   STATUS,
 } from '@eb/kits';
+import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
 import { HALL_TYPE_FILE, ROSTER_TYPE_FILE, recruitTypeFile } from './rosterTypes.ts';
@@ -217,7 +221,8 @@ const FACTION_SHOP_TYPE_FILE: TypeFile = {
 
 /**
  * Each kit's types, by name, as the type files it has with the kits on: gear adds to items and
- * actors, factions to shops, and the economy kit makes a recruit's fee name resources.
+ * actors, factions to shops, and the economy kit makes a recruit's fee and a choice's cost name
+ * resources.
  */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
   [INVENTORY]: (on) => ({
@@ -236,6 +241,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
     [HALL]: HALL_TYPE_FILE,
     [ROSTER_RECORD]: ROSTER_TYPE_FILE,
   }),
+  [EVENTS]: (on) => ({ [EVENT]: eventTypeFile(on.includes(ECONOMY)), [DECK]: DECK_TYPE_FILE }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

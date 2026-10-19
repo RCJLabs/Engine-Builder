@@ -146,6 +146,7 @@ export function validateRecords(
       },
       effect: (path, value) => {
         flags.effect({ from, path, report }, value);
+        for (const flag of kits.flagsReadBy(value)) flags.heard(flag, from);
         kits.effect(report, path, value);
       },
     };
