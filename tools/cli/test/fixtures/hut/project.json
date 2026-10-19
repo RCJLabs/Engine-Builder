@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "id": "hut",
+  "id": "the-hut",
   "name": "The hut",
   "version": "0.1.0",
   "kits": ["inventory", "economy", "factions", "time", "events", "dialogue", "quests"]

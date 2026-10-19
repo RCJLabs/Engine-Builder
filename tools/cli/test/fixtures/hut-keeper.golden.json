@@ -1,7 +1,7 @@
 {
   "format": 1,
-  "game": "hut",
-  "content": "72ce172a652c3e5f",
+  "game": "the-hut",
+  "content": "df738c52f2f335e1",
   "policy": "random",
   "maxTurns": 1000,
   "runs": {
