@@ -154,6 +154,28 @@ test('the hut played to its end at /play/ by keyboard alone', async ({ page }) =
   expect(errors).toEqual([]);
 });
 
+test.describe('at phone size, by keyboard', () => {
+  test.use({ viewport: { width: 360, height: 640 } });
+
+  test('down past the last button scrolls the main region, to what lies below it', async ({ page }) => {
+    const errors = watchErrors(page);
+    await openHut(page, (button) => button.click());
+    await page.keyboard.press('Tab');
+    const top = topScreen(page);
+    // The Journal button, in the bar at the bottom, is the last a direction reaches.
+    const journal = top.getByRole('button', { name: 'Journal' });
+    await focusBy(page, journal, keys(page).move);
+    const main = top.locator('.eb-main');
+    expect(await main.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    await main.evaluate((element) => element.scrollTo({ top: 0 }));
+    await page.keyboard.press('ArrowDown');
+    // No button lies below, so the main region scrolls instead, and focus stays.
+    await expect.poll(() => main.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await expect(journal).toBeFocused();
+    expect(errors).toEqual([]);
+  });
+});
+
 test('the hut played to its end at /play/ by a gamepad alone, its focus rings drawn', async ({ page }) => {
   test.setTimeout(240_000);
   const errors = watchErrors(page);

@@ -1,8 +1,8 @@
 /**
  * Focus moved by direction on the page (M4.2, docs/specs/input.md#focus): the top screen's controls
- * that can take focus, their boxes, and spatial.ts's nearest. With nothing focused, a direction
- * wakes focus on the control the screen last had, else its primary button, else its first (from
- * chooser-of-the-dead's gamepad.ts).
+ * that can take focus, their boxes, and spatial.ts's nearest. With no control focused, a direction
+ * wakes focus on the screen's primary button, else its first (from chooser-of-the-dead's
+ * gamepad.ts). The control a screen last had is Screen.tsx's to give back as it returns to the top.
  */
 import { type Box, type Direction, nearest } from './spatial.ts';
 
@@ -36,9 +36,8 @@ export function focusControl(control: HTMLElement): void {
   control.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 
-/** The control focus wakes on in a screen: the one it last had, else its primary button, else its first. */
-export function wakeOn(screen: HTMLElement, remembered: HTMLElement | undefined): HTMLElement | undefined {
-  if (remembered && screen.contains(remembered) && usable(remembered)) return remembered;
+/** The control focus wakes on in a screen: its primary button, else its first. */
+export function wakeOn(screen: HTMLElement): HTMLElement | undefined {
   const controls = controlsOf(screen);
   return controls.find((c) => c.classList.contains('eb-primary')) ?? controls[0];
 }
@@ -47,17 +46,13 @@ export function wakeOn(screen: HTMLElement, remembered: HTMLElement | undefined)
 const SCROLL_SHARE = 0.4;
 
 /** One step of focus that way in the top screen. True when it moved, woke or scrolled. */
-export function moveFocus(
-  game: HTMLElement,
-  direction: Direction,
-  remembered: (screen: HTMLElement) => HTMLElement | undefined,
-): boolean {
+export function moveFocus(game: HTMLElement, direction: Direction): boolean {
   const screen = topScreen(game);
   if (!screen) return false;
   const active = document.activeElement as HTMLElement | null;
   const controls = controlsOf(screen);
   if (!active || !controls.includes(active)) {
-    const woken = wakeOn(screen, remembered(screen));
+    const woken = wakeOn(screen);
     if (woken) focusControl(woken);
     return woken !== undefined;
   }

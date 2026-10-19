@@ -19,12 +19,8 @@ type Shown =
       readonly view: View;
       /** What the last step said (M4.2). */
       readonly said: readonly Said[];
-      /** Which game this is, so a new one starts with nothing in its log. */
-      readonly game: number;
     }
   | { readonly kind: 'failed'; readonly message: string };
-
-let games = 0;
 
 type Request = PlayRequest extends infer R ? (R extends { id: number } ? Omit<R, 'id'> : never) : never;
 
@@ -85,7 +81,7 @@ export function Player() {
     const reply = await worker.current.send({ kind: 'start', pack, seed: freshSeed() });
     if (reply.kind === 'started') {
       const { name, screens, theme, view } = reply;
-      setShown({ kind: 'playing', name, screens, theme, view, said: [], game: ++games });
+      setShown({ kind: 'playing', name, screens, theme, view, said: [] });
       document.title = `${name} · Engine-Builder`;
     } else setShown({ kind: 'failed', message: reply.kind === 'failed' ? reply.message : 'The game didn’t start.' });
   };
@@ -121,7 +117,6 @@ export function Player() {
         {shown.kind === 'playing' ? (
           <div class="player-game">
             <GameScreens
-              key={shown.game}
               screens={shown.screens}
               theme={shown.theme}
               view={shown.view}

@@ -51,7 +51,7 @@ export function useInput(box: RefObject<HTMLElement | null>, back: (() => void) 
     };
   }, [box, memory]);
 
-  const move = (direction: Direction) => (box.current ? moveFocus(box.current, direction, remembered) : false);
+  const move = (direction: Direction) => (box.current ? moveFocus(box.current, direction) : false);
   const press = () => {
     const game = box.current;
     const active = document.activeElement as HTMLElement | null;

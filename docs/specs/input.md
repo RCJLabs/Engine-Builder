@@ -61,7 +61,7 @@ Arrow keys and a gamepad move focus to the nearest control in a direction, on th
   - `across` is the gap between the two boxes on the other axis, 0 where they overlap; a box with `across > max(0, ahead) + 4` is outside the 45° cone;
   - the nearest is the box with the least `max(0, ahead) + 2 × across + offset / 10`, where `offset` is the distance between the boxes' centres on the other axis. Ties go to the first in the page's order.
 - **What can take focus:** buttons and tabs in the top screen with `tabIndex ≥ 0`, not disabled, with a box, and with no `inert` or `aria-hidden` above them.
-- **With nothing focused,** or with the screen's heading focused, a direction wakes focus instead of moving it: the control the screen last had, else its first enabled primary button, else its first control.
+- **With nothing focused,** or with the screen's heading focused, a direction wakes focus instead of moving it: on the screen's first enabled primary button, else its first control. The control a screen last had is given back as the screen returns to the top (below), so waking never needs it.
 - **At an edge,** with nothing that way: up and down scroll the main region by 40% of its height (Chooser's), left and right do nothing. Focus never wraps.
 - **Tabs keep their keys:** left and right choose a tab, as the WAI-ARIA tabs pattern has it; up and down leave the tab list.
 - **Tab, Enter and Space** do what they do on any page.
@@ -83,7 +83,7 @@ Touch and pen only; a mouse clicks. The recognizer is Space-Wrecked's gestures.j
 - **On tabs,** a swipe left chooses the next tab and a swipe right the previous, as pages turn.
 - **Elsewhere,** a swipe right on a screen a button opened is Back. A swipe left does nothing.
 - **Scrolling wins:** screens let the browser pan up and down (`touch-action: pan-y`), so a vertical move scrolls and the gesture ends with no effect. The main region says so too: `touch-action` counts only up to the nearest element that scrolls, so without it the browser took a sideways move inside the main region as a pan and cancelled the swipe (found by the gate's specs).
-- **A swipe presses nothing:** the click that follows a swipe begun on a button is swallowed, until the next press begins, so a quick tap after a swipe that made no click isn't eaten (found by the gate's specs).
+- **A swipe presses nothing:** a touch that moves past the browser's own tap slop, as every swipe does, makes no click. A swallow for that click was written first; planted out, nothing failed, since it never had a click to swallow, and it had eaten a quick tap after a swipe. It went.
 - **Each gesture has a button:** tabs are buttons, and a screen a button opens should have a close button (W134).
 
 ## Back

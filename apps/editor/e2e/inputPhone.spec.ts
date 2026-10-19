@@ -52,6 +52,10 @@ for (const viewport of [
         // Off the tabs, a swipe right is Back.
         await swipe(page, journal.getByRole('button', { name: 'Close the journal' }), 'right');
         await expect(journal).toHaveCount(0);
+        // History goes back with it: the entry for the journal is gone.
+        await expect
+          .poll(() => page.evaluate(() => (history.state as { ebOpened?: number } | null)?.ebOpened ?? 0))
+          .toBe(0);
       });
 
       await test.step('the browser’s back closes the journal and stays in the game', async () => {

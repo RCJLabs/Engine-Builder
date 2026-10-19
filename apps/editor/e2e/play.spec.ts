@@ -13,6 +13,7 @@ import { watchErrors } from './checks.ts';
 import { fixtureText, HUT } from './hutHelpers.ts';
 import { replaceText } from './hutLogic.ts';
 import { expectFits, game, playSeason, press, showPlay, startHut, topScreen } from './hutScreens.ts';
+import { announcer } from './inputHelpers.ts';
 import { fixtureZip } from './kitHelpers.ts';
 import { openProject, scratch, showProject } from './ludus.ts';
 
@@ -45,6 +46,8 @@ test('the hut played in the Play panel through its screens, to the end of its se
     const store = game(page).getByRole('dialog', { name: 'The store' });
     await expect(store.getByText('The hut’s store')).toBeVisible();
     await press(page, store.getByRole('button', { name: /^Rope: \d+ coins, 2 left$/ }));
+    // The hut's feedback says it in the Play panel as at /play/ (M4.2).
+    await expect(announcer(page)).toHaveText(/Rope ×1 into the bag$/);
     await expect(store.getByRole('button', { name: /^Rope: \d+ coins, 1 left$/ })).toBeVisible();
     await store.getByRole('tab', { name: 'Sell' }).click();
     await expect(store.getByRole('tab', { name: 'Sell' })).toHaveAttribute('aria-selected', 'true');

@@ -15,22 +15,41 @@ const depthIn = (state: unknown): number => {
 
 /** `depth` is how many screens buttons have opened; `closeTo` closes down to that many. */
 export function useBackHistory(depth: number, closeTo: (depth: number) => void, enabled: boolean): void {
-  const latest = useRef(closeTo);
-  latest.current = closeTo;
+  const latest = useRef({ depth, closeTo });
+  latest.current = { depth, closeTo };
+  // The entries this page has pushed, and whether a step back of its own is still on its way:
+  // history.go is answered later, so until its popstate comes, history.state is the old entry's.
+  const kept = useRef({ pushed: 0, waiting: false });
+  const sync = useRef(() => {
+    const at = kept.current;
+    if (at.waiting) return;
+    const want = latest.current.depth;
+    if (want > at.pushed) {
+      for (let d = at.pushed + 1; d <= want; d++) history.pushState({ ...history.state, [KEY]: d }, '');
+    } else if (want < at.pushed) {
+      at.waiting = true;
+      history.go(want - at.pushed);
+    }
+    at.pushed = want;
+  });
   useEffect(() => {
     if (!enabled) return;
-    const popped = (event: PopStateEvent) => latest.current(depthIn(event.state));
+    kept.current = { pushed: depthIn(history.state), waiting: false };
+    const popped = (event: PopStateEvent) => {
+      const at = kept.current;
+      if (at.waiting) {
+        // Our own step back has landed: catch up with whatever opened meanwhile.
+        at.waiting = false;
+        sync.current();
+        return;
+      }
+      at.pushed = depthIn(event.state);
+      latest.current.closeTo(at.pushed);
+    };
     window.addEventListener('popstate', popped);
     return () => window.removeEventListener('popstate', popped);
   }, [enabled]);
   useEffect(() => {
-    if (!enabled) return;
-    const had = depthIn(history.state);
-    if (depth > had) {
-      for (let d = had + 1; d <= depth; d++) history.pushState({ ...history.state, [KEY]: d }, '');
-    } else if (depth < had) {
-      // The popstate this makes finds the screens already closed, and closes nothing more.
-      history.go(depth - had);
-    }
+    if (enabled) sync.current();
   }, [depth, enabled]);
 }

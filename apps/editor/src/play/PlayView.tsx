@@ -33,8 +33,6 @@ type Shown =
       /** What the last step said (M4.2). */
       readonly said: readonly Said[];
       readonly at: number;
-      /** Which game this is, so a new one starts with nothing in its log. */
-      readonly game: number;
     }
   | { readonly kind: 'refused'; readonly errors: number }
   | { readonly kind: 'failed'; readonly message: string };
@@ -110,7 +108,6 @@ export function PlayView({ project }: { project: OpenProject }) {
       {shown.kind === 'playing' ? (
         <div class="play-game">
           <GameScreens
-            key={shown.game}
             screens={shown.screens}
             theme={shown.theme}
             view={shown.view}
@@ -125,12 +122,10 @@ export function PlayView({ project }: { project: OpenProject }) {
   );
 }
 
-let games = 0;
-
 function started(reply: PlayPageReply, at: number): Shown {
   if (reply.kind === 'started') {
     const { screens, theme, view } = reply;
-    return { kind: 'playing', screens, theme, view, said: [], at, game: ++games };
+    return { kind: 'playing', screens, theme, view, said: [], at };
   }
   if (reply.kind === 'refused') return { kind: 'refused', errors: reply.errors.length };
   if (reply.kind === 'failed') return { kind: 'failed', message: reply.message };
