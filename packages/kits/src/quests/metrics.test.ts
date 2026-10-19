@@ -19,6 +19,17 @@ describe('the kits’ metrics', () => {
     expect(metrics).toHaveLength(content.ids('quest').length);
   });
 
+  it('add the runs done and failed of a quest that repeats (M3.10)', () => {
+    const repeating = createRecordStore({
+      quest: { job: { name: 'Odd job', repeats: true, stages: [{ id: 'work' }] } },
+    } as Record<string, Record<string, unknown>>);
+    expect(kitMetrics(['quests'], repeating)).toEqual([
+      { fact: 'quests.state', args: { quest: 'job' }, label: 'Odd job (job)' },
+      { fact: 'quests.times', args: { quest: 'job', state: 'done' }, label: 'Odd job (job): runs done' },
+      { fact: 'quests.times', args: { quest: 'job', state: 'failed' }, label: 'Odd job (job): runs failed' },
+    ]);
+  });
+
   it('are none with the kit off, though the content has quest records', () => {
     expect(kitMetrics(['inventory', 'events'], content)).toEqual([]);
   });

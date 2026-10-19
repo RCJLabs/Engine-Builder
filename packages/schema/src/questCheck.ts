@@ -120,7 +120,7 @@ interface Named {
   readonly report: Report;
   readonly path: string;
   readonly quest: string;
-  readonly kind: 'stage' | 'objective' | 'count';
+  readonly kind: 'stage' | 'objective' | 'count' | 'slot';
   readonly name: string;
 }
 
@@ -133,12 +133,18 @@ function namedBy(test: { fact: string; args?: Record<string, unknown>; op?: stri
   if (test.fact === 'quests.reached') return name('stage', test.args?.stage);
   if (test.fact === 'quests.objective') return name('objective', test.args?.objective);
   if (test.fact === 'quests.count') return name('count', test.args?.objective);
+  if (test.fact === 'quests.slot') return name('slot', test.args?.slot);
   if (test.fact === 'quests.stage' && (test.op === '==' || test.op === '!=')) return name('stage', test.value);
   return undefined;
 }
 
 /** Why the quest lacks what is named, or undefined. */
 function lacks(record: QuestRecord, quest: string, kind: Named['kind'], name: string): string | undefined {
+  if (kind === 'slot') {
+    const slots = (record.slots ?? []).map((s) => s.id);
+    if (slots.includes(name)) return undefined;
+    return `The quest ${quest} has no slot ${name}: ${slots.length === 0 ? 'it has none' : `its slots are ${slots.join(', ')}`}`;
+  }
   const stages = record.stages.map((s) => s.id);
   if (kind === 'stage') {
     return stages.includes(name)
@@ -226,7 +232,7 @@ export class QuestChecks {
     for (const { report, path, quest, kind, name } of [...this.named, ...this.staged]) {
       const record = this.quests.get(quest)?.quest;
       const why = record === undefined ? undefined : lacks(record, quest, kind, name);
-      if (why !== undefined) report('E043', path, why);
+      if (why !== undefined) report(kind === 'slot' ? 'E044' : 'E043', path, why);
     }
     for (const [id, { quest, report }] of this.quests) {
       if (quest['at-start'] !== true && quest['starts-when'] === undefined && !this.started.has(id)) {

@@ -117,6 +117,18 @@ describe('E044: a slot where it can’t be', () => {
       'E044 /slots/0/by/args/actor: No slot foe here: the slots are man',
     ],
     [
+      'in Starts when, read before its slots are filled',
+      withBooking({ 'starts-when': 'roster.member(@man)' }),
+      'E044 /starts-when: No slot man here: none can be named',
+    ],
+    [
+      'quests.slot naming a slot the quest lacks',
+      withStage(0, {
+        objectives: [{ id: 'fit', text: 'Fit', 'done-when': 'quests.slot(quest: booking, slot: mann) == crixus' }],
+      }),
+      'E044 /stages/0/objectives/0/done-when: The quest booking has no slot mann: its slots are man, foe',
+    ],
+    [
       'a Record that isn’t there',
       withSlot(1, { record: 'spartacus' }),
       'E044 /slots/1/record: No actor record "spartacus"',

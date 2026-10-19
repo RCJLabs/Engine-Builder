@@ -17,8 +17,9 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /**
- * The slots each field of a quest's value can name: a slot's Where and By its own and those before
- * it, which are filled first; every other field all of them. Read from the value as it stands,
+ * The slots each field of a quest's value can name: none in its Starts when, read before they are
+ * filled; a slot's Where and By its own and those before it, which are filled first; every other
+ * field all of them. Read from the value as it stands,
  * which zod may yet refuse, so a slot without an id or a type is left out.
  */
 export function slotScope(value: unknown): (path: string) => Scope {
@@ -31,6 +32,8 @@ export function slotScope(value: unknown): (path: string) => Scope {
     scopes.push({ ...all });
   }
   return (path) => {
+    // Its start is read before its slots are filled.
+    if (path === '/starts-when' || path.startsWith('/starts-when/')) return {};
     const at = /^\/slots\/(\d+)\/(where|by)(\/|$)/.exec(path);
     return at ? (scopes[Number(at[1])] ?? all) : all;
   };

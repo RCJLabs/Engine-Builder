@@ -124,6 +124,8 @@ export interface QuestEntry {
   why?: string;
   /** Each slot's record, by the slot's id (M3.10). None for a quest with no slots. */
   slots?: Record<string, string>;
+  /** The slots whose records have gone this run, sorted: each is gone once. */
+  lost?: string[];
   /** A quest that repeats: its runs before this one, done and failed. None before it has repeated. */
   times?: { done: number; failed: number };
   /** A quest that repeats and has ended: its starts-when has stopped holding, so it can start it again. */
