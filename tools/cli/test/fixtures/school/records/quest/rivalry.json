@@ -1,0 +1,72 @@
+{
+  "name": "The rival house",
+  "at-start": true,
+  "slots": [
+    {
+      "id": "foe",
+      "type": "actor",
+      "record": "crixus"
+    },
+    {
+      "id": "champ",
+      "type": "actor",
+      "where": "roster.member(@champ)",
+      "pick": "most",
+      "by": {
+        "fact": "stats.value",
+        "args": {
+          "actor": "@champ",
+          "stat": "fame"
+        }
+      },
+      "keeps": "roster.member(@champ)",
+      "why": "{champ} died before facing {foe}."
+    }
+  ],
+  "stages": [
+    {
+      "id": "challenged",
+      "log": "{foe} of the rival house has challenged {champ}.",
+      "objectives": [
+        {
+          "id": "famous",
+          "text": "Get {champ} to 7 fame",
+          "done-when": "stats.value(actor: @champ, stat: fame) >= 7"
+        }
+      ],
+      "next": "bout",
+      "days": 30,
+      "why": "The challenge lapsed, and the city laughs."
+    },
+    {
+      "id": "bout",
+      "log": "{champ} faces {foe}.",
+      "job": {
+        "takes": {
+          "days": 1
+        },
+        "outcomes": [
+          {
+            "chance": 50,
+            "text": "{champ} humbles {foe}",
+            "next": "humbled"
+          },
+          {
+            "chance": 50,
+            "text": "{foe} wins",
+            "next": "shamed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "humbled",
+      "log": "{champ} humbled {foe}."
+    },
+    {
+      "id": "shamed",
+      "log": "{foe} won, and the house is shamed.",
+      "fails": true
+    }
+  ]
+}

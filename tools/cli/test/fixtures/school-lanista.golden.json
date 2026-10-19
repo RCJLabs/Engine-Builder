@@ -1,0 +1,1609 @@
+{
+  "format": 1,
+  "game": "school",
+  "content": "93fb0877198d468a",
+  "policy": "lanista",
+  "maxTurns": 1000,
+  "runs": {
+    "seed-0": {
+      "hash": "6d3ff974ced29ac1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "95d533560923ecef",
+        "logic": "08f44b07b5901a25",
+        "quests": "4bed335555d885ec",
+        "roster": "e6dd3ebc299fa7fe",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "d904ca0595dd1464",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-1": {
+      "hash": "ff3e44806b45c783",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "a91311b30cbb2e17",
+        "logic": "08f44b07b5901a25",
+        "quests": "5c3deb57a2e46554",
+        "roster": "ea2d3392ff4f9fda",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "284a5b21ecd7d17e",
+        "time": "ce851076493f3134"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-2": {
+      "hash": "a3bad8a91b423054",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "65fb51844f1a9cf2",
+        "logic": "08f44b07b5901a25",
+        "quests": "594a6a9105fc111d",
+        "roster": "0cb2d02a1700dcf0",
+        "school": "04f35f6f95daea90",
+        "sheet": "da9d0cae103b40df",
+        "stats": "76351929d59e2bb9",
+        "time": "97742eb5bb4dc7a5"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-3": {
+      "hash": "ef56de9f4b1c6451",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "d6ce4496c36fd09b",
+        "logic": "08f44b07b5901a25",
+        "quests": "2fb8ccad9f8f0385",
+        "roster": "ba02caf5f327fd09",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "a44b3350903def3f",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-4": {
+      "hash": "8e435bcc80332ee3",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "33db844f19926135",
+        "logic": "08f44b07b5901a25",
+        "quests": "2aa155da10c11083",
+        "roster": "b1e437557d69aad2",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "fb80bc996d8d8300",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-5": {
+      "hash": "7c37d8ddbe490494",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "ecfb1f4e826956b6",
+        "logic": "08f44b07b5901a25",
+        "quests": "77c9b55c3cb684e4",
+        "roster": "2a602f0d543e2b78",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "39fbee5670f80ec9",
+        "time": "4bfaa63d1e707267"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-6": {
+      "hash": "9302bb3ba0e45603",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "742de6cc546e2dd3",
+        "logic": "08f44b07b5901a25",
+        "quests": "984547b4ac14eff8",
+        "roster": "b50d4e3c9a37622d",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "65f765309c655e73",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 50,
+      "end": "ended"
+    },
+    "seed-7": {
+      "hash": "a1fa95c3cf2078f3",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "8af52df700386064",
+        "logic": "08f44b07b5901a25",
+        "quests": "e67f17c0dc6eec70",
+        "roster": "fa7e035f4980f9b6",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "2e4844b6673dbdbb",
+        "time": "52853be9b2487619"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-8": {
+      "hash": "346c7b3fe9241f3e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "94088cde0814c069",
+        "logic": "08f44b07b5901a25",
+        "quests": "bee97a5c0cfab230",
+        "roster": "d6780cd8f02b25de",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "423cf44386a3cc44",
+        "time": "a57bcf91c954ac41"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-9": {
+      "hash": "b06116265b501dd1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "52bc2ae071570223",
+        "logic": "08f44b07b5901a25",
+        "quests": "fec6cd2d9e907ec4",
+        "roster": "647ed449b62b32a3",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "fc90e36ba660eb48",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-10": {
+      "hash": "7c7490ee522461e0",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "f1b520102f1820bd",
+        "logic": "08f44b07b5901a25",
+        "quests": "4fca5e95d6a00a88",
+        "roster": "97437678edbc8b21",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "7f97b0092a441ecb",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-11": {
+      "hash": "af61bb937ae30595",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "7168b1e0b1080fbf",
+        "logic": "08f44b07b5901a25",
+        "quests": "40635b3f2952acd4",
+        "roster": "5a9d8f7e803086c7",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "050a642fe09baf18",
+        "time": "f457dbc0504b0a1c"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-12": {
+      "hash": "6c7b5ae5316acee3",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "23ecc99018dfd2fd",
+        "logic": "08f44b07b5901a25",
+        "quests": "96de114d4bbca6ad",
+        "roster": "ce1f93b7c1d50323",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "d16f348e70b01d7c",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-13": {
+      "hash": "1541685024e84bb0",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "f55fefe26c3d5892",
+        "logic": "08f44b07b5901a25",
+        "quests": "a50ffae9ea95fce2",
+        "roster": "6d201b1775774a7c",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "19682162e9a1b39f",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-14": {
+      "hash": "5c6b217040c07734",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "823fe584f00b0f69",
+        "logic": "08f44b07b5901a25",
+        "quests": "88f99876a8feefba",
+        "roster": "4d814ca7f214f9bc",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "391b6d53ff47ce4c",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 59,
+      "end": "ended"
+    },
+    "seed-15": {
+      "hash": "61306703ac1a9fbc",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "0940925e3fb4e4c3",
+        "logic": "08f44b07b5901a25",
+        "quests": "93516717ec7262fb",
+        "roster": "418b7b7bb7ea4e9a",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "54248171c54e9fb9",
+        "time": "52853be9b2487619"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-16": {
+      "hash": "d272853783432b5c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "47dc15aa226f3606",
+        "logic": "08f44b07b5901a25",
+        "quests": "057e1245c84ffa7a",
+        "roster": "6670c8d90d3457d4",
+        "school": "ab37dd7b41140076",
+        "sheet": "da9d0cae103b40df",
+        "stats": "c849c1ee8b7203c4",
+        "time": "f2e79726988dd895"
+      },
+      "turns": 47,
+      "end": "ended"
+    },
+    "seed-17": {
+      "hash": "d1db2a62fae94f9e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "2bee3942a2e10e98",
+        "logic": "08f44b07b5901a25",
+        "quests": "52c31c577c209d4b",
+        "roster": "a0420138d5c9504c",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "4231df10a638a526",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-18": {
+      "hash": "0995320cd42b793e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "85718e5de041a0ce",
+        "logic": "08f44b07b5901a25",
+        "quests": "af926f53e62dca6c",
+        "roster": "1041cad544207494",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "4bb90327c346cc5a",
+        "time": "e9aa1b5cbb70f747"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-19": {
+      "hash": "7deb7da52e601ea1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "431ff11d01745e45",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b45777333e81184",
+        "roster": "5183481c35b6d12e",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "fda60d0d7ed2cdf4",
+        "time": "e9aa1b5cbb70f747"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-20": {
+      "hash": "72cd6b0cde0b6526",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "676875bca955f923",
+        "logic": "08f44b07b5901a25",
+        "quests": "fd6423e69ddb4c5a",
+        "roster": "1440489512769cf3",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "eb56d77cc7d89df8",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 59,
+      "end": "ended"
+    },
+    "seed-21": {
+      "hash": "269f1cdf141df670",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "051c4bba7aa21c0e",
+        "logic": "08f44b07b5901a25",
+        "quests": "6f4b48c85214d973",
+        "roster": "9fcd2575514c4dde",
+        "school": "ab3ed97b411a1858",
+        "sheet": "da9d0cae103b40df",
+        "stats": "17873d9734618ebc",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 50,
+      "end": "ended"
+    },
+    "seed-22": {
+      "hash": "e80a3556640912fd",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "9aa1567716cbbcc8",
+        "logic": "08f44b07b5901a25",
+        "quests": "a31e3d24894be72d",
+        "roster": "55b95ccc4372ef11",
+        "school": "04f0636f95d8bb85",
+        "sheet": "da9d0cae103b40df",
+        "stats": "608ab5d15c55032e",
+        "time": "0010424d2dd3a7d5"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-23": {
+      "hash": "1cc2fbe36b35399d",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "36fad7a032f0934a",
+        "logic": "08f44b07b5901a25",
+        "quests": "63d6d1b6f68c2370",
+        "roster": "f7ff2e44c9ae75a5",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "be61d42e27dd74d0",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-24": {
+      "hash": "60f6a84741020a7f",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "a3ad41110abd8341",
+        "logic": "08f44b07b5901a25",
+        "quests": "6f860e20e7f45eda",
+        "roster": "57c2d0af1d7db019",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "6cf5a55d98157f0b",
+        "time": "52853be9b2487619"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-25": {
+      "hash": "253590dfbd3f900c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "0d77a0f437fdb02f",
+        "logic": "08f44b07b5901a25",
+        "quests": "e5900e3b97e17756",
+        "roster": "7830ea5da1b7960a",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "91c2cc73f02dc622",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-26": {
+      "hash": "bd57234de4f31697",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "346f77acef4d9660",
+        "logic": "08f44b07b5901a25",
+        "quests": "3a424eb9f920b225",
+        "roster": "552ad1aa919bbaa8",
+        "school": "ab3bdd7b4117e94d",
+        "sheet": "da9d0cae103b40df",
+        "stats": "addb643635d8ffa8",
+        "time": "5ed342312b9adaca"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-27": {
+      "hash": "8406510fbdf4f33a",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5ec97a25fbb44f96",
+        "logic": "08f44b07b5901a25",
+        "quests": "02babb9170afee33",
+        "roster": "039d81414cc05765",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "51c997953d8ff3f6",
+        "time": "d6db91ac28eba027"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-28": {
+      "hash": "7a76a325701b94dc",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "2b78b36bca894f78",
+        "logic": "08f44b07b5901a25",
+        "quests": "8e9d7520e2753241",
+        "roster": "601f526b9bdf0c2e",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "fa99c650a45aa6d2",
+        "time": "df5d2683c4f6817c"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-29": {
+      "hash": "52717789c09c15cb",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "e2062b8ef378f3ae",
+        "logic": "08f44b07b5901a25",
+        "quests": "f2616010f19db400",
+        "roster": "4b1ac8c0f546a589",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "9b4c539ef1f8d8de",
+        "time": "52853be9b2487619"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-30": {
+      "hash": "7224ea77cbf1af56",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "86cdac526e746f1d",
+        "logic": "08f44b07b5901a25",
+        "quests": "549fac8db955b199",
+        "roster": "24c3d65a035355ea",
+        "school": "ab3ed97b411a1858",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ead92b499b7f2797",
+        "time": "5ed342312b9adaca"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-31": {
+      "hash": "81f8de6238a3d5eb",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "30c2a4ae141343ca",
+        "logic": "08f44b07b5901a25",
+        "quests": "028cca59c40cf24e",
+        "roster": "1b05113da1bfdfc6",
+        "school": "04f0636f95d8bb85",
+        "sheet": "da9d0cae103b40df",
+        "stats": "e263409fc88c0812",
+        "time": "0010424d2dd3a7d5"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-32": {
+      "hash": "219a43566265a600",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "08887b5c61c9ddbc",
+        "logic": "08f44b07b5901a25",
+        "quests": "69edf1adc81a22f7",
+        "roster": "9781150112d0a609",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "dba7ec6b10930599",
+        "time": "52853be9b2487619"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-33": {
+      "hash": "fa59853e9bc00565",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "84339349b4b8623b",
+        "logic": "08f44b07b5901a25",
+        "quests": "2164ff1401c709c4",
+        "roster": "2b546f8dc694fdb0",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "d9e1fb1c693536e9",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 50,
+      "end": "ended"
+    },
+    "seed-34": {
+      "hash": "0d49c785654c7915",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5912364e6e203c53",
+        "logic": "08f44b07b5901a25",
+        "quests": "43181bb99bff071b",
+        "roster": "5ebf1b1fdd128aab",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "01890ab7bd26a16b",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-35": {
+      "hash": "e8b1adc0cef3f3d1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5e0202dfdaff0970",
+        "logic": "08f44b07b5901a25",
+        "quests": "193a7aab7ccd935c",
+        "roster": "32bfb40c6affe10f",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "aace8a3e20dad547",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-36": {
+      "hash": "72b19d711fc021f1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "2628c176908aa5f6",
+        "logic": "08f44b07b5901a25",
+        "quests": "244f649a32bdeb00",
+        "roster": "364b733c1d483dd0",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "712764244ea9b8cd",
+        "time": "52853be9b2487619"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-37": {
+      "hash": "2b7497bcf0d437aa",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "fc7f08f364197391",
+        "logic": "08f44b07b5901a25",
+        "quests": "bb8ff2937a4b6482",
+        "roster": "8d3678d23515993d",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "848ada78c8955118",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-38": {
+      "hash": "363bdf5851ab676e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "7d9b9c1cdadd4619",
+        "logic": "08f44b07b5901a25",
+        "quests": "7421b18d55c1ced0",
+        "roster": "3e287941b7ef52ac",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "899ed3f878a108b2",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-39": {
+      "hash": "0c827c495ddaea6c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "27aa581156536544",
+        "logic": "08f44b07b5901a25",
+        "quests": "7fcfd5481cd2c84a",
+        "roster": "9c1910a53733e6cc",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "c4f3a183664ff276",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-40": {
+      "hash": "8d08a4ddfa5f0fa8",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "dffce63c09c30a1c",
+        "logic": "08f44b07b5901a25",
+        "quests": "3293c94536a30027",
+        "roster": "73cfd5a2d350de3a",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "01981347a7d91643",
+        "time": "52853be9b2487619"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-41": {
+      "hash": "3b2249c3fb8599e6",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "9921460346f6c38b",
+        "logic": "08f44b07b5901a25",
+        "quests": "e8cf6f26d17b65c9",
+        "roster": "44965647485817ba",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ed7c17dacb104ddc",
+        "time": "52853be9b2487619"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-42": {
+      "hash": "8ee2c59a52d09450",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c32a5f1f28fc8059",
+        "logic": "08f44b07b5901a25",
+        "quests": "aba493dd969ee411",
+        "roster": "13eb0a7836e7e77e",
+        "school": "ab3ed97b411a1858",
+        "sheet": "da9d0cae103b40df",
+        "stats": "c6ef30f9c251a536",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-43": {
+      "hash": "9c59a18494fdefbf",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "b649b098a96f0ece",
+        "logic": "08f44b07b5901a25",
+        "quests": "b8dedc0f2352998f",
+        "roster": "0203edd2acfe78df",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "529fb23b7a37c409",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-44": {
+      "hash": "c7c188f5828e0efd",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "9d464be4e9c62554",
+        "logic": "08f44b07b5901a25",
+        "quests": "7b00e447b5a53114",
+        "roster": "b0f0fa3f412dc4b1",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b065ea4b7c6a2913",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-45": {
+      "hash": "484fc9830482c77d",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c218e197e114c185",
+        "logic": "08f44b07b5901a25",
+        "quests": "542d8b34f2247826",
+        "roster": "874b9af2332e897e",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ba756e1d2d9bc977",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-46": {
+      "hash": "69b52fc213b7675c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "be21b740b5c6fcaf",
+        "logic": "08f44b07b5901a25",
+        "quests": "ec91c51dc26ae78e",
+        "roster": "d1c4086533f013a1",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "5b023fba3534bdbf",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-47": {
+      "hash": "d66fa04b41dc5771",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "44b5aded904fb154",
+        "logic": "08f44b07b5901a25",
+        "quests": "4abe4552f7d0b6fa",
+        "roster": "0aec8320096ba84a",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "5083b290e28c966e",
+        "time": "52853be9b2487619"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-48": {
+      "hash": "04ccef50bcf57f31",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "738d9bc80a9c6f1c",
+        "logic": "08f44b07b5901a25",
+        "quests": "fd019301941e5458",
+        "roster": "daa0a75333f69735",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b5c21036999ccfb7",
+        "time": "52853be9b2487619"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-49": {
+      "hash": "a9cb4b76b7bd7771",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "fd0e100334f4af12",
+        "logic": "08f44b07b5901a25",
+        "quests": "727f3a444621a3e8",
+        "roster": "2718dfa9058533b5",
+        "school": "ab3bdd7b4117e94d",
+        "sheet": "da9d0cae103b40df",
+        "stats": "6490e4057958746c",
+        "time": "5ed342312b9adaca"
+      },
+      "turns": 48,
+      "end": "ended"
+    },
+    "seed-50": {
+      "hash": "9aeea6250a1aa926",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "6c03da844e7ee3bb",
+        "logic": "08f44b07b5901a25",
+        "quests": "b9032a33d3998817",
+        "roster": "5dc8549131361b89",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "31fade241cf08df9",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-51": {
+      "hash": "3e3a6955bed44181",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "046f04dd7a40b060",
+        "logic": "08f44b07b5901a25",
+        "quests": "2fca7a6add75d1bc",
+        "roster": "c37a7858fcac96fb",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "5ccc72c692baaefc",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-52": {
+      "hash": "c95e1bd3874c1933",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5d2243685439976d",
+        "logic": "08f44b07b5901a25",
+        "quests": "326d9070d42fda0a",
+        "roster": "80b4eea86647dc20",
+        "school": "04f35f6f95daea90",
+        "sheet": "da9d0cae103b40df",
+        "stats": "42e75a5024aeeef7",
+        "time": "42438b14215b940a"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-53": {
+      "hash": "fd1dc29fccafd34e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "749773f949b0db7d",
+        "logic": "08f44b07b5901a25",
+        "quests": "09fd5073e38ff436",
+        "roster": "681aae874c08e5dd",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "bcd42e2cdd7f88b4",
+        "time": "e9aa1b5cbb70f747"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-54": {
+      "hash": "c4ceb64428d21256",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "dc36db80a43c176f",
+        "logic": "08f44b07b5901a25",
+        "quests": "62373a9185f09acf",
+        "roster": "e75292463e7a2dab",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "2817dc6ec431cbb1",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-55": {
+      "hash": "1158a91b085bd610",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "3f40e27efd79e6a0",
+        "logic": "08f44b07b5901a25",
+        "quests": "7ba01126cb19de69",
+        "roster": "b9ad36dd94d8234e",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "5ede7ac694148987",
+        "time": "e9aa1b5cbb70f747"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-56": {
+      "hash": "7cba7638ec584a77",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "f0abbd001476350c",
+        "logic": "08f44b07b5901a25",
+        "quests": "c8f87190413a1da9",
+        "roster": "a4584a3d0c929df4",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "f2e082264cf9d917",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-57": {
+      "hash": "1ac557b6cda1e234",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "8505930f3fd131b6",
+        "logic": "08f44b07b5901a25",
+        "quests": "217730e77106d905",
+        "roster": "7f2ccb8567c5dc0a",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "5b7c23b553c563a7",
+        "time": "e9aa1b5cbb70f747"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-58": {
+      "hash": "eb5b4be470139777",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "9e2e156b98f5879d",
+        "logic": "08f44b07b5901a25",
+        "quests": "6f18f231d6127ec5",
+        "roster": "2f63db5d1d749b0f",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "4aa9aee3f5b2e240",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-59": {
+      "hash": "16b18db4001a371a",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "0e67778a769e4808",
+        "logic": "08f44b07b5901a25",
+        "quests": "1e8b921ff9066033",
+        "roster": "120007a99e8c48c6",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "93a9b5005c8bfd0c",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-60": {
+      "hash": "fc42793bd212df20",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "0e4473f8aa3dc617",
+        "logic": "08f44b07b5901a25",
+        "quests": "f181f8d46351ead1",
+        "roster": "6af63be387ff3088",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "466fc40d53d16caf",
+        "time": "7101d75cfcd4be07"
+      },
+      "turns": 59,
+      "end": "ended"
+    },
+    "seed-61": {
+      "hash": "fb42b899c709d96c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "24006ad1c738e2e9",
+        "logic": "08f44b07b5901a25",
+        "quests": "944275126c8b4ff5",
+        "roster": "ea8086e9a80f3643",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "dc5c7ae0017e1399",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-62": {
+      "hash": "dfec2b7e37a2f2cc",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "697a4a00746538af",
+        "logic": "08f44b07b5901a25",
+        "quests": "1a319138e36a2939",
+        "roster": "a5257b493965fdc3",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "bddf3ccc5f78d8b4",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-63": {
+      "hash": "2830bec311e089e1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "e0a778a225368337",
+        "logic": "08f44b07b5901a25",
+        "quests": "ec91c51dc26ae78e",
+        "roster": "98d7ae164ce641ae",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "dd36e28aee8f6748",
+        "time": "52853be9b2487619"
+      },
+      "turns": 51,
+      "end": "ended"
+    },
+    "seed-64": {
+      "hash": "8d7c2218aaa123df",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5ecf4de48a76c0c7",
+        "logic": "08f44b07b5901a25",
+        "quests": "6e2227c47f28b75f",
+        "roster": "874a6488744ccf09",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "03c863a967a615f9",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-65": {
+      "hash": "84dada15f9bc0fb8",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c38666164c9e2ba5",
+        "logic": "08f44b07b5901a25",
+        "quests": "2ef02289f3640d00",
+        "roster": "465f995885301b25",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "c9126fac2e4f8b65",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 51,
+      "end": "ended"
+    },
+    "seed-66": {
+      "hash": "701375910ba19ee7",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "74a33991003289e6",
+        "logic": "08f44b07b5901a25",
+        "quests": "79f5d82dbd81b916",
+        "roster": "94ba27bb49593d5c",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "fdb33185ad851a1a",
+        "time": "52853be9b2487619"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-67": {
+      "hash": "1912e28c07577571",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "85a2ec643462fdd4",
+        "logic": "08f44b07b5901a25",
+        "quests": "a2af7b9097f13764",
+        "roster": "8aa67e515dac0c2a",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "1c8dcfd00a2720b4",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 59,
+      "end": "ended"
+    },
+    "seed-68": {
+      "hash": "63bf9128443d0390",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "98813cdccd728f73",
+        "logic": "08f44b07b5901a25",
+        "quests": "a0fd7f3daa069881",
+        "roster": "06df99ca41c5a023",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b6804148f9c4fa20",
+        "time": "ce851076493f3134"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-69": {
+      "hash": "85822de56688dd2f",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "886af8d84c4f538e",
+        "logic": "08f44b07b5901a25",
+        "quests": "70058090f3c746d1",
+        "roster": "46682d0145bb0bd4",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ac2f562283dcbd43",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-70": {
+      "hash": "161b815f3c0e3391",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "978f6d599133692a",
+        "logic": "08f44b07b5901a25",
+        "quests": "f97662c5d80d9929",
+        "roster": "a2779cbf84aa34a1",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "4665c32a4e4225f0",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 56,
+      "end": "ended"
+    },
+    "seed-71": {
+      "hash": "f090ede3c74bafed",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "7bebdc0e00ec7354",
+        "logic": "08f44b07b5901a25",
+        "quests": "e105bde478fb377a",
+        "roster": "4cf05f4b2a8d2deb",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "0f1571a735e8af6a",
+        "time": "52853be9b2487619"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-72": {
+      "hash": "e417567e5b53301e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "3e0d788a3b67293c",
+        "logic": "08f44b07b5901a25",
+        "quests": "c960d2c9608219a8",
+        "roster": "2467b67aa90b81df",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "619c5621bdd80d1c",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 49,
+      "end": "ended"
+    },
+    "seed-73": {
+      "hash": "a1d9f3319c36dcc1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "75c37665c79e7fdd",
+        "logic": "08f44b07b5901a25",
+        "quests": "e7d6404c6f5e4d92",
+        "roster": "e7a6f89619d04603",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ce4df80ac8730054",
+        "time": "ceed75e46c7e2e2e"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-74": {
+      "hash": "fff9361384ca76f9",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5c9e0a40f470bcdd",
+        "logic": "08f44b07b5901a25",
+        "quests": "0753253880c4fe89",
+        "roster": "1b509e57b30ff142",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "1a5bf46009f55271",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-75": {
+      "hash": "9b82ab09196dc6f7",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "3603d430d4628410",
+        "logic": "08f44b07b5901a25",
+        "quests": "fcc5e287b490214b",
+        "roster": "ea9931bad7bdc3bb",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "1366c24f4d6a1429",
+        "time": "15c364f3e0b6cc37"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-76": {
+      "hash": "b478a6245842a089",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c130a5ebec01e1ab",
+        "logic": "08f44b07b5901a25",
+        "quests": "be77bbe68e1d5d0f",
+        "roster": "9c58dc836918b51b",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "d14922066356e19b",
+        "time": "ceed75e46c7e2e2e"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-77": {
+      "hash": "60155661d4035413",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "59a31e5ea1543bf3",
+        "logic": "08f44b07b5901a25",
+        "quests": "83ad0e47cdaa1f1c",
+        "roster": "aa9c39a724b1f366",
+        "school": "ab52dd7b412ac82e",
+        "sheet": "da9d0cae103b40df",
+        "stats": "1867ca1556975c84",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 58,
+      "end": "ended"
+    },
+    "seed-78": {
+      "hash": "cda330115434ae3e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "79a48af65dcda512",
+        "logic": "08f44b07b5901a25",
+        "quests": "f6d2ab0e35c51cb2",
+        "roster": "557c3cdbeded1803",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "7dfcc831a00dc61f",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-79": {
+      "hash": "a33f25e3bf7094f8",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "5ebb2989f4a5fc99",
+        "logic": "08f44b07b5901a25",
+        "quests": "4ee3f0f0c75242f8",
+        "roster": "a356366a1a11effe",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b3bcbe45c917cfd0",
+        "time": "df5d2683c4f6817c"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-80": {
+      "hash": "bb9e254d386d8406",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "46b43664f0e32a5d",
+        "logic": "08f44b07b5901a25",
+        "quests": "939877abb19a0fe1",
+        "roster": "72694fedd55f0281",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "ed43b303b53c26e3",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-81": {
+      "hash": "da2ef88439b5fa50",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c211a80a51602937",
+        "logic": "08f44b07b5901a25",
+        "quests": "331decd29682a889",
+        "roster": "3e78cb4664780029",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "a62e461b8e50d8db",
+        "time": "ab3d78996fff54d4"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-82": {
+      "hash": "6ebcd343c4041a3e",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "dfc698deae6e431a",
+        "logic": "08f44b07b5901a25",
+        "quests": "7810f8b7918bd2bd",
+        "roster": "0e40b1b3bc1f5167",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "e22c8234433d473d",
+        "time": "dd7ee010791dcb2b"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-83": {
+      "hash": "ed16037742a01fc0",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "8db7c3982948d18f",
+        "logic": "08f44b07b5901a25",
+        "quests": "b2ef1807cef0ba33",
+        "roster": "f8d815c0a6558e0f",
+        "school": "ab3bdd7b4117e94d",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b5628308d4f67274",
+        "time": "f2e79726988dd895"
+      },
+      "turns": 48,
+      "end": "ended"
+    },
+    "seed-84": {
+      "hash": "20d7e7c05332ed69",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "47eed9119c1d8f82",
+        "logic": "08f44b07b5901a25",
+        "quests": "2da2135ec41ac160",
+        "roster": "868baf18dade9b7e",
+        "school": "04f35f6f95daea90",
+        "sheet": "da9d0cae103b40df",
+        "stats": "44dc2db4eb60d8c8",
+        "time": "42438b14215b940a"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-85": {
+      "hash": "2e0e76893df7c653",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "8437fd23c3d3ac91",
+        "logic": "08f44b07b5901a25",
+        "quests": "feed1c61855694ce",
+        "roster": "c30858ac3d3d00d0",
+        "school": "ab3ed97b411a1858",
+        "sheet": "da9d0cae103b40df",
+        "stats": "b74d25e0589113bf",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 48,
+      "end": "ended"
+    },
+    "seed-86": {
+      "hash": "2d5bdaf83421ee73",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "75180381a75fae79",
+        "logic": "08f44b07b5901a25",
+        "quests": "9d604742a7623ab8",
+        "roster": "6bc6cd52c358cd9e",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "85abc330f6c1bda1",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-87": {
+      "hash": "7b2a6ccdf61b480d",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "45e21d363c42488b",
+        "logic": "08f44b07b5901a25",
+        "quests": "da6d757dd07ceae4",
+        "roster": "3ee896378d0a97d3",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "74493be60f197498",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-88": {
+      "hash": "d32bd9cd976b4f85",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "ee20f19ad64b9b8f",
+        "logic": "08f44b07b5901a25",
+        "quests": "a169b64f9de28b35",
+        "roster": "e7c035ac193da652",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "68bfeb8b9747bf26",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-89": {
+      "hash": "d8b1538ddd1224f7",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "76bfd07caa5ac941",
+        "logic": "08f44b07b5901a25",
+        "quests": "20174c502a985cec",
+        "roster": "aeb182acc4359929",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "14e25ba433772fa9",
+        "time": "df5d2683c4f6817c"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-90": {
+      "hash": "148dcf546f7216dd",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "f15f8a1561ca9290",
+        "logic": "08f44b07b5901a25",
+        "quests": "995a32adc0156ecf",
+        "roster": "15ab566b8d76c918",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "65761620d2a468e3",
+        "time": "91e7721998a0652e"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-91": {
+      "hash": "5d494cf0d591d386",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "7200744d20c80f43",
+        "logic": "08f44b07b5901a25",
+        "quests": "66e60a8f6b7f1b65",
+        "roster": "957dd4c4fe1edc4b",
+        "school": "ab4fd97b41288b8b",
+        "sheet": "da9d0cae103b40df",
+        "stats": "aba3f7ff4afe0994",
+        "time": "47ad7adca6f5b71d"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-92": {
+      "hash": "53ceab77a5b44b35",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "d65fc99309c47cc5",
+        "logic": "08f44b07b5901a25",
+        "quests": "0c9eb5fc71151f45",
+        "roster": "e4531a45de47c4f3",
+        "school": "ab3ed97b411a1858",
+        "sheet": "da9d0cae103b40df",
+        "stats": "22cb7dcaeeb23c7d",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 51,
+      "end": "ended"
+    },
+    "seed-93": {
+      "hash": "cf53e6642bb2b9a2",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "1501fae89486eb9d",
+        "logic": "08f44b07b5901a25",
+        "quests": "7846665de9d49f73",
+        "roster": "77c6e088706016c7",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "14470e796cf7d068",
+        "time": "f457dbc0504b0a1c"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-94": {
+      "hash": "cc0eebab4fad1003",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "4da1a87a4f16ae36",
+        "logic": "08f44b07b5901a25",
+        "quests": "7a407571ce65886f",
+        "roster": "04dc790a097893c0",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "291d1b918ed40b0e",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 52,
+      "end": "ended"
+    },
+    "seed-95": {
+      "hash": "48a1972215abeb5c",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "b3ee576a544f7d0a",
+        "logic": "08f44b07b5901a25",
+        "quests": "8d6fa5d0b0676f96",
+        "roster": "cbcbfc6bdbe5e9e8",
+        "school": "ab2add7b4109761a",
+        "sheet": "da9d0cae103b40df",
+        "stats": "4f452e41cba938ec",
+        "time": "52853be9b2487619"
+      },
+      "turns": 54,
+      "end": "ended"
+    },
+    "seed-96": {
+      "hash": "71147e5569ef1ce9",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "6c0d498b2c9f5e31",
+        "logic": "08f44b07b5901a25",
+        "quests": "4aedb34c232efa27",
+        "roster": "aca37f0c99161f78",
+        "school": "ab26d97b41058677",
+        "sheet": "da9d0cae103b40df",
+        "stats": "458b5ba169313e3f",
+        "time": "858434e9c855eacc"
+      },
+      "turns": 55,
+      "end": "ended"
+    },
+    "seed-97": {
+      "hash": "d482bd07f2ce8f32",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "c70a09008cf96120",
+        "logic": "08f44b07b5901a25",
+        "quests": "307731cca3a7100b",
+        "roster": "372b31f3978767b7",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "be3f1405ce4e7ae3",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-98": {
+      "hash": "6baa47b5b5ded3c1",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "672d7f3ef0b6d012",
+        "logic": "08f44b07b5901a25",
+        "quests": "0907394742a71e00",
+        "roster": "21f38c285b1ebd77",
+        "school": "ab2ddd7b410babf1",
+        "sheet": "da9d0cae103b40df",
+        "stats": "3554ab1bc4a624c8",
+        "time": "df5d2683c4f6817c"
+      },
+      "turns": 53,
+      "end": "ended"
+    },
+    "seed-99": {
+      "hash": "05ca0f44fc2ca4ff",
+      "facets": {
+        "flag": "1dff1b5e0bf63105",
+        "kernel": "cc78750df9b9dcdc",
+        "logic": "08f44b07b5901a25",
+        "quests": "440d4d7e9d4afb83",
+        "roster": "7a2333aa40c9ee35",
+        "school": "ab30d97b410ddafc",
+        "sheet": "da9d0cae103b40df",
+        "stats": "e8b991dab8d9fbe0",
+        "time": "0a1f0cc7c390a650"
+      },
+      "turns": 54,
+      "end": "ended"
+    }
+  }
+}

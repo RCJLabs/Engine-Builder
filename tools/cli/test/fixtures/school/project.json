@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "id": "school",
+  "name": "The school",
+  "version": "0.1.0",
+  "kits": ["stats", "time", "roster", "quests"],
+  "calendar": {
+    "ticksPerDay": 1
+  }
+}

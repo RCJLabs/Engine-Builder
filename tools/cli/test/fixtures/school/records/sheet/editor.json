@@ -1,0 +1,16 @@
+{
+  "rows": [
+    {
+      "id": "book",
+      "when": {
+        "event": "school/asked"
+      },
+      "do": [
+        {
+          "effect": "start-quest",
+          "quest": "booking"
+        }
+      ]
+    }
+  ]
+}

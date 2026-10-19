@@ -1,0 +1,11 @@
+{
+  "name": "Murmillo",
+  "actor": "gladiator",
+  "names": ["Spurius", "Castus", "Lugo", "Saxa", "Rhaskos", "Donar"],
+  "stats": {
+    "fame": {
+      "min": 1,
+      "max": 3
+    }
+  }
+}
