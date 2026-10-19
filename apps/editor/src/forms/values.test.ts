@@ -43,6 +43,7 @@ describe('emptyValue and newRecord', () => {
     [{ kind: 'colour' }, '#000000'],
     [{ kind: 'asset' }, ''],
     [{ kind: 'condition' }, ''],
+    [{ kind: 'effects' }, []],
   ])('gives %j %j', (def, expected) => {
     expect(emptyValue(def)).toEqual(expected);
   });

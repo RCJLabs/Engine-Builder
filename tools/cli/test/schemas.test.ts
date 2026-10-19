@@ -142,7 +142,7 @@ describe('eb schemas', () => {
     const run = eb(['schemas', dir]);
     expect(run.code).toBe(0);
     expect(run.out).toContain(
-      'No schema for weapon: types/weapon.json has problems (E015 Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition). Fix it, then run eb schemas again.\n',
+      'No schema for weapon: types/weapon.json has problems (E015 Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition, effects). Fix it, then run eb schemas again.\n',
     );
     expect(readdirSync(join(dir, SCHEMAS))).toEqual(['_type-file.json', 'gladiator.json', 'school.json']);
     expect(JSON.parse(read(dir, SETTINGS))['json.schemas']).toEqual([TYPE_FILES, entry('gladiator'), entry('school')]);

@@ -22,6 +22,7 @@ const gladiatorFile: TypeFile = {
     colour: { kind: 'colour', optional: true },
     portrait: { kind: 'asset', of: 'image', optional: true, description: 'Shown on the roster' },
     fights: { kind: 'condition', optional: true },
+    deeds: { kind: 'effects', optional: true },
   },
 };
 const gladiator = typeFromFile('gladiator', gladiatorFile);
@@ -145,6 +146,20 @@ describe('typeFromFile', () => {
     ]);
   });
 
+  it('takes a list of effects, each checked against its own schema (M3.7)', () => {
+    expect(lines({ ...spiculus, deeds: [] })).toEqual([]);
+    // An effect the engine doesn't know is kept as written without a game's catalogue (D36).
+    expect(lines({ ...spiculus, deeds: [{ effect: 'cheer', loud: true }] })).toEqual([]);
+    expect(lines({ ...spiculus, deeds: [{ effect: 'add-to-flag', flag: 'glory', by: 1.5 }] })).toEqual([
+      'E001 /deeds/0/by: Expected a whole number',
+      'E005 /deeds/0/flag: No record flag:glory',
+    ]);
+    expect(lines({ ...spiculus, deeds: [{ to: 1 }] })).toEqual([
+      'E001 /deeds/0: An effect names itself: {"effect": "set-flag", …}',
+    ]);
+    expect(lines({ ...spiculus, deeds: { effect: 'cheer' } })).toEqual(['E001 /deeds: Expected a list of effects']);
+  });
+
   it('exports labels, help and marks to JSON Schema', () => {
     const schema = recordJsonSchema(gladiator.recordType) as {
       title: string;
@@ -154,5 +169,6 @@ describe('typeFromFile', () => {
     expect(schema.properties.school).toMatchObject({ title: 'Trained at', 'x-eb-ref': 'school' });
     expect(schema.properties.portrait).toMatchObject({ description: 'Shown on the roster', 'x-eb-asset': 'image' });
     expect(schema.properties.fights).toEqual({ $ref: '#/$defs/eb-condition' });
+    expect(schema.properties.deeds).toEqual({ type: 'array', items: { $ref: '#/$defs/eb-effect' } });
   });
 });

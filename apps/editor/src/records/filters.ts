@@ -76,6 +76,7 @@ export function testsFor(column: Column): TestChoice[] {
       return [...SAME, ...PRESENCE];
     case 'list':
     case 'map':
+    case 'effects':
       return ITEMS;
     case 'group':
       return PRESENCE;
@@ -144,7 +145,8 @@ function matchesValue(def: FieldDef, cell: Compared, test: Test): boolean {
       // What the cell shows, names included, or what the file holds: a list of refs shows names, holds ids.
       return (
         fold(text).includes(wanted) ||
-        ((def.kind === 'list' || def.kind === 'map') && fold(JSON.stringify(value)).includes(wanted))
+        ((def.kind === 'list' || def.kind === 'map' || def.kind === 'effects') &&
+          fold(JSON.stringify(value)).includes(wanted))
       );
     case 'empty':
     case 'not-empty': {

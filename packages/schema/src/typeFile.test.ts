@@ -20,6 +20,7 @@ const gladiator: TypeFile = {
     colour: { kind: 'colour' },
     portrait: { kind: 'asset', of: 'image', optional: true, description: 'Shown on the roster' },
     fights: { kind: 'condition', optional: true },
+    deeds: { kind: 'effects', optional: true },
     story: { kind: 'text', multiline: true, optional: true },
   },
 };

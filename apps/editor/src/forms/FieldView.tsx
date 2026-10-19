@@ -1,3 +1,4 @@
+import { EffectsField } from '../logic/EffectsField.tsx';
 import type { FieldProps } from './FieldShell.tsx';
 import { BoolField, ColourField, EnumField } from './fields/ChoiceFields.tsx';
 import { ConditionField } from './fields/ConditionField.tsx';
@@ -48,5 +49,8 @@ function FieldOfKind(props: FieldProps) {
       return <AssetField {...props} def={def} />;
     case 'condition':
       return <ConditionField {...props} />;
+    case 'effects':
+      // The sheet's own list of effects (M3.1), which a field of this kind draws as a row's Do (M3.7).
+      return <EffectsField label={props.label} info={props.info} path={props.path} value={props.value} />;
   }
 }

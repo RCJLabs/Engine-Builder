@@ -64,7 +64,7 @@ describe('type file problems', () => {
     );
     // Spiculus and Priscus still carry weapons: the type's records exist, so their refs resolve.
     expect(brief(result.diagnostics)).toEqual([
-      'E015 types/weapon.json#/fields/name/kind: Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition',
+      'E015 types/weapon.json#/fields/name/kind: Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition, effects',
     ]);
     expect(result.pack).toBeNull();
     expect([...result.dataTypes.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school']);

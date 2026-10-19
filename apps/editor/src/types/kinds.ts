@@ -16,6 +16,7 @@ export const KIND_NAMES: Record<FieldKind, string> = {
   colour: 'Colour',
   asset: 'File',
   condition: 'Condition',
+  effects: 'Effects',
 };
 
 /** The kinds in the order the designer offers them: the format's own. */

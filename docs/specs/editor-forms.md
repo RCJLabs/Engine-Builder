@@ -41,6 +41,7 @@ M2.4's record forms: a record's fields, drawn from its type's file ([type-files.
 | map | its entries in file order, each key, value and Remove, then Add | keys of records or values are chosen from those not taken; other keys are typed, and a rename keeps the entry in place |
 | group | its fields in a fieldset | one the record leaves out is added whole, with its required fields |
 | condition | a box for its text, then the condition in words | see below |
+| effects | the trigger sheet's list of effects (M3.7): each in words, with Up, Down and Remove, then the kind to add and Add | the engine's and the kits' effects get forms; any other is edited as JSON ([editor-logic.md](editor-logic.md)) |
 
 **Number boxes are text boxes** with `inputmode`, not `type="number"`, following GOV.UK's reasons: a scroll wheel can change a number box by accident, and it hides half-typed input from the page. The keyboard a phone shows:
 - digits for an `int` with a min of 0 or more;

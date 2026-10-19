@@ -1,10 +1,12 @@
 /**
  * The record type a type file describes (typeFile.ts): the strict zod schema a code type would
- * have, with refs, assets and conditions marked the same way, and messages written for people.
+ * have, with refs, assets, conditions and effects marked the same way, and messages written for
+ * people.
  */
 import { z } from 'zod';
 import { asset } from './assets.ts';
 import { condition } from './condition.ts';
+import { effect } from './effect.ts';
 import { defineRecordType, type RecordType } from './recordType.ts';
 import { ref, refAny } from './refs.ts';
 import type { FieldDef, Fields, TypeFile, ValueDef } from './typeFile.ts';
@@ -98,6 +100,9 @@ function valueSchema(def: ValueDef): z.ZodType {
       return asset(def.of);
     case 'condition':
       return condition();
+    case 'effects':
+      // Each effect is checked against its own schema, in the pass effect() fields get (M3.1).
+      return z.array(effect(), { error: 'Expected a list of effects' });
   }
 }
 
