@@ -1,14 +1,15 @@
 /**
  * M4.1's gate on phones, portrait and landscape: the hut started in the Play panel behind More and
- * played by touch through its screens, a talk and the store drawn over the hut, each screen in
- * reach with nothing past the edges and nothing axe finds; and the player page at /play/.
+ * played to its end by touch through its screens, a talk, the store and the journal drawn over the
+ * hut, each screen in reach with nothing past the edges and nothing axe finds; and the player page
+ * at /play/ with the hut in play.
  */
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { HUT } from './hutHelpers.ts';
-import { expectFits, game, press, startHut, topScreen } from './hutScreens.ts';
+import { expectFits, game, playSeason, press, startHut, topScreen } from './hutScreens.ts';
 import { REPO, scratch } from './ludus.ts';
 
 /** The hut as a game file, as `eb build` writes it: the pack Export game writes too. */
@@ -26,25 +27,33 @@ for (const viewport of [
   test.describe(`the hut, phone ${viewport.width}×${viewport.height}`, () => {
     test.use({ viewport, hasTouch: true, isMobile: true, actionTimeout: 20_000 });
 
-    test('played through its screens in the Play panel, every screen in reach', async ({ page }) => {
+    test('played to its end by touch through its screens in the Play panel, every screen in reach', async ({
+      page,
+    }) => {
       test.setTimeout(120_000);
       const errors = watchErrors(page);
       await startHut(page);
       await expectFits(page);
       const top = topScreen(page);
-      await press(page, top.getByRole('button', { name: 'Visit Greta' }));
+      await press(page, top.getByRole('button', { name: 'Visit Greta' }), true);
       const talk = game(page).getByRole('dialog', { name: 'A talk' });
       await expect(talk.getByRole('button', { name: 'Thank her' })).toBeVisible();
       await expectFits(page);
-      await press(page, talk.getByRole('button', { name: 'Thank her' }));
+      await press(page, talk.getByRole('button', { name: 'Thank her' }), true);
       await expect(talk).toHaveCount(0);
-      await press(page, top.getByRole('button', { name: 'Open the store' }));
+      await press(page, top.getByRole('button', { name: 'Open the store' }), true);
       const store = game(page).getByRole('dialog', { name: 'The store' });
       await expect(store.getByRole('tab', { name: 'Buy' })).toBeVisible();
       await expectFits(page);
-      await press(page, store.getByRole('button', { name: 'Leave the store' }));
-      await top.getByRole('button', { name: 'Journal' }).click();
-      await expect(game(page).getByRole('dialog', { name: 'Journal' })).toBeVisible();
+      await press(page, store.getByRole('button', { name: 'Leave the store' }), true);
+      await top.getByRole('button', { name: 'Journal' }).tap();
+      const journal = game(page).getByRole('dialog', { name: 'Journal' });
+      await expect(journal).toBeVisible();
+      await expectFits(page);
+      await journal.getByRole('button', { name: 'Close the journal' }).tap();
+      const seen = await playSeason(page, true);
+      expect(seen).toContain('An event');
+      await expect(topScreen(page).getByText('The hut is closed for the winter.')).toBeVisible();
       await expectFits(page);
       expect(errors).toEqual([]);
     });

@@ -83,10 +83,11 @@ export async function expectFits(page: Page): Promise<void> {
   await expectNoAxeIssues(page);
 }
 
-/** Presses a button that takes an action, and waits for the step's view: the game's turn moves on. */
-export async function press(page: Page, button: Locator): Promise<void> {
+/** Presses a button that takes an action, by touch on a phone, and waits for the step's view: the game's turn moves on. */
+export async function press(page: Page, button: Locator, touch = false): Promise<void> {
   const turn = await game(page).getAttribute('data-turn');
-  await button.click();
+  if (touch) await button.tap();
+  else await button.click();
   await expect(game(page)).not.toHaveAttribute('data-turn', turn ?? '');
 }
 
@@ -95,7 +96,7 @@ export async function press(page: Page, button: Locator): Promise<void> {
  * first option on offer or Go on; in the store, Leave; otherwise a load carried, and the hut
  * closed once the season is over. Returns the modal screens' titles as they came up.
  */
-export async function playSeason(page: Page): Promise<string[]> {
+export async function playSeason(page: Page, touch = false): Promise<string[]> {
   const seen: string[] = [];
   for (let turn = 0; turn < 60; turn++) {
     const top = topScreen(page);
@@ -106,13 +107,13 @@ export async function playSeason(page: Page): Promise<string[]> {
       const options = dialog.getByRole('listitem').locator('button:enabled');
       const goOn = dialog.getByRole('button', { name: 'Go on' });
       const leave = dialog.getByRole('button', { name: 'Leave the store' });
-      if ((await options.count()) > 0) await press(page, options.first());
-      else if (await goOn.isEnabled()) await press(page, goOn);
-      else await press(page, leave);
+      if ((await options.count()) > 0) await press(page, options.first(), touch);
+      else if (await goOn.isEnabled()) await press(page, goOn, touch);
+      else await press(page, leave, touch);
     } else {
       const close = top.getByRole('button', { name: 'Close the hut for the winter' });
-      if (await close.isVisible()) await press(page, close);
-      else await press(page, top.getByRole('button', { name: 'Carry a load up' }));
+      if (await close.isVisible()) await press(page, close, touch);
+      else await press(page, top.getByRole('button', { name: 'Carry a load up' }), touch);
     }
   }
   throw new Error(`The hut didn’t close in 60 presses; saw ${seen.join(', ')}`);

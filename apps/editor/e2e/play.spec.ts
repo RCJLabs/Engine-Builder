@@ -5,8 +5,9 @@
  * /play/, which opens again offline. Each screen in reach, with nothing past the edges and nothing
  * axe finds.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createPack } from '@eb/core';
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { expectFits, game, playSeason, press, startHut, topScreen } from './hutScreens.ts';
@@ -124,7 +125,6 @@ test('a file that isn’t a game says so at /play/', async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto('play/');
   const bad = join(scratch, `not-a-game-${Date.now()}.json`);
-  const { writeFileSync } = await import('node:fs');
   writeFileSync(bad, JSON.stringify({ format: 4, project: { id: 'x' } }));
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
@@ -134,5 +134,27 @@ test('a file that isn’t a game says so at /play/', async ({ page }) => {
   await expect(page.getByRole('alert')).toHaveText(
     'This isn’t a game file Engine-Builder can play: The pack project has no name.',
   );
+  expect(errors).toEqual([]);
+});
+
+test('a game’s scripts at /play/ run where the network and storage are out of reach', async ({ page }) => {
+  const errors = watchErrors(page);
+  // A pack by hand, as no project could compile it: its script looks for the host's ways out as it loads.
+  const reach = ['fetch', 'indexedDB', 'XMLHttpRequest', 'importScripts'];
+  const script = `const found = ${JSON.stringify(reach)}.filter((name) => typeof self[name] !== 'undefined'); if (found.length > 0) throw new Error('reached ' + found.join(', '));`;
+  const pack = createPack({ id: 'reach', name: 'Reach', version: '0.1.0' }, {}, { game: script }, {
+    screens: { main: { main: { widget: 'text', text: 'Hi' } } },
+  });
+  const file = join(scratch, `reach-${Date.now()}.game.json`);
+  writeFileSync(file, JSON.stringify(pack));
+  await page.goto('play/');
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('button', { name: 'Open a game file' }).click(),
+  ]);
+  await chooser.setFiles(file);
+  // The script found nothing to reach, so it got as far as the game's shape, which it lacks.
+  await expect(page.getByRole('alert')).toContainText('The game didn’t load');
+  await expect(page.getByRole('alert')).not.toContainText('reached');
   expect(errors).toEqual([]);
 });
