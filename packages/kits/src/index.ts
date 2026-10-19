@@ -8,6 +8,7 @@
  * (choice events, decks, consequences; M3.7, docs/specs/events.md) and the dialogue kit (speakers
  * and talks; M3.8, docs/specs/dialogue.md). Their record types and checks are in @eb/schema.
  */
+export { leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
 export { lineOf, namedLine, namedOption, optionOf, talkRecord } from './dialogue/records.ts';
 export {

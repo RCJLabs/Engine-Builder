@@ -186,8 +186,8 @@ A line or an option its talk doesn't have, named in `dialogue.heard` or `dialogu
 - **E035** (a kit's record that doesn't hold together), in a talk: a line id twice, or one a condition can't write; an option id twice in the talk, or one a condition can't write; a start's `line`, or a `next` of a line, an option or an outcome, naming no line of the talk; outcomes whose chances don't add up to 100.
 - **E042:** a condition naming a line or option a talk doesn't have, in `dialogue.heard(talk: …, line: …)` or `dialogue.said(talk: …, option: …)`.
 - **W119:** a cost in a game without the economy kit: nothing charges it.
-- **W121:** a line no start, option, outcome or line leads to: nothing can show it.
-- **W122:** a line with options none of which is free of `if`, `needs` and `cost`: a party that can't meet any of them is stuck there, as W118 warns of an event.
+- **W121:** a line no start reaches, by the options, outcomes and `next`s of the lines between: nothing can show it. Two lines that lead only to each other are warned of too.
+- **W122:** a line with an option that can be shown locked, by `needs` or `cost`, and none that is always open, free of `if`, `needs`, `cost` and `once`: a party that can say none of them is stuck there, as W118 warns of an event. A line whose options can only be hidden, by `if` or `once`, isn't warned of: with none shown, the talk goes on ([going on](#going-on)).
 - **W123:** a talk nothing in the records opens: no row, choice, line, consequence or outcome has an `open-talk` naming it. One a game's scripts open is still warned of, as a flag only scripts read is (W108).
 
 ## The map

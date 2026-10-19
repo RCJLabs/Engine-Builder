@@ -7,6 +7,7 @@ import { pointerSegment } from '@eb/core';
 import {
   ACTOR,
   DECK,
+  DIALOGUE,
   ECONOMY,
   EVENT,
   EVENTS,
@@ -23,10 +24,13 @@ import {
   ROSTER_RECORD,
   SHOP,
   SLOT,
+  SPEAKER,
   STAT,
   STATS,
   STATUS,
+  TALK,
 } from '@eb/kits';
+import { SPEAKER_TYPE_FILE, talkTypeFile } from './dialogueTypes.ts';
 import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
@@ -221,8 +225,8 @@ const FACTION_SHOP_TYPE_FILE: TypeFile = {
 
 /**
  * Each kit's types, by name, as the type files it has with the kits on: gear adds to items and
- * actors, factions to shops, and the economy kit makes a recruit's fee and a choice's cost name
- * resources.
+ * actors, factions to shops, and the economy kit makes a recruit's fee, a choice's cost and an
+ * option's cost name resources.
  */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
   [INVENTORY]: (on) => ({
@@ -242,6 +246,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
     [ROSTER_RECORD]: ROSTER_TYPE_FILE,
   }),
   [EVENTS]: (on) => ({ [EVENT]: eventTypeFile(on.includes(ECONOMY)), [DECK]: DECK_TYPE_FILE }),
+  [DIALOGUE]: (on) => ({ [SPEAKER]: SPEAKER_TYPE_FILE, [TALK]: talkTypeFile(on.includes(ECONOMY)) }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */
