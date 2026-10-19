@@ -11,10 +11,13 @@ import {
   FACTION,
   FACTIONS,
   GEAR,
+  HALL,
   INVENTORY,
   ITEM,
   LOOT_TABLE,
+  RECRUIT,
   RESOURCE,
+  ROSTER,
   SHOP,
   SLOT,
   STAT,
@@ -178,6 +181,64 @@ const FILES: EffectFile[] = [
       faction: { kind: 'ref', to: FACTION, label: 'Faction' },
       by: { kind: 'int', label: 'By', description: 'Below 0 takes away; it stops at the faction’s bounds' },
     },
+  },
+  {
+    effect: 'recruit',
+    kit: ROSTER,
+    label: 'Make a recruit',
+    fields: {
+      recruit: {
+        kind: 'ref',
+        to: RECRUIT,
+        label: 'Recruit',
+        description: 'Rolled from it, it joins with no fee; refused when the roster is full',
+      },
+    },
+  },
+  {
+    effect: 'join',
+    kit: ROSTER,
+    label: 'Join the roster',
+    fields: { actor: { ...WHO, description: 'Nothing for one on it already; refused when the roster is full' } },
+  },
+  {
+    effect: 'leave',
+    kit: ROSTER,
+    label: 'Leave the roster',
+    fields: {
+      actor: WHO,
+      why: { kind: 'text', min: 1, label: 'Why', description: 'Kept with it: dead, dismissed, sold' },
+    },
+  },
+  {
+    effect: 'change-bond',
+    kit: ROSTER,
+    label: 'Change a bond',
+    fields: {
+      actor: WHO,
+      with: { ...WHO, label: 'With' },
+      by: { kind: 'int', label: 'By', description: 'Below 0 takes away; it stops at the bonds’ bounds' },
+    },
+  },
+  {
+    effect: 'change-bonds',
+    kit: ROSTER,
+    label: 'Change every bond',
+    fields: {
+      by: { kind: 'int', label: 'By', description: 'For every pair of members now: a fight won together' },
+    },
+  },
+  {
+    effect: 'open-hall',
+    kit: ROSTER,
+    label: 'Open a hall',
+    fields: { hall: { kind: 'ref', to: HALL, label: 'Hall', description: 'Its offers can be hired until it is left' } },
+  },
+  {
+    effect: 'refresh-hall',
+    kit: ROSTER,
+    label: 'Start a hall’s next round',
+    fields: { hall: { kind: 'ref', to: HALL, label: 'Hall', description: 'New offers, none of them hired' } },
   },
 ];
 

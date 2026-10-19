@@ -120,7 +120,7 @@ The roster's settings. A game has at most one roster record; without one, the ro
 | --- | --- | --- |
 | `{ "effect": "recruit", "recruit": "deckhand" }` | Makes a recruit from the template and puts it on the roster, with no fee. Refused (`roster-full`) when the roster is full | `{ actor, name, stats, traits }`: who would join |
 | `{ "effect": "join", "actor": "ana" }` | An actor joins, a written one or a recruit who left. Nothing for one on the roster already. Refused (`roster-full`) when the roster is full | as written |
-| `{ "effect": "leave", "actor": "ana", "why": "dead" }` | A member leaves, kept in `gone` with why, a kebab-case name. Nothing for one not on the roster | as written |
+| `{ "effect": "leave", "actor": "ana", "why": "dead" }` | A member leaves, kept in `gone` with why, any text. Nothing for one not on the roster | as written |
 | `{ "effect": "change-bond", "actor": "ana", "with": "bo", "by": 2 }` | Adds `by` to the pair's bond, within the bounds. Raises `bond-changed` with how much it moved, then `bond-band-changed` if its band changed | `{ actor, with, from, to }`, and `band: { from, to }` when bonds have bands |
 | `{ "effect": "change-bonds", "by": 1 }` | Every pair of members now, in id order, as change-bond does: Wasteland's fight won together, Ludus's week | as written |
 | `{ "effect": "open-hall", "hall": "dock" }` | Opens the hall: its offers in the mode `hiring`, where hiring is an action. Refused (`already-in-hall`) when a hall is open | as written |

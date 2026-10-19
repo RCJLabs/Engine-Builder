@@ -144,7 +144,10 @@ export function validateRecords(
         flags.condition({ from, path, report }, sound, known.facts);
         kits.condition(report, sound);
       },
-      effect: (path, value) => flags.effect({ from, path, report }, value),
+      effect: (path, value) => {
+        flags.effect({ from, path, report }, value);
+        kits.effect(report, path, value);
+      },
     };
     const sound = checkPart(recordType.schema, record.value, '', ctx);
     if (record.type === SHEET) {

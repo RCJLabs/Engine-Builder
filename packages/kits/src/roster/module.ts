@@ -7,7 +7,6 @@
 import {
   defineModule,
   type FactTest,
-  isRecordId,
   type Module,
   type ModuleContext,
   type ModuleDef,
@@ -130,7 +129,7 @@ const effects: Def['effects'] = {
   },
   leave: (ctx, effect) => {
     actorRecord(ctx.content, effect.actor);
-    if (!isRecordId(effect.why)) throw new Error('leave: "why" is a kebab-case name, such as "dead"');
+    if (typeof effect.why !== 'string' || effect.why === '') throw new Error('leave: "why" is text, such as "dead"');
     leave(ctx, effect.actor as string, effect.why);
   },
   'change-bond': {
