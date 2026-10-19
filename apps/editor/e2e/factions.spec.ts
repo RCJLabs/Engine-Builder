@@ -23,6 +23,15 @@ async function fillCalendar(page: Page, calendar: Locator): Promise<void> {
   await calendar.getByRole('button', { name: 'Add to Lengths of time' }).click();
   await calendar.getByLabel('Lengths of time: hours', { exact: true }).fill('1');
   await calendar.getByLabel(/^Days a year/).fill('96');
+  // A month as well: the calendar no longer holds together, which shows at its top. Taking the
+  // month out takes the empty list out with it.
+  const months = calendar.getByRole('group', { name: 'Months (optional)', exact: true });
+  await months.getByRole('button', { name: 'Add to Months' }).click();
+  await months.getByRole('group', { name: 'Months, item 1' }).getByLabel(/^Name/).fill('thaw');
+  const both = calendar.getByText('Calendar: give months or daysPerYear, not both');
+  await expect(both).toBeVisible();
+  await months.getByRole('button', { name: 'Remove Months item 1' }).click();
+  await expect(both).toHaveCount(0);
   const seasons = calendar.getByRole('group', { name: 'Seasons (optional)', exact: true });
   await seasons.getByRole('button', { name: 'Add to Seasons' }).click();
   // A name a condition can't write shows why at its box once it is left, as project.json's problem.
@@ -36,18 +45,17 @@ async function fillCalendar(page: Page, calendar: Locator): Promise<void> {
   const second = seasons.getByRole('group', { name: 'Seasons, item 2' });
   await second.getByLabel(/^Name/).fill('autumn');
   await second.getByLabel(/^Starts on day/).fill('48');
+  // Exactly this: no list of months is left behind.
   await expect
-    .poll(() => stored(page, 'steading', 'project.json'))
-    .toMatchObject({
-      calendar: {
-        ticksPerDay: 24,
-        units: { hours: 1 },
-        daysPerYear: 96,
-        seasons: [
-          { id: 'spring', from: 0 },
-          { id: 'autumn', from: 48 },
-        ],
-      },
+    .poll(async () => ((await stored(page, 'steading', 'project.json')) as { calendar?: unknown } | null)?.calendar)
+    .toEqual({
+      ticksPerDay: 24,
+      units: { hours: 1 },
+      daysPerYear: 96,
+      seasons: [
+        { id: 'spring', from: 0 },
+        { id: 'autumn', from: 48 },
+      ],
     });
 }
 
@@ -164,7 +172,10 @@ test('the factions and time kits on, a calendar, a faction and a shop priced by 
   );
   await expect(panel.getByRole('button', { name: /^2\. row-2/ })).toContainText('Do: wait 6 hours');
   // Checked as the export will be: hours are the calendar's, and friendly is one of the guild's bands.
-  await sheet.getByLabel(/^Row id/).first().focus();
+  await sheet
+    .getByLabel(/^Row id/)
+    .first()
+    .focus();
   await expect(sheet.locator('.field-problem')).toHaveCount(0);
   await expectNothingOffscreen(page);
   await expectNoAxeIssues(page);
@@ -213,5 +224,14 @@ test('the steading’s game runs in the editor with its four kits and its calend
     encoding: 'utf8',
   });
   expect(`${await report.textContent()}\n`).toBe(cli);
+  // By now the index has checked every record against the game's events, the calendar's among them.
+  await expect(page.getByRole('tab', { name: 'Problems', exact: true })).toBeVisible();
+  // And the game the scripts made offers them too: a row on a season's start shows its event.
+  await panel.getByRole('button', { name: /^1\. winter-cold/ }).click();
+  const row = page
+    .getByRole('region', { name: 'Trigger sheet seasons' })
+    .getByRole('group', { name: 'Row 1: winter-cold' });
+  const when = row.getByRole('group', { name: 'When' });
+  await expect(when.getByLabel('Event', { exact: true })).toHaveValue('time/season-started');
   expect(errors).toEqual([]);
 });

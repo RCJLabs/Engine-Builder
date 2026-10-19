@@ -112,14 +112,21 @@ describe('factions that hold together', () => {
           },
           { id: 'b', when: { event: 'time/day-started' }, if: 'factions.band(traders) == netural', do: [] },
           { id: 'c', when: { event: 'time/day-started' }, if: 'factions.band(crown) == loyal', do: [] },
+          { id: 'd', when: { event: 'time/day-started' }, if: 'factions.band(traders) != trustd', do: [] },
         ],
       }),
     ]);
-    expect(codes(found)).toEqual(['E039 typos /rows/0/if', 'E039 typos /rows/1/if', 'E039 typos /rows/2/if']);
+    expect(codes(found)).toEqual([
+      'E039 typos /rows/0/if',
+      'E039 typos /rows/1/if',
+      'E039 typos /rows/2/if',
+      'E039 typos /rows/3/if',
+    ]);
     expect(found.map((d) => d.message)).toEqual([
       'traders has no band trustd: its bands are hostile, neutral, trusted',
       'traders has no band netural: its bands are hostile, neutral, trusted',
       'crown has no bands',
+      'traders has no band trustd: its bands are hostile, neutral, trusted',
     ]);
   });
 
@@ -129,6 +136,8 @@ describe('factions that hold together', () => {
       'W115 traders /drift',
     ]);
     expect(check(SOUND, closed)).toEqual([]);
+    // A game whose scripts haven't run may have a time module of its own: no warning.
+    expect(check(SOUND, { kits: ['inventory', 'economy', 'factions'] })).toEqual([]);
   });
 });
 

@@ -82,6 +82,8 @@ A gain with one faction and a loss with another are two effects, as in every gam
 
 `factions.reached(faction: guild, band: friendly)` reads "friendly or better", which a comparison of the band can't. With two arguments, a condition names them; with one, it needn't: `factions.band(guild) == friendly`. A band the faction doesn't have throws, and validation stops it in content (E039).
 
+In words, each fact names the faction by its id, as a flag's do ([conditions.md](conditions.md)): "guild is at least friendly", "guild’s band is not hostile", "guild’s standing is at least 10", "guild’s price share is less than 100".
+
 ## Events
 
 | Event | Arguments |
@@ -121,6 +123,7 @@ With the economy kit on, a shop may name a faction:
 
 - **Unit tests** (`packages/kits/src/factions/`): bounds and the start's default; bands read from their starts, the first holding everything below; change-standing's events and previews; drift on its days, toward its resting value and stopping there, in id order, after the rows; prices with and without a faction, selling held below buying.
 - **Schema tests:** every E035 rule at its bound; E039 in both kinds of condition; W115.
+- **The editor** ([editor-kits.md](editor-kits.md#the-factions-and-time-kits-m35)): a faction made with its form, a shop naming it, a row reading its band; the export clean for `eb validate`.
 - **The steading fixture** (`tools/cli/test/fixtures/steading`), a slice of Landnam: four neighbours with Landnam's bands and drift, trading posts priced by band, raids and tribute that move standing, in a calendar of 24-day seasons. Its golden runs, and a test that every price paid in 30 seeds' runs is the quote worked out another way.
 
 ## Open questions

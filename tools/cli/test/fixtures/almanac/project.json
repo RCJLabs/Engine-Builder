@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "almanac",
+  "name": "The almanac",
+  "version": "0.1.0",
+  "kits": ["time"],
+  "calendar": {
+    "daysPerYear": 8,
+    "seasons": [{ "id": "dry", "from": 0 }, { "id": "wet", "from": 4 }]
+  }
+}

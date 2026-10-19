@@ -1,7 +1,8 @@
 /**
  * eb with the factions and time kits (M3.5, D43): the steading, a slice of Landnam, its neighbours
  * and their bands, the posts they trade from and a calendar of 24-day seasons in project.json. Its
- * game is its own scripts, which eb runs with the four kits' modules joined.
+ * game is its own scripts, which eb runs with the four kits' modules joined. And the almanac, whose
+ * game is a --game module that the time kit joins with project.json's calendar.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync } from 'node:fs';
@@ -16,6 +17,8 @@ import { folderSource } from '../src/folderSource.ts';
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const STEADING = resolve(import.meta.dirname, 'fixtures/steading');
 const GOLDEN = resolve(import.meta.dirname, 'fixtures/steading-jarl.golden.json');
+const ALMANAC = resolve(import.meta.dirname, 'fixtures/almanac');
+const ALMANAC_GAME = resolve(import.meta.dirname, 'fixtures/almanac-game.ts');
 
 function eb(args: readonly string[]) {
   const run = spawnSync(process.execPath, [CLI, ...args], { cwd: tmpdir(), encoding: 'utf8' });
@@ -41,6 +44,13 @@ describe('eb with the factions and time kits', () => {
     expect(run.code, run.out + run.err).toBe(0);
     expect(run.out).toContain('Refused offers: none.');
     expect(run.out.trim().split('\n').at(-1)).toBe(`All 100 runs match ${GOLDEN}.`);
+  });
+
+  it('joins the time kit to a --game module’s game with project.json’s calendar', () => {
+    const run = eb(['sim', ALMANAC, '--game', ALMANAC_GAME, '--seeds', '2']);
+    expect(run.code, run.out + run.err).toBe(0);
+    // Two years of 8 days: the wet season starts on days 4 and 12.
+    expect(run.out).toContain('rains: mean 2 (95% 2 to 2)');
   });
 });
 

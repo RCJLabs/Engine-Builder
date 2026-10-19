@@ -806,7 +806,10 @@ Also settled, as the session's calls:
 - the kits' own upkeep at a day's start (statuses ending, drift) comes after the rows on `time/day-started`, since listeners hear in module order and the engine's sheets come first;
 - the stats kit's timed statuses end as the day that ends them starts, not only once the action that passed the time is done. Before, a status that ran out during a wait still stacked with the same status applied after the wait in that action;
 - a calendar given while the time kit is off is a warning, W116, not an error: nothing reads it. With the kit on, a game.ts naming a module `time` of its own is E031, as for any kit;
-- real time (`time/elapse`) for a project made of data waits for Phase 4's stage.
+- real time (`time/elapse`) for a project made of data waits for Phase 4's stage;
+- project.json's calendar is checked apart from the rest of the file: a shape it lacks is E038 at the field, so a calendar half filled in, as the Project panel's form leaves it between boxes, never stops the project being read or turns its kits off. Its `ticksPerDay` is 1 when left out, as a calendar left out is;
+- the calendar's form takes out a list left empty, and the calendar once nothing is left in it, since the engine reads an empty list of weekdays or months as a calendar that doesn't hold together;
+- `schedule`, whose timer holds a list of effects, is added in the editor as Other, as JSON, until the sheet editor's own list can hold them ([editor-kits.md](specs/editor-kits.md#open-questions), question 4).
 
 The specs are [specs/factions.md](specs/factions.md) and [specs/time.md](specs/time.md#the-time-kit), and the survey behind them [research/kits-ii.md](research/kits-ii.md).
 

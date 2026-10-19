@@ -46,7 +46,7 @@ export const openGame = (): GameState | undefined => current.value?.game;
 export function projectNames(): ProjectNames {
   const open = current.value;
   const game = open?.game.catalog;
-  const kits = withKits(open?.catalog.kits ?? [], open?.catalog.calendar);
+  const kits = withKits(open?.catalog.kits ?? []);
   return {
     facts: Object.keys(game?.facts ?? kits?.facts ?? ENGINE_FACTS),
     events: Object.keys(game?.events ?? kits?.events ?? ENGINE_EVENTS),

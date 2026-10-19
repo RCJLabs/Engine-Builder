@@ -81,6 +81,20 @@ describe('project.json’s calendar (M3.5)', () => {
     ]);
   });
 
+  it('checks the time kit’s effects in its units, and travels in the pack', async () => {
+    const calendar = { ticksPerDay: 24, units: { hours: 1 } };
+    const day = { rows: [{ id: 'a', when: { event: 'time/day-started' }, do: [{ effect: 'wait', hours: 6 }] }] };
+    const compiled = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ ...JSON.parse(manifest(['time'])), calendar }),
+        'records/sheet/day.json': JSON.stringify(day),
+      }),
+      [],
+    );
+    expect(brief(compiled.diagnostics)).toEqual([]);
+    expect(compiled.pack?.project.calendar).toEqual(calendar);
+  });
+
   it('is read by nothing with the time kit off, which project.json says (W116)', () => {
     const off = timed({ ticksPerDay: 24 }, ['inventory']);
     expect(off.project).toEqual({ id: 'kitted', name: 'Kitted', version: '0.1.0', kits: ['inventory'] });

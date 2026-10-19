@@ -14,7 +14,7 @@ The editor and the CLI follow it, so the same files give the same diagnostics an
 
 ```
 my-game/
-  project.json              id, name, version, and the kits it uses (M3.3)
+  project.json              id, name, version, the kits it uses (M3.3) and the time kit's calendar (M3.5)
   records/<type>/<id>.json  one record per file; records/flag/ and records/sheet/ are the engine's (M3.1)
   types/<type>.json         the project's own record types, as fields (M2.4)
   assets/                   files that asset fields name (M2.4; M2.7 imports them)
@@ -40,8 +40,9 @@ my-game/
 | `name` | text, not empty |
 | `version` | a semantic version, `MAJOR.MINOR.PATCH` with an optional pre-release (`1.2.0-beta.1`) |
 | `kits` | optional (M3.3): a list of kit ids, each once, such as `["inventory", "economy"]`. A kit the engine doesn't have, or one listed twice, is E033; one whose need is left out, E034. Neither stops `project.json` being read: that kit is off ([kits.md](kits.md)). |
+| `calendar` | optional (M3.5): the time kit's calendar ([time.md](time.md#the-time-kit)), its `ticksPerDay` 1 when left out. It is checked apart from the rest: a shape or sense it lacks is E038, at the field, and one the time kit isn't on to read is W116. Neither stops `project.json` being read; the kit then keeps a day a tick. |
 
-The object is strict, so an unknown field is an error (E008). `kits` came without a new format: a project without it reads as before, though an engine from before M3.3 refuses one with it.
+The object is strict, so an unknown field is an error (E008). `kits` and `calendar` came without a new format: a project without them reads as before, though an engine from before M3.3 refuses one with `kits`, and one from before M3.5 one with `calendar`.
 
 **Format numbers.** `PROJECT_FORMAT` is 1, and it follows the same rule as `SAVE_VERSION`:
 
@@ -145,7 +146,7 @@ Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](typ
 ```
 
 - **Format 2** (M3.2) adds `"scripts": { "<id>": "<JavaScript>" }`: game.ts and every script it reaches, compiled by sucrase. A pack without scripts is still format 1, so its hash and its bytes are what they were, and an older engine reads it.
-- **Format 3** (M3.3) adds `project.kits`, the kits the project lists in the engine's order, with `scripts` or without. A pack is written in the lowest format that holds it, so one whose project lists no kits keeps its format 1 or 2, and its hash.
+- **Format 3** (M3.3) adds `project.kits`, the kits the project lists in the engine's order, with `scripts` or without; since M3.5, `project.calendar` too, with the time kit on and a calendar in `project.json`. A pack is written in the lowest format that holds it, so one whose project lists no kits keeps its format 1 or 2, and its hash.
 - **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`, with `scripts` beside them in format 2. That is `stateHash` ([state-hash.md](state-hash.md)).
   - The same content gives the same hash in the editor and in the CLI, whatever the files' formatting, key order or listing order.
   - It is a fingerprint, not a signature.
@@ -157,7 +158,7 @@ Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](typ
 
 - the format is 1, 2 or 3, and a newer format asks for a newer engine;
 - the pack has exactly `format`, `project`, `records` and `hash`, and `scripts` in format 2, and in format 3 when there are any: at least one, each a valid id with its JavaScript as text;
-- the project has exactly a valid `id`, a `name` and a `version`, and in format 3 `kits`, at least one, each a valid id;
+- the project has exactly a valid `id`, a `name` and a `version`, and in format 3 `kits`, at least one, each a valid id, and perhaps a `calendar`, only beside the time kit and only one `calendarOf` takes;
 - `records` maps valid type names to objects keyed by valid ids;
 - the hash matches the content.
 

@@ -42,6 +42,17 @@ describe('a standing', () => {
     expect(() => apply(state, change('traders', 1.5))).toThrow('change-standing: "by" is a whole number');
   });
 
+  it('holds nothing at a start its bounds set, and reads a saved standing within bounds content has moved', () => {
+    const bounded = embassyWith({ faction: { up: { min: 3 } } });
+    const moved = bounded.apply(bounded.start(), change('up', 4));
+    expect(slice(moved)).toEqual({ standing: { up: 7 } });
+    // Back at 3, where its bounds start it with no start of its own: the slice holds nothing for it.
+    expect(slice(bounded.apply(moved, change('up', -4)))).toEqual({ standing: {} });
+    // A content update that lowers its highest reaches the save: 7 reads as the new bound.
+    const lowered = embassyWith({ faction: { up: { min: 3, max: 5 } } });
+    expect(lowered.fact(moved, 'factions.standing', { faction: 'up' })).toBe(5);
+  });
+
   it('says only a change within its band, when the band holds', () => {
     const moved = attempt(start(), change('raiders', 5));
     expect(moved.beats.filter((b) => b.type.startsWith('factions/'))).toEqual([
@@ -121,6 +132,13 @@ describe('drift', () => {
     const after = later(resting, 24);
     expect(standing(after.state, 'raiders')).toBe(0);
     expect(after.beats.some((b) => b.type === 'factions/standing-changed')).toBe(false);
+  });
+
+  it('moves the factions that drift on a day in id order', () => {
+    const pair = embassyWith({ faction: { zeta: { drift: { every: 1 } }, alpha: { drift: { every: 1 } } } });
+    const day = pair.wait(pair.apply(pair.start(), change('zeta', 3), change('alpha', 3)), 1);
+    const moved = day.beats.filter((b) => b.type === 'factions/standing-changed').map((b) => b.faction);
+    expect(moved).toEqual(['alpha', 'zeta']);
   });
 
   it('rests at the start when it says no other value, kept within the bounds', () => {

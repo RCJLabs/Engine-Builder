@@ -104,6 +104,16 @@ describe('calendarChange (M3.5)', () => {
     expect(read(change).calendar).toEqual({ ticksPerDay: 24 });
   });
 
+  it('hands the change the calendar there, which keeps its place', async () => {
+    const timed = '{\n  "format": 1,\n  "calendar": { "ticksPerDay": 24 },\n  "kits": ["time"]\n}\n';
+    const change = await calendarChange(memorySource({ 'project.json': timed }), (calendar) => ({
+      ...(calendar as object),
+      daysPerYear: 360,
+    }));
+    expect(read(change)).toEqual({ format: 1, calendar: { ticksPerDay: 24, daysPerYear: 360 }, kits: ['time'] });
+    expect(Object.keys(read(change))).toEqual(['format', 'calendar', 'kits']);
+  });
+
   it('takes out a list left empty, and the calendar once nothing is left in it', () => {
     const manifest = { format: 1, calendar: { weekdays: ['sun'], ticksPerDay: 24 }, kits: ['time'] };
     expect(withCalendar(manifest, { weekdays: [], ticksPerDay: 24 })).toEqual({
