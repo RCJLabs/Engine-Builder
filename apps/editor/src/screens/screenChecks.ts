@@ -1,5 +1,5 @@
 /**
- * The screens' problems in the editor (M4.1, D51): the files under ui/ read and checked as
+ * The screens' problems in the editor (M4.1, D51), the feedback's with them (M4.2): the files under ui/ read and checked as
  * compileProject checks them (checkProjectUi), against the game once its scripts have run, each
  * at its line in its file. Read again after every change, once the record index is, since a
  * screen's facts can name records.
@@ -24,7 +24,7 @@ export async function screenProblems(
   index: RecordIndex,
   game: GameState,
 ): Promise<Diagnostic[]> {
-  if (catalog.screens.length === 0 && !catalog.theme) return [];
+  if (catalog.screens.length === 0 && !catalog.theme && !catalog.feedback) return [];
   const read = await readUi(source);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
   const known = knownFrom({ ...gameChecks(game), kits: catalog.kits, ...calendar });
@@ -32,7 +32,7 @@ export async function screenProblems(
     facts: known.facts,
     openFacts: known.openFacts,
     kits: catalog.kits,
-    ...(game.catalog ? { actions: game.catalog.actions, modes: game.catalog.modes } : {}),
+    ...(game.catalog ? { actions: game.catalog.actions, modes: game.catalog.modes, events: game.catalog.events } : {}),
     records: lookup(index),
     assets: new Set(catalog.assets),
   });

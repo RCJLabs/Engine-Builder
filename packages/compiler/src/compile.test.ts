@@ -478,7 +478,8 @@ describe('the code table', () => {
       'records/flag/paid.json': '{}',
     });
     // M4.1: a screen with a misspelt field, one that reads a fact and takes an action the game
-    // lacks, a theme short of contrast, a note under ui/, and a mode no screen shows.
+    // lacks, a theme short of contrast, a note under ui/, and a mode no screen shows. M4.2: a
+    // screen nothing closes, and feedback on an event the game lacks and an argument one lacks.
     const screened = await kitted(
       ['dialogue'],
       {
@@ -498,9 +499,21 @@ describe('the code table', () => {
           },
         }),
         'ui/notes.md': '',
+        'ui/map.json': JSON.stringify({ main: { widget: 'text', text: 'Map' } }),
+        'ui/feedback.json': JSON.stringify({
+          lines: [
+            { on: 'hold/burned', say: 'Gone' },
+            { on: 'hold/looted', say: '{.count} looted' },
+          ],
+        }),
       },
       {},
-      { facts: ENGINE_FACTS, actions: ['hold/loot'], modes: ['play', 'talking'] },
+      {
+        facts: ENGINE_FACTS,
+        actions: ['hold/loot'],
+        modes: ['play', 'talking'],
+        events: { 'hold/looted': { args: { item: { type: 'text' } } } },
+      },
     );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened];

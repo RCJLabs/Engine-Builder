@@ -24,8 +24,9 @@ const brief = (result: Awaited<ReturnType<typeof compile>>) =>
   result.diagnostics.map(({ code, file, path, message }) => ({ code, file, path, message }));
 
 describe('classifyUi', () => {
-  it('reads ui/theme.json as the theme and ui/<id>.json as a screen', () => {
+  it('reads ui/theme.json as the theme, ui/feedback.json as the feedback and ui/<id>.json as a screen', () => {
     expect(classifyUi('ui/theme.json')).toEqual({ kind: 'theme' });
+    expect(classifyUi('ui/feedback.json')).toEqual({ kind: 'feedback' });
     expect(classifyUi('ui/hud.json')).toEqual({ kind: 'screen', id: 'hud' });
     expect(classifyUi('ui/store-front.json')).toEqual({ kind: 'screen', id: 'store-front' });
   });
@@ -40,7 +41,11 @@ describe('classifyUi', () => {
 describe('compiling ui/', () => {
   it('packs the screens, sorted, and the theme as format 4', async () => {
     const result = await compile({
-      'ui/store.json': JSON.stringify({ main: { widget: 'text', text: 'Store' }, modal: true }),
+      'ui/store.json': JSON.stringify({
+        main: { widget: 'text', text: 'Store' },
+        bottom: { widget: 'button', label: 'Close', action: { close: true } },
+        modal: true,
+      }),
       'ui/hud.json': JSON.stringify(hud),
       'ui/theme.json': JSON.stringify(DEFAULT_THEME),
     });
@@ -51,6 +56,38 @@ describe('compiling ui/', () => {
     expect(pack.ui?.screens.hud).toEqual(hud);
     expect(pack.ui?.theme).toEqual(DEFAULT_THEME);
     expect(pack.project.kits).toEqual(['time']);
+  });
+
+  it('packs the feedback as format 5, with the screens or without, and checks it against the game (M4.2)', async () => {
+    const feedback = { lines: [{ on: 'time/passed', say: 'Time passes', to: 'log' }] };
+    const events = { 'time/passed': { args: { from: { type: 'int' as const }, to: { type: 'int' as const } } } };
+    const result = await compile(
+      { 'ui/hud.json': JSON.stringify(hud), 'ui/feedback.json': JSON.stringify(feedback) },
+      {
+        events,
+      },
+    );
+    expect(brief(result)).toEqual([]);
+    const pack = readPack(JSON.parse(JSON.stringify(result.pack)));
+    expect(pack.format).toBe(5);
+    expect(pack.ui).toEqual({ screens: { hud }, feedback });
+    const alone = await compile({ 'ui/feedback.json': JSON.stringify(feedback) }, { events });
+    expect(alone.pack?.format).toBe(5);
+    expect(alone.pack?.ui).toEqual({ screens: {}, feedback });
+    // Lines that say nothing leave the pack as it was.
+    const silent = await compile({ 'ui/hud.json': JSON.stringify(hud), 'ui/feedback.json': '{ "lines": [] }' });
+    expect(silent.pack?.format).toBe(4);
+    const wrong = await compile(
+      { 'ui/feedback.json': JSON.stringify({ lines: [{ on: 'time/ran', say: 'x' }] }) },
+      {
+        events,
+      },
+    );
+    expect(brief(wrong)).toEqual([
+      { code: 'E051', file: 'ui/feedback.json', path: '/lines/0/on', message: 'The game declares no event "time/ran"' },
+    ]);
+    expect(wrong.diagnostics[0]).toMatchObject({ line: 1 });
+    expect(wrong.pack).toBeNull();
   });
 
   it('leaves a project without screens in the format it had, a theme alone included', async () => {
@@ -101,6 +138,7 @@ describe('compiling ui/', () => {
     const files = {
       'records/resource/coins.json': '{}',
       'ui/hud.json': JSON.stringify({
+        shows: ['hut'],
         main: {
           widget: 'stack',
           children: [
@@ -124,6 +162,7 @@ describe('compiling ui/', () => {
         assets: { 'hut.png': { source: 'made', licence: 'CC0-1.0', author: 'Evan' } },
       }),
       'ui/hud.json': JSON.stringify({
+        shows: ['hut'],
         main: {
           widget: 'stack',
           children: [

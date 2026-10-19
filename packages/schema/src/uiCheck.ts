@@ -1,11 +1,19 @@
 /**
  * A game's screens and theme checked (M4.1, D51, docs/specs/screens.md#checks): their shape (E047),
  * what their templates and shows-when read (E048), what their buttons, lists and shows ask of the
- * game (E049), the theme's contrast (E050) and the modes no screen shows (W133). A game's actions
- * and modes are known only once its scripts have run: without them, take, shows and W133 go
- * unchecked, as W120 does without the time module.
+ * game (E049), the theme's contrast (E050), the modes no screen shows (W133) and screens nothing
+ * closes (W134, uiLints.ts); and the feedback, feedbackCheck.ts's. A game's actions, modes and
+ * events are known only once its scripts have run: without them, take, shows, W133 and the
+ * feedback's events go unchecked, as W120 does without the time module.
  */
-import { checkCondition, type FactCatalog, parseCondition, pointerSegment, type RecordIndex } from '@eb/core';
+import {
+  checkCondition,
+  type EventCatalog,
+  type FactCatalog,
+  parseCondition,
+  pointerSegment,
+  type RecordIndex,
+} from '@eb/core';
 import {
   AA_BODY,
   CONTRAST_PAIRS,
@@ -21,7 +29,9 @@ import {
   type Widget,
 } from '@eb/ui/format';
 import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
+import { checkFeedback } from './feedbackCheck.ts';
 import { schemaIssues } from './issues.ts';
+import { unclosable, unshownModes } from './uiLints.ts';
 import { screenSchema, themeSchema } from './uiSchema.ts';
 
 /** A file under ui/, read as JSON. */
@@ -42,6 +52,8 @@ export interface UiCheckOptions {
   readonly actions?: readonly string[];
   /** The game's modes, its kits' among them. */
   readonly modes?: readonly string[];
+  /** The events the game declares, which feedback lines are on (M4.2). */
+  readonly events?: EventCatalog;
   /** The records, for facts' arguments that name one. */
   readonly records?: RecordIndex;
   /** The files under assets/, for images. */
@@ -57,11 +69,15 @@ interface Place {
 
 type Report = (code: DiagnosticCode, file: string, path: string, message: string) => void;
 
-/** Every problem with the screens, by id, and the theme. Sorted, and the same whatever order the screens came in. */
+/**
+ * Every problem with the screens, by id, the theme and the feedback. Sorted, and the same whatever
+ * order the screens came in.
+ */
 export function checkUi(
   screens: ReadonlyMap<string, UiFile>,
   theme: UiFile | undefined,
   options: UiCheckOptions,
+  feedback?: UiFile,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const report: Report = (code, file, path, message) =>
@@ -73,8 +89,15 @@ export function checkUi(
     for (const issue of issues) report('E047', file, issue.path, issue.message);
     if (issues.length === 0) sound.set(id, value as Screen);
   }
-  for (const [id, screen] of sound) checkScreen(screen, (screens.get(id) as UiFile).file, screens, options, report);
+  for (const [id, screen] of sound) {
+    const { file } = screens.get(id) as UiFile;
+    checkScreen(screen, file, screens, options, report);
+    unclosable(screen, file, diagnostics);
+  }
   if (theme !== undefined && !theme.unreadable) checkTheme(theme, report);
+  if (feedback !== undefined && !feedback.unreadable) {
+    diagnostics.push(...checkFeedback(feedback.file, feedback.value, options.events, options.records));
+  }
   if (options.modes !== undefined && screens.size > 0) unshownModes(screens, options.modes, diagnostics);
   return diagnostics.sort(compareDiagnostics);
 }
@@ -136,6 +159,10 @@ function templateFields(widget: Widget): readonly (readonly [string, string])[] 
       return widget.empty === undefined ? [] : [['/empty', widget.empty]];
     case 'tabs':
       return widget.tabs.map((tab, t) => [`/tabs/${t}/label`, tab.label] as const);
+    case 'log': {
+      const fields = (['label', 'empty'] as const).filter((key) => widget[key] !== undefined);
+      return fields.map((key) => [`/${key}`, widget[key] as string] as const);
+    }
     default:
       return [];
   }
@@ -268,26 +295,5 @@ function checkTheme(theme: UiFile, report: Report): void {
         `${fore} on ${back} is ${(Math.floor(ratio * 100) / 100).toFixed(2)}:1; body text needs ${AA_BODY}:1`,
       );
     }
-  }
-}
-
-/**
- * W133: a mode the game has that no screen shows, so it plays with the fallback. A screen with
- * problems of its own still counts for the modes it names, so its E047 isn't joined by a W133.
- */
-function unshownModes(screens: ReadonlyMap<string, UiFile>, modes: readonly string[], out: Diagnostic[]): void {
-  const shows = ({ value }: UiFile) => {
-    const named = typeof value === 'object' && value !== null ? (value as { shows?: unknown }).shows : undefined;
-    return Array.isArray(named) ? named.filter((mode): mode is string => typeof mode === 'string') : [];
-  };
-  const shown = new Set([...screens.values()].flatMap(shows));
-  for (const mode of modes) {
-    if (shown.has(mode)) continue;
-    out.push({
-      code: 'W133',
-      severity: 'warning',
-      message: `No screen shows the mode "${mode}": it plays with the fallback, a list of the actions on offer`,
-      path: '',
-    });
   }
 }

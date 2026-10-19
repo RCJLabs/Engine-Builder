@@ -1,4 +1,5 @@
 export { templatesOf, type Wants, wantsOf, widgetsOf } from './bindings.ts';
+export { FEEDBACK_TO, type Feedback, type FeedbackLine, type FeedbackTo, LOG_KEPT, type Said } from './feedback.ts';
 export {
   type Action,
   ALIGNS,
@@ -9,6 +10,8 @@ export {
   DIRECTIONS,
   JUSTIFIES,
   type Layout,
+  LOG_LINES,
+  LOG_LINES_MAX,
   REGIONS,
   type Region,
   type Screen,

@@ -110,7 +110,9 @@ export type Widget =
   | (Base & {
       readonly widget: 'tabs';
       readonly tabs: readonly { readonly label: string; readonly children: readonly Widget[] }[];
-    });
+    })
+  /** The lines feedback said to the log, newest first (M4.2, docs/specs/input.md#the-log). */
+  | (Base & { readonly widget: 'log'; readonly lines?: number; readonly label?: string; readonly empty?: string });
 
 export type WidgetKind = Widget['widget'];
 export const WIDGETS: readonly WidgetKind[] = [
@@ -123,7 +125,12 @@ export const WIDGETS: readonly WidgetKind[] = [
   'progress',
   'list',
   'tabs',
+  'log',
 ];
+
+/** How many lines a log widget shows unless it says, and the most it may. */
+export const LOG_LINES = 10;
+export const LOG_LINES_MAX = 100;
 
 export const REGIONS = ['top', 'main', 'bottom'] as const;
 export type Region = (typeof REGIONS)[number];

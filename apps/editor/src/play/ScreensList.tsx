@@ -1,15 +1,16 @@
 /**
- * The Play panel's screens (M4.1, D51): each screen under ui/ and the theme, opening in the
- * inspector as JSON with their problems counted, New screen, and New theme while there is none.
+ * The Play panel's screens (M4.1, D51): each screen under ui/, the theme and the feedback (M4.2),
+ * opening in the inspector as JSON with their problems counted, New screen, and New theme and New
+ * feedback while there is none.
  */
-import { screenPath, THEME_FILE } from '@eb/compiler';
+import { FEEDBACK_FILE, screenPath, THEME_FILE } from '@eb/compiler';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { openUiFile } from '../screens/open.ts';
-import { screenTemplate, themeTemplate } from '../screens/templates.ts';
+import { feedbackTemplate, screenTemplate, themeTemplate } from '../screens/templates.ts';
 import { createTextFiles } from '../scripts/scriptEdits.ts';
 
 const count = (n: number) => `${n} ${n === 1 ? 'problem' : 'problems'}`;
@@ -28,6 +29,7 @@ export function ScreensList({ project }: { project: OpenProject }) {
   const files = [
     ...catalog.screens.map((id) => ({ path: screenPath(id), title: id })),
     ...(catalog.theme ? [{ path: THEME_FILE, title: 'Theme' }] : []),
+    ...(catalog.feedback ? [{ path: FEEDBACK_FILE, title: 'Feedback' }] : []),
   ];
   return (
     <section class="logic-section" aria-labelledby={heading}>
@@ -43,14 +45,23 @@ export function ScreensList({ project }: { project: OpenProject }) {
                 New theme
               </button>
             )}
+            {catalog.feedback ? null : (
+              <button
+                type="button"
+                class="button"
+                onClick={() => create(FEEDBACK_FILE, feedbackTemplate(catalog.kits), 'New feedback')}
+              >
+                New feedback
+              </button>
+            )}
           </div>
         ) : null}
       </div>
       {naming ? (
         <NameRecord
           type="screen"
-          // ui/theme.json is the theme, so no screen can be named that.
-          ids={[...catalog.screens, 'theme']}
+          // ui/theme.json is the theme and ui/feedback.json the feedback, so no screen can be named either.
+          ids={[...catalog.screens, 'theme', 'feedback']}
           label="Name of the new screen"
           action="Create"
           fileOf={screenPath}

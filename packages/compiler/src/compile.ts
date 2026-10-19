@@ -46,7 +46,8 @@ export interface CompileOptions extends Omit<ValidateOptions, 'assets'> {
  * catalog, for checking the conditions in records. Scripts are checked without being run, and
  * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
  * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
- * The screens under ui/ are checked against the game and packed as they are (M4.1).
+ * The screens under ui/ are checked against the game and packed as they are (M4.1), the feedback
+ * with them (M4.2).
  */
 export async function compileProject(
   source: ProjectSource,
@@ -82,6 +83,7 @@ export async function compileProject(
       kits: files.kits,
       ...(actions !== undefined ? { actions } : {}),
       ...(modes !== undefined ? { modes } : {}),
+      ...(validate.events !== undefined ? { events: validate.events } : {}),
       records: indexOf(records),
       assets: files.assets,
     }),
