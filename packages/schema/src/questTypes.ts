@@ -21,7 +21,7 @@ const OBJECTIVE: FieldDef = {
   kind: 'group',
   fields: {
     id: { kind: 'text', min: 1, label: 'Id', description: `What conditions call it: ${ID_WORDS}` },
-    text: { kind: 'text', min: 1, label: 'Text', description: 'What the journal shows: “Pay the broker 30 credits”' },
+    text: { kind: 'text', min: 1, label: 'Text', description: 'What the journal shows: “Pay the miner 30 credits”' },
     'done-when': {
       kind: 'condition',
       optional: true,

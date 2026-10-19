@@ -224,6 +224,26 @@ function eventEffectText(effect: Record<string, unknown>): string | undefined {
     case 'open-talk':
       return `open the talk ${named(effect.talk, 'a talk')}`;
     default:
+      return questEffectText(effect);
+  }
+}
+
+/** The quests kit's effects (M3.9): "start the quest debt", "move debt to its stage square", "fail the quest debt". */
+function questEffectText(effect: Record<string, unknown>): string | undefined {
+  const quest = named(effect.quest, 'a quest');
+  const text = (value: unknown) => (typeof value === 'string' && value !== '' ? value : undefined);
+  switch (effect.effect) {
+    case 'start-quest':
+      return `start the quest ${quest}`;
+    case 'set-stage': {
+      const stage = text(effect.stage);
+      return stage ? `move ${quest} to its stage ${stage}` : `move ${quest} to a stage not yet chosen`;
+    }
+    case 'fail-quest': {
+      const why = text(effect.why);
+      return why ? `fail the quest ${quest}: ${why}` : `fail the quest ${quest}`;
+    }
+    default:
       return undefined;
   }
 }

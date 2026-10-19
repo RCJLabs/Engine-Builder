@@ -44,7 +44,7 @@ async function addOption(line: Locator, n: number, id: string, label: string): P
 /** The map's row under `title`. The heading it has is found within each row, so it starts from the page. */
 function mapRow(talk: Locator, title: string): Locator {
   const map = talk.getByRole('region', { name: 'Map of the talk' });
-  return map.locator('.talk-map-row', { has: talk.page().getByRole('heading', { name: title, exact: true }) });
+  return map.locator('.kit-map-row', { has: talk.page().getByRole('heading', { name: title, exact: true }) });
 }
 
 /** Hello: gas money that costs, a send at 60 to 40 (30 until fixed), and a goodbye. */

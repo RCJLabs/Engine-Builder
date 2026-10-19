@@ -9,6 +9,8 @@ import {
   GEAR,
   ITEM,
   LOOT_TABLE,
+  QUEST,
+  QUESTS,
   RECRUIT,
   ROSTER,
   ROSTER_RECORD,
@@ -93,6 +95,14 @@ export const eventRelated = (record: IndexedRecord | undefined): boolean =>
 export const talkRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === TALK || record.refs.some((ref) => ref.to.startsWith(`${TALK}:`)));
 
+/**
+ * A quest, or a record that names one (M3.9): a condition naming a stage or an objective is checked
+ * against its quest (E043), and a quest is warned of when nothing starts it (W125) or brings it to a
+ * stage (W124), so a change to a quest, or to what names one, checks them all again.
+ */
+export const questRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === QUEST || record.refs.some((ref) => ref.to.startsWith(`${QUEST}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -103,4 +113,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(ROSTER) ? [rosterRelated, recruitRelated] : []),
   ...(kits.includes(EVENTS) ? [eventRelated] : []),
   ...(kits.includes(DIALOGUE) ? [talkRelated] : []),
+  ...(kits.includes(QUESTS) ? [questRelated] : []),
 ];
