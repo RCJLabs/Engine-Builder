@@ -14,6 +14,8 @@ export {
   type FactView,
   type InitContext,
   type Listener,
+  type MadeSpec,
+  type MadeView,
   type ModeControl,
   type ModeDef,
   type Module,

@@ -1,10 +1,11 @@
 import { evaluate } from '../logic/evaluate.ts';
 import type { Condition, Truth } from '../logic/types.ts';
 import { domainProblem } from '../logic/values.ts';
-import { isRecordId } from '../records.ts';
+import { isRecordId, type RecordStore } from '../records.ts';
 import { Rng } from '../rng.ts';
 import { eventDataProblem } from './events.ts';
 import { cloneJson, freezeJson } from './json.ts';
+import { withMade } from './made.ts';
 import type { FactArgs, ModeControl, ModuleContext, OptionsView, PreviewContext } from './module.ts';
 import { Attempts, Refusal } from './refusal.ts';
 import { type EffectEntry, KERNEL, type Registry } from './registry.ts';
@@ -24,7 +25,8 @@ export class Transaction {
   readonly beats: Beat[] = [];
   private readonly registry: Registry;
   private readonly state: GameState;
-  private readonly sim: SimContext;
+  /** The pack's records with those modules make in play beside them, read through the drafts (D44). */
+  private readonly content: RecordStore;
   private readonly drafts = new Map<string, unknown>();
   private readonly streams = new Map<string, Rng>();
   private modes: readonly ModeFrame[] | undefined;
@@ -43,7 +45,7 @@ export class Transaction {
   ) {
     this.registry = registry;
     this.state = state;
-    this.sim = sim;
+    this.content = withMade(sim.content, registry.makers, (module) => this.read(module));
     this.attempts = new Attempts(skipped);
   }
 
@@ -51,7 +53,7 @@ export class Transaction {
     return {
       module,
       step: this.state.kernel.step + 1,
-      content: this.sim.content,
+      content: this.content,
       read: () => this.read(module),
       write: () => this.write(module),
       fact: (id, args) => this.fact(id, args),
@@ -75,12 +77,12 @@ export class Transaction {
     const fact = this.registry.facts.get(id);
     if (!fact) throw new Error(`Unknown fact "${id}"`);
     const value = fact.read(
-      { state: this.read(fact.module), content: this.sim.content, fact: (i, a) => this.fact(i, a) },
+      { state: this.read(fact.module), content: this.content, fact: (i, a) => this.fact(i, a) },
       args,
     );
     // The lint trusts a fact's domain, so an answer outside it is a bug in the module.
     const { domain } = fact.info;
-    const problem = domain && value !== undefined && value !== null && domainProblem(value, domain, this.sim.content);
+    const problem = domain && value !== undefined && value !== null && domainProblem(value, domain, this.content);
     if (problem) throw new Error(`Fact "${id}" answered ${shown(value)}, outside its domain: ${problem}`);
     return value;
   }
@@ -124,8 +126,11 @@ export class Transaction {
     }
   }
 
-  /** The new state: unchanged slices are shared, and everything new is checked as JSON and frozen. */
-  commit(): GameState {
+  /**
+   * The new state: unchanged slices are shared, and everything new is checked as JSON and frozen.
+   * An action counts as a step; the work modules do as the game starts doesn't (`step` 0).
+   */
+  commit(step = this.state.kernel.step + 1): GameState {
     const next: Record<string, unknown> = { ...this.state };
     for (const [module, draft] of this.drafts) {
       freezeJson(draft, `/${module}`);
@@ -134,7 +139,7 @@ export class Transaction {
     const { kernel } = this.state;
     const streams = { ...kernel.streams };
     for (const [label, rng] of this.streams) streams[label] = rng.toState();
-    const nextKernel = { ...kernel, step: kernel.step + 1, modes: this.modes ?? kernel.modes, streams };
+    const nextKernel = { ...kernel, step, modes: this.modes ?? kernel.modes, streams };
     freezeJson(nextKernel, `/${KERNEL}`);
     next[KERNEL] = nextKernel;
     return Object.freeze(next) as GameState;
@@ -144,7 +149,7 @@ export class Transaction {
   optionsView(module: string): OptionsView<unknown> {
     return {
       state: this.read(module),
-      content: this.sim.content,
+      content: this.content,
       mode: this.state.kernel.modes[this.state.kernel.modes.length - 1] as ModeFrame,
       fact: (id, args) => this.fact(id, args),
       check: (condition) => this.check(condition),
@@ -154,7 +159,7 @@ export class Transaction {
   private previewContext(module: string): PreviewContext<unknown> {
     return {
       module,
-      content: this.sim.content,
+      content: this.content,
       read: () => this.read(module),
       fact: (id, args) => this.fact(id, args),
       check: (condition) => this.check(condition),
@@ -197,7 +202,7 @@ export class Transaction {
   private emit(type: string, data: Readonly<Record<string, unknown>> = {}): void {
     const event = this.registry.events.get(type);
     // Rows match on an event's arguments, so a wrong one is a bug in the module that raised it.
-    const problem = event && eventDataProblem(event.info, data, this.sim.content);
+    const problem = event && eventDataProblem(event.info, data, this.content);
     if (problem) throw new Error(`Event "${type}": ${problem}`);
     const beat = { ...data, type };
     freezeJson(beat, `(beat ${type})`);
