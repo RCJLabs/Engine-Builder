@@ -9,6 +9,7 @@ import {
   type RecordIndex,
   SHEET,
 } from '@eb/core';
+import { QUEST, QUESTS, type QuestRecord } from '@eb/kits';
 import type { z } from 'zod';
 import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
@@ -17,6 +18,7 @@ import { FlagChecks } from './flagCheck.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
 import { knownFrom } from './known.ts';
+import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
 
@@ -151,12 +153,12 @@ export function validateRecords(
       },
     };
     const sound = checkPart(recordType.schema, record.value, '', ctx);
-    if (record.type === SHEET) {
-      const heard = (type: string, id: string) => {
-        if (type === FLAG) flags.heard(id, from);
-      };
-      checkSheet(record.value, { ...ctx, heard });
-    }
+    const heard = (type: string, id: string) => {
+      if (type === FLAG) flags.heard(id, from);
+    };
+    if (record.type === SHEET) checkSheet(record.value, { ...ctx, heard });
+    if (sound && record.type === QUEST && on.includes(QUESTS))
+      checkCounts(record.value as QuestRecord, { ...ctx, heard });
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);

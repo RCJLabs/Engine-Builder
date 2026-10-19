@@ -3,7 +3,7 @@
  * numbers or entries don't hold together, E036 for loot tables nested in a loop, and W113 for a
  * shop that stocks again in a game without days. Each record is checked as it comes; what needs
  * every loot table waits for finish(). The stats, factions, roster, events and dialogue kits' are
- * in their own files.
+ * in their own files, as are the quests kit's.
  */
 import type { Effect } from '@eb/core';
 import {
@@ -13,6 +13,7 @@ import {
   LOOT_TABLE,
   type LootEntry,
   type LootTableRecord,
+  QUESTS,
   type Range,
   RESOURCE,
   type ResourceRecord,
@@ -28,6 +29,7 @@ import { EventChecks } from './eventCheck.ts';
 import { FactionChecks } from './factionCheck.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
+import { QuestChecks } from './questCheck.ts';
 import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
 
@@ -95,6 +97,7 @@ export class KitChecks {
   private readonly roster: RosterChecks | undefined;
   private readonly events: EventChecks | undefined;
   private readonly dialogue: DialogueChecks | undefined;
+  private readonly quests: QuestChecks | undefined;
 
   constructor(on: readonly string[], known: Known) {
     this.on = on;
@@ -104,6 +107,7 @@ export class KitChecks {
     this.roster = on.includes(ROSTER) ? new RosterChecks(on) : undefined;
     this.events = on.includes(EVENTS) ? new EventChecks(on, known) : undefined;
     this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on) : undefined;
+    this.quests = on.includes(QUESTS) ? new QuestChecks(known) : undefined;
   }
 
   /** One record that passed its type's schema. */
@@ -115,6 +119,7 @@ export class KitChecks {
     this.stats.record(type, id, value, report);
     this.factions.record(type, id, value, report);
     this.dialogue?.record(type, id, value, report);
+    this.quests?.record(type, id, value, report);
     if (type === LOOT_TABLE) {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
@@ -134,12 +139,13 @@ export class KitChecks {
     }
   }
 
-  /** A record's sound condition, for the bands, ranks, choices, lines and options it names (E039 to E042). */
+  /** A record's sound condition, for the bands, ranks, choices, lines, options, stages and objectives it names (E039 to E043). */
   condition(report: Report, sound: SoundCondition): void {
     this.factions.condition(report, sound);
     this.roster?.condition(report, sound);
     this.events?.condition(report, sound);
     this.dialogue?.condition(report, sound);
+    this.quests?.condition(report, sound);
   }
 
   /** The flags a kit's record reads as the game runs (W108, W109): the roster's cap-flag. */
@@ -157,6 +163,7 @@ export class KitChecks {
     this.roster?.effect(report, path, effect);
     this.events?.effect(report, path, effect);
     this.dialogue?.effect(effect);
+    this.quests?.effect(report, path, effect);
   }
 
   /** What needs every loot table: loops (E036), and stock tables that give a resource (E035). */
@@ -167,6 +174,7 @@ export class KitChecks {
     this.roster?.finish();
     this.events?.finish();
     this.dialogue?.finish();
+    this.quests?.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

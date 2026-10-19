@@ -405,8 +405,37 @@ describe('the code table', () => {
         ],
       }),
     });
+    // M3.9: a quest nothing starts, two stages it can't end from, one nothing brings it to, and a
+    // row naming a stage the quest lacks.
+    const goal = (next: string) => ({
+      id: next === 'round' ? 'pay' : 'back',
+      text: 'Go',
+      'done-when': 'flag.on(paid)',
+      next,
+    });
+    const quested = await kitted(['quests'], {
+      'records/quest/debt.json': JSON.stringify({
+        name: 'Debt',
+        stages: [
+          { id: 'owed', objectives: [goal('round')] },
+          { id: 'round', objectives: [goal('owed')] },
+          { id: 'lost' },
+        ],
+      }),
+      'records/sheet/watch.json': JSON.stringify({
+        rows: [
+          {
+            id: 'a',
+            when: { event: 'quests/done' },
+            if: 'quests.reached(quest: debt, stage: hunted)',
+            do: [{ effect: 'set-flag', flag: 'paid', to: true }],
+          },
+        ],
+      }),
+      'records/flag/paid.json': '{}',
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked];
+    const late = [timed, drifting, rostered, evented, talked, quested];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E004 needs two files with one key, which a folder can't hold; validation's tests cover it.
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

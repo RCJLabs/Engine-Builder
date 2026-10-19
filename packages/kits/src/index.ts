@@ -98,6 +98,15 @@ export {
 export { KIT_IDS, KITS, type Kit, type KitProblem, kitsOn } from './kits.ts';
 export { type Drawn, draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from './loot/draw.ts';
 export { kitModules } from './modules.ts';
+export {
+  canBeDone,
+  canEnd,
+  endingStages,
+  type Lead,
+  leadsByStage,
+  leadsFrom as questLeadsFrom,
+  stepsFrom as questStepsFrom,
+} from './quests/graph.ts';
 export { type ObjectiveShown, type QuestShown, questShown } from './quests/journal.ts';
 export { questsModule } from './quests/module.ts';
 export { namedObjective, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';

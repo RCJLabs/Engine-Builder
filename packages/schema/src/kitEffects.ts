@@ -29,6 +29,7 @@ import { z } from 'zod';
 import { DIALOGUE_EFFECT_FILES } from './dialogueEffects.ts';
 import { named } from './effect.ts';
 import { EVENT_EFFECT_FILES } from './eventEffects.ts';
+import { QUEST_EFFECT_FILES } from './questEffects.ts';
 import { timeEffectFiles, timeEffectSchemas } from './timeEffects.ts';
 import type { Fields } from './typeFile.ts';
 import { fieldShape } from './typeSchema.ts';
@@ -244,6 +245,7 @@ const FILES: EffectFile[] = [
   },
   ...EVENT_EFFECT_FILES,
   ...DIALOGUE_EFFECT_FILES,
+  ...QUEST_EFFECT_FILES,
 ];
 
 export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);

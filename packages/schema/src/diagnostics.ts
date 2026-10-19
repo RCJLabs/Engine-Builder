@@ -25,8 +25,8 @@ export const DIAGNOSTIC_CODES = {
   E019: 'A file under assets/ has no provenance in assets/assets.json',
   E020: "An asset's licence isn't one the engine accepts, or what it asks for isn't logged",
   E021: "assets/assets.json doesn't match the provenance log's format",
-  E022: 'A row names an event the game does not have',
-  E023: "A row's event arguments are unknown, or not among the argument's values",
+  E022: 'A row or a count names an event the game does not have',
+  E023: "A row's or a count's event arguments are unknown, or not among the argument's values",
   E024: 'Two rows of a sheet have the same id',
   E025: 'An effect the game does not have',
   E026: 'A flag is set or read as the other kind, or set outside its bounds',
@@ -46,6 +46,7 @@ export const DIAGNOSTIC_CODES = {
   E040: 'A condition names a rank, a bond band or a bond the roster does not have',
   E041: 'A condition names a choice its event does not have',
   E042: 'A condition names a line or an option its talk does not have',
+  E043: 'A condition or a set-stage names a stage or an objective its quest does not have',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -65,10 +66,13 @@ export const DIAGNOSTIC_CODES = {
   W117: 'A recruit has a fee in a game without the economy kit',
   W118: 'An event has no choice that is always open',
   W119: 'A choice or an option has a cost in a game without the economy kit',
-  W120: 'A consequence counts days in a game without the time module',
+  W120: 'A consequence or a quest counts days in a game without the time module',
   W121: 'No start of its talk reaches a line',
   W122: 'A line can show only locked options',
   W123: 'Nothing opens a talk',
+  W124: 'Nothing brings a quest to a stage',
+  W125: 'Nothing starts a quest',
+  W126: 'A quest can never end from a stage',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

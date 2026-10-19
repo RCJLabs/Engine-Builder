@@ -61,7 +61,7 @@ Each objective:
 | `count` | `{ "event": "yard/salvaged", "args": { … }, "to": 5 }`: done once the event, with those argument values, has been heard `to` times while the stage is current |
 | `next` | a stage it leads to: once it is done, the quest goes there at once (Leads to) |
 
-An objective has `done-when` or `count`, not both. A `count`'s event and arguments are checked as a row's When is (E022, E023).
+An objective has `done-when` or `count`, not both. A `count`'s event and arguments are checked as a row's When is (E022, E023). Its argument values are text, the ids an event names: a count matches an argument by `===`, so one of a number kind can't be counted on; a `done-when` reading a fact can.
 
 ```json
 {
@@ -194,11 +194,11 @@ A stage or an objective its quest doesn't have, named in a fact, throws; validat
 
 - **E035** (a kit's record that doesn't hold together), in a quest: a stage id twice, or one a condition can't write; an objective id twice in the quest, or one a condition can't write; a Then or a Leads to naming no stage of the quest; an objective with both or neither of `done-when` and `count`; a stage that `fails` and also has objectives, a Then, `fail-when` or days; stages that lead round to each other with nothing to wait on, which would never stop: by the Then of a stage with no objectives, or by a `set-stage` of the same quest among a stage's effects.
 - **E022, E023** for a count's event and its arguments, as for a row's When.
-- **E043:** a condition, or a `set-stage`, naming a stage or an objective its quest doesn't have.
+- **E043:** a condition, or a `set-stage`, naming a stage or an objective its quest doesn't have: in `quests.reached`, `quests.objective`, `quests.count` and `quests.stage(…) == stage`. `quests.count` naming an objective done by `done-when` is E043 too, since its count is always 0.
 - **W120:** days in a game without a time module.
-- **W124:** a stage that neither the first stage reaches, by Then and Leads to, nor any `set-stage` names: nothing can bring the quest there.
+- **W124:** a stage that neither the first stage reaches, by Then, Leads to and the `set-stage`s among its stages' effects, nor any `set-stage` names: nothing can bring the quest there. A Then counts only from a stage that can be done: one whose objectives all lead elsewhere never takes it.
 - **W125:** a quest nothing starts: not `at-start`, no `starts-when`, and no `start-quest` or `set-stage` names it. One a game's scripts start is still warned of, as a talk is (W123).
-- **W126:** a stage from which the quest can never end: no path by Then and Leads to reaches a stage that is done with no Then, that fails, or that can fail by `fail-when` or days.
+- **W126:** a stage the quest can reach from which it can never end: no path by Then and Leads to reaches a stage that is done with no Then, that fails, or that can fail by `fail-when` or days. A lead naming a stage the quest doesn't have is E035's, not W126's too. The kits' `quests/graph.ts` works these paths out for the checks and for the map alike.
 
 ## The map
 
