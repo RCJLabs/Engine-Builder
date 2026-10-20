@@ -515,8 +515,40 @@ describe('the code table', () => {
         events: { 'hold/looted': { args: { item: { type: 'text' } } } },
       },
     );
+    // M4.6: a layered map whose six stations can't always fit, a drawn map with a node no road
+    // reaches, and an enter-map at a node the map lacks.
+    const kind = (id: string, more = {}) => ({
+      [`records/node-kind/${id}.json`]: JSON.stringify({ name: id, ...more }),
+    });
+    const mapped = await kitted(['maps'], {
+      ...kind('gate', { arrive: [{ effect: 'enter-map', map: 'valley', at: 'nowhere' }] }),
+      ...kind('empty'),
+      ...kind('station'),
+      'records/map/sector.json': JSON.stringify({
+        name: 'Sector',
+        layers: {
+          count: 7,
+          widths: { min: 1, max: 2 },
+          start: 'gate',
+          end: 'gate',
+          links: 'both',
+          place: [{ kind: 'station', min: 6, max: 6 }],
+          mix: [{ kind: 'empty', weight: 1 }],
+        },
+        moves: [{ id: 'jump', label: 'Jump' }],
+      }),
+      'records/map/valley.json': JSON.stringify({
+        name: 'Valley',
+        start: 'van',
+        nodes: [
+          { id: 'van', kind: 'empty', x: 0, y: 0 },
+          { id: 'crag', kind: 'empty', x: 50, y: 50 },
+        ],
+        moves: [{ id: 'drive', label: 'Drive' }],
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened];
+    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened, mapped];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

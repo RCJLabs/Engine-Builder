@@ -56,6 +56,7 @@ export const DIAGNOSTIC_CODES = {
   E050: "The theme's text falls short of AA contrast",
   E051: "A feedback line is on an event the game doesn't declare",
   E052: "A feedback line names an argument its event lacks, or matches one on a value it can't take",
+  E053: "An effect names a node its map doesn't have",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -90,6 +91,8 @@ export const DIAGNOSTIC_CODES = {
   W132: 'A file under ui/ that the compiler ignores',
   W133: 'A mode no screen shows',
   W134: 'A screen only a button opens has no button that closes it',
+  W135: "A layered map's rule isn't kept in every seed",
+  W136: "A drawn map's node no road reaches from its start",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

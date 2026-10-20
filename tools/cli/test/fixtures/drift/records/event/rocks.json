@@ -1,0 +1,49 @@
+{
+  "name": "Rock field",
+  "text": "Tumbling rock as far as the scopes reach.",
+  "choices": [
+    {
+      "id": "thread",
+      "label": "Thread it",
+      "outcomes": [
+        {
+          "chance": 80,
+          "result": "Through, with paint to spare.",
+          "effects": []
+        },
+        {
+          "chance": 20,
+          "result": "A glancing hit. A crate tears loose.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": -1
+            }
+          ]
+        }
+      ],
+      "needs": "economy.amount(resource: supplies) >= 1"
+    },
+    {
+      "id": "around",
+      "label": "Go round",
+      "cost": {
+        "supplies": 1
+      },
+      "result": "The long way, and safe."
+    },
+    {
+      "id": "wait",
+      "label": "Wait for a gap",
+      "result": "Hours on, a lane opens.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 3
+        }
+      ]
+    }
+  ]
+}

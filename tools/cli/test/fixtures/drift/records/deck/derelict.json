@@ -1,0 +1,12 @@
+{
+  "name": "Derelicts",
+  "events": [
+    {
+      "event": "salvage",
+      "weight": 2
+    },
+    {
+      "event": "trap"
+    }
+  ]
+}

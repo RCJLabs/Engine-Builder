@@ -1,0 +1,10 @@
+{
+  "name": "Distress call",
+  "description": "Someone on the emergency band, asking for help. Or saying they are.",
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "distress"
+    }
+  ]
+}

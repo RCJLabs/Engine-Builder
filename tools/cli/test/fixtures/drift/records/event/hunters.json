@@ -1,0 +1,67 @@
+{
+  "name": "Hunters",
+  "text": "They were waiting where you came out of the jump.",
+  "choices": [
+    {
+      "id": "fight",
+      "label": "Fight",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "You get clear, and they’ll think twice.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": -20
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "They hole the hold, and the word spreads.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": -4
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 5
+            }
+          ]
+        }
+      ],
+      "needs": "economy.amount(resource: supplies) >= 4"
+    },
+    {
+      "id": "pay",
+      "label": "Pay what they ask",
+      "cost": {
+        "credits": 20
+      },
+      "result": "Bought off, this time.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -10
+        }
+      ]
+    },
+    {
+      "id": "talk",
+      "label": "Talk them down",
+      "result": "They let you go, and keep your name.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 15
+        }
+      ]
+    }
+  ]
+}

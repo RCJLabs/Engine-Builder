@@ -1,0 +1,28 @@
+{
+  "name": "Salvage",
+  "text": "Its hold is cold and dark, and half full.",
+  "choices": [
+    {
+      "id": "strip",
+      "label": "Strip it",
+      "result": "Supplies, and a few credits in a drawer.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 2
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it be",
+      "result": "Not worth the risk."
+    }
+  ]
+}

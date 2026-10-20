@@ -1,0 +1,60 @@
+{
+  "name": "Ambush",
+  "text": "The distress call was bait.",
+  "choices": [
+    {
+      "id": "run",
+      "label": "Run",
+      "needs": "economy.amount(resource: supplies) >= 2",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "You’re away before they close.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 5
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "They rake you as you go.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": -2
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "give",
+      "label": "Give them a crate",
+      "cost": {
+        "supplies": 1
+      },
+      "result": "They take it and let you go."
+    },
+    {
+      "id": "bluff",
+      "label": "Bluff",
+      "result": "You claim a convoy behind you. They don’t believe you, but they don’t risk it.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 10
+        }
+      ]
+    }
+  ]
+}

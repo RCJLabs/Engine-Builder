@@ -1,0 +1,13 @@
+{
+  "name": "Nebula",
+  "charted": true,
+  "names": ["The Smudge", "Grey Veil", "Static Bloom", "The Murk"],
+  "description": "A cloud of charged dust where sensors see nothing, theirs included. A good place to cool off.",
+  "arrive": [
+    {
+      "effect": "add-to-flag",
+      "flag": "heat",
+      "by": -10
+    }
+  ]
+}

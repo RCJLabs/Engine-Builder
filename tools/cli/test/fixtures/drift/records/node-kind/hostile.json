@@ -1,0 +1,10 @@
+{
+  "name": "Hostile ship",
+  "description": "A ship running dark, guns warm. It has seen you, and it isn’t here to trade.",
+  "arrive": [
+    {
+      "effect": "open-event",
+      "event": "hostile"
+    }
+  ]
+}

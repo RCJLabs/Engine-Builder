@@ -1,0 +1,1609 @@
+{
+  "format": 1,
+  "game": "valley",
+  "content": "d7c0ced70dcf83b1",
+  "policy": "random",
+  "maxTurns": 1000,
+  "runs": {
+    "seed-0": {
+      "hash": "b0734e9d7c0eab2a",
+      "facets": {
+        "economy": "95ba7750cc105395",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f8f9f56b9cc460cf",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-1": {
+      "hash": "1d7d97352e868c7c",
+      "facets": {
+        "economy": "d23da4b2a3c85194",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c55b54069d676b94",
+        "logic": "08f44b07b5901a25",
+        "maps": "c832d05933b9954a",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-2": {
+      "hash": "b89e842e95dd8afb",
+      "facets": {
+        "economy": "e6cf8617b6345e59",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ffc1e54f1f36db70",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-3": {
+      "hash": "bfd177d77de7139a",
+      "facets": {
+        "economy": "dc5fe04a4e0e3ef2",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6df03061a43c6590",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-4": {
+      "hash": "b1510d1c3eeb741f",
+      "facets": {
+        "economy": "745169032e3af1fb",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a92841f541a49019",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-5": {
+      "hash": "9ce3cd1b1f54ded3",
+      "facets": {
+        "economy": "896d22194754c9df",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "378afcc98b76832d",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-6": {
+      "hash": "0712d1c0a25cee67",
+      "facets": {
+        "economy": "837b221dd1b6d1eb",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "52eb2b4fda2ced57",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-7": {
+      "hash": "cd7996960b7d787a",
+      "facets": {
+        "economy": "ecb6b63ea0d05abd",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "abe35c60042c5194",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-8": {
+      "hash": "9918eca0c19ce244",
+      "facets": {
+        "economy": "a1c49bc6457bb198",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "dad542a9c99200e6",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-9": {
+      "hash": "a10c1bcdc64c93ab",
+      "facets": {
+        "economy": "85585ef3ff27c8a9",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ecb7b987a888cb6c",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-10": {
+      "hash": "6fdf7550b93233dd",
+      "facets": {
+        "economy": "d7510c4964eb5f5a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "5710a54c08fd0f68",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-11": {
+      "hash": "7ed93c84ab398e78",
+      "facets": {
+        "economy": "7f10f2bf3bd28cea",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d7d6b3797f34d436",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 71,
+      "end": "ended"
+    },
+    "seed-12": {
+      "hash": "f15493ea473f125c",
+      "facets": {
+        "economy": "08a33eddf75eb0ac",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7485e915a273624a",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-13": {
+      "hash": "1901120398a27dcf",
+      "facets": {
+        "economy": "d9991a748f640307",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c4f667c3dda1ce1a",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-14": {
+      "hash": "1c2aa9f2ebc130d9",
+      "facets": {
+        "economy": "dc7c039231a0ba1f",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b25c783d0f3060d4",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-15": {
+      "hash": "d69f9d8ebbaeb579",
+      "facets": {
+        "economy": "3ad71fe980ebf17e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "65b7ff2b6e8a75b4",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-16": {
+      "hash": "f533eee3b8cd1cc2",
+      "facets": {
+        "economy": "5cb21d4820436512",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7c98126b5ede60e8",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-17": {
+      "hash": "0c33bee4335873e8",
+      "facets": {
+        "economy": "63afb61f0d2e464a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "0b6d7c4e11790024",
+        "logic": "08f44b07b5901a25",
+        "maps": "c832d05933b9954a",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 57,
+      "end": "ended"
+    },
+    "seed-18": {
+      "hash": "83eb24d5be909acd",
+      "facets": {
+        "economy": "ad718c4ae5abda93",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "326a88cf40e985bf",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-19": {
+      "hash": "cfc4d523d0ce1ba1",
+      "facets": {
+        "economy": "94f152641ee9edc4",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d8e38f7eda1ed3be",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-20": {
+      "hash": "549a4b66898e85da",
+      "facets": {
+        "economy": "b238b10df3700cb5",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7b0ce1fb78cffdbd",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-21": {
+      "hash": "020384e60ee836b6",
+      "facets": {
+        "economy": "32c31564ee6f0ef5",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "dec01cf984afb8d1",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-22": {
+      "hash": "c3ee20f843e14f5b",
+      "facets": {
+        "economy": "defb93ef8cd7f6fd",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c575bbfee13d9520",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-23": {
+      "hash": "59f05d9fb178d77c",
+      "facets": {
+        "economy": "0feceb811c702bfc",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "44251966b44d6edf",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-24": {
+      "hash": "0783ccff76cd56fb",
+      "facets": {
+        "economy": "a594805f3218dda7",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "07f427841b5ef956",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-25": {
+      "hash": "83aa79f31209ec9b",
+      "facets": {
+        "economy": "9a575657b19da221",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ae6bd956729f9b58",
+        "logic": "08f44b07b5901a25",
+        "maps": "c832d05933b9954a",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-26": {
+      "hash": "42a28c4e1b772310",
+      "facets": {
+        "economy": "2550db01ac33cad1",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "40253580629b06b9",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-27": {
+      "hash": "ad6b54645f8de370",
+      "facets": {
+        "economy": "cdbc72db844dbdd2",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b6218d2309b4f65d",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-28": {
+      "hash": "550b65cf1a892600",
+      "facets": {
+        "economy": "569f8bd114af3b4e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "99d86e8dfdc07ebd",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-29": {
+      "hash": "8eb88d6962d05cf2",
+      "facets": {
+        "economy": "5040814d8204d275",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "17cb275b992c0b69",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-30": {
+      "hash": "30a69224e6cb9519",
+      "facets": {
+        "economy": "4c2403784390011c",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4c80eaccee7c49cf",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-31": {
+      "hash": "5cde7f78083281f6",
+      "facets": {
+        "economy": "20a7eca7155a36d1",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c1597802cb6376a1",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-32": {
+      "hash": "b6e61d155316fec7",
+      "facets": {
+        "economy": "e8418919eb60dc27",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b057220a00c54c2e",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-33": {
+      "hash": "c4e9b42d16880751",
+      "facets": {
+        "economy": "10f6df171f45b8eb",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9a87e1b3d7e272d0",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-34": {
+      "hash": "eb42d23f30ee270e",
+      "facets": {
+        "economy": "7024f4a1af62539d",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d2b619173736c9c1",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-35": {
+      "hash": "9a70f7aae030f5fd",
+      "facets": {
+        "economy": "b4311fed2480c14e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c1a257125334071c",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-36": {
+      "hash": "d616952af69a4df9",
+      "facets": {
+        "economy": "23c6ad776c636003",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6080e89655ae7ccc",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-37": {
+      "hash": "8502e3b245978a10",
+      "facets": {
+        "economy": "89e51f9330665917",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c8fa51ea4d5823e1",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-38": {
+      "hash": "981fb5b3ead4de74",
+      "facets": {
+        "economy": "ad131508a3966586",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "01d7496d1e9446e6",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-39": {
+      "hash": "034764968cee81e4",
+      "facets": {
+        "economy": "072822f25c6a71fc",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b07918f04b17320e",
+        "logic": "08f44b07b5901a25",
+        "maps": "c832d05933b9954a",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-40": {
+      "hash": "db4b4d96a90c5bfa",
+      "facets": {
+        "economy": "2c1a64850d420d5f",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a2f872620ef63317",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-41": {
+      "hash": "98dac5cb3eec3339",
+      "facets": {
+        "economy": "43bba40f8fa28b1a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "3d54b482e01e4454",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-42": {
+      "hash": "ea7fe087971f4585",
+      "facets": {
+        "economy": "35cd297dae880991",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "006d30f87ccbab8d",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-43": {
+      "hash": "10cca40da38515ea",
+      "facets": {
+        "economy": "41dce30eb19170f4",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "fb80d93873260ce8",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-44": {
+      "hash": "8aec527dfab7601b",
+      "facets": {
+        "economy": "6b0d37ed7e6f3e1e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "971e0abfa3c1c92a",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-45": {
+      "hash": "748a47585a18a87a",
+      "facets": {
+        "economy": "a26355728244af6a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "fca08ea0927745fb",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-46": {
+      "hash": "1f985d4539da8767",
+      "facets": {
+        "economy": "429672e86014872e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "3e66ee594277058f",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-47": {
+      "hash": "ab0eaab6aed1d29b",
+      "facets": {
+        "economy": "c63ed64b8aa74a56",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ec74eb52293e1b07",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-48": {
+      "hash": "42794e668ec7e310",
+      "facets": {
+        "economy": "cb354c2ad1d2e942",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4713215ef0984554",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-49": {
+      "hash": "71b0c60fa5022bdb",
+      "facets": {
+        "economy": "37984b8ad61f52f6",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9fc5b34af7707c16",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "seed-50": {
+      "hash": "42cfc1ed36a475c1",
+      "facets": {
+        "economy": "bc3d6fe9bce85ac1",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "98a61bb16d8f8c7e",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-51": {
+      "hash": "fefdf012af6697ef",
+      "facets": {
+        "economy": "2af8325f83dfb856",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "eec43035886d9f20",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-52": {
+      "hash": "615290e0f13b9c6e",
+      "facets": {
+        "economy": "a4de089612cb74a0",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "5f0efecb3a5df5e9",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-53": {
+      "hash": "6a1290192ca62178",
+      "facets": {
+        "economy": "ad718c4ae5abda93",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "69e5efeb4b6692a0",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-54": {
+      "hash": "c06c224f5eb0a63e",
+      "facets": {
+        "economy": "5a18b6e430b1d26f",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "c86be1005bd18169",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-55": {
+      "hash": "5879ac1038b55e27",
+      "facets": {
+        "economy": "c9d9a3e0abbbdfd7",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "9d14cad09f586303",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-56": {
+      "hash": "e00491eea1d47829",
+      "facets": {
+        "economy": "eca4ed712a21483c",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e191307a11ba992b",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-57": {
+      "hash": "7998aa0f32c1ce01",
+      "facets": {
+        "economy": "474b26d51c313c12",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a2a13246f659274a",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-58": {
+      "hash": "1579c11479fbb7c7",
+      "facets": {
+        "economy": "4b5f8f17f8a51d3a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f93f42707af30ba3",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-59": {
+      "hash": "75bc45c24b776ec7",
+      "facets": {
+        "economy": "c785bda5daf7b656",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "bfe86710e8724c9b",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 70,
+      "end": "ended"
+    },
+    "seed-60": {
+      "hash": "a79d4d540860e368",
+      "facets": {
+        "economy": "c281eed3a93a5147",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "3907c8807ab62ab1",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-61": {
+      "hash": "46c17be5320c3fb8",
+      "facets": {
+        "economy": "cf735a2d89271f82",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "39753243f56de180",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-62": {
+      "hash": "d5c2a6274d784c1b",
+      "facets": {
+        "economy": "a89c06f1a728f17a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a58e2e06fb92aaab",
+        "logic": "08f44b07b5901a25",
+        "maps": "7e039f4abfabe3ae",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 72,
+      "end": "ended"
+    },
+    "seed-63": {
+      "hash": "16ce9d734e6b5c91",
+      "facets": {
+        "economy": "9e0c12bcc2ad551d",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "0e590717f891395d",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 73,
+      "end": "ended"
+    },
+    "seed-64": {
+      "hash": "2295eef4ee0bbbd6",
+      "facets": {
+        "economy": "3c70127016b9d215",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e3a4ce3900450494",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-65": {
+      "hash": "055cec1f3ccf2b2e",
+      "facets": {
+        "economy": "326c6cdb02e5f612",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "6dd39eb2e4ab29a7",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-66": {
+      "hash": "489a2dc443453bf8",
+      "facets": {
+        "economy": "7b6fee53f5047a0f",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "579ebc4e545f3ff3",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-67": {
+      "hash": "1e103ab741846c74",
+      "facets": {
+        "economy": "56eb2b48098b57c0",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "020bc66784cd06d3",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-68": {
+      "hash": "0a8f6cf2e5e078fb",
+      "facets": {
+        "economy": "3cade6124d81f860",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f6a7dc176c5347ad",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-69": {
+      "hash": "91c20c8d698c458d",
+      "facets": {
+        "economy": "69a0332e81ee2747",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f6618e4cefea5208",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-70": {
+      "hash": "ec40b613b8165ee2",
+      "facets": {
+        "economy": "6a15bb72880635a1",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "bc54a9adf2664fdc",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-71": {
+      "hash": "e45b38bed361fe8a",
+      "facets": {
+        "economy": "f386dae063dbd189",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "ae216daa742875ff",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-72": {
+      "hash": "3eec91a1deb37f47",
+      "facets": {
+        "economy": "85c35cb0bb523bef",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "7e6e2b1de27035ae",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-73": {
+      "hash": "df106b8197e7f8f5",
+      "facets": {
+        "economy": "79ccf88f181c0a72",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f18beb5d3ee2cca8",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-74": {
+      "hash": "4321016f96c6dad9",
+      "facets": {
+        "economy": "c5a89aaa0c6f8a8d",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "565f744c53b15603",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-75": {
+      "hash": "408499de2b0a02cf",
+      "facets": {
+        "economy": "b464f795d3d47dfc",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b67c9d1ff791761d",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-76": {
+      "hash": "63a834baabc3714f",
+      "facets": {
+        "economy": "673ed618eedbae3f",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "41544ccb30bad5b2",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-77": {
+      "hash": "e35d5269191f25d7",
+      "facets": {
+        "economy": "d3d62a31e2a11281",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d4dcea56cf02325c",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-78": {
+      "hash": "93b0c87193d335e1",
+      "facets": {
+        "economy": "4b5f8f17f8a51d3a",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "518a0b17112e4a24",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 61,
+      "end": "ended"
+    },
+    "seed-79": {
+      "hash": "e1626d542e35367a",
+      "facets": {
+        "economy": "1c6a54e8dc84da31",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "83cebd6891e24d4c",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-80": {
+      "hash": "f18ac0a6d7f48dbe",
+      "facets": {
+        "economy": "51f7a7b8e0809c1b",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "e2483423127819f5",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-81": {
+      "hash": "de6c91627aa6ed54",
+      "facets": {
+        "economy": "6ea3f33454e2d11b",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "4b3c42ca8a3ada88",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-82": {
+      "hash": "6280721ed06ee718",
+      "facets": {
+        "economy": "a8e996ebfd1577a9",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "feb03ea118a6164a",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 66,
+      "end": "ended"
+    },
+    "seed-83": {
+      "hash": "2464852708ae6c4c",
+      "facets": {
+        "economy": "2edb26a076c9cbf0",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "da59defcbd5a1e71",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 71,
+      "end": "ended"
+    },
+    "seed-84": {
+      "hash": "9e55ad158208e122",
+      "facets": {
+        "economy": "fed4bd6112f1ded2",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "2113c0986c4df66d",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 74,
+      "end": "ended"
+    },
+    "seed-85": {
+      "hash": "557cc0f58c3bc4af",
+      "facets": {
+        "economy": "d7dc3d7bab33d951",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "40d0d624403ee8f0",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-86": {
+      "hash": "fd89639670409077",
+      "facets": {
+        "economy": "7c4b2f2491519e1e",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "25d457b576000c90",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 68,
+      "end": "ended"
+    },
+    "seed-87": {
+      "hash": "74863901298df124",
+      "facets": {
+        "economy": "86f35ea3c78cde51",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "d96607d78287b427",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-88": {
+      "hash": "e3f23681611a5014",
+      "facets": {
+        "economy": "c59f1eaa2eda97f4",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "751726bbda91e12f",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-89": {
+      "hash": "065964fcdbe91c3d",
+      "facets": {
+        "economy": "d56c113294f224f8",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b92b5e8eb07b0bd3",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-90": {
+      "hash": "31fd3f70cc87350e",
+      "facets": {
+        "economy": "e82320c59efb20d9",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "b76260964183fb3d",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 71,
+      "end": "ended"
+    },
+    "seed-91": {
+      "hash": "6fa2b4880cba4fa5",
+      "facets": {
+        "economy": "cb354c2ad1d2e942",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "83957af0db6a4979",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 69,
+      "end": "ended"
+    },
+    "seed-92": {
+      "hash": "c473acd8c6c495e4",
+      "facets": {
+        "economy": "e4c1acf5c73eeda3",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "1e6e4c9b710f5829",
+        "logic": "08f44b07b5901a25",
+        "maps": "c832d05933b9954a",
+        "sheet": "da9d0cae103b40df",
+        "time": "b104eab161de9a3c",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 64,
+      "end": "ended"
+    },
+    "seed-93": {
+      "hash": "27b5abc3e116d985",
+      "facets": {
+        "economy": "e10410311e1451cd",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "21ba20d984cd28f1",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 63,
+      "end": "ended"
+    },
+    "seed-94": {
+      "hash": "721fca23b6905f89",
+      "facets": {
+        "economy": "d56c113294f224f8",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "a302c133a3e77d57",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-95": {
+      "hash": "28ed468613ede065",
+      "facets": {
+        "economy": "9c1cc5dd5361f90d",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "36f68d444dab3aa9",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "48a61d179a1403e6",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 65,
+      "end": "ended"
+    },
+    "seed-96": {
+      "hash": "038e91f37417a489",
+      "facets": {
+        "economy": "f8251a2975b44d56",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "3bdffd5b32619749",
+        "logic": "08f44b07b5901a25",
+        "maps": "2b42f702d7e3d7e3",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 60,
+      "end": "ended"
+    },
+    "seed-97": {
+      "hash": "2926eefba8e81de6",
+      "facets": {
+        "economy": "c4e925e0dd539654",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "92cc192beced66e9",
+        "logic": "08f44b07b5901a25",
+        "maps": "1ad23c39269f0bac",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 67,
+      "end": "ended"
+    },
+    "seed-98": {
+      "hash": "f0725edff76a8962",
+      "facets": {
+        "economy": "cfcfeeb1d7daeba3",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "14becaff05462909",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    },
+    "seed-99": {
+      "hash": "e04d4d749d7454a3",
+      "facets": {
+        "economy": "319a8b5eeeecae43",
+        "flag": "1dff1b5e0bf63105",
+        "inventory": "29d60a97bf6d4605",
+        "kernel": "f3e4ae84bedf9312",
+        "logic": "08f44b07b5901a25",
+        "maps": "5240d76459da0803",
+        "sheet": "da9d0cae103b40df",
+        "time": "4b3069a8ec4c4195",
+        "valley": "08f44b07b5901a25"
+      },
+      "turns": 62,
+      "end": "ended"
+    }
+  }
+}

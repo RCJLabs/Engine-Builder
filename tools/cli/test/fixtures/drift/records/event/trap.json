@@ -1,0 +1,45 @@
+{
+  "name": "Booby trap",
+  "text": "Wired doors, and a light that blinks when you board.",
+  "choices": [
+    {
+      "id": "disarm",
+      "label": "Disarm it",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "Careful hands. The hold is yours.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 3
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "It goes off. You lose a crate getting out.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": -1
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 5
+            }
+          ]
+        }
+      ],
+      "needs": "economy.amount(resource: supplies) >= 1"
+    },
+    {
+      "id": "leave",
+      "label": "Back off",
+      "result": "You leave it blinking."
+    }
+  ]
+}

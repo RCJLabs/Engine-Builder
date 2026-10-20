@@ -1,0 +1,26 @@
+{
+  "name": "Castaways",
+  "text": "A lifeboat, three aboard, out of air.",
+  "choices": [
+    {
+      "id": "help",
+      "label": "Take them in",
+      "cost": {
+        "supplies": 2
+      },
+      "result": "They pay you what they have at the next station.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 10
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave them",
+      "result": "You don’t look back."
+    }
+  ]
+}

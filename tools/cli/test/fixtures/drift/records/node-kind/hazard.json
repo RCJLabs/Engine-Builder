@@ -1,0 +1,10 @@
+{
+  "name": "Hazard",
+  "description": "Weather, rock or worse. Getting through costs something.",
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "hazard"
+    }
+  ]
+}

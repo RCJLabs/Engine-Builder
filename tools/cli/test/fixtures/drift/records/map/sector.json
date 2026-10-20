@@ -1,0 +1,86 @@
+{
+  "name": "The sector",
+  "description": "Seven jumps from the way in to the jump point, two stations and a nebula on the charts.",
+  "layers": {
+    "count": 7,
+    "widths": {
+      "min": 2,
+      "max": 3
+    },
+    "start": "way-in",
+    "end": "jump-point",
+    "links": "both",
+    "extra": 35,
+    "place": [
+      {
+        "kind": "station",
+        "min": 2,
+        "max": 2,
+        "apart": true
+      },
+      {
+        "kind": "nebula",
+        "min": 1,
+        "max": 1,
+        "apart": true
+      }
+    ],
+    "mix": [
+      {
+        "kind": "empty",
+        "weight": 2
+      },
+      {
+        "kind": "derelict",
+        "weight": 2
+      },
+      {
+        "kind": "distress",
+        "weight": 2
+      },
+      {
+        "kind": "trader",
+        "weight": 1
+      },
+      {
+        "kind": "hazard",
+        "weight": 2
+      },
+      {
+        "kind": "hostile",
+        "weight": 2
+      }
+    ]
+  },
+  "moves": [
+    {
+      "id": "jump",
+      "label": "Jump",
+      "cost": {
+        "supplies": 1
+      },
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "long",
+      "label": "Long jump",
+      "reach": 2,
+      "cost": {
+        "supplies": 3
+      },
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -10
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "Hostile ship",
+  "text": "It drops out of the dark, guns warm, and hails you once.",
+  "choices": [
+    {
+      "id": "fight",
+      "label": "Fight",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "It breaks off, venting, and you pick through what it dropped.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 12
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "A hit to the hold before it runs. Every gun on the band heard it.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": -3
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 10
+            }
+          ]
+        }
+      ],
+      "needs": "economy.amount(resource: supplies) >= 3"
+    },
+    {
+      "id": "flee",
+      "label": "Burn away",
+      "cost": {
+        "supplies": 2
+      },
+      "result": "You outrun it, hungry."
+    },
+    {
+      "id": "pay",
+      "label": "Pay them off",
+      "cost": {
+        "credits": 15
+      },
+      "result": "They take it and go."
+    },
+    {
+      "id": "strike",
+      "label": "Strike your colours",
+      "result": "They take what they want and laugh.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -5
+        }
+      ]
+    }
+  ]
+}
