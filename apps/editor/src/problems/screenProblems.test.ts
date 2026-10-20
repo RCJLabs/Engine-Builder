@@ -75,6 +75,7 @@ describe('a project’s problems with its screens', () => {
     expect(catalog.screens).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(catalog.theme).toBe(true);
     expect(catalog.feedback).toBe(true);
+    expect(catalog.shell).toBe(true);
   });
 
   it('are eb validate’s, each at its line in its file, when its screens are broken', async () => {
@@ -103,6 +104,16 @@ describe('a project’s problems with its screens', () => {
     expect(catalog.screens).toEqual([]);
     expect(editor).toEqual(validate);
     expect(editor.map((d) => `${d.code} ${d.file}`)).toEqual(['E051 ui/feedback.json']);
+  });
+
+  it('are the shell’s too, alone, each at its line, as eb validate says (M4.3)', async () => {
+    const files = Object.fromEntries(Object.entries(hut()).filter(([path]) => !path.startsWith('ui/')));
+    files['ui/shell.json'] = new TextEncoder().encode('{\n  "slots": 2,\n  "slot-line": "Day {time.night}"\n}\n');
+    const { editor, validate, catalog, index } = await both(files);
+    expect(catalog.shell).toBe(true);
+    expect(editor).toEqual(validate);
+    expect(editor.map((d) => `${d.code} ${d.file}:${d.line}`)).toEqual(['E048 ui/shell.json:3']);
+    expect(fileTitle('ui/shell.json', catalog, index)).toBe('Shell (ui/shell.json)');
   });
 
   it('open the screen, or the theme, at their lines', async () => {

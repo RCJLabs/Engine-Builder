@@ -1,7 +1,7 @@
 import { KITS } from '@eb/kits';
 import { checkUi, knownFrom } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
-import { feedbackTemplate, screenTemplate, themeTemplate } from './templates.ts';
+import { feedbackTemplate, screenTemplate, shellTemplate, themeTemplate } from './templates.ts';
 
 const kits = KITS.map((kit) => kit.id);
 const known = knownFrom({ kits });
@@ -24,5 +24,15 @@ describe('templates', () => {
       (JSON.parse(feedbackTemplate(on)) as { lines: { on: string }[] }).lines.map((line) => line.on.split('/')[0]);
     expect(new Set(lines(['inventory', 'quests']))).toEqual(new Set(['inventory', 'quests']));
     expect(lines([])).toEqual([]);
+  });
+
+  it('writes the shell with its defaults spelt out, a day in its slot line with the time kit on (M4.3)', () => {
+    const shell = (on: readonly string[]) => ({
+      file: 'ui/shell.json',
+      value: JSON.parse(shellTemplate('The hut', on)),
+    });
+    expect(checkUi(new Map(), undefined, options, undefined, shell(kits))).toEqual([]);
+    expect(shell(kits).value).toEqual({ title: 'The hut', slots: 3, daily: false, 'slot-line': 'Day {time.day}' });
+    expect(shell([]).value).toEqual({ title: 'The hut', slots: 3, daily: false });
   });
 });

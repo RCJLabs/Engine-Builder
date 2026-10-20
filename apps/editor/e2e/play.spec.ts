@@ -12,7 +12,17 @@ import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { fixtureText, HUT } from './hutHelpers.ts';
 import { replaceText } from './hutLogic.ts';
-import { expectFits, game, newGame, playSeason, press, showPlay, startHut, topScreen } from './hutScreens.ts';
+import {
+  expectFits,
+  game,
+  newGame,
+  playSeason,
+  press,
+  shellScreens,
+  showPlay,
+  startHut,
+  topScreen,
+} from './hutScreens.ts';
 import { announcer } from './inputHelpers.ts';
 import { fixtureZip } from './kitHelpers.ts';
 import { openProject, scratch, showProject } from './ludus.ts';
@@ -77,6 +87,27 @@ test('the hut played in the Play panel through its screens, to the end of its se
     expect(seen).toContain('A talk');
     await expect(topScreen(page).getByText('The hut is closed for the winter.')).toBeVisible();
     await expectFits(page);
+  });
+
+  await test.step('started again: the title, its playtest slot kept apart from the player page’s (M4.3)', async () => {
+    const panel = page.locator('[data-panel="play"]');
+    await panel.getByRole('button', { name: 'Start again' }).click();
+    const going = shellScreens(page).getByRole('button', { name: /^Continue/ });
+    await expect(going).toHaveText(/^ContinueSlot 1 · Day 10 · \d+ coins$/);
+    await expectFits(page);
+    await going.click();
+    await expect(topScreen(page).getByText('The hut is closed for the winter.')).toBeVisible();
+    const kept = await page.evaluate(
+      () =>
+        new Promise<string[]>((resolve) => {
+          const open = indexedDB.open('eb');
+          open.onsuccess = () => {
+            const keys = open.result.transaction('kv').objectStore('kv').getAllKeys();
+            keys.onsuccess = () => resolve((keys.result as string[]).filter((key) => key.includes('/slot/')));
+          };
+        }),
+    );
+    expect(kept).toEqual(['eb/the-hut/playtest/slot/slot-1']);
   });
   expect(errors).toEqual([]);
 });
