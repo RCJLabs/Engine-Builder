@@ -145,6 +145,42 @@ Read on 2026-10-19, read only, as above. `CP` is `chooser-of-the-dead/packages/u
 
 ([specs/input.md](../specs/input.md))
 
+## A third look, for M4.3
+
+Read on 2026-10-20, read only, as above, by an agent with Read, Grep and Glob only. Paths are under each repo. `CP` is `chooser-of-the-dead/packages/ui/src`.
+
+**Titles and slots.**
+- **Slot counts:** three in Chooser (CP/saves.ts:41), Afterglass (slice/saves.js:9-35), 2060td (src/meta/save.ts:42-58), Wasteland Protocol and Ludus; four in Spliceworld (save/save.js:206); one campaign in Space-Wrecked.
+- **What a slot shows** is a summary kept beside the save, so a list never reads a whole save: Afterglass keeps an index of season, day, rooms and time (slice/saves.js:9-35); Chooser shows the day and its counts (campaign/screens.tsx:564-578); none shows a thumbnail or playtime.
+- **Continue:** no repo picks the newest save by its time. Afterglass remembers the keep last in play (page/screen.js:257, 319-323) and 2060td the active slot (src/meta/save.ts:54-86). Saving every step makes the newest save the slot played last.
+- **New over a full slot** asks again: Space-Wrecked's second tap within 3 s (ui/title.js:18, 74-91), Afterglass's "replace which?" (page/screen.js:334-338).
+- **A slot that can't be read** is shown as such, never as empty, with Copy and a confirmed Clear (Chooser, campaign/screens.tsx:829-879; Wasteland Protocol's "DAMAGED — ERASE", game.js:8120-8131).
+- **Daily seeds:** Chooser counts days from a fixed date by the local calendar and seeds `daily:<n>`, and its engine reads no clock (engine/src/calendar.ts:2-4, 16, 59-73); it saves after every action so a reload can't reroll (store.ts:325-333). Rule-or-drool hashes the UTC date (src/meta/daily.ts:4-13), Afterglass the local one (slice/daily.js:8-18), Sandbagged the UTC one (src/engine.ts:3347-3356).
+
+**Settings.**
+- **Kept outside the save** under the game's own key, so a new game keeps them: Dirtbag (app/src/game/persist.ts:151-152), 2060td (`lastline_settings_v1`), Ludus, Chooser (store.ts:265-270).
+- **Read field by field,** a bad field falling back alone (Dirtbag, persist.ts:180-197; rule-or-drool with a version, settings.ts:71-93).
+- **Applied on the root** as attributes or variables: Chooser's `data-text` and `data-motion` (store.ts:294-302), Wasteland Protocol's `--text-scale` and `.motion-off` (game.js:8066-8071), Project Ascent's `--text-scale` (src/store/settings.ts:410-412).
+- **What they hold:** text size and less motion everywhere; volumes in Chooser, Dirtbag, 2060td and Wasteland Protocol; key remapping only in Dirtbag (Sheet.tsx:2815-2823). No language picker anywhere.
+
+**Saves in and out.**
+- **Codes:** Space-Wrecked's `PREFIX.version.base64url.checksum`, spaces ignored, checked before a second tap on "Replace save?" (core/save.js:502-524, ui/settings.js:117-131). Ours is its descendant ([specs/saves.md](../specs/saves.md)).
+- **Set the current save aside before an import,** and refuse the import if that can't be written (Spliceworld, slots.js:295-329; Dirtbag's `save.replaced`, persist.ts:13-17).
+- **Two taps, not `confirm()`,** which some browsers suppress (Wasteland Protocol, game.js:8082-8102).
+
+**Pause.**
+- **Chooser:** Escape, `p` or a button; pause is a sim action that stops its clock, and it pauses itself when the page is hidden or loses focus (store.ts:1517-1567). Dirtbag has none: Escape puts down what is open (ui/input.ts:7).
+
+**Crash.**
+- **Dirtbag** draws its crash screen in plain DOM, since React may be what broke, offers the raw save as a file without loading it, and ignores ResizeObserver and "Script error" noise (ui/crash.ts:1-5, 55-57, 113-131).
+- **Chooser** pauses first, then offers Reload and a copyable report (crash-ui.tsx:88-165). Afterglass stops its clock and offers the keep as a file (page/clock.js:275-319).
+
+**Updates.**
+- **Never skip waiting by itself; reload on `controllerchange` only when a worker controlled the page before** (Space-Wrecked, src/platform/serviceWorker.js:1-38; rule-or-drool).
+- **Never mid-run:** Chooser shows the prompt on its title only (screens.tsx:352-359); Project Ascent never while a session is live (src/engine/offline.ts:22-40); Afterglass hides it during the night watch (page/screen.js:67-93).
+
+**What M4.3 takes** ([specs/shell.md](../specs/shell.md), D53): summaries beside saves; Continue as the slot played last; a second press for New over a save, Delete and replacing in an import; unreadable slots shown and kept; Chooser's Daily; settings outside the save, per field, on the root; Dirtbag's plain-DOM crash screen with the raw save; the update prompt on the title only.
+
 ## Open questions
 
 1. **A screen's escape hatch.** What data can't say (a map drawn on a canvas, a custom widget) needs a way out; D51 leaves it for later.

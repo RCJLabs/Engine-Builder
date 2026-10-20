@@ -1,7 +1,7 @@
 /**
  * A screen or the theme in the inspector (M4.1, D51): its JSON in CodeMirror, its problems, each a
  * way to its line, as a scene's are. Typing is an edit like a script's, which the editor's undo
- * takes back. M4.4's designer replaces the JSON. Loaded when a screen is first opened.
+ * takes back. M4.5's designer replaces the JSON. Loaded when a screen is first opened.
  */
 import { classifyUi } from '@eb/compiler';
 import { useMemo, useRef, useState } from 'preact/hooks';
