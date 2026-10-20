@@ -75,13 +75,18 @@ export function smallTargets(page: Page, scope: string): Promise<string[]> {
  * in to land: a toast caught mid-fade by axe read as low contrast, in one run of the full suite (M4.5).
  */
 export async function expectNoAxeIssues(page: Page): Promise<void> {
+  // Only those running to an end, and never past 2 s: a paused animation's `finished` never comes.
   await page.evaluate(() =>
-    Promise.all(
-      document
-        .getAnimations()
-        .filter((animation) => animation.effect?.getComputedTiming().endTime !== Number.POSITIVE_INFINITY)
-        .map((animation) => animation.finished.catch(() => undefined)),
-    ),
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((animation) => animation.playState === 'running')
+          .filter((animation) => animation.effect?.getComputedTiming().endTime !== Number.POSITIVE_INFINITY)
+          .map((animation) => animation.finished.catch(() => undefined)),
+      ),
+      new Promise((done) => setTimeout(done, 2_000)),
+    ]),
   );
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(violations.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes[0]?.target.join(' ')})`)).toEqual([]);
