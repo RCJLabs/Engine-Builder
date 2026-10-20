@@ -1309,6 +1309,50 @@ Evan chose on 2026-10-20, from these options:
 
 ---
 
+### D56. Maps are a kit; its generator makes layered route maps by rules written as data, and drawn maps share its editor; a map widget follows the screen's shape; a slice of Space-Wrecked's sector run and a drawn valley prove it. LOCKED, 2026-10-20 (Evan's calls, M4.6)
+
+**Decision.**
+- **A map kit** (Evan's call). Maps are records, the kit ticked in the Project panel like the others.
+  - Travel is an action. What it costs (supplies, days, heat) and any odds come from the same preview the sim rolls.
+  - Arriving at a node runs its kind's effects: open an event, a shop, a talk.
+  - Space-Wrecked's jumps, Dirtbag's drives and Wasteland's next node are each a way to move on a map.
+- **Layered route maps, made by rules** (Evan's call).
+  - A map runs from a start, through layers of nodes, to an end (an exit, or a boss).
+  - Links join neighbouring layers and never cross, with a chance of an extra link. They are directed (Wasteland, Slay the Spire) or go both ways with longer moves (Space-Wrecked), set per map.
+  - Node kinds are placed by counts and weights, inside depth windows: "a camp within 2 of the boss", "no elite before layer 5".
+  - Maps drawn by hand, with roads, are made in the same editor.
+- **A map widget that follows the screen** (Evan's call). On a portrait phone it runs bottom to top and scrolls to where the party is. In landscape and on desktop it runs left to right, fitted, with no scroll. Each node is a real button at least 44 px, the ones in reach ringed, each showing its cost.
+- **The gate: a sector run and a valley** (Evan's call). In the editor alone, a slice of Space-Wrecked's sector run:
+  - its generator's rules made in the World panel, and checked over 300 seeds with every rule held;
+  - stations, a nebula and events placed;
+  - jumps that cost supplies and heat by preview;
+  - bots that play it to the exit, and a player who plays it to the exit through the map widget by touch on phones.
+
+  Also a valley drawn by hand in Dirtbag's style, with drive times, each drive taking the quickest road.
+- **Not asked, and following from the calls:**
+  - **Valid by construction.** The generator places by rule and never retries, as none of the games does. Rules it can't meet in some seed are found by checking many seeds, in the editor and by `eb validate`, as the games' tests do. A seed that breaks a rule can be opened.
+  - **Saved whole once made.** A generated map is kept in the state as it is made, as Space-Wrecked keeps its sector, so a change to the rules never moves a node under a save.
+  - **Words:** a map has layers of nodes, joined by links; a node has a kind; a way to travel is a move.
+
+Evan chose on 2026-10-20, from these options:
+- how maps enter play: a map kit; a format and editor only, with travel left to each game's scripts; or generated maps now, with travel left to M4.7;
+- the generator: layered route maps; free-form scattered graphs; or maps drawn by hand, with seeded swaps;
+- the widget on a phone: following the screen; always left to right; or always bottom to top;
+- the gate: the sector run and a valley; the sector run alone; or a map added to the hut.
+
+**Why.**
+- **A kit** keeps travel's costs and odds in the sim, where the odds-on-screen rule holds them, rather than in each game's scripts.
+- **Layered maps are what the games make.** Space-Wrecked's and Wasteland's generators are both layered, both keep links from crossing the same way, and both check the same kinds of rules. A free-form graph is harder to keep readable and tappable at 360 px, and none of the games uses one.
+- **A phone held upright** has the height, not the width, for layers; a landscape screen has the width. Wasteland and Sandbagged scroll upwards on phones; Space-Wrecked fits its chart in landscape.
+- **The gate is Phase 4's own proof.** M4.12 imports Space-Wrecked's sector run, so its map is the one to prove first. The valley proves the drawn map and routing that Dirtbag, Ludus and climbing-world-traveler use.
+
+**Cost.**
+- **A sector's map lives in the save:** up to 40 nodes and 120 links in Space-Wrecked's, a few kilobytes.
+- **Checking 300 seeds costs time** each time a map's rules change; the reading is in ROADMAP.md.
+- **Encounters wait for M4.7.** A hostile node opens an event until then.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
