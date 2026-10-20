@@ -6,6 +6,7 @@
  */
 import {
   type Action,
+  type Condition,
   canonicalJson,
   type FactCatalog,
   type GameState,
@@ -24,6 +25,8 @@ export interface Reading {
   readonly offered: ReadonlySet<string>;
   fact(id: string, args?: Readonly<Record<string, unknown>>): unknown;
   preview(effect: Readonly<Record<string, unknown>>): Readonly<Record<string, unknown>>;
+  /** Whether a condition holds now, as the sim checks it, null when unknown: a codex's `known` (M4.4). */
+  check(condition: Condition): boolean | null;
 }
 
 const shown = (value: unknown): Shown =>

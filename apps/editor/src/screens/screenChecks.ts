@@ -6,7 +6,7 @@
  */
 import { checkProjectUi, type ProjectSource, readUi } from '@eb/compiler';
 import type { RecordIndex as RecordLookup } from '@eb/core';
-import { type Diagnostic, knownFrom } from '@eb/schema';
+import { type Diagnostic, knownFrom, recordFieldsOf } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import { type GameState, gameChecks } from '../scripts/gameState.ts';
@@ -35,6 +35,7 @@ export async function screenProblems(
     ...(game.catalog ? { actions: game.catalog.actions, modes: game.catalog.modes, events: game.catalog.events } : {}),
     records: lookup(index),
     assets: new Set(catalog.assets),
+    recordFields: recordFieldsOf(catalog.recordTypes),
   });
   // The catalog has W132 already, as it has W131 for scenes.
   return [...read.diagnostics.filter((d) => d.code !== 'W132'), ...found];

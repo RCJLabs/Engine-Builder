@@ -158,7 +158,7 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 
 ## Pack
 
-Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens. Format 5 adds `ui.feedback` (M4.2, [input.md](input.md#pack)), format 6 `ui.shell` (M4.3, [shell.md](shell.md#pack)). Format 7 adds `credits` (M4.4, D54): each asset in `assets/assets.json`, by its path, with its licence's id and name, its author, source and tool where the log has them. A project without assets keeps its format.
+Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens. Format 5 adds `ui.feedback` (M4.2, [input.md](input.md#pack)), format 6 `ui.shell` (M4.3, [shell.md](shell.md#pack)). Format 7 adds `credits` (M4.4, D54): each asset in `assets/assets.json`, by its path, with its licence's id and name, its author, source and tool where the log has them. A project without assets, or without anything under `ui/` to show them, keeps its format.
 
 ## Checks
 

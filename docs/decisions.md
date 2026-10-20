@@ -1239,7 +1239,7 @@ Evan chose on 2026-10-20, from these options:
 **Decision.**
 - **A stock screen is a template.** New screen offers each one and writes it into `ui/` as JSON the author owns and restyles, filled from the project as it is: its kits, resources, actors, factions and the game's modes, every number a binding to a live fact. Nothing is drawn by the engine that the JSON doesn't say.
 - **The codex lists records, each shown once known** (Evan's call). A list's new source, `records`, gives every record of a type. An entry's facts can name it as `@entry`, as a quest's name its slots `@slot` (M3.10). `known`, a condition on `@entry`, holds back what isn't yet found: such an entry is drawn by the list's `unknown` widget, with nothing of its record shown (Sandbagged's rule), or not at all without one.
-- **Credits are packed live from the provenance log** (Evan's call). The compiler packs each asset's author, licence and source into the game file, as pack format 7. A `credits` list shows them, so an asset added later is credited without the screen being touched. A pack whose project has no assets keeps its format.
+- **Credits are packed live from the provenance log** (Evan's call). The compiler packs each asset's author, licence and source into the game file, as pack format 7. A `credits` list shows them, so an asset added later is credited without the screen being touched. A pack whose project has no assets, or no screens to show them, keeps its format.
 - **A button can take the player back to the shell** (Evan's call): `{"shell": "title"}` and `{"shell": "new"}`. The ending template places them. Where no shell plays the game, they are disabled.
 - **The gate is the hut on stock screens** (Evan's call). In the editor e2e, the hut's own screens are set aside and every stock screen is made by New screen. With a CC-BY asset imported, the hut is played to its end through them alone at `/play/`, its codex and credits checked, on desktop and on phones at 360 and 390 px and in landscape.
 - **Two more templates than the list named,** which follow from the gate and the kits rather than being asked: Event, for the events kit's `choosing`, since the hut has a storm; and Hall, for the roster kit's `hiring`. With them, every kit's mode has a stock screen, so a game made of kits never falls back to the plain list.
@@ -1259,7 +1259,7 @@ Evan chose on 2026-10-20, from these options:
 
 **Cost.**
 - **What's known can be forgotten.** Only facts the kits keep can say it. A carried item is known only while it is carried, as no fact remembers an item once had; an `ever` fact would need the bag to keep it, a save change.
-- **Pack format 7** for any project with assets: an older player page refuses such a file, as it did formats 5 and 6.
+- **Pack format 7** for any project with assets and screens: an older player page refuses such a file, as it did formats 5 and 6.
 - **A screen's list is keyed by more than its source:** two codex lists of one type with different `known` are two lists in the view.
 
 ---

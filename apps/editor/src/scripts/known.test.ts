@@ -17,6 +17,7 @@ const loaded: GameState = {
     effects: ['add-to-flag', 'roll', 'set-flag', 'stash'],
     actions: ['hold/loot'],
     modes: ['sea'],
+    endings: [],
     policies: [],
   },
 };

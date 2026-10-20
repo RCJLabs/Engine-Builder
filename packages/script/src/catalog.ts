@@ -24,6 +24,8 @@ export interface GameCatalog {
   readonly actions: readonly string[];
   /** Every mode, sorted: what screens show (M4.1). */
   readonly modes: readonly string[];
+  /** The modes that allow no action, sorted: where the game ends, which the ending template shows (M4.4). */
+  readonly endings: readonly string[];
   /** The game's bots by name, in its order: Run plays the first, or picks at random without one. */
   readonly policies: readonly string[];
 }
@@ -50,6 +52,10 @@ export function gameCatalog(game: ProjectGame): GameCatalog {
     effects: [...new Set(effects)].sort(byText),
     actions: actions.sort(byText),
     modes: game.modules.flatMap((m) => Object.keys(m.modes ?? {})).sort(byText),
+    endings: game.modules
+      .flatMap((m) => Object.entries(m.modes ?? {}).filter(([, mode]) => mode.actions.length === 0))
+      .map(([id]) => id)
+      .sort(byText),
     policies: game.policies.map((p) => p.name),
   };
 }

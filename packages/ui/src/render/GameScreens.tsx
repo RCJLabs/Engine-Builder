@@ -8,7 +8,7 @@
 import type { Action } from '@eb/core';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Said } from '../format/feedback.ts';
-import type { Breakpoint, Screen } from '../format/screen.ts';
+import type { Breakpoint, Screen, ShellGo } from '../format/screen.ts';
 import type { Theme } from '../format/theme.ts';
 import { useBackHistory } from '../input/useBackHistory.ts';
 import { useInput } from '../input/useInput.ts';
@@ -35,6 +35,8 @@ export interface GameScreensProps {
   readonly onPause?: () => void;
   /** The shell's pause is over the game: it takes no input and nothing in it takes focus. */
   readonly paused?: boolean;
+  /** Where a button's `{"shell": …}` goes (M4.4): without it, such buttons are disabled. */
+  readonly onShell?: (go: ShellGo) => void;
 }
 
 const NOTHING: readonly Said[] = [];
@@ -81,6 +83,7 @@ export function GameScreens(props: GameScreensProps) {
     assetUrl: (path) => assetUrl?.(path),
     log: fed.log,
     paused,
+    toShell: props.onShell,
   };
   return (
     // The turn and whether a step is on its way, for a test or a stage to wait on.

@@ -8,10 +8,12 @@ import {
   packValue,
   type RecordInput,
   type RecordType,
+  recordFieldsOf,
   type Usage,
   type ValidateOptions,
   validateRecords,
 } from '@eb/schema';
+import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
@@ -47,7 +49,7 @@ export interface CompileOptions extends Omit<ValidateOptions, 'assets'> {
  * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
  * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
  * The screens under ui/ are checked against the game and packed as they are (M4.1), the feedback
- * (M4.2) and the shell (M4.3) with them.
+ * (M4.2) and the shell (M4.3) with them; the assets' credits from the provenance log too (M4.4).
  */
 export async function compileProject(
   source: ProjectSource,
@@ -86,10 +88,12 @@ export async function compileProject(
       ...(validate.events !== undefined ? { events: validate.events } : {}),
       records: indexOf(records),
       assets: files.assets,
+      recordFields: recordFieldsOf(known.types),
     }),
   );
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
+  const packedUi = packUi(ui);
   return {
     diagnostics,
     pack:
@@ -99,7 +103,9 @@ export async function compileProject(
             files.project,
             packRecords(records, known.types, kitted),
             Object.fromEntries(scripts.compiled),
-            packUi(ui),
+            packedUi,
+            // Credits travel with the screens that can show them: a game without any keeps its pack.
+            packedUi === undefined ? undefined : creditsOf(files.assetsLog, files.assets),
           ),
     usedBy: validation.usedBy,
     records: records.length,

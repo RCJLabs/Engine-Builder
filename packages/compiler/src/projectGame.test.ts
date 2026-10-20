@@ -47,4 +47,15 @@ describe("a project's own game", () => {
     expect(compiled.diagnostics).toEqual([]);
     expect(Object.keys(compiled.pack?.scripts ?? {})).toEqual(['game', 'hold']);
   });
+
+  it('lists its modes, and among them the ones that allow no action, where it ends (M4.4)', async () => {
+    const ending = HOLD.replace(
+      "modes: { play: { actions: ['*'] } },",
+      "modes: { play: { actions: ['*'] }, ashore: { actions: [] } },",
+    );
+    const loaded = await projectGame(project({ 'scripts/game.ts': GAME, 'scripts/hold.ts': ending }));
+    if (loaded.kind !== 'loaded') throw new Error(`not loaded: ${loaded.kind}`);
+    expect(loaded.catalog.modes).toEqual(['ashore', 'play']);
+    expect(loaded.catalog.endings).toEqual(['ashore']);
+  });
 });

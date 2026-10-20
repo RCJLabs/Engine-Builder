@@ -89,6 +89,24 @@ describe('filling templates', () => {
     expect(holds({ ...text('a'), 'shows-when': 'nope.x' }, view)).toBe(false);
     expect(holds({ ...text('a'), 'shows-when': 'never.sent' }, view)).toBe(false);
   });
+
+  it('reads a codex entry’s own facts and shows-when for it, the view’s for the rest (M4.4)', () => {
+    const rope: Entry = {
+      key: 'rope',
+      fields: { name: 'Rope' },
+      enabled: false,
+      facts: { 'inventory.count(item: @entry)': 2, 'time.day': 9 },
+      conditions: { 'inventory.count(item: @entry) > 1': true, 'time.day > 5': true },
+    };
+    expect(fill('{.name} ×{inventory.count(item: @entry)}', view, rope)).toBe('Rope ×2');
+    // Its own come first, even where the view has the same text; without it, the view's.
+    expect(fill('{time.day}', view, rope)).toBe('9');
+    expect(fill('{inventory.count(item: @entry)}', view)).toBe('—');
+    expect(holds({ ...text('a'), 'shows-when': 'inventory.count(item: @entry) > 1' }, view, rope)).toBe(true);
+    expect(holds({ ...text('a'), 'shows-when': 'inventory.count(item: @entry) > 1' }, view)).toBe(false);
+    expect(holds({ ...text('a'), 'shows-when': 'time.day > 5' }, view, rope)).toBe(true);
+    expect(holds({ ...text('a'), 'shows-when': 'time.day > 2' }, view, rope)).toBe(true);
+  });
 });
 
 describe('what a button takes', () => {
@@ -105,6 +123,7 @@ describe('what a button takes', () => {
     expect(actionFor({ take: 'hut/carry' }, view)).toBeUndefined();
     expect(actionFor({ take: 'hut/visit', args: { who: 'nobody' } }, view)).toBeUndefined();
     expect(actionFor({ open: 'map' }, view)).toBeUndefined();
+    expect(actionFor({ shell: 'title' }, view)).toBeUndefined();
   });
 
   it('takes nothing while a step is on its way, so a second press can’t act on the old view', () => {

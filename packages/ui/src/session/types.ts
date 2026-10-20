@@ -4,7 +4,7 @@
  * it never reads the sim's state.
  */
 import type { Action } from '@eb/core';
-import type { Source } from '../format/screen.ts';
+import type { RecordsWant } from '../format/bindings.ts';
 
 /** A value a template shows: a fact's, an entry's field, a view's field. Null is "no value", shown as —. */
 export type Shown = string | number | boolean | null;
@@ -17,6 +17,12 @@ export interface Entry {
   readonly action?: Action;
   /** Its action is on offer now. An entry without one is never enabled. */
   readonly enabled: boolean;
+  /** A codex entry's facts that name `@entry`, read for it, by their text as written (M4.4). */
+  readonly facts?: Readonly<Record<string, Shown>>;
+  /** A codex entry's shows-when that name `@entry`, held for it, by their text as written. */
+  readonly conditions?: Readonly<Record<string, boolean | null>>;
+  /** False for a codex entry held back by its list's `known`: nothing of its record is in it. */
+  readonly known?: boolean;
 }
 
 export interface View {
@@ -30,8 +36,8 @@ export interface View {
   readonly conditions: Readonly<Record<string, boolean | null>>;
   /** The views' own fields, such as `talk.text`, while they apply. */
   readonly fields: Readonly<Record<string, Shown>>;
-  /** The entries of each source that applies now. */
-  readonly lists: Readonly<Partial<Record<Source, readonly Entry[]>>>;
+  /** The entries of each list that applies now, by listKey: a source's name, or a codex list's key (M4.4). */
+  readonly lists: Readonly<Record<string, readonly Entry[]>>;
   /** How many actions the game has taken. */
   readonly turn: number;
   /** Nothing is on offer: the game is over. */
@@ -42,4 +48,6 @@ export interface View {
 export interface Wants {
   readonly facts: readonly string[];
   readonly conditions: readonly string[];
+  /** The codex lists, each read for every record of its type (M4.4). */
+  readonly records?: readonly RecordsWant[];
 }

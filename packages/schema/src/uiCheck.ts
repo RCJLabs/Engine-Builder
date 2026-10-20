@@ -11,6 +11,8 @@ import {
   AA_BODY,
   CONTRAST_PAIRS,
   contrast,
+  type ListWidget,
+  NO_ACTION,
   REGIONS,
   type Screen,
   SOURCE_KITS,
@@ -22,7 +24,7 @@ import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } 
 import { checkFeedback } from './feedbackCheck.ts';
 import { schemaIssues } from './issues.ts';
 import { checkShell } from './shellCheck.ts';
-import { checkTemplate, checkWhen } from './templateCheck.ts';
+import { checkTemplate, checkWhen, type Scope } from './templateCheck.ts';
 import { unclosable, unshownModes } from './uiLints.ts';
 import { screenSchema, themeSchema } from './uiSchema.ts';
 
@@ -50,13 +52,18 @@ export interface UiCheckOptions {
   readonly records?: RecordIndex;
   /** The files under assets/, for images. */
   readonly assets?: ReadonlySet<string>;
+  /**
+   * Each record type's own fields by type, which a codex's item may show as `{.field}` (M4.4): the
+   * types there are. Null for a type whose fields can't be read, whose any field is taken as written.
+   * Without it, a codex's type and fields go unchecked.
+   */
+  readonly recordFields?: Readonly<Record<string, readonly string[] | null>>;
 }
 
-/** Where a widget sits: its file, its path, and the list whose item it is, if any. */
-interface Place {
+/** Where a widget sits: its file, its path, and the list whose item it is, a codex's or its `unknown` (M4.4). */
+interface Place extends Scope {
   readonly file: string;
   readonly path: string;
-  readonly list: Source | undefined;
 }
 
 type Report = (code: DiagnosticCode, file: string, path: string, message: string) => void;
@@ -109,28 +116,41 @@ function checkScreen(
     }
   }
   const check = (widget: Widget, at: Place) => checkWidget(widget, at, screens, options, report);
+  const typed = (type: string | undefined) =>
+    type !== undefined && (options.recordFields === undefined || Object.hasOwn(options.recordFields, type));
   for (const region of REGIONS) {
     const root = screen[region];
-    if (root !== undefined) walk(root, { file, path: `/${region}`, list: undefined }, check);
+    if (root !== undefined) walk(root, { file, path: `/${region}` }, check, typed);
   }
 }
 
-/** Each widget with its place, depth first: a list's item is inside its list. */
-function walk(widget: Widget, at: Place, visit: (widget: Widget, at: Place) => void): void {
+/** Each widget with its place, depth first: a list's item is inside its list, a codex's `unknown` held apart. */
+function walk(
+  widget: Widget,
+  at: Place,
+  visit: (widget: Widget, at: Place) => void,
+  typed: (type: string | undefined) => boolean,
+): void {
   visit(widget, at);
-  const inside = (path: string, list = at.list): Place => ({ file: at.file, path: `${at.path}${path}`, list });
+  const inside = (path: string, scope: Scope = at): Place => ({ ...scope, file: at.file, path: `${at.path}${path}` });
   switch (widget.widget) {
     case 'stack':
     case 'panel':
     case 'grid':
-      for (const [i, child] of widget.children.entries()) walk(child, inside(`/children/${i}`), visit);
+      for (const [i, child] of widget.children.entries()) walk(child, inside(`/children/${i}`), visit, typed);
       return;
-    case 'list':
-      walk(widget.item, inside('/item', widget.of), visit);
+    case 'list': {
+      const records = widget.of === 'records';
+      const codex = records ? (typed(widget.type) ? { codex: widget.type } : { untyped: true }) : {};
+      walk(widget.item, inside('/item', { list: widget.of, ...codex }), visit, typed);
+      if (widget.unknown !== undefined) walk(widget.unknown, inside('/unknown', { held: true }), visit, typed);
       return;
+    }
     case 'tabs':
       for (const [t, tab] of widget.tabs.entries()) {
-        for (const [i, child] of tab.children.entries()) walk(child, inside(`/tabs/${t}/children/${i}`), visit);
+        for (const [i, child] of tab.children.entries()) {
+          walk(child, inside(`/tabs/${t}/children/${i}`), visit, typed);
+        }
       }
       return;
     default:
@@ -172,9 +192,9 @@ function checkWidget(
   const here = (code: DiagnosticCode, path: string, message: string) =>
     report(code, at.file, `${at.path}${path}`, message);
   const when = widget['shows-when'];
-  if (when !== undefined) checkWhen(when, options, (message) => here('E048', '/shows-when', message));
+  if (when !== undefined) checkWhen(when, options, (message) => here('E048', '/shows-when', message), at);
   for (const [path, template] of templateFields(widget)) {
-    checkTemplate(template, at.list, options, (code, message) => here(code, path, message));
+    checkTemplate(template, at, options, (code, message) => here(code, path, message));
   }
   if (widget.widget === 'image' && options.assets !== undefined && !options.assets.has(widget.asset)) {
     here('E018', '/asset', `No asset "${widget.asset}" in assets/`);
@@ -184,8 +204,35 @@ function checkWidget(
     if (kit !== undefined && !options.kits.includes(kit)) {
       here('E049', '/of', `A list of ${widget.of} needs the ${kit} kit: turn it on in project.json`);
     }
+    checkCodex(widget, options, here);
   }
   if (widget.widget === 'button') checkAction(widget.action, at.list, screens, options, (p, m) => here('E049', p, m));
+}
+
+/** A codex's type and known (M4.4); no other list has them. */
+function checkCodex(
+  list: ListWidget,
+  options: UiCheckOptions,
+  here: (code: DiagnosticCode, path: string, message: string) => void,
+): void {
+  if (list.of !== 'records') {
+    for (const key of ['type', 'known', 'unknown'] as const) {
+      if (list[key] !== undefined)
+        here('E049', `/${key}`, `Only a records list has ${key}: this is a list of ${list.of}`);
+    }
+    return;
+  }
+  if (list.type === undefined) {
+    here('E049', '/of', 'A records list names the record type it lists, as type');
+    return;
+  }
+  if (options.recordFields !== undefined && !Object.hasOwn(options.recordFields, list.type)) {
+    here('E049', '/type', `The project has no record type "${list.type}"`);
+    return;
+  }
+  if (list.known !== undefined) {
+    checkWhen(list.known, options, (message) => here('E048', '/known', message), { codex: list.type });
+  }
 }
 
 function checkAction(
@@ -202,7 +249,7 @@ function checkAction(
   if (!('take' in action)) return;
   if (action.take === 'entry') {
     if (list === undefined) report('/action/take', 'Only a list’s item takes its entry’s action');
-    else if (list === 'journal') report('/action/take', 'A journal’s entries come with no action');
+    else if (NO_ACTION.includes(list)) report('/action/take', `A ${WHOSE[list] ?? list} entries come with no action`);
     else if (action.args !== undefined) report('/action/args', 'An entry’s action comes with its arguments');
     return;
   }
@@ -210,6 +257,12 @@ function checkAction(
     report('/action/take', `The game has no action "${action.take}"`);
   }
 }
+
+const WHOSE: Readonly<Partial<Record<Source, string>>> = {
+  journal: 'journal’s',
+  records: 'codex’s',
+  credits: 'credits list’s',
+};
 
 function checkTheme(theme: UiFile, report: Report): void {
   const issues = schemaIssues(themeSchema, theme.value);

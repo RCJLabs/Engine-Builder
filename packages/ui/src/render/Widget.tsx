@@ -2,7 +2,7 @@
  * One widget drawn (docs/specs/screens.md#widgets). Buttons are real buttons, at least 44 px each
  * way, disabled while the action they name isn't on offer; text wraps; nothing hovers.
  */
-import type { Widget } from '../format/screen.ts';
+import { type ListWidget, listKey, type Widget } from '../format/screen.ts';
 import type { Entry } from '../session/types.ts';
 import type { Drawing } from './context.ts';
 import { actionFor, amount, fill, holds } from './fill.ts';
@@ -19,7 +19,7 @@ interface Props {
 
 export function WidgetView({ widget, drawing, entry }: Props) {
   const { view, breakpoint } = drawing;
-  if (!holds(widget, view)) return null;
+  if (!holds(widget, view, entry)) return null;
   const children = (list: readonly Widget[]) =>
     list.map((child, i) => <WidgetView key={i} widget={child} drawing={drawing} entry={entry} />);
   switch (widget.widget) {
@@ -54,21 +54,8 @@ export function WidgetView({ widget, drawing, entry }: Props) {
       return <ButtonView widget={widget} drawing={drawing} entry={entry} />;
     case 'progress':
       return <ProgressView widget={widget} drawing={drawing} entry={entry} />;
-    case 'list': {
-      const entries = view.lists[widget.of] ?? [];
-      if (entries.length === 0) {
-        return widget.empty === undefined ? null : <p class="eb-text eb-empty">{fill(widget.empty, view, entry)}</p>;
-      }
-      return (
-        <ul class="eb-list">
-          {entries.map((each) => (
-            <li key={each.key}>
-              <WidgetView widget={widget.item} drawing={drawing} entry={each} />
-            </li>
-          ))}
-        </ul>
-      );
-    }
+    case 'list':
+      return <ListView widget={widget} drawing={drawing} entry={entry} />;
     case 'tabs':
       return (
         <Tabs
@@ -81,6 +68,29 @@ export function WidgetView({ widget, drawing, entry }: Props) {
   }
 }
 
+/** A list's entries, each by its item; a codex entry held back by its `unknown`, which is given nothing of it. */
+function ListView({ widget, drawing, entry }: Props & { readonly widget: ListWidget }) {
+  const { view } = drawing;
+  const { unknown } = widget;
+  const entries = (view.lists[listKey(widget)] ?? []).filter((each) => each.known !== false || unknown !== undefined);
+  if (entries.length === 0) {
+    return widget.empty === undefined ? null : <p class="eb-text eb-empty">{fill(widget.empty, view, entry)}</p>;
+  }
+  return (
+    <ul class="eb-list">
+      {entries.map((each) => (
+        <li key={each.key}>
+          {each.known === false && unknown !== undefined ? (
+            <WidgetView widget={unknown} drawing={drawing} />
+          ) : (
+            <WidgetView widget={widget.item} drawing={drawing} entry={each} />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ButtonView({ widget, drawing, entry }: Props & { readonly widget: Extract<Widget, { widget: 'button' }> }) {
   const { action } = widget;
   const label = fill(widget.label, drawing.view, entry);
@@ -88,6 +98,14 @@ function ButtonView({ widget, drawing, entry }: Props & { readonly widget: Extra
   if ('open' in action) {
     return (
       <button type="button" class={style} onClick={() => drawing.open(action.open)}>
+        {label}
+      </button>
+    );
+  }
+  if ('shell' in action) {
+    const { toShell } = drawing;
+    return (
+      <button type="button" class={style} disabled={toShell === undefined} onClick={() => toShell?.(action.shell)}>
         {label}
       </button>
     );

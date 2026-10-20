@@ -21,7 +21,8 @@ export function fill(template: string, view: View, entry?: Entry): string {
   return split.segments
     .map((segment) => {
       if (segment.kind === 'text') return segment.text;
-      if (segment.kind === 'fact') return shownText(view.facts[segment.text]);
+      // A codex entry's own facts, those naming @entry, are read for it (M4.4).
+      if (segment.kind === 'fact') return shownText(ownOr(entry?.facts, view.facts, segment.text));
       if (segment.kind === 'view') return shownText(view.fields[segment.name]);
       return shownText(entry?.fields[segment.name]);
     })
@@ -35,9 +36,15 @@ export function amount(value: number | string, view: View, entry?: Entry): numbe
   return Number.isFinite(filled) ? filled : null;
 }
 
-/** Whether a widget is drawn: its shows-when holds. Unknown is not holding. */
-export const holds = (widget: Widget, view: View): boolean =>
-  widget['shows-when'] === undefined || view.conditions[widget['shows-when']] === true;
+function ownOr<T>(own: Readonly<Record<string, T>> | undefined, view: Readonly<Record<string, T>>, key: string) {
+  return own !== undefined && Object.hasOwn(own, key) ? own[key] : view[key];
+}
+
+/** Whether a widget is drawn: its shows-when holds, for its codex entry where it names one. Unknown is not holding. */
+export const holds = (widget: Widget, view: View, entry?: Entry): boolean => {
+  const when = widget['shows-when'];
+  return when === undefined || ownOr(entry?.conditions, view.conditions, when) === true;
+};
 
 const matches = (offer: Action, type: string, args: Readonly<Record<string, unknown>> | undefined) =>
   offer.type === type &&

@@ -16,6 +16,7 @@ export {
   createPack,
   PACK_FORMAT,
   type Pack,
+  type PackCredit,
   PackError,
   type PackProject,
   type PackUi,

@@ -25,14 +25,30 @@ export interface Layout {
   readonly columns?: number;
 }
 
+/** Where a button can send the player in the play shell (M4.4, D54): its title, or its New game. */
+export const SHELL_GOES = ['title', 'new'] as const;
+export type ShellGo = (typeof SHELL_GOES)[number];
+
 export type Action =
   | { readonly take: string; readonly args?: Readonly<Record<string, Value>> }
   | { readonly open: string }
-  | { readonly close: true };
+  | { readonly close: true }
+  | { readonly shell: ShellGo };
 
-/** Where a list's entries come from: the kits' views and what is on offer. */
-export const SOURCES = ['talk', 'event', 'shelf', 'bag', 'journal', 'offered'] as const;
+/**
+ * Where a list's entries come from: the kits' views, what is on offer, and since M4.4 the records
+ * of a type (a codex's) and the assets' credits the pack carries.
+ */
+export const SOURCES = ['talk', 'event', 'shelf', 'bag', 'journal', 'offered', 'records', 'credits'] as const;
 export type Source = (typeof SOURCES)[number];
+
+/** Sources whose entries come with no action, so `{"take": "entry"}` has nothing to take. */
+export const NO_ACTION: readonly Source[] = ['journal', 'records', 'credits'];
+
+/** In a `records` list, a fact's argument that is its entry's record (M4.4), as a quest's `@slot` is its slot's. */
+export const ENTRY = '@entry';
+/** The name `@entry` goes by where conditions name slots. */
+export const ENTRY_SLOT = 'entry';
 
 /** The fields each source's entries have, which an item's templates name as `{.field}`. */
 export const SOURCE_FIELDS: Readonly<Record<Source, readonly string[]>> = {
@@ -42,6 +58,9 @@ export const SOURCE_FIELDS: Readonly<Record<Source, readonly string[]>> = {
   bag: ['item', 'name', 'count', 'price'],
   journal: ['quest', 'name', 'state', 'log', 'objectives'],
   offered: ['type', 'label'],
+  // And the record's own fields whose values are text, numbers or yes/no: its type says which.
+  records: ['id', 'name'],
+  credits: ['asset', 'author', 'licence', 'source', 'tool'],
 };
 
 /** The kit a source needs on, if any. */
@@ -52,6 +71,8 @@ export const SOURCE_KITS: Readonly<Record<Source, string | undefined>> = {
   bag: 'inventory',
   journal: 'quests',
   offered: undefined,
+  records: undefined,
+  credits: undefined,
 };
 
 /** The views' own fields that templates may name beside facts: the open talk's line, the open event, the open shop. */
@@ -106,7 +127,18 @@ export type Widget =
       readonly max: number | string;
       readonly label: string;
     })
-  | (Base & { readonly widget: 'list'; readonly of: Source; readonly item: Widget; readonly empty?: string })
+  | (Base & {
+      readonly widget: 'list';
+      readonly of: Source;
+      readonly item: Widget;
+      readonly empty?: string;
+      /** A `records` list's record type (M4.4). */
+      readonly type?: string;
+      /** A `records` list's condition on `@entry`: until it holds, the entry is held back. */
+      readonly known?: string;
+      /** What a `records` list draws for an entry held back, showing nothing of its record. */
+      readonly unknown?: Widget;
+    })
   | (Base & {
       readonly widget: 'tabs';
       readonly tabs: readonly { readonly label: string; readonly children: readonly Widget[] }[];
@@ -153,10 +185,22 @@ export function childrenOf(widget: Widget): readonly Widget[] {
     case 'grid':
       return widget.children;
     case 'list':
-      return [widget.item];
+      return widget.unknown === undefined ? [widget.item] : [widget.item, widget.unknown];
     case 'tabs':
       return widget.tabs.flatMap((tab) => tab.children);
     default:
       return [];
   }
 }
+
+export type ListWidget = Extract<Widget, { widget: 'list' }>;
+
+/**
+ * The key a list's entries go by in a view: its source, or for a `records` list its type and its
+ * `known` too, since two such lists of one type can hold different entries back.
+ */
+export const listKey = (list: Pick<ListWidget, 'of' | 'type' | 'known'>): string =>
+  list.of === 'records' ? `records:${list.type ?? ''}:${list.known ?? ''}` : list.of;
+
+/** Whether a fact or condition as written names `@entry`, so it is read for each entry of its list. */
+export const namesEntry = (text: string): boolean => /@entry(?![a-z0-9-])/.test(text);

@@ -82,6 +82,11 @@ export function Shell(props: ShellProps) {
             history={props.history === true && screen === undefined}
             onPause={() => state.show('pause')}
             paused={screen !== undefined}
+            onShell={(go) => {
+              // The slot was saved at the last step, so nothing is lost by leaving.
+              state.quit();
+              if (go === 'new') state.show('new');
+            }}
           />
         ) : null}
         <div

@@ -103,3 +103,14 @@ function checkSchema(schema: z.core.$ZodType, at: string, check: Check): void {
       fail(`z.${shape.type} is not allowed: ${shape.why}`);
   }
 }
+
+/** A record type's own fields, which a codex's item may show (M4.4): its object's, or null when its schema isn't one. */
+export function fieldsOfType(type: RecordType): readonly string[] | null {
+  let at = view(type.schema);
+  for (let depth = 0; at.kind === 'wrapper' && depth < 8; depth++) at = view(at.inner);
+  return at.kind === 'object' ? Object.keys(at.shape).sort() : null;
+}
+
+/** Each record type's own fields by type: a screen check's `recordFields`. */
+export const recordFieldsOf = (types: readonly RecordType[]): Record<string, readonly string[] | null> =>
+  Object.fromEntries(types.map((type) => [type.type, fieldsOfType(type)]));

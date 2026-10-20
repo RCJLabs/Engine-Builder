@@ -9,19 +9,19 @@ import {
   type Beat,
   type Condition,
   canonicalJson,
-  checkCondition,
   createSession,
   type FactCatalog,
   type Game,
   type GameState,
-  parseCondition,
+  type PackCredit,
   type RecordStore,
   type Session,
   type SimContext,
 } from '@eb/core';
 import type { Feedback, Said } from '../format/feedback.ts';
-import type { Source } from '../format/screen.ts';
+import { codexEntries, creditEntries, parseCodex } from './records.ts';
 import { feedbackSayer } from './say.ts';
+import { soundCondition } from './sound.ts';
 import type { Entry, Shown, View, Wants } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
@@ -50,6 +50,8 @@ export interface PlaySetup {
   readonly wants: Wants;
   /** ui/feedback.json: the words the step's beats are said in. Without it, nothing is said. */
   readonly feedback?: Feedback;
+  /** The assets' credits the pack carries (M4.4), for a credits list. */
+  readonly credits?: readonly PackCredit[];
 }
 
 interface Read {
@@ -57,22 +59,12 @@ interface Read {
   readonly args?: Readonly<Record<string, unknown>>;
 }
 
-/**
- * The screens' facts and conditions, parsed and checked against the game once. One that doesn't
- * read, or names what the game lacks, reads as no value rather than throwing in the kernel: the
- * compiler has said why (E048).
- */
+/** The screens' facts and conditions, and each codex list's, parsed and checked against the game once. */
 function parsedWants(wants: Wants, catalog: FactCatalog) {
-  const sound = (text: string, bare: boolean): Condition | undefined => {
-    const parsed = parseCondition(text, catalog);
-    if (!parsed.ok || (bare && !('fact' in parsed.condition && parsed.condition.op === undefined))) return undefined;
-    // A bare fact is shown, not tested, so it needn't be yes or no (E014).
-    const issues = checkCondition(parsed.condition, { catalog }).filter((i) => !(bare && i.code === 'E014'));
-    return issues.length === 0 ? parsed.condition : undefined;
-  };
-  const facts = new Map(wants.facts.map((text) => [text, sound(text, true) as Read | undefined]));
-  const conditions = new Map(wants.conditions.map((text) => [text, sound(text, false)]));
-  return { facts, conditions };
+  const facts = new Map(wants.facts.map((text) => [text, soundCondition(text, catalog, true) as Read | undefined]));
+  const conditions = new Map(wants.conditions.map((text) => [text, soundCondition(text, catalog, false)]));
+  const codexes = (wants.records ?? []).map((want) => parseCodex(want, catalog));
+  return { facts, conditions, codexes };
 }
 
 const asShown = (value: unknown): Shown =>
@@ -90,6 +82,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
   const wants = parsedWants(setup.wants, catalog);
   const session: Session = createSession(game, sim, start);
   const say = setup.feedback ? feedbackSayer(setup.feedback, game.events()) : undefined;
+  const credits = setup.credits && setup.credits.length > 0 ? creditEntries(setup.credits) : undefined;
 
   function viewOf(state: GameState): View {
     const offered = game.options(state, sim);
@@ -101,6 +94,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       offered: new Set(offered.map((action) => canonicalJson(action))),
       fact: (id, args) => game.fact(state, id, args as never, sim),
       preview: (effect) => game.preview(state, [effect as never], sim)[0] ?? { effect: String(effect.effect) },
+      check: (condition: Condition) => game.check(state, condition, sim),
     };
     const facts: Record<string, Shown> = {};
     for (const [text, read] of wants.facts) facts[text] = read ? asShown(reading.fact(read.fact, read.args)) : null;
@@ -109,6 +103,8 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       conditions[text] = condition ? game.check(state, condition, sim) : null;
     }
     const { fields, lists } = kitViews(reading, kits);
+    for (const codex of wants.codexes) lists[codex.key] = codexEntries(reading, codex);
+    if (credits) lists.credits = credits;
     lists.offered = offered.map((action, i) => ({
       key: `${i}:${canonicalJson(action)}`,
       fields: { type: action.type, label: actionLabel(action, content) },
@@ -156,7 +152,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
 /** The talk, the event, the shop and the bag while each applies, and the journal, by the kits that are on. */
 function kitViews(reading: Reading, kits: readonly string[]) {
   const fields: Record<string, Shown> = {};
-  const lists: Partial<Record<Source, readonly Entry[]>> = {};
+  const lists: Record<string, readonly Entry[]> = {};
   const data = (mode: string, key: string) => {
     const value = (frameOf(reading.state, mode)?.data as Record<string, unknown> | undefined)?.[key];
     return typeof value === 'string' ? value : undefined;
