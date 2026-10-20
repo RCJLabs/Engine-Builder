@@ -57,5 +57,5 @@ const ms = (n: number) => `${n.toFixed(2)} ms`;
 console.log(`compile without ui/ and start, median of ${ROUNDS}: ${ms(median(opens))}`);
 console.log(`load the Play panel's save of a day rested, median of ${ROUNDS}: ${ms(median(loads))}`);
 console.log(
-  `look at the hut screen's ${wants.facts.length} facts and ${wants.conditions.length} conditions, median of ${looks.length}: ${ms(median(looks))}`,
+  `look at the hut screen's ${wants.facts.length} facts and ${wants.conditions.length} condition(s), median of ${looks.length}: ${ms(median(looks))}`,
 );
