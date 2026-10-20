@@ -1,0 +1,92 @@
+/**
+ * Every stock screen (M4.4, D54) written into a project and compiled against its game: clean, with
+ * nothing under ui/ the checks find. The hut, its own screens set aside, covers dialogue, events,
+ * quests and factions; the crew the roster and stats; the arena stats without a roster.
+ */
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { compileWithGame, memorySource, projectGame } from '@eb/compiler';
+import { describe, expect, it } from 'vitest';
+import { contextFrom, type Held, type StockContext, showsOf } from './context.ts';
+import { allStock, STOCK } from './index.ts';
+
+const FIXTURES = join(import.meta.dirname, '../../../../../tools/cli/test/fixtures');
+
+/** A fixture's files, its screens left out: theme.json, feedback.json and shell.json stay. */
+function filesOf(name: string): Record<string, Uint8Array> {
+  const root = join(FIXTURES, name);
+  const files: Record<string, Uint8Array> = {};
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else files[relative(root, path).split('\\').join('/')] = readFileSync(path);
+    }
+  };
+  walk(root);
+  const kept = new Set(['ui/theme.json', 'ui/feedback.json', 'ui/shell.json']);
+  return Object.fromEntries(Object.entries(files).filter(([path]) => !path.startsWith('ui/') || kept.has(path)));
+}
+
+async function contextOf(name: string, files: Record<string, Uint8Array>): Promise<StockContext> {
+  const source = memorySource(files);
+  const loaded = await projectGame(source);
+  if (loaded.kind !== 'loaded') throw new Error(`${name}'s game didn't load: ${loaded.kind}`);
+  const compiled = await compileWithGame(source);
+  const records = compiled.pack?.records ?? {};
+  const held: Held[] = Object.entries(records).flatMap(([type, group]) =>
+    Object.entries(group).map(([id, value]) => ({ type, id, value })),
+  );
+  const project = JSON.parse(new TextDecoder().decode(files['project.json'])) as { name: string; kits?: string[] };
+  const { start, modes, endings } = loaded.catalog;
+  return contextFrom(
+    {
+      game: project.name,
+      kits: project.kits ?? [],
+      modes: { start, all: modes, endings },
+      screens: [],
+      shown: new Set(),
+    },
+    held,
+  );
+}
+
+/** Each stock screen offered, written into the files as allStock makes them. */
+function withStock(ctx: StockContext, files: Record<string, Uint8Array>) {
+  const written = allStock(ctx);
+  const added: Record<string, Uint8Array> = { ...files };
+  for (const { id, text } of written) added[`ui/${id}.json`] = new TextEncoder().encode(text);
+  return { added, screens: written.map(({ id }) => id) };
+}
+
+describe('the stock screens, written into a project and compiled against its game', () => {
+  for (const [name, expected] of [
+    ['hut', ['codex', 'credits', 'dialogue', 'ending', 'event', 'hud', 'inventory', 'journal', 'shop']],
+    ['crew', ['codex', 'credits', 'ending', 'hall', 'hud', 'inventory', 'shop']],
+    ['arena', ['codex', 'credits', 'ending', 'hud', 'inventory', 'shop']],
+  ] as const) {
+    it(`gives ${name} its kits’ stock screens, each clean`, async () => {
+      const files = filesOf(name);
+      const ctx = await contextOf(name, files);
+      const { added, screens } = withStock(ctx, files);
+      expect([...screens].sort()).toEqual(expected);
+      const compiled = await compileWithGame(memorySource(added));
+      expect(compiled.diagnostics.filter((d) => d.file?.startsWith('ui/'))).toEqual([]);
+      expect(compiled.pack?.ui?.screens).toBeDefined();
+    }, 30_000);
+  }
+
+  it('shows each mode once: the HUD the game’s start, the ending its modes with no action', async () => {
+    const files = filesOf('hut');
+    const ctx = await contextOf('hut', files);
+    const { added } = withStock(ctx, files);
+    const shows = (id: string) => showsOf(JSON.parse(new TextDecoder().decode(added[`ui/${id}.json`])));
+    expect(shows('hud')).toEqual(['hut']);
+    expect(shows('ending')).toEqual(['closed']);
+    expect(shows('dialogue')).toEqual(['talking']);
+    expect(shows('journal')).toEqual([]);
+    // A mode a screen already shows is left to it.
+    const again = STOCK.find((s) => s.id === 'dialogue');
+    expect(again?.build({ ...ctx, shown: new Set(['talking']) }).shows).toEqual([]);
+  });
+});
