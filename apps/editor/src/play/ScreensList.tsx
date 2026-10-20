@@ -1,17 +1,17 @@
 /**
  * The Play panel's screens (M4.1, D51): each screen under ui/, the theme, the feedback (M4.2) and
- * the shell (M4.3), opening in the inspector as JSON with their problems counted, New screen, and
- * New theme, New feedback and New shell while there is none.
+ * the shell (M4.3), opening in the inspector as JSON with their problems counted, New screen, with
+ * its stock templates (M4.4), and New theme, New feedback and New shell while there is none.
  */
 import { FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE } from '@eb/compiler';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
-import { NameRecord } from '../records/NameRecord.tsx';
 import { openUiFile } from '../screens/open.ts';
-import { feedbackTemplate, screenTemplate, shellTemplate, themeTemplate } from '../screens/templates.ts';
+import { feedbackTemplate, shellTemplate, themeTemplate } from '../screens/templates.ts';
 import { createTextFiles } from '../scripts/scriptEdits.ts';
+import { NewScreen } from './NewScreen.tsx';
 
 const count = (n: number) => `${n} ${n === 1 ? 'problem' : 'problems'}`;
 
@@ -74,16 +74,11 @@ export function ScreensList({ project }: { project: OpenProject }) {
         ) : null}
       </div>
       {naming ? (
-        <NameRecord
-          type="screen"
-          // ui/theme.json, ui/feedback.json and ui/shell.json are none of them screens, so no screen can be named so.
-          ids={[...catalog.screens, 'theme', 'feedback', 'shell']}
-          label="Name of the new screen"
-          action="Create"
-          fileOf={screenPath}
-          done={(id, typed) => {
+        <NewScreen
+          project={project}
+          create={(path, text, label) => {
             setNaming(false);
-            create(screenPath(id), screenTemplate(typed), `New screen ${id}`);
+            create(path, text, label);
           }}
           cancel={() => setNaming(false)}
         />

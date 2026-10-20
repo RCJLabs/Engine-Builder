@@ -213,4 +213,34 @@ describe('compiling ui/', () => {
       { code: 'E018', file: 'ui/hud.json', path: '/main/children/1/asset', message: 'No asset "map.png" in assets/' },
     ]);
   });
+
+  it('packs the assets’ credits from the provenance log as format 7, with screens only (M4.4)', async () => {
+    const files = {
+      'assets/rope.png': 'png',
+      'assets/axe.png': 'png',
+      'assets/assets.json': JSON.stringify({
+        files: {
+          'rope.png': { licence: 'CC-BY-4.0', source: 'https://example.org/rope', date: '2026-10-20', author: 'Ana' },
+          'axe.png': { licence: 'generated', source: 'Made here', date: '2026-10-20', tool: 'Paint', prompt: 'an axe' },
+        },
+      }),
+    };
+    const shown = await compile({ ...files, 'ui/hud.json': JSON.stringify(hud) });
+    expect(brief(shown)).toEqual([]);
+    const pack = readPack(JSON.parse(JSON.stringify(shown.pack)));
+    expect(pack.format).toBe(7);
+    // Sorted by path; the prompt and the date stay in the log.
+    expect(pack.credits).toEqual([
+      { asset: 'axe.png', licence: 'generated', licenceName: 'Generated', source: 'Made here', tool: 'Paint' },
+      {
+        asset: 'rope.png',
+        licence: 'CC-BY-4.0',
+        licenceName: 'CC BY 4.0',
+        source: 'https://example.org/rope',
+        author: 'Ana',
+      },
+    ]);
+    // Nothing to show them on: the pack keeps the format it had.
+    expect((await compile(files)).pack?.format).toBe(3);
+  });
 });

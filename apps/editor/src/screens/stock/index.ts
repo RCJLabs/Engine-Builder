@@ -1,0 +1,112 @@
+/**
+ * The stock screens New screen offers (M4.4, D54, docs/specs/stock-screens.md): each a template
+ * written into ui/ from the project as it stands, offered while the kits it reads are on.
+ */
+import type { Screen } from '@eb/ui/format';
+import { hasKits, type StockContext } from './context.ts';
+import { dialogueScreen, eventScreen, hallScreen, shopScreen } from './modal.ts';
+import { codexScreen, codexTabs, creditsScreen, inventoryScreen, journalScreen } from './pages.ts';
+import { endingScreen, hudScreen } from './play.ts';
+
+export interface Stock {
+  /** The id New screen starts its name from, and the screen's file. */
+  readonly id: string;
+  /** What the form calls it, and the name it starts with. */
+  readonly name: string;
+  readonly about: string;
+  /** Whether the project can have it: the kits it reads are on. */
+  readonly offered: (ctx: StockContext) => boolean;
+  readonly build: (ctx: StockContext) => Screen;
+}
+
+const needs =
+  (...kits: string[]) =>
+  (ctx: StockContext) =>
+    hasKits(ctx, kits);
+
+export const STOCK: readonly Stock[] = [
+  {
+    id: 'hud',
+    name: 'HUD',
+    about: 'The live numbers over the actions on offer',
+    offered: () => true,
+    build: hudScreen,
+  },
+  {
+    id: 'dialogue',
+    name: 'Dialogue',
+    about: 'A talk: its line and its options',
+    offered: needs('dialogue'),
+    build: dialogueScreen,
+  },
+  {
+    id: 'event',
+    name: 'Event',
+    about: 'An event: its text and its choices',
+    offered: needs('events'),
+    build: eventScreen,
+  },
+  {
+    id: 'shop',
+    name: 'Shop',
+    about: 'Buy from the shelf and sell from the bag',
+    offered: needs('economy', 'inventory'),
+    build: shopScreen,
+  },
+  { id: 'hall', name: 'Hall', about: 'Hire from a hall’s offers', offered: needs('roster'), build: hallScreen },
+  {
+    id: 'inventory',
+    name: 'Inventory',
+    about: 'What the bag holds',
+    offered: needs('inventory'),
+    build: inventoryScreen,
+  },
+  { id: 'journal', name: 'Journal', about: 'The quests and the log', offered: needs('quests'), build: journalScreen },
+  {
+    id: 'codex',
+    name: 'Codex',
+    about: 'Records, each shown once found',
+    offered: (ctx) => codexTabs(ctx).length > 0,
+    build: codexScreen,
+  },
+  {
+    id: 'credits',
+    name: 'Credits',
+    about: 'Each asset’s credit, from the provenance log',
+    offered: () => true,
+    build: creditsScreen,
+  },
+  {
+    id: 'ending',
+    name: 'Ending',
+    about: 'The numbers at the end, and the way back to the title',
+    offered: () => true,
+    build: endingScreen,
+  },
+];
+
+/** A template's text as the file holds it: two-space JSON, as the other templates are written. */
+export const stockText = (stock: Stock, ctx: StockContext): string => `${JSON.stringify(stock.build(ctx), null, 2)}\n`;
+
+/** The order to make them all in: the pages first, so the HUD and the ending find the ones there are. */
+export const STOCK_ORDER: readonly Stock[] = [
+  ...STOCK.filter((stock) => stock.id !== 'hud' && stock.id !== 'ending'),
+  ...STOCK.filter((stock) => stock.id === 'hud' || stock.id === 'ending'),
+];
+
+/**
+ * Every stock screen the project's kits allow, each written as New screen would write it after the
+ * ones before: what the gate makes in the editor, and what the tests make without it.
+ */
+export function allStock(ctx: StockContext): { readonly id: string; readonly text: string }[] {
+  const written: { id: string; text: string }[] = [];
+  let now = ctx;
+  for (const stock of STOCK_ORDER) {
+    if (!stock.offered(now)) continue;
+    const text = stockText(stock, now);
+    written.push({ id: stock.id, text });
+    const shows = (JSON.parse(text) as { shows?: readonly string[] }).shows ?? [];
+    now = { ...now, screens: [...now.screens, stock.id], shown: new Set([...now.shown, ...shows]) };
+  }
+  return written;
+}

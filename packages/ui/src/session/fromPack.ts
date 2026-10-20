@@ -68,6 +68,7 @@ export function openPack(value: unknown): OpenResult {
     kits,
     wants,
     ...(feedback ? { feedback } : {}),
+    ...(pack.credits ? { credits: pack.credits } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
   return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name } };

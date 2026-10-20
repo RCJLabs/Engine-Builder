@@ -102,7 +102,7 @@ describe('createPack', () => {
     const screens = { hud: { main: { widget: 'log' } } };
     const shell = { title: 'The Hut', slots: 2 };
     const shelled = createPack(project, records, undefined, { screens, shell });
-    expect(shelled.format).toBe(PACK_FORMAT);
+    expect(shelled.format).toBe(6);
     expect(shelled.ui).toEqual({ screens, shell });
     expect(shelled.hash).not.toBe(createPack(project, records, undefined, { screens }).hash);
     expect(createPack(project, records, undefined, { screens, shell: { ...shell, slots: 3 } }).hash).not.toBe(
@@ -114,6 +114,23 @@ describe('createPack', () => {
       feedback,
       shell,
     });
+  });
+
+  it('carries the assets\u2019 credits as format 7, sorted by asset, ui or none, hashing them too (M4.4)', () => {
+    const screens = { hud: { main: { widget: 'log' } } };
+    const rope = { asset: 'rope.png', licence: 'CC-BY-4.0', licenceName: 'CC BY 4.0', source: 'x', author: 'Ana' };
+    const axe = { asset: 'axe.png', licence: 'own', licenceName: 'Own work', source: 'Drawn here' };
+    const credited = createPack(project, records, undefined, { screens }, [rope, axe]);
+    expect(credited.format).toBe(PACK_FORMAT);
+    expect(credited.credits).toEqual([axe, rope]);
+    expect(credited.ui).toEqual({ screens });
+    expect(createPack(project, records, undefined, { screens }, [axe, rope]).hash).toBe(credited.hash);
+    expect(createPack(project, records, undefined, { screens }, [rope, { ...axe, author: 'Bo' }]).hash).not.toBe(
+      credited.hash,
+    );
+    // No credits, no format 7: the hash stays what it was.
+    expect(createPack(project, records, undefined, { screens }, []).format).toBe(4);
+    expect(createPack(project, records, undefined, undefined, [axe])).not.toHaveProperty('ui');
   });
 });
 
@@ -244,9 +261,31 @@ describe('readPack', () => {
     );
   });
 
+  it('reads a format 7 pack and its credits, with ui or none, and refuses credits elsewhere', () => {
+    const credit = { asset: 'rope.png', licence: 'CC-BY-4.0', licenceName: 'CC BY 4.0', source: 'x', author: 'Ana' };
+    const ui = { screens: { hud: { main: { widget: 'log' } } } };
+    const pack = readPack(reloaded(createPack(project, records, undefined, ui, [credit])));
+    expect(pack.format).toBe(7);
+    expect(pack.credits).toEqual([credit]);
+    expect(pack.ui).toEqual(ui);
+    expect(readPack(reloaded(createPack(project, records, undefined, undefined, [credit]))).ui).toBeUndefined();
+    const credited = reloaded(createPack(project, records, undefined, ui, [credit]));
+    const shelled = reloaded(createPack(project, records, undefined, { ...ui, shell: {} }));
+    expect(() => readPack({ ...shelled, credits: [credit] })).toThrow('Unknown pack fields: credits');
+    expect(() => readPack({ ...credited, credits: [] })).toThrow('A format 7 pack has no credits');
+    expect(() => readPack({ ...credited, credits: undefined })).toThrow('A format 7 pack has no credits');
+    expect(() => readPack({ ...credited, credits: [{ ...credit, licence: 4 }] })).toThrow(
+      "A pack's credit has no licence",
+    );
+    expect(() => readPack({ ...credited, credits: [{ ...credit, prompt: 'p' }] })).toThrow(
+      'Unknown pack credit fields: prompt',
+    );
+    expect(() => readPack({ ...credited, ui: { screens: {}, shell: 'big' } })).toThrow('A format 7 pack has no shell');
+  });
+
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 7 })).toThrow(
-      'This pack is format 7; this engine reads formats 1 to 6. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 8 })).toThrow(
+      'This pack is format 8; this engine reads formats 1 to 7. Update the engine.',
     );
   });
 

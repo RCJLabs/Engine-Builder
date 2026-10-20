@@ -14,6 +14,7 @@ import {
   JUSTIFIES,
   LOG_LINES_MAX,
   type Screen,
+  SHELL_GOES,
   type ShellFile,
   SLOTS_MAX,
   SLOTS_MIN,
@@ -42,6 +43,7 @@ const action = z.union([
   z.strictObject({ take: z.string().min(1), args: z.record(z.string(), value).optional() }),
   z.strictObject({ open: z.string().min(1) }),
   z.strictObject({ close: z.literal(true) }),
+  z.strictObject({ shell: z.enum(SHELL_GOES) }),
 ]);
 const text = z.string();
 const children = z.array(z.lazy(() => widgetSchema));
@@ -78,6 +80,9 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
       of: z.enum(SOURCES),
       item: z.lazy(() => widgetSchema),
       empty: text.optional(),
+      type: z.string().min(1).optional(),
+      known: z.string().min(1).optional(),
+      unknown: z.lazy(() => widgetSchema).optional(),
       ...base,
     }),
     z.strictObject({

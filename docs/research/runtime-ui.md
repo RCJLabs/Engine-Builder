@@ -181,6 +181,15 @@ Read on 2026-10-20, read only, as above, by an agent with Read, Grep and Glob on
 
 **What M4.3 takes** ([specs/shell.md](../specs/shell.md), D53): summaries beside saves; Continue as the slot played last; a second press for New over a save, Delete and replacing in an import; unreadable slots shown and kept; Chooser's Daily; settings outside the save, per field, on the root; Dirtbag's plain-DOM crash screen with the raw save; the update prompt on the title only.
 
+## A fourth look, for M4.4
+
+Read on 2026-10-20, read only, for the codex.
+- **Sandbagged's codex** (sandbagged/src/App.tsx:2186-2207) lists every card by rarity. One not owned is drawn faded, "???" with "not yet found", its mark and text held back; one owned shows its numbers, its family and its rules line.
+- **Wasteland Protocol's bestiary** (wasteland-protocol/tests/suites/41-bestiary.js:1-40) files every hostile type, and remembers across runs how often each was met, killed and felled by. Its spec counts the roster's sources so a new one can't go missing.
+- **Dirtbag, Space-Wrecked and Chooser have none in code.** Chooser's concept doc plans one for bind-runes, combos logged as the player finds them (chooser-of-the-dead/docs/game-concepts.md:211): a discovery rule too.
+
+**What M4.4 takes** ([specs/stock-screens.md](../specs/stock-screens.md), D54): every record of a type listed, each held back until a condition the author writes holds, then shown with its live numbers.
+
 ## Open questions
 
 1. **A screen's escape hatch.** What data can't say (a map drawn on a canvas, a custom widget) needs a way out; D51 leaves it for later.

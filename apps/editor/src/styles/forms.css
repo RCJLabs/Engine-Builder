@@ -64,9 +64,17 @@
   margin: 8px 0 4px;
 }
 
-.new-record label {
+.new-record label,
+.new-screen > label {
   font-weight: 600;
   color: var(--muted);
+}
+
+/* New screen's template, above its name (M4.4): laid out as the name form is. */
+.new-screen {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 4px;
 }
 
 .record-form {

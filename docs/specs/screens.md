@@ -53,7 +53,7 @@ Every widget has `widget`, its kind, and may have:
 | `image` | `asset`, `alt` | An asset of the project's. |
 | `button` | `label`, `action`, `style` (`primary` or `plain`) | At least 44 px high and wide. Disabled while its action isn't on offer. |
 | `progress` | `value`, `max`, `label` | `value` and `max` are numbers or bindings. |
-| `list` | `of`, `item`, `empty` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
+| `list` | `of`, `item`, `empty`; for `records`, `type`, `known` and `unknown` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
 | `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. A pad's LB and RB and a swipe turn them too (M4.2). |
 | `log` | `lines` (1 to 100, default 10), `label`, `empty` | The lines the game's feedback said to the log, newest first (M4.2, [input.md](input.md#the-log)). |
 
@@ -71,6 +71,7 @@ A button's `action` is one of:
 - **`{"take": "<module>/<action>", "args": {…}}`**: the game's action. The button is enabled only while an action of that type is on offer with those arguments; without `args`, it takes the first of that type on offer. This is how the sim decides: a screen can only ask for what the game offers, and the session refuses anything else before the sim sees it.
 - **`{"open": "<screen>"}`**: opens a screen above the rest.
 - **`{"close": true}`**: closes the top screen that a button opened.
+- **`{"shell": "title"}`** and **`{"shell": "new"}`** (M4.4, D54): back to the play shell's title, or to its New game. Where no shell plays the game, the button is disabled.
 
 In a list, an item's button can use `{"take": "entry"}`: the action that comes with the entry, such as a talk option's `dialogue/say`.
 
@@ -86,8 +87,16 @@ In a list, an item's button can use `{"take": "entry"}`: the action that comes w
 | `bag` | the items carried | `item`, `name`, `count`, `price` while a shop is open; the action sells it |
 | `journal` | the quests started, as the quests kit's journal shows them | `quest`, `name`, `state`, `log`, `objectives` |
 | `offered` | every action on offer | `type`, `label`; the action takes it |
+| `records` | every record of the list's `type`, in id order (M4.4) | `id`, `name`, and the record's own fields whose values are text, numbers or yes/no |
+| `credits` | each asset's credit, from the pack (M4.4) | `asset`, `author`, `licence`, `source`, `tool` |
 
 The talk's own line, its speaker and the event's text are views too, read as `{talk.text}`, `{talk.speaker}` and `{event.text}` in templates.
+
+**A `records` list** (M4.4, D54) is the codex's:
+- **`type`** names the record type, which the project must have.
+- **`@entry`** in a fact's arguments, in the item's templates and `shows-when`, is the entry's record, read for each entry by the worker, as `{inventory.count(item: @entry)}`.
+- **`known`**, a condition that may name `@entry`, holds back an entry until it holds. Such an entry is drawn by the list's `unknown` widget, which shows nothing of its record, or isn't drawn without one. Without `known`, every entry is known.
+- **Two lists of one type** with different `known` conditions are two lists in the view.
 
 ## Layout
 
@@ -149,7 +158,7 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 
 ## Pack
 
-Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens. Format 5 adds `ui.feedback` (M4.2, [input.md](input.md#pack)).
+Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens. Format 5 adds `ui.feedback` (M4.2, [input.md](input.md#pack)), format 6 `ui.shell` (M4.3, [shell.md](shell.md#pack)). Format 7 adds `credits` (M4.4, D54): each asset in `assets/assets.json`, by its path, with its licence's id and name, its author, source and tool where the log has them. A project without assets, or without anything under `ui/` to show them, keeps its format.
 
 ## Checks
 
@@ -158,8 +167,8 @@ Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still writt
 | E007 | A file under `ui/` isn't UTF-8 JSON. It is still a screen, so a button that opens it isn't E049 as well. |
 | E018 | An image names a file that isn't in `assets/`. |
 | E047 | A screen or the theme isn't valid: an unknown widget, a missing field, a field of the wrong kind, or a template whose braces don't close. Given at its JSON path. |
-| E048 | A template, number or `shows-when` names a fact the game lacks, or gives it the wrong arguments; a binding compares (that belongs in `shows-when`); or `{.field}` is outside a list, or names a field its source lacks. |
-| E049 | A button takes an action the game lacks, opens a screen that isn't there, or uses `entry` outside a list or in a journal's. A list's `of`, or a view's field such as `{talk.text}`, needs a kit that is off. A screen `shows` a mode the game lacks. |
+| E048 | A template, number or `shows-when` names a fact the game lacks, or gives it the wrong arguments; a binding compares (that belongs in `shows-when`); `{.field}` is outside a list, or names a field its source lacks; `@entry` is outside a `records` list's item and `known`; or an `unknown` widget names its entry's record. |
+| E049 | A button takes an action the game lacks, opens a screen that isn't there, or uses `entry` outside a list or in a journal's, a codex's or the credits'. A list's `of`, or a view's field such as `{talk.text}`, needs a kit that is off. A screen `shows` a mode the game lacks. A `records` list names no type, or one the project lacks; another list names one. |
 | E050 | The theme's pairs fall short of 4.5:1. |
 | W132 | A file under `ui/` that is no screen and isn't `theme.json` or `feedback.json`: ignored. |
 | W133 | A mode of the game's, or of a kit it has on, that no screen shows: it is played with the fallback. Only once the project has a screen: before that, every mode is. |
@@ -169,7 +178,7 @@ Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still writt
 
 ## Open questions
 
-1. **Settings widgets.** A toggle, a slider and a select need settings to bind to, which aren't facts. They come with M4.3's settings screen.
+1. **Settings widgets.** A toggle, a slider and a select need settings to bind to, which aren't facts. M4.3's shell keeps the player's settings on its own screen ([shell.md](shell.md#settings)), so a game's screens have none to bind yet.
 2. **An escape hatch.** Data can't draw a map or a custom gauge. D51 leaves that for later.
 3. **Assets in the player page.** The pack holds no assets yet, so an image widget shows only in the editor until the export carries them (M4.10).
 4. **`eb schemas` for `ui/`.** VS Code could check screens as it checks records, from the same zod. Not in M4.1.

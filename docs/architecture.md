@@ -225,7 +225,7 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
   - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known; drag and pinch wait for M4.6's map.
 - **Feedback** (M4.2, D52): a game words its beats in `ui/feedback.json`; the worker fills the words in, and the page shows them as toasts, keeps them in a `log` widget and speaks each step's once through one live region.
 - **The play shell** (M4.3, D53, [specs/shell.md](specs/shell.md)) is drawn by the engine in the game's theme, its words, slots and Daily set in `ui/shell.json`: a title with slots (Continue, New, Daily), save and load with files and codes, pause, settings, a crash screen in plain DOM and an update prompt on the title. The worker makes a save after every step and the page keeps it, so the worker never touches storage.
-- **Stock screens** (M4.4) ship as templates you restyle: HUD, inventory, journal, dialogue, shop, codex (built from live numbers), credits and ending. The map comes with M4.6's world map.
+- **Stock screens** (M4.4, D54) ship as templates you restyle, written into `ui/` from the project: HUD, dialogue, event, shop, hall, inventory, journal, codex (records shown once known, with live numbers), credits (packed from the provenance log) and ending ([specs/stock-screens.md](specs/stock-screens.md)). The map comes with M4.6's world map.
 
 ## Saves
 

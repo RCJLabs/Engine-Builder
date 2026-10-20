@@ -1,4 +1,4 @@
-export { templatesOf, type Wants, wantsOf, widgetsOf } from './bindings.ts';
+export { type RecordsWant, templatesOf, type Wants, wantsOf, widgetsOf } from './bindings.ts';
 export { FEEDBACK_TO, type Feedback, type FeedbackLine, type FeedbackTo, LOG_KEPT, type Said } from './feedback.ts';
 export {
   type Action,
@@ -8,13 +8,21 @@ export {
   BUTTON_STYLES,
   childrenOf,
   DIRECTIONS,
+  ENTRY,
+  ENTRY_SLOT,
   JUSTIFIES,
   type Layout,
+  type ListWidget,
   LOG_LINES,
   LOG_LINES_MAX,
+  listKey,
+  NO_ACTION,
+  namesEntry,
   REGIONS,
   type Region,
   type Screen,
+  SHELL_GOES,
+  type ShellGo,
   SOURCE_FIELDS,
   SOURCE_KITS,
   SOURCES,

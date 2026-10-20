@@ -81,7 +81,14 @@ export {
   provenanceSchema,
 } from './provenance.ts';
 export { slotScope } from './questSlots.ts';
-export { defineRecordType, type RecordType, type RecordTypeDefinition, SchemaError } from './recordType.ts';
+export {
+  defineRecordType,
+  fieldsOfType,
+  type RecordType,
+  type RecordTypeDefinition,
+  recordFieldsOf,
+  SchemaError,
+} from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
 export { calendarSchema, cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';
 export { timeEffectFiles } from './timeEffects.ts';
