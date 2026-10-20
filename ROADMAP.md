@@ -634,7 +634,12 @@ How to read this file:
     - an option's reason, cost and odds read as a dash where there are none, so the templates leave them for the author to place.
   - **Untested for feel:** the stock screens' words and layout, which no player has seen; the HUD's first three stats, which is a guess at what a HUD wants.
   - **36 planted bugs:** 28 at the unit level, of which 26 were caught. The two survivors got checks and, planted again, were caught: `@entry` left unbound read an item named "@entry", whose count was 0 as rope's was, so a codex of resources now reads each entry's own amount; and a codex tab that lost its known still compiled clean, so the hut's codex is checked tab by tab. 8 through the built page, each caught. Before planting, six that would have gone unseen got checks: the HUD taking a mode already shown, the HUD made before the pages, records named by their ids, the roster's starting members ignored, the modes other screens show not read, and a logged file credited that isn't there.
-- **M4.5 UI designer.** WYSIWYG, with device frames at 360×740, 390×844, tablet and desktop.
+- **M4.5 UI designer** (D55, your calls). WYSIWYG, with device frames at 360×740, 390×844, tablet (820×1180) and desktop (1280×800), each turned to landscape.
+  - **An outline, a form and a frame** (your call): the screen's widgets as a tree, the screen drawn in a device frame, and a form for the widget selected. A tap on either selects. Widgets are added, duplicated, deleted, and moved by a handle's drag or by Up, Down, In and Out.
+  - **The frame draws the Play panel's moment, with samples in the gaps** (your call), from a game of the designer's own, compiled without `ui/`.
+  - **Screens and the theme designed, their JSON kept** (your call). The theme gets colour pickers with each pair's contrast shown live. The shell and feedback stay JSON.
+  - **The gate** (your call): `ui/hut.json` and `ui/journal.json` made from blank in the designer alone, typing no JSON. They must come out as the fixture's JSON and the hut must play on them. Every device frame must draw them with nothing past its edges. At 360 and 390 px the same edits are made by touch.
+  - [`docs/specs/designer.md`](docs/specs/designer.md) is the design.
 - **M4.6 World map.** A node-graph editor and a seeded route-map generator, with placement rules checked by validators.
 - **M4.7 Encounters.** A framework with auto-resolve; the odds shown are the odds rolled.
 - **M4.8 Audio.** A synth SFX designer (ZzFX-style parameters and presets), ambience beds, music stems and buses. Haptics read the same cues. The settings screen gains its volumes.

@@ -1262,6 +1262,51 @@ Evan chose on 2026-10-20, from these options:
 - **Pack format 7** for any project with assets and screens: an older player page refuses such a file, as it did formats 5 and 6.
 - **A screen's list is keyed by more than its source:** two codex lists of one type with different `known` are two lists in the view.
 
+### D55. The UI designer edits a screen as an outline, a form and a device frame; the frame draws the Play panel's moment, with samples where it has none; screens and the theme are designed, with their JSON kept; the hut and its journal rebuilt in it prove it. LOCKED, 2026-10-20 (Evan's calls, M4.5)
+
+**Decision.**
+- **An outline, a form and a frame** (Evan's call). A screen opens in the inspector as three parts:
+  - the outline, the screen's widgets as a tree;
+  - the frame, the screen drawn as a device shows it;
+  - the form, for the widget selected.
+
+  A tap on a widget in the frame or a row of the outline selects it. The outline adds, duplicates and deletes. It moves a widget by dragging its handle, or by Up, Down, In and Out, which a keyboard and a single tap reach. Nothing is dragged on the frame itself.
+- **The frame draws the Play panel's moment, with samples where it has none** (Evan's call).
+  - Facts read the game as the Play panel last left it in this session, or as it starts when nothing has been played.
+  - A list whose source doesn't apply then, such as a shop that isn't open, gets three sample entries named for their fields. A talk's or a shop's own text that the moment lacks gets the same treatment.
+  - Without a game to read (scripts not yet run, or errors outside `ui/`), everything is a sample, and the frame says why.
+- **Screens and the theme are designed, their JSON kept** (Evan's call).
+  - A screen and the theme each have a Design tab and a JSON tab, over the same file with the same undo. The JSON tab is how in when the file is one the designer can't read.
+  - The theme is designed as colour pickers, each text pair's contrast shown as it is picked, against 4.5:1.
+  - `shell.json` and `feedback.json` stay JSON: they are words, not layout.
+- **The gate is the hut and its journal, rebuilt** (Evan's call). An e2e makes `ui/hut.json` and `ui/journal.json` from blank screens in the designer alone, typing no JSON. They need:
+  - for the hut: its grid's columns at landscape, tablet and desktop, a button's arguments, a shows-when, the progress bar and the log;
+  - for the journal: its tabs, and lists with their items.
+
+  Each file must come out as the fixture's JSON, and the hut must play on them. Every device frame draws them with nothing past its edges. On phones at 360 and 390 px, the same edits are made by touch in the inspector sheet.
+- **Not asked, and following from the calls:**
+  - **The frames:** 360×740, 390×844, a tablet at 820×1180 and a desktop at 1280×800, each turned to landscape by a button. The tablet's is 2060td's and the desktop's chooser's.
+  - **A layout field changes every size,** unless the form is set to the frame's size, which writes the widget's `at` for it alone. Each override is marked.
+  - **The frame draws the one screen,** inert. The outline is the way in for keys and screen readers.
+  - **The moment is read by a game of the designer's own,** in a copy of the Play worker. The Play panel's game is never disturbed. The project is compiled without `ui/`, so a half-made screen never stops the frame. That game is loaded from the Play panel's last save, which it keeps.
+
+Evan chose on 2026-10-20, from these options:
+- editing: an outline, a form and a frame; the same, plus dragging on the frame; or the frame and the form alone;
+- the frame's data: the Play panel's moment with samples in the gaps; the game's start with samples; or samples alone;
+- scope: screens and the theme with the JSON kept; screens alone with the JSON kept; or screens, the theme, the shell and the feedback;
+- the gate: the hut and the journal rebuilt; all six of the hut's screens rebuilt; or a new screen, then played.
+
+**Why.**
+- **The outline mirrors the file.** A screen is a tree, so the designer reaches everything the JSON can say, including a widget hidden by its shows-when or a list with no entries. Dragging on a frame at 360 px is fiddly by touch. 2060td found that a row dragged by touch can't be told apart from a scroll, so its rows drag only by a handle.
+- **Real numbers show real wrapping.** Play to the store, then design the store screen with its prices. Samples alone never show how long text runs.
+- **The JSON stays** for what the designer can't read, such as a typo, and for the author who wants it.
+- **The hut and the journal** use nine of the ten widgets between them, along with breakpoint overrides, arguments, shows-when, tabs and list items. Rebuilding them proves the designer can say what a real game's screens say.
+
+**Cost.**
+- **A third copy of the script worker** while a screen is open in the designer.
+- **The moment's state moves by save, not live.** A moment from before the Play panel's last step shows until that step's save lands.
+- **Overrides only for layout:** `at` changes a widget's layout at a size, never its content, as M4.1 set.
+
 ---
 
 ## Open

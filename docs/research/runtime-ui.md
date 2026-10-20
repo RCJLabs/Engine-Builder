@@ -190,6 +190,42 @@ Read on 2026-10-20, read only, for the codex.
 
 **What M4.4 takes** ([specs/stock-screens.md](../specs/stock-screens.md), D54): every record of a type listed, each held back until a condition the author writes holds, then shown with its live numbers.
 
+## A fifth look, for M4.5
+
+Read on 2026-10-20 for the designer, read-only. Evan's repos have **no outline or tree view, no colour picker of their own and no rotating device preview**.
+
+- **Unity's UI Builder:**
+  - an explorer of the document's elements beside a viewport;
+  - an inspector for the one selected;
+  - a canvas resized by handles or by width and height;
+  - a Fit Canvas button;
+  - a Preview mode that removes the layer that selects by click (docs.unity3d.com, com.unity.ui.builder manual).
+- **Webflow's breakpoints:** styles set at the base size cascade to the others until a breakpoint overrides them. Each property marks where its value comes from (help.webflow.com, "Breakpoints overview"). That is M4.1's `at`, edited at the frame's size.
+- **WCAG 2.5.7, dragging movements:** what is done by dragging must also be done by a single pointer without one. Move up and down buttons are the usual way, and they must be real buttons of a target's size.
+- **Space-Wrecked's ship builder** is the one WYSIWYG editor in Evan's repos:
+  - input becomes a session action and the board redraws (src/ui/builder/view.js:1-75);
+  - a pure reducer with undo selects what the undo changed (src/sim/session.js:77-107);
+  - selection is a hit test (src/render/pick.js:12-90).
+- **Dirtbag's fit** (app/src/ui/App.tsx:31-61, styles.css:38-46) measures its box with a ResizeObserver and scales a 360×740 screen by `min(width / w, height / h)`.
+- **2060td's lists:**
+  - drag only by a handle with `touch-action: none` (src/game/dom/panel.ts:319-347, 510-557);
+  - its roadmap says why: a row dragged by touch can't be told apart from a scroll (docs/ROADMAP.md:1702-1722).
+
+  football-manager-simulator gives ▲ and ▼ buttons with their own labels (src/ui/views/team.js:419-432).
+- **Sizes tested:**
+  - 2060td: 360×740, 412×915, a tablet at 820×1180 and 1180×820, a desktop at 1440×900 (scripts/e2e-flow.mjs:22-29);
+  - chooser: 844×390, a tablet, and Steam Deck's 1280×800 (docs/tech-spec.md:909);
+  - football-manager-simulator: 768×1024.
+- **Contrast while picking:** project-ascent keeps its contrast rules as data (src/ui/paletteRules.ts:17-60), and football-manager-simulator previews a crest live from the browser's own colour input (src/ui/crest.js:80-120). The engine has `contrast()` and E050 already.
+
+**What M4.5 takes** ([specs/designer.md](../specs/designer.md), D55):
+- an outline, a frame and a form;
+- the frame fitted as Dirtbag's is and selecting by hit test;
+- layout overrides edited at the frame's size, as Webflow's are;
+- drag only by a handle, with buttons for every move;
+- 2060td's tablet size and chooser's desktop size;
+- the theme's contrast shown as it is picked.
+
 ## Open questions
 
 1. **A screen's escape hatch.** What data can't say (a map drawn on a canvas, a custom widget) needs a way out; D51 leaves it for later.
