@@ -63,7 +63,7 @@ export function drawableWidget(value: unknown): Widget {
       } as Widget;
     case 'list':
       return {
-        ...kept,
+        ...own,
         widget: 'list',
         of: SOURCES.includes(value.of as never) ? value.of : 'offered',
         item: value.item === undefined ? { widget: 'text', text: sample('item') } : drawableWidget(value.item),

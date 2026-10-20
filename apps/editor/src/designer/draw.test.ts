@@ -107,6 +107,29 @@ describe('a half-made file, drawn', () => {
     });
     expect(drawableScreen([])).toBeNull();
   });
+
+  it('keeps every kind’s own fields of the right kind: a codex’s type, known, empty, shows-when and at', () => {
+    const codex = {
+      widget: 'list',
+      of: 'records',
+      type: 'item',
+      known: 'rope > 0',
+      empty: 'Nothing yet.',
+      'shows-when': 'time.day >= 1',
+      at: { phone: { gap: 1 } },
+      item: { widget: 'text', text: '{name}' },
+    };
+    expect(drawableWidget(codex)).toEqual(codex);
+    const grid = {
+      widget: 'grid',
+      columns: 2,
+      gap: 2,
+      'shows-when': 'a',
+      at: { tablet: { columns: 3 } },
+      children: [],
+    };
+    expect(drawableWidget(grid)).toEqual(grid);
+  });
 });
 
 describe('the frame', () => {

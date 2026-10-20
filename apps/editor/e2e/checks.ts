@@ -50,11 +50,12 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
 }
 
 /**
- * Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h".
- * The designer's frame (M4.5) is a picture of a game, inert and scaled down: none of it is a target.
+ * Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h",
+ * and anything marked `data-target`, such as the outline's drag handles (M4.5). The designer's
+ * frame is a picture of a game, inert and scaled down: none of it is a target.
  */
 export function smallTargets(page: Page, scope: string): Promise<string[]> {
-  const controls = 'button, input, select, textarea, a[href], [role="tab"], [role="option"]';
+  const controls = 'button, input, select, textarea, a[href], [role="tab"], [role="option"], [data-target]';
   return page.locator(`${scope} :is(${controls}):not(.eb-designed *):visible`).evaluateAll((els) =>
     els
       .map((el) => ({
@@ -70,9 +71,18 @@ export function smallTargets(page: Page, scope: string): Promise<string[]> {
  * No axe violations of any impact. It once let moderate ones through, and a dock that repeated
  * each group's landmark passed (M2.2), so every impact counts. Also no id on two elements: axe
  * no longer looks, and a label pointing at a shared id names the first element that has it (M2.5:
- * the dock's panels, each its own render root, made the same ids).
+ * the dock's panels, each its own render root, made the same ids). It waits for what is fading
+ * in to land: a toast caught mid-fade by axe read as low contrast, in one run of the full suite (M4.5).
  */
 export async function expectNoAxeIssues(page: Page): Promise<void> {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().endTime !== Number.POSITIVE_INFINITY)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(violations.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes[0]?.target.join(' ')})`)).toEqual([]);
   const twice = await page.evaluate(() => {

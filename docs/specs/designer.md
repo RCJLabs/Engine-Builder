@@ -4,7 +4,7 @@ A screen, `ui/<id>.json`, is designed in the inspector as it looks. The theme, `
 
 ## The parts
 
-A screen opened from the Play panel shows **Design** and **JSON** tabs, Design first. Design is three parts, stacked in the inspector's column and in the phone's sheet alike:
+A screen opened from the Play panel shows two views, **Design** and **JSON**, as a pair of pressed buttons, and opens designed. A problem that names a line opens the JSON at it. Design is three parts, stacked in the inspector's column and in the phone's sheet alike:
 
 - **the frame:** the screen drawn as a device shows it;
 - **the outline:** its widgets as a tree;
@@ -12,7 +12,7 @@ A screen opened from the Play panel shows **Design** and **JSON** tabs, Design f
 
 The selection is a JSON Pointer into the file (`/main/children/2`), kept per file while the editor is open, so switching tabs or devices keeps it.
 
-A file the designer can't read is opened in the JSON tab with a line saying why. A file can't be read when it isn't JSON, or isn't an object with a `main`.
+A file the designer can't read shows, in place of the parts, a line saying why, for the JSON view to fix. A file can't be read when it isn't JSON, or isn't an object. A file half made is drawn as far as it goes: `drawable.ts` makes what the renderer can draw of it, a missing `main` an empty slot, an unknown widget nothing.
 
 ## The frame
 
@@ -30,7 +30,7 @@ A file the designer can't read is opened in the JSON tab with a line saying why.
 
 The frame draws a view, as the game does, from a game of the designer's own: a copy of the Play worker, so the Play panel's game is never disturbed.
 
-- **Compiled without `ui/`,** so a half-made screen never stops it. It is compiled again only when a file outside `ui/` changes.
+- **Compiled without `ui/`,** so a half-made screen never stops it. It is compiled again only when a change names a file outside `ui/`, or names none (`changesGame`), or another project opens.
 - **The moment:** the Play panel's last save in this session, loaded, or else a new game from seed 1. Saving under edition `design`, it keeps nothing.
 - **Looked at, not played:** after each edit, the worker is asked for a view of the state it holds, reading the facts and conditions the screen names now (a `look` request). It takes no step. A fact the game can't read is "—", as in play.
 - **Samples in the gaps:**
@@ -43,7 +43,7 @@ The frame draws a view, as the game does, from a game of the designer's own: a c
   - each shows-when holds, so everything is drawn;
   - a line above the frame says why.
 
-The line above the frame always says what it draws: "Day 3, as the Play panel left it", "The game's start", or why it is samples.
+The line above the frame always says what it draws: "As the Play panel left the game, after 3 steps.", "The game's start, seed 1. Play the game to design from another moment.", or why it is samples, ending "The frame shows samples."
 
 ## The outline
 
@@ -71,12 +71,13 @@ An empty slot shows as "Empty" and takes Add.
 - **Up** and **Down:** among its siblings.
 - **In:** into the sibling before it, if that is a container, as its last child.
 - **Out:** to just after its container.
+- **Wrap in stack:** a stack in its place, holding it. Added while making the hut's journal, whose tabs each hold a stack around a list.
 - **Delete:** a slot's widget leaves its slot empty. The checks say so when the slot is Main or a list's Item.
 - **A tabs widget:** Add tab, and its tabs move Up and Down.
 
-**Drag:** a widget in a container's children has a handle, ⋮⋮, which drags it among its siblings, a line showing where it lands. Only the handle drags, as in 2060td, so a finger scrolling the outline never moves a row. The buttons do the same by keys and single taps (WCAG 2.5.7).
+**Drag:** a widget in a container's children has a handle, ⋮⋮, which drags it among its siblings, a line showing where it lands. Only the handle drags, as in 2060td, so a finger scrolling the outline never moves a row. The handle holds the pointer once pressed and takes no touch scrolling, so a finger's drag isn't taken for a scroll. The buttons do the same by keys and single taps (WCAG 2.5.7).
 
-Each action is one step of the editor's undo.
+Each action is one step of the editor's undo, named for it: "Move in hut", "Add button in journal".
 
 ## The form
 
@@ -102,8 +103,8 @@ Every widget also has shows-when.
   - open: the project's screens;
   - shell: title or New game.
 - **The screen's form:** its title, the modes it shows (the game's, once its scripts have run), and whether it is modal.
-- **Layout at a size:** direction, gap, align, justify, wrap and columns change every size, unless the form's Sizes is set to "Only at <the frame's breakpoint>".
-  - Then they read and write the widget's `at` for that breakpoint alone, showing the every-size value as the placeholder.
+- **Layout at a size:** direction, gap, align, justify, wrap and columns change every size, unless "Change layout at <the frame's breakpoint> only" is ticked.
+  - Then they read and write the widget's `at` for that breakpoint alone, each saying the every-size value below it.
   - Clearing an override removes it, and `at` goes once empty.
 - **Key order:** a written widget's keys follow one order, so the files read as the fixtures do:
   - `widget`;
@@ -144,13 +145,17 @@ The Design tab of `ui/theme.json` holds:
 - `packages/ui/src/render/Widget.tsx`: in a frame being designed, each widget is wrapped in a box with no layout of its own, carrying its pointer.
 - `packages/ui/src/render/DesignFrame.tsx`: one screen drawn from a view at a breakpoint, inert.
 - `apps/editor/src/designer/`: the designer, apart from the JSON editor.
-  - `tree.ts`, the outline's rows and its edits, as plain functions;
+  - `tree.ts`, the outline's rows, and `treeEdits.ts`, its edits, as plain functions;
+  - `paths.ts`, pointers, and values set and pruned in key order;
   - `widgets.ts`, each kind's fields, new widgets and key order;
+  - `drawable.ts`, a half-made file made drawable;
   - `samples.ts`, the gaps filled;
   - `frame.ts`, the devices, the fit and the pick;
-  - `moment.ts`, the designer's game;
+  - `moment.ts`, the designer's game, and `useDesign.ts`, the view kept up to date;
+  - `state.ts`, the selection, device, turn and "only here", and `formApi.ts`, the record form's fields over a screen file;
   - the components.
 - `apps/editor/src/play/moment.ts`: the Play panel's last save in this session.
+- `apps/editor/src/projects/opened.ts`: `gameRevision`, counting the changes that may change the game.
 
 ## Open questions
 

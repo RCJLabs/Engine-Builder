@@ -6,10 +6,11 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { changesGame } from '../projects/opened.ts';
 import { keysAt, pathOf, pointer, pruneAt, setAt, valueAt } from './paths.ts';
 import { type Row, rowName, rowsOf } from './tree.ts';
 import { addPlace, addTab, addWidget, duplicate, moveBy, moveIn, moveOut, moveTo, remove, wrap } from './treeEdits.ts';
-import { newWidget, WIDGETS, widgetKeys } from './widgets.ts';
+import { newWidget, WIDGETS, widgetKeys, withMode } from './widgets.ts';
 
 const HUT = resolve(import.meta.dirname, '../../../../tools/cli/test/fixtures/hut/ui');
 const screen = (id: string) => JSON.parse(readFileSync(`${HUT}/${id}.json`, 'utf8')) as Record<string, unknown>;
@@ -132,6 +133,26 @@ describe('the outline’s edits', () => {
     expect(valueAt(tabs?.screen, '/main/tabs/3')).toEqual({ label: 'Tab 4', children: [] });
     expect(addTab(hut, rowAt(hut, '/main'))).toBeNull();
     expect(remove(hut, rowAt(hut, ''))).toBeNull();
+  });
+});
+
+describe('the screen’s modes', () => {
+  it('ticks a mode on at the end and off again, and none left is no `shows` at all', () => {
+    expect(withMode([], 'hut', true)).toEqual(['hut']);
+    expect(withMode(['hut'], 'talking', true)).toEqual(['hut', 'talking']);
+    expect(withMode(['hut', 'talking'], 'hut', true)).toEqual(['talking', 'hut']);
+    expect(withMode(['hut', 'talking'], 'hut', false)).toEqual(['talking']);
+    expect(withMode(['hut'], 'hut', false)).toBeUndefined();
+  });
+});
+
+describe('what recompiles the designer’s game', () => {
+  it('is any change outside ui/, or one that names no files; a screen’s edit alone is not', () => {
+    expect(changesGame(['ui/hut.json'])).toBe(false);
+    expect(changesGame(['ui/hut.json', 'ui/theme.json'])).toBe(false);
+    expect(changesGame(['ui/hut.json', 'scripts/hut.ts'])).toBe(true);
+    expect(changesGame(['items/rope.json'])).toBe(true);
+    expect(changesGame(undefined)).toBe(true);
   });
 });
 

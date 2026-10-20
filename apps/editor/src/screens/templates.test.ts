@@ -11,6 +11,8 @@ describe('templates', () => {
   it('writes a screen that checks clean, with a button that closes it (W134)', () => {
     const screens = new Map([['map', { file: 'ui/map.json', value: JSON.parse(screenTemplate('Map')) }]]);
     expect(checkUi(screens, undefined, options)).toEqual([]);
+    // No `shows`, which is none: the designer ticks the modes in, and a screen opened by a button has none (M4.5).
+    expect(Object.keys(JSON.parse(screenTemplate('Map')))).toEqual(['title', 'main', 'bottom']);
   });
 
   it('writes the engine’s theme, which checks clean', () => {

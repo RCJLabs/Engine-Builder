@@ -154,6 +154,12 @@ export function newWidget(kind: WidgetKind): Record<string, unknown> {
   }
 }
 
+/** A screen's modes with one ticked or not; none left is the same as no `shows` at all, so the key goes. */
+export function withMode(shows: readonly string[], mode: string, on: boolean): string[] | undefined {
+  const next = on ? [...shows.filter((m) => m !== mode), mode] : shows.filter((m) => m !== mode);
+  return next.length === 0 ? undefined : next;
+}
+
 /** The kinds that hold children of their own, which Add puts a widget inside. */
 export const CONTAINERS: readonly WidgetKind[] = ['stack', 'panel', 'grid'];
 

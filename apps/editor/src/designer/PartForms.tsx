@@ -9,6 +9,7 @@ import { FieldView } from '../forms/FieldView.tsx';
 import { FormContext } from '../forms/formContext.ts';
 import { changeUnder, formApi, type Part } from './formApi.ts';
 import { editFile } from './state.ts';
+import { withMode } from './widgets.ts';
 
 type Loose = Record<string, unknown>;
 
@@ -56,11 +57,7 @@ function Shows(props: Omit<Part, 'typeFile' | 'at'> & { readonly screen: Loose; 
     editFile(
       props.file,
       `Edit the modes it shows in ${props.title}`,
-      // None left is the same as no `shows` at all: the key goes.
-      changeUnder('', ['shows'], () => {
-        const next = on ? [...shows, mode] : shows.filter((m) => m !== mode);
-        return next.length === 0 ? undefined : next;
-      }),
+      changeUnder('', ['shows'], () => withMode(shows, mode, on)),
     );
   return (
     <fieldset class="form-group">

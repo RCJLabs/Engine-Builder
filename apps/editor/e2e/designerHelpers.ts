@@ -31,14 +31,14 @@ export function designerHutDir(): string {
 }
 
 /** The hut, its two screens set aside, imported and its scripts let run. */
-export async function importDesignerHut(page: Page): Promise<Locator> {
+export async function importDesignerHut(page: Page, dir = designerHutDir()): Promise<Locator> {
   await page.goto('./');
   await showProject(page);
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
     hit(page.getByRole('button', { name: 'Import zip' })),
   ]);
-  await chooser.setFiles(fixtureZip(designerHutDir(), 'the-hut'));
+  await chooser.setFiles(fixtureZip(dir, 'the-hut'));
   await expect(openProject(page).getByRole('heading', { name: 'The hut' })).toBeVisible();
   const panel = await showPlay(page);
   await hit(panel.getByRole('button', { name: 'Run its scripts' }));
@@ -52,7 +52,8 @@ export async function newBlank(page: Page, id: string): Promise<Locator> {
   await panel.getByLabel('Name of the new screen').fill(id);
   await hit(panel.getByRole('button', { name: 'Create' }));
   const region = page.getByRole('region', { name: `Screen ${id}` });
-  await hit(region.getByRole('button', { name: 'Design', exact: true }));
+  // A screen opens designed (D55), its JSON a second view.
+  await expect(region.getByRole('button', { name: 'Design', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(outline(region)).toBeVisible();
   return region;
 }

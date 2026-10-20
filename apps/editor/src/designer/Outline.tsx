@@ -93,6 +93,8 @@ export function Outline(props: Props) {
             {row.among && props.canEdit ? (
               <span
                 class="designer-handle"
+                // A target a finger presses, held to 44 px with the controls (e2e/checks.ts).
+                data-target
                 role="img"
                 aria-label={`Drag to move ${rowName(row)}; or use Up and Down`}
                 {...handle(row)}
