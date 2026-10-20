@@ -1,6 +1,7 @@
 /**
  * The stock screens a game is played on and ends on (M4.4, D54): the HUD, its live numbers over
- * the actions on offer, and the ending, its numbers and the way back to the shell.
+ * the actions on offer; the map (M4.6), the same numbers over the map; and the ending, its numbers
+ * and the way back to the shell.
  */
 import type { Screen, Widget } from '@eb/ui/format';
 import { recordsOf, type StockContext } from './context.ts';
@@ -61,6 +62,33 @@ export function hudScreen(ctx: StockContext): Screen {
           empty: 'Nothing to do now.',
           item: button('{.label}', { take: 'entry' }),
         },
+        { widget: 'log', lines: 3, label: 'Lately', empty: 'Nothing has happened yet.' },
+      ],
+      2,
+    ),
+    ...(ways.length > 0 ? { bottom: bar(ways) } : {}),
+  };
+}
+
+/** Whether the game starts on its map, so the map is its HUD (M4.6). */
+export const startsOnMap = (ctx: StockContext): boolean =>
+  ctx.kits.includes('maps') && ctx.modes !== undefined && (ctx.modes.travelling ?? []).includes(ctx.modes.start);
+
+/**
+ * The map (M4.6, docs/specs/maps.md#the-map-widget): the live numbers over the map's name, the map
+ * widget and the log, for each mode that travels no screen shows yet.
+ */
+export function mapScreen(ctx: StockContext): Screen {
+  const shown = numbers(ctx);
+  const ways = opens(ctx, ['inventory', 'journal', 'codex', 'credits']);
+  return {
+    title: 'Map',
+    shows: (ctx.modes?.travelling ?? []).filter((mode) => !ctx.shown.has(mode)),
+    ...(shown.length > 0 ? { top: row(shown) } : {}),
+    main: column(
+      [
+        text('{map.name}', 'heading'),
+        { widget: 'map', empty: 'No map yet.' },
         { widget: 'log', lines: 3, label: 'Lately', empty: 'Nothing has happened yet.' },
       ],
       2,

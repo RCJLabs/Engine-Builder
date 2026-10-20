@@ -18,6 +18,7 @@ const loaded: GameState = {
     actions: ['hold/loot'],
     modes: ['sea'],
     endings: [],
+    travelling: [],
     policies: [],
   },
 };

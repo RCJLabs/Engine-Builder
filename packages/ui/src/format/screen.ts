@@ -83,7 +83,11 @@ export const VIEW_FIELDS: Readonly<Record<string, string | undefined>> = {
   'event.name': 'events',
   'event.text': 'events',
   'shop.name': 'economy',
+  'map.name': 'maps',
 };
+
+/** The kit a widget kind needs on, if any: the map widget draws the maps kit's map (M4.6). */
+export const WIDGET_KITS: Readonly<Partial<Record<string, string>>> = { map: 'maps' };
 
 interface Base {
   /** A condition in the engine's text form: the widget is drawn only while it holds. */
@@ -144,7 +148,12 @@ export type Widget =
       readonly tabs: readonly { readonly label: string; readonly children: readonly Widget[] }[];
     })
   /** The lines feedback said to the log, newest first (M4.2, docs/specs/input.md#the-log). */
-  | (Base & { readonly widget: 'log'; readonly lines?: number; readonly label?: string; readonly empty?: string });
+  | (Base & { readonly widget: 'log'; readonly lines?: number; readonly label?: string; readonly empty?: string })
+  /**
+   * The map the party is on, its nodes as buttons and each move to the picked one (M4.6, D56,
+   * docs/specs/maps.md#the-map-widget). `label` names it; `empty` is shown before a map is entered.
+   */
+  | (Base & { readonly widget: 'map'; readonly label?: string; readonly empty?: string });
 
 export type WidgetKind = Widget['widget'];
 export const WIDGETS: readonly WidgetKind[] = [
@@ -158,6 +167,7 @@ export const WIDGETS: readonly WidgetKind[] = [
   'list',
   'tabs',
   'log',
+  'map',
 ];
 
 /** How many lines a log widget shows unless it says, and the most it may. */

@@ -11,6 +11,7 @@ import type { LogLine } from './feedback.ts';
 import { breakpointOf, themeVars } from './layout.ts';
 import { ScreenView } from './Screen.tsx';
 import './screens.css';
+import './map.css';
 
 export interface DesignFrameProps {
   readonly id: string;

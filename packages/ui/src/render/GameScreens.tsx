@@ -19,6 +19,7 @@ import { breakpointOf, themeVars } from './layout.ts';
 import { ScreenView } from './Screen.tsx';
 import { drawn, type Opened, screenStack, stillOpen } from './stack.ts';
 import './screens.css';
+import './map.css';
 
 export interface GameScreensProps {
   readonly screens: Readonly<Record<string, Screen>>;

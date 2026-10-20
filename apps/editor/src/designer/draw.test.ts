@@ -11,7 +11,7 @@ import type { View } from '@eb/ui/session';
 import { describe, expect, it } from 'vitest';
 import { drawableScreen, drawableWidget } from './drawable.ts';
 import { DEVICES, fitScale, pick, sizeOf } from './frame.ts';
-import { SAMPLES, sample, sampleEntries, sampleView, withSamples } from './samples.ts';
+import { SAMPLE_MAP, SAMPLES, sample, sampleEntries, sampleView, withSamples } from './samples.ts';
 import { newWidget, WIDGETS } from './widgets.ts';
 
 const SHOP: Screen = {
@@ -80,6 +80,15 @@ describe('samples where the moment has nothing', () => {
     const view = sampleView(codex);
     expect(view.facts['inventory.count(item: @entry)']).toBe('‹inventory.count(item: @entry)›');
     expect(view.lists['records:item:']).toHaveLength(SAMPLES);
+  });
+
+  it('draws a sample map for a map widget the moment has no map for, and keeps the moment’s own (M4.6)', () => {
+    const mapped: Screen = { main: { widget: 'map' } };
+    expect(withSamples(MOMENT, mapped).map).toBe(SAMPLE_MAP);
+    expect(withSamples(MOMENT, SHOP).map).toBeUndefined();
+    const own = { ...SAMPLE_MAP, name: 'The Shoals' };
+    expect(withSamples({ ...MOMENT, map: own }, mapped).map).toBe(own);
+    expect(SAMPLE_MAP.nodes.flatMap((node) => node.travels).every((travel) => !travel.enabled)).toBe(true);
   });
 });
 

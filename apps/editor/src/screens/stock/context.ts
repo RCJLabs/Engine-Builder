@@ -17,8 +17,16 @@ export interface StockContext {
   readonly records: ReadonlyMap<string, readonly Named[]>;
   /** Who the roster starts with, when the roster kit is on. */
   readonly starting: readonly string[];
-  /** The game's start mode, its modes and those that allow no action, once its scripts have run. */
-  readonly modes?: { readonly start: string; readonly all: readonly string[]; readonly endings: readonly string[] };
+  /**
+   * The game's start mode, its modes, those that allow no action, and those that allow travel on a
+   * map (M4.6), once its scripts have run.
+   */
+  readonly modes?: {
+    readonly start: string;
+    readonly all: readonly string[];
+    readonly endings: readonly string[];
+    readonly travelling?: readonly string[];
+  };
   /** The screens there are, by id. */
   readonly screens: readonly string[];
   /** The modes some screen already shows. */

@@ -6,7 +6,7 @@ import type { Screen } from '@eb/ui/format';
 import { hasKits, type StockContext } from './context.ts';
 import { dialogueScreen, eventScreen, hallScreen, shopScreen } from './modal.ts';
 import { codexScreen, codexTabs, creditsScreen, inventoryScreen, journalScreen } from './pages.ts';
-import { endingScreen, hudScreen } from './play.ts';
+import { endingScreen, hudScreen, mapScreen, startsOnMap } from './play.ts';
 
 export interface Stock {
   /** The id New screen starts its name from, and the screen's file. */
@@ -29,8 +29,16 @@ export const STOCK: readonly Stock[] = [
     id: 'hud',
     name: 'HUD',
     about: 'The live numbers over the actions on offer',
-    offered: () => true,
+    // A game that starts on its map has the map for its HUD.
+    offered: (ctx) => !startsOnMap(ctx),
     build: hudScreen,
+  },
+  {
+    id: 'map',
+    name: 'Map',
+    about: 'The map the party is on, to travel by',
+    offered: needs('maps'),
+    build: mapScreen,
   },
   {
     id: 'dialogue',
@@ -88,10 +96,11 @@ export const STOCK: readonly Stock[] = [
 /** A template's text as the file holds it: two-space JSON, as the other templates are written. */
 export const stockText = (stock: Stock, ctx: StockContext): string => `${JSON.stringify(stock.build(ctx), null, 2)}\n`;
 
-/** The order to make them all in: the pages first, so the HUD and the ending find the ones there are. */
+/** The order to make them all in: the pages first, so the HUD, the map and the ending find the ones there are. */
+const LAST = ['hud', 'map', 'ending'];
 export const STOCK_ORDER: readonly Stock[] = [
-  ...STOCK.filter((stock) => stock.id !== 'hud' && stock.id !== 'ending'),
-  ...STOCK.filter((stock) => stock.id === 'hud' || stock.id === 'ending'),
+  ...STOCK.filter((stock) => !LAST.includes(stock.id)),
+  ...STOCK.filter((stock) => LAST.includes(stock.id)),
 ];
 
 /**

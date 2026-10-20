@@ -25,6 +25,52 @@ export interface Entry {
   readonly known?: boolean;
 }
 
+/** A move that reaches a node, as its button says it (M4.6): what it costs and takes, and why it can't be taken. */
+export interface MapTravel {
+  /** Unique among the node's travels. */
+  readonly key: string;
+  readonly label: string;
+  readonly action: Action;
+  /** Its action is on offer now. */
+  readonly enabled: boolean;
+  readonly cost: string | null;
+  readonly takes: string | null;
+  /** What its effects do, by their previews: "heat 0 → 2". */
+  readonly changes: string | null;
+  readonly why: string | null;
+}
+
+/** A node of the map, its name, kind and description only once it is known. */
+export interface MapNode {
+  readonly id: string;
+  readonly layer: number;
+  readonly slot: number;
+  /** A drawn map's place, 0 to 100 each way. */
+  readonly x?: number;
+  readonly y?: number;
+  readonly known: boolean;
+  readonly visited: boolean;
+  readonly name: string | null;
+  readonly kind: string | null;
+  readonly description: string | null;
+  /** Each move that reaches it, in the map's order. */
+  readonly travels: readonly MapTravel[];
+}
+
+/** The map the party is on, as the map widget draws it (M4.6, docs/specs/maps.md#the-map-widget). */
+export interface MapView {
+  readonly map: string;
+  readonly name: string;
+  readonly shape: 'layered' | 'drawn';
+  /** A layered map's layers, its start's and end's among them; 1 on a drawn map. */
+  readonly layers: number;
+  /** The node the party stands on. */
+  readonly at: string;
+  readonly nodes: readonly MapNode[];
+  /** Each link once; a one-way link goes only from `from` to `to`. */
+  readonly links: readonly { readonly from: string; readonly to: string; readonly oneWay: boolean }[];
+}
+
 export interface View {
   /** The game's modes, bottom to top. */
   readonly modes: readonly string[];
@@ -38,6 +84,8 @@ export interface View {
   readonly fields: Readonly<Record<string, Shown>>;
   /** The entries of each list that applies now, by listKey: a source's name, or a codex list's key (M4.4). */
   readonly lists: Readonly<Record<string, readonly Entry[]>>;
+  /** The map the party is on, with the maps kit on and a map entered (M4.6). */
+  readonly map?: MapView;
   /** How many actions the game has taken. */
   readonly turn: number;
   /** Nothing is on offer: the game is over. */

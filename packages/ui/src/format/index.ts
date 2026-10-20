@@ -29,6 +29,7 @@ export {
   type Source,
   TEXT_STYLES,
   VIEW_FIELDS,
+  WIDGET_KITS,
   WIDGETS,
   type Widget,
   type WidgetKind,

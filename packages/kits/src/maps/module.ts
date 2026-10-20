@@ -2,7 +2,8 @@
  * The maps kit's module (M4.6, D56, docs/specs/maps.md): maps entered by an effect, travelled by
  * the action maps/travel, and arrived at. Built knowing whether the economy kit is on, since only
  * then is a cost charged, and with the calendar when the time kit is, since only then does a move
- * take time: a module can't ask whether another's effect exists.
+ * take time: a module can't ask whether another's effect exists. enter-map's preview is the map
+ * the party is on, as the map widget draws it.
  */
 import { type CalendarDef, calendarOf, defineModule, type Module, type ModuleDef } from '@eb/core';
 import type { Choosing } from '../events/choices.ts';
@@ -10,6 +11,7 @@ import { arrive, enterMap, revealMap } from './arrive.ts';
 import { facts } from './facts.ts';
 import { type Built, setOff, travelOf, travels, travelVerdict } from './travel.ts';
 import { MAP, MAPS, type MapsSlice, NODE_KIND } from './types.ts';
+import { mapShown } from './view.ts';
 
 type Def = ModuleDef<MapsSlice>;
 
@@ -36,7 +38,15 @@ export function mapsModule(economy: boolean, calendar?: CalendarDef): Module {
     facts,
     events,
     effects: {
-      'enter-map': (ctx, effect) => enterMap(ctx, effect.map, effect.at),
+      'enter-map': {
+        run: (ctx, effect) => enterMap(ctx, effect.map, effect.at),
+        // The map the party is on, as the widget draws it: the same travels and verdicts the action takes.
+        preview: (ctx, effect) =>
+          mapShown(choosingOf(ctx), ctx.read() as MapsSlice, built, String(effect.map), ctx.preview) as Record<
+            string,
+            unknown
+          >,
+      },
       'reveal-map': (ctx, effect) => revealMap(ctx, effect.reach),
     },
     actions: {

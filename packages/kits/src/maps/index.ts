@@ -5,3 +5,4 @@ export { bothWays, linksWithin, neighbours, quickest, type Route } from './roads
 export { crossingBroken, placeBroken, type RuleCheck, reachBroken, SWEEP_SEEDS, sweepLayered } from './sweep.ts';
 export { type Built, type Travel, type TravelVerdict, travelOf, travels, travelVerdict } from './travel.ts';
 export * from './types.ts';
+export { type LinkShown, type MapShown, mapShown, type NodeShown, type TravelShown } from './view.ts';

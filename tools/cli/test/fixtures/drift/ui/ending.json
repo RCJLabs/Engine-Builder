@@ -1,0 +1,50 @@
+{
+  "title": "The end",
+  "shows": ["home"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "The drift",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The game is over."
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: credits)} Credits"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: supplies)} Supplies"
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  }
+}
