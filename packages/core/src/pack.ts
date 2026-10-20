@@ -9,11 +9,12 @@ import { type CalendarDef, calendarOf } from './time/calendar.ts';
 /**
  * The newest format this engine reads and writes. Format 2 (M3.2) adds the project's scripts as
  * JavaScript; format 3 (M3.3) the kits its project lists, scripts or none; format 4 (M4.1) the
- * game's screens, kits and scripts or none. A pack is written in the lowest format that holds it,
+ * game's screens, kits and scripts or none; format 5 (M4.2) the game's feedback, the words its
+ * beats are said in, screens or none. A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 4;
+export const PACK_FORMAT = 5;
 
 export interface PackProject {
   readonly id: string;
@@ -26,21 +27,24 @@ export interface PackProject {
 }
 
 /**
- * A game's screens and theme as ui/ holds them (M4.1, D51), checked by the compiler. The sim never
- * reads them, so the kernel keeps them as JSON: @eb/ui's format says what they are.
+ * A game's screens, theme and feedback as ui/ holds them (M4.1, D51; M4.2, D52), checked by the
+ * compiler. The sim never reads them, so the kernel keeps them as JSON: @eb/ui's format says what
+ * they are.
  */
 export interface PackUi {
   readonly screens: Readonly<Record<string, unknown>>;
   readonly theme?: unknown;
+  /** Format 5: ui/feedback.json, its lines as written. */
+  readonly feedback?: unknown;
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4;
+  readonly format: 1 | 2 | 3 | 4 | 5;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
   readonly scripts?: Readonly<Record<string, string>>;
-  /** Format 4: the screens, at least one, and the theme if there is one. */
+  /** Format 4: the screens, at least one, and the theme if there is one. Format 5: the feedback too, screens or none. */
   readonly ui?: PackUi;
   /** FNV-1a 64 of the canonical JSON of the rest of the pack: the same content gives the same hash anywhere. */
   readonly hash: string;
@@ -57,7 +61,8 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
 
 /**
  * A pack of the records, with the scripts when there are any (format 2), the kits when the project
- * lists any (format 3) and the screens when there are any (format 4).
+ * lists any (format 3), the screens when there are any (format 4) and the feedback when there is
+ * any (format 5).
  */
 export function createPack(
   project: PackProject,
@@ -71,17 +76,23 @@ export function createPack(
   const hasKits = kits !== undefined && kits.length > 0;
   const kitted = hasKits ? { ...plain, kits, ...(calendar !== undefined ? { calendar } : {}) } : plain;
   const content =
-    ui !== undefined && Object.keys(ui.screens).length > 0
-      ? ({ format: 4, project: kitted, records, ...(scripted ? { scripts } : {}), ui: screensOf(ui) } as const)
-      : hasKits
-        ? ({ format: 3, project: kitted, records, ...(scripted ? { scripts } : {}) } as const)
-        : scripted
-          ? ({ format: 2, project: plain, records, scripts } as const)
-          : ({ format: 1, project: plain, records } as const);
+    ui?.feedback !== undefined
+      ? ({ format: 5, project: kitted, records, ...(scripted ? { scripts } : {}), ui: uiOf(ui) } as const)
+      : ui !== undefined && Object.keys(ui.screens).length > 0
+        ? ({ format: 4, project: kitted, records, ...(scripted ? { scripts } : {}), ui: uiOf(ui) } as const)
+        : hasKits
+          ? ({ format: 3, project: kitted, records, ...(scripted ? { scripts } : {}) } as const)
+          : scripted
+            ? ({ format: 2, project: plain, records, scripts } as const)
+            : ({ format: 1, project: plain, records } as const);
   return { ...content, hash: packHash(content) };
 }
 
-const screensOf = ({ screens, theme }: PackUi): PackUi => ({ screens, ...(theme !== undefined ? { theme } : {}) });
+const uiOf = ({ screens, theme, feedback }: PackUi): PackUi => ({
+  screens,
+  ...(theme !== undefined ? { theme } : {}),
+  ...(feedback !== undefined ? { feedback } : {}),
+});
 
 export class PackError extends Error {
   constructor(message: string) {
@@ -99,20 +110,20 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (value.format !== 1 && value.format !== 2 && value.format !== 3 && value.format !== 4) {
+  if (![1, 2, 3, 4, 5].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
         : `Unknown pack format: ${JSON.stringify(value.format)}`,
     );
   }
-  const { format } = value;
-  const fields = ['format', 'project', 'records', ...(format >= 2 ? ['scripts'] : []), ...(format === 4 ? ['ui'] : [])];
+  const format = value.format as Pack['format'];
+  const fields = ['format', 'project', 'records', ...(format >= 2 ? ['scripts'] : []), ...(format >= 4 ? ['ui'] : [])];
   checkKeys(value, [...fields, 'hash'], 'pack');
   checkProject(value.project, format);
   checkRecords(value.records);
   if (format === 2 || value.scripts !== undefined) checkScripts(value.scripts, format);
-  if (format === 4) checkUi(value.ui);
+  if (format >= 4) checkUi(value.ui, format);
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;
   const actual = packHash(pack);
@@ -133,8 +144,8 @@ function checkProject(project: unknown, format: number): void {
   for (const key of ['name', 'version'] as const) {
     if (typeof project[key] !== 'string') throw new PackError(`The pack project has no ${key}`);
   }
-  // Format 4 lists kits only when the project has some; format 3 is the format for kits.
-  if (format < 3 || (format === 4 && project.kits === undefined && project.calendar === undefined)) return;
+  // Formats 4 and 5 list kits only when the project has some; format 3 is the format for kits.
+  if (format < 3 || (format >= 4 && project.kits === undefined && project.calendar === undefined)) return;
   const { kits, calendar } = project;
   if (!Array.isArray(kits) || kits.length === 0 || !kits.every(isRecordId)) {
     throw new PackError(
@@ -159,12 +170,19 @@ function checkScripts(scripts: unknown, format: number): void {
   }
 }
 
-// The screens' own shape is the compiler's to check: the kernel only makes sure they are there.
-function checkUi(ui: unknown): void {
-  if (!isObject(ui)) throw new PackError('A format 4 pack has no screens');
-  checkKeys(ui, ['screens', 'theme'], 'pack ui');
-  const { screens, theme } = ui;
-  if (!isObject(screens) || Object.keys(screens).length === 0) throw new PackError('A format 4 pack has no screens');
+// The screens' and the feedback's own shape is the compiler's to check: the kernel only makes sure they are there.
+function checkUi(ui: unknown, format: number): void {
+  if (!isObject(ui))
+    throw new PackError(format === 4 ? 'A format 4 pack has no screens' : 'A format 5 pack has no feedback');
+  checkKeys(ui, ['screens', 'theme', ...(format >= 5 ? ['feedback'] : [])], 'pack ui');
+  const { screens, theme, feedback } = ui;
+  // Format 5 is the format for feedback, which plays with the fallback where there are no screens.
+  if (!isObject(screens) || (format === 4 && Object.keys(screens).length === 0)) {
+    throw new PackError(`A format ${format} pack has no screens`);
+  }
+  if (format >= 5 && !(isObject(feedback) && Array.isArray(feedback.lines))) {
+    throw new PackError('A format 5 pack has no feedback');
+  }
   for (const [id, screen] of Object.entries(screens)) {
     if (!isRecordId(id)) throw new PackError(`"${id}" is not a valid screen name`);
     if (!isObject(screen)) throw new PackError(`The pack's screen "${id}" is not an object`);

@@ -4,7 +4,7 @@
  */
 import type { Action } from '@eb/core';
 import { GameScreens } from '@eb/ui';
-import type { Screen, Theme } from '@eb/ui/format';
+import type { Said, Screen, Theme } from '@eb/ui/format';
 import type { PlayReply, PlayRequest, View } from '@eb/ui/session';
 import { useRef, useState } from 'preact/hooks';
 
@@ -17,6 +17,8 @@ type Shown =
       readonly screens: Readonly<Record<string, Screen>>;
       readonly theme: Theme | undefined;
       readonly view: View;
+      /** What the last step said (M4.2). */
+      readonly said: readonly Said[];
     }
   | { readonly kind: 'failed'; readonly message: string };
 
@@ -79,7 +81,7 @@ export function Player() {
     const reply = await worker.current.send({ kind: 'start', pack, seed: freshSeed() });
     if (reply.kind === 'started') {
       const { name, screens, theme, view } = reply;
-      setShown({ kind: 'playing', name, screens, theme, view });
+      setShown({ kind: 'playing', name, screens, theme, view, said: [] });
       document.title = `${name} · Engine-Builder`;
     } else setShown({ kind: 'failed', message: reply.kind === 'failed' ? reply.message : 'The game didn’t start.' });
   };
@@ -88,7 +90,7 @@ export function Player() {
     setBusy(true);
     const reply = await worker.current.send({ kind: 'act', action });
     setBusy(false);
-    if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view });
+    if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view, said: reply.said });
     else if (reply.kind === 'failed') setShown({ kind: 'failed', message: reply.message });
   };
   return (
@@ -118,8 +120,10 @@ export function Player() {
               screens={shown.screens}
               theme={shown.theme}
               view={shown.view}
+              said={shown.said}
               busy={busy}
               act={(a) => void act(a)}
+              history
             />
           </div>
         ) : null}

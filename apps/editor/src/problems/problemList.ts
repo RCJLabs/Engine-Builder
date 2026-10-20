@@ -95,7 +95,10 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : null;
   if (scene?.kind === 'scene') return `Scene ${scene.id}.ink`;
   const ui = uiOf(file);
-  if (ui !== undefined) return ui.kind === 'theme' ? 'Theme (ui/theme.json)' : `Screen ${ui.id}`;
+  if (ui !== undefined) {
+    if (ui.kind === 'theme') return 'Theme (ui/theme.json)';
+    return ui.kind === 'feedback' ? 'Feedback (ui/feedback.json)' : `Screen ${ui.id}`;
+  }
   if (file === '') return 'The game';
   return file;
 }

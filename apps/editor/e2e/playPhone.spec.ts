@@ -4,20 +4,10 @@
  * hut, each screen in reach with nothing past the edges and nothing axe finds; and the player page
  * at /play/ with the hut in play.
  */
-import { execFileSync } from 'node:child_process';
-import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { HUT } from './hutHelpers.ts';
 import { expectFits, game, playSeason, press, startHut, topScreen } from './hutScreens.ts';
-import { REPO, scratch } from './ludus.ts';
-
-/** The hut as a game file, as `eb build` writes it: the pack Export game writes too. */
-function hutGame(): string {
-  const file = join(scratch, `the-hut-${Date.now()}.game.json`);
-  execFileSync('node', ['tools/cli/src/cli.ts', 'build', HUT, '--out', file], { cwd: REPO });
-  return file;
-}
+import { hutGame } from './inputHelpers.ts';
 
 for (const viewport of [
   { width: 360, height: 740 },

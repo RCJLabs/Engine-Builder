@@ -7,6 +7,7 @@
 import { createGame, createRecordStore, type Pack, PackError, readPack } from '@eb/core';
 import { loadProjectGame } from '@eb/script';
 import { wantsOf } from '../format/bindings.ts';
+import type { Feedback } from '../format/feedback.ts';
 import type { Screen } from '../format/screen.ts';
 import type { Theme } from '../format/theme.ts';
 import { type Play, startPlay } from './play.ts';
@@ -43,6 +44,8 @@ export function playPack(value: unknown, seed: string): Loaded {
   const screens = (pack.ui?.screens ?? {}) as Readonly<Record<string, Screen>>;
   const game = createGame({ modules, start });
   const sim = { content: createRecordStore(pack.records) };
-  const play = startPlay({ game, sim, kits, wants: wantsOf(Object.values(screens)) }, seed);
+  const feedback = pack.ui?.feedback as Feedback | undefined;
+  const wants = wantsOf(Object.values(screens));
+  const play = startPlay({ game, sim, kits, wants, ...(feedback ? { feedback } : {}) }, seed);
   return { ok: true, play, screens, theme: pack.ui?.theme as Theme | undefined, name: pack.project.name };
 }

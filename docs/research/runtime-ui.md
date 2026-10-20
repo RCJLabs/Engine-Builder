@@ -106,6 +106,45 @@ The UI layers run 10.5k lines in Dirtbag, 17.1k in Space-Wrecked and 18.0k in Ch
 - **Chooser's floor:** 44 px targets and its landscape layout for short screens. Space-Wrecked's 48 px is the one to beat where a widget allows it.
 - **Both kinds of contrast check:** Dirtbag's check of a theme's token pairs, run in CI, and an axe run over every screen the gate plays.
 
+## A second look, for M4.2
+
+Read on 2026-10-19, read only, as above. `CP` is `chooser-of-the-dead/packages/ui/src`.
+
+**Spatial focus.**
+- **Chooser's rule** (CP/spatial.ts:24-52): `ahead` is the gap from the focused box's edge to the candidate's in the direction of travel, and a candidate with `ahead < -4` is behind. `across` is the gap between the spans on the other axis, 0 if they overlap; past `max(0, ahead) + 4` the candidate is outside a 45° cone. The score is `max(0, ahead) + 2 × across + centre offset / 10`.
+- **Chooser's candidates** (CP/gamepad.ts:35-85): `tabIndex ≥ 0`, not disabled, no `inert` or `aria-hidden` above, visible; a container counts only if it holds no control, which is O(n²); boxes are clipped by their scrolling parents.
+- **Layers and memory:** the top dialog, else the page (:22, :58-60). A WeakMap holds each layer's last focus (:109, :420-424); waking picks the control nearest it, else the primary button, else the first (:124-138).
+- **Edges:** up and down scroll the nearest scroller by 40% (:150-155, :174); left and right do nothing; nothing wraps. Dirtbag's `move()` returns false and lets the browser scroll (DB/ui/App.tsx:121-125).
+
+**Gamepads.**
+- **Chooser** polls by animation frame only while a pad is connected, merges every pad, and uses the standard mapping (CP/gamepad.ts:383-409, CP/pad.ts:32-88). A presses, B goes back, LB and RB cycle tabs. The left stick counts past 0.5. A held direction repeats after 400 ms, then every 120 ms (pad.ts:55-56).
+- **Chooser's Back** closes the innermost open `<details>`, else clicks the nearest `[data-back]`, else sends Escape (gamepad.ts:252-275).
+- **Handing off:** pad use sets `data-input=gamepad` on the page, which draws the focus rings; a real key or pointer clears it (:360-368, :414-419).
+- **Dirtbag** reads one pad, with hysteresis: on at 0.5, off at 0.35 (DB/ui/pad.ts:46-48, 107-108).
+
+**Gestures.** Space-Wrecked has no swipe anywhere. Long press opens a details card, drag pans, and pinch zooms and turns (SW/fight/view.js:155-193, SW/builder/view.js:210-239). The board is `touch-action: none` and buttons `manipulation` (SW/ui/style.css:43, 73).
+
+**Toasts.**
+- **Dirtbag** keeps a queue: a toast lasts `max(2600, 45 × characters)` ms, cut to 1400 ms while others wait (DB/game/game.ts:559-600). It sits top-centre with taps going through it.
+- **Chooser** shows one at a time, each replacing the last for a fixed 2.6 s, so a burst loses all but its last (CP/store.ts:811-819).
+
+**Logs.**
+- **Wasteland Protocol:** `role=log`, polite, additions only, with no cap (wasteland-protocol/index.html:323-324, game.js:12850-12864).
+- **Space-Wrecked's fight:** the last 16 lines, with no role (SW/fight/view.js:47, 580-586).
+
+**Announcers.**
+- **Spliceworld** (spliceworld/ui/live.js) keeps one region that exists before its text. It empties the region, then fills it on the next frame, so a repeated sentence is still read.
+- **Project Ascent** (project-ascent/src/ui/Announce.tsx) has a polite and an assertive region, emptied after 4 s. It keeps assertive for errors and timers.
+- **Inference:** Ascent likely skips a repeat within those 4 s, since the text doesn't change.
+
+**What M4.2 takes:**
+- Chooser's spatial rule and its gamepad mapping;
+- Dirtbag's hysteresis and toast timing;
+- Space-Wrecked's recognizer, with a swipe added;
+- Spliceworld's empty-then-fill announcer.
+
+([specs/input.md](../specs/input.md))
+
 ## Open questions
 
 1. **A screen's escape hatch.** What data can't say (a map drawn on a canvas, a custom widget) needs a way out; D51 leaves it for later.

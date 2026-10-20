@@ -4,6 +4,7 @@
  * nothing a game's script did can run on the page.
  */
 import type { Action, Beat } from '@eb/core';
+import type { Said } from '../format/feedback.ts';
 import type { Screen } from '../format/screen.ts';
 import type { Theme } from '../format/theme.ts';
 import type { View } from './types.ts';
@@ -28,6 +29,8 @@ export type PlayReply =
       readonly kind: 'stepped';
       readonly view: View;
       readonly beats: readonly Beat[];
+      /** What the game's feedback says of the beats, in their order (M4.2). */
+      readonly said: readonly Said[];
       readonly accepted: boolean;
     }
   | { readonly id: number; readonly kind: 'failed'; readonly message: string };

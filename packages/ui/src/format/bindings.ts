@@ -26,6 +26,8 @@ export function templatesOf(widget: Widget): readonly string[] {
       return widget.empty === undefined ? [] : [widget.empty];
     case 'tabs':
       return widget.tabs.map((tab) => tab.label);
+    case 'log':
+      return [widget.label, widget.empty].filter((t): t is string => t !== undefined);
     default:
       return [];
   }

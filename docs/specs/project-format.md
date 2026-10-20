@@ -134,7 +134,7 @@ Diagnostics about a record carry its type and id, taken from its path. The other
 
 Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](type-files.md#diagnostics)). The provenance log adds E019 to E021, W106 and W107 ([editor-assets.md](editor-assets.md#problems)). Trigger sheets, effects and flags add E022 to E027 and W108 to W110 ([triggers.md](triggers.md#codes)). Scripts add E028 to E032, W111 and W112, with a line ([scripts.md](scripts.md)).
 
-## Content packs (formats 1 to 3)
+## Content packs (formats 1 to 5)
 
 ```json
 {
@@ -147,16 +147,17 @@ Type files add E015 to E017 and W105, and asset fields E018 ([type-files.md](typ
 
 - **Format 2** (M3.2) adds `"scripts": { "<id>": "<JavaScript>" }`: game.ts and every script it reaches, compiled by sucrase. A pack without scripts is still format 1, so its hash and its bytes are what they were, and an older engine reads it.
 - **Format 3** (M3.3) adds `project.kits`, the kits the project lists in the engine's order, with `scripts` or without; since M3.5, `project.calendar` too, with the time kit on and a calendar in `project.json`. A pack is written in the lowest format that holds it, so one whose project lists no kits keeps its format 1 or 2, and its hash.
-- **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`, with `scripts` beside them in format 2. That is `stateHash` ([state-hash.md](state-hash.md)).
+- **Format 4** (M4.1) adds `ui`, the game's screens and theme, and **format 5** (M4.2) its feedback, `ui.feedback`. Both are [screens.md](screens.md#pack)'s.
+- **The hash** is FNV-1a 64 of the RFC 8785 canonical JSON of `{ format, project, records }`, with `scripts` beside them when there are any, and `ui` when there are screens. That is `stateHash` ([state-hash.md](state-hash.md)).
   - The same content gives the same hash in the editor and in the CLI, whatever the files' formatting, key order or listing order.
   - It is a fingerprint, not a signature.
 - **Bytes.** Packs are written as canonical JSON plus a newline, so the same content gives the same bytes too.
-- **The pack's own format.** `PACK_FORMAT` is 3, and it is separate from the project format: the runtime reads packs and never reads projects.
+- **The pack's own format.** `PACK_FORMAT` is 5, and it is separate from the project format: the runtime reads packs and never reads projects.
 - **The golden.** The v1 fixture's pack hash is `489cedf323bd33d9`, and [`state_hash_oracle.py`](state_hash_oracle.py) computes the same hash from the fixture's files. A change to it changes every pack built so far, so it needs a decision.
 
 `readPack(value)` throws a `PackError` unless all of these hold:
 
-- the format is 1, 2 or 3, and a newer format asks for a newer engine;
+- the format is 1 to 5, and a newer format asks for a newer engine;
 - the pack has exactly `format`, `project`, `records` and `hash`, and `scripts` in format 2, and in format 3 when there are any: at least one, each a valid id with its JavaScript as text;
 - the project has exactly a valid `id`, a `name` and a `version`, and in format 3 `kits`, at least one, each a valid id, and perhaps a `calendar`, only beside the time kit and only one `calendarOf` takes;
 - `records` maps valid type names to objects keyed by valid ids;

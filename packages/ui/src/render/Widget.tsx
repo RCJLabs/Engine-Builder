@@ -6,6 +6,7 @@ import type { Widget } from '../format/screen.ts';
 import type { Entry } from '../session/types.ts';
 import type { Drawing } from './context.ts';
 import { actionFor, amount, fill, holds } from './fill.ts';
+import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
 import { Tabs } from './Tabs.tsx';
 
@@ -75,6 +76,8 @@ export function WidgetView({ widget, drawing, entry }: Props) {
           panel={(i) => children(widget.tabs[i]?.children ?? [])}
         />
       );
+    case 'log':
+      return <LogView widget={widget} drawing={drawing} entry={entry} />;
   }
 }
 

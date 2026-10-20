@@ -1,7 +1,7 @@
 /**
- * M4.1's gate (D51), what its specs share: the Play panel on any layout; the hut's theme and six
- * screens made in it, each typed into the screen editor and compared with the fixture as it
- * lands; the hut imported and started; and its game's screens, as a player sees them.
+ * M4.1's gate (D51), what its specs share: the Play panel on any layout; the hut's theme, six
+ * screens and feedback (M4.2) made in it, each typed into the screen editor and compared with the
+ * fixture as it lands; the hut imported and started; and its game's screens, as a player sees them.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets } from './checks.ts';
@@ -29,7 +29,7 @@ export async function showPlay(page: Page): Promise<Locator> {
   return panel;
 }
 
-/** The hut's theme and screens, made in the Play panel and written in the screen editor. */
+/** The hut's theme, screens and feedback, made in the Play panel and written in the screen editor. */
 export async function makeScreens(page: Page): Promise<void> {
   const panel = await showPlay(page);
   await panel.getByRole('button', { name: 'New theme' }).click();
@@ -48,9 +48,17 @@ export async function makeScreens(page: Page): Promise<void> {
     await landed(page, `ui/${id}.json`);
   }
   await showPlay(page);
+  await panel.getByRole('button', { name: 'New feedback' }).click();
+  const feedback = page.getByRole('region', { name: 'The feedback' });
+  // New feedback starts with the kits' common events, before the hut's own words replace them.
+  await expect(feedback.locator('.cm-content')).toContainText('"inventory/gained"');
+  await replaceText(page, feedback, fixtureText('ui/feedback.json'));
+  await landed(page, 'ui/feedback.json');
+  await showPlay(page);
   await expect(panel.getByRole('list').getByRole('button')).toHaveText([
     ...[...SCREENS].sort().map((id) => new RegExp(`^${id}No problems$`)),
     /^ThemeNo problems$/,
+    /^FeedbackNo problems$/,
   ]);
 }
 
@@ -92,29 +100,34 @@ export async function press(page: Page, button: Locator, touch = false): Promise
 }
 
 /**
- * Plays on until the hut closes, pressing only what the screens draw: in a talk or an event, its
- * first option on offer or Go on; in the store, Leave; otherwise a load carried, and the hut
- * closed once the season is over. Returns the modal screens' titles as they came up.
+ * The button a keeper presses next, pressing only what the screens draw: in a talk or an event, its
+ * first option on offer or Go on; in the store, Leave; otherwise a load carried, and the hut closed
+ * once the season is over. Undefined once the hut is closed; `title` names the modal screen it is on.
  */
+export async function nextPress(page: Page): Promise<{ button: Locator; title?: string } | undefined> {
+  const top = topScreen(page);
+  if (await top.getByText('The hut is closed for the winter.').isVisible()) return undefined;
+  const dialog = game(page).getByRole('dialog');
+  if (await dialog.isVisible()) {
+    const title = (await dialog.getByRole('heading', { level: 2 }).textContent()) ?? '';
+    const options = dialog.getByRole('listitem').locator('button:enabled');
+    const goOn = dialog.getByRole('button', { name: 'Go on' });
+    if ((await options.count()) > 0) return { button: options.first(), title };
+    if (await goOn.isEnabled()) return { button: goOn, title };
+    return { button: dialog.getByRole('button', { name: 'Leave the store' }), title };
+  }
+  const close = top.getByRole('button', { name: 'Close the hut for the winter' });
+  return { button: (await close.isVisible()) ? close : top.getByRole('button', { name: 'Carry a load up' }) };
+}
+
+/** Plays on until the hut closes (nextPress), by click or by touch. Returns the modal screens' titles as they came up. */
 export async function playSeason(page: Page, touch = false): Promise<string[]> {
   const seen: string[] = [];
   for (let turn = 0; turn < 60; turn++) {
-    const top = topScreen(page);
-    if (await top.getByText('The hut is closed for the winter.').isVisible()) return seen;
-    const dialog = game(page).getByRole('dialog');
-    if (await dialog.isVisible()) {
-      seen.push((await dialog.getByRole('heading', { level: 2 }).textContent()) ?? '');
-      const options = dialog.getByRole('listitem').locator('button:enabled');
-      const goOn = dialog.getByRole('button', { name: 'Go on' });
-      const leave = dialog.getByRole('button', { name: 'Leave the store' });
-      if ((await options.count()) > 0) await press(page, options.first(), touch);
-      else if (await goOn.isEnabled()) await press(page, goOn, touch);
-      else await press(page, leave, touch);
-    } else {
-      const close = top.getByRole('button', { name: 'Close the hut for the winter' });
-      if (await close.isVisible()) await press(page, close, touch);
-      else await press(page, top.getByRole('button', { name: 'Carry a load up' }), touch);
-    }
+    const next = await nextPress(page);
+    if (!next) return seen;
+    if (next.title !== undefined) seen.push(next.title);
+    await press(page, next.button, touch);
   }
   throw new Error(`The hut didn’t close in 60 presses; saw ${seen.join(', ')}`);
 }

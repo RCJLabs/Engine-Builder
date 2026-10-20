@@ -19,7 +19,9 @@ import {
   type Session,
   type SimContext,
 } from '@eb/core';
+import type { Feedback, Said } from '../format/feedback.ts';
 import type { Source } from '../format/screen.ts';
+import { feedbackSayer } from './say.ts';
 import type { Entry, Shown, View, Wants } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
@@ -27,8 +29,13 @@ import { actionLabel } from './words.ts';
 export interface Play {
   readonly view: View;
   readonly state: GameState;
-  /** Takes an action on offer: the step's beats, and the view after it. */
-  act(action: Action): { readonly view: View; readonly beats: readonly Beat[]; readonly accepted: boolean };
+  /** Takes an action on offer: the step's beats, what the game's feedback says of them (M4.2), and the view after it. */
+  act(action: Action): {
+    readonly view: View;
+    readonly beats: readonly Beat[];
+    readonly said: readonly Said[];
+    readonly accepted: boolean;
+  };
 }
 
 export interface PlaySetup {
@@ -37,6 +44,8 @@ export interface PlaySetup {
   /** The kits the project has on: which lists apply. */
   readonly kits: readonly string[];
   readonly wants: Wants;
+  /** ui/feedback.json: the words the step's beats are said in. Without it, nothing is said. */
+  readonly feedback?: Feedback;
 }
 
 interface Read {
@@ -70,6 +79,7 @@ export function startPlay(setup: PlaySetup, seed: string): Play {
   const catalog = game.catalog();
   const wants = parsedWants(setup.wants, catalog);
   const session: Session = createSession(game, sim, game.init(seed, sim));
+  const say = setup.feedback ? feedbackSayer(setup.feedback, game.events()) : undefined;
 
   function viewOf(state: GameState): View {
     const offered = game.options(state, sim);
@@ -117,11 +127,14 @@ export function startPlay(setup: PlaySetup, seed: string): Play {
     },
     act(action) {
       if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
-        return { view, beats: [], accepted: false };
+        return { view, beats: [], said: [], accepted: false };
       }
       const step = session.dispatch(action);
       view = viewOf(session.state);
-      return { view, beats: session.drain(), accepted: step.accepted };
+      const beats = session.drain();
+      // The step's records name what its beats carry, those it made among them.
+      const said = say ? say(beats, game.content(session.state, sim)) : [];
+      return { view, beats, said, accepted: step.accepted };
     },
   };
 }

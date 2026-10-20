@@ -1,5 +1,5 @@
 /**
- * The shape of a screen and of a theme (M4.1, docs/specs/screens.md), as zod: strict objects, so a
+ * The shape of a screen, a theme and a game's feedback (M4.1, M4.2), as zod: strict objects, so a
  * misspelt field is E047 at its path rather than ignored. What a screen names (facts, actions,
  * screens, modes) is uiCheck.ts's.
  */
@@ -9,7 +9,10 @@ import {
   BUTTON_STYLES,
   COLOR_NAMES,
   DIRECTIONS,
+  FEEDBACK_TO,
+  type Feedback,
   JUSTIFIES,
+  LOG_LINES_MAX,
   type Screen,
   SOURCES,
   TEXT_STYLES,
@@ -79,6 +82,13 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
       tabs: z.array(z.strictObject({ label: z.string().min(1), children })).min(1),
       ...base,
     }),
+    z.strictObject({
+      widget: z.literal('log'),
+      lines: z.int().min(1).max(LOG_LINES_MAX).optional(),
+      label: z.string().min(1).optional(),
+      empty: text.optional(),
+      ...base,
+    }),
   ]),
 ) as z.ZodType<Widget>;
 
@@ -100,3 +110,15 @@ export const themeSchema = z.strictObject({
   space: z.int().min(2).max(16).optional(),
   radius: z.int().min(0).max(24).optional(),
 }) as unknown as z.ZodType<Theme>;
+
+/** ui/feedback.json (M4.2, docs/specs/input.md#feedback). What its lines name is feedbackCheck.ts's. */
+export const feedbackSchema = z.strictObject({
+  lines: z.array(
+    z.strictObject({
+      on: z.string().min(1),
+      where: z.record(z.string(), value).optional(),
+      say: z.string().min(1),
+      to: z.enum(FEEDBACK_TO).optional(),
+    }),
+  ),
+}) as unknown as z.ZodType<Feedback>;

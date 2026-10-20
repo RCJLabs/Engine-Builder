@@ -6,6 +6,7 @@ A game's screens are data: widget trees in a project's `ui/` folder, checked as 
 
 - **`ui/<id>.json`** is the screen `<id>`, named as a record is: lowercase words joined by hyphens.
 - **`ui/theme.json`** is the game's theme. Without one, the engine's own is used.
+- **`ui/feedback.json`** is the words the game's beats are said in, as toasts, a log and to screen readers (M4.2, [input.md](input.md#feedback)).
 - **A file elsewhere under `ui/`,** or one named as no screen, is ignored (W132), as under `scenes/`.
 
 ## A screen
@@ -35,7 +36,7 @@ The screens on show are a stack, worked out after every step:
 - **A mode no screen shows** gets the fallback: a plain list of the actions on offer, so the game can still be played. The compiler warns of it (W133).
 - **Screens opened by a button** sit above the modes' screens until closed. A step that changes the modes closes them.
 
-Only the top screen and those below it up to the first that isn't modal are drawn. Focus and taps go to the top screen.
+Only the top screen and those below it up to the first that isn't modal are drawn. Focus and taps go to the top screen. Keys, a gamepad and swipes drive it too, and Back closes a screen a button opened ([input.md](input.md)). Feedback's checks, E051, E052 and W134, are input.md's.
 
 ## Widgets
 
@@ -53,7 +54,8 @@ Every widget has `widget`, its kind, and may have:
 | `button` | `label`, `action`, `style` (`primary` or `plain`) | At least 44 px high and wide. Disabled while its action isn't on offer. |
 | `progress` | `value`, `max`, `label` | `value` and `max` are numbers or bindings. |
 | `list` | `of`, `item`, `empty` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
-| `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. |
+| `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. A pad's LB and RB and a swipe turn them too (M4.2). |
+| `log` | `lines` (1 to 100, default 10), `label`, `empty` | The lines the game's feedback said to the log, newest first (M4.2, [input.md](input.md#the-log)). |
 
 ## Bindings
 
@@ -147,7 +149,7 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 
 ## Pack
 
-Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens.
+Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still written in the lowest format that holds it, so packs and their hashes are unchanged for projects without screens. Format 5 adds `ui.feedback` (M4.2, [input.md](input.md#pack)).
 
 ## Checks
 
@@ -159,7 +161,7 @@ Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still writt
 | E048 | A template, number or `shows-when` names a fact the game lacks, or gives it the wrong arguments; a binding compares (that belongs in `shows-when`); or `{.field}` is outside a list, or names a field its source lacks. |
 | E049 | A button takes an action the game lacks, opens a screen that isn't there, or uses `entry` outside a list or in a journal's. A list's `of`, or a view's field such as `{talk.text}`, needs a kit that is off. A screen `shows` a mode the game lacks. |
 | E050 | The theme's pairs fall short of 4.5:1. |
-| W132 | A file under `ui/` that is no screen and isn't `theme.json`: ignored. |
+| W132 | A file under `ui/` that is no screen and isn't `theme.json` or `feedback.json`: ignored. |
 | W133 | A mode of the game's, or of a kit it has on, that no screen shows: it is played with the fallback. Only once the project has a screen: before that, every mode is. |
 
 - **Facts** are checked as records' conditions are (D36): against the game's once its scripts have run, otherwise against the engine's and the kits', with any other taken as written.

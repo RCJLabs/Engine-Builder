@@ -36,6 +36,8 @@ export interface Catalog {
   readonly screens: readonly string[];
   /** Whether there is a ui/theme.json. */
   readonly theme: boolean;
+  /** Whether there is a ui/feedback.json (M4.2, D52). */
+  readonly feedback: boolean;
   /** Paths inside assets/, sorted: every file there but the provenance log. */
   readonly assets: readonly string[];
   /**
@@ -67,6 +69,7 @@ export const EMPTY_CATALOG: Catalog = {
   scenes: new Set(),
   screens: [],
   theme: false,
+  feedback: false,
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
@@ -107,6 +110,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     scenes: scenes.ids,
     screens: ui.screens,
     theme: ui.theme,
+    feedback: ui.feedback,
     assets,
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
@@ -117,18 +121,20 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   };
 }
 
-/** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, and W132 for the rest. */
+/** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, the feedback, and W132 for the rest. */
 async function readUiFiles(source: ProjectSource) {
   const screens: string[] = [];
   const problems: Diagnostic[] = [];
   let theme = false;
+  let feedback = false;
   for (const file of [...(await source.files(UI_DIR))].sort(byText)) {
     const role = classifyUi(file);
     if (role.kind === 'screen') screens.push(role.id);
     else if (role.kind === 'theme') theme = true;
+    else if (role.kind === 'feedback') feedback = true;
     else problems.push({ code: 'W132', severity: 'warning', message: role.reason, file, path: '' });
   }
-  return { screens, theme, problems };
+  return { screens, theme, feedback, problems };
 }
 
 const problem = (code: 'E004' | 'E046' | 'W131', message: string, file: string, id?: string): Diagnostic => ({

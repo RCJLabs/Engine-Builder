@@ -15,17 +15,27 @@ import { json } from './jsonLanguage.ts';
 import { uiLineToFocus } from './open.ts';
 import '../styles/scripts.css';
 
-const HELP: Readonly<Record<'screen' | 'theme', string>> = {
+type Kind = 'screen' | 'theme' | 'feedback';
+
+const HELP: Readonly<Record<Kind, string>> = {
   screen:
-    'A screen: its title, the modes it shows, whether it is modal, and its top, main and bottom, each a widget: stack, panel, grid, text, image, button, progress, list or tabs. Text shows facts in braces, like {time.day}. Tab indents, and Esc then Tab moves on.',
+    'A screen: its title, the modes it shows, whether it is modal, and its top, main and bottom, each a widget: stack, panel, grid, text, image, button, progress, list, tabs or log. Text shows facts in braces, like {time.day}. Tab indents, and Esc then Tab moves on.',
   theme:
     'The theme: six colours (background, surface, text, muted, accent, on-accent) as #rrggbb, each text pair at 4.5:1 or more, and the font, size, space and radius. Tab indents, and Esc then Tab moves on.',
+  feedback:
+    'The feedback: lines, each on an event the game declares, saying words whose holes are its arguments, like {.item}; where matches some of them, and to is toast, log or both. Each beat is said by the first line that matches it. Tab indents, and Esc then Tab moves on.',
+};
+
+const NAMES: Readonly<Record<Exclude<Kind, 'screen'>, { heading: string; label: string }>> = {
+  theme: { heading: 'Theme', label: 'The theme' },
+  feedback: { heading: 'Feedback', label: 'The feedback' },
 };
 
 export function ScreenEditor({ project, path }: { project: OpenProject; path: string }) {
   const role = classifyUi(path);
-  const kind = role.kind === 'theme' ? 'theme' : 'screen';
-  const title = role.kind === 'screen' ? role.id : 'theme';
+  const kind: Kind = role.kind === 'theme' || role.kind === 'feedback' ? role.kind : 'screen';
+  const named = kind === 'screen' ? undefined : NAMES[kind];
+  const title = role.kind === 'screen' ? role.id : kind;
   const [deleting, setDeleting] = useState(false);
   const host = useRef<HTMLDivElement>(null);
   const code = useRef<CodeEditor | null>(null);
@@ -47,9 +57,9 @@ export function ScreenEditor({ project, path }: { project: OpenProject; path: st
   const ready = loaded?.kind === 'ok';
   const go = (line: number, column?: number) => code.current?.focusAt(line, column);
   return (
-    <section class="script-editor" aria-label={kind === 'theme' ? 'The theme' : `Screen ${title}`}>
+    <section class="script-editor" aria-label={named?.label ?? `Screen ${title}`}>
       <header class="record-head">
-        <h3>{kind === 'theme' ? 'Theme' : `Screen ${title}`}</h3>
+        <h3>{named?.heading ?? `Screen ${title}`}</h3>
         {canEdit && loaded?.kind !== 'missing' ? (
           <div class="form-actions">
             <button type="button" class="button danger" onClick={() => setDeleting(true)}>

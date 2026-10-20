@@ -5,6 +5,7 @@
 import type { Action } from '@eb/core';
 import type { Breakpoint } from '../format/screen.ts';
 import type { View } from '../session/types.ts';
+import type { LogLine } from './feedback.ts';
 
 export interface Drawing {
   readonly view: View;
@@ -17,6 +18,8 @@ export interface Drawing {
   readonly close: (() => void) | undefined;
   /** An asset's URL, for images. Without one, an image shows its alt text. */
   assetUrl(path: string): string | undefined;
+  /** The play's log, newest last, for log widgets (M4.2). */
+  readonly log: readonly LogLine[];
 }
 
 let next = 0;

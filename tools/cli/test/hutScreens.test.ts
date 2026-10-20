@@ -2,13 +2,14 @@
  * The hut played through its screens (M4.1's gate, D51): compiled to the pack Export game writes,
  * played in the worker's host as the editor's Play panel and the player page play it. At every
  * step each mode has a screen of the hut's own, never the fallback, and a keeper who presses only
- * buttons the screens draw plays the season to its end.
+ * buttons the screens draw plays the season to its end. M4.2: every line of its feedback is said
+ * somewhere in those seasons, each with every hole filled.
  */
 import { resolve } from 'node:path';
 import { compileWithGame } from '@eb/compiler';
 import { type Action, Rng } from '@eb/core';
 import { actionFor, drawn, holds, screenStack } from '@eb/ui';
-import type { Screen, Widget } from '@eb/ui/format';
+import type { Said, Screen, Widget } from '@eb/ui/format';
 import { childrenOf } from '@eb/ui/format';
 import { type Entry, type PlayReply, playHost, type View } from '@eb/ui/session';
 import { describe, expect, it } from 'vitest';
@@ -48,16 +49,18 @@ async function hutPack() {
 }
 
 describe('the hut through its screens', () => {
-  it('packs its seven screens and its theme', async () => {
-    const pack = (await hutPack()) as { format: number; ui: { screens: object; theme: object } };
-    expect(pack.format).toBe(4);
+  it('packs its six screens, its theme and its feedback', async () => {
+    const pack = (await hutPack()) as { format: number; ui: { screens: object; theme: object; feedback: object } };
+    expect(pack.format).toBe(5);
     expect(Object.keys(pack.ui.screens)).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(pack.ui.theme).toBeDefined();
+    expect(pack.ui.feedback).toBeDefined();
   });
 
   it('plays a season pressing only what the screens draw, each mode on a screen of its own', async () => {
     const pack = await hutPack();
     const seen = new Set<string>();
+    const said: Said[] = [];
     for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
       const host = playHost();
       const started = host({ id: 0, kind: 'start', pack, seed });
@@ -79,6 +82,7 @@ describe('the hut through its screens', () => {
         const step: PlayReply = host({ id: turn, kind: 'act', action });
         if (step.kind !== 'stepped') throw new Error(JSON.stringify(step));
         expect(step.accepted, JSON.stringify(action)).toBe(true);
+        said.push(...step.said);
         view = step.view;
       }
       onScreens();
@@ -87,5 +91,17 @@ describe('the hut through its screens', () => {
     }
     // The journal is opened by a button, not a mode; every other screen comes up in play.
     expect([...seen].sort()).toEqual(['closed', 'hut', 'store', 'storm', 'talk']);
+    // Every hole filled: a record's id as its name, never "—" or a brace.
+    for (const line of said)
+      expect(line.text, line.text).not.toMatch(/[—{}]|^(guild|village|rope|bread|guiding|loads|supplies)\b/);
+    const heard = (pattern: RegExp) => said.some((line) => pattern.test(line.text));
+    expect(heard(/^Day \d+ begins\.$/)).toBe(true);
+    expect(heard(/^You carry a load up from the village\.$/)).toBe(true);
+    expect(heard(/^The guides’ guild: -?\d+$/)).toBe(true);
+    expect(heard(/^In the journal: The ridge$/)).toBe(true);
+    expect(heard(/^The hut is shut for the winter\.$/)).toBe(true);
+    const lines = said.map((line) => [line.text, line.to]);
+    expect(lines).toContainEqual(['The hut is shut for the winter.', 'both']);
+    expect(lines).toContainEqual(['You go down to see Greta.', 'log']);
   });
 });

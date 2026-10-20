@@ -46,6 +46,17 @@
             }
           }
         ]
+      },
+      {
+        "label": "Log",
+        "children": [
+          {
+            "widget": "log",
+            "lines": 20,
+            "label": "The season so far",
+            "empty": "Nothing yet."
+          }
+        ]
       }
     ]
   },
