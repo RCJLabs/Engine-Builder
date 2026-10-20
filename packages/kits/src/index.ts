@@ -7,7 +7,8 @@
  * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md), the events kit
  * (choice events, decks, consequences; M3.7, docs/specs/events.md), the dialogue kit (speakers
  * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
- * M3.9, docs/specs/quests.md). Their record types and checks are in @eb/schema.
+ * M3.9, docs/specs/quests.md), and the maps kit (layered and drawn maps, travel; M4.6,
+ * docs/specs/maps.md). Their record types and checks are in @eb/schema.
  */
 export { goesOnTo, leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
@@ -98,6 +99,50 @@ export {
 } from './inventory/types.ts';
 export { KIT_IDS, KITS, type Kit, type KitProblem, kitsOn } from './kits.ts';
 export { type Drawn, draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from './loot/draw.ts';
+export {
+  along,
+  type Built,
+  bothWays,
+  crosses,
+  crossingBroken,
+  kindRecord,
+  linksWithin,
+  makeLayered,
+  mapRecord,
+  mapsModule,
+  neighbours,
+  nodeId,
+  placeBroken,
+  quickest,
+  type Route,
+  type RuleCheck,
+  reachBroken,
+  SWEEP_SEEDS,
+  sweepLayered,
+  type Travel,
+  type TravelVerdict,
+  travelOf,
+  travels,
+  travelVerdict,
+} from './maps/index.ts';
+export {
+  type DrawnNode,
+  type KindNames,
+  type LayerRules,
+  MAP,
+  MAPS,
+  type MadeMap,
+  type MadeNode,
+  type MapRecord,
+  type MapsSlice,
+  type MixEntry,
+  type Move,
+  NODE_KIND,
+  type NodeKindRecord,
+  type PlaceRule,
+  type Road,
+  type Takes,
+} from './maps/types.ts';
 export { kitModules } from './modules.ts';
 export {
   canBeDone,
