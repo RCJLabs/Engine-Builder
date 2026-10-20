@@ -24,6 +24,17 @@ export interface Drawing {
   readonly paused?: boolean;
   /** Back to the play shell's title or New game (M4.4); undefined where no shell plays the game. */
   readonly toShell?: ((go: ShellGo) => void) | undefined;
+  /**
+   * The screen is drawn to be designed (M4.5, D55): each widget's box carries where it sits, a JSON
+   * Pointer, and a tabs widget shows the tab the selection is in.
+   */
+  readonly design?: { readonly selected: string | undefined };
+}
+
+/** In a frame being designed, the tab of the tabs widget at `at` that holds the selection, if one does. */
+export function tabHolding(at: string, selected: string | undefined): number | undefined {
+  const match = selected?.startsWith(`${at}/tabs/`) ? /^(\d+)(?:\/|$)/.exec(selected.slice(at.length + 6)) : null;
+  return match ? Number(match[1]) : undefined;
 }
 
 let next = 0;

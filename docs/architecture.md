@@ -226,6 +226,7 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Feedback** (M4.2, D52): a game words its beats in `ui/feedback.json`; the worker fills the words in, and the page shows them as toasts, keeps them in a `log` widget and speaks each step's once through one live region.
 - **The play shell** (M4.3, D53, [specs/shell.md](specs/shell.md)) is drawn by the engine in the game's theme, its words, slots and Daily set in `ui/shell.json`: a title with slots (Continue, New, Daily), save and load with files and codes, pause, settings, a crash screen in plain DOM and an update prompt on the title. The worker makes a save after every step and the page keeps it, so the worker never touches storage.
 - **Stock screens** (M4.4, D54) ship as templates you restyle, written into `ui/` from the project: HUD, dialogue, event, shop, hall, inventory, journal, codex (records shown once known, with live numbers), credits (packed from the provenance log) and ending ([specs/stock-screens.md](specs/stock-screens.md)). The map comes with M4.6's world map.
+- **The UI designer** (M4.5, D55, [specs/designer.md](specs/designer.md)) edits a screen as it looks: an outline of its widgets, a form for the one selected, and a frame drawing it at a device's size and breakpoint. The frame reads a game of the designer's own, compiled without `ui/` and loaded to the Play panel's last save, by a `look` request that takes no step; samples fill what the moment lacks. Each change is a JSON edit with the editor's undo, so the file stays the format, and its JSON view stays.
 
 ## Saves
 
@@ -319,7 +320,7 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI (M4.1, M4.2, M4.3): the screens', feedback's and shell's format, the session that plays a game in a worker, words its beats and makes its saves, the Preact renderer, input (focus, gamepad, swipes, Back), the play shell; stock screens later
+packages/ui         runtime UI (M4.1 to M4.5): the screens', feedback's and shell's format, the session that plays a game in a worker, words its beats, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7

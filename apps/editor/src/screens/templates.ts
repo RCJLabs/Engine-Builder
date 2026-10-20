@@ -9,10 +9,10 @@ import { DEFAULT_THEME } from '@eb/ui/format';
 
 const pretty = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
+// No `shows`, which is the same as none: the designer ticks the modes it shows in (M4.5).
 export const screenTemplate = (name: string): string =>
   pretty({
     title: name,
-    shows: [],
     main: { widget: 'stack', children: [{ widget: 'text', text: name, style: 'title' }] },
     // Opened only by a button, a screen needs one that closes it (W134).
     bottom: { widget: 'button', label: 'Close', action: { close: true } },

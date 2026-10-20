@@ -112,8 +112,16 @@ apps/editor/           the editor PWA
                        play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, its
                        template chosen in NewScreen.tsx (M4.4), New theme, New feedback, New shell); jobs.ts (a
                        project packed, or opened, in a copy of the script worker), protocol.ts, playClient.ts (its
-                       client, with timeouts)
-  src/screens/         screens in the editor (M4.1): open.ts, ScreenEditor (the JSON in CodeMirror, jsonLanguage.ts),
+                       client, with timeouts); moment.ts (its last save, which the designer's frame draws, M4.5)
+  src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
+                       colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
+                       paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
+                       file drawn), samples.ts, frame.ts (devices, fit, pick), moment.ts (lookAt: the designer's own
+                       game, compiled without ui/) and useDesign.ts, state.ts, formApi.ts (the record form's fields
+                       over a screen file); ScreenDesigner, Frame, Outline, OutlineBar, WidgetForm, PartForms,
+                       ActionField, ThemeDesigner
+  src/screens/         screens in the editor (M4.1): open.ts (uiView: Design or JSON, M4.5), ScreenEditor (the
+                       designer, or the JSON in CodeMirror, jsonLanguage.ts),
                        screenChecks.ts (ui/ checked against the game after the index), templates.ts; stock/ (M4.4,
                        D54): the stock screens as plain functions of the project (context.ts), parts.ts, modal.ts
                        (dialogue, event, shop, hall), pages.ts (inventory, journal, codex, credits), play.ts (HUD,
@@ -146,7 +154,9 @@ apps/editor/           the editor PWA
                        faked gamepad and by touch with its swipes; playShellHelpers.ts, playShell.spec.ts and
                        playShellPhone.spec.ts are M4.3's, the hut's saves, Daily, crash, pause and settings;
                        stockHut.ts, stockScreens.spec.ts and stockScreensPhone.spec.ts are M4.4's, the hut made
-                       again from stock screens and played to its end on them
+                       again from stock screens and played to its end on them; designerHelpers.ts,
+                       designerScreens.ts, designer.spec.ts and designerPhone.spec.ts are M4.5's, the hut's own
+                       screen and journal made again in the designer alone, as the fixture's JSON
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 7)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -239,12 +249,14 @@ packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's
                        map); inkjs.test.ts holds it to inkjs, a dev dependency, way by way
 packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.ts, the widgets and sources;
                        template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2);
-                       session/ (play.ts: a game played and its view after each step, or resumed from a state;
-                       views.ts, the kits' views as lists; words.ts; say.ts, a step's beats in the feedback's words
-                       (M4.2); saving.ts, the save made after each step (M4.3); records.ts, a codex's entries and the
-                       credits, sound.ts (M4.4); fromPack.ts and host.ts, a pack
-                       opened in a worker, its games started or loaded from a save's text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs,
-                       LogView, Feedback.tsx (toasts and the announcer), screens.css; stack.ts, fill.ts, layout.ts
+                       session/ (play.ts: a game played and its view after each step, or resumed from a state, and
+                       looked at for other wants, taking no step (M4.5); views.ts, the kits' views as lists;
+                       words.ts; say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
+                       after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
+                       fromPack.ts and host.ts, a pack opened in a worker, its games started or loaded from a save's
+                       text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
+                       and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
+                       each widget in a box saying where it sits (M4.5); stack.ts, fill.ts, layout.ts
                        and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and

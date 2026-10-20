@@ -11,14 +11,16 @@ import { freshId } from './context.ts';
 interface Props {
   readonly labels: readonly string[];
   readonly panel: (index: number) => ComponentChildren;
+  /** The tab shown whatever was chosen: in a frame being designed, the one the selection is in (M4.5). */
+  readonly shown?: number | undefined;
 }
 
-export function Tabs({ labels, panel }: Props) {
+export function Tabs({ labels, panel, shown }: Props) {
   const [chosen, setChosen] = useState(0);
   const id = useMemo(() => freshId('tabs'), []);
   const list = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
-  const at = Math.min(chosen, labels.length - 1);
+  const at = Math.max(0, Math.min(shown ?? chosen, labels.length - 1));
   const move = (to: number) => {
     const next = (to + labels.length) % labels.length;
     setChosen(next);

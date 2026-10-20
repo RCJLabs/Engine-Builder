@@ -29,6 +29,7 @@ const isPlay = (request: Request): request is PlayPageRequest =>
   request.kind === 'start' ||
   request.kind === 'load' ||
   request.kind === 'act' ||
+  request.kind === 'look' ||
   request.kind === 'open-files' ||
   request.kind === 'pack';
 

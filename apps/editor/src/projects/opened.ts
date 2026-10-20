@@ -51,6 +51,16 @@ export const current = signal<OpenProject | null>(null);
  */
 export const revision = signal(0);
 
+/**
+ * Counts the changes that may change the game rather than its screens: any naming a file outside
+ * ui/, or naming none. The designer's game is compiled again only on these (M4.5).
+ */
+export const gameRevision = signal(0);
+
+/** Whether a change may change the game: one naming no files, or any outside ui/. */
+export const changesGame = (paths: readonly string[] | undefined): boolean =>
+  !paths || paths.some((path) => !path.startsWith('ui/'));
+
 // How many changes have named each file, and how many named none, which may have changed any.
 const versions = new Map<string, number>();
 let unnamed = 0;
@@ -145,6 +155,7 @@ export function runScripts(): void {
 function changed(refresh: Refresh, paths: readonly string[] | undefined): void {
   if (paths) for (const path of paths) versions.set(path, (versions.get(path) ?? 0) + 1);
   else unnamed++;
+  if (changesGame(paths)) gameRevision.value++;
   revision.value++;
   refresh(paths ?? null);
 }

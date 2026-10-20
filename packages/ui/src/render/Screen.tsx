@@ -59,19 +59,22 @@ export function ScreenView({ shown, top, drawing, remembered }: ScreenProps) {
 }
 
 function Regions({ screen, drawing }: { readonly screen: Screen; readonly drawing: Drawing }) {
+  // Designed (M4.5), each region's widget says where it sits.
+  const at = (region: string) => (drawing.design ? `/${region}` : undefined);
   return (
     <>
       {screen.top && (
         <div class="eb-region eb-top">
-          <WidgetView widget={screen.top} drawing={drawing} />
+          <WidgetView widget={screen.top} drawing={drawing} at={at('top')} />
         </div>
       )}
+      {/* A screen being designed may have no main yet: the checks say so (E047). */}
       <div class="eb-region eb-main">
-        <WidgetView widget={screen.main} drawing={drawing} />
+        {screen.main && <WidgetView widget={screen.main} drawing={drawing} at={at('main')} />}
       </div>
       {screen.bottom && (
         <div class="eb-region eb-bottom">
-          <WidgetView widget={screen.bottom} drawing={drawing} />
+          <WidgetView widget={screen.bottom} drawing={drawing} at={at('bottom')} />
         </div>
       )}
     </>
