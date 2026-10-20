@@ -75,6 +75,26 @@ describe('a codex’s entries', () => {
   });
 });
 
+describe('a codex’s facts, read for each record', () => {
+  it('reads each entry’s @entry as that record, not as a record called "@entry"', () => {
+    const resources: Screen = {
+      main: {
+        widget: 'list',
+        of: 'records',
+        type: 'resource',
+        item: { widget: 'text', text: '{.name}: {economy.amount(resource: @entry)}' },
+      },
+    };
+    const game = startPlay(
+      { game: crag.game, sim: crag.sim, kits: ['inventory', 'economy', 'dialogue'], wants: wantsOf([resources]) },
+      'crag',
+    );
+    const [cash] = game.view.lists['records:resource:'] ?? [];
+    // The crag's cash starts at 20; a resource of no such id has none.
+    expect(cash?.facts).toEqual({ 'economy.amount(resource: @entry)': 20 });
+  });
+});
+
 describe('the credits', () => {
   it('lists each asset’s credit the pack carries, and none without', () => {
     expect(play(true).view.lists.credits).toEqual([

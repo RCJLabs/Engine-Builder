@@ -92,6 +92,24 @@ describe('the stock screens, written into a project and compiled against its gam
     }
   });
 
+  it('holds back a codex’s items until carried and its events until seen, its factions shown from the start', async () => {
+    const files = filesOf('hut');
+    const codex = JSON.parse(
+      new TextDecoder().decode(withStock(await contextOf('hut', files), files).added['ui/codex.json']),
+    );
+    const lists = codex.main.tabs.map(
+      (tab: { label: string; children: { type: string; known?: string; unknown?: unknown }[] }) => {
+        const [list] = tab.children;
+        return [tab.label, list?.type, list?.known ?? null, list?.unknown !== undefined];
+      },
+    );
+    expect(lists).toEqual([
+      ['Items', 'item', 'inventory.count(item: @entry) > 0', true],
+      ['Factions', 'faction', null, false],
+      ['Events', 'event', 'events.seen(event: @entry) > 0', true],
+    ]);
+  });
+
   it('reads which modes the screens there are already show, a screen that isn’t JSON showing none', async () => {
     const files: Record<string, string> = {
       'ui/a.json': JSON.stringify({ shows: ['hut', 'talking'], main: {} }),
