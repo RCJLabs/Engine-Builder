@@ -128,7 +128,11 @@ export async function padPress(page: Page, button: number): Promise<void> {
 /** The standard mapping's buttons the gate uses. */
 export const PAD = { a: 0, b: 1, lb: 4, rb: 5, up: 12, down: 13, left: 14, right: 15 } as const;
 
-/** A finger dragged sideways across an element, quickly: a swipe, as the browser's touch input makes it. */
+/**
+ * A finger dragged sideways across an element, quickly, then held still a moment before it lifts: a
+ * swipe, as the browser's touch input makes it. Lifted while still moving, the browser would fling,
+ * and a tap during a fling only stops it, as on a phone, so the next step's tap would press nothing.
+ */
 export async function swipe(page: Page, on: Locator, direction: 'left' | 'right'): Promise<void> {
   const box = await on.boundingBox();
   if (!box) throw new Error('Nothing to swipe on');
@@ -145,6 +149,8 @@ export async function swipe(page: Page, on: Locator, direction: 'left' | 'right'
       touchPoints: [{ x: from + ((to - from) * i) / 6, y }],
     });
   }
+  await new Promise((settled) => setTimeout(settled, 150));
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: to, y }] });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await cdp.detach();
 }

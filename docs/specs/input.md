@@ -91,6 +91,8 @@ Touch and pen only; a mouse clicks. The recognizer is Space-Wrecked's gestures.j
 Escape, a pad's B, a swipe right, and on the player page the browser's own back (Android's back gesture and button) close the top screen a button opened. With none open, Back does nothing in the game; on the player page the browser's back then leaves the page, as on any page.
 
 - **On the player page,** each screen a button opens adds an entry to the page's history, and the browser's back closes it. Closing it any other way, or a step that changes the modes, takes history back to match, so the page never holds entries for screens that are gone.
+- **The page counts its own entries** rather than reading `history.state`: `history.go` is answered later, and a screen opened in between would find the old entry's state there and add none for itself, so the next back left the game. The gate's spec slows `history.go` to show it.
+- **Entries are added before the page paints:** added after it, a back pressed as the screen showed found none and left the game (found by the gate's specs, about one run in ten).
 - **In the editor's Play panel** the history is the editor's, so only Escape, B and the swipe go back.
 
 ## Pack

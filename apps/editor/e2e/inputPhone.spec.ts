@@ -84,3 +84,42 @@ for (const viewport of [
     });
   });
 }
+
+test.describe('the hut at /play/, its history slow to answer', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, actionTimeout: 20_000 });
+
+  test('a screen opened while the page steps history back is still one back away', async ({ page }) => {
+    const errors = watchErrors(page);
+    // history.go answered late, as on a slow phone: the journal is opened again before it is. The
+    // page counts the steps not yet landed, so the test can wait for them.
+    await page.addInitScript(() => {
+      const go = history.go.bind(history);
+      const slow = window as unknown as { landing: number };
+      slow.landing = 0;
+      history.go = (delta?: number) => {
+        slow.landing++;
+        setTimeout(() => {
+          window.addEventListener('popstate', () => slow.landing--, { once: true });
+          go(delta);
+        }, 1000);
+      };
+    });
+    await openHut(page, (button) => button.tap());
+    const top = topScreen(page);
+    const journal = game(page).getByRole('dialog', { name: 'Journal' });
+    await top.getByRole('button', { name: 'Journal' }).tap();
+    await journal.getByRole('button', { name: 'Close the journal' }).tap();
+    await top.getByRole('button', { name: 'Journal' }).tap();
+    await expect(journal).toBeVisible();
+    // The race this is about: the journal opened again before the step back landed.
+    expect(await page.evaluate(() => (window as unknown as { landing: number }).landing)).toBe(1);
+    // Once the late step back lands, the journal is still open, and back closes it, in the game.
+    await expect.poll(() => page.evaluate(() => (window as unknown as { landing: number }).landing)).toBe(0);
+    await expect(journal).toBeVisible();
+    expect(await page.evaluate(() => (history.state as { ebOpened?: number } | null)?.ebOpened)).toBe(1);
+    await page.goBack();
+    await expect(journal).toHaveCount(0);
+    await expect(page.getByRole('heading', { level: 1, name: 'The hut' })).toBeVisible();
+    expect(errors).toEqual([]);
+  });
+});

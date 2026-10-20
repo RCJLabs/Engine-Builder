@@ -4,7 +4,7 @@
  * way takes history back to match, so the page never holds entries for screens that are gone, and
  * Android's back gesture closes a screen instead of leaving the game.
  */
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 
 const KEY = 'ebOpened';
 
@@ -15,41 +15,34 @@ const depthIn = (state: unknown): number => {
 
 /** `depth` is how many screens buttons have opened; `closeTo` closes down to that many. */
 export function useBackHistory(depth: number, closeTo: (depth: number) => void, enabled: boolean): void {
-  const latest = useRef({ depth, closeTo });
-  latest.current = { depth, closeTo };
-  // The entries this page has pushed, and whether a step back of its own is still on its way:
-  // history.go is answered later, so until its popstate comes, history.state is the old entry's.
-  const kept = useRef({ pushed: 0, waiting: false });
-  const sync = useRef(() => {
-    const at = kept.current;
-    if (at.waiting) return;
-    const want = latest.current.depth;
-    if (want > at.pushed) {
-      for (let d = at.pushed + 1; d <= want; d++) history.pushState({ ...history.state, [KEY]: d }, '');
-    } else if (want < at.pushed) {
-      at.waiting = true;
-      history.go(want - at.pushed);
-    }
-    at.pushed = want;
-  });
+  const latest = useRef(closeTo);
+  latest.current = closeTo;
+  // The entries this page has pushed, counted here rather than read from history.state: history.go
+  // is answered later, and a screen opened before it is would find the old entry's state there and
+  // push nothing for itself.
+  // Undefined until the first sync, which starts from whatever entry the page is on: one left by
+  // the last game, if a screen was open as it ended, is taken back.
+  const pushed = useRef<number | undefined>(undefined);
   useEffect(() => {
     if (!enabled) return;
-    kept.current = { pushed: depthIn(history.state), waiting: false };
     const popped = (event: PopStateEvent) => {
-      const at = kept.current;
-      if (at.waiting) {
-        // Our own step back has landed: catch up with whatever opened meanwhile.
-        at.waiting = false;
-        sync.current();
-        return;
-      }
-      at.pushed = depthIn(event.state);
-      latest.current.closeTo(at.pushed);
+      pushed.current = depthIn(event.state);
+      latest.current(pushed.current);
     };
     window.addEventListener('popstate', popped);
     return () => window.removeEventListener('popstate', popped);
   }, [enabled]);
-  useEffect(() => {
-    if (enabled) sync.current();
+  // Before the page paints, so a screen that shows has its entry: after paint, a back pressed at
+  // once would find none and leave the page (found by the gate's specs).
+  useLayoutEffect(() => {
+    if (!enabled) return;
+    const had = pushed.current ?? depthIn(history.state);
+    if (depth > had) {
+      for (let d = had + 1; d <= depth; d++) history.pushState({ ...history.state, [KEY]: d }, '');
+    } else if (depth < had) {
+      // The popstate this makes finds the screens already closed, and closes nothing more.
+      history.go(depth - had);
+    }
+    pushed.current = depth;
   }, [depth, enabled]);
 }
