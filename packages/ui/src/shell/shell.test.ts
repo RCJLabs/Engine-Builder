@@ -47,6 +47,21 @@ describe('slots', () => {
     expect(dailyNumber(new Date(2027, 0, 1))).toBe(365);
     expect(dailySeed(292)).toBe('daily:292');
   });
+
+  it('counts the Daily by the device’s own calendar, not UTC’s, where the two dates differ', () => {
+    const was = process.env.TZ;
+    try {
+      // Fourteen hours ahead of UTC: noon UTC on the 19th is two in the morning of the 20th there.
+      process.env.TZ = 'Pacific/Kiritimati';
+      expect(dailyNumber(new Date(Date.UTC(2026, 9, 19, 12)))).toBe(292);
+      process.env.TZ = 'Pacific/Pago_Pago';
+      // Eleven hours behind: eight in the morning UTC on the 20th is still the 19th there.
+      expect(dailyNumber(new Date(Date.UTC(2026, 9, 20, 8)))).toBe(291);
+    } finally {
+      if (was === undefined) delete process.env.TZ;
+      else process.env.TZ = was;
+    }
+  });
 });
 
 describe('settings', () => {

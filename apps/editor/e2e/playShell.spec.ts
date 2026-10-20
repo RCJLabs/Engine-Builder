@@ -51,6 +51,17 @@ test('a game saved every step, continued after a reload, and brought by its code
   await expect(going).toHaveText(/^ContinueSlot 1 · Day \d+ · \d+ coins$/);
   await going.click();
   expect(await seen(page)).toEqual(before);
+  // New over the slot asks first, naming what it holds.
+  await page.getByRole('button', { name: 'Pause' }).click();
+  await pauseDialog(page).getByRole('button', { name: 'Quit to title' }).click();
+  await screens.getByRole('button', { name: 'New game' }).click();
+  const slot = screens.getByRole('button', { name: /^Slot 1/ });
+  await expect(slot).toContainText(/Day \d+ · \d+ coins/);
+  await slot.click();
+  await expect(screens.getByRole('button', { name: /^Press again to replace Slot 1/ })).toBeVisible();
+  await screens.getByRole('button', { name: 'Back' }).click();
+  await screens.getByRole('button', { name: /^Continue/ }).click();
+  expect(await seen(page)).toEqual(before);
 
   await openSaves(page, 'pause');
   await screens.getByRole('button', { name: 'Copy code' }).click();
@@ -69,6 +80,14 @@ test('a game saved every step, continued after a reload, and brought by its code
   await there.getByRole('button', { name: 'Load Slot 2' }).click();
   expect(await seen(fresh)).toEqual(before);
   await expect(fresh.getByText('The hut · Slot 2')).toBeVisible();
+  // Brought in again over it, the slot asks first.
+  await openSaves(fresh, 'pause');
+  await there.getByLabel('A save code').fill(code);
+  await there.getByRole('button', { name: 'Use the code' }).click();
+  await there.getByRole('button', { name: 'Put it in Slot 2' }).click();
+  await expect(there.getByRole('button', { name: 'Press again to replace Slot 2' })).toBeVisible();
+  await there.getByRole('button', { name: 'Back' }).click();
+  await pauseDialog(fresh).getByRole('button', { name: 'Resume' }).click();
   // Another game's code is refused, naming whose it is, before anything is unpacked.
   await openSaves(fresh, 'pause');
   await there.getByLabel('A save code').fill(code.replace('EB1.the-hut.', 'EB1.the-hostel.'));
@@ -212,5 +231,57 @@ test('pause by Escape, settings kept across a reload, and quitting to a title th
   await expect(page.locator('.eb-shell')).toHaveAttribute('data-motion', 'less');
   await screens.getByRole('button', { name: /^Continue/ }).click();
   expect(await size()).toBeCloseTo(was * 1.4, 1);
+  expect(errors).toEqual([]);
+});
+
+test('a slow write holds the next step until it lands, and a failed one says so as play goes on', async ({ page }) => {
+  test.setTimeout(90_000);
+  const errors = watchErrors(page);
+  // Writes that land late, or fail with a full disk, on the page's word.
+  await page.addInitScript(() => {
+    const hooks = window as unknown as { slowWrites: boolean; fullDisk: boolean };
+    hooks.slowWrites = false;
+    hooks.fullDisk = false;
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (this: IDBObjectStore, ...args: Parameters<IDBObjectStore['put']>) {
+      if (hooks.fullDisk) throw new DOMException('The disk is full', 'QuotaExceededError');
+      const request = put.apply(this, args);
+      if (hooks.slowWrites) {
+        const tx = this.transaction;
+        const set = Object.getOwnPropertyDescriptor(IDBTransaction.prototype, 'oncomplete')?.set;
+        Object.defineProperty(tx, 'oncomplete', {
+          configurable: true,
+          set(done: (event: Event) => void) {
+            set?.call(tx, (event: Event) => setTimeout(() => done(event), 800));
+          },
+        });
+      }
+      return request;
+    };
+  });
+  const file = hutGame();
+  await openTitle(page, file);
+  await newGame(page);
+  await page.evaluate(() => {
+    (window as unknown as { slowWrites: boolean }).slowWrites = true;
+  });
+  await play(page, 1);
+  // The step's view came only once its save had landed: the slot holds that step.
+  const { turn } = await seen(page);
+  expect(JSON.parse((await storedSave(page, 'slot-1')) ?? '{}').summary.turn).toBe(Number(turn));
+
+  await page.evaluate(() => {
+    const hooks = window as unknown as { slowWrites: boolean; fullDisk: boolean };
+    hooks.slowWrites = false;
+    hooks.fullDisk = true;
+  });
+  await play(page, 1);
+  await expect(page.getByRole('status').filter({ hasText: /^Not saved: / })).toBeVisible();
+  await page.evaluate(() => {
+    (window as unknown as { fullDisk: boolean }).fullDisk = false;
+  });
+  await play(page, 1);
+  await expect(page.getByRole('status').filter({ hasText: /^Not saved: / })).toHaveCount(0);
+  expect(JSON.parse((await storedSave(page, 'slot-1')) ?? '{}').summary.turn).toBe(Number((await seen(page)).turn));
   expect(errors).toEqual([]);
 });

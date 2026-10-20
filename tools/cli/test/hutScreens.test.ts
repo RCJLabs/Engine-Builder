@@ -8,7 +8,7 @@
  */
 import { resolve } from 'node:path';
 import { compileWithGame } from '@eb/compiler';
-import { type Action, Rng, type SaveFile } from '@eb/core';
+import { type Action, createPack, type Pack, type PackUi, Rng, type SaveFile } from '@eb/core';
 import { MAX_LOG } from '@eb/platform';
 import { actionFor, drawn, holds, screenStack } from '@eb/ui';
 import type { Said, Screen, Widget } from '@eb/ui/format';
@@ -163,6 +163,17 @@ describe('the hut saved as it plays (M4.3)', () => {
         }
       }
     }
+  });
+
+  it('fills a slot line whose facts no screen reads: the shell’s own are read for it', async () => {
+    const pack = (await hutPack()) as Pack;
+    const ui = { ...(pack.ui as PackUi), shell: { 'slot-line': 'Loads: {quests.state(quest: loads)}' } };
+    const changed = createPack(pack.project, pack.records, pack.scripts, ui);
+    const host = playHost();
+    host({ id: 0, kind: 'open', pack: JSON.parse(JSON.stringify(changed)) });
+    const started = host({ id: 1, kind: 'start', seed: 'x', saving: { edition: 'test' }, at: 0 });
+    if (started.kind !== 'started') throw new Error(JSON.stringify(started));
+    expect(started.save.summary).toMatchObject({ line: expect.stringMatching(/^Loads: (waiting|active)$/) });
   });
 
   it('says why a save won’t load: not JSON, another game, or a game that fails replaying it', async () => {

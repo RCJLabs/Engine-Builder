@@ -40,6 +40,10 @@ for (const viewport of VIEWPORTS) {
       await pauseDialog(page).getByRole('button', { name: 'Saves' }).tap();
       await expect(screens.getByRole('button', { name: 'Load Slot 1' })).toBeVisible();
       await expectFits(page);
+      // No clipboard here: the code is shown to copy by hand.
+      await screens.getByRole('button', { name: 'Copy code' }).tap();
+      await expect(screens.getByLabel('Slot 1’s code: copy it from here')).toHaveValue(/^EB1\.the-hut\./);
+      await expectFits(page);
       await screens.getByRole('button', { name: 'Back' }).tap();
       await pauseDialog(page).getByRole('button', { name: 'Settings' }).tap();
       await expect(screens.getByRole('button', { name: 'Larger' })).toBeVisible();

@@ -82,6 +82,13 @@ describe('the gamepad', () => {
         [48, input([BUTTONS.lb])],
       ]),
     ).toEqual([[{ kind: 'tab', step: 1 }], [], [], [{ kind: 'tab', step: -1 }]]);
+    // Start pauses, once per press (M4.3).
+    expect(
+      frames([
+        [0, input([BUTTONS.start])],
+        [16, input([BUTTONS.start])],
+      ]),
+    ).toEqual([[{ kind: 'start' }], []]);
   });
 
   it('moves with the d-pad, repeating after 400 ms and then every 120', () => {
