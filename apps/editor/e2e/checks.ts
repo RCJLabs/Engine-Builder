@@ -49,10 +49,13 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
   expect(overflow, 'the page scrolls as a whole, past the shell').toBeLessThanOrEqual(0);
 }
 
-/** Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h". */
+/**
+ * Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h".
+ * The designer's frame (M4.5) is a picture of a game, inert and scaled down: none of it is a target.
+ */
 export function smallTargets(page: Page, scope: string): Promise<string[]> {
   const controls = 'button, input, select, textarea, a[href], [role="tab"], [role="option"]';
-  return page.locator(`${scope} :is(${controls}):visible`).evaluateAll((els) =>
+  return page.locator(`${scope} :is(${controls}):not(.eb-designed *):visible`).evaluateAll((els) =>
     els
       .map((el) => ({
         name: el.textContent?.trim() || el.getAttribute('aria-label') || el.id,

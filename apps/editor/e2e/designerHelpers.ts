@@ -12,6 +12,15 @@ import { fixtureZip, storedText } from './kitHelpers.ts';
 import { openProject, scratch, showProject } from './ludus.ts';
 
 let made = 0;
+let byTouch = false;
+
+/** From now on, a press is a tap, as on a phone; or a click again. */
+export function touch(on: boolean): void {
+  byTouch = on;
+}
+
+/** A press as the device makes one: a tap on a phone, a click on desktop. */
+export const hit = (target: Locator): Promise<void> => (byTouch ? target.tap() : target.click());
 
 /** A copy of the hut without ui/hut.json and ui/journal.json, the two screens the gate makes again. */
 export function designerHutDir(): string {
@@ -27,23 +36,23 @@ export async function importDesignerHut(page: Page): Promise<Locator> {
   await showProject(page);
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: 'Import zip' }).click(),
+    hit(page.getByRole('button', { name: 'Import zip' })),
   ]);
   await chooser.setFiles(fixtureZip(designerHutDir(), 'the-hut'));
   await expect(openProject(page).getByRole('heading', { name: 'The hut' })).toBeVisible();
   const panel = await showPlay(page);
-  await panel.getByRole('button', { name: 'Run its scripts' }).click();
+  await hit(panel.getByRole('button', { name: 'Run its scripts' }));
   return panel;
 }
 
 /** A blank screen made by New screen, open in the designer. */
 export async function newBlank(page: Page, id: string): Promise<Locator> {
   const panel = await showPlay(page);
-  await panel.getByRole('button', { name: 'New screen' }).click();
+  await hit(panel.getByRole('button', { name: 'New screen' }));
   await panel.getByLabel('Name of the new screen').fill(id);
-  await panel.getByRole('button', { name: 'Create' }).click();
+  await hit(panel.getByRole('button', { name: 'Create' }));
   const region = page.getByRole('region', { name: `Screen ${id}` });
-  await region.getByRole('button', { name: 'Design', exact: true }).click();
+  await hit(region.getByRole('button', { name: 'Design', exact: true }));
   await expect(outline(region)).toBeVisible();
   return region;
 }
@@ -55,7 +64,7 @@ export async function pick(region: Locator, name: string, nth = 0): Promise<void
   const row = outline(region)
     .getByRole('button', { name: new RegExp(`^${escaped(name)}`) })
     .nth(nth);
-  await row.click();
+  await hit(row);
   await expect(row).toHaveAttribute('aria-current', 'true');
 }
 
@@ -67,21 +76,19 @@ export const bar = (region: Locator): Locator => region.getByRole('group', { nam
 /** Adds a widget of `kind` where Add puts one for the selected row; the new widget is selected. */
 export async function add(region: Locator, kind: string): Promise<void> {
   await bar(region).getByLabel('Add', { exact: true }).selectOption({ label: kind });
-  await bar(region)
-    .getByRole('button', { name: /^Add (into|inside|after)/ })
-    .click();
+  await hit(bar(region).getByRole('button', { name: /^Add (into|inside|after)/ }));
   await expect(region.getByRole('heading', { level: 4, name: new RegExp(`${escaped(kind)}$`) })).toBeVisible();
 }
 
 /** One of the outline bar's actions on the selected row. */
 export async function act(region: Locator, name: string): Promise<void> {
-  await bar(region).getByRole('button', { name, exact: true }).click();
+  await hit(bar(region).getByRole('button', { name, exact: true }));
 }
 
 /** Ticks a box whose state is the file's: it shows ticked once the edit lands. */
 export async function tick(region: Locator, label: string): Promise<void> {
   const box = region.getByLabel(label, { exact: true });
-  await box.click();
+  await hit(box);
   await expect(box).toBeChecked();
 }
 

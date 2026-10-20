@@ -4,7 +4,13 @@
  * that nothing it draws reaches past the game's box. Shared by the desktop and phone specs.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
-import { act, add, newBlank, pick, tick, type } from './designerHelpers.ts';
+import { act, add, hit, newBlank, pick, tick, type } from './designerHelpers.ts';
+
+/** A box ticked or not, pressed as the device presses. */
+async function setBox(box: Locator, on: boolean): Promise<void> {
+  if ((await box.isChecked()) !== on) await hit(box);
+  await (on ? expect(box).toBeChecked() : expect(box).not.toBeChecked());
+}
 
 /** ui/journal.json, from a blank screen: a modal of three tabs, two lists and a log, and a Close. */
 export async function makeJournal(page: Page): Promise<Locator> {
@@ -75,7 +81,7 @@ export async function button(
   if (extra.primary) await region.getByLabel(/^Style/).selectOption('primary');
   await region.getByLabel('Action to take').selectOption(take);
   if (extra.who) {
-    await region.getByRole('button', { name: 'Add argument' }).click();
+    await hit(region.getByRole('button', { name: 'Add argument' }));
     await type(region, 'Argument 1 name', 'who');
     await type(region, 'Argument 1 value', extra.who);
   }
@@ -85,9 +91,9 @@ export async function button(
 export async function columnsAt(region: Locator, device: string, turned: boolean, breakpoint: string, columns: string) {
   await region.getByLabel('Device').selectOption({ label: device });
   const turn = region.getByRole('button', { name: 'Turn' });
-  if ((await turn.getAttribute('aria-pressed')) !== String(turned)) await turn.click();
+  if ((await turn.getAttribute('aria-pressed')) !== String(turned)) await hit(turn);
   await expect(region.getByTestId('designer-breakpoint')).toContainText(`lays out as ${breakpoint}`);
-  await region.getByLabel(`Change layout at ${breakpoint} only`).check();
+  await setBox(region.getByLabel(`Change layout at ${breakpoint} only`), true);
   await type(region, new RegExp(`^Columns at ${breakpoint}`), columns);
 }
 
@@ -141,7 +147,7 @@ export async function makeHut(page: Page): Promise<Locator> {
   await columnsAt(region, 'Phone, 390 × 844', true, 'landscape', '2');
   await columnsAt(region, 'Tablet, 820 × 1180', false, 'tablet', '2');
   await columnsAt(region, 'Desktop, 1280 × 800', false, 'desktop', '3');
-  await region.getByLabel('Change layout at desktop only').uncheck();
+  await setBox(region.getByLabel('Change layout at desktop only'), false);
   await button(region, 'Carry a load up', 'hut/carry', { primary: true });
   await button(region, 'Rest a day', 'hut/rest');
   await button(region, 'Open the store', 'hut/store');

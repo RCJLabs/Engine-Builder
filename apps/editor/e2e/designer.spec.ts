@@ -8,9 +8,33 @@ import { expect, test } from '@playwright/test';
 import { expectNothingOffscreen, watchErrors } from './checks.ts';
 import { fixtureScreen, importDesignerHut, storedScreen } from './designerHelpers.ts';
 import { expectFrameFits, makeHut, makeJournal } from './designerScreens.ts';
+import { FOLDER } from './hutHelpers.ts';
 import { game, newGame, press, showPlay, topScreen } from './hutScreens.ts';
+import { storedText } from './kitHelpers.ts';
 
 test.use({ viewport: { width: 1280, height: 900 }, actionTimeout: 20_000 });
+
+test('the theme designed by its colours, each pair’s contrast shown as it is picked', async ({ page }) => {
+  test.setTimeout(120_000);
+  const errors = watchErrors(page);
+  const panel = await importDesignerHut(page);
+  await panel.getByRole('button', { name: /^Theme/ }).click();
+  const theme = page.getByRole('region', { name: 'The theme' });
+  await theme.getByRole('button', { name: 'Design', exact: true }).click();
+  const contrast = theme.getByRole('list', { name: 'Contrast' });
+  await expect(contrast.getByRole('listitem')).toHaveCount(5);
+  await expect(contrast.getByText(/^text on background: [\d.]+:1, passes$/)).toBeVisible();
+  await expect(theme.locator('.eb-designed').getByText('Body text, as most of a game’s words are.')).toBeVisible();
+  // A muted colour too near the background: its pairs say so as it is picked, and the checks agree (E050).
+  await theme.getByLabel('muted', { exact: true }).fill('#2a3038');
+  await expect(contrast.getByText(/^muted on background: [\d.]+:1, below 4\.5:1$/)).toBeVisible();
+  await expect(contrast.getByText(/^muted on surface: [\d.]+:1, below 4\.5:1$/)).toBeVisible();
+  await expect(page.getByRole('tab', { name: /^Problems \(\d+\)$/ })).toBeVisible();
+  await expect
+    .poll(async () => JSON.parse((await storedText(page, FOLDER, 'ui/theme.json')) ?? '{}').colors?.muted)
+    .toBe('#2a3038');
+  expect(errors).toEqual([]);
+});
 
 test('the journal and the hut made again in the designer alone, as the fixture’s JSON', async ({ page }) => {
   test.setTimeout(300_000);
