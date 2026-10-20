@@ -10,7 +10,7 @@ import type { Screen } from '../format/screen.ts';
 import type { ShellFile } from '../format/shell.ts';
 import type { Theme } from '../format/theme.ts';
 import type { Saving } from './saving.ts';
-import type { View } from './types.ts';
+import type { View, Wants } from './types.ts';
 
 export type PlayRequest =
   /** A pack, parsed JSON as a file holds it: read and its game loaded, nothing played yet. */
@@ -20,7 +20,9 @@ export type PlayRequest =
   /** A game of the open pack from a save's text, as the slot holds it. */
   | { readonly id: number; readonly kind: 'load'; readonly raw: string; readonly saving: Saving; readonly at: number }
   /** One of the actions the last view offered. */
-  | { readonly id: number; readonly kind: 'act'; readonly action: Action; readonly at: number };
+  | { readonly id: number; readonly kind: 'act'; readonly action: Action; readonly at: number }
+  /** The game in play seen with other wants, no step taken: a screen being designed (M4.5, D55). */
+  | { readonly id: number; readonly kind: 'look'; readonly wants: Wants };
 
 export type PlayReply =
   | {
@@ -63,4 +65,5 @@ export type PlayReply =
       /** The save after the step, when it was taken (M4.3). */
       readonly save?: SaveFile;
     }
+  | { readonly id: number; readonly kind: 'looked'; readonly view: View }
   | { readonly id: number; readonly kind: 'failed'; readonly message: string };

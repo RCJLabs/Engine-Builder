@@ -33,6 +33,8 @@ export interface Play {
   readonly run: { readonly snapshot: GameState; readonly log: readonly Action[]; readonly state: GameState };
   /** Makes the state now the start of the log, so saves stop growing. */
   compact(): void;
+  /** The view of the state now for other wants, taking no step: a screen being designed (M4.5, D55). */
+  look(wants: Wants): View;
   /** Takes an action on offer: the step's beats, what the game's feedback says of them (M4.2), and the view after it. */
   act(action: Action): {
     readonly view: View;
@@ -79,12 +81,12 @@ export const resumePlay = (setup: PlaySetup, state: GameState): Play => playFrom
 function playFrom(setup: PlaySetup, start: GameState): Play {
   const { game, sim, kits } = setup;
   const catalog = game.catalog();
-  const wants = parsedWants(setup.wants, catalog);
+  const parsed = parsedWants(setup.wants, catalog);
   const session: Session = createSession(game, sim, start);
   const say = setup.feedback ? feedbackSayer(setup.feedback, game.events()) : undefined;
   const credits = setup.credits && setup.credits.length > 0 ? creditEntries(setup.credits) : undefined;
 
-  function viewOf(state: GameState): View {
+  function viewOf(state: GameState, wants = parsed): View {
     const offered = game.options(state, sim);
     const content: RecordStore = game.content(state, sim);
     const reading: Reading = {
@@ -135,6 +137,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       return { snapshot: session.start, log: session.log, state: session.state };
     },
     compact: () => session.compact(),
+    look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
       if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], accepted: false };

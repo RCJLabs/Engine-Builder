@@ -38,6 +38,7 @@ export function playHost(): (request: PlayRequest) => PlayReply {
       return { id, kind: 'loaded', ok: true, view: play.view, file: resumed.file, report: resumed.report };
     }
     if (!play || !saving) return { id, kind: 'failed', message: 'No game has started' };
+    if (request.kind === 'look') return { id, kind: 'looked', view: play.look(request.wants) };
     const step = play.act(request.action);
     const save = step.accepted ? saveOf(opened, play, saving, request.at) : undefined;
     return { id, kind: 'stepped', ...step, ...(save ? { save } : {}) };

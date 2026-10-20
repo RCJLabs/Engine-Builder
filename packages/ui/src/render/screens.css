@@ -93,8 +93,25 @@
 }
 
 .eb-stack > *,
-.eb-panel > * {
+.eb-panel > *,
+.eb-stack > .eb-at > *,
+.eb-panel > .eb-at > * {
   min-width: 0;
+}
+
+/*
+ * M4.5: in a frame being designed, each widget sits in a box that lays out nothing, saying where
+ * it is; the one selected is ringed in colours of the editor's own, dark and light, so it shows on
+ * any theme.
+ */
+.eb-at {
+  display: contents;
+}
+
+.eb-at[data-eb-selected] > * {
+  outline: 3px dashed #ff8a00;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #000;
 }
 
 .eb-panel {

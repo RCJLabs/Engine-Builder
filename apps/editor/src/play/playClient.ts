@@ -58,8 +58,8 @@ export function playClient(start: () => WorkerLike = startWorker): PlayClient {
     send(request) {
       worker ??= connect();
       const id = next++;
-      // Loading a save replays its log, as long as starting can take.
-      const ms = request.kind === 'act' ? STEP_MS : START_MS;
+      // Loading a save replays its log, as long as starting can take; a look (M4.5) reads as a step does.
+      const ms = request.kind === 'act' || request.kind === 'look' ? STEP_MS : START_MS;
       return new Promise((resolve, reject) => {
         const timer = setTimeout(
           () => stop(new Error(`The game didn’t answer within ${ms / 1000} seconds: does a script loop forever?`)),

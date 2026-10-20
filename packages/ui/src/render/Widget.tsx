@@ -4,7 +4,7 @@
  */
 import { type ListWidget, listKey, type Widget } from '../format/screen.ts';
 import type { Entry } from '../session/types.ts';
-import type { Drawing } from './context.ts';
+import { type Drawing, tabHolding } from './context.ts';
 import { actionFor, amount, fill, holds } from './fill.ts';
 import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
@@ -15,13 +15,30 @@ interface Props {
   readonly drawing: Drawing;
   /** The list entry this widget is the item of. */
   readonly entry?: Entry;
+  /** Where the widget sits in its screen, a JSON Pointer: given only while the screen is designed (M4.5). */
+  readonly at?: string | undefined;
 }
 
-export function WidgetView({ widget, drawing, entry }: Props) {
+export function WidgetView(props: Props) {
+  const { widget, drawing, entry, at } = props;
+  if (!holds(widget, drawing.view, entry)) return null;
+  // Designed, each widget's box says where it sits, so a tap in the frame selects it; the box lays out nothing.
+  return at === undefined ? (
+    <WidgetBody {...props} />
+  ) : (
+    <div class="eb-at" data-eb-at={at} data-eb-selected={drawing.design?.selected === at ? '' : undefined}>
+      <WidgetBody {...props} />
+    </div>
+  );
+}
+
+function WidgetBody({ widget, drawing, entry, at }: Props) {
   const { view, breakpoint } = drawing;
-  if (!holds(widget, view, entry)) return null;
-  const children = (list: readonly Widget[]) =>
-    list.map((child, i) => <WidgetView key={i} widget={child} drawing={drawing} entry={entry} />);
+  const under = (path: string) => (at === undefined ? undefined : `${at}${path}`);
+  const children = (list: readonly Widget[], path = '/children') =>
+    list.map((child, i) => (
+      <WidgetView key={i} widget={child} drawing={drawing} entry={entry} at={under(`${path}/${i}`)} />
+    ));
   switch (widget.widget) {
     case 'stack':
     case 'panel':
@@ -55,12 +72,13 @@ export function WidgetView({ widget, drawing, entry }: Props) {
     case 'progress':
       return <ProgressView widget={widget} drawing={drawing} entry={entry} />;
     case 'list':
-      return <ListView widget={widget} drawing={drawing} entry={entry} />;
+      return <ListView widget={widget} drawing={drawing} entry={entry} at={at} />;
     case 'tabs':
       return (
         <Tabs
           labels={widget.tabs.map((tab) => fill(tab.label, view, entry))}
-          panel={(i) => children(widget.tabs[i]?.children ?? [])}
+          panel={(i) => children(widget.tabs[i]?.children ?? [], `/tabs/${i}/children`)}
+          shown={at === undefined ? undefined : tabHolding(at, drawing.design?.selected)}
         />
       );
     case 'log':
@@ -69,9 +87,10 @@ export function WidgetView({ widget, drawing, entry }: Props) {
 }
 
 /** A list's entries, each by its item; a codex entry held back by its `unknown`, which is given nothing of it. */
-function ListView({ widget, drawing, entry }: Props & { readonly widget: ListWidget }) {
+function ListView({ widget, drawing, entry, at }: Props & { readonly widget: ListWidget }) {
   const { view } = drawing;
   const { unknown } = widget;
+  const under = (path: string) => (at === undefined ? undefined : `${at}${path}`);
   const entries = (view.lists[listKey(widget)] ?? []).filter((each) => each.known !== false || unknown !== undefined);
   if (entries.length === 0) {
     return widget.empty === undefined ? null : <p class="eb-text eb-empty">{fill(widget.empty, view, entry)}</p>;
@@ -81,9 +100,9 @@ function ListView({ widget, drawing, entry }: Props & { readonly widget: ListWid
       {entries.map((each) => (
         <li key={each.key}>
           {each.known === false && unknown !== undefined ? (
-            <WidgetView widget={unknown} drawing={drawing} />
+            <WidgetView widget={unknown} drawing={drawing} at={under('/unknown')} />
           ) : (
-            <WidgetView widget={widget.item} drawing={drawing} entry={each} />
+            <WidgetView widget={widget.item} drawing={drawing} entry={each} at={under('/item')} />
           )}
         </li>
       ))}

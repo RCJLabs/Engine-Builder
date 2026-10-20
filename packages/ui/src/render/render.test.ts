@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Screen, Widget } from '../format/screen.ts';
 import { DEFAULT_THEME } from '../format/theme.ts';
 import type { Entry, View } from '../session/types.ts';
+import { tabHolding } from './context.ts';
 import { actionFor, amount, fill, holds, shownText } from './fill.ts';
 import { breakpointOf, layoutAt, layoutStyle, themeVars } from './layout.ts';
 import { drawn, screenFor, screenStack, stillOpen } from './stack.ts';
@@ -45,6 +46,18 @@ describe('the stack', () => {
     expect(stillOpen(opened, ['hut', 'talking'])).toEqual([]);
     expect(stillOpen(opened, ['closed'])).toEqual([]);
     expect(stillOpen({ modes: ['hut', 'talking'], ids: ['map'] }, ['hut', 'shopping'])).toEqual([]);
+  });
+});
+
+describe('a frame being designed (M4.5)', () => {
+  it('shows the tab the selection is in, and none of its own choosing otherwise', () => {
+    expect(tabHolding('/main', '/main/tabs/2/children/0')).toBe(2);
+    expect(tabHolding('/main', '/main/tabs/1')).toBe(1);
+    expect(tabHolding('/main', '/main/tabs/12/children/3/item')).toBe(12);
+    expect(tabHolding('/main', '/main')).toBeUndefined();
+    expect(tabHolding('/main', '/mainly/tabs/1')).toBeUndefined();
+    expect(tabHolding('/main/children/0', '/main/tabs/1')).toBeUndefined();
+    expect(tabHolding('/main', undefined)).toBeUndefined();
   });
 });
 

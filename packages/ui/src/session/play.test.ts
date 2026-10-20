@@ -60,6 +60,20 @@ describe('a play’s view', () => {
     expect(play.view.conditions['flag.number(flag: bond) >= 1']).toBe(true);
   });
 
+  it('looks at the state in play for other wants without taking a step (M4.5)', () => {
+    const play = cragPlay();
+    play.act({ type: 'dialogue/say', option: 'first' });
+    const before = play.view;
+    const looked = play.look({ facts: ['flag.number(flag: bond)'], conditions: ['flag.number(flag: bond) >= 1'] });
+    expect(looked.facts).toEqual({ 'flag.number(flag: bond)': 1 });
+    expect(looked.conditions).toEqual({ 'flag.number(flag: bond) >= 1': true });
+    expect(looked.turn).toBe(before.turn);
+    expect(looked.modes).toEqual(before.modes);
+    // The play's own view, and its wants, are as they were.
+    expect(play.view).toBe(before);
+    expect(play.view.facts).toEqual({});
+  });
+
   it('opens the shop’s shelf at the kit’s prices, and sells from the bag only while it is open', () => {
     const play = cragPlay();
     expect(fieldsOf(play.view.lists.bag)).toEqual([]);
