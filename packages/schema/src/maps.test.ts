@@ -136,6 +136,10 @@ describe('the other checks', () => {
     ];
     expect(check(at({ map: 'valley', at: 'crag' }))).toEqual(['E053 gate /arrive/0/at']);
     expect(check(at({ map: 'sector', at: 'n0-0' }))).toEqual(['E053 gate /arrive/0/at']);
+    // A layered map has no node to name, made anew each time: said so, not that the node is missing.
+    expect(messages(at({ map: 'sector', at: 'n0-0' }))).toEqual([
+      'E053 sector is layered, made anew each time: it has no node to name',
+    ]);
   });
 
   it('W119 and W120: a cost without the economy kit, a time without the time kit', () => {

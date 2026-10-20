@@ -35,6 +35,10 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     brings:
       'Quests of stages whose objectives check themselves, kept in a journal, with a map of where each stage leads.',
   },
+  maps: {
+    name: 'Maps',
+    brings: 'Maps made from a seed by layered rules, or drawn by hand with roads, and the moves that travel them.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

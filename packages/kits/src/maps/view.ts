@@ -103,9 +103,6 @@ export function mapShown(
   const known = new Set(slice.known);
   const visited = new Set(slice.visited);
   const placed = new Map((record.nodes ?? []).map((node) => [node.id, node]));
-  const oneWay = new Set(
-    (record.roads ?? []).filter((road) => road['one-way']).map((road) => `${road.from}>${road.to}`),
-  );
   return {
     map,
     on: true,
@@ -125,10 +122,11 @@ export function mapShown(
         ...(known.has(node.id) ? { name: node.name, kind: node.kind } : {}),
       };
     }),
-    links: made.links.map(([from, to]) => ({
+    // A drawn map's links are its roads, in their order, each one-way or not of its own.
+    links: made.links.map(([from, to], i) => ({
       from,
       to,
-      oneWay: made.forward === true || oneWay.has(`${from}>${to}`),
+      oneWay: made.forward === true || (!record.layers && record.roads?.[i]?.['one-way'] === true),
     })),
     travels: travelsShown(choosing, slice, built, preview),
   };

@@ -121,6 +121,17 @@ describe('makeLayered', () => {
       }
   });
 
+  it('places a kind only inside its layers, the window a rule gives', () => {
+    const rules: LayerRules = {
+      ...plain(7, 2, 3),
+      place: [{ kind: 'camp', min: 2, max: 2, from: 3, to: 4, apart: true }],
+    };
+    for (let seed = 1; seed <= 50; seed++) {
+      const camps = make(String(seed), rules).nodes.filter((node) => node.kind === 'camp');
+      expect(camps.map((node) => node.layer).sort()).toEqual([3, 4]);
+    }
+  });
+
   it('never makes an avoidable kind the only way on, and places fewer when no slot fits', () => {
     const rules: LayerRules = {
       ...plain(9, 1, 3, 0),

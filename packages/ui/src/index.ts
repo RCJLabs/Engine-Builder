@@ -6,6 +6,16 @@ export { actionFor, amount, fill, holds, shownText } from './render/fill.ts';
 export { GameScreens, type GameScreensProps } from './render/GameScreens.tsx';
 export { breakpointOf, layoutAt, layoutStyle, themeVars } from './render/layout.ts';
 export {
+  type Board,
+  boardOf,
+  HALF_ACROSS,
+  HALF_DOWN,
+  linksInset,
+  nodeName,
+  placeStyle,
+  scrollFor,
+} from './render/mapLayout.ts';
+export {
   drawn,
   type Opened,
   type Shown as ShownScreen,

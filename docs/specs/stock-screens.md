@@ -12,7 +12,7 @@ Templates that New screen offers: screens written into a project's `ui/` as JSON
 
 | Template | Needs | `shows` | Modal | What it holds |
 | --- | --- | --- | --- | --- |
-| HUD | — | the game's start mode | no | Top: the day (time) and each resource. Main: bars for the first three stats of up to three actors, current of most (the roster's starting members, or each actor without a roster); the actions on offer, in the engine's words; the feedback's last three lines. Bottom: buttons to the screens named inventory, journal, codex and credits, where they exist. |
+| HUD | not offered when the game starts on a map | the game's start mode | no | Top: the day (time) and each resource. Main: bars for the first three stats of up to three actors, current of most (the roster's starting members, or each actor without a roster); the actions on offer, in the engine's words; the feedback's last three lines. Bottom: buttons to the screens named inventory, journal, codex and credits, where they exist. |
 | Dialogue | dialogue | `talking` | yes | The speaker, the line, each option as a button, disabled while locked, and Go on. |
 | Event | events | `choosing` | yes | The event's name and text, each choice as a button, disabled while locked. |
 | Shop | economy, inventory | `shopping` | yes | The shop's name and each resource; Buy and Sell tabs from the shelf and the bag; Leave. |
@@ -21,6 +21,7 @@ Templates that New screen offers: screens written into a project's `ui/` as JSON
 | Journal | quests | — | yes | Quests and Log tabs: the journal, and the feedback's log; Close. |
 | Codex | inventory, factions, events or stats | — | yes | A tab per kit on (below); Close. |
 | Credits | — | — | yes | Each asset's credit from the pack, and "Made with Engine-Builder"; Close. |
+| Map | maps | the modes that allow `maps/travel` | no | Top: the day (time) and each resource, as the HUD's. Main: the map's name, the map widget, the feedback's last three lines. Bottom: the HUD's buttons. A game that starts on its map has this for its HUD (M4.6). |
 | Ending | — | the modes that allow no action | no | The game's name; the day, each resource and the quests done; Journal and Credits when screens of those ids exist; Back to title and New game. |
 
 A screen opened only by a button has a Close (W134). The HUD stays below the modal ones, so its numbers show behind a talk or the shop. An option's reason, cost and odds are entry fields (`{.why}`, `{.cost}`, `{.odds}`) for the author to place: shown everywhere, they read as a dash where there are none. The HUD's buttons use the engine's words for each action ("Carry", "Visit greta"); a game that wants its own puts buttons of its own in their place, as the hut's hand-made screen does.

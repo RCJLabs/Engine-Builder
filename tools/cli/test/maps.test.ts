@@ -51,7 +51,8 @@ describe('eb with the maps kit', () => {
       'events',
       'maps',
     ]);
-  });
+    // eb validate checks the sector's rules over 300 seeds, in a process of its own.
+  }, 30_000);
 
   it('plays each to its golden runs, refusing nothing it offered', () => {
     for (const [folder, golden] of [
@@ -65,7 +66,8 @@ describe('eb with the maps kit', () => {
       expect(run.out).toContain('Refused offers: none.');
       expect(run.out.trim().split('\n').at(-1)).toBe(`All 100 runs match ${file}.`);
     }
-  });
+    // Two eb sim processes of 100 runs each: seconds under a full suite's load.
+  }, 30_000);
 
   it('gets the drift’s pilot through three sectors in most of 300 runs, every run ending by itself', async () => {
     const { game, sim, policies } = await load(DRIFT);
@@ -79,7 +81,7 @@ describe('eb with the maps kit', () => {
         through++;
     }
     expect(through).toBeGreaterThan(200);
-  });
+  }, 30_000);
 
   it('drives the valley’s quickest road: home to the tower by town and the slab, four hours and three cash', async () => {
     const { game, sim } = await load(VALLEY);

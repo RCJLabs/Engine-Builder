@@ -10,7 +10,7 @@ import type { Widget } from '../format/screen.ts';
 import type { MapNode, MapView } from '../session/types.ts';
 import type { Drawing } from './context.ts';
 import { fill } from './fill.ts';
-import { type Board, boardOf, HALF_ACROSS, HALF_DOWN, placeStyle, scrollFor } from './mapLayout.ts';
+import { type Board, boardOf, linksInset, placeStyle, scrollFor } from './mapLayout.ts';
 
 type MapWidget = Extract<Widget, { widget: 'map' }>;
 
@@ -21,7 +21,7 @@ function Links({ map, board }: { readonly map: MapView; readonly board: Board })
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
       aria-hidden="true"
-      style={{ inset: `${HALF_DOWN}px ${HALF_ACROSS}px` }}
+      style={{ inset: linksInset(board) }}
     >
       {map.links.map((link) => {
         const [a, b] = [board.places.get(link.from), board.places.get(link.to)];
@@ -46,17 +46,18 @@ interface NodeProps {
   readonly node: MapNode;
   readonly map: MapView;
   readonly place: readonly [number, number];
+  readonly board: Board;
   readonly picked: boolean;
   readonly pick: () => void;
 }
 
-function NodeButton({ node, map, place, picked, pick }: NodeProps) {
+function NodeButton({ node, map, place, board, picked, pick }: NodeProps) {
   const here = node.id === map.at;
   return (
     <button
       type="button"
       class="eb-button eb-map-node"
-      style={placeStyle(place)}
+      style={placeStyle(board, place)}
       aria-pressed={picked}
       data-node={node.id}
       data-here={here ? '' : undefined}
@@ -134,6 +135,7 @@ export function MapWidgetView({ widget, drawing }: { readonly widget: MapWidget;
           node={node}
           map={map}
           place={board.places.get(node.id) ?? [0.5, 0.5]}
+          board={board}
           picked={node.id === (picked ?? map.at)}
           pick={() => setPicked(node.id)}
         />

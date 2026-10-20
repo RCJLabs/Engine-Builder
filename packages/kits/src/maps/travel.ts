@@ -8,7 +8,7 @@ import { ticksOf } from '@eb/core';
 import { type Choosing, type Short, shortOf } from '../events/choices.ts';
 import type { Cost } from '../events/types.ts';
 import { mapRecord } from './records.ts';
-import { linksWithin, neighbours, quickest } from './roads.ts';
+import { linksWithin, neighbours, quickest, roadBetween } from './roads.ts';
 import type { MapRecord, MapsSlice, Move, Road, Takes } from './types.ts';
 
 export interface Travel {
@@ -74,7 +74,7 @@ export function travelOf(
   if (!move) return undefined;
   const path = reached(record, slice, move, built).get(to);
   if (!path) return undefined;
-  const roads = record.layers ? [] : roadsAlong(record, path);
+  const roads = record.layers ? [] : roadsAlong(record, path, roadTicks(built));
   return {
     move,
     to,
@@ -84,13 +84,11 @@ export function travelOf(
   };
 }
 
-function roadsAlong(record: MapRecord, path: readonly string[]): Road[] {
+/** The roads a path takes, each the one quickest choosing picked. */
+function roadsAlong(record: MapRecord, path: readonly string[], ticks: (road: Road) => number): Road[] {
   const roads: Road[] = [];
   for (let i = 1; i < path.length; i++) {
-    const [a, b] = [path[i - 1], path[i]];
-    const road = (record.roads ?? []).find(
-      (each) => (each.from === a && each.to === b) || (!each['one-way'] && each.from === b && each.to === a),
-    );
+    const road = roadBetween(record, path[i - 1] as string, path[i] as string, ticks);
     if (road) roads.push(road);
   }
   return roads;

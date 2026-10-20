@@ -91,7 +91,7 @@ A drawn map is copied in the same shape, its layer and slot 0; its positions, ro
 `maps/travel {to, move}`, offered for each move whose `if` holds, to each node it reaches, when its cost can be paid:
 
 - a layered map's move reaches the nodes within `reach` links, along links that go that way;
-- a drawn map's move reaches every node by road, along the **quickest road**: least time in ticks, then least cost in all resources together, then the fewest roads, then node ids (dirtbag's `road()`, `places.ts:1285-1326`).
+- a drawn map's move reaches every node by road, along the **quickest road**: least time in ticks, then least cost in all resources together, then the fewest roads, then node ids (dirtbag's `road()`, `places.ts:1285-1326`). Where two roads join the same two nodes, the quicker is taken, then the cheaper. A one-way road goes only its way; a road both ways beside it still goes back.
 
 **What it costs** is one function, `travelOf(content, slice, move, to)`, that the action, its preview and the widget all read: the move's cost and takes, plus each road's on the way. Its verdict is the events kit's: `ok`, `locked` (the `if`), or `cant-afford` with the resource, what the party has and what it needs.
 
@@ -124,31 +124,43 @@ Known from the start are the start, the end, and nodes of charted kinds. An unkn
 
 `{"widget": "map", "label": ..., "empty": ...}` draws the map the party is on, from the view's `map`: its nodes, their links, where the party stands, and for each node each move that reaches it, enabled when offered and with what it costs.
 
-- **A layered map follows the screen.** At the phone breakpoint it runs bottom to top in a column that scrolls, the party's layer scrolled into the middle. Otherwise it runs left to right, fitted, with no scroll.
-- **A drawn map** puts each node at its `x` and `y`, fitted.
-- **Nodes are buttons,** at least 44 px, each named for what is known ("Mac's Pumps, station", "Unknown"). The party's node says so; those a move reaches are ringed.
-- **A tap picks a node:** under the map, its name, kind and description show, with a button for each move that reaches it, saying what it costs and why it can't be taken. Links are drawn behind the buttons.
-- Without the kit, a `map` widget is E049. With no map entered, it shows `empty`.
+- **The view is enter-map's preview** of the map the party is on, as `start-quest`'s preview is a quest's journal entry. It holds every node and link, a node's name and kind only once it is known, and every travel from `travels()`. Each travel has `travelOf`'s cost and time, `travelVerdict`'s verdict (the move's `if`, or the resource short), and each of the move's effects as its own preview gives it (a flag's `from` and `to`). A cost shows only with the economy kit on, and a time only with the time kit, since only then are they charged or pass. A preview of any other map is `{on: false}`: a preview can't roll a layered map's seed. The session puts it in words as the view's `map`, and the map's name as the field `map.name`.
+- **A move's button** says its label, cost, time and what its effects do, by their previews: "Jump · 1 Supplies · heat 0 → 2". An effect that changes nothing says nothing. A shut move says why under it: "Costs 3 Supplies; you have 2", or the condition it needs. A button takes its action only while the game offers it.
+- **A layered map follows the screen.** At the phone breakpoint it runs bottom to top in a column that scrolls, 76 px a layer, the party's node scrolled into the middle at each arrival. Otherwise it runs left to right, fitted, 100 px a layer against 76 a node.
+- **Where nodes sit** (`mapLayout.ts`): along the way a layered map runs, the board is inset by half a node, so the start and the end sit inside its edges. Across a layer, its nodes share the width evenly, each at most its share less 6 px and never over 80 px, so none touches the next. A drawn map puts each node at its `x` and `y`, inset both ways; it is square on a phone and 4:3 otherwise.
+- **Nodes are buttons,** at least 44 px, each named for what is known ("Mac's Pumps, station", "Unknown"). The party's node is filled and says so ("you are here"); those a move reaches are ringed; those visited are dashed. Links are drawn behind the buttons; a drawn map's one-way road is dashed.
+- **A tap picks a node:** under the map, its name, kind and description, with a button for each move that reaches it. Until one is tapped, and again at each arrival, the party's own node is picked.
+- Without the kit, a `map` widget is E049, as is `{map.name}`. With no map entered, it shows `empty`.
 
-A **Map** stock template places the widget under the map's name, with the log.
+The **Map** stock template shows each mode that allows `maps/travel` (the game's catalog's `travelling`): the HUD's live numbers over the map's name, the widget and the log's last three lines. A game that starts on its map has it for its HUD, so the HUD isn't offered there.
 
 ## The editor
 
-- **The World panel** lists the project's maps and node kinds, with New layered map, New drawn map and New kind, each opening the record in the inspector. With the kit off, it says to tick Maps in the Project panel.
-- **Above a layered map's form:** the map made from a seed, which can be typed or moved on by Next seed, drawn by the map widget with everything known; and the check over 300 seeds, each rule with how many keep it, and the first seed that doesn't, which opens it.
-- **Above a drawn map's form:** the map drawn by the widget. A node is dragged by its handle to a new place, one undo step each; a tap on a node opens its row of the form.
-- Changing a map or a node kind checks the maps and kinds again together, as quests are.
+- **The World panel** lists the project's maps, each with its shape and size ("Layered: 7 layers", "Drawn: 5 nodes, 6 roads") and its problems, and the kinds of place, with New layered map, New drawn map and New kind, each opening the record in the inspector. A new layered map starts with five layers of one to three nodes, all of the first kind, and one move; a new drawn map with a start and an end of the first kind, a road between them, and one move. With the kit off, the panel says to tick Maps in the Project panel.
+- **Above a layered map's form:** a Seed box and Next seed; the map those rules make from it, laid out as the widget lays it out, running up a narrow inspector and across a wide one, every node known; a tap on a node gives its name, kind, layer and description. Under it, the check over seeds 1 to 300, the sweep's own, each rule in words with how many seeds keep it and the first that doesn't, with Open seed to show that map. Rules with errors at Layers show no map until they are fixed; rules half typed, which make no map yet, say so.
+- **Above a drawn map's form:** the map as written. A node is dragged where it goes, by mouse or finger, past 6 px of slop; the drop is one undo step ("Move van to 40, 52"). A tap without a drag opens its row of the form. The node itself is the handle: on a small board, a second target beside each would crowd.
+- **Checked together:** a map, and every record that names one, are checked again when either changes, since enter-map's node is checked against its map's (`mapRelated`).
 
 ## Where it lives
 
-- `packages/kits/src/maps/`: `types.ts`; `layered.ts` (the generator); `roads.ts` (reach and the quickest road); `travel.ts` (`travelOf`, taking it, arriving); `sweep.ts` (the check over seeds); `facts.ts`; `module.ts`.
-- `packages/schema/src/`: `mapTypes.ts`, `mapEffects.ts`, `mapCheck.ts`.
-- `packages/ui/src/`: the map in `session/views.ts`; `render/MapWidget.tsx` and `render/mapLayout.ts`.
-- `apps/editor/src/maps/`: the World panel and the previews.
-- `tools/cli/test/fixtures/drift/` (a slice of Space-Wrecked's sector run) and `valley/` (a drawn valley in Dirtbag's style).
+- `packages/kits/src/maps/`: `types.ts`; `layered.ts` (the generator); `roads.ts` (reach and the quickest road); `travel.ts` (`travelOf`, taking it, arriving); `sweep.ts` (the check over seeds); `view.ts` (enter-map's preview); `facts.ts`; `module.ts`.
+- `packages/schema/src/`: `mapTypes.ts`, `mapEffects.ts`, `mapCheck.ts`; the map widget in `uiSchema.ts` and its kit in `uiCheck.ts`.
+- `packages/ui/src/`: `session/mapView.ts` (the view in words); `render/MapWidget.tsx`, `render/mapLayout.ts`, `render/map.css`.
+- `packages/script/src/catalog.ts`: the modes that travel.
+- `apps/editor/src/maps/`: `worldList.ts` and `mapPreview.ts` (plain functions), `WorldPanel`, `WorldBrowser`, `MapPreview`, `MapBoard`; the Map template in `screens/stock/play.ts`.
+- `tools/cli/test/fixtures/drift/` (a slice of Space-Wrecked's sector run, with its stock screens) and `valley/` (a drawn valley in Dirtbag's style).
+
+## The gate
+
+- **Desktop** (`maps.spec.ts`): the drift brought in without its sector and its way in. The kind is made with New kind and the sector's rules in the World panel with forms, each landing as the fixture holds it. Every rule is kept in 300 of 300 seeds. A rule is broken on purpose (six stations in layers of one or two); its row and the form both say which seed breaks it, Open seed shows it, and the rule is mended. The pilot's 20 games in the Logic panel read as `eb sim` prints them. A move shut by a condition the drift never meets, Warp, is added with forms. Then the drift is flown to its exit through the map widget: the first jump's button reads "Jump · 1 Supplies · heat 0 → 2", Warp's is shut with why, and the party's node is picked at the start and after every move. Before anything is pressed, `expectMapLaidOut` checks the party's node is in the column's view, no two nodes overlap, and the links are drawn. The valley is drawn with forms, a place dragged and undone, a tap opening its row, and its 20 games read as `eb sim` prints them.
+- **Phones** (`mapsPhone.spec.ts`), at 360×740, 390×844 and 844×390, by touch: the drift flown to its exit, the map and an event each in reach (nothing offscreen, no target under 44 px, nothing axe finds); the sector's preview in the inspector sheet; the valley's van dragged by a finger and undone.
+- **The press policy** both use, an event's first open choice, else the first jump on a layer, else the first open move, is also `driftScreens.test.ts`'s, which shows seed 1 reaching home in under 60 presses, without a browser.
 
 ## Open questions
 
 1. Space-Wrecked's jump costs supplies per crew member. A cost that scales with a count is neither the economy kit's nor the map's yet.
 2. Should a drawn map's roads open by condition (Dirtbag's permits and seasons), or is a move's `if` enough?
 3. Pinch to zoom on a large drawn map: the widget fits it, which keeps every node in sight but makes a big map's buttons crowd.
+4. The preview's check over 300 seeds runs on the page at every edit: 12.5 ms in Node on this machine. A phone's is unmeasured; if it stalls typing, the check could wait for typing to stop, or move to a worker.
+5. A move's effects are each previewed from the state before the move, not after its cost is paid. A move that both pays and adds to one resource would show the add from the unpaid amount.
+6. A node's name reads with a space before its kind to a screen reader ("Drift Four , Derelict"), since the name is a block of its own to clamp to two lines.

@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { MapNode, MapView } from '../session/types.ts';
-import { boardOf, COLUMN, HALF_DOWN, nodeName, placeStyle, ROW, scrollFor } from './mapLayout.ts';
+import { boardOf, COLUMN, HALF_DOWN, linksInset, nodeName, placeStyle, ROW, scrollFor } from './mapLayout.ts';
 
 const node = (id: string, layer: number, slot: number, more: Partial<MapNode> = {}): MapNode => ({
   id,
@@ -80,11 +80,28 @@ describe('a drawn map', () => {
 });
 
 describe('a node', () => {
-  it('sits inside the board’s inset by its share of what is left', () => {
-    expect(placeStyle([0, 1])).toEqual({
+  it('sits inside the board’s inset along the map, and at its share of the width across its layer, no wider', () => {
+    const tall = boardOf(layered, 'phone');
+    expect(placeStyle(tall, [0.25, 1])).toEqual({
+      left: '25%',
+      top: 'calc(26px + (100% - 52px) * 1)',
+      maxWidth: 'min(80px, calc(100% / 3 - 6px))',
+    });
+    expect(linksInset(tall)).toBe('26px 0px');
+    const wide = boardOf(layered, 'desktop');
+    expect(placeStyle(wide, [0, 0.5])).toEqual({
+      left: 'calc(40px + (100% - 80px) * 0)',
+      top: '50%',
+      maxWidth: 'min(80px, calc(100% / 5 - 6px))',
+    });
+    expect(linksInset(wide)).toBe('0px 40px');
+    const drawn = boardOf({ ...layered, shape: 'drawn', nodes: [node('van', 0, 0, { x: 0, y: 100 })] }, 'desktop');
+    expect(placeStyle(drawn, [0, 1])).toEqual({
       left: 'calc(40px + (100% - 80px) * 0)',
       top: 'calc(26px + (100% - 52px) * 1)',
+      maxWidth: '80px',
     });
+    expect(linksInset(drawn)).toBe('26px 40px');
   });
 
   it('is called by its name and kind, where the party is, or Unknown', () => {

@@ -37,7 +37,8 @@ The frame draws a view, as the game does, from a game of the designer's own: a c
   - a list whose source doesn't apply at the moment (`shelf` with no shop open) gets three entries, each field reading its own name: `‹name›`, `‹price›`;
   - so do the credits, which a game compiled without `ui/` doesn't pack;
   - a view field the moment lacks (`talk.text`) reads `‹talk.text›`;
-  - a log shows three sample lines.
+  - a log shows three sample lines;
+  - a map widget with no map entered at the moment shows a sample map of three layers, its moves shut (M4.6).
 - **Without a game:** when the scripts haven't run here, the game's scripts have problems, or the project has errors outside `ui/`, everything is a sample:
   - each fact reads its own name, `‹time.day›`;
   - each shows-when holds, so everything is drawn;
@@ -61,7 +62,7 @@ An empty slot shows as "Empty" and takes Add.
 
 **Actions** on the selected row, in a bar above the form:
 
-- **Add**, a widget of one of the ten kinds:
+- **Add**, a widget of one of the eleven kinds, the map among them since M4.6:
   - inside a container (a stack, panel, grid or tab), as its last child;
   - into an empty slot;
   - otherwise after the row.
@@ -95,6 +96,7 @@ Each widget kind's fields, through the record form's own field components (text,
 | list | source; type and known (for `records`); empty |
 | tabs | (each tab's label is its row's form) |
 | log | lines, label, empty |
+| map | label, empty (M4.6) |
 
 Every widget also has shows-when.
 

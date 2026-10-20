@@ -56,6 +56,7 @@ Every widget has `widget`, its kind, and may have:
 | `list` | `of`, `item`, `empty`; for `records`, `type`, `known` and `unknown` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
 | `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. A pad's LB and RB and a swipe turn them too (M4.2). |
 | `log` | `lines` (1 to 100, default 10), `label`, `empty` | The lines the game's feedback said to the log, newest first (M4.2, [input.md](input.md#the-log)). |
+| `map` | `label`, `empty` | The map the party is on, its nodes as buttons and a picked node's moves under it (M4.6, [maps.md](maps.md#the-map-widget)). Without the maps kit it is E049; before a map is entered it shows `empty`. |
 
 ## Bindings
 
@@ -147,6 +148,7 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
   - `facts` and `conditions`, the values of what the screens name. A fact or condition the game can't read is no value;
   - `fields`, the views' own fields (`talk.text`, `event.text`, `shop.name`…) while they apply;
   - `lists`, each source's entries while it applies, each entry with its fields, its action and whether that action is on offer;
+  - `map`, with the maps kit on and a map entered (M4.6): its nodes, links, where the party stands, and each node's moves with their words and actions, as enter-map's preview gives them ([maps.md](maps.md#the-map-widget));
   - `turn`, and `ended`, true once nothing is offered.
 - **The words in entries** come from the sim's reports: a locked choice's reason is the condition it needs in words (`describeCondition`) or the resource it is short of; its cost names each resource; its odds are the chances its preview gives.
 - **Every view is JSON,** as the kernel's state and beats are, so nothing that crosses to the page can run there.

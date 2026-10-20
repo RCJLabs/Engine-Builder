@@ -68,7 +68,49 @@ function mapMatchesOffers(view: View): void {
   expect(new Set(shown)).toEqual(new Set(offered));
 }
 
+/**
+ * What the gate's e2e presses (maps.spec.ts): an event's first open choice; else, in the map's
+ * order, the first node a jump takes on a layer; else the first move open at all. No dice of its
+ * own, so the Play panel's seed 1 plays the same every time.
+ */
+function firstOnward(screens: Readonly<Record<string, Screen>>, view: View): Action | undefined {
+  const choice = (view.lists.event ?? []).find((entry) => entry.enabled);
+  if (choice?.action) return choice.action;
+  const map = view.map;
+  if (map) {
+    const layer = map.nodes.find((node) => node.id === map.at)?.layer ?? 0;
+    for (const node of map.nodes) {
+      const jump = node.travels.find((t) => t.key === 'jump' && t.enabled);
+      if (node.layer > layer && jump) return jump.action;
+    }
+    const open = map.nodes.flatMap((node) => node.travels).find((t) => t.enabled);
+    if (open) return open.action;
+  }
+  return pressable(screens, view)[0]?.action;
+}
+
 describe('the drift through its screens', () => {
+  it('reaches home from the Play panel’s seed, pressing as the gate’s e2e presses', async () => {
+    const compiled = await compileWithGame(folderSource(DRIFT));
+    const pack = JSON.parse(JSON.stringify(compiled.pack)) as unknown;
+    const host = playHost();
+    const opened = host({ id: 0, kind: 'open', pack });
+    if (opened.kind !== 'opened') throw new Error(JSON.stringify(opened));
+    const started = host({ id: 0, kind: 'start', seed: '1', saving: { edition: 'test' }, at: 0 });
+    if (started.kind !== 'started') throw new Error(JSON.stringify(started));
+    let view = started.view;
+    let turn = 0;
+    while (!view.ended && turn < 200) {
+      const action = firstOnward(opened.screens, view);
+      if (!action) throw new Error(`nothing to press in ${view.modes.join(', ')}`);
+      const step = host({ id: ++turn, kind: 'act', action, at: turn });
+      if (step.kind !== 'stepped' || !step.accepted) throw new Error(JSON.stringify(step));
+      view = step.view;
+    }
+    expect(view.modes.at(-1)).toBe('home');
+    expect(turn).toBeLessThan(60);
+  });
+
   it('flies to the exit pressing only what its screens draw, the map’s moves the travels on offer', async () => {
     const compiled = await compileWithGame(folderSource(DRIFT));
     expect(compiled.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);

@@ -46,6 +46,9 @@ describe('the map in a play’s view', () => {
       why: null,
       enabled: true,
     });
+    // A long jump cools the ship by ten, but the heat is at 0 already: a change to nothing says nothing.
+    const long = (play.view.map?.nodes ?? []).flatMap((node) => node.travels).find((t) => t.key === 'long');
+    expect(long).toMatchObject({ cost: '3 Supplies', changes: null });
     play.act(jump?.action as never);
     expect(play.view.map?.at).toBe(next?.id);
     expect(g.slice(play.state).at).toBe(next?.id);
@@ -68,6 +71,8 @@ describe('the map in a play’s view', () => {
     expect(nodes.get('slab')?.travels).toEqual([
       expect.objectContaining({ label: 'Drive', cost: '3 Credits', takes: '3 hours', enabled: true }),
     ]);
+    // One hour reads as one.
+    expect(nodes.get('town')?.travels[0]?.takes).toBe('1 hour');
     expect(play.view.map?.links.filter((link) => link.oneWay)).toEqual([{ from: 'town', to: 'tower', oneWay: true }]);
   });
 

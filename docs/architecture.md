@@ -195,7 +195,7 @@ The journal is `start-quest`'s preview: what the sim holds, never a second copy.
 
 | World model | Phase | For |
 | --- | --- | --- |
-| Node-graph maps | 4 | Sector, valley, coast and county maps. A seeded generator plus validators for placement rules (e.g. "a camp within 2 nodes of the boss"). |
+| Node-graph maps | 4 | Sector, valley, coast and county maps. The maps kit (M4.6, D56, [specs/maps.md](specs/maps.md)): layered maps made from a seed by rules written as data (counts, weights and layer windows, such as "a camp within 2 of the boss"), checked over 300 seeds; maps drawn by hand with roads; travel as an action whose cost, time and effects show by the sim's own preview; and the map widget, up a phone and across anything wider. |
 | 3D worldspaces | 5–6 | Exterior worldspaces in chunks, streamed by distance; interiors as separate scenes joined by load doors; persistent references. |
 | 2D scenes | 7 | Tilemaps (autotile, ASCII import, walk/cover/sight per tile), side-view floors and rooms, sprites, parallax. |
 | Custom stages | 7 | Renderers drawn in code (Canvas2D, SVG) behind a small API, so code-drawn art keeps working. |
@@ -222,10 +222,10 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Navigation and input** (M4.2, D52, [specs/input.md](specs/input.md)):
   - A screen stack, its screens opened by buttons closed by Back: Escape, a pad's B, a swipe right, and on the player page the browser's own back.
   - Spatial focus for keyboard and gamepad by chooser-of-the-dead's rule (`spatial.ts`), on the top screen; each screen gives focus back to the control it last had.
-  - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known; drag and pinch wait for M4.6's map.
+  - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known. M4.6's drawn maps are dragged with pointer events of their own in the editor; pinch waits for a map too big to fit ([specs/maps.md](specs/maps.md#open-questions), question 3).
 - **Feedback** (M4.2, D52): a game words its beats in `ui/feedback.json`; the worker fills the words in, and the page shows them as toasts, keeps them in a `log` widget and speaks each step's once through one live region.
 - **The play shell** (M4.3, D53, [specs/shell.md](specs/shell.md)) is drawn by the engine in the game's theme, its words, slots and Daily set in `ui/shell.json`: a title with slots (Continue, New, Daily), save and load with files and codes, pause, settings, a crash screen in plain DOM and an update prompt on the title. The worker makes a save after every step and the page keeps it, so the worker never touches storage.
-- **Stock screens** (M4.4, D54) ship as templates you restyle, written into `ui/` from the project: HUD, dialogue, event, shop, hall, inventory, journal, codex (records shown once known, with live numbers), credits (packed from the provenance log) and ending ([specs/stock-screens.md](specs/stock-screens.md)). The map comes with M4.6's world map.
+- **Stock screens** (M4.4, D54) ship as templates you restyle, written into `ui/` from the project: HUD, dialogue, event, shop, hall, inventory, journal, codex (records shown once known, with live numbers), credits (packed from the provenance log) and ending ([specs/stock-screens.md](specs/stock-screens.md)). M4.6 adds the map, shown for each mode that travels, which is the HUD of a game that starts on its map.
 - **The UI designer** (M4.5, D55, [specs/designer.md](specs/designer.md)) edits a screen as it looks: an outline of its widgets, a form for the one selected, and a frame drawing it at a device's size and breakpoint. The frame reads a game of the designer's own, compiled without `ui/` and loaded to the Play panel's last save, by a `look` request that takes no step; samples fill what the moment lacks. Each change is a JSON edit with the editor's undo, so the file stays the format, and its JSON view stays.
 
 ## Saves

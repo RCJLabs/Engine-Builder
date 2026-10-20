@@ -59,4 +59,22 @@ describe('sweepLayered', () => {
     expect(reachBroken(stuck)).toMatch(/^n\d-\d can’t reach the end$/);
     expect(reachBroken(base)).toBeUndefined();
   });
+
+  it('finds two of a kind kept apart in one layer, which the generator never makes', () => {
+    const base = makeLayered('sector', { ...RULES, extra: 0 }, NAMES, '1');
+    const rule = { kind: 'station', min: 2, max: 2, apart: true };
+    const pair = base.nodes.filter((node) => node.layer === 1).slice(0, 2);
+    const together: MadeMap = {
+      ...base,
+      nodes: base.nodes.map((node) =>
+        pair.includes(node)
+          ? { ...node, kind: 'station' }
+          : node.kind === 'station'
+            ? { ...node, kind: 'empty' }
+            : node,
+      ),
+    };
+    expect(placeBroken(together, rule, 5)).toBe('two station in layer 1');
+    expect(placeBroken(together, { ...rule, apart: false }, 5)).toBeUndefined();
+  });
 });

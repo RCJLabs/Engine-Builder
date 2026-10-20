@@ -38,9 +38,14 @@ const records = (count: number) => (count === 1 ? '1 record' : `${count} records
 
 /** A new record with the type's required fields empty and, when the type names records, the name typed. */
 export function createRecord(data: DataType, id: string, typed: string): void {
-  const value = named(data.file, typed)(newRecord(data.file));
+  createRecordFrom(data, id, typed, newRecord(data.file));
+}
+
+/** A new record that starts as `value`, such as a new map's rules (M4.6), with the name typed. */
+export function createRecordFrom(data: DataType, id: string, typed: string, value: unknown): void {
+  const written = named(data.file, typed)(value);
   void editing.edit(`New ${data.file.title.toLowerCase()} ${id}`, (copy) =>
-    createRecordFile(copy, recordFile(data.type, id), value),
+    createRecordFile(copy, recordFile(data.type, id), written),
   );
   openRecord(data.type, id);
 }

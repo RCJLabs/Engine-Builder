@@ -6,15 +6,25 @@
 import type { Cost } from '../events/types.ts';
 import type { MadeMap, MapRecord, Road } from './types.ts';
 
-/** Each node's neighbours, the way a party can travel: both ways, unless forward or one-way. */
+/**
+ * Each node's neighbours, the way a party can travel: both ways, unless the map goes forward or
+ * every road joining the two is one-way. A road both ways beside a one-way road still goes back.
+ */
 export function neighbours(made: MadeMap, record: MapRecord | undefined): Map<string, string[]> {
   const out = new Map<string, string[]>(made.nodes.map((node) => [node.id, []]));
+  const add = (from: string, to: string) => {
+    const list = out.get(from);
+    if (list && !list.includes(to)) list.push(to);
+  };
+  const backed = new Set(
+    (record?.roads ?? []).filter((road) => !road['one-way']).map((road) => `${road.from}>${road.to}`),
+  );
   const oneWay = new Set(
     (record?.roads ?? []).filter((road) => road['one-way']).map((road) => `${road.from}>${road.to}`),
   );
   for (const [a, b] of made.links) {
-    out.get(a)?.push(b);
-    if (!made.forward && !oneWay.has(`${a}>${b}`)) out.get(b)?.push(a);
+    add(a, b);
+    if (!made.forward && (!oneWay.has(`${a}>${b}`) || backed.has(`${a}>${b}`) || backed.has(`${b}>${a}`))) add(b, a);
   }
   for (const list of out.values()) list.sort();
   return out;
@@ -66,11 +76,21 @@ function better(a: Route, b: Route): boolean {
   return a.path.join(' ') < b.path.join(' ');
 }
 
-/** The road between two nodes the way travel goes, if there is one: the first so written. */
-function roadBetween(record: MapRecord, from: string, to: string): Road | undefined {
-  return (record.roads ?? []).find(
+/** The quickest road from one node to the next the way travel goes, if there is one: by time, then cost. */
+export function roadBetween(
+  record: MapRecord,
+  from: string,
+  to: string,
+  ticks: (road: Road) => number,
+): Road | undefined {
+  const ways = (record.roads ?? []).filter(
     (road) => (road.from === from && road.to === to) || (!road['one-way'] && road.from === to && road.to === from),
   );
+  return ways.reduce<Road | undefined>((best, road) => {
+    if (!best) return road;
+    if (ticks(road) !== ticks(best)) return ticks(road) < ticks(best) ? road : best;
+    return costOf(road.cost) < costOf(best.cost) ? road : best;
+  }, undefined);
 }
 
 /** The quickest route by road from one node to every other it reaches. `ticks` turns a road's time into ticks. */
@@ -95,7 +115,7 @@ export function quickest(record: MapRecord, from: string, ticks: (road: Road) =>
     done.add(node);
     for (const on of next.get(node) ?? []) {
       if (done.has(on)) continue;
-      const road = roadBetween(record, node, on) as Road;
+      const road = roadBetween(record, node, on, ticks) as Road;
       const tried: Route = {
         path: [...route.path, on],
         roads: [...route.roads, road],

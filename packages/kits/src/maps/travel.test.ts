@@ -6,9 +6,9 @@
 import type { GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { RECORDS, sectorGame, sectorWith } from '../../test/sector.ts';
-import { linksWithin, neighbours } from './roads.ts';
+import { linksWithin, neighbours, quickest } from './roads.ts';
 import { travelOf } from './travel.ts';
-import type { MadeMap } from './types.ts';
+import type { MadeMap, MapRecord, Road } from './types.ts';
 
 const g = sectorGame;
 const made = (state: GameState) => g.slice(state).made as MadeMap;
@@ -175,6 +175,38 @@ describe('the valley, drawn', () => {
     // With the calendar's hours, the route through town (1 + 2) beats the straight road's 4.
     expect(tick(after) - tick(state)).toBe(3);
     expect(credits(state) - credits(after)).toBe(3);
+  });
+
+  it('takes the cheaper of two roads as quick, and a one-way road never back, even beside another', () => {
+    const map = (roads: MapRecord['roads']): MapRecord => ({
+      name: 'Pass',
+      start: 'a',
+      nodes: ['a', 'b', 'c', 'd'].map((id, i) => ({ id, kind: 'crag', x: i * 30, y: 50 })),
+      roads,
+      moves: [{ id: 'drive', label: 'Drive' }],
+    });
+    const hours = (road: Road) => road.takes?.hours ?? 0;
+    // a to d by b or by c, two hours either way: by c costs nothing, so it is the quickest, ids aside.
+    const tied = map([
+      { from: 'a', to: 'b', takes: { hours: 1 }, cost: { credits: 2 } },
+      { from: 'b', to: 'd', takes: { hours: 1 } },
+      { from: 'a', to: 'c', takes: { hours: 1 } },
+      { from: 'c', to: 'd', takes: { hours: 1 } },
+    ]);
+    expect(quickest(tied, 'a', hours).get('d')?.path).toEqual(['a', 'c', 'd']);
+    // A fast road one way and a slow one both ways: back from b, only the slow one goes.
+    const twin = map([
+      { from: 'a', to: 'b', takes: { hours: 1 }, 'one-way': true },
+      { from: 'a', to: 'b', takes: { hours: 5 } },
+    ]);
+    expect(quickest(twin, 'a', hours).get('b')?.ticks).toBe(1);
+    expect(quickest(twin, 'b', hours).get('a')?.ticks).toBe(5);
+    // Two roads the same way, the slow one written first: the fast one is taken.
+    const slowFirst = map([
+      { from: 'a', to: 'b', takes: { hours: 5 } },
+      { from: 'b', to: 'a', takes: { hours: 2 } },
+    ]);
+    expect(quickest(slowFirst, 'a', hours).get('b')?.ticks).toBe(2);
   });
 
   it('follows one-way roads only their way: town to the tower, never back', () => {
