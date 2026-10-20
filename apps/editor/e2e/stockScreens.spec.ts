@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { expectFits, game, newGame, press, shellScreens, showPlay, topScreen } from './hutScreens.ts';
+import { expectFits, game, newGame, press, shellScreens, showJson, showPlay, topScreen } from './hutScreens.ts';
 import { fixtureZip } from './kitHelpers.ts';
 import { openProject, scratch, showAssets, showProject } from './ludus.ts';
 import { HUT_STOCK, openPage, PNG, ROPE_CREDIT, stockHutDir, stockHutGame, stockNextPress } from './stockHut.ts';
@@ -41,7 +41,9 @@ async function makeStock(page: Page): Promise<void> {
     await expect(panel.getByLabel('Name of the new screen')).toHaveValue(name);
     await panel.getByRole('button', { name: 'Create' }).click();
     const id = name.toLowerCase();
-    await expect(page.getByRole('region', { name: `Screen ${id}` }).locator('.cm-content')).toContainText('"title"');
+    const screen = page.getByRole('region', { name: `Screen ${id}` });
+    await showJson(screen);
+    await expect(screen.locator('.cm-content')).toContainText('"title"');
   }
   await showPlay(page);
   await expect(panel.getByRole('list').getByRole('button')).toHaveText([

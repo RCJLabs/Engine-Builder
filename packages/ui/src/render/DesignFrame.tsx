@@ -49,7 +49,7 @@ export function DesignFrame(props: DesignFrameProps) {
   };
   return (
     <div
-      class={`eb-game eb-at-${breakpoint}`}
+      class={`eb-game eb-designed eb-at-${breakpoint}`}
       style={{ ...themeVars(theme), width: `${width}px`, height: `${height}px` }}
       inert
       data-breakpoint={breakpoint}

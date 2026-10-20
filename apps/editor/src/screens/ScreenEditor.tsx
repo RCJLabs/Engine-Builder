@@ -1,10 +1,13 @@
 /**
- * A screen or the theme in the inspector (M4.1, D51): its JSON in CodeMirror, its problems, each a
- * way to its line, as a scene's are. Typing is an edit like a script's, which the editor's undo
- * takes back. M4.5's designer replaces the JSON. Loaded when a screen is first opened.
+ * A screen or the theme in the inspector (M4.1, D51): since M4.5 (D55) designed as it looks, with
+ * its JSON in CodeMirror as a second view of the same file and the same undo; the feedback and the
+ * shell as JSON alone. The JSON's problems are each a way to its line, as a scene's are. Loaded
+ * when a screen is first opened.
  */
 import { classifyUi } from '@eb/compiler';
 import { useMemo, useRef, useState } from 'preact/hooks';
+import { ScreenDesigner } from '../designer/ScreenDesigner.tsx';
+import { ThemeDesigner } from '../designer/ThemeDesigner.tsx';
 import { editing } from '../editing/current.ts';
 import { chosen } from '../forms/selection.ts';
 import type { OpenProject } from '../projects/opened.ts';
@@ -12,8 +15,9 @@ import type { CodeEditor } from '../scripts/codeEditor.ts';
 import { CodeProblems, useCode, useTextFile } from '../scripts/codeFile.tsx';
 import { deleteFile, setFileText } from '../scripts/scriptEdits.ts';
 import { json } from './jsonLanguage.ts';
-import { uiLineToFocus } from './open.ts';
+import { uiLineToFocus, uiView } from './open.ts';
 import '../styles/scripts.css';
+import '../styles/designer.css';
 
 type Kind = 'screen' | 'theme' | 'feedback' | 'shell';
 
@@ -40,6 +44,49 @@ export function ScreenEditor({ project, path }: { project: OpenProject; path: st
   const named = kind === 'screen' ? undefined : NAMES[kind];
   const title = role.kind === 'screen' ? role.id : kind;
   const [deleting, setDeleting] = useState(false);
+  const canEdit = editing.access.value.kind === 'editing';
+  // A screen and the theme are designed (M4.5); a problem's line opens the JSON at it (openUiFile).
+  const designed = kind === 'screen' || kind === 'theme';
+  const shown = designed ? uiView.value : 'json';
+  return (
+    <section class="script-editor" aria-label={named?.label ?? `Screen ${title}`}>
+      <header class="record-head">
+        <h3>{named?.heading ?? `Screen ${title}`}</h3>
+        {canEdit ? (
+          <div class="form-actions">
+            <button type="button" class="button danger" onClick={() => setDeleting(true)}>
+              Delete
+            </button>
+          </div>
+        ) : null}
+      </header>
+      <p class="muted mono">{path}</p>
+      {deleting ? <DeleteUiFile path={path} cancel={() => setDeleting(false)} /> : null}
+      {designed ? (
+        <fieldset class="form-actions designer-views">
+          <legend class="visually-hidden">View</legend>
+          <button
+            type="button"
+            class="button"
+            aria-pressed={shown === 'design'}
+            onClick={() => (uiView.value = 'design')}
+          >
+            Design
+          </button>
+          <button type="button" class="button" aria-pressed={shown === 'json'} onClick={() => (uiView.value = 'json')}>
+            JSON
+          </button>
+        </fieldset>
+      ) : null}
+      {shown === 'design' && kind === 'screen' ? <ScreenDesigner project={project} path={path} id={title} /> : null}
+      {shown === 'design' && kind === 'theme' ? <ThemeDesigner project={project} /> : null}
+      {shown === 'json' ? <JsonView project={project} path={path} kind={kind} /> : null}
+    </section>
+  );
+}
+
+/** The file's JSON in CodeMirror, its problems each a way to its line. */
+function JsonView({ project, path, kind }: { project: OpenProject; path: string; kind: Kind }) {
   const host = useRef<HTMLDivElement>(null);
   const code = useRef<CodeEditor | null>(null);
   const screens = project.index?.screens;
@@ -56,23 +103,10 @@ export function ScreenEditor({ project, path }: { project: OpenProject; path: st
     language: json,
   };
   useCode(host, code, loaded, setup, problems);
-  const canEdit = editing.access.value.kind === 'editing';
   const ready = loaded?.kind === 'ok';
   const go = (line: number, column?: number) => code.current?.focusAt(line, column);
   return (
-    <section class="script-editor" aria-label={named?.label ?? `Screen ${title}`}>
-      <header class="record-head">
-        <h3>{named?.heading ?? `Screen ${title}`}</h3>
-        {canEdit && loaded?.kind !== 'missing' ? (
-          <div class="form-actions">
-            <button type="button" class="button danger" onClick={() => setDeleting(true)}>
-              Delete
-            </button>
-          </div>
-        ) : null}
-      </header>
-      <p class="muted mono">{path}</p>
-      {deleting ? <DeleteUiFile path={path} cancel={() => setDeleting(false)} /> : null}
+    <>
       {loaded === null ? <p class="muted">Reading {path}…</p> : null}
       {loaded?.kind === 'missing' ? <p class="muted">{path} isn’t there any more. Undo brings it back.</p> : null}
       {loaded?.kind === 'unreadable' ? (
@@ -85,7 +119,7 @@ export function ScreenEditor({ project, path }: { project: OpenProject; path: st
           <CodeProblems problems={problems} go={go} label={`Problems in this ${kind}`} />
         </>
       ) : null}
-    </section>
+    </>
   );
 }
 

@@ -135,6 +135,8 @@ describe('what a button takes', () => {
   it('takes nothing, so is disabled, while no such action is on offer', () => {
     expect(actionFor({ take: 'hut/carry' }, view)).toBeUndefined();
     expect(actionFor({ take: 'hut/visit', args: { who: 'nobody' } }, view)).toBeUndefined();
+    // An argument no such action has, as one being typed in the designer is (M4.5): none, not a throw.
+    expect(actionFor({ take: 'hut/visit', args: { arg1: '' } }, view)).toBeUndefined();
     expect(actionFor({ open: 'map' }, view)).toBeUndefined();
     expect(actionFor({ shell: 'title' }, view)).toBeUndefined();
   });

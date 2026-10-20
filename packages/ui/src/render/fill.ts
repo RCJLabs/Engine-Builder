@@ -46,9 +46,12 @@ export const holds = (widget: Widget, view: View, entry?: Entry): boolean => {
   return when === undefined || ownOr(entry?.conditions, view.conditions, when) === true;
 };
 
+// An argument the action lacks matches nothing, rather than reading as no JSON at all (M4.5: one typed half way).
 const matches = (offer: Action, type: string, args: Readonly<Record<string, unknown>> | undefined) =>
   offer.type === type &&
-  Object.entries(args ?? {}).every(([key, value]) => canonicalJson(offer[key]) === canonicalJson(value));
+  Object.entries(args ?? {}).every(
+    ([key, value]) => Object.hasOwn(offer, key) && canonicalJson(offer[key]) === canonicalJson(value),
+  );
 
 /**
  * The action a button takes now, or undefined while none it names is on offer, which disables it.

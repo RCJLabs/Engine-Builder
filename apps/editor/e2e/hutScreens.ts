@@ -30,11 +30,17 @@ export async function showPlay(page: Page): Promise<Locator> {
   return panel;
 }
 
+/** A screen's or the theme's JSON, which since M4.5 opens designed (D55). */
+export async function showJson(region: Locator): Promise<void> {
+  await region.getByRole('button', { name: 'JSON', exact: true }).click();
+}
+
 /** The hut's theme, screens and feedback, made in the Play panel and written in the screen editor. */
 export async function makeScreens(page: Page): Promise<void> {
   const panel = await showPlay(page);
   await panel.getByRole('button', { name: 'New theme' }).click();
   const theme = page.getByRole('region', { name: 'The theme' });
+  await showJson(theme);
   await expect(theme.locator('.cm-content')).toContainText('"on-accent"');
   await replaceText(page, theme, fixtureText('ui/theme.json'));
   await landed(page, 'ui/theme.json');
@@ -44,6 +50,7 @@ export async function makeScreens(page: Page): Promise<void> {
     await panel.getByLabel('Name of the new screen').fill(id);
     await panel.getByRole('button', { name: 'Create' }).click();
     const screen = page.getByRole('region', { name: `Screen ${id}` });
+    await showJson(screen);
     await expect(screen.locator('.cm-content')).toContainText('"title"');
     await replaceText(page, screen, fixtureText(`ui/${id}.json`));
     await landed(page, `ui/${id}.json`);
@@ -105,7 +112,7 @@ export async function newGame(page: Page, how: (button: Locator) => Promise<void
   await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
 }
 
-export const game = (page: Page): Locator => page.locator('.eb-game');
+export const game = (page: Page): Locator => page.locator('.eb-game:not(.eb-designed)');
 
 /** The screen on top: the one a player's taps go to. */
 export const topScreen = (page: Page): Locator => game(page).locator('.eb-screen:not([inert])');

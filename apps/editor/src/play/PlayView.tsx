@@ -15,6 +15,7 @@ import { showPanel } from '../app/panelControl.ts';
 import { problemCount } from '../problems/count.ts';
 import { type OpenProject, revision, runScripts } from '../projects/opened.ts';
 import { playFiles } from '../scripts/playFiles.ts';
+import { noteMoment } from './moment.ts';
 import { playClient } from './playClient.ts';
 import type { PlayPageReply } from './protocol.ts';
 import { ScreensList } from './ScreensList.tsx';
@@ -23,7 +24,12 @@ import '../styles/play.css';
 
 const client = playClient();
 // The shell's requests are the session's own; the Play worker answers them as the player's does.
-const send = (request: ShellRequest) => client.send(request) as Promise<PlayReply>;
+// Each save is kept as the moment the designer draws (M4.5).
+const send = (request: ShellRequest) =>
+  client.send(request).then((reply) => {
+    noteMoment(reply);
+    return reply as PlayReply;
+  });
 
 type Shown =
   | { readonly kind: 'idle' }
