@@ -44,7 +44,7 @@ Every field may be left out, and so may the file.
 - **New** lists the numbered slots. An empty one starts a game at once with a fresh seed. A full one asks again, naming what it holds, and its save goes to the slot's backup.
 - **Daily**, when `shell.json` turns it on: `n` is the number of days from 2026-01-01 to the device's local date, and the seed is `daily:<n>`. Its slot is `daily`. When it holds Daily `n`, the button loads it; otherwise a new Daily starts there. The page reads the date; the sim never does.
 - **Saves** and **Settings** open their screens.
-- **The update prompt** shows here only: a new player waits, and Reload is safe, since the slot was saved at its last step. Never in play.
+- **The update prompt** shows here only: a new player waits, and Reload is safe, since the slot was saved at its last step. Never in play. No spec checks it: Chromium fetches a service worker's script outside Playwright's routing, so a spec can't make a new version arrive. The editor's own update toast is in the same place.
 
 ## Saves
 
@@ -80,7 +80,8 @@ Volumes come with M4.8's audio.
 ## Crash
 
 - **When:** an error nothing caught on the page, a promise rejected with nothing to hear it, or a worker that fails during a step or dies. Not ResizeObserver's loop notices or a bare "Script error." (Dirtbag's crash.ts).
-- **What:** play stops, and a screen drawn in plain DOM, without Preact, covers the page: what failed, Reload, Save file (the slot's save read from storage as it is, never loaded), and Copy report (the message, the game, its build, the slot and the step).
+- **What:** play stops, and a screen drawn in plain DOM, without Preact, covers the page: what failed, Reload, Save file (the slot's save read from storage as it is, never loaded), and Copy report (the message, the game, its build, the slot and the step). Everything under it is made inert.
+- **Where:** on the player page. In the Play panel, a failure stops the game on a screen inside the shell instead, since covering the editor would hide the author's work; the editor's own error toast still hears what nothing caught.
 
 ## Pack
 

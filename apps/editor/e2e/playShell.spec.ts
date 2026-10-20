@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { type Browser, expect, type Page, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { expectFits, game, newGame, shellScreens, topScreen } from './hutScreens.ts';
+import { expectFits, game, newGame, nextPress, shellScreens, topScreen } from './hutScreens.ts';
 import { hutGame } from './inputHelpers.ts';
 import { damageSave, openSaves, openTitle, pauseDialog, play, seen, storedSave } from './playShellHelpers.ts';
 
@@ -234,25 +234,38 @@ test('pause by Escape, settings kept across a reload, and quitting to a title th
   expect(errors).toEqual([]);
 });
 
-test('a slow write holds the next step until it lands, and a failed one says so as play goes on', async ({ page }) => {
+/** The page's hold on its writes, set up before it loads. */
+interface Hooks {
+  holdWrites: boolean;
+  fullDisk: boolean;
+  held: (() => void)[];
+  release: () => void;
+}
+
+test('a step waits for its save to land, and a failed write says so as play goes on', async ({ page }) => {
   test.setTimeout(90_000);
   const errors = watchErrors(page);
-  // Writes that land late, or fail with a full disk, on the page's word.
+  // Writes held until the page lets them go, or failing with a full disk, on the page's word. A
+  // write's data is in the store before it completes, so it is its completion that is held.
   await page.addInitScript(() => {
-    const hooks = window as unknown as { slowWrites: boolean; fullDisk: boolean };
-    hooks.slowWrites = false;
+    const hooks = window as unknown as Hooks;
+    hooks.holdWrites = false;
     hooks.fullDisk = false;
+    hooks.held = [];
+    hooks.release = () => {
+      for (const go of hooks.held.splice(0)) go();
+    };
     const put = IDBObjectStore.prototype.put;
     IDBObjectStore.prototype.put = function (this: IDBObjectStore, ...args: Parameters<IDBObjectStore['put']>) {
       if (hooks.fullDisk) throw new DOMException('The disk is full', 'QuotaExceededError');
       const request = put.apply(this, args);
-      if (hooks.slowWrites) {
+      if (hooks.holdWrites) {
         const tx = this.transaction;
         const set = Object.getOwnPropertyDescriptor(IDBTransaction.prototype, 'oncomplete')?.set;
         Object.defineProperty(tx, 'oncomplete', {
           configurable: true,
           set(done: (event: Event) => void) {
-            set?.call(tx, (event: Event) => setTimeout(() => done(event), 800));
+            set?.call(tx, (event: Event) => hooks.held.push(() => done(event)));
           },
         });
       }
@@ -262,23 +275,33 @@ test('a slow write holds the next step until it lands, and a failed one says so 
   const file = hutGame();
   await openTitle(page, file);
   await newGame(page);
-  await page.evaluate(() => {
-    (window as unknown as { slowWrites: boolean }).slowWrites = true;
-  });
   await play(page, 1);
-  // The step's view came only once its save had landed: the slot holds that step.
   const { turn } = await seen(page);
-  expect(JSON.parse((await storedSave(page, 'slot-1')) ?? '{}').summary.turn).toBe(Number(turn));
+  await page.evaluate(() => {
+    (window as unknown as Hooks).holdWrites = true;
+  });
+  const next = await nextPress(page);
+  await next?.button.click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as Hooks).held.length)).toBeGreaterThan(0);
+  // While its save is held, the step's view waits, and the game takes no other press.
+  await page.waitForTimeout(300);
+  await expect(game(page)).toHaveAttribute('data-turn', turn ?? '');
+  await expect(game(page)).toHaveAttribute('data-busy', 'true');
+  await page.evaluate(() => {
+    const hooks = window as unknown as Hooks;
+    hooks.holdWrites = false;
+    hooks.release();
+  });
+  await expect(game(page)).toHaveAttribute('data-turn', String(Number(turn) + 1));
+  expect(JSON.parse((await storedSave(page, 'slot-1')) ?? '{}').summary.turn).toBe(Number(turn) + 1);
 
   await page.evaluate(() => {
-    const hooks = window as unknown as { slowWrites: boolean; fullDisk: boolean };
-    hooks.slowWrites = false;
-    hooks.fullDisk = true;
+    (window as unknown as Hooks).fullDisk = true;
   });
   await play(page, 1);
   await expect(page.getByRole('status').filter({ hasText: /^Not saved: / })).toBeVisible();
   await page.evaluate(() => {
-    (window as unknown as { fullDisk: boolean }).fullDisk = false;
+    (window as unknown as Hooks).fullDisk = false;
   });
   await play(page, 1);
   await expect(page.getByRole('status').filter({ hasText: /^Not saved: / })).toHaveCount(0);
