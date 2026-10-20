@@ -1,0 +1,11 @@
+{
+  "name": "Derelict",
+  "names": ["Drift Four", "The Hulk", "Old Iron", "Cold Storage"],
+  "description": "Something dead and drifting, with whatever it carried still aboard.",
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "derelict"
+    }
+  ]
+}

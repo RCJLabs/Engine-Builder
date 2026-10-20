@@ -8,6 +8,7 @@ import { type Drawing, tabHolding } from './context.ts';
 import { actionFor, amount, fill, holds } from './fill.ts';
 import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
+import { MapWidgetView } from './MapWidget.tsx';
 import { Tabs } from './Tabs.tsx';
 
 interface Props {
@@ -83,6 +84,8 @@ function WidgetBody({ widget, drawing, entry, at }: Props) {
       );
     case 'log':
       return <LogView widget={widget} drawing={drawing} entry={entry} />;
+    case 'map':
+      return <MapWidgetView widget={widget} drawing={drawing} />;
   }
 }
 

@@ -1,0 +1,89 @@
+{
+  "name": "The sector",
+  "rows": [
+    {
+      "id": "next-sector",
+      "note": "From the jump point, the next sector, until the third.",
+      "when": {
+        "event": "maps/arrived"
+      },
+      "if": "maps.at(kind: jump-point) and maps.entered < 3",
+      "do": [
+        {
+          "effect": "enter-map",
+          "map": "sector"
+        }
+      ]
+    },
+    {
+      "id": "hunted",
+      "note": "From heat 100, hunters wait wherever the ship comes out, but at a station or in a nebula.",
+      "when": {
+        "event": "maps/arrived"
+      },
+      "if": "flag.number(heat) >= 100 and not maps.at(kind: station) and not maps.at(kind: nebula)",
+      "do": [
+        {
+          "effect": "open-event",
+          "event": "hunters"
+        }
+      ]
+    },
+    {
+      "id": "tracked",
+      "note": "From heat 75, a 35% chance.",
+      "when": {
+        "event": "maps/arrived"
+      },
+      "if": "flag.number(heat) >= 75 and flag.number(heat) < 100 and not maps.at(kind: station) and not maps.at(kind: nebula)",
+      "do": [
+        {
+          "effect": "roll",
+          "outcomes": [
+            {
+              "chance": 35,
+              "effects": [
+                {
+                  "effect": "open-event",
+                  "event": "hunters"
+                }
+              ]
+            },
+            {
+              "chance": 65,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "noticed",
+      "note": "From heat 50, a 10% chance.",
+      "when": {
+        "event": "maps/arrived"
+      },
+      "if": "flag.number(heat) >= 50 and flag.number(heat) < 75 and not maps.at(kind: station) and not maps.at(kind: nebula)",
+      "do": [
+        {
+          "effect": "roll",
+          "outcomes": [
+            {
+              "chance": 10,
+              "effects": [
+                {
+                  "effect": "open-event",
+                  "event": "hunters"
+                }
+              ]
+            },
+            {
+              "chance": 90,
+              "effects": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

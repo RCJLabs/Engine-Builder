@@ -1,0 +1,13 @@
+{
+  "format": 1,
+  "id": "valley",
+  "name": "The valley",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "time", "maps"],
+  "calendar": {
+    "ticksPerDay": 24,
+    "units": {
+      "hours": 1
+    }
+  }
+}

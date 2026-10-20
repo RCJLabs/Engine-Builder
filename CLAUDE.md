@@ -113,6 +113,10 @@ apps/editor/           the editor PWA
                        template chosen in NewScreen.tsx (M4.4), New theme, New feedback, New shell); jobs.ts (a
                        project packed, or opened, in a copy of the script worker), protocol.ts, playClient.ts (its
                        client, with timeouts); moment.ts (its last save, which the designer's frame draws, M4.5)
+  src/maps/            the World panel (M4.6, D56): worldList.ts (its rows, a new map's rules) and mapPreview.ts
+                       (a seed's map, a drawn map, the check over seeds in words) as plain functions; WorldPanel
+                       and its lazy WorldBrowser; MapPreview above a map's form, MapBoard (laid out as the map
+                       widget is, a drawn map's places dragged); the Map stock template is screens/stock/play.ts's
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -156,7 +160,9 @@ apps/editor/           the editor PWA
                        stockHut.ts, stockScreens.spec.ts and stockScreensPhone.spec.ts are M4.4's, the hut made
                        again from stock screens and played to its end on them; designerHelpers.ts,
                        designerScreens.ts, designer.spec.ts and designerPhone.spec.ts are M4.5's, the hut's own
-                       screen and journal made again in the designer alone, as the fixture's JSON
+                       screen and journal made again in the designer alone, as the fixture's JSON; mapHelpers.ts,
+                       maps.spec.ts and mapsPhone.spec.ts are M4.6's, the drift's sector and the valley made in
+                       the World panel and the drift flown to its exit through its map widget
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 7)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -200,7 +206,10 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        W132, W133); M4.2: feedbackCheck.ts (ui/feedback.json: E051, E052) and uiLints.ts (W133,
                        W134); M4.3: shellCheck.ts (ui/shell.json: E047, E048) and templateCheck.ts (what a
                        template reads, the screens' and the shell's slot line; a codex's @entry and unknown, M4.4);
-                       M4.4: codexCheck.test.ts, recordFieldsOf (each type's fields, for a codex's items); not pure
+                       M4.4: codexCheck.test.ts, recordFieldsOf (each type's fields, for a codex's items); M4.6:
+                       mapTypes.ts (node-kind, map), mapEffects.ts (enter-map, reveal-map as fields), mapCheck.ts
+                       (E035, E053, W119, W120, W135 over 300 seeds, W136); a map widget without the kit is E049;
+                       not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -236,11 +245,16 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        and repeats (M3.10); slots.ts: slots filled, bound and gone (M3.10, D48); jobs.ts: jobs
                        rolled and kept as timers (M3.10); journal.ts: what a quest shows, start-quest's preview;
                        facts.ts; graph.ts: where stages lead, for the checks and the map; metrics.ts: kitMetrics,
-                       each quest's state for sweeps; module.ts); kits.ts (KITS,
+                       each quest's state for sweeps; module.ts); M4.6 (D56): maps/ (layered.ts: maps made from
+                       a seed by rules; roads.ts: reach and the quickest road; travel.ts: travelOf, one price for
+                       the action, its options and the widget; arrive.ts; sweep.ts: rules over 300 seeds; view.ts:
+                       enter-map's preview, the map as the party sees it; facts.ts; module.ts, built knowing
+                       economy and the calendar); kits.ts (KITS,
                        kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
-                       dock with a crew for slots, M3.10): the records and games the kit tests share;
+                       dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6): the records
+                       and games the kit tests share;
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
@@ -251,13 +265,14 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2);
                        session/ (play.ts: a game played and its view after each step, or resumed from a state, and
                        looked at for other wants, taking no step (M4.5); views.ts, the kits' views as lists;
+                       mapView.ts, the map in words from enter-map's preview (M4.6);
                        words.ts; say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
                        after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
                        fromPack.ts and host.ts, a pack opened in a worker, its games started or loaded from a save's
                        text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
                        and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
-                       each widget in a box saying where it sits (M4.5); stack.ts, fill.ts, layout.ts
-                       and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
+                       each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
+                       stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
@@ -290,7 +305,10 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        fresh, and gatehouse-chooser.golden.json (M3.11); hut/, Phase 3's gate, an original
                        adventure at an alpine hut that hut.spec.ts builds in the editor, and hut-keeper.golden.json;
                        its ui/ (M4.1), six screens and a theme, which hutScreens.test.ts plays through, its
-                       feedback (M4.2) and its shell (M4.3), whose saves the same test loads back
+                       feedback (M4.2) and its shell (M4.3), whose saves the same test loads back; drift/, a slice
+                       of Space-Wrecked's sector run made with the maps kit, its stock screens, which
+                       driftScreens.test.ts plays through, and drift-pilot.golden.json; valley/, a map drawn by
+                       hand in Dirtbag's style, and valley-random.golden.json (M4.6)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "drift",
+  "name": "The drift",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "events", "maps"]
+}

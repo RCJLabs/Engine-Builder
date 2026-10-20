@@ -1,0 +1,12 @@
+{
+  "name": "Station",
+  "charted": true,
+  "names": ["Mac’s Pumps", "Halfway House", "Rest Stop Nine", "The Depot", "Ruth’s Canteen", "Big Rita’s"],
+  "description": "A tired station selling supplies by the crate. Cash only, and the coffee is extra.",
+  "arrive": [
+    {
+      "effect": "open-event",
+      "event": "station"
+    }
+  ]
+}

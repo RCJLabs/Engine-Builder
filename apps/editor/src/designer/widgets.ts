@@ -82,6 +82,15 @@ const OWN: Readonly<Record<WidgetKind, Readonly<Record<string, FieldDef>>>> = {
     label: { kind: 'text', optional: true, label: 'Label', description: 'What a screen reader calls it.' },
     empty: { kind: 'text', optional: true, label: 'When empty' },
   },
+  map: {
+    label: {
+      kind: 'text',
+      optional: true,
+      label: 'Label',
+      description: 'What a screen reader calls it: the map’s name unless set.',
+    },
+    empty: { kind: 'text', optional: true, label: 'When empty', description: 'Shown before a map is entered.' },
+  },
 };
 
 /** A `records` list's own fields, which only it has (M4.4). */
@@ -150,6 +159,7 @@ export function newWidget(kind: WidgetKind): Record<string, unknown> {
     case 'tabs':
       return { widget: kind, tabs: [{ label: 'Tab 1', children: [] }] };
     case 'log':
+    case 'map':
       return { widget: kind };
   }
 }
@@ -175,4 +185,5 @@ export const KIND_NAMES: Readonly<Record<WidgetKind, string>> = {
   list: 'List',
   tabs: 'Tabs',
   log: 'Log',
+  map: 'Map',
 };

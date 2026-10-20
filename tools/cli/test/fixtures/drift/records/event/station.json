@@ -1,0 +1,38 @@
+{
+  "name": "Station",
+  "text": "The pumps are slow and the coffee is worse, but there are crates of supplies by the airlock.",
+  "choices": [
+    {
+      "id": "buy",
+      "label": "Buy eight crates",
+      "cost": {
+        "credits": 10
+      },
+      "result": "Eight crates, stacked in the hold.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 8
+        }
+      ]
+    },
+    {
+      "id": "lie-low",
+      "label": "Lie low a while",
+      "result": "The station’s noise hides yours.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -5
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave",
+      "result": "You undock."
+    }
+  ]
+}

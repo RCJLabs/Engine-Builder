@@ -1,10 +1,11 @@
 import { pointerSegment, SHEET } from '@eb/core';
-import { DIALOGUE, QUEST, QUESTS, TALK } from '@eb/kits';
+import { DIALOGUE, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
 import { type DataType, type Diagnostic, slotScope } from '@eb/schema';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { SheetRows } from '../logic/SheetRows.tsx';
+import { MapPreview } from '../maps/MapPreview.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { QuestMap } from '../quests/QuestMap.tsx';
 import { duplicateRecord } from '../records/actions.ts';
@@ -209,6 +210,9 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {/* A talk gets its map above its fields (M3.8): with the kit off, "talk" is a project's own type. */}
         {type === TALK && catalog.kits.includes(DIALOGUE) ? <TalkMap value={value} file={file} /> : null}
         {type === QUEST && catalog.kits.includes(QUESTS) ? <QuestMap id={id} value={value} file={file} /> : null}
+        {type === MAP && catalog.kits.includes(MAPS) ? (
+          <MapPreview id={id} value={value} file={file} project={project} />
+        ) : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

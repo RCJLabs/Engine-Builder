@@ -17,7 +17,12 @@ async function contextOf(project: OpenProject): Promise<StockContext> {
   const { catalog, game, index } = project;
   const held: Held[] = [...(index?.records.values() ?? [])].filter((record) => record.value !== undefined);
   const modes = game.catalog
-    ? { start: game.catalog.start, all: game.catalog.modes, endings: game.catalog.endings }
+    ? {
+        start: game.catalog.start,
+        all: game.catalog.modes,
+        endings: game.catalog.endings,
+        travelling: game.catalog.travelling,
+      }
     : undefined;
   return contextFrom(
     {

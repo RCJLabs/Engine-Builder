@@ -1,0 +1,10 @@
+{
+  "name": "Trader",
+  "description": "A ship that sells, buys and asks no questions.",
+  "arrive": [
+    {
+      "effect": "open-event",
+      "event": "trader"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "name": "The valley",
+  "description": "Home, town and three crags, joined by the roads a van can take.",
+  "start": "van",
+  "nodes": [
+    {
+      "id": "van",
+      "name": "The van",
+      "kind": "home",
+      "x": 10,
+      "y": 85
+    },
+    {
+      "id": "town",
+      "kind": "town",
+      "x": 35,
+      "y": 70
+    },
+    {
+      "id": "slab",
+      "name": "The slab",
+      "kind": "crag",
+      "x": 60,
+      "y": 45
+    },
+    {
+      "id": "boulders",
+      "name": "The boulders",
+      "kind": "crag",
+      "x": 30,
+      "y": 25
+    },
+    {
+      "id": "tower",
+      "name": "The tower",
+      "kind": "crag",
+      "x": 85,
+      "y": 15
+    }
+  ],
+  "roads": [
+    {
+      "from": "van",
+      "to": "town",
+      "takes": {
+        "hours": 1
+      }
+    },
+    {
+      "from": "town",
+      "to": "slab",
+      "takes": {
+        "hours": 2
+      },
+      "cost": {
+        "cash": 3
+      }
+    },
+    {
+      "from": "van",
+      "to": "slab",
+      "takes": {
+        "hours": 4
+      }
+    },
+    {
+      "from": "slab",
+      "to": "tower",
+      "takes": {
+        "hours": 1
+      }
+    },
+    {
+      "from": "town",
+      "to": "boulders",
+      "takes": {
+        "hours": 3
+      },
+      "cost": {
+        "cash": 4
+      }
+    },
+    {
+      "from": "boulders",
+      "to": "tower",
+      "takes": {
+        "hours": 2
+      }
+    }
+  ],
+  "moves": [
+    {
+      "id": "drive",
+      "label": "Drive"
+    }
+  ]
+}

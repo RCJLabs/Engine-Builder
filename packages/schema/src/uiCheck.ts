@@ -18,6 +18,7 @@ import {
   SOURCE_KITS,
   type Source,
   type Theme,
+  WIDGET_KITS,
   type Widget,
 } from '@eb/ui/format';
 import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
@@ -173,7 +174,8 @@ function templateFields(widget: Widget): readonly (readonly [string, string])[] 
       return widget.empty === undefined ? [] : [['/empty', widget.empty]];
     case 'tabs':
       return widget.tabs.map((tab, t) => [`/tabs/${t}/label`, tab.label] as const);
-    case 'log': {
+    case 'log':
+    case 'map': {
       const fields = (['label', 'empty'] as const).filter((key) => widget[key] !== undefined);
       return fields.map((key) => [`/${key}`, widget[key] as string] as const);
     }
@@ -205,6 +207,10 @@ function checkWidget(
       here('E049', '/of', `A list of ${widget.of} needs the ${kit} kit: turn it on in project.json`);
     }
     checkCodex(widget, options, here);
+  }
+  const needs = WIDGET_KITS[widget.widget];
+  if (needs !== undefined && !options.kits.includes(needs)) {
+    here('E049', '/widget', `A ${widget.widget} widget needs the ${needs} kit: turn it on in project.json`);
   }
   if (widget.widget === 'button') checkAction(widget.action, at.list, screens, options, (p, m) => here('E049', p, m));
 }

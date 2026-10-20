@@ -3,7 +3,8 @@
  * effects, as plain data. The editor's script worker sends it across to the page, so nothing in it
  * may be a function: a fact's describe stays behind, and its default wording is used instead.
  */
-import { type Domain, type EventCatalog, eventCatalog, factCatalog } from '@eb/core';
+import { type Domain, type EventCatalog, eventCatalog, factCatalog, matchesAction } from '@eb/core';
+import { MAPS } from '@eb/kits';
 import type { ProjectGame } from './game.ts';
 
 export interface CatalogFact {
@@ -26,9 +27,14 @@ export interface GameCatalog {
   readonly modes: readonly string[];
   /** The modes that allow no action, sorted: where the game ends, which the ending template shows (M4.4). */
   readonly endings: readonly string[];
+  /** The modes that allow travel on a map, sorted: what the map template shows (M4.6). */
+  readonly travelling: readonly string[];
   /** The game's bots by name, in its order: Run plays the first, or picks at random without one. */
   readonly policies: readonly string[];
 }
+
+/** The maps kit's action, which a mode that shows the map allows. */
+const TRAVEL = `${MAPS}/travel`;
 
 // UTF-16 order, the same in every locale.
 const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
@@ -54,6 +60,11 @@ export function gameCatalog(game: ProjectGame): GameCatalog {
     modes: game.modules.flatMap((m) => Object.keys(m.modes ?? {})).sort(byText),
     endings: game.modules
       .flatMap((m) => Object.entries(m.modes ?? {}).filter(([, mode]) => mode.actions.length === 0))
+      .map(([id]) => id)
+      .sort(byText),
+    travelling: game.modules
+      .flatMap((m) => Object.entries(m.modes ?? {}))
+      .filter(([, mode]) => mode.actions.some((pattern) => matchesAction(pattern, TRAVEL)))
       .map(([id]) => id)
       .sort(byText),
     policies: game.policies.map((p) => p.name),

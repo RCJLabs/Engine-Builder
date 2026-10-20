@@ -1,7 +1,8 @@
 /**
  * Every stock screen (M4.4, D54) written into a project and compiled against its game: clean, with
  * nothing under ui/ the checks find. The hut, its own screens set aside, covers dialogue, events,
- * quests and factions; the crew the roster and stats; the arena stats without a roster.
+ * quests and factions; the crew the roster and stats; the arena stats without a roster; the drift
+ * the map (M4.6).
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -38,12 +39,12 @@ async function contextOf(name: string, files: Record<string, Uint8Array>): Promi
     Object.entries(group).map(([id, value]) => ({ type, id, value })),
   );
   const project = JSON.parse(new TextDecoder().decode(files['project.json'])) as { name: string; kits?: string[] };
-  const { start, modes, endings } = loaded.catalog;
+  const { start, modes, endings, travelling } = loaded.catalog;
   return contextFrom(
     {
       game: project.name,
       kits: project.kits ?? [],
-      modes: { start, all: modes, endings },
+      modes: { start, all: modes, endings, travelling },
       screens: [],
       shown: new Set(),
     },
@@ -64,6 +65,8 @@ describe('the stock screens, written into a project and compiled against its gam
     ['hut', ['codex', 'credits', 'dialogue', 'ending', 'event', 'hud', 'inventory', 'journal', 'shop']],
     ['crew', ['codex', 'credits', 'ending', 'hall', 'hud', 'inventory', 'shop']],
     ['arena', ['codex', 'credits', 'ending', 'hud', 'inventory', 'shop']],
+    // The drift starts on its map, so the map is its HUD (M4.6).
+    ['drift', ['codex', 'credits', 'ending', 'event', 'inventory', 'map', 'shop']],
   ] as const) {
     it(`gives ${name} its kits’ stock screens, each clean`, async () => {
       const files = filesOf(name);
@@ -90,6 +93,25 @@ describe('the stock screens, written into a project and compiled against its gam
     for (const id of ['dialogue', 'hud', 'ending']) {
       expect(STOCK.find((s) => s.id === id)?.build({ ...ctx, shown }).shows).toEqual([]);
     }
+  });
+
+  it('shows the map for each mode that travels, with the live numbers over it (M4.6)', async () => {
+    const files = filesOf('drift');
+    const ctx = await contextOf('drift', files);
+    expect(ctx.modes?.travelling).toEqual(['flying']);
+    const map = JSON.parse(new TextDecoder().decode(withStock(ctx, files).added['ui/map.json']));
+    expect(map.shows).toEqual(['flying']);
+    expect(map.top.children.map((c: { text: string }) => c.text)).toEqual([
+      '{economy.amount(resource: credits)} Credits',
+      '{economy.amount(resource: supplies)} Supplies',
+    ]);
+    expect(map.main.children.map((c: { widget: string }) => c.widget)).toEqual(['text', 'map', 'log']);
+    // Without the maps kit there is no map to show; a game that doesn't start on one keeps its HUD.
+    const offered = (id: string, at: StockContext) => STOCK.find((s) => s.id === id)?.offered(at);
+    expect(offered('map', { ...ctx, kits: ['inventory', 'economy', 'events'] })).toBe(false);
+    expect(offered('hud', ctx)).toBe(false);
+    const modes = ctx.modes as NonNullable<StockContext['modes']>;
+    expect(offered('hud', { ...ctx, modes: { ...modes, travelling: [] } })).toBe(true);
   });
 
   it('holds back a codex’s items until carried and its events until seen, its factions shown from the start', async () => {

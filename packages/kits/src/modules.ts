@@ -11,13 +11,15 @@ import { gearKit } from './gear/module.ts';
 import { GEAR } from './gear/types.ts';
 import { inventoryKit } from './inventory/module.ts';
 import { KITS } from './kits.ts';
+import { mapsModule } from './maps/module.ts';
+import { MAPS } from './maps/types.ts';
 import { questsModule } from './quests/module.ts';
 import { rosterModule } from './roster/module.ts';
 import { ROSTER } from './roster/types.ts';
 import { statsModule } from './stats/module.ts';
 import { STATS } from './stats/types.ts';
 import { timeKit } from './time/module.ts';
-import { TIME } from './time/types.ts';
+import { DEFAULT_CALENDAR, TIME } from './time/types.ts';
 
 const MODULES: ReadonlyMap<string, Module> = new Map(
   [inventoryKit, economyKit, gearKit, factionsKit, questsModule].map((module) => [module.id, module]),
@@ -34,6 +36,9 @@ const EVENTS_WITH_ECONOMY = eventsModule(true);
 // And an option's (W119).
 const DIALOGUE_ALONE = dialogueModule(false);
 const DIALOGUE_WITH_ECONOMY = dialogueModule(true);
+// A map's moves cost only with economy on, and take time only with time on, by its calendar (M4.6).
+const MAPS_ALONE = mapsModule(false);
+const MAPS_WITH_ECONOMY = mapsModule(true);
 
 /** The modules of the kits on, in the engine's order; the time kit's with the project's calendar (M3.5). */
 export function kitModules(on: readonly string[], calendar?: CalendarDef): Module[] {
@@ -43,6 +48,10 @@ export function kitModules(on: readonly string[], calendar?: CalendarDef): Modul
     if (kit.id === ROSTER) return on.includes(ECONOMY) ? ROSTER_WITH_ECONOMY : ROSTER_ALONE;
     if (kit.id === EVENTS) return on.includes(ECONOMY) ? EVENTS_WITH_ECONOMY : EVENTS_ALONE;
     if (kit.id === DIALOGUE) return on.includes(ECONOMY) ? DIALOGUE_WITH_ECONOMY : DIALOGUE_ALONE;
+    if (kit.id === MAPS) {
+      if (on.includes(TIME)) return mapsModule(on.includes(ECONOMY), calendar ?? DEFAULT_CALENDAR);
+      return on.includes(ECONOMY) ? MAPS_WITH_ECONOMY : MAPS_ALONE;
+    }
     return MODULES.get(kit.id) as Module;
   });
 }

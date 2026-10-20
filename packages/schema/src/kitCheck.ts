@@ -14,6 +14,7 @@ import {
   LOOT_TABLE,
   type LootEntry,
   type LootTableRecord,
+  MAPS,
   QUEST,
   QUESTS,
   type Range,
@@ -31,6 +32,7 @@ import { EventChecks } from './eventCheck.ts';
 import { FactionChecks } from './factionCheck.ts';
 import { isKitType } from './kitTypes.ts';
 import type { Known } from './known.ts';
+import { MapChecks } from './mapCheck.ts';
 import { QuestChecks } from './questCheck.ts';
 import { slotScope } from './questSlots.ts';
 import { RosterChecks } from './rosterCheck.ts';
@@ -105,6 +107,7 @@ export class KitChecks {
   private readonly events: EventChecks | undefined;
   private readonly dialogue: DialogueChecks | undefined;
   private readonly quests: QuestChecks | undefined;
+  private readonly maps: MapChecks | undefined;
 
   constructor(on: readonly string[], known: Known, records: RecordIndex) {
     this.on = on;
@@ -115,6 +118,7 @@ export class KitChecks {
     this.events = on.includes(EVENTS) ? new EventChecks(on, known) : undefined;
     this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on, known.facts) : undefined;
     this.quests = on.includes(QUESTS) ? new QuestChecks(known, { records, made: madeTypes(on) }) : undefined;
+    this.maps = on.includes(MAPS) ? new MapChecks(on) : undefined;
   }
 
   /** The slots each field of a record can name (M3.10): a quest's, with the quests kit on. */
@@ -132,6 +136,7 @@ export class KitChecks {
     this.factions.record(type, id, value, report);
     this.dialogue?.record(type, id, value, report);
     this.quests?.record(type, id, value, report);
+    this.maps?.record(type, id, value, report);
     if (type === LOOT_TABLE) {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
@@ -176,6 +181,7 @@ export class KitChecks {
     this.events?.effect(report, path, effect);
     this.dialogue?.effect(effect);
     this.quests?.effect(report, path, effect);
+    this.maps?.effect(report, path, effect);
   }
 
   /** What needs every loot table: loops (E036), and stock tables that give a resource (E035). */
@@ -187,6 +193,7 @@ export class KitChecks {
     this.events?.finish();
     this.dialogue?.finish();
     this.quests?.finish();
+    this.maps?.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

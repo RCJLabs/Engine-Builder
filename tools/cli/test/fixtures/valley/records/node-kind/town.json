@@ -1,0 +1,11 @@
+{
+  "name": "Town",
+  "description": "Gas, groceries and a café that needs a dishwasher.",
+  "arrive": [
+    {
+      "effect": "add-resource",
+      "resource": "cash",
+      "by": 10
+    }
+  ]
+}

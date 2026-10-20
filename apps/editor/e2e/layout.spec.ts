@@ -270,8 +270,9 @@ for (const [width, height] of [
       const item = (name: string) => list.getByRole('button', { name: new RegExp(`^${name} `) });
       await expect(item('Console')).toContainText('What the editor did');
       await expect(item('Console')).not.toContainText('Phase');
-      await expect(item('World')).toContainText('Phases 4–7');
-      // Play is built (M4.1): its summary, and no phase to wait for.
+      // World (M4.6) and Play (M4.1) are built: their summaries, and no phase to wait for.
+      await expect(item('World')).toContainText('Where worlds get built');
+      await expect(item('World')).not.toContainText('Phase');
       await expect(item('Play')).toContainText('Play the game inside the editor');
       await expect(item('Play')).not.toContainText('Phase');
       await expectNothingOffscreen(page);

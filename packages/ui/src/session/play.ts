@@ -19,6 +19,7 @@ import {
   type SimContext,
 } from '@eb/core';
 import type { Feedback, Said } from '../format/feedback.ts';
+import { mapShows } from './mapView.ts';
 import { codexEntries, creditEntries, parseCodex } from './records.ts';
 import { feedbackSayer } from './say.ts';
 import { soundCondition } from './sound.ts';
@@ -104,7 +105,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     for (const [text, condition] of wants.conditions) {
       conditions[text] = condition ? game.check(state, condition, sim) : null;
     }
-    const { fields, lists } = kitViews(reading, kits);
+    const { fields, lists, map } = kitViews(reading, kits);
     for (const codex of wants.codexes) lists[codex.key] = codexEntries(reading, codex);
     if (credits) lists.credits = credits;
     lists.offered = offered.map((action, i) => ({
@@ -120,6 +121,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       conditions,
       fields,
       lists,
+      ...(map ? { map } : {}),
       turn: state.kernel.step,
       ended: offered.length === 0,
     };
@@ -152,7 +154,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
   };
 }
 
-/** The talk, the event, the shop and the bag while each applies, and the journal, by the kits that are on. */
+/** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */
 function kitViews(reading: Reading, kits: readonly string[]) {
   const fields: Record<string, Shown> = {};
   const lists: Record<string, readonly Entry[]> = {};
@@ -180,5 +182,7 @@ function kitViews(reading: Reading, kits: readonly string[]) {
   }
   if (kits.includes('inventory')) lists.bag = bagEntries(reading, shop);
   if (kits.includes('quests')) lists.journal = journalEntries(reading);
-  return { fields, lists };
+  const map = kits.includes('maps') ? mapShows(reading) : undefined;
+  if (map) fields['map.name'] = map.name;
+  return { fields, lists, map };
 }

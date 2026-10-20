@@ -9,7 +9,7 @@ export interface PanelInfo {
 }
 
 /** The panels no phase has built yet: Panel draws them from PANELS, and More's list says when they come. */
-export const PLACEHOLDERS: ReadonlySet<PanelId> = new Set(['world']);
+export const PLACEHOLDERS: ReadonlySet<PanelId> = new Set();
 
 /** Phase 0 placeholders: each panel says what it will hold and when (ROADMAP.md). */
 export const PANELS: Record<PanelId, PanelInfo> = {
@@ -35,11 +35,7 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     label: 'World',
     phase: 'Phases 4–7',
     summary: 'Where worlds get built: route maps first, then 3D terrain and interiors, then 2D tiles.',
-    coming: [
-      'Node-graph world maps (Phase 4)',
-      '3D terrain, props, NPCs, interiors (Phases 5–6)',
-      '2D tilemaps and side-view rooms (Phase 7)',
-    ],
+    coming: ['3D terrain, props, NPCs, interiors (Phases 5–6)', '2D tilemaps and side-view rooms (Phase 7)'],
   },
   inspector: {
     label: 'Inspector',

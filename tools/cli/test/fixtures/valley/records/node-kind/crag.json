@@ -1,0 +1,11 @@
+{
+  "name": "Crag",
+  "description": "Rock, and the walk in.",
+  "arrive": [
+    {
+      "effect": "add-resource",
+      "resource": "ticks",
+      "by": 1
+    }
+  ]
+}

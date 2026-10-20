@@ -211,6 +211,22 @@ describe('checkUi', () => {
     expect(only(bag, { kits: ['inventory'] })).toEqual([]);
   });
 
+  it('asks for the maps kit for a map widget and its {map.name} (M4.6)', () => {
+    const map = {
+      widget: 'stack',
+      children: [
+        { widget: 'text', text: '{map.name}' },
+        { widget: 'map', label: 'The sector', empty: 'No map yet' },
+      ],
+    };
+    const at = (path: string, message: string) => ({ code: 'E049', file: 'ui/hud.json', path, message });
+    expect(only(map, { kits: ['economy'] })).toEqual([
+      at('/main/children/0/text', '{map.name} needs the maps kit: turn it on in project.json'),
+      at('/main/children/1/widget', 'A map widget needs the maps kit: turn it on in project.json'),
+    ]);
+    expect(only(map, { kits: ['maps'] })).toEqual([]);
+  });
+
   it('leaves actions and modes unchecked until the game has run', () => {
     const main = { widget: 'button', label: 'Sail', action: { take: 'hut/sail' } };
     const { actions: _, modes: __, ...unknown } = game;

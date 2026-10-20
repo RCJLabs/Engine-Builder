@@ -1,0 +1,11 @@
+{
+  "name": "Distress calls",
+  "events": [
+    {
+      "event": "castaways"
+    },
+    {
+      "event": "ambush"
+    }
+  ]
+}

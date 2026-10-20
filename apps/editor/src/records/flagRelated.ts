@@ -9,6 +9,8 @@ import {
   GEAR,
   ITEM,
   LOOT_TABLE,
+  MAP,
+  MAPS,
   QUEST,
   QUESTS,
   RECRUIT,
@@ -103,6 +105,13 @@ export const talkRelated = (record: IndexedRecord | undefined): boolean =>
 export const questRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === QUEST || record.refs.some((ref) => ref.to.startsWith(`${QUEST}:`)));
 
+/**
+ * A map, or a record that names one (M4.6): enter-map's node is checked against its map's nodes
+ * (E053), so a change to a map, or to what enters one, checks them all again.
+ */
+export const mapRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === MAP || record.refs.some((ref) => ref.to.startsWith(`${MAP}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -114,4 +123,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(EVENTS) ? [eventRelated] : []),
   ...(kits.includes(DIALOGUE) ? [talkRelated] : []),
   ...(kits.includes(QUESTS) ? [questRelated] : []),
+  ...(kits.includes(MAPS) ? [mapRelated] : []),
 ];

@@ -1,0 +1,44 @@
+{
+  "name": "Trader",
+  "text": "A hauler with its holds open and its prices high.",
+  "choices": [
+    {
+      "id": "buy",
+      "label": "Buy three crates",
+      "cost": {
+        "credits": 8
+      },
+      "result": "Overpriced, but it’s food.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 3
+        }
+      ]
+    },
+    {
+      "id": "sell",
+      "label": "Sell two crates",
+      "needs": "economy.amount(resource: supplies) >= 4",
+      "result": "They pay in cash.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": -2
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave",
+      "result": "You wave them off."
+    }
+  ]
+}

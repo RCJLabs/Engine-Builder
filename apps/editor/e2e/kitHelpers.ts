@@ -86,7 +86,13 @@ export async function newRecord(page: Page, type: string, title: string, name: s
 }
 
 /** Picks a record in a form's ref field: the field's button, then the option in its dialog. */
-export async function pick(page: Page, scope: Locator, field: RegExp, dialog: string, option: string): Promise<void> {
+export async function pick(
+  page: Page,
+  scope: Locator,
+  field: RegExp,
+  dialog: string,
+  option: string | RegExp,
+): Promise<void> {
   await scope.getByRole('button', { name: field }).click();
   await page.getByRole('dialog', { name: dialog }).getByRole('option', { name: option }).click();
 }

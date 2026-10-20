@@ -1,0 +1,41 @@
+{
+  "title": "Map",
+  "shows": ["flying"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: credits)} Credits"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: supplies)} Supplies"
+      }
+    ]
+  },
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "{map.name}",
+        "style": "heading"
+      },
+      {
+        "widget": "map",
+        "empty": "No map yet."
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
+      }
+    ]
+  }
+}

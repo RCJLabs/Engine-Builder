@@ -24,7 +24,7 @@ export {
   type OptionsView,
   type PreviewContext,
 } from './module.ts';
-export { eventCatalog, factCatalog } from './registry.ts';
+export { eventCatalog, factCatalog, matches as matchesAction } from './registry.ts';
 export { createSession, type Session } from './session.ts';
 export { MAX_EVENT_DEPTH } from './transaction.ts';
 export type {

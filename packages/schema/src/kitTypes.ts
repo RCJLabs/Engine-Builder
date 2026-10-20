@@ -18,6 +18,9 @@ import {
   INVENTORY,
   ITEM,
   LOOT_TABLE,
+  MAP,
+  MAPS,
+  NODE_KIND,
   QUEST,
   QUESTS,
   RECRUIT,
@@ -36,6 +39,7 @@ import { SPEAKER_TYPE_FILE, talkTypeFile } from './dialogueTypes.ts';
 import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
+import { mapTypeFile, NODE_KIND_TYPE_FILE } from './mapTypes.ts';
 import { QUEST_TYPE_FILE } from './questTypes.ts';
 import { HALL_TYPE_FILE, ROSTER_TYPE_FILE, recruitTypeFile } from './rosterTypes.ts';
 import { actorTypeFile, SLOT_TYPE_FILE, STAT_TYPE_FILE, STATUS_TYPE_FILE, WORN_ITEM_FIELDS } from './statTypes.ts';
@@ -251,6 +255,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   [EVENTS]: (on) => ({ [EVENT]: eventTypeFile(on.includes(ECONOMY)), [DECK]: DECK_TYPE_FILE }),
   [DIALOGUE]: (on) => ({ [SPEAKER]: SPEAKER_TYPE_FILE, [TALK]: talkTypeFile(on.includes(ECONOMY)) }),
   [QUESTS]: () => ({ [QUEST]: QUEST_TYPE_FILE }),
+  [MAPS]: (on) => ({ [NODE_KIND]: NODE_KIND_TYPE_FILE, [MAP]: mapTypeFile(on.includes(ECONOMY)) }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

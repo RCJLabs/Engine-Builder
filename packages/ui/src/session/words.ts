@@ -1,6 +1,6 @@
 /**
- * The words a session puts in entries' fields: an action's label, a cost, why a choice is locked,
- * its odds. Each is read from what the sim reports (a choice's preview, a record's name), never
+ * The words a session puts in entries' fields: an action's label, a cost, a time (M4.6), why a
+ * choice is locked, its odds. Each is read from what the sim reports (a choice's preview, a record's name), never
  * worked out again here, so what a screen says is what the game does.
  */
 import { type Action, type Condition, describeCondition, type FactCatalog, type RecordStore } from '@eb/core';
@@ -33,6 +33,35 @@ export function costText(cost: unknown, content: RecordStore): string | null {
   const parts = Object.keys(cost)
     .sort()
     .map((id) => `${(cost as Record<string, unknown>)[id]} ${nameOf(content, 'resource', id) ?? id}`);
+  return parts.length === 0 ? null : parts.join(', ');
+}
+
+/** A time as "3 hours" or "1 day, 2 hours", in the calendar's units by id; null when it takes none. */
+export function takesText(takes: unknown): string | null {
+  if (typeof takes !== 'object' || takes === null) return null;
+  const counts = takes as Record<string, unknown>;
+  const parts = Object.keys(counts)
+    .sort()
+    .filter((unit) => typeof counts[unit] === 'number' && (counts[unit] as number) > 0)
+    .map((unit) => `${counts[unit]} ${counts[unit] === 1 ? unit.replace(/s$/, '') : unit}`);
+  return parts.length === 0 ? null : parts.join(', ');
+}
+
+/**
+ * What effects do, as their previews give them: "heat 0 → 2", a flag or a resource by its name,
+ * from and to. An effect that changes nothing, or that the preview doesn't number, says nothing.
+ */
+export function changesText(
+  previews: readonly Readonly<Record<string, unknown>>[],
+  content: RecordStore,
+): string | null {
+  const parts = previews.flatMap((preview) => {
+    const { from, to } = preview;
+    if (typeof from !== 'number' || typeof to !== 'number' || from === to) return [];
+    const [type, id] = typeof preview.flag === 'string' ? ['flag', preview.flag] : ['resource', preview.resource];
+    if (typeof id !== 'string') return [];
+    return [`${nameOf(content, type, id) ?? id} ${from} → ${to}`];
+  });
   return parts.length === 0 ? null : parts.join(', ');
 }
 
