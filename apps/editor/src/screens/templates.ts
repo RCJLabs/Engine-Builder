@@ -1,5 +1,5 @@
 /**
- * What New screen, New theme and New feedback write (M4.1, M4.2): a screen that compiles as it
+ * What New screen, New theme, New feedback and New shell write (M4.1, M4.2, M4.3): a screen that compiles as it
  * stands, opened only by a button until its `shows` names a mode, with a button that closes it;
  * the engine's own theme to change from; and feedback for the common events of the kits the
  * project has on, in plain words for the author to change.
@@ -51,3 +51,15 @@ const KIT_LINES: Readonly<Record<string, readonly FeedbackLine[]>> = {
 
 export const feedbackTemplate = (kits: readonly string[]): string =>
   pretty({ lines: kits.flatMap((kit) => KIT_LINES[kit] ?? []) });
+
+/**
+ * The shell's settings with the defaults written out, so the author sees each one to change; a
+ * slot line of the day when the time kit is on, the step otherwise.
+ */
+export const shellTemplate = (name: string, kits: readonly string[]): string =>
+  pretty({
+    title: name,
+    slots: 3,
+    daily: false,
+    ...(kits.includes('time') ? { 'slot-line': 'Day {time.day}' } : {}),
+  });

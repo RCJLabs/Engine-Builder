@@ -6,6 +6,7 @@ import {
   defineModule,
   type GameState,
   type InitContext,
+  loadSave,
   type Module,
   stateHash,
 } from '@eb/core';
@@ -189,5 +190,63 @@ describe('writeSession', () => {
     await saves.writeSession('slot-1', session, { build: BUILD, savedAt: 1 });
     expect(session.log).toBe(log);
     expect(log.length).toBeGreaterThan(0);
+  });
+});
+
+describe('loadWith: a save read by a reader of its own (M4.3)', () => {
+  // A reader that holds the game elsewhere, as a game's worker does, giving back no state.
+  const reader =
+    (build = BUILD) =>
+    async (raw: string) => {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return { ok: false as const, problem: 'damaged' as const, message: 'The save is not JSON' };
+      }
+      const result = loadSave(game, parsed, sim, { game: 'salvage-run', build });
+      return result.ok
+        ? { ok: true as const, file: result.file, report: result.report, hash: stateHash(result.state) }
+        : result;
+    };
+
+  it('loads as load does, and goes back to the backup of a broken save', async () => {
+    const { store, saves } = setup();
+    const first = play('x', 8);
+    await saves.write('slot-1', saveOf(first, 1));
+    expect(await saves.loadWith('slot-1', BUILD, reader())).toMatchObject({ ok: true, hash: stateHash(first.state) });
+    await saves.write('slot-1', saveOf(play('y', 8), 2));
+    await store.write({ [SLOT]: '{"torn' });
+    expect(await saves.loadWith('slot-1', BUILD, reader())).toMatchObject({
+      ok: true,
+      fromBackup: true,
+      quarantined: Q(0),
+      hash: stateHash(first.state),
+    });
+    expect(await saves.loadWith('slot-9', BUILD, reader())).toMatchObject({ ok: false, problem: 'empty' });
+  });
+
+  it('keeps the original of a save another build changes, naming the build that loaded it', async () => {
+    const { saves } = setup();
+    await saves.write('slot-1', saveOf(play('x', 8), 1));
+    const changing = async (raw: string) => {
+      const read = await reader('next')(raw);
+      return read.ok ? { ...read, report: { ...read.report, differs: true } } : read;
+    };
+    expect(await saves.loadWith('slot-1', 'next', changing)).toMatchObject({ ok: true, quarantined: Q(0) });
+    expect((await saves.quarantined())[0]?.message).toContain('before build next loaded it');
+  });
+
+  it('gives a slot’s save as stored, even one that won’t load, and forgets only quarantined copies', async () => {
+    const { store, saves } = setup();
+    await saves.write('slot-1', saveOf(play('x', 4), 1));
+    await store.write({ [SLOT]: '{"torn' });
+    expect(await saves.raw('slot-1')).toBe('{"torn');
+    expect(await saves.raw('slot-2')).toBeUndefined();
+    await saves.loadWith('slot-1', BUILD, reader());
+    expect(await saves.forget(Q(0))).toEqual({ ok: true });
+    expect(await saves.quarantined()).toEqual([]);
+    expect(await saves.forget(SLOT)).toMatchObject({ ok: false });
+    expect(await saves.raw('slot-1')).toBe('{"torn');
   });
 });

@@ -121,7 +121,7 @@ Product decisions are Evan's. The others record what was chosen and why.
 - **Weight:** the compiler, with zod, loads at start. It is 33.8 kB of the editor's 51.1 kB of gzipped JS.
 - **Safari** may delete a site's data after 7 days without a visit, unless the site is a Home Screen app. Zips are the backup until Phase 4.
 
-### D11. Export targets as a per-project matrix. PROPOSED until M4.9, 2026-10-17
+### D11. Export targets as a per-project matrix. PROPOSED until M4.9 (M4.10 since D53), 2026-10-17
 
 The targets are Pages PWA, single-file HTML, itch.io, Play TWA, and later Electron/Steam. Each has an edition (demo, full, playtest), packs, a storage namespace and a leak check. The pattern comes from chooser-of-the-dead's `targets.ts`, and the TWA pipeline from dirtbag's `build-twa.yml`.
 
@@ -706,7 +706,7 @@ Evan chose on 2026-10-18 between merging on green and going on, and waiting for 
 - **What "made here" allows** (Evan's call):
   - art and sound from the editor's own tools, or drawn by code written in its script editor;
   - a few OFL fonts that ship with the engine and count as its own;
-  - store builds (the Play package, Steam's) in a GitHub workflow the editor writes (M4.9), since Bubblewrap, the Android SDK and Electron can't run in a browser.
+  - store builds (the Play package, Steam's) in a GitHub workflow the editor writes (M4.9, M4.10 since D53), since Bubblewrap, the Android SDK and Electron can't run in a browser.
 - **The art tools come in one phase, before the demo** (Evan's call): Phase 10's painter, icons and type, figures and portraits, music and mesh kit. The proofs before it may draw their art in code written in the script editor, as Dirtbag and Space-Wrecked draw theirs now.
 - **Importing stays.** M2.7's asset import and M5.5's glTF import and CC0 kit are there for games that want outside art; Proof #4 uses none of them.
 
@@ -1131,7 +1131,7 @@ Evan chose on 2026-10-19, from these options:
 - **Screens are data** (Evan's call): widget trees in `ui/<screen>.json`.
   - They are checked as records are, and their bindings name the game's facts.
   - Their actions run effects or open screens.
-  - M4.4's UI designer will edit them.
+  - M4.4's UI designer will edit them (M4.5 since D53).
   - Anything the data can't say waits for an escape hatch of its own, later.
 - **Two milestones** (Evan's call):
   - M4.1 is screens: widgets, layout with safe areas and breakpoints, themes with an AA check, bindings, actions and the screen stack;
@@ -1149,8 +1149,8 @@ Also settled, as the session's calls ([specs/screens.md](specs/screens.md)):
 - **a button takes only an action the game offers,** or opens or closes a screen: a screen never runs an effect, so what the player can do is still the sim's to say;
 - **a game plays in the script worker,** where `lockDown` has run, and the page gets each step's view as JSON: the facts and conditions its screens name, the actions on offer, and the kits' views of the open talk, event, shop and journal;
 - **the game's modes drive the stack:** each mode's screen is the first that names it, a mode no screen names gets a plain fallback (W133), and screens a button opens sit on top until a step changes the modes;
-- **the exported page is the player at `/play/`,** opening the game file the Project panel exports, a pack of format 4 that carries the screens and the theme; a page that is a single file comes with M4.9's export;
-- **screens are written as JSON in the editor** until M4.4's designer, opened from the Play panel with their problems at their lines.
+- **the exported page is the player at `/play/`,** opening the game file the Project panel exports, a pack of format 4 that carries the screens and the theme; a page that is a single file comes with M4.9's export (M4.10 since D53);
+- **screens are written as JSON in the editor** until M4.4's designer (M4.5 since D53), opened from the Play panel with their problems at their lines.
 
 As built (M4.1):
 - **the Play panel's game runs in a copy of the script worker of its own,** so the compiler and kits ship once, and a check that runs too long in the script worker never ends a game in play;
@@ -1201,12 +1201,38 @@ Evan chose on 2026-10-19, from these options:
 **Why.**
 - **Feedback as data.** The engine picks no tone for a game, the lines are checked against the events they name, and a game's words stay in one file a translation can replace.
 - **A widget for the log.** The author decides where it sits and how much it shows; saving it waits for M4.3's slots, where the page's own state belongs.
-- **Back and tab swipes.** Back matters most on Android, where a TWA would otherwise leave the game; the tab swipe is the one other gesture the stock widgets invite. The recognizer is the one M4.5's map will need for drag and pinch.
+- **Back and tab swipes.** Back matters most on Android, where a TWA would otherwise leave the game; the tab swipe is the one other gesture the stock widgets invite. The recognizer is the one M4.5's map (M4.6 since D53) will need for drag and pinch.
 - **An automated gate.** It plays the whole hut each way on every CI run, and the session can go on to M4.3.
 
 **Cost.**
 - **No words by default:** a game says nothing until its feedback file says it.
 - **No real screen reader** is run: the checks read what the live region holds, not what TalkBack or VoiceOver speak. A run by hand stays on the phone checks.
+
+### D53. M4.3 is the play shell, engine-drawn in the game's theme; the slot in play saves every step; Daily is opt-in by the local date; stock screens are M4.4. LOCKED, 2026-10-20 (Evan's calls, M4.3)
+
+**Decision.**
+- **M4.3 is split** (Evan's call). M4.3 is the play shell: a title with slots (Continue, New, Daily), save and load (a file or a code out and in, delete, slots that can't be read kept and shown), pause, settings, a crash screen and an update prompt, on the player page and in the editor's Play panel. M4.4 is the stock screens: HUD, inventory, journal, dialogue, shop, codex, credits and ending as templates New screen offers. The map goes with the world map, now M4.6. Phase 4's later milestones move up one number again.
+- **The shell is engine-drawn in the game's theme** (Evan's call). The engine draws the shell's screens with the game's theme tokens. A small `ui/shell.json` gives them their words, the number of slots and whether Daily is on. The crash screen is plain DOM, drawn without Preact, so it still shows when the game's screens are what broke (Dirtbag's rule).
+- **The slot in play saves after every step** (Evan's call), so a reload can't roll a step again (Chooser's rule). Continue resumes the numbered slot played last (Afterglass's and 2060td's rule). Three slots unless `shell.json` asks for one to five.
+- **Daily is opt-in, by the device's local date** (Evan's call). A game turns it on in `shell.json`. Its seed is `daily:<n>`, `n` counted in days from a fixed date by the local calendar (Chooser's rule); the page reads the clock and the sim never does. A Daily has a slot of its own, apart from the numbered ones, and saves each step as they do.
+- **The gate is automated:** the hut, with a `shell.json` of its own, started in a slot, reloaded and continued to the same state, exported as a code and imported in a fresh browser, a crash showing its raw save, on desktop and on phones at 360 and 390 px and in landscape.
+
+Evan chose on 2026-10-20, from these options:
+- scope: split with the play shell first; one milestone for all of it; or the stock screens first;
+- the shell: engine-drawn in the game's theme; JSON screens with slots and settings as new sources; or the title as JSON and the rest drawn;
+- saving: every step with three slots and Continue as the slot played last; on pause and quit only; or one slot;
+- Daily: opt-in by the local date; opt-in by UTC; or later.
+
+**Why.**
+- **The shell first.** The player page keeps nothing yet: a reload loses the game. Every stock screen after it plays inside a shell that saves.
+- **Engine-drawn.** Saves, files and errors are where a broken screen costs a player their game; the engine keeps them working whatever a game's own screens do. The theme still makes them the game's.
+- **Every step.** Nothing to lose to a closed tab, and no reroll by reload. The writes are small: the save holds its snapshot and at most 200 actions.
+- **Local date.** A Daily that turns over at the player's midnight, as a newspaper's does.
+
+**Cost.**
+- **Authors can't restyle the shell's layout,** only its theme and words. A game that needs its own title screen waits for the escape hatch D51 left for later.
+- **A write each step** is a cost on slow storage; it is measured, not assumed.
+- **Players east and west of each other** play the same Daily hours apart.
 
 ---
 

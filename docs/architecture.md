@@ -222,12 +222,10 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Navigation and input** (M4.2, D52, [specs/input.md](specs/input.md)):
   - A screen stack, its screens opened by buttons closed by Back: Escape, a pad's B, a swipe right, and on the player page the browser's own back.
   - Spatial focus for keyboard and gamepad by chooser-of-the-dead's rule (`spatial.ts`), on the top screen; each screen gives focus back to the control it last had.
-  - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known; drag and pinch wait for M4.5's map.
+  - A gesture recognizer from space-wrecked's `ui/gestures.js`, with a swipe added: swipes turn tabs and go Back. Long press is known; drag and pinch wait for M4.6's map.
 - **Feedback** (M4.2, D52): a game words its beats in `ui/feedback.json`; the worker fills the words in, and the page shows them as toasts, keeps them in a `log` widget and speaks each step's once through one live region.
-- **Stock screens** ship as templates you restyle:
-  - title with slots (Continue, New, Daily), settings, save/load, pause, HUD;
-  - inventory, journal, map, dialogue, shop, codex (built from live numbers);
-  - credits, ending, crash, update prompt.
+- **The play shell** (M4.3, D53, [specs/shell.md](specs/shell.md)) is drawn by the engine in the game's theme, its words, slots and Daily set in `ui/shell.json`: a title with slots (Continue, New, Daily), save and load with files and codes, pause, settings, a crash screen in plain DOM and an update prompt on the title. The worker makes a save after every step and the page keeps it, so the worker never touches storage.
+- **Stock screens** (M4.4) ship as templates you restyle: HUD, inventory, journal, dialogue, shop, codex (built from live numbers), credits and ending. The map comes with M4.6's world map.
 
 ## Saves
 
@@ -321,12 +319,12 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI (M4.1, M4.2): the screens' and feedback's format, the session that plays a game in a worker and words its beats, the Preact renderer, input (focus, gamepad, swipes, Back); stock screens later
+packages/ui         runtime UI (M4.1, M4.2, M4.3): the screens', feedback's and shell's format, the session that plays a game in a worker, words its beats and makes its saves, the Preact renderer, input (focus, gamepad, swipes, Back), the play shell; stock screens later
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA
-apps/player         the runtime shell that exports ship (M4.9); until then the player page at /play/ is a page of the editor's build (M4.1)
+apps/player         the runtime shell that exports ship (M4.10); until then the player page at /play/ is a page of the editor's build (M4.1)
 tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8); export | test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)
@@ -347,7 +345,7 @@ Packages are added in the phase that first needs them, not before.
 These are set from readings, not guesses (see ROADMAP Readings).
 
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
-- **UI-only game export:** a budget set at M4.11 from the first measured template.
+- **UI-only game export:** a budget set at M4.12 from the first measured template.
 - **3D:** FPS targets per quality tier, set from the M1.10 spike on a real phone.
 
 ## Open questions

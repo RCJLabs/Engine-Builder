@@ -222,6 +222,9 @@ importers:
       '@eb/kits':
         specifier: workspace:*
         version: link:../kits
+      '@eb/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@eb/script':
         specifier: workspace:*
         version: link:../script
@@ -250,6 +253,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/script
     devDependencies:
+      '@eb/platform':
+        specifier: workspace:*
+        version: link:../../packages/platform
       '@eb/ui':
         specifier: workspace:*
         version: link:../../packages/ui

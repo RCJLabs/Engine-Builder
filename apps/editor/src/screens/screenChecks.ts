@@ -24,7 +24,7 @@ export async function screenProblems(
   index: RecordIndex,
   game: GameState,
 ): Promise<Diagnostic[]> {
-  if (catalog.screens.length === 0 && !catalog.theme && !catalog.feedback) return [];
+  if (catalog.screens.length === 0 && !catalog.theme && !catalog.feedback && !catalog.shell) return [];
   const read = await readUi(source);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
   const known = knownFrom({ ...gameChecks(game), kits: catalog.kits, ...calendar });

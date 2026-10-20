@@ -1,7 +1,8 @@
 /**
  * M4.1's gate (D51), what its specs share: the Play panel on any layout; the hut's theme, six
- * screens and feedback (M4.2) made in it, each typed into the screen editor and compared with the
- * fixture as it lands; the hut imported and started; and its game's screens, as a player sees them.
+ * screens, feedback (M4.2) and shell (M4.3) made in it, each typed into the screen editor and
+ * compared with the fixture as it lands; the hut imported and started from its title; and its
+ * game's screens, as a player sees them.
  */
 import { expect, type Locator, type Page } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets } from './checks.ts';
@@ -55,10 +56,18 @@ export async function makeScreens(page: Page): Promise<void> {
   await replaceText(page, feedback, fixtureText('ui/feedback.json'));
   await landed(page, 'ui/feedback.json');
   await showPlay(page);
+  await panel.getByRole('button', { name: 'New shell' }).click();
+  const shell = page.getByRole('region', { name: 'The shell' });
+  // New shell writes the defaults out, a day's slot line with the time kit on.
+  await expect(shell.locator('.cm-content')).toContainText('"slot-line": "Day {time.day}"');
+  await replaceText(page, shell, fixtureText('ui/shell.json'));
+  await landed(page, 'ui/shell.json');
+  await showPlay(page);
   await expect(panel.getByRole('list').getByRole('button')).toHaveText([
     ...[...SCREENS].sort().map((id) => new RegExp(`^${id}No problems$`)),
     /^ThemeNo problems$/,
     /^FeedbackNo problems$/,
+    /^ShellNo problems$/,
   ]);
 }
 
@@ -75,8 +84,25 @@ export async function startHut(page: Page): Promise<Locator> {
   const panel = await showPlay(page);
   await panel.getByRole('button', { name: 'Run its scripts' }).click();
   await panel.getByRole('button', { name: 'Play', exact: true }).click();
+  await newGame(page);
   await expect(game(page).getByText(/^Day \d+ of 10$/)).toBeVisible();
   return panel;
+}
+
+/** The shell's own screens: the title, New, saves, pause and settings (M4.3). */
+export const shellScreens = (page: Page): Locator => page.locator('.eb-shell-screens');
+
+/**
+ * A new game from the title, in Slot 1, pressed with `how`: a click, a tap, or a key or pad press.
+ * Over a save already there, the slot's button is pressed again, as a player is asked to.
+ */
+export async function newGame(page: Page, how: (button: Locator) => Promise<void> = (b) => b.click()): Promise<void> {
+  const screens = shellScreens(page);
+  await how(screens.getByRole('button', { name: 'New game' }));
+  const slot = screens.getByRole('button', { name: /^(Press again to replace )?Slot 1/ });
+  await how(slot);
+  if (await screens.getByRole('button', { name: /^Press again to replace Slot 1/ }).isVisible()) await how(slot);
+  await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
 }
 
 export const game = (page: Page): Locator => page.locator('.eb-game');

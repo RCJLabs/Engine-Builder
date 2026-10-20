@@ -15,6 +15,7 @@
     "@eb/script": "workspace:*"
   },
   "devDependencies": {
+    "@eb/platform": "workspace:*",
     "@eb/ui": "workspace:*",
     "fflate": "0.8.3",
     "vscode-json-languageservice": "5.7.2"

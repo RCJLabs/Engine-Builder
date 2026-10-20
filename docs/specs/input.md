@@ -116,6 +116,6 @@ Format 5 adds `ui.feedback`, the file's lines as written. A pack without feedbac
 
 1. **Tones.** A toast for a quest failed looks like one for coins gained. Good and bad tones need two more theme colours and their contrast pairs.
 2. **Signs.** `{.by}` shows `-5` but `5`, not `+5`. A sign format for holes waits for a game that needs it.
-3. **Long press.** The recognizer knows it; nothing uses it. A details pop-up for a list's entry (why it's locked, its odds) is the likely first use, and M4.5's map will want drag and pinch.
+3. **Long press.** The recognizer knows it; nothing uses it. A details pop-up for a list's entry (why it's locked, its odds) is the likely first use, and M4.6's map will want drag and pinch.
 4. **The right stick and Start.** The right stick could scroll; Start waits for M4.3's pause screen.
 5. **Saved logs.** The log lasts for the play. If games want it back after a reload, it belongs in M4.3's save envelope, not the sim's state.

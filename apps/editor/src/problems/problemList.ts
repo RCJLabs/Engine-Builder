@@ -97,6 +97,7 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   const ui = uiOf(file);
   if (ui !== undefined) {
     if (ui.kind === 'theme') return 'Theme (ui/theme.json)';
+    if (ui.kind === 'shell') return 'Shell (ui/shell.json)';
     return ui.kind === 'feedback' ? 'Feedback (ui/feedback.json)' : `Screen ${ui.id}`;
   }
   if (file === '') return 'The game';

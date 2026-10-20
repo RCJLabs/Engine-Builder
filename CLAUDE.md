@@ -108,13 +108,16 @@ apps/editor/           the editor PWA
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
                        check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
                        inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
-  src/play/            the Play panel (M4.1, D51): PlayPanel, and the lazy PlayView (the game drawn by @eb/ui's
-                       GameScreens) and ScreensList (New screen, New theme); jobs.ts (a project packed, or started,
-                       in a copy of the script worker), protocol.ts, playClient.ts (its client, with timeouts)
+  src/play/            the Play panel (M4.1, D51): PlayPanel, and the lazy PlayView (the game played inside @eb/ui's
+                       play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, New theme,
+                       New feedback, New shell); jobs.ts (a project packed, or opened, in a copy of the script
+                       worker), protocol.ts, playClient.ts (its client, with timeouts)
   src/screens/         screens in the editor (M4.1): open.ts, ScreenEditor (the JSON in CodeMirror, jsonLanguage.ts),
                        screenChecks.ts (ui/ checked against the game after the index), templates.ts
   src/player/          the player page at /play/ (M4.1, play/index.html, a page of the editor's own build): Player.tsx
-                       opens a game file and plays it; player.worker.ts runs its scripts, locked down
+                       opens a game file and plays it inside the play shell (M4.3, saves under edition "play");
+                       gameWorker.ts (its worker, failing every request still waiting if it dies); pwa.ts (the
+                       update the shell offers on its title); player.worker.ts runs its scripts, locked down
   src/problems/        the Problems panel (M2.8): collect.ts (the list: the catalog's problems, the index's and the
                        game's scripts', M3.2, and the screens', M4.1),
                        problemList.ts (where each opens, titles, words, the view), count.ts (the tab's count),
@@ -136,9 +139,10 @@ apps/editor/           the editor PWA
                        hutGoods.ts, hutStory.ts, hutQuests.ts, hutLogic.ts and hutExport.ts; hutScreens.ts,
                        play.spec.ts and playPhone.spec.ts are M4.1's gate, the hut played through its screens;
                        inputHelpers.ts, input.spec.ts and inputPhone.spec.ts are M4.2's, the hut by keys, by a
-                       faked gamepad and by touch with its swipes
+                       faked gamepad and by touch with its swipes; playShellHelpers.ts, playShell.spec.ts and
+                       playShellPhone.spec.ts are M4.3's, the hut's saves, Daily, crash, pause and settings
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 5)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 6)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6)
@@ -178,7 +182,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        (lines that pass in a loop: E035; the walk of every path: W129; lines that can't end:
                        W130); M4.1: uiSchema.ts (screens and the theme as strict zod) and uiCheck.ts (E047 to E050,
                        W132, W133); M4.2: feedbackCheck.ts (ui/feedback.json: E051, E052) and uiLints.ts (W133,
-                       W134); not pure
+                       W134); M4.3: shellCheck.ts (ui/shell.json: E047, E048) and templateCheck.ts (what a
+                       template reads, the screens' and the shell's slot line); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -188,8 +193,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        readKitSettings (the kits and calendar a game's kits are built from); M3.11: scenes.ts
                        (scenes/<id>.ink compiled into talks, E046, W131, atSceneLine) and sceneFiles.ts (where
                        scenes sit, apart so the editor names them without loading the ink compiler); M4.1: ui.ts
-                       (ui/ read, checked with each problem at its line, packed; the feedback too, M4.2), uiFiles.ts
-                       (where screens, the theme and the feedback sit) and jsonLines.ts (a JSON Pointer's line in a
+                       (ui/ read, checked with each problem at its line, packed; the feedback too, M4.2, and the
+                       shell, M4.3), uiFiles.ts (where screens, the theme, the feedback and the shell sit) and jsonLines.ts (a JSON Pointer's line in a
                        file's text); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
@@ -226,19 +231,24 @@ packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's
                        map); inkjs.test.ts holds it to inkjs, a dev dependency, way by way
 packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.ts, the widgets and sources;
                        template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2);
-                       session/ (play.ts: a game played and its view after each step; views.ts, the kits' views as
-                       lists; words.ts; say.ts, a step's beats in the feedback's words (M4.2); fromPack.ts and
-                       host.ts, a pack played in a worker; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs,
+                       session/ (play.ts: a game played and its view after each step, or resumed from a state;
+                       views.ts, the kits' views as lists; words.ts; say.ts, a step's beats in the feedback's words
+                       (M4.2); saving.ts, the save made after each step (M4.3); fromPack.ts and host.ts, a pack
+                       opened in a worker, its games started or loaded from a save's text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs,
                        LogView, Feedback.tsx (toasts and the announcer), screens.css; stack.ts, fill.ts, layout.ts
                        and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
-                       as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory)
+                       as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
+                       shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
+                       settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
+                       ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css)
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
                        transpile.ts (sucrase), load.ts (the CommonJS loader), api.ts ("eb") and apiDocs.ts (the lists
                        completion offers), game.ts and project.ts (game.ts read, E031/E032), catalog.ts; not pure
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
-                       createSaves (slots, backups, quarantine), save codes, requestPersistence
+                       createSaves (slots, backups, quarantine; loadWith, a save read where the game runs, raw and
+                       forget, M4.3), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
 tools/cli/             eb validate | build | schemas | sim; folderSource.ts is the Node fs source; modules.ts loads
                        --types and --game, a project's game.ts without them (M3.2); schemas.ts is eb schemas; sim.ts
@@ -258,8 +268,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        (M3.10); gatehouse/, a slice of Chooser of the Slain whose dusk scenes are ink, written
                        fresh, and gatehouse-chooser.golden.json (M3.11); hut/, Phase 3's gate, an original
                        adventure at an alpine hut that hut.spec.ts builds in the editor, and hut-keeper.golden.json;
-                       its ui/ (M4.1), six screens and a theme, which hutScreens.test.ts plays through, and its
-                       feedback (M4.2)
+                       its ui/ (M4.1), six screens and a theme, which hutScreens.test.ts plays through, its
+                       feedback (M4.2) and its shell (M4.3), whose saves the same test loads back
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

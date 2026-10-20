@@ -6,7 +6,7 @@
  */
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { expectFits, game, nextPress, topScreen } from './hutScreens.ts';
+import { expectFits, game, newGame, nextPress, topScreen } from './hutScreens.ts';
 import {
   announcer,
   type Direction,
@@ -42,6 +42,12 @@ const pad = (page: Page): Player => ({
   back: () => padPress(page, PAD.b),
   nextTab: () => padPress(page, PAD.rb),
 });
+
+/** A shell's button pressed by directions and a press alone, as the title's are by a player without a pointer. */
+const startBy = (page: Page, player: Player) => async (button: Locator) => {
+  await focusBy(page, button, player.move);
+  await player.press();
+};
 
 /** Focus to a button by directions, then pressed, and the step it asks for waited on. */
 async function take(page: Page, player: Player, button: Locator): Promise<void> {
@@ -132,13 +138,16 @@ async function watchRegion(page: Page): Promise<() => Promise<string[]>> {
 test('the hut played to its end at /play/ by keyboard alone', async ({ page }) => {
   test.setTimeout(240_000);
   const errors = watchErrors(page);
-  await openHut(page, async (button) => {
-    await page.keyboard.press('Tab');
-    await expect(button).toBeFocused();
-    await page.keyboard.press('Enter');
-  });
-  // Tab goes from the page's own button into the game, as on any page; arrows take over there.
-  await page.keyboard.press('Tab');
+  await openHut(
+    page,
+    async (button) => {
+      await page.keyboard.press('Tab');
+      await expect(button).toBeFocused();
+      await page.keyboard.press('Enter');
+    },
+    startBy(page, keys(page)),
+  );
+  // The title's New game and slot pressed by arrows and Enter; the game's screen then has focus.
   await expect(game(page).locator(':focus')).toHaveCount(1);
   // Nothing has been said yet, and the hut's own log says so.
   await expect(topScreen(page).getByRole('log', { name: 'Lately' })).toHaveText('Nothing has happened yet.');
@@ -150,6 +159,7 @@ test('the hut played to its end at /play/ by keyboard alone', async ({ page }) =
     page.getByRole('button', { name: 'Open another game' }).click(),
   ]);
   await chooser.setFiles(hutGame());
+  await newGame(page, startBy(page, keys(page)));
   await expect(topScreen(page).getByRole('log', { name: 'Lately' })).toHaveText('Nothing has happened yet.');
   expect(errors).toEqual([]);
 });
@@ -180,7 +190,8 @@ test('the hut played to its end at /play/ by a gamepad alone, its focus rings dr
   test.setTimeout(240_000);
   const errors = watchErrors(page);
   await fakePad(page);
-  await openHut(page, (button) => button.click());
+  // The file is picked with a pointer, as no pad opens a device's file picker; the title by the pad.
+  await openHut(page, (button) => button.click(), startBy(page, pad(page)));
   await padPress(page, PAD.down);
   await expect(game(page)).toHaveAttribute('data-input', 'pad');
   // The pad's focus ring is the theme's accent, 3 px, on whatever has focus.

@@ -49,7 +49,21 @@ export type WriteResult =
   | { readonly ok: false; readonly reason: StoreFailure; readonly message: string };
 
 type Loaded = Extract<LoadResult, { ok: true }>;
-type Read = LoadResult | { readonly ok: false; readonly problem: 'crashed'; readonly message: string };
+type Failed = { readonly ok: false; readonly problem: SaveProblem | 'crashed'; readonly message: string };
+type Read = LoadResult | Failed;
+
+/** What a reader made of a save's text: what `loadSave` says, with or without the state (M4.3). */
+export type Readable = { readonly ok: true; readonly file: SaveFile; readonly report: LoadReport } | Failed;
+
+/** A slot's save read by `loadWith`'s reader, or why it wasn't. */
+export type SlotRead<T> =
+  | (Extract<T, { ok: true }> & { readonly fromBackup?: true; readonly quarantined?: string })
+  | {
+      readonly ok: false;
+      readonly problem: SaveProblem | 'empty' | 'crashed';
+      readonly message: string;
+      readonly quarantined?: string;
+    };
 
 export type SlotLoad =
   | (Loaded & {
@@ -76,8 +90,17 @@ export interface Saves {
   /** Saves a session, then compacts it once its log has reached `maxLog`, so saves stop growing. */
   writeSession(slot: string, session: Session, info: Omit<SaveInfo, 'game' | 'edition'>): Promise<WriteResult>;
   load(slot: string, game: Game, sim: SimContext, build: string): Promise<SlotLoad>;
+  /**
+   * As `load`, with the save's text read by `read`: where the game runs apart from storage, as a
+   * game's worker does (M4.3), the page keeps the saves and the worker reads them.
+   */
+  loadWith<T extends Readable>(slot: string, build: string, read: (raw: string) => Promise<T>): Promise<SlotRead<T>>;
+  /** The slot's save as it is stored, unread: to save as a file, even one that won't load. */
+  raw(slot: string): Promise<string | undefined>;
   remove(slot: string): Promise<WriteResult>;
   quarantined(): Promise<Quarantined[]>;
+  /** Removes a quarantined copy, which only the player does, once they have saved it out. */
+  forget(key: string): Promise<WriteResult>;
 }
 
 // The problems that mean the slot's save is broken, so the one before it is worth trying. A
@@ -125,7 +148,7 @@ export function createSaves(options: SavesOptions): Saves {
     return kept;
   };
 
-  const read = (raw: string, gameDef: Game, sim: SimContext, build: string): Read => {
+  const readIn = (raw: string, gameDef: Game, sim: SimContext, build: string): Read => {
     const parsed = parse(raw);
     if (parsed === undefined) return { ok: false, problem: 'damaged', message: 'The save is not JSON' };
     try {
@@ -140,11 +163,36 @@ export function createSaves(options: SavesOptions): Saves {
   };
 
   // A load that changed the save keeps the original, which a later build may read better.
-  const loaded = async (slot: string, raw: string, result: Loaded, build: string) => {
+  const loaded = async <T extends Extract<Readable, { ok: true }>>(
+    slot: string,
+    raw: string,
+    result: T,
+    build: string,
+  ) => {
     seen.set(slot, result.file.check);
     if (!result.report.differs && result.report.skipped === 0) return result;
     const quarantined = await keep(slot, raw, 'changed', changeOf(result.report, build));
-    return quarantined ? { ...result, quarantined } : (result as Loaded & { readonly quarantined?: string });
+    return quarantined ? { ...result, quarantined } : (result as T & { readonly quarantined?: string });
+  };
+
+  // A slot's save, or its backup when the save is broken, read by `read`; what won't load is kept.
+  const loadFrom = async <T extends Readable>(slot: string, build: string, read: (raw: string) => Promise<T>) => {
+    const raw = await store.get(keyOf('slot', slot));
+    if (raw === undefined) return { ok: false, problem: 'empty', message: `Slot ${slot} is empty` } as const;
+    const result = await read(raw);
+    if (result.ok) return loaded(slot, raw, result as Extract<T, { ok: true }>, build);
+    const quarantined = await keep(slot, raw, result.problem, result.message);
+    const failed = quarantined ? { ...result, quarantined } : result;
+    const backup = FALLS_BACK.has(result.problem) ? await store.get(keyOf('backup', slot)) : undefined;
+    if (backup === undefined) return failed as Extract<T, { ok: false }>;
+    const fallback = await read(backup);
+    if (!fallback.ok) {
+      await keep(slot, backup, fallback.problem, `The backup: ${fallback.message}`);
+      return failed as Extract<T, { ok: false }>;
+    }
+    // Seen as the backup, so the next write quarantines the broken save rather than backing it up.
+    const settled = await loaded(slot, backup, fallback as Extract<T, { ok: true }>, build);
+    return { ...settled, fromBackup: true as const, ...(quarantined ? { quarantined } : {}) };
   };
 
   // Async, so a bad slot or file rejects like any other failure rather than throwing at the call.
@@ -190,24 +238,19 @@ export function createSaves(options: SavesOptions): Saves {
       return result;
     },
 
-    async load(slot, gameDef, sim, build) {
-      const raw = await store.get(keyOf('slot', slot));
-      if (raw === undefined) return { ok: false, problem: 'empty', message: `Slot ${slot} is empty` };
-      const result = read(raw, gameDef, sim, build);
-      if (result.ok) return loaded(slot, raw, result, build);
-      const quarantined = await keep(slot, raw, result.problem, result.message);
-      const failed = quarantined ? { ...result, quarantined } : result;
-      const backup = FALLS_BACK.has(result.problem) ? await store.get(keyOf('backup', slot)) : undefined;
-      if (backup === undefined) return failed;
-      const fallback = read(backup, gameDef, sim, build);
-      if (!fallback.ok) {
-        await keep(slot, backup, fallback.problem, `The backup: ${fallback.message}`);
-        return failed;
-      }
-      // Seen as the backup, so the next write quarantines the broken save rather than backing it up.
-      const settled = await loaded(slot, backup, fallback, build);
-      return { ...settled, fromBackup: true, ...(quarantined ? { quarantined } : {}) };
-    },
+    load: (slot, gameDef, sim, build) =>
+      loadFrom(slot, build, async (raw) => readIn(raw, gameDef, sim, build)) as Promise<SlotLoad>,
+
+    loadWith: (slot, build, read) => loadFrom(slot, build, read) as Promise<SlotRead<never>>,
+
+    raw: (slot) => store.get(keyOf('slot', slot)),
+
+    forget: (key) =>
+      guarded(key, async () => {
+        if (!key.startsWith(`${prefix}quarantine/`)) throw new RangeError(`"${key}" is not a quarantined save`);
+        await store.write({ [key]: undefined });
+        return { ok: true };
+      }),
 
     async remove(slot) {
       const keys = [keyOf('slot', slot), keyOf('summary', slot), keyOf('backup', slot)];

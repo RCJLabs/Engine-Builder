@@ -12,9 +12,11 @@ export type { Quarantined } from './quarantine.ts';
 export {
   createSaves,
   MAX_LOG,
+  type Readable,
   type Saves,
   type SavesOptions,
   type SlotLoad,
+  type SlotRead,
   type WriteResult,
 } from './saves.ts';
 export { localStore, memoryStore, type Store, StoreError, type StoreFailure, storeError } from './store.ts';

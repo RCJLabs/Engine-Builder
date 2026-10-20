@@ -3,11 +3,13 @@
  * played in the worker's host as the editor's Play panel and the player page play it. At every
  * step each mode has a screen of the hut's own, never the fallback, and a keeper who presses only
  * buttons the screens draw plays the season to its end. M4.2: every line of its feedback is said
- * somewhere in those seasons, each with every hole filled.
+ * somewhere in those seasons, each with every hole filled. M4.3: a save after every step, and a
+ * save from any step loads to the same game, which then plays on as the one that never stopped.
  */
 import { resolve } from 'node:path';
 import { compileWithGame } from '@eb/compiler';
-import { type Action, Rng } from '@eb/core';
+import { type Action, createPack, type Pack, type PackUi, Rng, type SaveFile } from '@eb/core';
+import { MAX_LOG } from '@eb/platform';
 import { actionFor, drawn, holds, screenStack } from '@eb/ui';
 import type { Said, Screen, Widget } from '@eb/ui/format';
 import { childrenOf } from '@eb/ui/format';
@@ -49,9 +51,13 @@ async function hutPack() {
 }
 
 describe('the hut through its screens', () => {
-  it('packs its six screens, its theme and its feedback', async () => {
-    const pack = (await hutPack()) as { format: number; ui: { screens: object; theme: object; feedback: object } };
-    expect(pack.format).toBe(5);
+  it('packs its six screens, its theme, its feedback and its shell', async () => {
+    const pack = (await hutPack()) as {
+      format: number;
+      ui: { screens: object; theme: object; feedback: object; shell: object };
+    };
+    expect(pack.format).toBe(6);
+    expect(pack.ui.shell).toMatchObject({ title: 'The hut', daily: true });
     expect(Object.keys(pack.ui.screens)).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(pack.ui.theme).toBeDefined();
     expect(pack.ui.feedback).toBeDefined();
@@ -63,9 +69,11 @@ describe('the hut through its screens', () => {
     const said: Said[] = [];
     for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
       const host = playHost();
-      const started = host({ id: 0, kind: 'start', pack, seed });
+      const opened = host({ id: 0, kind: 'open', pack });
+      if (opened.kind !== 'opened') throw new Error(JSON.stringify(opened));
+      const { screens } = opened;
+      const started = host({ id: 0, kind: 'start', seed, saving: { edition: 'test' }, at: 0 });
       if (started.kind !== 'started') throw new Error(JSON.stringify(started));
-      const { screens } = started;
       let view = started.view;
       const rng = Rng.create(`press:${seed}`);
       const onScreens = () => {
@@ -79,7 +87,7 @@ describe('the hut through its screens', () => {
         const options = pressable(screens, view);
         expect(options.length, `nothing to press in ${view.modes.join(', ')}`).toBeGreaterThan(0);
         const action = options[rng.int(0, options.length - 1)] as Action;
-        const step: PlayReply = host({ id: turn, kind: 'act', action });
+        const step: PlayReply = host({ id: turn, kind: 'act', action, at: turn });
         if (step.kind !== 'stepped') throw new Error(JSON.stringify(step));
         expect(step.accepted, JSON.stringify(action)).toBe(true);
         said.push(...step.said);
@@ -103,5 +111,83 @@ describe('the hut through its screens', () => {
     const lines = said.map((line) => [line.text, line.to]);
     expect(lines).toContainEqual(['The hut is shut for the winter.', 'both']);
     expect(lines).toContainEqual(['You go down to see Greta.', 'log']);
+  });
+});
+
+describe('the hut saved as it plays (M4.3)', () => {
+  it('saves after every step, and a save from any step loads to the game that never stopped', async () => {
+    const pack = await hutPack();
+    for (const seed of ['a', 'b', 'c']) {
+      const host = playHost();
+      host({ id: 0, kind: 'open', pack });
+      const started = host({ id: 0, kind: 'start', seed, saving: { edition: 'test' }, at: 0 });
+      if (started.kind !== 'started') throw new Error(JSON.stringify(started));
+      const saves: SaveFile[] = [started.save];
+      const views: View[] = [started.view];
+      const actions: Action[] = [];
+      const rng = Rng.create(`save:${seed}`);
+      for (let turn = 1; !views.at(-1)?.ended && turn < 400; turn++) {
+        const offered = views.at(-1)?.offered ?? [];
+        const action = offered[rng.int(0, offered.length - 1)] as Action;
+        const step = host({ id: turn, kind: 'act', action, at: turn * 1000 });
+        if (step.kind !== 'stepped' || !step.save) throw new Error(JSON.stringify(step));
+        expect(step.save.savedAt).toBe(turn * 1000);
+        expect(step.save.log.length).toBeLessThanOrEqual(MAX_LOG);
+        saves.push(step.save);
+        views.push(step.view);
+        actions.push(action);
+      }
+      // Its line is the shell's, filled from the facts as it was saved.
+      expect(saves.at(-1)?.summary).toMatchObject({
+        turn: views.at(-1)?.turn,
+        line: expect.stringMatching(/^Day \d+ · \d+ coins$/),
+      });
+      for (const at of [0, 1, Math.floor(saves.length / 2), saves.length - 1]) {
+        const again = playHost();
+        again({ id: 0, kind: 'open', pack });
+        const loaded = again({
+          id: 1,
+          kind: 'load',
+          raw: JSON.stringify(saves[at]),
+          saving: { edition: 'test' },
+          at: 0,
+        });
+        if (loaded.kind !== 'loaded' || !loaded.ok) throw new Error(JSON.stringify(loaded));
+        expect(loaded.report).toMatchObject({ differs: false, skipped: 0 });
+        expect(loaded.view).toEqual(views[at]);
+        // Played on with the same actions, it saves what the game that never stopped saved.
+        for (const [i, action] of actions.slice(at).entries()) {
+          const step = again({ id: i + 2, kind: 'act', action, at: (at + i + 1) * 1000 });
+          if (step.kind !== 'stepped' || !step.save) throw new Error(JSON.stringify(step));
+          expect(step.save.hash).toBe(saves[at + i + 1]?.hash);
+        }
+      }
+    }
+  });
+
+  it('fills a slot line whose facts no screen reads: the shell’s own are read for it', async () => {
+    const pack = (await hutPack()) as Pack;
+    const ui = { ...(pack.ui as PackUi), shell: { 'slot-line': 'Loads: {quests.state(quest: loads)}' } };
+    const changed = createPack(pack.project, pack.records, pack.scripts, ui);
+    const host = playHost();
+    host({ id: 0, kind: 'open', pack: JSON.parse(JSON.stringify(changed)) });
+    const started = host({ id: 1, kind: 'start', seed: 'x', saving: { edition: 'test' }, at: 0 });
+    if (started.kind !== 'started') throw new Error(JSON.stringify(started));
+    expect(started.save.summary).toMatchObject({ line: expect.stringMatching(/^Loads: (waiting|active)$/) });
+  });
+
+  it('says why a save won’t load: not JSON, another game, or a game that fails replaying it', async () => {
+    const pack = await hutPack();
+    const host = playHost();
+    host({ id: 0, kind: 'open', pack });
+    const started = host({ id: 1, kind: 'start', seed: 'x', saving: { edition: 'test' }, at: 0 });
+    if (started.kind !== 'started') throw new Error('no start');
+    const load = (raw: string) => host({ id: 2, kind: 'load', raw, saving: { edition: 'test' }, at: 0 });
+    expect(load('{"torn')).toMatchObject({ kind: 'loaded', ok: false, problem: 'damaged' });
+    expect(load(JSON.stringify({ ...started.save, game: 'another' }))).toMatchObject({ ok: false });
+    const broken = { ...started.save, log: [{ type: 'no/such' }] };
+    expect(load(JSON.stringify(broken))).toMatchObject({ ok: false });
+    // A step needs a game in play: the failed load left none.
+    expect(host({ id: 3, kind: 'act', action: { type: 'x' }, at: 0 })).toMatchObject({ kind: 'failed' });
   });
 });

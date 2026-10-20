@@ -58,6 +58,7 @@ export function playClient(start: () => WorkerLike = startWorker): PlayClient {
     send(request) {
       worker ??= connect();
       const id = next++;
+      // Loading a save replays its log, as long as starting can take.
       const ms = request.kind === 'act' ? STEP_MS : START_MS;
       return new Promise((resolve, reject) => {
         const timer = setTimeout(

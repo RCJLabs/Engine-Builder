@@ -1,0 +1,6 @@
+{
+  "title": "The hut",
+  "tagline": "A season above the tree line",
+  "daily": true,
+  "slot-line": "Day {time.day} · {economy.amount(resource: coins)} coins"
+}

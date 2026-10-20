@@ -1,5 +1,5 @@
 /**
- * The shape of a screen, a theme and a game's feedback (M4.1, M4.2), as zod: strict objects, so a
+ * The shape of a screen, a theme, a game's feedback and its shell (M4.1, M4.2, M4.3), as zod: strict objects, so a
  * misspelt field is E047 at its path rather than ignored. What a screen names (facts, actions,
  * screens, modes) is uiCheck.ts's.
  */
@@ -14,6 +14,9 @@ import {
   JUSTIFIES,
   LOG_LINES_MAX,
   type Screen,
+  type ShellFile,
+  SLOTS_MAX,
+  SLOTS_MIN,
   SOURCES,
   TEXT_STYLES,
   type Theme,
@@ -122,3 +125,12 @@ export const feedbackSchema = z.strictObject({
     }),
   ),
 }) as unknown as z.ZodType<Feedback>;
+
+/** ui/shell.json (M4.3, docs/specs/shell.md). What its slot line names is shellCheck.ts's. */
+export const shellSchema = z.strictObject({
+  title: z.string().min(1).optional(),
+  tagline: z.string().min(1).optional(),
+  slots: z.int().min(SLOTS_MIN).max(SLOTS_MAX).optional(),
+  daily: z.boolean().optional(),
+  'slot-line': z.string().min(1).optional(),
+}) as unknown as z.ZodType<ShellFile>;

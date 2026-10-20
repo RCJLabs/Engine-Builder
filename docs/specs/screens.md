@@ -144,8 +144,8 @@ A game plays in a worker, never on the page: its scripts run where `lockDown` ha
 
 ## Where it plays
 
-- **The editor's Play panel:** the open project, compiled as Export game compiles it, played through its screens in a copy of the script worker of its own, so a check that runs too long never ends a game in play. It needs the game's scripts let to run, as Run does, and waits while the project has errors. Beside the game, its screens and theme, each opening in the inspector as JSON with its problems at their lines, and New screen and New theme. The game's box sets its breakpoint, so a narrow panel lays a game out as a phone. M4.4's designer replaces the JSON.
-- **The player page,** at `/play/` on the editor's domain, plays an exported game: the `<id>-<version>.game.json` file that the Project panel's Export game writes, holding the records, the compiled scripts, the screens and the theme. The file is read in the browser and played in a worker whose ways out are taken away before the game's scripts run; nothing is sent anywhere. It is a page of the editor's own build, so the service worker holds it and a game opened once plays offline after. A page that is a single file comes with M4.9's export.
+- **The editor's Play panel:** the open project, compiled as Export game compiles it, played through its screens in a copy of the script worker of its own, so a check that runs too long never ends a game in play. It needs the game's scripts let to run, as Run does, and waits while the project has errors. Beside the game, its screens and theme, each opening in the inspector as JSON with its problems at their lines, and New screen and New theme. The game's box sets its breakpoint, so a narrow panel lays a game out as a phone. M4.5's designer replaces the JSON.
+- **The player page,** at `/play/` on the editor's domain, plays an exported game: the `<id>-<version>.game.json` file that the Project panel's Export game writes, holding the records, the compiled scripts, the screens and the theme. The file is read in the browser and played in a worker whose ways out are taken away before the game's scripts run; nothing is sent anywhere. It is a page of the editor's own build, so the service worker holds it and a game opened once plays offline after. A page that is a single file comes with M4.10's export.
 
 ## Pack
 
@@ -171,5 +171,5 @@ Format 4 adds `ui`: `{ screens, theme? }`. A pack without screens is still writt
 
 1. **Settings widgets.** A toggle, a slider and a select need settings to bind to, which aren't facts. They come with M4.3's settings screen.
 2. **An escape hatch.** Data can't draw a map or a custom gauge. D51 leaves that for later.
-3. **Assets in the player page.** The pack holds no assets yet, so an image widget shows only in the editor until the export carries them (M4.9).
+3. **Assets in the player page.** The pack holds no assets yet, so an image widget shows only in the editor until the export carries them (M4.10).
 4. **`eb schemas` for `ui/`.** VS Code could check screens as it checks records, from the same zod. Not in M4.1.

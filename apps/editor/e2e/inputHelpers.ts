@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { expect, type Locator, type Page } from '@playwright/test';
 import { HUT } from './hutHelpers.ts';
-import { game } from './hutScreens.ts';
+import { game, newGame } from './hutScreens.ts';
 import { REPO, scratch } from './ludus.ts';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
@@ -19,8 +19,15 @@ export function hutGame(): string {
   return file;
 }
 
-/** The player page with the hut open, its file chosen by a button pressed with `how`. */
-export async function openHut(page: Page, how: (button: Locator) => Promise<void>): Promise<void> {
+/**
+ * The player page with the hut open, its file chosen by a button pressed with `how`, and a new
+ * game started from its title (M4.3) by buttons pressed with `start`, `how` unless given.
+ */
+export async function openHut(
+  page: Page,
+  how: (button: Locator) => Promise<void>,
+  start: (button: Locator) => Promise<void> = how,
+): Promise<void> {
   await page.goto('play/');
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
@@ -28,6 +35,8 @@ export async function openHut(page: Page, how: (button: Locator) => Promise<void
   ]);
   await chooser.setFiles(hutGame());
   await expect(page.getByRole('heading', { level: 1, name: 'The hut' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'The hut' })).toBeFocused();
+  await newGame(page, start);
   await expect(game(page).getByText(/^Day \d+ of 10$/)).toBeVisible();
 }
 

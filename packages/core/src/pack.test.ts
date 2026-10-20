@@ -89,13 +89,31 @@ describe('createPack', () => {
     const screens = { hud: { main: { widget: 'log' } } };
     const feedback = { lines: [{ on: 'inventory/gained', say: '{.item}' }] };
     const said = createPack(project, records, undefined, { screens, feedback });
-    expect(said.format).toBe(PACK_FORMAT);
+    expect(said.format).toBe(5);
     expect(said.ui).toEqual({ screens, feedback });
     expect(said.hash).not.toBe(createPack(project, records, undefined, { screens }).hash);
     const reworded = { lines: [{ on: 'inventory/gained', say: 'Got {.item}' }] };
     expect(createPack(project, records, undefined, { screens, feedback: reworded }).hash).not.toBe(said.hash);
     // Feedback plays with the fallback where there are no screens, so it is packed without them too.
     expect(createPack(project, records, undefined, { screens: {}, feedback }).ui).toEqual({ screens: {}, feedback });
+  });
+
+  it('carries the shell as format 6, feedback and screens or none, hashing it too (M4.3)', () => {
+    const screens = { hud: { main: { widget: 'log' } } };
+    const shell = { title: 'The Hut', slots: 2 };
+    const shelled = createPack(project, records, undefined, { screens, shell });
+    expect(shelled.format).toBe(PACK_FORMAT);
+    expect(shelled.ui).toEqual({ screens, shell });
+    expect(shelled.hash).not.toBe(createPack(project, records, undefined, { screens }).hash);
+    expect(createPack(project, records, undefined, { screens, shell: { ...shell, slots: 3 } }).hash).not.toBe(
+      shelled.hash,
+    );
+    const feedback = { lines: [{ on: 'inventory/gained', say: '{.item}' }] };
+    expect(createPack(project, records, undefined, { screens: {}, feedback, shell }).ui).toEqual({
+      screens: {},
+      feedback,
+      shell,
+    });
   });
 });
 
@@ -204,9 +222,31 @@ describe('readPack', () => {
     expect(() => readPack({ ...said, ui: { feedback } })).toThrow('A format 5 pack has no screens');
   });
 
+  it('reads a format 6 pack and its shell, with feedback or none, and refuses a shell elsewhere', () => {
+    const shell = { title: 'The Hut', daily: true };
+    const feedback = { lines: [{ on: 'inventory/gained', say: '{.item}' }] };
+    const ui = { screens: { hud: { main: { widget: 'log' } } }, shell };
+    const pack = readPack(reloaded(createPack(project, records, undefined, ui)));
+    expect(pack.format).toBe(6);
+    expect(pack.ui).toEqual(ui);
+    expect(readPack(reloaded(createPack(project, records, undefined, { ...ui, feedback }))).ui).toEqual({
+      ...ui,
+      feedback,
+    });
+    const shelled = reloaded(createPack(project, records, undefined, ui));
+    const said = reloaded(createPack(project, records, undefined, { screens: {}, feedback }));
+    expect(() => readPack({ ...said, ui: { screens: {}, feedback, shell } })).toThrow('Unknown pack ui fields: shell');
+    expect(() => readPack({ ...shelled, ui: undefined })).toThrow('A format 6 pack has no shell');
+    expect(() => readPack({ ...shelled, ui: { screens: {} } })).toThrow('A format 6 pack has no shell');
+    expect(() => readPack({ ...shelled, ui: { screens: {}, shell: 'big' } })).toThrow('A format 6 pack has no shell');
+    expect(() => readPack({ ...shelled, ui: { screens: {}, shell, feedback: { lines: 1 } } })).toThrow(
+      'A format 6 pack has no feedback',
+    );
+  });
+
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 6 })).toThrow(
-      'This pack is format 6; this engine reads formats 1 to 5. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 7 })).toThrow(
+      'This pack is format 7; this engine reads formats 1 to 6. Update the engine.',
     );
   });
 

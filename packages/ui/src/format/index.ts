@@ -25,6 +25,14 @@ export {
   type Widget,
   type WidgetKind,
 } from './screen.ts';
+export {
+  type ShellFile,
+  type ShellSettings,
+  SLOTS_DEFAULT,
+  SLOTS_MAX,
+  SLOTS_MIN,
+  shellSettings,
+} from './shell.ts';
 export { hasBindings, type Segment, type Split, splitTemplate } from './template.ts';
 export {
   AA_BODY,

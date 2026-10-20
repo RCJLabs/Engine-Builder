@@ -25,7 +25,12 @@ let locked = false;
 const playing = playJobs();
 
 const isPlay = (request: Request): request is PlayPageRequest =>
-  request.kind === 'start' || request.kind === 'act' || request.kind === 'start-files' || request.kind === 'pack';
+  request.kind === 'open' ||
+  request.kind === 'start' ||
+  request.kind === 'load' ||
+  request.kind === 'act' ||
+  request.kind === 'open-files' ||
+  request.kind === 'pack';
 
 async function answer(request: Request): Promise<ScriptReply | PlayPageReply> {
   if (!locked && (isPlay(request) || request.kind === 'play' || request.run)) {

@@ -23,6 +23,8 @@ export interface UiRead {
   readonly theme: UiFile | undefined;
   /** ui/feedback.json (M4.2). */
   readonly feedback: UiFile | undefined;
+  /** ui/shell.json (M4.3). */
+  readonly shell: UiFile | undefined;
   /** E007 and W132, in no order. */
   readonly diagnostics: readonly Diagnostic[];
   /** Each file's text, for the lines its problems are at. */
@@ -45,6 +47,7 @@ export async function readUi(source: ProjectSource): Promise<UiRead> {
   const screens = new Map<string, UiFile>();
   let theme: UiFile | undefined;
   let feedback: UiFile | undefined;
+  let shell: UiFile | undefined;
   const texts = new Map<string, string>();
   for (const file of [...(await source.files(UI_DIR))].sort(byText)) {
     const role = classifyUi(file);
@@ -59,9 +62,10 @@ export async function readUi(source: ProjectSource): Promise<UiRead> {
     const read: UiFile = parsed.ok ? { file, value: parsed.value } : { file, value: undefined, unreadable: true };
     if (role.kind === 'theme') theme = read;
     else if (role.kind === 'feedback') feedback = read;
+    else if (role.kind === 'shell') shell = read;
     else screens.set(role.id, read);
   }
-  return { screens, theme, feedback, diagnostics, texts };
+  return { screens, theme, feedback, shell, diagnostics, texts };
 }
 
 /**
@@ -70,7 +74,7 @@ export async function readUi(source: ProjectSource): Promise<UiRead> {
  * as a scene's problems are placed. The editor's checks call this too.
  */
 export function checkProjectUi(ui: UiRead, options: UiCheckOptions): Diagnostic[] {
-  return checkUi(ui.screens, ui.theme, options, ui.feedback).map((d) => {
+  return checkUi(ui.screens, ui.theme, options, ui.feedback, ui.shell).map((d) => {
     const text = d.file === undefined ? undefined : ui.texts.get(d.file);
     const at = text === undefined ? undefined : placeOfPointer(text, d.path);
     return at ? { ...d, ...at } : d;
@@ -78,7 +82,8 @@ export function checkProjectUi(ui: UiRead, options: UiCheckOptions): Diagnostic[
 }
 
 /**
- * What the pack carries: the screens by id, the theme, and the feedback once it has a line. Only
+ * What the pack carries: the screens by id, the theme, the feedback once it has a line, and the
+ * shell (M4.3). Only
  * once they are checked. They are in id order already, read from files in that order, and the
  * pack's hash sorts keys besides.
  */
@@ -87,11 +92,13 @@ export function packUi(ui: UiRead): PackUi | undefined {
   const feedback = (ui.feedback?.value as { lines?: readonly unknown[] } | undefined)?.lines?.length
     ? ui.feedback?.value
     : undefined;
-  if (ui.screens.size === 0 && feedback === undefined) return undefined;
+  const shell = ui.shell?.value;
+  if (ui.screens.size === 0 && feedback === undefined && shell === undefined) return undefined;
   const screens = Object.fromEntries([...ui.screens].map(([id, { value }]) => [id, value]));
   return {
     screens,
     ...(ui.theme !== undefined ? { theme: ui.theme.value } : {}),
     ...(feedback !== undefined ? { feedback } : {}),
+    ...(shell !== undefined ? { shell } : {}),
   };
 }

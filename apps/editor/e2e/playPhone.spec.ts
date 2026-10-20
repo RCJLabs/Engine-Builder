@@ -6,7 +6,7 @@
  */
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
-import { expectFits, game, playSeason, press, startHut, topScreen } from './hutScreens.ts';
+import { expectFits, game, newGame, playSeason, press, startHut, topScreen } from './hutScreens.ts';
 import { hutGame } from './inputHelpers.ts';
 
 for (const viewport of [
@@ -59,6 +59,9 @@ for (const viewport of [
       ]);
       await chooser.setFiles(hutGame());
       await expect(page.getByRole('heading', { level: 1, name: 'The hut' })).toBeVisible();
+      // The shell's title, then the game started from it, by touch (M4.3).
+      await expectFits(page);
+      await newGame(page, (button) => button.tap());
       await expectFits(page);
       await press(page, topScreen(page).getByRole('button', { name: 'Visit Anselm' }));
       await expect(game(page).getByRole('dialog', { name: 'A talk' })).toBeVisible();

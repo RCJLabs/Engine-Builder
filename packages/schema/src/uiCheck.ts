@@ -2,35 +2,27 @@
  * A game's screens and theme checked (M4.1, D51, docs/specs/screens.md#checks): their shape (E047),
  * what their templates and shows-when read (E048), what their buttons, lists and shows ask of the
  * game (E049), the theme's contrast (E050), the modes no screen shows (W133) and screens nothing
- * closes (W134, uiLints.ts); and the feedback, feedbackCheck.ts's. A game's actions, modes and
+ * closes (W134, uiLints.ts); the feedback, feedbackCheck.ts's; and the shell, shellCheck.ts's. A game's actions, modes and
  * events are known only once its scripts have run: without them, take, shows, W133 and the
  * feedback's events go unchecked, as W120 does without the time module.
  */
-import {
-  checkCondition,
-  type EventCatalog,
-  type FactCatalog,
-  parseCondition,
-  pointerSegment,
-  type RecordIndex,
-} from '@eb/core';
+import { type EventCatalog, type FactCatalog, pointerSegment, type RecordIndex } from '@eb/core';
 import {
   AA_BODY,
   CONTRAST_PAIRS,
   contrast,
   REGIONS,
   type Screen,
-  SOURCE_FIELDS,
   SOURCE_KITS,
   type Source,
-  splitTemplate,
   type Theme,
-  VIEW_FIELDS,
   type Widget,
 } from '@eb/ui/format';
 import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { checkFeedback } from './feedbackCheck.ts';
 import { schemaIssues } from './issues.ts';
+import { checkShell } from './shellCheck.ts';
+import { checkTemplate, checkWhen } from './templateCheck.ts';
 import { unclosable, unshownModes } from './uiLints.ts';
 import { screenSchema, themeSchema } from './uiSchema.ts';
 
@@ -70,14 +62,15 @@ interface Place {
 type Report = (code: DiagnosticCode, file: string, path: string, message: string) => void;
 
 /**
- * Every problem with the screens, by id, the theme and the feedback. Sorted, and the same whatever
- * order the screens came in.
+ * Every problem with the screens, by id, the theme, the feedback and the shell (M4.3). Sorted, and
+ * the same whatever order the screens came in.
  */
 export function checkUi(
   screens: ReadonlyMap<string, UiFile>,
   theme: UiFile | undefined,
   options: UiCheckOptions,
   feedback?: UiFile,
+  shell?: UiFile,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const report: Report = (code, file, path, message) =>
@@ -98,6 +91,7 @@ export function checkUi(
   if (feedback !== undefined && !feedback.unreadable) {
     diagnostics.push(...checkFeedback(feedback.file, feedback.value, options.events, options.records));
   }
+  if (shell !== undefined && !shell.unreadable) diagnostics.push(...checkShell(shell.file, shell.value, options));
   if (options.modes !== undefined && screens.size > 0) unshownModes(screens, options.modes, diagnostics);
   return diagnostics.sort(compareDiagnostics);
 }
@@ -215,69 +209,6 @@ function checkAction(
   if (options.actions !== undefined && !options.actions.includes(action.take)) {
     report('/action/take', `The game has no action "${action.take}"`);
   }
-}
-
-/** A shows-when: a condition in the text form, checked as a record's is. */
-function checkWhen(text: string, options: UiCheckOptions, report: (message: string) => void): void {
-  const parsed = parseCondition(text, options.facts);
-  if (!parsed.ok) {
-    report(parsed.message);
-    return;
-  }
-  const check = {
-    catalog: options.facts,
-    open: options.openFacts,
-    ...(options.records ? { records: options.records } : {}),
-  };
-  for (const issue of checkCondition(parsed.condition, check)) report(issue.message);
-}
-
-function checkTemplate(
-  template: string,
-  list: Source | undefined,
-  options: UiCheckOptions,
-  report: (code: DiagnosticCode, message: string) => void,
-): void {
-  const split = splitTemplate(template);
-  if (!split.ok) {
-    report('E047', split.message);
-    return;
-  }
-  for (const segment of split.segments) {
-    if (segment.kind === 'fact') checkBinding(segment.text, options, (message) => report('E048', message));
-    if (segment.kind === 'view') {
-      const kit = VIEW_FIELDS[segment.name] as string;
-      if (!options.kits.includes(kit))
-        report('E049', `{${segment.name}} needs the ${kit} kit: turn it on in project.json`);
-    }
-    if (segment.kind === 'field') {
-      if (list === undefined) report('E048', `{.${segment.name}} is an entry’s field: only a list’s item has one`);
-      else if (!SOURCE_FIELDS[list].includes(segment.name)) {
-        report('E048', `A ${list} entry has no field "${segment.name}": ${SOURCE_FIELDS[list].join(', ')}`);
-      }
-    }
-  }
-}
-
-/** A fact in braces: one fact, its arguments named, shown as its value, so it compares with nothing. */
-function checkBinding(text: string, options: UiCheckOptions, report: (message: string) => void): void {
-  const parsed = parseCondition(text, options.facts);
-  if (!parsed.ok) {
-    report(`{${text}}: ${parsed.message}`);
-    return;
-  }
-  const test = parsed.condition;
-  if (!('fact' in test) || test.op !== undefined) {
-    report(`{${text}} shows one fact’s value: a comparison goes in shows-when`);
-    return;
-  }
-  const check = {
-    catalog: options.facts,
-    open: options.openFacts,
-    ...(options.records ? { records: options.records } : {}),
-  };
-  // E014 here is only "not a yes/no fact", which a value shown needn't be.
-  for (const issue of checkCondition(test, check)) if (issue.code !== 'E014') report(`{${text}}: ${issue.message}`);
 }
 
 function checkTheme(theme: UiFile, report: Report): void {

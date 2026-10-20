@@ -75,6 +75,7 @@ describe('a project’s problems with its screens', () => {
     expect(catalog.screens).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(catalog.theme).toBe(true);
     expect(catalog.feedback).toBe(true);
+    expect(catalog.shell).toBe(true);
   });
 
   it('are eb validate’s, each at its line in its file, when its screens are broken', async () => {
@@ -105,6 +106,16 @@ describe('a project’s problems with its screens', () => {
     expect(editor.map((d) => `${d.code} ${d.file}`)).toEqual(['E051 ui/feedback.json']);
   });
 
+  it('are the shell’s too, alone, each at its line, as eb validate says (M4.3)', async () => {
+    const files = Object.fromEntries(Object.entries(hut()).filter(([path]) => !path.startsWith('ui/')));
+    files['ui/shell.json'] = new TextEncoder().encode('{\n  "slots": 2,\n  "slot-line": "Day {time.night}"\n}\n');
+    const { editor, validate, catalog, index } = await both(files);
+    expect(catalog.shell).toBe(true);
+    expect(editor).toEqual(validate);
+    expect(editor.map((d) => `${d.code} ${d.file}:${d.line}`)).toEqual(['E048 ui/shell.json:3']);
+    expect(fileTitle('ui/shell.json', catalog, index)).toBe('Shell (ui/shell.json)');
+  });
+
   it('open the screen, or the theme, at their lines', async () => {
     const { editor, catalog, index } = await both(broken());
     const fact = editor.find((d) => d.code === 'E048');
@@ -120,21 +131,28 @@ describe('a project’s problems with its screens', () => {
 describe('the Play worker’s jobs', () => {
   const sent = (files: Record<string, Uint8Array>): SentFile[] => Object.entries(files);
 
-  it('pack the hut as Export game writes it, and start it from its files', async () => {
+  it('pack the hut as Export game writes it, open it from its files, and start, step and load a game of it', async () => {
     const jobs = playJobs();
     const packed = await jobs({ id: 1, kind: 'pack', files: sent(hut()) });
-    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 5 } });
-    const started = await jobs({ id: 2, kind: 'start-files', files: sent(hut()), seed: '1' });
+    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 6 } });
+    const opened = await jobs({ id: 2, kind: 'open-files', files: sent(hut()) });
+    if (opened.kind !== 'opened') throw new Error(JSON.stringify(opened));
+    expect(opened).toMatchObject({ name: 'The hut', game: 'the-hut', shell: { title: 'The hut', daily: true } });
+    const started = await jobs({ id: 3, kind: 'start', seed: '1', saving: { edition: 'playtest' }, at: 5 });
     if (started.kind !== 'started') throw new Error(JSON.stringify(started));
-    expect(started.name).toBe('The hut');
     expect(started.view.modes).toEqual(['hut']);
-    const step = await jobs({ id: 3, kind: 'act', action: { type: 'hut/rest' } });
-    expect(step).toMatchObject({ kind: 'stepped', accepted: true, view: { turn: 1 } });
+    expect(started.save).toMatchObject({ game: 'the-hut', edition: 'playtest', savedAt: 5 });
+    const step = await jobs({ id: 4, kind: 'act', action: { type: 'hut/rest' }, at: 6 });
+    if (step.kind !== 'stepped' || !step.save) throw new Error(JSON.stringify(step));
+    expect(step).toMatchObject({ accepted: true, view: { turn: 1 } });
+    const raw = JSON.stringify(step.save);
+    const loaded = await jobs({ id: 5, kind: 'load', raw, saving: { edition: 'playtest' }, at: 7 });
+    expect(loaded).toMatchObject({ kind: 'loaded', ok: true, view: { turn: 1 } });
   });
 
   it('refuse a project with errors, as nothing exports', async () => {
     const jobs = playJobs();
-    const refused = await jobs({ id: 1, kind: 'start-files', files: sent(broken()), seed: '1' });
+    const refused = await jobs({ id: 1, kind: 'open-files', files: sent(broken()) });
     expect(refused.kind).toBe('refused');
   });
 });
