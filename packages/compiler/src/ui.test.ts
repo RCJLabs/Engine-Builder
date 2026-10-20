@@ -27,6 +27,7 @@ describe('classifyUi', () => {
   it('reads ui/theme.json as the theme, ui/feedback.json as the feedback and ui/<id>.json as a screen', () => {
     expect(classifyUi('ui/theme.json')).toEqual({ kind: 'theme' });
     expect(classifyUi('ui/feedback.json')).toEqual({ kind: 'feedback' });
+    expect(classifyUi('ui/shell.json')).toEqual({ kind: 'shell' });
     expect(classifyUi('ui/hud.json')).toEqual({ kind: 'screen', id: 'hud' });
     expect(classifyUi('ui/store-front.json')).toEqual({ kind: 'screen', id: 'store-front' });
   });
@@ -88,6 +89,41 @@ describe('compiling ui/', () => {
     ]);
     expect(wrong.diagnostics[0]).toMatchObject({ line: 1 });
     expect(wrong.pack).toBeNull();
+  });
+
+  it('packs the shell as format 6, screens or none, and checks its slot line against the game (M4.3)', async () => {
+    const shell = { title: 'The Hut', slots: 2, daily: true, 'slot-line': 'Day {time.day}' };
+    const result = await compile({ 'ui/hud.json': JSON.stringify(hud), 'ui/shell.json': JSON.stringify(shell) });
+    expect(brief(result)).toEqual([]);
+    const pack = readPack(JSON.parse(JSON.stringify(result.pack)));
+    expect(pack.format).toBe(6);
+    expect(pack.ui).toEqual({ screens: { hud }, shell });
+    const alone = await compile({ 'ui/shell.json': '{}' });
+    expect(alone.pack?.format).toBe(6);
+    expect(alone.pack?.ui).toEqual({ screens: {}, shell: {} });
+    const wrong = await compile({
+      'ui/shell.json': JSON.stringify({ slots: 6, title: 'Hut', colour: 'red' }, null, 2),
+    });
+    expect(brief(wrong).map(({ code, path }) => [code, path])).toEqual([
+      ['E047', '/colour'],
+      ['E047', '/slots'],
+    ]);
+    expect(wrong.diagnostics[1]).toMatchObject({ line: 2 });
+    const reads = await compile({
+      'ui/shell.json': JSON.stringify({ 'slot-line': 'Day {time.night} {talk.text} {.x' }),
+    });
+    expect(brief(reads)).toEqual([
+      { code: 'E047', file: 'ui/shell.json', path: '/slot-line', message: 'This { isn’t closed' },
+    ]);
+    const facts = await compile(
+      { 'ui/shell.json': JSON.stringify({ 'slot-line': 'Day {time.night}, {talk.text}' }) },
+      { facts: { ...ENGINE_FACTS } },
+    );
+    expect(brief(facts).map(({ code, message }) => [code, message.slice(0, 16)])).toEqual([
+      ['E048', '{talk.text}: a s'],
+      ['E048', '{time.night}: No'],
+    ]);
+    expect(facts.pack).toBeNull();
   });
 
   it('leaves a project without screens in the format it had, a theme alone included', async () => {

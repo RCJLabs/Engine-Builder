@@ -8,7 +8,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./format": "./src/format/index.ts",
-    "./session": "./src/session/index.ts"
+    "./session": "./src/session/index.ts",
+    "./shell": "./src/shell/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
@@ -16,6 +17,7 @@
   "dependencies": {
     "@eb/core": "workspace:*",
     "@eb/kits": "workspace:*",
+    "@eb/platform": "workspace:*",
     "@eb/script": "workspace:*",
     "@preact/signals": "2.11.3",
     "preact": "11.0.1"

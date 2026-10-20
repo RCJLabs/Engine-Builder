@@ -1,0 +1,238 @@
+/*
+ * The play shell (M4.3, docs/specs/shell.md): its screens are drawn with the game's classes
+ * (screens.css), so its theme is the game's. Mobile first: 44 px targets, the safe area kept clear,
+ * nothing wider than the box.
+ */
+.eb-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  background: var(--eb-background);
+  color: var(--eb-text);
+  font-family: var(--eb-font);
+}
+
+.eb-shell-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--eb-space);
+  padding: calc(var(--eb-space) / 2) var(--eb-space);
+  padding-left: max(var(--eb-space), env(safe-area-inset-left));
+  padding-right: max(var(--eb-space), env(safe-area-inset-right));
+  background: var(--eb-surface);
+  font-size: calc(var(--eb-size) * var(--eb-text-scale, 1));
+}
+
+.eb-shell-bar-name {
+  flex: 1;
+  min-width: 0;
+  color: var(--eb-muted);
+}
+
+.eb-shell-bar-notice {
+  flex-basis: 100%;
+  order: 3;
+}
+
+.eb-shell-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* The shell's own screens, in a box of their own beside the game's: as .eb-game is, but not it. */
+.eb-shell-screens {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--eb-background);
+  color: var(--eb-text);
+  font-size: calc(var(--eb-size) * var(--eb-text-scale, 1));
+  line-height: 1.4;
+}
+
+.eb-shell-screens[hidden] {
+  display: none;
+}
+
+/* Pause sits over the game, which shows through behind it. */
+.eb-shell-over {
+  background: transparent;
+}
+
+.eb-shell-screen:not(.eb-modal) > .eb-sheet {
+  width: min(100%, 40rem);
+  margin: 0 auto;
+}
+
+.eb-shell-heading {
+  margin-bottom: var(--eb-space);
+}
+
+.eb-shell-tagline {
+  margin-bottom: calc(var(--eb-space) * 2);
+}
+
+.eb-shell-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--eb-space);
+}
+
+.eb-shell-actions .eb-button,
+.eb-shell-screen .eb-list .eb-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: start;
+}
+
+.eb-shell-detail {
+  font-size: 0.875em;
+  opacity: 0.85;
+}
+
+.eb-shell-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--eb-space) / 2);
+  min-width: 0;
+}
+
+.eb-shell-save {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--eb-space) / 2);
+}
+
+.eb-shell-part {
+  margin-top: calc(var(--eb-space) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--eb-space);
+}
+
+.eb-shell-field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--eb-space) / 2);
+}
+
+.eb-shell-code {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  font: inherit;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875em;
+  color: var(--eb-text);
+  background: var(--eb-surface);
+  border: 1px solid var(--eb-muted);
+  border-radius: var(--eb-radius);
+  padding: calc(var(--eb-space) / 2);
+  overflow-wrap: anywhere;
+}
+
+.eb-shell-notice:empty {
+  display: none;
+}
+
+.eb-shell-update {
+  margin-top: calc(var(--eb-space) * 2);
+  flex-direction: column;
+  gap: var(--eb-space);
+}
+
+.eb-shell-choices {
+  border: 0;
+  margin: 0 0 calc(var(--eb-space) * 2);
+  padding: 0;
+  min-width: 0;
+}
+
+.eb-shell-choices legend {
+  padding: 0;
+  margin-bottom: calc(var(--eb-space) / 2);
+}
+
+.eb-shell-controls {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--eb-space);
+}
+
+.eb-shell-controls dd {
+  margin: 0;
+}
+
+/* Less motion, whatever the device says; full motion, whatever it says (the player's setting wins). */
+[data-motion="less"] .eb-toast {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="full"] .eb-toast {
+    animation: eb-toast-in 160ms ease-out;
+  }
+}
+
+/* The crash screen is plain DOM over the whole page, with colours of its own: the theme may be gone. */
+.eb-crash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  overflow-y: auto;
+  background: #14161a;
+  color: #eef0f3;
+  font:
+    16px / 1.4 system-ui,
+    sans-serif;
+}
+
+.eb-crash h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.eb-crash p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.eb-crash-message {
+  font-family: ui-monospace, monospace;
+  color: #a9b0bb;
+}
+
+.eb-crash-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eb-crash-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.5em 1em;
+  border-radius: 6px;
+  border: 1px solid #a9b0bb;
+  background: #1f232a;
+  color: #eef0f3;
+  font: inherit;
+  cursor: pointer;
+}
+
+.eb-crash-button:focus-visible,
+.eb-crash h2:focus-visible {
+  outline: 3px solid #7cc4ff;
+  outline-offset: 2px;
+}

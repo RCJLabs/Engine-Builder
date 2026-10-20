@@ -48,20 +48,24 @@ export function widgetsOf(screen: Screen): Widget[] {
   return widgets;
 }
 
-/** The facts and conditions a set of screens names. A template that doesn't split names nothing. */
-export function wantsOf(screens: Iterable<Screen>): Wants {
+/**
+ * The facts and conditions a set of screens names, and the facts of other templates the worker
+ * fills, such as the shell's slot line (M4.3). A template that doesn't split names nothing.
+ */
+export function wantsOf(screens: Iterable<Screen>, templates: Iterable<string> = []): Wants {
   const facts = new Set<string>();
   const conditions = new Set<string>();
+  const factsOf = (template: string) => {
+    const split = splitTemplate(template);
+    if (split.ok) for (const segment of split.segments) if (segment.kind === 'fact') facts.add(segment.text);
+  };
   for (const screen of screens) {
     for (const widget of widgetsOf(screen)) {
       if (widget['shows-when'] !== undefined) conditions.add(widget['shows-when']);
-      for (const template of templatesOf(widget)) {
-        const split = splitTemplate(template);
-        if (!split.ok) continue;
-        for (const segment of split.segments) if (segment.kind === 'fact') facts.add(segment.text);
-      }
+      for (const template of templatesOf(widget)) factsOf(template);
     }
   }
+  for (const template of templates) factsOf(template);
   const sorted = (set: Set<string>) => [...set].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   return { facts: sorted(facts), conditions: sorted(conditions) };
 }

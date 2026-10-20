@@ -24,11 +24,11 @@ export async function packFiles(id: number, files: readonly SentFile[]): Promise
 export function playJobs(): (request: PlayPageRequest) => Promise<PlayPageReply> {
   const host = playHost();
   return async (request) => {
-    if (request.kind === 'pack' || request.kind === 'start-files') {
+    if (request.kind === 'pack' || request.kind === 'open-files') {
       const packed = await packFiles(request.id, request.files);
       if (!('ok' in packed)) return packed;
       if (request.kind === 'pack') return { id: request.id, kind: 'packed', pack: packed.pack, name: packed.name };
-      return host({ id: request.id, kind: 'start', pack: packed.pack, seed: request.seed });
+      return host({ id: request.id, kind: 'open', pack: packed.pack });
     }
     return host(request);
   };

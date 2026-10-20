@@ -25,19 +25,20 @@ export function ScreenView({ shown, top, drawing, remembered }: ScreenProps) {
   const wasTop = useRef(false);
   // A screen that comes to the top while the player is in the game takes focus, and so does a step
   // that left focus nowhere, as a button that went does: back to the control it last had, as a
-  // dialog gives focus back to what opened it, or else to its heading, which announces it.
+  // dialog gives focus back to what opened it, or else to its heading, which announces it. The
+  // shell's pause going leaves focus nowhere too (M4.3).
   useEffect(() => {
     const element = heading.current;
     const became = top && !wasTop.current;
     wasTop.current = top;
-    if (!top || !element) return;
+    if (!top || !element || drawing.paused) return;
     const active = document.activeElement;
     const lost = active === null || active === document.body;
     if (!lost && !(became && element.closest('.eb-game')?.contains(active))) return;
     const back = section.current ? remembered(section.current) : undefined;
     const target = back && section.current?.contains(back) && usable(back) ? back : element;
     target.focus({ preventScroll: true });
-  }, [top, drawing.view]);
+  }, [top, drawing.view, drawing.paused]);
   const title = shown.kind === 'screen' ? (shown.screen.title ?? shown.id) : shown.mode;
   return (
     <section

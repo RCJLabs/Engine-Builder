@@ -2,8 +2,9 @@
  * Times the hut played through its screens (M4.1): the pack Export game writes, started in the
  * worker's host and stepped by the actions on offer, picked at random, until the season ends. A
  * step is the sim's reduce and the view the page draws from: the facts and conditions the screens
- * name, and the kits' lists. Against the sweep's turn, which reduces and lists the options alone,
- * the difference is what the screens cost. The instrument behind the session reading in ROADMAP.md.
+ * name, and the kits' lists, and since M4.3 the save made after it. Against the sweep's turn, which
+ * reduces and lists the options alone, the difference is what the screens cost. The instrument
+ * behind the session reading in ROADMAP.md.
  *
  *   node tools/cli/test/screens-bench.ts [games]
  */
@@ -23,7 +24,8 @@ const steps: number[] = [];
 for (let n = 0; n < games; n++) {
   const host = playHost();
   let at = performance.now();
-  const started = host({ id: 0, kind: 'start', pack, seed: `bench:${n}` });
+  host({ id: 0, kind: 'open', pack });
+  const started = host({ id: 0, kind: 'start', seed: `bench:${n}`, saving: { edition: 'bench' }, at: 0 });
   starts.push(performance.now() - at);
   if (started.kind !== 'started') throw new Error(JSON.stringify(started));
   let view = started.view;
@@ -31,7 +33,7 @@ for (let n = 0; n < games; n++) {
   for (let turn = 1; !view.ended && turn < 500; turn++) {
     const action = view.offered[rng.int(0, view.offered.length - 1)] as Action;
     at = performance.now();
-    const step = host({ id: turn, kind: 'act', action });
+    const step = host({ id: turn, kind: 'act', action, at: turn });
     steps.push(performance.now() - at);
     if (step.kind !== 'stepped') throw new Error(JSON.stringify(step));
     view = step.view;

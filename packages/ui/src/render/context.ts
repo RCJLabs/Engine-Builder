@@ -20,6 +20,8 @@ export interface Drawing {
   assetUrl(path: string): string | undefined;
   /** The play's log, newest last, for log widgets (M4.2). */
   readonly log: readonly LogLine[];
+  /** The shell's pause is over the game (M4.3): nothing in it takes focus until it goes. */
+  readonly paused?: boolean;
 }
 
 let next = 0;

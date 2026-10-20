@@ -47,7 +47,7 @@ export interface CompileOptions extends Omit<ValidateOptions, 'assets'> {
  * the ones scripts/game.ts reaches go into the pack (M3.2): running them is the caller's choice.
  * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
  * The screens under ui/ are checked against the game and packed as they are (M4.1), the feedback
- * with them (M4.2).
+ * (M4.2) and the shell (M4.3) with them.
  */
 export async function compileProject(
   source: ProjectSource,

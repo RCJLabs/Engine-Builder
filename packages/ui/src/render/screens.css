@@ -11,7 +11,8 @@
   background: var(--eb-background);
   color: var(--eb-text);
   font-family: var(--eb-font);
-  font-size: var(--eb-size);
+  /* The player's text size scales the theme's (M4.3). */
+  font-size: calc(var(--eb-size) * var(--eb-text-scale, 1));
   line-height: 1.4;
 }
 
@@ -170,7 +171,8 @@
 .eb-tab:focus-visible,
 .eb-sr:focus-visible,
 .eb-game[data-input="pad"] .eb-button:focus,
-.eb-game[data-input="pad"] .eb-tab:focus {
+.eb-game[data-input="pad"] .eb-tab:focus,
+.eb-shell-screens[data-input="pad"] .eb-button:focus {
   outline: 3px solid var(--eb-accent);
   outline-offset: 2px;
 }

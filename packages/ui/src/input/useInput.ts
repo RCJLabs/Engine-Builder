@@ -2,6 +2,7 @@
  * Keys, a gamepad and swipes in a game's box (M4.2, docs/specs/input.md): arrows and the pad move
  * focus on the top screen, A presses, Escape, B and a swipe right go Back, and LB, RB and a swipe
  * on tabs change tab. Each screen remembers the control it last had, for focus to go back to.
+ * With nothing to go back from, Escape and B pause, as Start does (M4.3); a swipe doesn't.
  */
 import type { RefObject } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
@@ -25,7 +26,17 @@ export interface Input {
   readonly remembered: (screen: HTMLElement) => HTMLElement | undefined;
 }
 
-export function useInput(box: RefObject<HTMLElement | null>, back: (() => void) | undefined): Input {
+export interface InputActions {
+  /** Closes the top screen a button opened, if there is one. */
+  readonly back: (() => void) | undefined;
+  /** The shell's pause, when the shell has one. */
+  readonly pause?: (() => void) | undefined;
+  /** Commands are ignored while false: the shell's pause is over the game. */
+  readonly on?: boolean;
+}
+
+export function useInput(box: RefObject<HTMLElement | null>, actions: InputActions): Input {
+  const { back, pause, on = true } = actions;
   const [device, setDevice] = useState<'pad' | undefined>(undefined);
   const memory = useMemo(() => new WeakMap<HTMLElement, HTMLElement>(), []);
   const remembered = (screen: HTMLElement) => memory.get(screen);
@@ -65,16 +76,18 @@ export function useInput(box: RefObject<HTMLElement | null>, back: (() => void) 
   const command = (c: PadCommand) => {
     if (c.kind === 'move') move(c.direction);
     else if (c.kind === 'press') press();
-    else if (c.kind === 'back') back?.();
+    else if (c.kind === 'back') (back ?? pause)?.();
+    else if (c.kind === 'start') pause?.();
     else tab(c.step);
   };
   useGamepad(
     (commands) => {
-      for (const c of commands) command(c);
+      if (on) for (const c of commands) command(c);
     },
     () => setDevice('pad'),
   );
   useSwipes(box, (direction, from) => {
+    if (!on) return;
     const tabs = from.closest<HTMLElement>('.eb-tabs');
     const screen = box.current ? topScreen(box.current) : undefined;
     if (tabs && screen?.contains(tabs)) stepTabs(tabs, direction === 'left' ? 1 : -1);
@@ -87,10 +100,10 @@ export function useInput(box: RefObject<HTMLElement | null>, back: (() => void) 
     const direction = ARROWS[event.key];
     if (direction !== undefined) {
       if (move(direction)) event.preventDefault();
-    } else if (event.key === 'Escape' && back) {
+    } else if (event.key === 'Escape' && (back ?? pause)) {
       event.preventDefault();
       event.stopPropagation();
-      back();
+      (back ?? pause)?.();
     }
   };
   return { device, remembered };

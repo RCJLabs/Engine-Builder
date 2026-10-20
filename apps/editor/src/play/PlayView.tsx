@@ -1,14 +1,15 @@
 /**
  * The open project played through its screens (M4.1, D51): compiled into the pack Export game
- * writes, then played in the Play worker, each step's view drawn by the same renderer the player
- * page uses. Nothing plays while the project has errors, as nothing exports. Loaded when a project
- * is first open, with the renderer.
+ * writes, then opened in the Play worker inside the play shell (M4.3), whose saves are kept under
+ * edition "playtest", apart from the player page's. New starts with the seed typed here. Nothing
+ * plays while the project has errors, as nothing exports. Loaded when a project is first open,
+ * with the renderer.
  */
-import type { Action } from '@eb/core';
-import { GameScreens } from '@eb/ui';
-import type { Said, Screen, Theme } from '@eb/ui/format';
-import type { View } from '@eb/ui/session';
-import { useState } from 'preact/hooks';
+import { openStore, type Store } from '@eb/platform';
+import type { PlayReply } from '@eb/ui/session';
+import type { OpenedGame, ShellRequest } from '@eb/ui/shell';
+import { Shell } from '@eb/ui/shell';
+import { useEffect, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { showPanel } from '../app/panelControl.ts';
 import { problemCount } from '../problems/count.ts';
@@ -21,19 +22,13 @@ import '../styles/logic.css';
 import '../styles/play.css';
 
 const client = playClient();
+// The shell's requests are the session's own; the Play worker answers them as the player's does.
+const send = (request: ShellRequest) => client.send(request) as Promise<PlayReply>;
 
 type Shown =
   | { readonly kind: 'idle' }
   | { readonly kind: 'starting' }
-  | {
-      readonly kind: 'playing';
-      readonly screens: Readonly<Record<string, Screen>>;
-      readonly theme: Theme | undefined;
-      readonly view: View;
-      /** What the last step said (M4.2). */
-      readonly said: readonly Said[];
-      readonly at: number;
-    }
+  | { readonly kind: 'open'; readonly opened: OpenedGame; readonly at: number; readonly n: number }
   | { readonly kind: 'refused'; readonly errors: number }
   | { readonly kind: 'failed'; readonly message: string };
 
@@ -42,34 +37,26 @@ const failed = (error: unknown): Shown => ({
   message: error instanceof Error ? error.message : String(error),
 });
 
+let opens = 0;
+
 export function PlayView({ project }: { project: OpenProject }) {
   const [shown, setShown] = useState<Shown>({ kind: 'idle' });
-  const [busy, setBusy] = useState(false);
   const [seed, setSeed] = useState('1');
+  const [store, setStore] = useState<Store | undefined>(undefined);
   const seedId = useUniqueId();
   const errors = problemCount.value?.errors ?? 0;
   const ready = project.game.status === 'loaded';
+  useEffect(() => {
+    void openStore().then(setStore);
+  }, []);
   const start = async () => {
     setShown({ kind: 'starting' });
     const at = revision.value;
     try {
-      const reply = await client.send({ kind: 'start-files', files: await playFiles(project.source), seed });
-      setShown(started(reply, at));
+      const reply = await client.send({ kind: 'open-files', files: await playFiles(project.source) });
+      setShown(opened(reply, at));
     } catch (error) {
       setShown(failed(error));
-    }
-  };
-  const act = async (action: Action) => {
-    if (shown.kind !== 'playing' || busy) return;
-    setBusy(true);
-    try {
-      const reply = await client.send({ kind: 'act', action });
-      if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view, said: reply.said });
-      else if (reply.kind === 'failed') setShown({ kind: 'failed', message: reply.message });
-    } catch (error) {
-      setShown(failed(error));
-    } finally {
-      setBusy(false);
     }
   };
   return (
@@ -89,7 +76,7 @@ export function PlayView({ project }: { project: OpenProject }) {
           disabled={!ready || errors > 0 || shown.kind === 'starting' || seed.trim() === ''}
           onClick={() => void start()}
         >
-          {shown.kind === 'playing' ? 'Start again' : 'Play'}
+          {shown.kind === 'open' ? 'Start again' : 'Play'}
         </button>
       </div>
       {ready && errors > 0 ? (
@@ -101,20 +88,13 @@ export function PlayView({ project }: { project: OpenProject }) {
         {shown.kind === 'refused' ? (
           <p class="logic-problem">{`Nothing was played: the project has ${shown.errors === 1 ? 'an error' : `${shown.errors} errors`}. See Problems.`}</p>
         ) : null}
-        {shown.kind === 'playing' && shown.at !== revision.value ? (
+        {shown.kind === 'open' && shown.at !== revision.value ? (
           <p class="muted">The project has changed since this game started: start again to play it as it is now.</p>
         ) : null}
       </div>
-      {shown.kind === 'playing' ? (
+      {shown.kind === 'open' && store ? (
         <div class="play-game">
-          <GameScreens
-            screens={shown.screens}
-            theme={shown.theme}
-            view={shown.view}
-            said={shown.said}
-            busy={busy}
-            act={(a) => void act(a)}
-          />
+          <Shell key={shown.n} opened={shown.opened} send={send} edition="playtest" store={store} seed={() => seed} />
         </div>
       ) : null}
       <ScreensList project={project} />
@@ -122,11 +102,8 @@ export function PlayView({ project }: { project: OpenProject }) {
   );
 }
 
-function started(reply: PlayPageReply, at: number): Shown {
-  if (reply.kind === 'started') {
-    const { screens, theme, view } = reply;
-    return { kind: 'playing', screens, theme, view, said: [], at };
-  }
+function opened(reply: PlayPageReply, at: number): Shown {
+  if (reply.kind === 'opened') return { kind: 'open', opened: reply, at, n: ++opens };
   if (reply.kind === 'refused') return { kind: 'refused', errors: reply.errors.length };
   if (reply.kind === 'failed') return { kind: 'failed', message: reply.message };
   return { kind: 'failed', message: 'The game answered with something else' };

@@ -29,6 +29,10 @@ import { actionLabel } from './words.ts';
 export interface Play {
   readonly view: View;
   readonly state: GameState;
+  /** What a save of the play holds (M4.3): where its log starts, the log, and the state now. */
+  readonly run: { readonly snapshot: GameState; readonly log: readonly Action[]; readonly state: GameState };
+  /** Makes the state now the start of the log, so saves stop growing. */
+  compact(): void;
   /** Takes an action on offer: the step's beats, what the game's feedback says of them (M4.2), and the view after it. */
   act(action: Action): {
     readonly view: View;
@@ -74,11 +78,17 @@ function parsedWants(wants: Wants, catalog: FactCatalog) {
 const asShown = (value: unknown): Shown =>
   typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? value : null;
 
-export function startPlay(setup: PlaySetup, seed: string): Play {
+/** A new game, from its seed. */
+export const startPlay = (setup: PlaySetup, seed: string): Play => playFrom(setup, setup.game.init(seed, setup.sim));
+
+/** A game from a state, as a save loads it (M4.3). Its log starts there. */
+export const resumePlay = (setup: PlaySetup, state: GameState): Play => playFrom(setup, state);
+
+function playFrom(setup: PlaySetup, start: GameState): Play {
   const { game, sim, kits } = setup;
   const catalog = game.catalog();
   const wants = parsedWants(setup.wants, catalog);
-  const session: Session = createSession(game, sim, game.init(seed, sim));
+  const session: Session = createSession(game, sim, start);
   const say = setup.feedback ? feedbackSayer(setup.feedback, game.events()) : undefined;
 
   function viewOf(state: GameState): View {
@@ -125,6 +135,10 @@ export function startPlay(setup: PlaySetup, seed: string): Play {
     get state() {
       return session.state;
     },
+    get run() {
+      return { snapshot: session.start, log: session.log, state: session.state };
+    },
+    compact: () => session.compact(),
     act(action) {
       if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], accepted: false };

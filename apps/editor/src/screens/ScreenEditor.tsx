@@ -15,7 +15,7 @@ import { json } from './jsonLanguage.ts';
 import { uiLineToFocus } from './open.ts';
 import '../styles/scripts.css';
 
-type Kind = 'screen' | 'theme' | 'feedback';
+type Kind = 'screen' | 'theme' | 'feedback' | 'shell';
 
 const HELP: Readonly<Record<Kind, string>> = {
   screen:
@@ -24,16 +24,19 @@ const HELP: Readonly<Record<Kind, string>> = {
     'The theme: six colours (background, surface, text, muted, accent, on-accent) as #rrggbb, each text pair at 4.5:1 or more, and the font, size, space and radius. Tab indents, and Esc then Tab moves on.',
   feedback:
     'The feedback: lines, each on an event the game declares, saying words whose holes are its arguments, like {.item}; where matches some of them, and to is toast, log or both. Each beat is said by the first line that matches it. Tab indents, and Esc then Tab moves on.',
+  shell:
+    'The shell the game is played in: its title and tagline, how many slots (1 to 5), whether it has a Daily, and the slot-line each slot shows, with facts in braces like {time.day}. Every field may be left out. Tab indents, and Esc then Tab moves on.',
 };
 
 const NAMES: Readonly<Record<Exclude<Kind, 'screen'>, { heading: string; label: string }>> = {
   theme: { heading: 'Theme', label: 'The theme' },
   feedback: { heading: 'Feedback', label: 'The feedback' },
+  shell: { heading: 'Shell', label: 'The shell' },
 };
 
 export function ScreenEditor({ project, path }: { project: OpenProject; path: string }) {
   const role = classifyUi(path);
-  const kind: Kind = role.kind === 'theme' || role.kind === 'feedback' ? role.kind : 'screen';
+  const kind: Kind = role.kind === 'theme' || role.kind === 'feedback' || role.kind === 'shell' ? role.kind : 'screen';
   const named = kind === 'screen' ? undefined : NAMES[kind];
   const title = role.kind === 'screen' ? role.id : kind;
   const [deleting, setDeleting] = useState(false);

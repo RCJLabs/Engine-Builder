@@ -120,21 +120,28 @@ describe('a project’s problems with its screens', () => {
 describe('the Play worker’s jobs', () => {
   const sent = (files: Record<string, Uint8Array>): SentFile[] => Object.entries(files);
 
-  it('pack the hut as Export game writes it, and start it from its files', async () => {
+  it('pack the hut as Export game writes it, open it from its files, and start, step and load a game of it', async () => {
     const jobs = playJobs();
     const packed = await jobs({ id: 1, kind: 'pack', files: sent(hut()) });
-    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 5 } });
-    const started = await jobs({ id: 2, kind: 'start-files', files: sent(hut()), seed: '1' });
+    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 6 } });
+    const opened = await jobs({ id: 2, kind: 'open-files', files: sent(hut()) });
+    if (opened.kind !== 'opened') throw new Error(JSON.stringify(opened));
+    expect(opened).toMatchObject({ name: 'The hut', game: 'the-hut', shell: { title: 'The hut', daily: true } });
+    const started = await jobs({ id: 3, kind: 'start', seed: '1', saving: { edition: 'playtest' }, at: 5 });
     if (started.kind !== 'started') throw new Error(JSON.stringify(started));
-    expect(started.name).toBe('The hut');
     expect(started.view.modes).toEqual(['hut']);
-    const step = await jobs({ id: 3, kind: 'act', action: { type: 'hut/rest' } });
-    expect(step).toMatchObject({ kind: 'stepped', accepted: true, view: { turn: 1 } });
+    expect(started.save).toMatchObject({ game: 'the-hut', edition: 'playtest', savedAt: 5 });
+    const step = await jobs({ id: 4, kind: 'act', action: { type: 'hut/rest' }, at: 6 });
+    if (step.kind !== 'stepped' || !step.save) throw new Error(JSON.stringify(step));
+    expect(step).toMatchObject({ accepted: true, view: { turn: 1 } });
+    const raw = JSON.stringify(step.save);
+    const loaded = await jobs({ id: 5, kind: 'load', raw, saving: { edition: 'playtest' }, at: 7 });
+    expect(loaded).toMatchObject({ kind: 'loaded', ok: true, view: { turn: 1 } });
   });
 
   it('refuse a project with errors, as nothing exports', async () => {
     const jobs = playJobs();
-    const refused = await jobs({ id: 1, kind: 'start-files', files: sent(broken()), seed: '1' });
+    const refused = await jobs({ id: 1, kind: 'open-files', files: sent(broken()) });
     expect(refused.kind).toBe('refused');
   });
 });

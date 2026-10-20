@@ -1,49 +1,20 @@
 /**
- * The player: open a game file, play it through its screens. Each step goes to the worker and
- * its view comes back; the page draws only what the view says.
+ * The player: open a game file, play it inside the play shell (M4.3), which keeps its saves in
+ * this browser under edition "play". Each step goes to the worker and its view and save come back;
+ * the page draws only what the view says.
  */
-import type { Action } from '@eb/core';
-import { GameScreens } from '@eb/ui';
-import type { Said, Screen, Theme } from '@eb/ui/format';
-import type { PlayReply, PlayRequest, View } from '@eb/ui/session';
-import { useRef, useState } from 'preact/hooks';
+import { openStore, type Store } from '@eb/platform';
+import type { OpenedGame } from '@eb/ui/shell';
+import { Shell } from '@eb/ui/shell';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { type GameWorker, gameWorker } from './gameWorker.ts';
+import { applyPlayerUpdate, updateReady } from './pwa.ts';
 
 type Shown =
   | { readonly kind: 'idle' }
   | { readonly kind: 'loading'; readonly file: string }
-  | {
-      readonly kind: 'playing';
-      readonly name: string;
-      readonly screens: Readonly<Record<string, Screen>>;
-      readonly theme: Theme | undefined;
-      readonly view: View;
-      /** What the last step said (M4.2). */
-      readonly said: readonly Said[];
-    }
+  | { readonly kind: 'open'; readonly opened: OpenedGame; readonly worker: GameWorker; readonly n: number }
   | { readonly kind: 'failed'; readonly message: string };
-
-type Request = PlayRequest extends infer R ? (R extends { id: number } ? Omit<R, 'id'> : never) : never;
-
-/** One worker per game: a new file ends the last game's worker, and whatever it was doing. */
-function gameWorker() {
-  const worker = new Worker(new URL('./player.worker.ts', import.meta.url), { type: 'module' });
-  let next = 0;
-  const waiting = new Map<number, (reply: PlayReply) => void>();
-  worker.onmessage = ({ data }: MessageEvent<PlayReply>) => {
-    waiting.get(data.id)?.(data);
-    waiting.delete(data.id);
-  };
-  return {
-    send(request: Request): Promise<PlayReply> {
-      const id = next++;
-      return new Promise((resolve) => {
-        waiting.set(id, resolve);
-        worker.postMessage({ ...request, id } as PlayRequest);
-      });
-    },
-    stop: () => worker.terminate(),
-  };
-}
 
 /** The device's file picker, for one JSON file: an input made when asked, so none sits in the page. */
 function pickFile(then: (file: File) => void): void {
@@ -63,10 +34,15 @@ function freshSeed(): string {
   return Array.from(bytes, (n) => n.toString(36)).join('');
 }
 
+let opens = 0;
+
 export function Player() {
   const [shown, setShown] = useState<Shown>({ kind: 'idle' });
-  const [busy, setBusy] = useState(false);
-  const worker = useRef<ReturnType<typeof gameWorker> | null>(null);
+  const [store, setStore] = useState<Store | undefined>(undefined);
+  const worker = useRef<GameWorker | null>(null);
+  useEffect(() => {
+    void openStore().then(setStore);
+  }, []);
   const open = async (file: File) => {
     setShown({ kind: 'loading', file: file.name });
     let pack: unknown;
@@ -77,35 +53,29 @@ export function Player() {
       return;
     }
     worker.current?.stop();
-    worker.current = gameWorker();
-    const reply = await worker.current.send({ kind: 'start', pack, seed: freshSeed() });
-    if (reply.kind === 'started') {
-      const { name, screens, theme, view } = reply;
-      setShown({ kind: 'playing', name, screens, theme, view, said: [] });
-      document.title = `${name} · Engine-Builder`;
-    } else setShown({ kind: 'failed', message: reply.kind === 'failed' ? reply.message : 'The game didn’t start.' });
-  };
-  const act = async (action: Action) => {
-    if (shown.kind !== 'playing' || busy || !worker.current) return;
-    setBusy(true);
-    const reply = await worker.current.send({ kind: 'act', action });
-    setBusy(false);
-    if (reply.kind === 'stepped') setShown({ ...shown, view: reply.view, said: reply.said });
-    else if (reply.kind === 'failed') setShown({ kind: 'failed', message: reply.message });
+    const next = gameWorker();
+    worker.current = next;
+    const reply = await next
+      .send({ kind: 'open', pack })
+      .catch((error: Error) => ({ kind: 'failed', message: error.message }) as const);
+    if (reply.kind === 'opened') {
+      setShown({ kind: 'open', opened: reply, worker: next, n: ++opens });
+      document.title = `${reply.name} · Engine-Builder`;
+    } else setShown({ kind: 'failed', message: reply.kind === 'failed' ? reply.message : 'The game didn’t open.' });
   };
   return (
     <div class="player">
       <header class="player-bar">
-        <h1>{shown.kind === 'playing' ? shown.name : 'Play a game'}</h1>
+        <h1>{shown.kind === 'open' ? shown.opened.name : 'Play a game'}</h1>
         <button type="button" class="player-button" onClick={() => pickFile((file) => void open(file))}>
-          {shown.kind === 'playing' ? 'Open another game' : 'Open a game file'}
+          {shown.kind === 'open' ? 'Open another game' : 'Open a game file'}
         </button>
       </header>
       <main class="player-main">
         {shown.kind === 'idle' ? (
           <p class="player-note">
             Open a game file that Engine-Builder’s Export game wrote: a .game.json file. It plays here, in this browser,
-            with nothing sent anywhere, and offline once this page has been opened.
+            with nothing sent anywhere, and offline once this page has been opened. Its saves stay in this browser.
           </p>
         ) : null}
         {shown.kind === 'loading' ? <p class="player-note">Opening {shown.file}…</p> : null}
@@ -114,16 +84,18 @@ export function Player() {
             {shown.message}
           </p>
         ) : null}
-        {shown.kind === 'playing' ? (
+        {shown.kind === 'open' && store ? (
           <div class="player-game">
-            <GameScreens
-              screens={shown.screens}
-              theme={shown.theme}
-              view={shown.view}
-              said={shown.said}
-              busy={busy}
-              act={(a) => void act(a)}
+            <Shell
+              key={shown.n}
+              opened={shown.opened}
+              send={shown.worker.send}
+              edition="play"
+              store={store}
+              seed={freshSeed}
               history
+              crashes
+              update={{ ready: updateReady.value, apply: applyPlayerUpdate }}
             />
           </div>
         ) : null}

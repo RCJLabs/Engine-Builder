@@ -7,7 +7,7 @@
 import type { Direction } from './spatial.ts';
 
 /** The standard mapping's buttons this reads. */
-export const BUTTONS = { a: 0, b: 1, lb: 4, rb: 5, up: 12, down: 13, left: 14, right: 15 } as const;
+export const BUTTONS = { a: 0, b: 1, lb: 4, rb: 5, start: 9, up: 12, down: 13, left: 14, right: 15 } as const;
 
 const STICK_ON = 0.5;
 const STICK_OFF = 0.35;
@@ -24,6 +24,8 @@ export type PadCommand =
   | { readonly kind: 'move'; readonly direction: Direction }
   | { readonly kind: 'press' }
   | { readonly kind: 'back' }
+  /** Start: the shell's pause (M4.3). */
+  | { readonly kind: 'start' }
   | { readonly kind: 'tab'; readonly step: 1 | -1 };
 
 export interface PadMemory {
@@ -82,6 +84,7 @@ export function padStep(
   if (pressed(BUTTONS.b)) commands.push({ kind: 'back' });
   if (pressed(BUTTONS.lb)) commands.push({ kind: 'tab', step: -1 });
   if (pressed(BUTTONS.rb)) commands.push({ kind: 'tab', step: 1 });
+  if (pressed(BUTTONS.start)) commands.push({ kind: 'start' });
   const stick = stickOf(input.axes, memory.stick);
   const direction = DPAD.find(([, button]) => input.buttons[button])?.[0] ?? stick;
   let held = memory.held;

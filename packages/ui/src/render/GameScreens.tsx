@@ -31,6 +31,10 @@ export interface GameScreensProps {
   readonly said?: readonly Said[];
   /** The browser's back closes a screen a button opened: the player page's, not the editor's (M4.2). */
   readonly history?: boolean;
+  /** The shell's pause (M4.3): Escape and B with no screen to close, and a pad's Start. */
+  readonly onPause?: () => void;
+  /** The shell's pause is over the game: it takes no input and nothing in it takes focus. */
+  readonly paused?: boolean;
 }
 
 const NOTHING: readonly Said[] = [];
@@ -51,7 +55,7 @@ function useBreakpoint(box: { readonly current: HTMLElement | null }): Breakpoin
 }
 
 export function GameScreens(props: GameScreensProps) {
-  const { screens, theme, view, busy = false, act, assetUrl, said = NOTHING, history = false } = props;
+  const { screens, theme, view, busy = false, act, assetUrl, said = NOTHING, history = false, paused = false } = props;
   const box = useRef<HTMLDivElement>(null);
   const breakpoint = useBreakpoint(box);
   // Screens a button opened belong to the modes they were opened in: a step that changes the modes closes them.
@@ -66,7 +70,7 @@ export function GameScreens(props: GameScreensProps) {
     history,
   );
   const fed = useFeedback(said);
-  const input = useInput(box, close);
+  const input = useInput(box, { back: close, pause: props.onPause, on: !paused });
   const drawing: Drawing = {
     view,
     breakpoint,
@@ -76,6 +80,7 @@ export function GameScreens(props: GameScreensProps) {
     close,
     assetUrl: (path) => assetUrl?.(path),
     log: fed.log,
+    paused,
   };
   return (
     // The turn and whether a step is on its way, for a test or a stage to wait on.
@@ -86,6 +91,7 @@ export function GameScreens(props: GameScreensProps) {
       data-turn={view.turn}
       data-busy={busy ? 'true' : undefined}
       data-input={input.device}
+      inert={paused ? true : undefined}
     >
       {shown.map((each, i) => (
         <ScreenView
