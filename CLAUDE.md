@@ -109,11 +109,15 @@ apps/editor/           the editor PWA
                        check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
                        inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
   src/play/            the Play panel (M4.1, D51): PlayPanel, and the lazy PlayView (the game played inside @eb/ui's
-                       play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, New theme,
-                       New feedback, New shell); jobs.ts (a project packed, or opened, in a copy of the script
-                       worker), protocol.ts, playClient.ts (its client, with timeouts)
+                       play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, its
+                       template chosen in NewScreen.tsx (M4.4), New theme, New feedback, New shell); jobs.ts (a
+                       project packed, or opened, in a copy of the script worker), protocol.ts, playClient.ts (its
+                       client, with timeouts)
   src/screens/         screens in the editor (M4.1): open.ts, ScreenEditor (the JSON in CodeMirror, jsonLanguage.ts),
-                       screenChecks.ts (ui/ checked against the game after the index), templates.ts
+                       screenChecks.ts (ui/ checked against the game after the index), templates.ts; stock/ (M4.4,
+                       D54): the stock screens as plain functions of the project (context.ts), parts.ts, modal.ts
+                       (dialogue, event, shop, hall), pages.ts (inventory, journal, codex, credits), play.ts (HUD,
+                       ending), index.ts (STOCK, allStock: every one the kits allow, the pages first)
   src/player/          the player page at /play/ (M4.1, play/index.html, a page of the editor's own build): Player.tsx
                        opens a game file and plays it inside the play shell (M4.3, saves under edition "play");
                        gameWorker.ts (its worker, failing every request still waiting if it dies); pwa.ts (the
@@ -140,9 +144,11 @@ apps/editor/           the editor PWA
                        play.spec.ts and playPhone.spec.ts are M4.1's gate, the hut played through its screens;
                        inputHelpers.ts, input.spec.ts and inputPhone.spec.ts are M4.2's, the hut by keys, by a
                        faked gamepad and by touch with its swipes; playShellHelpers.ts, playShell.spec.ts and
-                       playShellPhone.spec.ts are M4.3's, the hut's saves, Daily, crash, pause and settings
+                       playShellPhone.spec.ts are M4.3's, the hut's saves, Daily, crash, pause and settings;
+                       stockHut.ts, stockScreens.spec.ts and stockScreensPhone.spec.ts are M4.4's, the hut made
+                       again from stock screens and played to its end on them
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 6)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 7)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6)
@@ -183,7 +189,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        W130); M4.1: uiSchema.ts (screens and the theme as strict zod) and uiCheck.ts (E047 to E050,
                        W132, W133); M4.2: feedbackCheck.ts (ui/feedback.json: E051, E052) and uiLints.ts (W133,
                        W134); M4.3: shellCheck.ts (ui/shell.json: E047, E048) and templateCheck.ts (what a
-                       template reads, the screens' and the shell's slot line); not pure
+                       template reads, the screens' and the shell's slot line; a codex's @entry and unknown, M4.4);
+                       M4.4: codexCheck.test.ts, recordFieldsOf (each type's fields, for a codex's items); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -195,7 +202,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        scenes sit, apart so the editor names them without loading the ink compiler); M4.1: ui.ts
                        (ui/ read, checked with each problem at its line, packed; the feedback too, M4.2, and the
                        shell, M4.3), uiFiles.ts (where screens, the theme, the feedback and the shell sit) and jsonLines.ts (a JSON Pointer's line in a
-                       file's text); not pure
+                       file's text); M4.4: credits.ts (the assets' credits, from the provenance log, packed as format 7
+                       with screens); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -233,7 +241,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2);
                        session/ (play.ts: a game played and its view after each step, or resumed from a state;
                        views.ts, the kits' views as lists; words.ts; say.ts, a step's beats in the feedback's words
-                       (M4.2); saving.ts, the save made after each step (M4.3); fromPack.ts and host.ts, a pack
+                       (M4.2); saving.ts, the save made after each step (M4.3); records.ts, a codex's entries and the
+                       credits, sound.ts (M4.4); fromPack.ts and host.ts, a pack
                        opened in a worker, its games started or loaded from a save's text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs,
                        LogView, Feedback.tsx (toasts and the announcer), screens.css; stack.ts, fill.ts, layout.ts
                        and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts

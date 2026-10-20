@@ -8,24 +8,9 @@ import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
-import { contextFrom, type Held, type StockContext, showsOf } from '../screens/stock/context.ts';
+import { contextFrom, type Held, type StockContext, shownBy } from '../screens/stock/context.ts';
 import { STOCK, type Stock, stockText } from '../screens/stock/index.ts';
 import { screenTemplate } from '../screens/templates.ts';
-
-/** The modes the project's screens already show, read from their files as they stand. */
-async function shownModes(project: OpenProject): Promise<Set<string>> {
-  const shown = new Set<string>();
-  for (const id of project.catalog.screens) {
-    const bytes = await project.source.read(screenPath(id));
-    if (bytes === undefined) continue;
-    try {
-      for (const mode of showsOf(JSON.parse(new TextDecoder().decode(bytes)))) shown.add(mode);
-    } catch {
-      // A screen that isn't JSON shows nothing; the checks say why (E007).
-    }
-  }
-  return shown;
-}
 
 /** The project as a template reads it: its records, its kits, its game once run, and its screens. */
 async function contextOf(project: OpenProject): Promise<StockContext> {
@@ -40,7 +25,7 @@ async function contextOf(project: OpenProject): Promise<StockContext> {
       kits: catalog.kits,
       ...(modes ? { modes } : {}),
       screens: catalog.screens,
-      shown: await shownModes(project),
+      shown: await shownBy(catalog.screens.map(screenPath), (path) => project.source.read(path)),
     },
     held,
   );

@@ -4,18 +4,53 @@
  * step is the sim's reduce and the view the page draws from: the facts and conditions the screens
  * name, and the kits' lists, and since M4.3 the save made after it. Against the sweep's turn, which
  * reduces and lists the options alone, the difference is what the screens cost. The instrument
- * behind the session reading in ROADMAP.md.
+ * behind the session reading in ROADMAP.md. With --stock, the hut plays on the stock screens
+ * New screen writes (M4.4) instead of its own, its codex read for every record each step.
  *
- *   node tools/cli/test/screens-bench.ts [games]
+ *   node tools/cli/test/screens-bench.ts [games] [--stock]
  */
+import { cpSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { compileWithGame } from '@eb/compiler';
+import { compileWithGame, projectGame } from '@eb/compiler';
 import { type Action, Rng } from '@eb/core';
 import { playHost } from '@eb/ui/session';
+import { contextFrom } from '../../../apps/editor/src/screens/stock/context.ts';
+import { allStock } from '../../../apps/editor/src/screens/stock/index.ts';
 import { folderSource } from '../src/folderSource.ts';
 
+const HUT = join(import.meta.dirname, 'fixtures', 'hut');
+
+/** A copy of the hut whose screens are the stock ones, as the gate makes them. */
+async function stockHut(): Promise<string> {
+  const dir = mkdtempSync(join(tmpdir(), 'eb-stock-hut-'));
+  cpSync(HUT, dir, { recursive: true });
+  const kept = new Set(['theme.json', 'feedback.json', 'shell.json']);
+  for (const file of readdirSync(join(dir, 'ui'))) if (!kept.has(file)) rmSync(join(dir, 'ui', file));
+  const loaded = await projectGame(folderSource(dir));
+  if (loaded.kind !== 'loaded') throw new Error('The hut didn’t load');
+  const compiled = await compileWithGame(folderSource(dir));
+  const held = Object.entries(compiled.pack?.records ?? {}).flatMap(([type, group]) =>
+    Object.entries(group).map(([id, value]) => ({ type, id, value })),
+  );
+  const { start, modes, endings } = loaded.catalog;
+  const ctx = contextFrom(
+    {
+      game: 'The hut',
+      kits: compiled.pack?.project.kits ?? [],
+      modes: { start, all: modes, endings },
+      screens: [],
+      shown: new Set(),
+    },
+    held,
+  );
+  for (const { id, text } of allStock(ctx)) writeFileSync(join(dir, 'ui', `${id}.json`), text);
+  return dir;
+}
+
 const games = Number(process.argv[2] ?? 200);
-const compiled = await compileWithGame(folderSource(join(import.meta.dirname, 'fixtures', 'hut')));
+const stock = process.argv.includes('--stock');
+const compiled = await compileWithGame(folderSource(stock ? await stockHut() : HUT));
 if (!compiled.pack) throw new Error('The hut didn’t compile');
 const pack = JSON.parse(JSON.stringify(compiled.pack)) as unknown;
 

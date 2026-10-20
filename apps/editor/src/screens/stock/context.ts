@@ -71,3 +71,21 @@ export function contextFrom(base: Omit<StockContext, 'records' | 'starting'>, he
   for (const list of byType.values()) list.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return { ...base, records: byType, starting: startingOf(rosters) };
 }
+
+/** The modes some screen already shows, read from the screens' files as they stand; one that isn't JSON shows none. */
+export async function shownBy(
+  files: readonly string[],
+  read: (path: string) => Promise<Uint8Array | undefined>,
+): Promise<Set<string>> {
+  const shown = new Set<string>();
+  for (const file of files) {
+    const bytes = await read(file);
+    if (bytes === undefined) continue;
+    try {
+      for (const mode of showsOf(JSON.parse(new TextDecoder().decode(bytes)))) shown.add(mode);
+    } catch {
+      // The checks say why (E007); a screen that isn't JSON shows nothing.
+    }
+  }
+  return shown;
+}

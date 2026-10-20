@@ -6,11 +6,8 @@ import type { Screen } from '@eb/ui/format';
 import type { StockContext } from './context.ts';
 import { bar, button, column, resources, row, text } from './parts.ts';
 
-/** The kit's mode, unless a screen shows it already or the game, once run, has no such mode. */
-export function showing(ctx: StockContext, mode: string): readonly string[] {
-  if (ctx.shown.has(mode) || (ctx.modes !== undefined && !ctx.modes.all.includes(mode))) return [];
-  return [mode];
-}
+/** The kit's mode, which the game has while the kit is on, unless a screen shows it already. */
+export const showing = (ctx: StockContext, mode: string): readonly string[] => (ctx.shown.has(mode) ? [] : [mode]);
 
 const choices = (of: 'talk' | 'event' | 'offered') =>
   ({ widget: 'list', of, item: button('{.label}', { take: 'entry' }) }) as const;

@@ -7,7 +7,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { compileWithGame, memorySource, projectGame } from '@eb/compiler';
 import { describe, expect, it } from 'vitest';
-import { contextFrom, type Held, type StockContext, showsOf } from './context.ts';
+import { contextFrom, type Held, type StockContext, shownBy, showsOf } from './context.ts';
 import { allStock, STOCK } from './index.ts';
 
 const FIXTURES = join(import.meta.dirname, '../../../../../tools/cli/test/fixtures');
@@ -85,8 +85,46 @@ describe('the stock screens, written into a project and compiled against its gam
     expect(shows('ending')).toEqual(['closed']);
     expect(shows('dialogue')).toEqual(['talking']);
     expect(shows('journal')).toEqual([]);
-    // A mode a screen already shows is left to it.
-    const again = STOCK.find((s) => s.id === 'dialogue');
-    expect(again?.build({ ...ctx, shown: new Set(['talking']) }).shows).toEqual([]);
+    // A mode a screen already shows is left to it, the HUD's and the ending's too.
+    const shown = new Set(['talking', 'hut', 'closed']);
+    for (const id of ['dialogue', 'hud', 'ending']) {
+      expect(STOCK.find((s) => s.id === id)?.build({ ...ctx, shown }).shows).toEqual([]);
+    }
+  });
+
+  it('reads which modes the screens there are already show, a screen that isn’t JSON showing none', async () => {
+    const files: Record<string, string> = {
+      'ui/a.json': JSON.stringify({ shows: ['hut', 'talking'], main: {} }),
+      'ui/b.json': '{ not json',
+      'ui/c.json': JSON.stringify({ main: {} }),
+    };
+    const read = async (path: string) => (path in files ? new TextEncoder().encode(files[path]) : undefined);
+    expect([...(await shownBy(['ui/a.json', 'ui/b.json', 'ui/c.json', 'ui/gone.json'], read))]).toEqual([
+      'hut',
+      'talking',
+    ]);
+  });
+
+  it('writes the HUD from the project: its resources by name, the pages before it, the roster’s starting members', async () => {
+    const hut = filesOf('hut');
+    const hud = (added: Record<string, Uint8Array>) =>
+      JSON.parse(new TextDecoder().decode(added['ui/hud.json'])) as {
+        top?: { children: { text?: string }[] };
+        main: { children: { widget: string; children?: { label: string }[] }[] };
+        bottom?: { children: { action: { open?: string } }[] };
+      };
+    const fromHut = hud(withStock(await contextOf('hut', hut), hut).added);
+    expect(fromHut.top?.children.map((c) => c.text)).toEqual([
+      'Day {time.day}',
+      '{economy.amount(resource: coins)} Coins',
+    ]);
+    expect(fromHut.bottom?.children.map((c) => c.action.open)).toEqual(['inventory', 'journal', 'codex', 'credits']);
+    const crew = filesOf('crew');
+    const crewCtx = await contextOf('crew', crew);
+    expect(crewCtx.starting.length).toBeGreaterThan(0);
+    const bars = hud(withStock(crewCtx, crew).added).main.children.find((c) => c.widget === 'panel')?.children ?? [];
+    const names = new Map(crewCtx.records.get('actor')?.map(({ id, name }) => [id, name]));
+    const followed = [...new Set(bars.map((bar) => bar.label.split(':')[0]))];
+    expect(followed).toEqual(crewCtx.starting.slice(0, 3).map((id) => names.get(id)));
   });
 });
