@@ -138,7 +138,7 @@ apps/editor/           the editor PWA
                        inputHelpers.ts, input.spec.ts and inputPhone.spec.ts are M4.2's, the hut by keys, by a
                        faked gamepad and by touch with its swipes
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 4)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 5)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6)
