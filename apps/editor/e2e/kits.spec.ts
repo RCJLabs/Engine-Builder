@@ -135,6 +135,33 @@ test('two kits ticked in one moment both stay on', async ({ page }) => {
   await expect(kitsBox(page).getByLabel('Time', { exact: true })).toBeChecked();
 });
 
+test('a box ticked as a new project opens stays ticked while its first read lands', async ({ page }) => {
+  await createProject(page, 'Opening');
+  // A slow machine, so the new project's first read is still going when the box is ticked: it
+  // landed after the tick and drew the kits as they were, unticking the box until the edit landed
+  // (M4.10, seen on a busy machine; 2 runs in 3 at this rate before the boxes kept what was asked).
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 6 });
+  // Watched from the page every frame, from before the tick, as Playwright's own checks look only once.
+  await page.evaluate(() => {
+    const box = document.getElementById('kit-roster') as HTMLInputElement;
+    const seen: boolean[] = [box.checked];
+    Object.assign(window, { seenRoster: seen });
+    const look = () => {
+      if (seen.at(-1) !== box.checked) seen.push(box.checked);
+      if (seen.length < 10) requestAnimationFrame(look);
+    };
+    box.addEventListener('change', () => seen.push(box.checked));
+    requestAnimationFrame(look);
+  });
+  await kitsBox(page).getByLabel('Roster', { exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Undo: Turn on the roster kit, with stats' })).toBeVisible();
+  await expect.poll(() => stored(page, 'opening', 'project.json')).toMatchObject({ kits: ['stats', 'roster'] });
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  await expect(kitsBox(page).getByLabel('Roster', { exact: true })).toBeChecked();
+  expect(await page.evaluate(() => (window as unknown as { seenRoster: boolean[] }).seenRoster)).toEqual([false, true]);
+});
+
 test('a kit turned off takes its types with it, and undo brings them back', async ({ page }) => {
   const errors = watchErrors(page);
   await createProject(page, 'Stall');

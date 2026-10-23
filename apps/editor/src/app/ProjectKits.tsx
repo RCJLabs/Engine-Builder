@@ -4,8 +4,10 @@
  * kit without its need. Each change is one step, which undo takes back.
  */
 import { KITS } from '@eb/kits';
+import { useEffect, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { kitsStep, kitsWith, kitToggle } from '../editing/projectEdits.ts';
+import { type Asked, NOTHING_ASKED, shownKits, stillAsked, withAsk } from './askedKits.ts';
 
 /** What each kit is called and brings, for the box beside it. */
 export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonly brings: string }>> = {
@@ -45,10 +47,27 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
   },
 };
 
+/** The boxes as asked (askedKits.ts). Undo or redo, which leave the history closed, drop every ask. */
+function useAskedKits(on: readonly string[]) {
+  const [asked, setAsked] = useState<Asked>(NOTHING_ASKED);
+  const history = editing.session.value?.history.value;
+  useEffect(() => {
+    setAsked((now) => stillAsked(on, now));
+  }, [on]);
+  // Apart from `on`: a new project's history starts closed, and a read landing would drop the asks.
+  useEffect(() => {
+    if (history && !history.open) setAsked(NOTHING_ASKED);
+  }, [history]);
+  const ask = (kit: string, wanted: boolean) => setAsked((now) => withAsk(on, now, kit, wanted));
+  return { shown: shownKits(on, asked), ask };
+}
+
 export function ProjectKits({ on }: { on: readonly string[] }) {
   const canEdit = editing.access.value.kind === 'editing';
+  const { shown, ask } = useAskedKits(on);
   const toggle = (kit: string, wanted: boolean) => {
-    void editing.edit(kitsStep(kit, wanted, on, kitsWith(on, kit, wanted)), async (copy) => {
+    ask(kit, wanted);
+    void editing.edit(kitsStep(kit, wanted, shown, kitsWith(shown, kit, wanted)), async (copy) => {
       const change = await kitToggle(copy, kit, wanted);
       return change ? [change] : [];
     });
@@ -68,7 +87,7 @@ export function ProjectKits({ on }: { on: readonly string[] }) {
               id={box}
               type="checkbox"
               class="form-check"
-              checked={on.includes(id)}
+              checked={shown.includes(id)}
               disabled={!canEdit}
               aria-describedby={`${box}-brings`}
               onChange={(event) => toggle(id, event.currentTarget.checked)}
