@@ -104,8 +104,8 @@ The original's approach phase, the dice between two ships, isn't carried over. A
 
 Found while mapping; each is fixed in M4.12 or logged under Phase 4 in the ROADMAP.
 
-1. **Gear: an item fits one named slot.** A ship with four engine bays needs an engine to fit any of them. Fixed: a slot can have a `kind`, and an item's `slot` may name the kind, so it fits any free slot of that kind.
-2. **Roster: traits drawn in list order by chance.** The original shuffles the list and takes exactly N. To fix: a recruit's `traits-draw` of `shuffle`.
+1. **Gear: an item fits one named slot.** A ship with four engine bays needs an engine to fit any of them. Fixed: a slot's `takes` lists tags, and an item with no `slot` fits any slot that takes one of its tags, the first free one unless `equip` names the slot ([stats.md](stats.md)).
+2. **Roster: traits drawn in list order by chance.** The original shuffles the list and takes exactly N. Fixed: a recruit's `draw` of `shuffle` ([roster.md](roster.md)).
 3. **Roster: a fee by rank.** The original adds 40 per rank. Logged.
 4. **Stats: an effect on a random member.** `sw/wound` is the script's. Logged as a kit effect worth having.
 5. **Economy: restock on demand,** after a job rather than by days. Logged. The board script keeps its own shelf until then.

@@ -76,6 +76,7 @@ describe('the roster kit’s types', () => {
       'stats',
       'traits',
       'most',
+      'draw',
       'fee',
     ]);
     for (const type of ['recruit', 'hall', 'roster']) expect(readTypeFile(kitTypeFiles(ON).get(type)).ok).toBe(true);
@@ -115,6 +116,11 @@ describe('recruits, halls and the roster that hold together', () => {
   it('take a chance in whole percents, at most 20 offers a round, and a bond and a leave as written', () => {
     const chancy = { ...DECKHAND, traits: [{ status: 'steady', chance: 101 }] };
     expect(codes(check([...BASE, record('recruit', 'deckhand', chancy)]))).toEqual(['E001 deckhand /traits/0/chance']);
+    // A trait may leave its chance out, as shuffled traits do (M4.12); the draw is one of two.
+    const shuffled = { ...DECKHAND, traits: [{ status: 'steady' }], most: 1, draw: 'shuffle' };
+    expect(codes(check([...BASE, record('recruit', 'deckhand', shuffled)]))).toEqual([]);
+    const dealt = { ...DECKHAND, draw: 'deal' };
+    expect(codes(check([...BASE, record('recruit', 'deckhand', dealt)]))).toEqual(['E001 deckhand /draw']);
     const busy = { offers: 21, recruits: [{ recruit: 'deckhand' }] };
     const halls = [...SOUND.filter((r) => r.type !== 'hall'), record('hall', 'dock', busy)];
     expect(codes(check(halls))).toEqual(['E001 dock /offers']);

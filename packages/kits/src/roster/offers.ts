@@ -53,17 +53,28 @@ export function roll(template: RecruitRecord, id: string, rng: Rng, worn: Readon
     const range = template.stats?.[stat] as { min: number; max?: number };
     stats[stat] = rng.int(range.min, range.max ?? range.min);
   }
-  const traits: string[] = [];
-  for (const trait of template.traits ?? []) {
-    if (template.most !== undefined && traits.length >= template.most) break;
-    if (rng.chance(trait.chance, 100)) traits.push(trait.status);
-  }
+  const traits = drawTraits(template, rng);
   return {
     recruit: id,
     name,
     ...(Object.keys(stats).length > 0 ? { stats } : {}),
     ...(traits.length > 0 ? { traits } : {}),
   };
+}
+
+/** The traits a recruit draws, in the order drawn: by chance in turn, or shuffled and the first `most` (M4.12). */
+function drawTraits(template: RecruitRecord, rng: Rng): string[] {
+  const all = template.traits ?? [];
+  if (template.draw === 'shuffle') {
+    const kept = rng.shuffle(all).slice(0, template.most ?? all.length);
+    return kept.map((trait) => trait.status);
+  }
+  const traits: string[] = [];
+  for (const trait of all) {
+    if (template.most !== undefined && traits.length >= template.most) break;
+    if (rng.chance(trait.chance ?? 100, 100)) traits.push(trait.status);
+  }
+  return traits;
 }
 
 /** What hiring a rolled recruit costs: its template's fee and each drawn trait's, added by resource. */
