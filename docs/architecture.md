@@ -264,12 +264,15 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
 
 ## Audio and haptics
 
+Built in M4.8 (D58); [specs/audio.md](specs/audio.md) is the design as built.
+
 - Every existing game synthesizes its sound. The engine keeps that as the default:
-  - an SFX designer with ZzFX-style parameters, presets and randomize;
-  - ambience beds and music stems on buses (master, music, SFX, UI);
-  - settings for each bus.
-- Files (OGG/MP3/WAV) are supported for 3D games.
-- Haptics and sounds read the same cue list (landnam's `haptics.ts`), so feedback stays consistent and can be switched off per channel.
+  - sounds are records of one to three ZzFX voices, rendered by our port of ZzFX 1.4.0 the same in every browser and in Node; above a sound's form, Play, presets, Vary and Paste ZzFX;
+  - ambience is synthesised from data (noise and drones as seamless 8-second loops, sounds now and then); music is stems from audio files in `assets/`, packed into the game file (format 8) so it plays offline;
+  - buses: master, music, ambience, effects and interface, each set by the player's volumes in the shell's settings.
+- What plays is a pure function of the screens on the stack and the view's conditions (`mixOf`): the topmost screen naming an ambience or a music wins, each layer and stem at its condition's level.
+- Haptics and sounds read the same cues, `sound` and `buzz` on the feedback lines (landnam's `haptics.ts`), sent with each step, so feedback stays consistent and can be switched off per channel.
+- Nothing is made until a press; a hidden page suspends; with Sound at 0 there is no audio context at all.
 
 ## Platform and export
 
@@ -330,7 +333,7 @@ packages/core       pure: rng, hash, records runtime, conditions/effects, reduce
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export (browser + Node)
-packages/ui         runtime UI (M4.1 to M4.5): the screens', feedback's and shell's format, the session that plays a game in a worker, words its beats, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell
+packages/ui         runtime UI (M4.1 to M4.8): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, and audio (the ZzFX port, renders, the mix, the player and buzzes)
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7

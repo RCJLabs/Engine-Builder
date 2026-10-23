@@ -1,0 +1,29 @@
+{
+  "name": "Hut",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "brown",
+      "filter": "lowpass",
+      "frequency": 450,
+      "gain": 0.5,
+      "sway": 0.4
+    },
+    {
+      "kind": "noise",
+      "colour": "pink",
+      "filter": "bandpass",
+      "frequency": 1600,
+      "gain": 0.25,
+      "sway": 0.6,
+      "when": "time.day >= 4"
+    }
+  ],
+  "now-and-then": [
+    {
+      "sound": "door",
+      "every-min": 25,
+      "every-max": 50
+    }
+  ]
+}

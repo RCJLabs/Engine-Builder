@@ -13,6 +13,7 @@ import {
   type ValidateOptions,
   validateRecords,
 } from '@eb/schema';
+import { audioFiles } from './audioFiles.ts';
 import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
@@ -94,6 +95,7 @@ export async function compileProject(
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
   const packedUi = packUi(ui);
+  const audio = failed ? {} : await audioFiles(source, records);
   return {
     diagnostics,
     pack:
@@ -106,6 +108,7 @@ export async function compileProject(
             packedUi,
             // Credits travel with the screens that can show them: a game without any keeps its pack.
             packedUi === undefined ? undefined : creditsOf(files.assetsLog, files.assets),
+            audio,
           ),
     usedBy: validation.usedBy,
     records: records.length,

@@ -15,6 +15,8 @@ export interface Theme {
   /** One spacing step, in px. */
   readonly space?: number;
   readonly radius?: number;
+  /** The interface's sounds by id (M4.8): a press, a screen opening, Back. */
+  readonly sounds?: Readonly<Partial<Record<'press' | 'open' | 'back', string>>>;
 }
 
 /** The engine's own theme, for a game without ui/theme.json. Its pairs pass AA. */

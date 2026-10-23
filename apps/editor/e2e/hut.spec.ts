@@ -2,13 +2,14 @@
  * Phase 3's gate (D50): the hut, an adventure built only in the editor. From an empty project,
  * through the editor's panels and forms, its script editor and its scene editor: the kits ticked,
  * the goods, factions and store, the talks, the quests and the storm, the sheet, the game's
- * scripts and the evening's scene, and its screens and theme in the Play panel (M4.1), each
- * compared with the hut fixture as it lands. Exported, the
+ * scripts and the evening's scene, its sounds, ambiences and music (M4.8), and its screens and
+ * theme in the Play panel (M4.1), each compared with the hut fixture as it lands. Exported, the
  * project is the fixture file for file, `eb validate` finds nothing, and `eb sim` plays it with the
  * game's bot, every quest done in some run.
  */
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
+import { makeAudio } from './hutAudio.ts';
 import { expectPlayed, expectTheFixture, exportHut } from './hutExport.ts';
 import { makeGoods } from './hutGoods.ts';
 import { FOLDER, fixture } from './hutHelpers.ts';
@@ -38,6 +39,7 @@ test('the hut, built only in the editor, exported clean and played to every ques
   await test.step('the game’s scripts', () => makeGame(page));
   await test.step('the evening, in ink', () => makeScene(page));
   await test.step('the sheet', () => makeSheet(page));
+  await test.step('the sounds, the ambiences and the music', () => makeAudio(page));
   await test.step('the screens and the theme', () => makeScreens(page));
   await test.step('exported, checked and played', async () => {
     const zip = await exportHut(page);

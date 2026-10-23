@@ -26,7 +26,16 @@ describe('a project made only of data', () => {
     const result = await compile(ludus());
     expect(brief(result.diagnostics)).toEqual([]);
     expect(result.records).toBe(8);
-    expect([...result.dataTypes.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school', 'weapon']);
+    expect([...result.dataTypes.keys()]).toEqual([
+      'flag',
+      'sheet',
+      'sound',
+      'ambience',
+      'music',
+      'gladiator',
+      'school',
+      'weapon',
+    ]);
     expect(result.pack?.hash).toBe(LUDUS_HASH);
   });
 
@@ -67,7 +76,15 @@ describe('type file problems', () => {
       'E015 types/weapon.json#/fields/name/kind: Expected a kind: text, int, number, bool, enum, ref, list, map, group, colour, asset, condition, effects',
     ]);
     expect(result.pack).toBeNull();
-    expect([...result.dataTypes.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school']);
+    expect([...result.dataTypes.keys()]).toEqual([
+      'flag',
+      'sheet',
+      'sound',
+      'ambience',
+      'music',
+      'gladiator',
+      'school',
+    ]);
   });
 
   it('reports a type file that is not JSON once', async () => {

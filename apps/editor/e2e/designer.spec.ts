@@ -22,8 +22,9 @@ test('a widget dragged by its handle among its siblings, one step that Undo take
   const region = page.getByRole('region', { name: 'Screen hut' });
   const row = (label: string) => outline(region).locator('li', { hasText: label });
   const grid = async () => {
-    const screen = JSON.parse(await storedScreen(page, 'hut'));
-    return screen.main.children[2].children.map((b: { label: string }) => b.label);
+    // Caught mid-write, the file reads as not there yet, and the poll asks again.
+    const text = await storedScreen(page, 'hut');
+    return text === '' ? [] : JSON.parse(text).main.children[2].children.map((b: { label: string }) => b.label);
   };
   // The outline sits below the frame: the rows are scrolled to before the mouse moves over them.
   const handle = row('Rest a day').locator('[data-target]');
@@ -73,6 +74,14 @@ test('the theme designed by its colours, each pair’s contrast shown as it is p
   await expect
     .poll(async () => JSON.parse((await storedText(page, FOLDER, 'ui/theme.json')) ?? '{}').colors?.muted)
     .toBe('#2a3038');
+  // The interface's sounds (M4.8), picked by name: Back gets the door.
+  const sounds = theme.getByRole('group', { name: /^Interface sounds/ });
+  await expect(sounds.getByRole('button', { name: /^Back .*Click/ })).toBeVisible();
+  await sounds.getByRole('button', { name: /^Back / }).click();
+  await page.getByRole('dialog', { name: 'Choose a sound' }).getByRole('option', { name: 'Door (door)' }).click();
+  await expect
+    .poll(async () => JSON.parse((await storedText(page, FOLDER, 'ui/theme.json')) ?? '{}').sounds)
+    .toEqual({ press: 'click', open: 'click', back: 'door' });
   expect(errors).toEqual([]);
 });
 

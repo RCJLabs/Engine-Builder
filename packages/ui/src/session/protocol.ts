@@ -5,6 +5,7 @@
  * did can run on the page. Saves are made here and kept by the page: the worker has no storage.
  */
 import type { Action, Beat, LoadReport, SaveFile, SaveProblem } from '@eb/core';
+import type { AudioPack, Cue } from '../format/audio.ts';
 import type { Said } from '../format/feedback.ts';
 import type { Screen } from '../format/screen.ts';
 import type { ShellFile } from '../format/shell.ts';
@@ -36,6 +37,8 @@ export type PlayReply =
       readonly screens: Readonly<Record<string, Screen>>;
       readonly theme: Theme | undefined;
       readonly shell: ShellFile | undefined;
+      /** Its sounds, ambience, music and music's files, sent once (M4.8). */
+      readonly audio: AudioPack;
     }
   | { readonly id: number; readonly kind: 'started'; readonly view: View; readonly save: SaveFile }
   | {
@@ -61,6 +64,8 @@ export type PlayReply =
       readonly beats: readonly Beat[];
       /** What the game's feedback says of the beats, in their order (M4.2). */
       readonly said: readonly Said[];
+      /** The sounds and buzzes it gives them (M4.8). */
+      readonly cues: readonly Cue[];
       readonly accepted: boolean;
       /** The save after the step, when it was taken (M4.3). */
       readonly save?: SaveFile;

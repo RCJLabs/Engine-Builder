@@ -139,7 +139,7 @@ export function widgetKeys(kind: string): readonly string[] {
   return [...BEFORE, ...own.filter((key) => !AFTER.includes(key)), ...AFTER, ...HOLDS];
 }
 
-export const SCREEN_KEYS = ['title', 'shows', 'modal', 'top', 'main', 'bottom'] as const;
+export const SCREEN_KEYS = ['title', 'shows', 'modal', 'top', 'main', 'bottom', 'ambience', 'music'] as const;
 export const TAB_KEYS = ['label', 'children'] as const;
 export const ACTION_KEYS = ['take', 'args', 'open', 'close', 'shell'] as const;
 export const AT_KEYS = ['phone', 'landscape', 'tablet', 'desktop'] as const;

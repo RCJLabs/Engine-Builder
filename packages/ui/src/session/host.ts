@@ -20,8 +20,8 @@ export function playHost(): (request: PlayRequest) => PlayReply {
       const result = openPack(request.pack);
       if (!result.ok) return { id, kind: 'failed', message: result.message };
       opened = result.opened;
-      const { pack, screens, theme, shell, name } = opened;
-      return { id, kind: 'opened', name, game: pack.project.id, build: pack.hash, screens, theme, shell };
+      const { pack, screens, theme, shell, name, audio } = opened;
+      return { id, kind: 'opened', name, game: pack.project.id, build: pack.hash, screens, theme, shell, audio };
     }
     if (!opened) return { id, kind: 'failed', message: 'No game is open' };
     if (request.kind === 'start') {

@@ -3,7 +3,7 @@
  * actions on offer as buttons. The top one takes focus and taps; those under it are inert. A screen
  * that comes back to the top gives focus back to the control it last had (M4.2).
  */
-import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Screen } from '../format/screen.ts';
 import { usable } from '../input/focus.ts';
 import { type Drawing, freshId } from './context.ts';
@@ -58,9 +58,32 @@ export function ScreenView({ shown, top, drawing, remembered }: ScreenProps) {
   );
 }
 
+/**
+ * Whether the main region scrolls, checked after each draw and as it or its content changes size.
+ * One that scrolls takes a tab stop, so a keyboard can reach it and scroll it, as axe asks
+ * (scrollable-region-focusable); spatial focus walks only controls, so arrows and a pad are as before.
+ */
+function useScrolls() {
+  const main = useRef<HTMLDivElement>(null);
+  const [scrolls, setScrolls] = useState(false);
+  useLayoutEffect(() => {
+    const element = main.current;
+    if (!element) return;
+    const check = () => setScrolls(element.scrollHeight > element.clientHeight + 1);
+    check();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(check);
+    observer.observe(element);
+    if (element.firstElementChild) observer.observe(element.firstElementChild);
+    return () => observer.disconnect();
+  });
+  return { main, scrolls };
+}
+
 function Regions({ screen, drawing }: { readonly screen: Screen; readonly drawing: Drawing }) {
   // Designed (M4.5), each region's widget says where it sits.
   const at = (region: string) => (drawing.design ? `/${region}` : undefined);
+  const { main, scrolls } = useScrolls();
   return (
     <>
       {screen.top && (
@@ -69,7 +92,7 @@ function Regions({ screen, drawing }: { readonly screen: Screen; readonly drawin
         </div>
       )}
       {/* A screen being designed may have no main yet: the checks say so (E047). */}
-      <div class="eb-region eb-main">
+      <div class="eb-region eb-main" ref={main} tabIndex={scrolls && !drawing.design ? 0 : undefined}>
         {screen.main && <WidgetView widget={screen.main} drawing={drawing} at={at('main')} />}
       </div>
       {screen.bottom && (

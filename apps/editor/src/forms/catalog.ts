@@ -17,6 +17,7 @@ import {
 import type { CalendarDef } from '@eb/core';
 import { DIALOGUE, TALK } from '@eb/kits';
 import { type DataType, type Diagnostic, isEngineType, type RecordType, severityOf } from '@eb/schema';
+import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 
 export interface Catalog {
   /** The project's types whose files are sound, by name, the engine's flag and sheet (D36) and the kits' (D41). */
@@ -103,7 +104,11 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
-  const names = [...new Set([...named, ...records.keys()])].sort(byText);
+  // The project's own types first, so its first is the table Records opens on; the audio after.
+  const names = [
+    ...[...new Set([...named, ...records.keys()])].filter((type) => !AUDIO_TYPES.has(type)).sort(byText),
+    ...AUDIO_ORDER,
+  ];
   const log = read.assetsLog;
   return {
     types: known.data,
@@ -124,6 +129,10 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     problems: [...read.diagnostics, ...scenes.problems, ...ui.problems],
   };
 }
+
+/** The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music are tables like a project's own (M4.8). */
+const AUDIO_ORDER = [SOUND, AMBIENCE, MUSIC];
+const AUDIO_TYPES: ReadonlySet<string> = new Set(AUDIO_ORDER);
 
 /** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, the feedback, the shell, and W132 for the rest. */
 async function readUiFiles(source: ProjectSource) {

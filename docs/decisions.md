@@ -1385,6 +1385,38 @@ Evan chose on 2026-10-23, from these options:
 
 ---
 
+### D58. Sounds are layered ZzFX voices rendered by the engine's own port; cues ride the feedback lines; ambience is synthesised and music is file stems, each layer following a condition; the hut proves it, checked by machine. LOCKED, 2026-10-23 (Evan's calls, M4.8)
+
+**Decision.**
+- **ZzFX voices, layered** (Evan's call). A sound is one to three voices, each starting at its own offset, each ZzFX's parameters as named fields. The engine renders them to samples with its own port of ZzFX 1.4.0's `buildSamples` (Frank Force, MIT, its notice kept), its one call to `Math.random` replaced by a roll the caller passes, so a sound renders the same every time and a test can hash it. The editor offers presets, Vary, and pasting a ZzFX array.
+- **Cues on the feedback lines** (Evan's call). A line in `ui/feedback.json` gains `sound` and `buzz` beside `say`, which becomes optional; lines still match events as they do. The worker sends each step's cues with its words. The theme names the sounds of a press, a screen opening and Back.
+- **Synth ambience, file stems** (Evan's call). Ambience is synthesised from data: noise and drone layers, and sounds now and then. Music is stems from audio files in `assets/`, with their provenance, started together, each stem's level following a condition. Which ambience and which music play is the top screen's to say. Generated music stays M10.4.
+- **The gate: the hut, checked by machine** (Evan's call). The hut gains sounds made with forms, a storm, a music stem, buzzes and volumes. The e2e reads the mix through a hook and catches the calls to vibrate; Node hashes the rendered sounds. Listening on a phone is a "worth a look", so the milestone merges on green.
+- **Not asked, and following from the calls:**
+  - **Sounds, ambience and music are records** of three engine types, `sound`, `ambience` and `music`, which every project has, as it has flags and sheets: they get forms, the Records table, pickers, used-by and renames for nothing. The sim never reads them.
+  - **Buzzes are named**, not written in milliseconds: `tap`, `knock`, `thud`, `double`, `alarm`, none longer than 250 ms (landnam's ceiling was 200 ms; `alarm` needs a little more). One buzz a step, the heaviest. Only after the player has touched the page, and only where the device can vibrate.
+  - **Buses:** master, then music, ambience, effects and the interface's sounds, each with headroom. The settings screen gains Sound, Music, Ambience and Effects from 0 to 100 in tens, and Vibration where the device can. With Sound at 0 no audio context is made.
+  - **Pack format 8** carries the audio files music names, as base64, so an exported game plays its music offline.
+
+Evan chose on 2026-10-23, from these options:
+- how a sound is made: ZzFX voices, layered; tone and noise layers of our own; or ZzFX with one voice;
+- where cues attach: on the feedback lines; a cue file of its own; or the lines plus a cue effect;
+- what plays underneath: synth ambience with file stems; synth only; or files only;
+- the gate: the hut, checked by machine; the hut, plus his ears; or the drift.
+
+**Why.**
+- **Every game we have synthesises its sound,** and none ships a sample file (docs/research/audio.md). ZzFX is the format the plan named, two games planned it, and its arrays paste in from its own designer. Layering covers what one voice can't: a thunderclap, a two-note chime.
+- **One file says how an event is felt:** words, a sound and a buzz on the same line, matched the same way. A second file would have to be kept in step with the first.
+- **Ambience is cheap to synthesise and expensive as files;** music is the reverse until M10.4's tool exists.
+- **Rendering our own samples** makes a sound a pure function of its record, which the editor's preview, the player and a Node test all share.
+
+**Cost.**
+- **No one hears it in CI.** The e2e reads what the mixer decided and what was asked to play, not what came out of a speaker. Whether the hut sounds good is untested for feel until Evan listens.
+- **Base64 audio makes game files bigger:** a minute of 16-bit mono at 22,050 Hz is about 3.5 MB as text. M4.10's export targets can carry files beside the pack instead.
+- **ZzFX's sounds are short by nature;** an ambience bed is the engine's own synth, not ZzFX.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

@@ -187,7 +187,7 @@ test.describe('dock, desktop 1280×800', () => {
     await page.keyboard.press('Control+k');
     const field = page.getByRole('combobox', { name: 'Command' });
     await expect(field).toBeFocused();
-    const options = page.getByRole('option');
+    const options = page.getByRole('listbox', { name: 'Commands' }).getByRole('option');
     await expect(options.first()).toHaveAttribute('aria-selected', 'true');
     await expect(field).toHaveAttribute('aria-activedescendant', 'palette-new-project');
     await page.keyboard.press('ArrowDown');

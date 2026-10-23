@@ -121,7 +121,7 @@ describe('createPack', () => {
     const rope = { asset: 'rope.png', licence: 'CC-BY-4.0', licenceName: 'CC BY 4.0', source: 'x', author: 'Ana' };
     const axe = { asset: 'axe.png', licence: 'own', licenceName: 'Own work', source: 'Drawn here' };
     const credited = createPack(project, records, undefined, { screens }, [rope, axe]);
-    expect(credited.format).toBe(PACK_FORMAT);
+    expect(credited.format).toBe(7);
     expect(credited.credits).toEqual([axe, rope]);
     expect(credited.ui).toEqual({ screens });
     expect(createPack(project, records, undefined, { screens }, [axe, rope]).hash).toBe(credited.hash);
@@ -131,6 +131,29 @@ describe('createPack', () => {
     // No credits, no format 7: the hash stays what it was.
     expect(createPack(project, records, undefined, { screens }, []).format).toBe(4);
     expect(createPack(project, records, undefined, undefined, [axe])).not.toHaveProperty('ui');
+  });
+
+  it('carries the audio files music names as format 8, credits or none, hashing them too (M4.8)', () => {
+    const screens = { hut: { main: { widget: 'log' } } };
+    const audio = { 'audio/theme.wav': 'UklGRiQAAABXQVZF' };
+    const sounded = createPack(project, records, undefined, { screens }, undefined, audio);
+    expect(sounded.format).toBe(PACK_FORMAT);
+    expect(sounded.audio).toEqual(audio);
+    expect(sounded).not.toHaveProperty('credits');
+    expect(readPack(reloaded(sounded))).toEqual(sounded);
+    const credit = { asset: 'audio/theme.wav', licence: 'own', licenceName: 'Own work', source: 'Made here' };
+    expect(readPack(reloaded(createPack(project, records, undefined, { screens }, [credit], audio))).credits).toEqual([
+      credit,
+    ]);
+    expect(
+      createPack(project, records, undefined, { screens }, undefined, { 'audio/theme.wav': 'UklGRiQ' }).hash,
+    ).not.toBe(sounded.hash);
+    // No audio, no format 8: the hash stays what it was.
+    expect(createPack(project, records, undefined, { screens }, undefined, {}).format).toBe(4);
+    expect(() => readPack({ ...reloaded(sounded), audio: {} })).toThrow('A format 8 pack has no audio');
+    expect(() => readPack({ ...reloaded(sounded), audio: { 'audio/theme.wav': 'not base64!' } })).toThrow(
+      'is not base64',
+    );
   });
 });
 
@@ -284,8 +307,8 @@ describe('readPack', () => {
   });
 
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 8 })).toThrow(
-      'This pack is format 8; this engine reads formats 1 to 7. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 9 })).toThrow(
+      'This pack is format 9; this engine reads formats 1 to 8. Update the engine.',
     );
   });
 

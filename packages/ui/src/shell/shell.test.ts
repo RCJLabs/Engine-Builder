@@ -69,17 +69,41 @@ describe('settings', () => {
     expect(readSettings(undefined)).toEqual(DEFAULT_SETTINGS);
     expect(readSettings('{"torn')).toEqual(DEFAULT_SETTINGS);
     expect(readSettings('[1]')).toEqual(DEFAULT_SETTINGS);
-    expect(readSettings('{"text":"larger","motion":"sideways"}')).toEqual({ text: 'larger', motion: 'device' });
-    expect(readSettings('{"text":"huge","motion":"less"}')).toEqual({ text: 'normal', motion: 'less' });
+    expect(readSettings('{"text":"larger","motion":"sideways"}')).toEqual({
+      ...DEFAULT_SETTINGS,
+      text: 'larger',
+      motion: 'device',
+    });
+    expect(readSettings('{"text":"huge","motion":"less"}')).toEqual({ ...DEFAULT_SETTINGS, motion: 'less' });
+  });
+
+  it('reads volumes in tens from 0 to 100 and Vibration on or off, each falling back alone (M4.8)', () => {
+    expect(DEFAULT_SETTINGS).toMatchObject({ sound: 80, music: 100, ambience: 100, effects: 100, vibration: true });
+    expect(readSettings('{"sound":0,"music":30,"ambience":100,"effects":50,"vibration":false}')).toMatchObject({
+      sound: 0,
+      music: 30,
+      ambience: 100,
+      effects: 50,
+      vibration: false,
+    });
+    // M4.3's settings, kept before there were volumes, keep their own fields and take the rest's defaults.
+    expect(readSettings('{"text":"large","motion":"less"}')).toEqual({
+      ...DEFAULT_SETTINGS,
+      text: 'large',
+      motion: 'less',
+    });
+    expect(readSettings('{"sound":35,"music":110,"ambience":-10,"effects":"loud","vibration":"no"}')).toEqual(
+      DEFAULT_SETTINGS,
+    );
   });
 
   it('puts the text scale and a motion that isn’t the device’s on the root', () => {
     expect(settingsAttrs(DEFAULT_SETTINGS)).toEqual({ style: { '--eb-text-scale': '1' } });
-    expect(settingsAttrs({ text: 'large', motion: 'less' })).toEqual({
+    expect(settingsAttrs({ ...DEFAULT_SETTINGS, text: 'large', motion: 'less' })).toEqual({
       style: { '--eb-text-scale': '1.2' },
       'data-motion': 'less',
     });
-    expect(settingsAttrs({ text: 'larger', motion: 'full' })).toMatchObject({
+    expect(settingsAttrs({ ...DEFAULT_SETTINGS, text: 'larger', motion: 'full' })).toMatchObject({
       style: { '--eb-text-scale': '1.4' },
       'data-motion': 'full',
     });

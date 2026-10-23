@@ -18,6 +18,7 @@ import {
   type Session,
   type SimContext,
 } from '@eb/core';
+import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
 import { mapShows } from './mapView.ts';
 import { codexEntries, creditEntries, parseCodex } from './records.ts';
@@ -41,6 +42,8 @@ export interface Play {
     readonly view: View;
     readonly beats: readonly Beat[];
     readonly said: readonly Said[];
+    /** The sounds and buzzes the feedback gives the beats (M4.8). */
+    readonly cues: readonly Cue[];
     readonly accepted: boolean;
   };
 }
@@ -142,14 +145,14 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
       if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
-        return { view, beats: [], said: [], accepted: false };
+        return { view, beats: [], said: [], cues: [], accepted: false };
       }
       const step = session.dispatch(action);
       view = viewOf(session.state);
       const beats = session.drain();
       // The step's records name what its beats carry, those it made among them.
-      const said = say ? say(beats, game.content(session.state, sim)) : [];
-      return { view, beats, said, accepted: step.accepted };
+      const felt = say ? say(beats, game.content(session.state, sim)) : { said: [], cues: [] };
+      return { view, beats, said: felt.said, cues: felt.cues, accepted: step.accepted };
     },
   };
 }

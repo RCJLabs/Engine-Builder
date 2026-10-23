@@ -7,6 +7,8 @@ import {
   ALIGNS,
   BREAKPOINTS,
   BUTTON_STYLES,
+  BUZZ_NAMES,
+  type Buzz,
   COLOR_NAMES,
   DIRECTIONS,
   FEEDBACK_TO,
@@ -21,6 +23,7 @@ import {
   SOURCES,
   TEXT_STYLES,
   type Theme,
+  UI_SOUNDS,
   type Widget,
 } from '@eb/ui/format';
 import { z } from 'zod';
@@ -109,6 +112,8 @@ export const screenSchema = z.strictObject({
   top: widgetSchema.optional(),
   main: widgetSchema,
   bottom: widgetSchema.optional(),
+  ambience: z.string().min(1).optional(),
+  music: z.string().min(1).optional(),
 }) as unknown as z.ZodType<Screen>;
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'A colour as #rrggbb');
@@ -119,17 +124,29 @@ export const themeSchema = z.strictObject({
   size: z.int().min(12).max(24).optional(),
   space: z.int().min(2).max(16).optional(),
   radius: z.int().min(0).max(24).optional(),
+  sounds: z.partialRecord(z.enum(UI_SOUNDS), z.string().min(1)).optional(),
 }) as unknown as z.ZodType<Theme>;
 
 /** ui/feedback.json (M4.2, docs/specs/input.md#feedback). What its lines name is feedbackCheck.ts's. */
 export const feedbackSchema = z.strictObject({
   lines: z.array(
-    z.strictObject({
-      on: z.string().min(1),
-      where: z.record(z.string(), value).optional(),
-      say: z.string().min(1),
-      to: z.enum(FEEDBACK_TO).optional(),
-    }),
+    z
+      .strictObject({
+        on: z.string().min(1),
+        where: z.record(z.string(), value).optional(),
+        say: z.string().min(1).optional(),
+        to: z.enum(FEEDBACK_TO).optional(),
+        sound: z.string().min(1).optional(),
+        buzz: z.enum(BUZZ_NAMES as [Buzz, ...Buzz[]]).optional(),
+      })
+      // A line that does nothing, or goes somewhere with nothing to say (M4.8).
+      .refine((line) => line.say !== undefined || line.sound !== undefined || line.buzz !== undefined, {
+        error: 'A line says, sounds or buzzes: give it say, sound or buzz',
+      })
+      .refine((line) => line.to === undefined || line.say !== undefined, {
+        error: 'Only words go to a toast or the log: give this line say, or take out to',
+        path: ['to'],
+      }),
   ),
 }) as unknown as z.ZodType<Feedback>;
 

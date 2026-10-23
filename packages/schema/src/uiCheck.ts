@@ -9,12 +9,15 @@
 import { type EventCatalog, type FactCatalog, pointerSegment, type RecordIndex } from '@eb/core';
 import {
   AA_BODY,
+  AMBIENCE,
   CONTRAST_PAIRS,
   contrast,
   type ListWidget,
+  MUSIC,
   NO_ACTION,
   REGIONS,
   type Screen,
+  SOUND,
   SOURCE_KITS,
   type Source,
   type Theme,
@@ -24,6 +27,7 @@ import {
 import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { checkFeedback } from './feedbackCheck.ts';
 import { schemaIssues } from './issues.ts';
+import { missingRecord } from './missingRecord.ts';
 import { checkShell } from './shellCheck.ts';
 import { checkTemplate, checkWhen, type Scope } from './templateCheck.ts';
 import { unclosable, unshownModes } from './uiLints.ts';
@@ -95,7 +99,7 @@ export function checkUi(
     checkScreen(screen, file, screens, options, report);
     unclosable(screen, file, diagnostics);
   }
-  if (theme !== undefined && !theme.unreadable) checkTheme(theme, report);
+  if (theme !== undefined && !theme.unreadable) checkTheme(theme, options.records, report);
   if (feedback !== undefined && !feedback.unreadable) {
     diagnostics.push(...checkFeedback(feedback.file, feedback.value, options.events, options.records));
   }
@@ -115,6 +119,10 @@ function checkScreen(
     if (options.modes !== undefined && !options.modes.includes(mode)) {
       report('E049', file, `/shows/${i}`, `The game has no mode "${mode}"`);
     }
+  }
+  for (const type of [AMBIENCE, MUSIC] as const) {
+    const problem = missingRecord(options.records, type, screen[type]);
+    if (problem) report('E049', file, `/${type}`, problem);
   }
   const check = (widget: Widget, at: Place) => checkWidget(widget, at, screens, options, report);
   const typed = (type: string | undefined) =>
@@ -275,11 +283,15 @@ const WHOSE: Readonly<Partial<Record<Source, string>>> = {
   credits: 'credits list’s',
 };
 
-function checkTheme(theme: UiFile, report: Report): void {
+function checkTheme(theme: UiFile, records: RecordIndex | undefined, report: Report): void {
   const issues = schemaIssues(themeSchema, theme.value);
   for (const issue of issues) report('E047', theme.file, issue.path, issue.message);
   if (issues.length > 0) return;
-  const { colors } = theme.value as Theme;
+  const { colors, sounds = {} } = theme.value as Theme;
+  for (const [kind, id] of Object.entries(sounds)) {
+    const problem = missingRecord(records, SOUND, id);
+    if (problem) report('E049', theme.file, `/sounds/${kind}`, problem);
+  }
   for (const [fore, back] of CONTRAST_PAIRS) {
     const ratio = contrast(colors[fore], colors[back]);
     if (ratio < AA_BODY) {

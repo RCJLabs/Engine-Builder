@@ -1,0 +1,20 @@
+{
+  "name": "Chime",
+  "voices": [
+    {
+      "volume": 0.7,
+      "randomness": 0,
+      "frequency": 660,
+      "attack": 0.01,
+      "release": 0.6
+    },
+    {
+      "at": 0.12,
+      "volume": 0.7,
+      "randomness": 0,
+      "frequency": 880,
+      "attack": 0.01,
+      "release": 0.8
+    }
+  ]
+}

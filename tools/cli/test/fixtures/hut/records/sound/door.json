@@ -1,0 +1,14 @@
+{
+  "name": "Door",
+  "voices": [
+    {
+      "volume": 0.9,
+      "frequency": 55,
+      "release": 0.4,
+      "shape": "saw",
+      "slide": -1,
+      "noise": 0.3,
+      "filter": -600
+    }
+  ]
+}

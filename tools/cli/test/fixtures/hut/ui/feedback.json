@@ -1,15 +1,28 @@
 {
   "lines": [
     { "on": "time/day-started", "say": "Day {.day} begins.", "to": "log" },
-    { "on": "hut/carried", "say": "You carry a load up from the village.", "to": "log" },
+    {
+      "on": "hut/carried",
+      "say": "You carry a load up from the village.",
+      "to": "log",
+      "sound": "load",
+      "buzz": "knock"
+    },
     { "on": "hut/visited", "where": { "who": "greta" }, "say": "You go down to see Greta.", "to": "log" },
     { "on": "hut/visited", "where": { "who": "anselm" }, "say": "You look in on Anselm.", "to": "log" },
     { "on": "inventory/gained", "say": "{.item} ×{.count} into the bag" },
-    { "on": "economy/changed", "where": { "resource": "coins" }, "say": "Coins: {.by}", "to": "log" },
+    {
+      "on": "economy/changed",
+      "where": { "resource": "coins" },
+      "say": "Coins: {.by}",
+      "to": "log",
+      "sound": "coin",
+      "buzz": "tap"
+    },
     { "on": "factions/standing-changed", "say": "{.faction}: {.by}", "to": "log" },
     { "on": "quests/started", "say": "In the journal: {.quest}" },
-    { "on": "quests/done", "say": "Done: {.quest}" },
+    { "on": "quests/done", "say": "Done: {.quest}", "sound": "chime", "buzz": "double" },
     { "on": "quests/failed", "say": "Failed: {.quest}. {.why}" },
-    { "on": "hut/closed", "say": "The hut is shut for the winter." }
+    { "on": "hut/closed", "say": "The hut is shut for the winter.", "sound": "door", "buzz": "thud" }
   ]
 }

@@ -124,7 +124,13 @@ test('the hut exported as a game file and played at /play/, which opens again of
   expect(download.suggestedFilename()).toBe('the-hut-0.1.0.game.json');
   const file = join(scratch, `the-hut-${Date.now()}.game.json`);
   await download.saveAs(file);
-  expect(JSON.parse(readFileSync(file, 'utf8'))).toMatchObject({ format: 6, project: { id: 'the-hut' } });
+  // The hut's music travels in the game file, its stem byte for byte (M4.8).
+  const stem = readFileSync(join(HUT, 'assets/audio/hut-theme.wav')).toString('base64');
+  expect(JSON.parse(readFileSync(file, 'utf8'))).toMatchObject({
+    format: 8,
+    project: { id: 'the-hut' },
+    audio: { 'audio/hut-theme.wav': stem },
+  });
 
   await page.goto('play/');
   await expect(page.getByRole('heading', { level: 1, name: 'Play a game' })).toBeVisible();

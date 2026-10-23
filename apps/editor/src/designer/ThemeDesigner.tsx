@@ -32,6 +32,17 @@ const THEME: TypeFile = {
     size: { kind: 'int', min: 10, max: 32, optional: true, label: 'Text size', description: 'Body text, in px.' },
     space: { kind: 'int', min: 0, max: 32, optional: true, label: 'Space', description: 'One spacing step, in px.' },
     radius: { kind: 'int', min: 0, max: 32, optional: true, label: 'Corner radius', description: 'In px.' },
+    // The interface's sounds (M4.8): a press, a screen a button opens, Back or a Close.
+    sounds: {
+      kind: 'group',
+      optional: true,
+      label: 'Interface sounds',
+      fields: {
+        press: { kind: 'ref', to: 'sound', optional: true, label: 'A press' },
+        open: { kind: 'ref', to: 'sound', optional: true, label: 'A screen opening' },
+        back: { kind: 'ref', to: 'sound', optional: true, label: 'Back' },
+      },
+    },
   },
 };
 
@@ -147,7 +158,7 @@ export function ThemeDesigner({ project }: { project: OpenProject }) {
             />
           ))}
           <Contrast colors={colors} />
-          {(['font', 'size', 'space', 'radius'] as const).map((name) => {
+          {(['font', 'size', 'space', 'radius', 'sounds'] as const).map((name) => {
             const def = THEME.fields[name] as FieldDef;
             return (
               <FieldView key={name} label={def.label ?? name} def={def} info={def} path={[name]} value={theme[name]} />

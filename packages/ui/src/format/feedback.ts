@@ -4,6 +4,7 @@
  * for them live here, beside its screens, and the worker fills them in after each step.
  */
 import type { Value } from '@eb/core';
+import type { Buzz } from './audio.ts';
 
 /** Where a line goes: a toast, the log, or both, the default. */
 export const FEEDBACK_TO = ['toast', 'log', 'both'] as const;
@@ -14,9 +15,13 @@ export interface FeedbackLine {
   readonly on: string;
   /** Some of the event's arguments: the line says only beats whose arguments equal these. */
   readonly where?: Readonly<Record<string, Value>>;
-  /** Words whose holes are the event's arguments, as `{.item}`. */
-  readonly say: string;
+  /** Words whose holes are the event's arguments, as `{.item}`. Optional since M4.8: a line may only sound or buzz. */
+  readonly say?: string;
   readonly to?: FeedbackTo;
+  /** A sound record's id, played as the beat comes (M4.8, D58). */
+  readonly sound?: string;
+  /** A buzz by name: one a step, the heaviest. */
+  readonly buzz?: Buzz;
 }
 
 export interface Feedback {

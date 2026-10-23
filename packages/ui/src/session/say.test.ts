@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RECORDS as CRAG, cragWith } from '../../../kits/test/crag.ts';
 import type { Feedback } from '../format/feedback.ts';
 import { startPlay } from './play.ts';
+import { feedbackSayer } from './say.ts';
 
 const crag = cragWith(CRAG, { first: 'marge', start: 'talking' });
 const kits = ['inventory', 'economy', 'dialogue'];
@@ -65,5 +66,24 @@ describe('what a step says (M4.2)', () => {
       expect.arrayContaining(['— —']),
     );
     expect(p.act({ type: 'dialogue/say', option: 'first' }).said).toEqual([]);
+  });
+});
+
+describe('what a step is felt as (M4.8)', () => {
+  it('cues a line that only buzzes, which ends the search as a said line does', () => {
+    const felt = feedbackSayer(
+      {
+        lines: [
+          { on: 'hut/carried', buzz: 'knock' },
+          { on: 'hut/carried', say: 'Never said: the line above felt it.', sound: 'load' },
+          { on: 'hut/rested', sound: 'door' },
+        ],
+      },
+      {},
+    );
+    expect(felt([{ type: 'hut/carried' }, { type: 'hut/rested' }], {} as never)).toEqual({
+      said: [],
+      cues: [{ buzz: 'knock' }, { sound: 'door' }],
+    });
   });
 });

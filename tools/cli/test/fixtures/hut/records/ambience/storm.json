@@ -1,0 +1,27 @@
+{
+  "name": "Storm",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "white",
+      "filter": "highpass",
+      "frequency": 2500,
+      "gain": 0.3,
+      "sway": 0.8
+    },
+    {
+      "kind": "noise",
+      "colour": "brown",
+      "filter": "lowpass",
+      "frequency": 200,
+      "gain": 0.7,
+      "sway": 0.5
+    },
+    {
+      "kind": "drone",
+      "shape": "saw",
+      "frequency": 41,
+      "gain": 0.1
+    }
+  ]
+}

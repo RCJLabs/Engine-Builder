@@ -1,0 +1,9 @@
+{
+  "files": {
+    "audio/hut-theme.wav": {
+      "licence": "own",
+      "source": "Rendered for the hut by the engine's own ZzFX port (tools/cli/test/fixtures/hut-theme.ts)",
+      "date": "2026-10-23"
+    }
+  }
+}

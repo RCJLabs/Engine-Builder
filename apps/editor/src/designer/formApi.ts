@@ -8,6 +8,7 @@ import type { FormApi } from '../forms/formContext.ts';
 import { pointerOf } from '../forms/formContext.ts';
 import { getIn, type Path } from '../forms/values.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { namesOf } from '../records/names.ts';
 import { pathOf, pruneAt, setAt } from './paths.ts';
 import { editFile } from './state.ts';
 
@@ -37,6 +38,8 @@ export function formApi(part: Part): FormApi {
   return {
     canEdit,
     catalog: project.catalog,
+    // Pickers name records as the record form's do (M4.8): "Hut (hut)".
+    names: namesOf(project.index, project.catalog),
     typeFile,
     id: file,
     problemsAt: (pointer) => problems.filter((p) => p.path === `${at}${pointer}`),

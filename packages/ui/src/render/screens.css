@@ -205,6 +205,12 @@
   outline-offset: 2px;
 }
 
+/* A main region that scrolls takes a tab stop (Screen.tsx): its ring sits inside, where it isn't clipped. */
+.eb-main:focus-visible {
+  outline: 3px solid var(--eb-accent);
+  outline-offset: -3px;
+}
+
 .eb-list {
   list-style: none;
   margin: 0;

@@ -35,6 +35,10 @@ test('kits turned on, their records made with forms, a row giving an item, and t
     'Loot table (0)',
     'Resource (0)',
     'Shop (0)',
+    // The engine's audio types follow a project's own (M4.8).
+    'Sound (0)',
+    'Ambience (0)',
+    'Music (0)',
   ]);
   const medkit = await newRecord(page, 'item', 'Item', 'Medkit');
   await medkit.getByLabel(/^Value/).fill('30');

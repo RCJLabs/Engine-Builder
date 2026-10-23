@@ -239,6 +239,24 @@ describe('checkUi', () => {
     expect(only(map, { kits: ['maps'] })).toEqual([]);
   });
 
+  it('gives a screen’s ambience or music, or a theme’s sound, that names no record as E049 (M4.8)', () => {
+    const heard: RecordIndex = {
+      ids: () => [],
+      has: (type, id) => (type === 'ambience' || type === 'music' || type === 'sound') && id === 'hut',
+    };
+    const main = { widget: 'text', text: 'Hi' };
+    const at = (file: string, path: string, message: string) => ({ code: 'E049', file, path, message });
+    expect(check({ hud: screen(main, { ambience: 'hut', music: 'hut' }), ...shown }, { records: heard })).toEqual([]);
+    expect(check({ hud: screen(main, { ambience: 'wind', music: 'tune' }), ...shown }, { records: heard })).toEqual([
+      at('ui/hud.json', '/ambience', 'There’s no ambience record "wind"'),
+      at('ui/hud.json', '/music', 'There’s no music record "tune"'),
+    ]);
+    const theme = { ...DEFAULT_THEME, sounds: { press: 'hut', back: 'slam' } };
+    expect(check({ hud: screen(main), ...shown }, { records: heard }, theme)).toEqual([
+      at('ui/theme.json', '/sounds/back', 'There’s no sound record "slam"'),
+    ]);
+  });
+
   it('leaves actions and modes unchecked until the game has run', () => {
     const main = { widget: 'button', label: 'Sail', action: { take: 'hut/sail' } };
     const { actions: _, modes: __, ...unknown } = game;

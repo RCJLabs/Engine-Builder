@@ -120,6 +120,10 @@ apps/editor/           the editor PWA
   src/encounters/      the fight above an encounter's form (M4.7, D57): fightPreview.ts (the kit's own table from
                        the records at full health, against its fighters, the roster's start or one actor picked;
                        a result in words) and FightPreview.tsx; its styles, styles/encounters.css
+  src/audio/           the previews above a sound's, an ambience's and a music's forms (M4.8, D58): soundEdits.ts
+                       (Paste ZzFX, the presets, Vary, a half-made sound played, as plain functions), loopParts.ts
+                       (the parts and the mix a loop's preview plays), SoundPreview.tsx and LoopPreview.tsx (through
+                       the game's own player); Records lists sound, ambience and music after a project's own types
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -167,9 +171,13 @@ apps/editor/           the editor PWA
                        maps.spec.ts and mapsPhone.spec.ts are M4.6's, the drift's sector and the valley made in
                        the World panel and the drift flown to its exit through its map widget; encounterHelpers.ts,
                        encounters.spec.ts and encountersPhone.spec.ts are M4.7's, the drift's fight and the pit's
-                       thraex bout made with forms, and the drift's first hostile ship fought, its odds the table's
+                       thraex bout made with forms, and the drift's first hostile ship fought, its odds the table's;
+                       hutAudio.ts is M4.8's step of hut.spec.ts (the hut's stem imported, its sounds pasted in as
+                       ZzFX, its ambiences and music made with forms); audioHelpers.ts, audio.spec.ts and
+                       audioPhone.spec.ts are M4.8's, the hut heard through window.__ebAudio, buzzes caught from a
+                       stand-in navigator.vibrate, the volumes by touch, and the sound preview
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 7)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6)
@@ -216,7 +224,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        (E035, E053, W119, W120, W135 over 300 seeds, W136); a map widget without the kit is E049;
                        M4.7: encounterTypes.ts (combat, encounter), encounterEffects.ts (fight, with its stance, as
                        fields), encounterCheck.ts (E035, E054, W137); a button's detail checked as its label;
-                       not pure
+                       M4.8: audioTypes.ts (sound, ambience, music: the engine's audio types, in ENGINE_DATA); a
+                       screen's ambience and music, a theme's sounds and a feedback line's sound as E049; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -229,7 +238,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        (ui/ read, checked with each problem at its line, packed; the feedback too, M4.2, and the
                        shell, M4.3), uiFiles.ts (where screens, the theme, the feedback and the shell sit) and jsonLines.ts (a JSON Pointer's line in a
                        file's text); M4.4: credits.ts (the assets' credits, from the provenance log, packed as format 7
-                       with screens); not pure
+                       with screens); M4.8: audioFiles.ts (the stems a music names, as base64, packed as format
+                       8); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -274,14 +284,18 @@ packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's
                        weave.ts (choices and gathers nested), lower.ts (lines to be), emit.ts (ids, the talk, the
                        map); inkjs.test.ts holds it to inkjs, a dev dependency, way by way
 packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.ts, the widgets and sources;
-                       template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2);
+                       template.ts; bindings.ts, what screens name; theme.ts and its contrast; feedback.ts, M4.2;
+                       audio.ts, the audio records, buzzes and ZzFX's arguments, M4.8);
                        session/ (play.ts: a game played and its view after each step, or resumed from a state, and
                        looked at for other wants, taking no step (M4.5); views.ts, the kits' views as lists;
                        mapView.ts, the map in words from enter-map's preview (M4.6);
                        words.ts (fightText: a fight choice's odds from its preview, M4.7); say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
                        after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
                        fromPack.ts and host.ts, a pack opened in a worker, its games started or loaded from a save's
-                       text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
+                       text; protocol.ts; audioPack.ts, the audio records as the page plays them, M4.8); audio/
+                       (M4.8, D58: zzfx.ts, the ZzFX 1.4.0 port; render.ts, a sound and a layer's loop; mix.ts,
+                       mixOf and the heaviest buzz, as plain functions; player.ts, Web Audio's buses, beds, stems
+                       and buzzes; hook.ts, window.__ebAudio; useAudio.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
                        and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
                        each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
                        stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
@@ -317,7 +331,9 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        fresh, and gatehouse-chooser.golden.json (M3.11); hut/, Phase 3's gate, an original
                        adventure at an alpine hut that hut.spec.ts builds in the editor, and hut-keeper.golden.json;
                        its ui/ (M4.1), six screens and a theme, which hutScreens.test.ts plays through, its
-                       feedback (M4.2) and its shell (M4.3), whose saves the same test loads back; drift/, a slice
+                       feedback (M4.2) and its shell (M4.3), whose saves the same test loads back; its sounds,
+                       ambiences and music (M4.8), whose stem hut-theme.ts renders, hutAudio.test.ts holds to
+                       their hashes and audio-bench.ts times; drift/, a slice
                        of Space-Wrecked's sector run made with the maps kit, its stock screens, which
                        driftScreens.test.ts plays through, and drift-pilot.golden.json; valley/, a map drawn by
                        hand in Dirtbag's style, and valley-random.golden.json (M4.6); the drift's hostile ships

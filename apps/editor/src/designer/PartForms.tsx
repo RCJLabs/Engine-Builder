@@ -1,6 +1,6 @@
 /**
  * The forms for what isn't a widget (M4.5): the screen itself (its title, the modes it shows,
- * whether it is modal) and a tab (its label). The modes are the game's once its scripts have run,
+ * whether it is modal, and since M4.8 the ambience and music it plays) and a tab (its label). The modes are the game's once its scripts have run,
  * each a box to tick; a mode the file names that the game lacks stays, marked, for the checks.
  */
 import type { FieldDef, TypeFile } from '@eb/schema';
@@ -18,6 +18,15 @@ const SCREEN: TypeFile = {
   fields: {
     title: { kind: 'text', optional: true, label: 'Title', description: 'What a screen reader hears as it opens.' },
     modal: { kind: 'bool', optional: true, label: 'Modal: drawn over the screen below' },
+    // What the screen plays (M4.8): the topmost screen on the stack that names one wins.
+    ambience: {
+      kind: 'ref',
+      to: 'ambience',
+      optional: true,
+      label: 'Ambience',
+      description: 'What plays underneath while it is up.',
+    },
+    music: { kind: 'ref', to: 'music', optional: true, label: 'Music' },
   },
 };
 const TAB: TypeFile = {
@@ -30,7 +39,7 @@ export function ScreenForm(
 ) {
   const { screen } = props;
   const api = formApi({ ...props, at: '', typeFile: SCREEN });
-  const field = (name: 'title' | 'modal') => {
+  const field = (name: 'title' | 'modal' | 'ambience' | 'music') => {
     const def = SCREEN.fields[name] as FieldDef;
     return <FieldView label={def.label ?? name} def={def} info={def} path={[name]} value={screen[name]} />;
   };
@@ -40,6 +49,8 @@ export function ScreenForm(
         {field('title')}
         <Shows {...props} />
         {field('modal')}
+        {field('ambience')}
+        {field('music')}
       </div>
     </FormContext.Provider>
   );

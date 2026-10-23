@@ -5,6 +5,7 @@
  * state, and a line says only what its beat carries.
  */
 import { type Beat, canonicalJson, type EventCatalog, type RecordStore } from '@eb/core';
+import type { Cue } from '../format/audio.ts';
 import type { Feedback, FeedbackLine, Said } from '../format/feedback.ts';
 import { type Segment, splitTemplate } from '../format/template.ts';
 import { nameOf } from './words.ts';
@@ -21,26 +22,43 @@ const matches = (line: FeedbackLine, beat: Beat) =>
     ([name, wanted]) => Object.hasOwn(beat, name) && canonicalJson(beat[name]) === canonicalJson(wanted),
   );
 
+/** A step's beats as the feedback has them: its words, and its sounds and buzzes (M4.8). */
+export interface Felt {
+  readonly said: Said[];
+  readonly cues: Cue[];
+}
+
 /** The game's feedback made ready once: its lines by the event they are on, in the file's order. */
 export function feedbackSayer(
   feedback: Feedback,
   events: EventCatalog,
-): (beats: readonly Beat[], content: RecordStore) => Said[] {
+): (beats: readonly Beat[], content: RecordStore) => Felt {
   const byEvent = new Map<string, Ready[]>();
   for (const line of feedback.lines) {
-    const split = splitTemplate(line.say);
-    const ready = { line, segments: split.ok ? split.segments : undefined };
+    const split = line.say === undefined ? undefined : splitTemplate(line.say);
+    const ready = { line, segments: split?.ok ? split.segments : undefined };
     byEvent.set(line.on, [...(byEvent.get(line.on) ?? []), ready]);
   }
   return (beats, content) => {
     const said: Said[] = [];
+    const cues: Cue[] = [];
     for (const beat of beats) {
+      // The first line that matches feels the beat, whether it says, sounds or buzzes.
       const found = byEvent.get(beat.type)?.find(({ line }) => matches(line, beat));
       if (found === undefined) continue;
-      const text = found.segments ? fillBeat(found.segments, beat, events[beat.type]?.args, content) : found.line.say;
-      said.push({ text, to: found.line.to ?? 'both' });
+      const { line } = found;
+      if (line.say !== undefined) {
+        const text = found.segments ? fillBeat(found.segments, beat, events[beat.type]?.args, content) : line.say;
+        said.push({ text, to: line.to ?? 'both' });
+      }
+      if (line.sound !== undefined || line.buzz !== undefined) {
+        cues.push({
+          ...(line.sound !== undefined ? { sound: line.sound } : {}),
+          ...(line.buzz ? { buzz: line.buzz } : {}),
+        });
+      }
     }
-    return said;
+    return { said, cues };
   };
 }
 

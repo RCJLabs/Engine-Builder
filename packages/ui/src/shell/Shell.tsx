@@ -5,6 +5,7 @@
  * own screens are GameScreens', untouched.
  */
 import { useEffect, useMemo, useRef } from 'preact/hooks';
+import { useAudio } from '../audio/useAudio.ts';
 import { shellSettings } from '../format/shell.ts';
 import { useInput } from '../input/useInput.ts';
 import { GameScreens } from '../render/GameScreens.tsx';
@@ -28,6 +29,11 @@ export function Shell(props: ShellProps) {
   const { opened, store, edition } = props;
   const state = useShell(props);
   const [settings, change] = useSettings(store, opened.game, edition);
+  const audio = useAudio(opened.audio, opened.theme?.sounds, settings);
+  // Out of play, on the shell's title or after a game stops, nothing plays.
+  useEffect(() => {
+    if (!state.play) audio.setMix({ levels: {} });
+  }, [audio, state.play === undefined]);
   const box = useRef<HTMLDivElement>(null);
   const memory = useMemo<ScreenMemory>(() => new Map(), [opened]);
   const { screen, play } = state;
@@ -77,6 +83,8 @@ export function Shell(props: ShellProps) {
             theme={opened.theme}
             view={play.view}
             said={play.said}
+            audio={audio}
+            cues={play.cues}
             busy={state.busy}
             act={state.act}
             history={props.history === true && screen === undefined}

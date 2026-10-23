@@ -61,7 +61,10 @@ test.describe('editing, desktop 1280×800', () => {
     await expect(nameField(page)).toHaveValue('Dirtbag');
     await page.keyboard.press('Control+k');
     await page.keyboard.type('redo');
-    await expect(page.getByRole('option')).toHaveText(['Redo: Rename the project']);
+    // The palette's own options: Records' type list has options of its own since M4.8.
+    await expect(page.getByRole('listbox', { name: 'Commands' }).getByRole('option')).toHaveText([
+      'Redo: Rename the project',
+    ]);
     await page.keyboard.press('Enter');
     await expect(nameField(page)).toHaveValue('Dirtbag Valley');
     await expect(page.locator('.console')).toContainText('Undone: Rename the project.');

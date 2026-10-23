@@ -11,12 +11,13 @@ import { type CalendarDef, calendarOf } from './time/calendar.ts';
  * JavaScript; format 3 (M3.3) the kits its project lists, scripts or none; format 4 (M4.1) the
  * game's screens, kits and scripts or none; format 5 (M4.2) the game's feedback, the words its
  * beats are said in, screens or none; format 6 (M4.3) its play shell's settings, ui/shell.json,
- * feedback or none; format 7 (M4.4) its assets' credits, from the provenance log, ui or none. A
- * pack is written in the lowest format that holds it,
+ * feedback or none; format 7 (M4.4) its assets' credits, from the provenance log, ui or none;
+ * format 8 (M4.8) the audio files its music names, as base64, credits or none. A pack is written
+ * in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 7;
+export const PACK_FORMAT = 8;
 
 export interface PackProject {
   readonly id: string;
@@ -57,15 +58,17 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
   readonly scripts?: Readonly<Record<string, string>>;
   /** Format 4: the screens, at least one, and the theme if there is one. Format 5: the feedback too, screens or none. Format 6: the shell, feedback or none. */
   readonly ui?: PackUi;
-  /** Format 7: each asset's credit, by its path, at least one (M4.4). */
+  /** Format 7: each asset's credit, by its path, at least one (M4.4). Format 8: credits or none. */
   readonly credits?: readonly PackCredit[];
+  /** Format 8: the audio files the music records name, base64 by their path inside assets/, at least one (M4.8). */
+  readonly audio?: Readonly<Record<string, string>>;
   /** FNV-1a 64 of the canonical JSON of the rest of the pack: the same content gives the same hash anywhere. */
   readonly hash: string;
 }
@@ -78,6 +81,7 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
     ...(pack.scripts !== undefined ? { scripts: pack.scripts } : {}),
     ...(pack.ui !== undefined ? { ui: pack.ui } : {}),
     ...(pack.credits !== undefined ? { credits: pack.credits } : {}),
+    ...(pack.audio !== undefined ? { audio: pack.audio } : {}),
   });
 
 /**
@@ -92,35 +96,42 @@ export function createPack(
   scripts?: Readonly<Record<string, string>>,
   ui?: PackUi,
   credits?: readonly PackCredit[],
+  audio?: Readonly<Record<string, string>>,
 ): Pack {
   const scripted = scripts !== undefined && Object.keys(scripts).length > 0;
   // The calendar travels only with the kits: it is the time kit's.
   const { kits, calendar, ...plain } = project;
   const hasKits = kits !== undefined && kits.length > 0;
   const kitted = hasKits ? { ...plain, kits, ...(calendar !== undefined ? { calendar } : {}) } : plain;
-  const hasUi =
-    ui !== undefined && (Object.keys(ui.screens).length > 0 || ui.feedback !== undefined || ui.shell !== undefined);
-  const content =
-    credits !== undefined && credits.length > 0
-      ? ({
-          format: 7,
-          project: kitted,
-          records,
-          ...(scripted ? { scripts } : {}),
-          ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
-          credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)),
-        } as const)
+  const screened = ui !== undefined && Object.keys(ui.screens).length > 0;
+  const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
+  const credited = credits !== undefined && credits.length > 0;
+  const sounded = audio !== undefined && Object.keys(audio).length > 0;
+  // The lowest format that holds it: each format adds one thing to the one before.
+  const format = sounded
+    ? 8
+    : credited
+      ? 7
       : ui?.shell !== undefined
-        ? ({ format: 6, project: kitted, records, ...(scripted ? { scripts } : {}), ui: uiOf(ui) } as const)
+        ? 6
         : ui?.feedback !== undefined
-          ? ({ format: 5, project: kitted, records, ...(scripted ? { scripts } : {}), ui: uiOf(ui) } as const)
-          : ui !== undefined && Object.keys(ui.screens).length > 0
-            ? ({ format: 4, project: kitted, records, ...(scripted ? { scripts } : {}), ui: uiOf(ui) } as const)
+          ? 5
+          : screened
+            ? 4
             : hasKits
-              ? ({ format: 3, project: kitted, records, ...(scripted ? { scripts } : {}) } as const)
+              ? 3
               : scripted
-                ? ({ format: 2, project: plain, records, scripts } as const)
-                : ({ format: 1, project: plain, records } as const);
+                ? 2
+                : 1;
+  const content = {
+    format,
+    project: kitted,
+    records,
+    ...(scripted ? { scripts } : {}),
+    ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
+    ...(credited ? { credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)) } : {}),
+    ...(sounded ? { audio } : {}),
+  } as const;
   return { ...content, hash: packHash(content) };
 }
 
@@ -147,7 +158,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
@@ -162,6 +173,7 @@ export function readPack(value: unknown): Pack {
     ...(format >= 2 ? ['scripts'] : []),
     ...(format >= 4 ? ['ui'] : []),
     ...(format >= 7 ? ['credits'] : []),
+    ...(format >= 8 ? ['audio'] : []),
   ];
   checkKeys(value, [...fields, 'hash'], 'pack');
   checkProject(value.project, format);
@@ -169,7 +181,9 @@ export function readPack(value: unknown): Pack {
   if (format === 2 || value.scripts !== undefined) checkScripts(value.scripts, format);
   // Format 7 is the format for credits, which a game without screens may carry.
   if (format >= 4 && (format < 7 || value.ui !== undefined)) checkUi(value.ui, format);
-  if (format >= 7) checkCredits(value.credits);
+  // Format 8 is the format for audio, which a game without credits may carry.
+  if (format === 7 || (format >= 8 && value.credits !== undefined)) checkCredits(value.credits);
+  if (format >= 8) checkAudio(value.audio);
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;
   const actual = packHash(pack);
@@ -243,6 +257,15 @@ function checkUi(ui: unknown, format: number): void {
     if (!isObject(screen)) throw new PackError(`The pack's screen "${id}" is not an object`);
   }
   if (theme !== undefined && !isObject(theme)) throw new PackError("The pack's theme is not an object");
+}
+
+const BASE64 = /^[A-Za-z0-9+/]*={0,2}$/;
+
+function checkAudio(audio: unknown): void {
+  if (!isObject(audio) || Object.keys(audio).length === 0) throw new PackError('A format 8 pack has no audio');
+  for (const [path, data] of Object.entries(audio)) {
+    if (typeof data !== 'string' || !BASE64.test(data)) throw new PackError(`The pack's audio "${path}" is not base64`);
+  }
 }
 
 const CREDIT_TEXT = ['asset', 'licence', 'licenceName', 'source'] as const;
