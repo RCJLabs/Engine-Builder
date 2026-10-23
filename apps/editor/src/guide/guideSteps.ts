@@ -27,3 +27,16 @@ export function stepPlace(step: GuideStep, catalog: Catalog): Place | null {
 
 /** The step that removes the guide: guide.json deleted, which undo brings back. */
 export const REMOVE_GUIDE = { label: 'Remove the guide', file: GUIDE_FILE } as const;
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** guide.json's value with every step that opens `from` opening `to`: a record renamed, its file moved. */
+export function guideMoved(guide: unknown, from: string, to: string): unknown {
+  if (!isObject(guide) || !Array.isArray(guide.steps)) return guide;
+  const moved = (step: unknown) =>
+    isObject(step) && isObject(step.open) && step.open.file === from
+      ? { ...step, open: { ...step.open, file: to } }
+      : step;
+  return guide.steps.some((step) => moved(step) !== step) ? { ...guide, steps: guide.steps.map(moved) } : guide;
+}

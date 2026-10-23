@@ -29,9 +29,10 @@ The survey behind them is [research/templates.md](../research/templates.md).
 - **New project** asks for a name and offers **Start from**:
   - Empty, the default;
   - each template, by its title, with its blurb under the choice.
-- **What it writes:** every file of the template, with two changes for the author's name:
+- **What it writes:** every file of the template, with three changes for the author's name:
   - **project.json** takes the id made from the name (as an empty project does) and the name as typed. Kits, calendar and version are kept.
   - **export.json** takes the name as its `name`, and a `short-name` that fits in 12 characters, so it never starts with W138. That is the name itself when it fits, else its first whole words that do, else its first 12 characters.
+  - **ui/shell.json** takes the name as its `title`, which the title screen shows.
 - **The new project is the author's own:**
   - nothing in it points back at the template;
   - its scripts run without being trusted first, as for any project made in this browser, since they came with the editor.
@@ -84,12 +85,13 @@ The survey behind them is [research/templates.md](../research/templates.md).
 
 - **What it is:** a salvage skipper owes the harbourmaster for the boat, the *Kittiwake*, and has five voyages to pay it off.
 - **Kits:** inventory, economy, stats, events, maps, encounters and quests.
-- **The harbour**, the module `harbour`'s mode of the same name, offers five things:
+- **The harbour**, the module `harbour`'s mode of the same name, offers five things, and a sixth at the end:
   - **Set sail:** a voyage, while fewer than five have been made and the debt stands.
   - **The chandlery:** a shop selling stores and buying salvage.
   - **The contract board:** an event whose choices start contracts.
   - **The harbourmaster:** an event whose choices pay the debt down.
-  - **The shipwright:** an event whose choices repair the hull for coin.
+  - **The yard:** an event whose choices patch the hull and take on stores, for coin.
+  - **Hand over the Kittiwake:** only once the fifth voyage is over with the debt standing.
 - **A voyage is the coast,** a layered map made fresh from the seed each time:
   - from the harbour mouth to the home light;
   - wrecks and storms drawn from decks;
@@ -108,7 +110,7 @@ The survey behind them is [research/templates.md](../research/templates.md).
   - **Seized:** the fifth voyage is over and the debt stands; *Hand over the Kittiwake* is the harbour's only choice.
   - **Lost at sea:** the hull runs out.
 - **Script and data:** the module (`scripts/harbour.ts`) is the harbour's actions and those three endings. Everything else is records.
-- **Its policy is `skipper`,** weighted towards sailing, paying and buying stores, with the events' choices taken at random.
+- **Its policy is `skipper`** (`scripts/skipper.ts`), a script rather than weights: in harbour it sells the hold, pays the harbourmaster when the purse allows, takes on stores below six and patches a hull below six, then sails; at sea it takes the first move on; in an event it pays, provisions, patches and takes work before anything else, else a choice at random. A weighted bot rarely paid the debt, so every ending wasn't reached; random play is lost at sea four runs in five.
 
 ## The last ferry
 
@@ -121,11 +123,12 @@ The survey behind them is [research/templates.md](../research/templates.md).
 - **The crossing,** the module `ferry`'s mode of the same name, offers **Row on** to the next passenger's scene, four times, and then **Come ashore**, which plays the landing.
 - **Each scene is ink** (`scenes/<id>.ink`), compiled into a talk. Its choices set flags, and the landing reads them.
 - **Each passenger has a quest:** their story in the journal, its stages moved by the flags their scene sets.
-- **Three endings,** picked by the landing from the flags and shown by the ending screen:
+- **Three endings,** picked by the landing, which sets the number flag `ending` to 1, 2 or 3. When the landing ends, the module moves to its one other mode, `ashore`, whose ending screen shows the text whose condition reads that flag:
   - **Every light ashore:** Ines in time, Tomas hidden, Marta's stop made.
   - **The patrol's lantern:** Tomas found.
   - **The far bank:** any other night.
 - **Its policy is `ferryman`:** it rows on and says what the scenes offer, at random.
+- **The crossing quest** reads the same flag, its outcomes the three endings, so the journal shows how the night went and the sweep counts it. Without it, W108 called the flag never read: the check doesn't count a screen's conditions as readers (open question 3).
 
 ## The gate (D61)
 
@@ -140,8 +143,15 @@ The survey behind them is [research/templates.md](../research/templates.md).
   - exported as a single file that plays from `file://`.
 - **`templatesPhone.spec.ts`:** the same by touch at 360×740, 390×844 and 844×390, every control in reach and nothing axe finds.
 - **`eb new` is tested in Node:** the files written, the name applied, and a non-empty folder refused.
+- **A step's file renamed or gone:** `templates.spec.ts` renames the raider record that "Make the raiders tougher" opens; the encounter's foe and the step follow, with no problems. Deleted, the step is W140 in Problems, which opens the Project panel.
+
+## Renaming what a template holds
+
+A template's records are mostly the kits' types, whose references the project's type files don't describe. Renaming a record (M2.6, D33) now also rewrites every reference the record index finds to it in a record, read from the working copy as the step runs: the kits' and the engine's types, effects, and a map's keys such as a choice's `cost`. It also moves guide.json's steps that open its file. What it doesn't change, as before: conditions that name the id as a word, a screen's text that does, and scenes and scripts. Those show as problems to fix by hand.
 
 ## Open questions
 
 1. Should the guide's steps tick themselves off by a condition over the project? Not built (D61's cost).
 2. Should templates have a third, 3D, kind once Phase 5 lands? The ROADMAP plans 3D templates at M6.7.
+3. W108 (a flag set and never read) doesn't count a screen's `shows-when` or text as reading a flag, so a flag only a screen reads is flagged. The ferry reads its ending through a quest as well. Should screens count? Logged under Phase 4.
+4. Renaming a record leaves conditions, screens' text, scenes and scripts that name it. Should the rename offer to change those it can parse, such as a condition's `@id` or an ink `EXTERNAL`'s argument?

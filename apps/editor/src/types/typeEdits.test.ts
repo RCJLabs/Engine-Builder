@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import { compileProject, memorySource } from '@eb/compiler';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
@@ -48,6 +50,18 @@ function setup(files: Record<string, string> = arena()) {
     while (await session.undo());
   };
   return { copy, session, files: files_, value, problems, step, undoAll };
+}
+
+/** The salvage coast template's files, as on disk. */
+function salvageCoast(): Record<string, string> {
+  const base = resolve(import.meta.dirname, '../../../../templates/salvage-coast');
+  const files: Record<string, string> = {};
+  for (const entry of readdirSync(base, { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    const path = join(entry.parentPath, entry.name);
+    files[relative(base, path).split('\\').join('/')] = readFileSync(path, 'utf8');
+  }
+  return files;
 }
 
 const paths = (changes: readonly FileChange[]) =>
@@ -291,6 +305,35 @@ describe('renaming records', () => {
     expect((await value('records/fighter/spartacus-thrax.json')).bouts[1].foe).toBe('fighter:spartacus-thrax');
     expect((await value('records/fighter/crixus.json')).rival).toBe('fighter:spartacus-thrax');
     expect(await problems()).toEqual([]);
+  });
+
+  it('follows references the type files don’t describe, kit records, effects and cost keys, and the guide (M4.11)', async () => {
+    const { copy, step, value, problems } = setup(salvageCoast());
+    expect(await problems()).toEqual([]);
+    expect(paths(await renameRecord(copy, 'actor', 'raider', 'corsair'))).toEqual([
+      '-records/actor/raider.json',
+      '+records/actor/corsair.json',
+      '~records/encounter/raiders.json',
+      '~guide.json',
+    ]);
+    await step((c) => renameRecord(c, 'actor', 'raider', 'corsair'));
+    expect((await value('guide.json')).steps[4].open).toEqual({ file: 'records/actor/corsair.json', at: '/stats' });
+    expect((await value('records/encounter/raiders.json')).foes).toEqual([{ actor: 'corsair' }]);
+    await step((c) => renameRecord(c, 'encounter', 'raiders', 'sloop'));
+    expect((await value('records/event/sail-sighted.json')).choices[0].effects[0]).toMatchObject({
+      encounter: 'sloop',
+    });
+    expect(await problems()).toEqual([]);
+    // A cost's key follows. The limp move's condition and the screens' text name stores as a word,
+    // which stays, as conditions do (rewrites.ts): those are what's left to fix by hand.
+    await step((c) => renameRecord(c, 'resource', 'stores', 'biscuit'));
+    expect((await value('records/event/fog.json')).choices[0].cost).toEqual({ biscuit: 1 });
+    expect(await problems()).toEqual([
+      'E013 records/map/coast.json#/moves/1/if',
+      ...['free', 'hud', 'lost', 'map', 'seized', 'shop'].map((screen) =>
+        expect.stringMatching(`^E048 ui/${screen}\\.json#`),
+      ),
+    ]);
   });
 
   it('refuses an id that is taken', async () => {

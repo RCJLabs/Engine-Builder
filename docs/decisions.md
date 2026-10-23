@@ -1521,6 +1521,11 @@ Evan chose on 2026-10-23, from these options:
 - **The steps open places; they don't check that the step was done.**
 - **Untested for feel** until someone new to the editor plays them.
 
+**Settled while building it** (2026-10-23, an engineering call under D33's renames carry the data, not a product one):
+- **A record renamed follows every reference the record index finds to it.** Since M3.3 a rename followed only what the project's own type files describe, so a kit's or the engine's record renamed left an encounter's foe, an effect or a choice's cost naming the old id. The index's pointers are read from the working copy as the step runs, never from the open project's index, which may be a step behind.
+- **guide.json's steps follow too.**
+- **Conditions, screens' text, scenes and scripts that name the id as a word still don't follow.** They show as problems to fix by hand (specs/templates.md, open question 4).
+
 ---
 
 ## Open

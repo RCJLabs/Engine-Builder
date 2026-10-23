@@ -3,9 +3,12 @@ import { resolve } from 'node:path';
 import { compileProject, memorySource } from '@eb/compiler';
 import { describe, expect, it } from 'vitest';
 import { readCatalog } from '../forms/catalog.ts';
+import { projectProblems, tally } from '../problems/collect.ts';
+import { placeOf } from '../problems/problemList.ts';
 import { projectFromTemplate } from '../projects/templates.ts';
+import { EMPTY_INDEX } from '../records/recordIndex.ts';
 import { guideProblems } from './guideChecks.ts';
-import { readGuide, stepPlace } from './guideSteps.ts';
+import { guideMoved, readGuide, stepPlace } from './guideSteps.ts';
 
 const GUIDE = JSON.parse(
   readFileSync(resolve(import.meta.dirname, '../../../../templates/salvage-coast/guide.json'), 'utf8'),
@@ -76,6 +79,28 @@ describe('Make it yours', () => {
     const compiled = (await compileProject(broken, [])).diagnostics.map((d) => `${d.code} ${d.path}`);
     expect(editor).toEqual(['W140 /steps/0/open/file']);
     expect(compiled).toEqual(editor);
+    // Listed with the project's other problems, counted on the tab, and opened in the Project panel.
+    const catalog = await readCatalog(broken);
+    const guide = await guideProblems(broken);
+    const index = { ...EMPTY_INDEX, guide };
+    expect(projectProblems(catalog, index)).toEqual(guide);
+    expect(tally(catalog, index)).toEqual({ errors: 0, warnings: 1 });
+    expect(placeOf(guide[0] as (typeof guide)[number], catalog)).toEqual({ kind: 'panel', panel: 'project' });
     expect(await guideProblems(memorySource({ 'guide.json': '{ nope' }))).toMatchObject([{ code: 'E007' }]);
+  });
+
+  it('follows a record renamed: each step that opens its file opens where it went, the rest as they were', () => {
+    const guide = {
+      title: 'Make it yours',
+      steps: [
+        { id: 'raiders', title: 'T', text: 'X', open: { file: 'records/actor/raider.json', at: '/stats' } },
+        { id: 'play', title: 'P', text: 'Y', open: { panel: 'play' } },
+      ],
+    };
+    const moved = guideMoved(guide, 'records/actor/raider.json', 'records/actor/corsair.json') as typeof guide;
+    expect(moved.steps[0]?.open).toEqual({ file: 'records/actor/corsair.json', at: '/stats' });
+    expect(moved.steps[1]).toBe(guide.steps[1]);
+    expect(guideMoved(guide, 'records/actor/boat.json', 'records/actor/ketch.json')).toBe(guide);
+    expect(guideMoved('not a guide', 'a', 'b')).toBe('not a guide');
   });
 });

@@ -7,17 +7,20 @@
 import {
   classifyRecordFile,
   classifyTypeFile,
+  GUIDE_FILE,
   type ProjectSource,
   RECORDS_DIR,
   readFiles,
   TYPES_DIR,
 } from '@eb/compiler';
-import { isRecordId } from '@eb/core';
+import { formatRef, isRecordId } from '@eb/core';
 import type { FileChange } from '../editing/history.ts';
 import { editJson, readJson } from '../editing/jsonText.ts';
-import { recordFile } from '../forms/catalog.ts';
+import { readCatalog, recordFile } from '../forms/catalog.ts';
 import { newFileText } from '../forms/recordEdits.ts';
-import { compose, type Rewrite, refSites, renameRecordRefs, renameTypeRefs } from './rewrites.ts';
+import { guideMoved } from '../guide/guideSteps.ts';
+import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
+import { compose, type Rewrite, refSites, renameAtPointers, renameRecordRefs, renameTypeRefs } from './rewrites.ts';
 import { refersTo, renameTypeInFile } from './typeFileChanges.ts';
 
 export const typeFilePath = (type: string): string => `${TYPES_DIR}/${type}.json`;
@@ -221,8 +224,11 @@ export async function deleteType(source: ProjectSource, type: string): Promise<F
 
 /**
  * The record `type:from` renamed `to`: its file moves, and every reference to it follows, in
- * records of every type whose fields may name it, itself included. Conditions aren't changed:
- * the editor can't tell which of their words are ids (rewrites.ts). Throws when `to` is taken.
+ * records of every type whose fields may name it, itself included, and wherever else the record
+ * index finds one in a record: the kits' and the engine's types, effects, map keys; and the
+ * guide's steps that open it (M4.11).
+ * Conditions aren't changed: the editor can't tell which of their words are ids (rewrites.ts);
+ * nor are scenes, scripts or screens. Throws when `to` is taken.
  */
 export async function renameRecord(
   source: ProjectSource,
@@ -244,5 +250,35 @@ export async function renameRecord(
     const files = (await recordFilesOf(source, other)).filter((path) => path !== was);
     changes.push(...(await rewriteFiles(source, files, rewriteOf(json))));
   }
+  for (const [file, pointers] of await referencesTo(source, type, from)) {
+    const path = file === was ? now : file;
+    const rewrite = renameAtPointers(pointers, type, from, to);
+    const at = changes.findIndex((change) => change.path === path && change.after !== null);
+    const done = changes[at];
+    if (done?.after) {
+      changes[at] = { ...done, after: rewritten(done.after, rewrite) };
+      continue;
+    }
+    const before = await source.read(path);
+    if (before === undefined) continue;
+    const after = rewritten(before, rewrite);
+    if (after !== before) changes.push({ path, before, after });
+  }
+  const guide = await source.read(GUIDE_FILE);
+  const guided = guide && rewritten(guide, (value) => guideMoved(value, was, now));
+  if (guide && guided && guided !== guide) changes.push({ path: GUIDE_FILE, before: guide, after: guided });
   return changes;
+}
+
+/**
+ * The pointers at which records refer to `type:id`, by file, as the record index finds them in
+ * the copy as it is now: never the open project's index, which may be a step behind.
+ */
+async function referencesTo(source: ProjectSource, type: string, id: string): Promise<Map<string, string[]>> {
+  const index = await updateIndex(EMPTY_INDEX, source, await readCatalog(source), null);
+  const found = new Map<string, string[]>();
+  // A scene's usages come back too; its file isn't JSON, so rewriting leaves it as it is.
+  for (const { file, path } of index.usedBy.get(formatRef(type, id)) ?? [])
+    if (file) found.set(file, [...(found.get(file) ?? []), path]);
+  return found;
 }

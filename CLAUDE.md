@@ -50,6 +50,7 @@ pnpm eb schemas <folder> [--types <module>]    # JSON Schemas for VS Code, in .v
 pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
 pnpm eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]
 pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the repository, committed with your git
+pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -71,7 +72,8 @@ apps/editor/           the editor PWA
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
-                       opened.ts is the open project (M2.3)
+                       opened.ts is the open project (M2.3); templates.ts, the templates New project offers, each
+                       bundled from templates/ as a lazy chunk (templateFiles/, M4.11)
   src/editing/         editing safety (M2.3): the command log (history.ts), layout-keeping JSON edits, the working
                        copy, autosave, the journal, folder saves, the project lock and tab hand-over; current.ts is
                        the app's one Editing; draft.ts holds typed text until its edit lands
@@ -163,8 +165,12 @@ apps/editor/           the editor PWA
                        game's scripts', M3.2, the screens', M4.1, and export.json's, M4.10),
                        problemList.ts (where each opens, titles, words, the view), count.ts (the tab's count),
                        open.ts (openPlace), ProblemsPanel and its lazy ProblemBrowser
+  src/guide/           Make it yours in the Project panel (M4.11, D61): guideSteps.ts (guide.json read, where each
+                       step opens, guideMoved: a step following its record renamed), guideChecks.ts (its problems,
+                       as eb validate's), GuideSection and its lazy GuideSlot
   src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
-                       rewrites.ts (what a change does to a record), typeFileChanges.ts and fieldEdits.ts (what it
+                       rewrites.ts (what a change does to a record; renameAtPointers, a record renamed wherever the
+                       index finds it, M4.11), typeFileChanges.ts and fieldEdits.ts (what it
                        does to the type file), typeEdits.ts (steps over the working copy), typeActions.ts, the
                        designer's components (TypeDesigner, FieldList, FieldEditor, ValueOptions, AddField…);
                        KitFields.tsx (a kit's fields, locked, M3.3)
@@ -199,7 +205,9 @@ apps/editor/           the editor PWA
                        exportHelpers.ts (the hut imported, downloads caught and unzipped, a static server of the
                        e2e's own), export.spec.ts and exportPhone.spec.ts are M4.10's, the hut exported to each
                        target and played: the file from file://, the web build served, offline and updated, the
-                       itch.io zip, a taster's E055 and leak check, and Publish's repository
+                       itch.io zip, a taster's E055 and leak check, and Publish's repository; templateHelpers.ts,
+                       templates.spec.ts and templatesPhone.spec.ts are M4.11's, a project from each template, its
+                       guide followed, played to an ending and exported as one file, on desktop and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -265,7 +273,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        file's text); M4.4: credits.ts (the assets' credits, from the provenance log, packed as format 7
                        with screens); M4.8: audioFiles.ts (the stems a music names, as base64, packed as format
                        8); M4.10: exportFile.ts (export.json's shape, editions and targets), exportCheck.ts (E055,
-                       E056, W138, W139) and edition.ts (editionSource: the files an edition keeps); not pure
+                       E056, W138, W139) and edition.ts (editionSource: the files an edition keeps); M4.11: guide.ts
+                       (guide.json: E057, W140, opensInEditor) and template.ts (fromTemplate, idFromName,
+                       shortNameOf: a template's files under the author's name); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -347,7 +357,10 @@ packages/platform/     the browser's side of saves; not pure: stores (IndexedDB,
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
 tools/cli/             eb validate | build | schemas | sim | export | publish; folderSource.ts is the Node fs source; modules.ts loads
                        --types and --game, a project's game.ts without them (M3.2); schemas.ts is eb schemas; sim.ts
-                       and simReport.ts are eb sim; exportCmd.ts is eb export and eb publish (M4.10)
+                       and simReport.ts are eb sim; exportCmd.ts is eb export and eb publish (M4.10); newCmd.ts is
+                       eb new (M4.11); test/templates.test.ts holds each template to no problems, its golden file
+                       (fixtures/salvage-coast-skipper.golden.json, last-ferry-ferryman.golden.json) and every stage
+                       and ending reached
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
@@ -373,6 +386,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        fought with the encounters kit, and pit/, a slice of Ludus whose bouts the roster fights,
                        and pit-lanista.golden.json; fights.test.ts, every fight of 300 seeds of each rolled
                        against the table it showed (M4.7)
+templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
+                       salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
+                       and choices: ink scenes, flags, three endings), each a project folder with its guide.json
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

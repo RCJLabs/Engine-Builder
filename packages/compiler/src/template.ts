@@ -5,6 +5,7 @@
  */
 import { EXPORT_FILE } from './exportFile.ts';
 import { MANIFEST_FILE } from './layout.ts';
+import { SHELL_FILE } from './uiFiles.ts';
 
 /** A template as templates/templates.json lists it: what New project offers. */
 export interface TemplateEntry {
@@ -52,8 +53,8 @@ function jsonOf(bytes: Uint8Array, file: string): Record<string, unknown> {
 /**
  * The template's files as the author's project: project.json takes the name and the id made from
  * it, keeping the kits, calendar and version; export.json takes the name, and a short name from
- * it that fits (shortNameOf), so a new project never starts with W138. Nothing else changes, and
- * nothing in the project points back at the template.
+ * it that fits (shortNameOf), so a new project never starts with W138; and the play shell's title
+ * screen shows it. Nothing else changes, and nothing in the project points back at the template.
  */
 export function fromTemplate(files: ReadonlyMap<string, Uint8Array>, name: string): Map<string, Uint8Array> {
   const trimmed = name.trim();
@@ -67,5 +68,7 @@ export function fromTemplate(files: ReadonlyMap<string, Uint8Array>, name: strin
     const { name: _name, 'short-name': _short, ...rest } = jsonOf(exported, EXPORT_FILE);
     made.set(EXPORT_FILE, text({ name: trimmed, 'short-name': shortNameOf(trimmed), ...rest }));
   }
+  const shell = files.get(SHELL_FILE);
+  if (shell !== undefined) made.set(SHELL_FILE, text({ ...jsonOf(shell, SHELL_FILE), title: trimmed }));
   return made;
 }

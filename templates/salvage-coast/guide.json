@@ -4,7 +4,7 @@
     {
       "id": "name",
       "title": "Name your game",
-      "text": "Your game's name is in the project's settings. It's also what the title screen and an exported game show.",
+      "text": "Your game’s name is in the project’s settings. It’s also what the title screen and an exported game show.",
       "open": {
         "file": "project.json"
       }
@@ -39,7 +39,7 @@
     {
       "id": "raiders",
       "title": "Make the raiders tougher",
-      "text": "The raider's stats are what the fight's odds come from. Raise its guns, then look at the odds before you fight.",
+      "text": "The raider’s stats are what the fight’s odds come from. Raise its guns, then look at the odds before you fight.",
       "open": {
         "file": "records/actor/raider.json",
         "at": "/stats"
@@ -47,7 +47,7 @@
     },
     {
       "id": "contract",
-      "title": "Change a contract's pay",
+      "title": "Change a contract’s pay",
       "text": "A contract is a quest. Its last stage pays: change the coin, or what else it gives.",
       "open": {
         "file": "records/quest/survey.json",
@@ -57,7 +57,7 @@
     {
       "id": "voyages",
       "title": "Give the skipper more voyages",
-      "text": "How the game ends is the harbour script's: VOYAGES is how many voyages the harbourmaster allows.",
+      "text": "How the game ends is the harbour script’s: VOYAGES is how many voyages the harbourmaster allows.",
       "open": {
         "file": "scripts/harbour.ts"
       }

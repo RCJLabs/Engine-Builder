@@ -4,7 +4,7 @@
     {
       "id": "name",
       "title": "Name your story",
-      "text": "Your story's name is in the project's settings. The title screen and an exported game show it.",
+      "text": "Your story’s name is in the project’s settings. The title screen and an exported game show it.",
       "open": {
         "file": "project.json"
       }
@@ -12,7 +12,7 @@
     {
       "id": "boarding",
       "title": "Rewrite the opening",
-      "text": "Each scene is ink. Change who comes aboard, and how they're described.",
+      "text": "Each scene is ink. Change who comes aboard, and how they’re described.",
       "open": {
         "file": "scenes/boarding.ink"
       }
@@ -20,7 +20,7 @@
     {
       "id": "choice",
       "title": "Change a choice",
-      "text": "Ines's scene sets a flag for each answer. Add a third answer, and set a flag of its own.",
+      "text": "Ines’s scene sets a flag for each answer. Add a third answer, and set a flag of its own.",
       "open": {
         "file": "scenes/ines.ink"
       }

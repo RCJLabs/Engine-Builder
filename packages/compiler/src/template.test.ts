@@ -10,6 +10,7 @@ const TEMPLATE = new Map([
   ['export.json', bytes({ name: 'Salvage coast', 'short-name': 'Salvage', colors: { theme: '#18303d' } })],
   ['records/resource/debt.json', bytes({ name: 'Debt', start: 120 })],
   ['scenes/boarding.ink', new TextEncoder().encode('Hello.\n-> END\n')],
+  ['ui/shell.json', bytes({ title: 'Salvage coast', tagline: 'Five voyages' })],
 ]);
 
 describe('a project from a template', () => {
@@ -43,6 +44,13 @@ describe('a project from a template', () => {
     expect(shortNameOf('Twelve chars')).toBe('Twelve chars');
     expect(shortNameOf('Salvage of the Grey Sound')).toBe('Salvage of');
     expect(shortNameOf('Unbelievablyhuge salvage')).toBe('Unbelievably');
+  });
+
+  it('puts the name on the title screen, keeping the rest of the shell', () => {
+    expect(json(fromTemplate(TEMPLATE, 'Grey Sound'), 'ui/shell.json')).toEqual({
+      title: 'Grey Sound',
+      tagline: 'Five voyages',
+    });
   });
 
   it('keeps every other file byte for byte, and makes no export.json where the template had none', () => {
