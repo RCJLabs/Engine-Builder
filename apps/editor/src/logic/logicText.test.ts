@@ -226,6 +226,21 @@ describe('sheet edits', () => {
     expect(kitEffectFile('start-quest', ['dialogue'])).toBeUndefined();
   });
 
+  it('says the encounters kit’s fight in a few words, with who fights and its stance (M4.7)', () => {
+    expect(
+      doText([
+        { effect: 'fight', encounter: 'raiders' },
+        { effect: 'fight', encounter: 'thraex', fighters: ['spartacus'], hit: 15, dodge: -15, damage: 0 },
+      ]),
+    ).toBe('Do: fight raiders, then fight thraex with spartacus: hit +15, dodge −15');
+    expect(effectText({ effect: 'fight' })).toBe('fight an encounter not yet chosen');
+    expect(kitEffectFile('fight', ['stats', 'encounters'])?.fields.encounter).toMatchObject({
+      kind: 'ref',
+      to: 'encounter',
+    });
+    expect(kitEffectFile('fight', ['stats'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

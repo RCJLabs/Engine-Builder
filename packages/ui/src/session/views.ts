@@ -14,7 +14,7 @@ import {
   type RecordStore,
 } from '@eb/core';
 import type { Entry, Shown } from './types.ts';
-import { costText, nameOf, oddsText, whyText } from './words.ts';
+import { costText, fightText, nameOf, oddsText, whyText } from './words.ts';
 
 /** What a view reads the game through, in the current state. */
 export interface Reading {
@@ -48,6 +48,8 @@ interface ChoiceShown {
   readonly cost?: unknown;
   readonly open: boolean;
   readonly outcomes?: unknown;
+  /** What it does for sure, as each effect's preview gives it: a fight's table among them (M4.7). */
+  readonly effects?: unknown;
 }
 
 /** A talk's options or an event's choices, each with the action that takes it. */
@@ -62,7 +64,7 @@ function choiceEntries(reading: Reading, choices: unknown, take: (id: string) =>
         locked: !choice.open,
         why: choice.open ? null : whyText(choice as never, reading.catalog, reading.content),
         cost: costText(choice.cost, reading.content),
-        odds: oddsText(choice.outcomes),
+        odds: oddsText(choice.outcomes) ?? fightText(choice.effects, reading.content),
       },
       take(choice.id),
     ),

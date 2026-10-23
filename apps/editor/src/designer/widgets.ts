@@ -67,6 +67,12 @@ const OWN: Readonly<Record<WidgetKind, Readonly<Record<string, FieldDef>>>> = {
   },
   button: {
     label: { kind: 'text', label: 'Label', description: facts },
+    detail: {
+      kind: 'text',
+      optional: true,
+      label: 'Second line',
+      description: 'Smaller, under the label, and left out while its facts are empty: a choice’s {.odds}.',
+    },
     style: choice(BUTTON_STYLES, 'Style', 'Plain, the default, or primary for the main thing to do.'),
   },
   progress: {

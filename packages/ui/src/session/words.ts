@@ -1,6 +1,6 @@
 /**
  * The words a session puts in entries' fields: an action's label, a cost, a time (M4.6), why a
- * choice is locked, its odds. Each is read from what the sim reports (a choice's preview, a record's name), never
+ * choice is locked, its odds, a fight's (M4.7). Each is read from what the sim reports (a choice's preview, a record's name), never
  * worked out again here, so what a screen says is what the game does.
  */
 import { type Action, type Condition, describeCondition, type FactCatalog, type RecordStore } from '@eb/core';
@@ -87,4 +87,40 @@ export function whyText(choice: Locked, catalog: FactCatalog, content: RecordSto
 export function oddsText(outcomes: unknown): string | null {
   if (!Array.isArray(outcomes) || outcomes.length === 0) return null;
   return outcomes.map((outcome) => `${(outcome as { chance: number }).chance}%`).join(' · ');
+}
+
+interface FightOutcome {
+  readonly result: 'win' | 'draw' | 'lose';
+  readonly chance: number;
+  readonly hurt: readonly [number, number];
+  readonly falls: readonly [number, number];
+  readonly effects?: readonly Readonly<Record<string, unknown>>[];
+}
+
+const RESULT_WORDS = { win: 'Win', draw: 'Draw', lose: 'Lose' } as const;
+const span = ([least, most]: readonly [number, number]) => (least === most ? `${least}` : `${least}–${most}`);
+
+/**
+ * A fight's odds as its preview gives them, each result in turn, with what it costs and does:
+ * "Win 64%, 2–6 Hull lost, Credits 30 → 42 · Lose 36%, 12 Hull lost, 1 falls". Null when the
+ * previews hold no fight, as when the event hides its odds.
+ */
+export function fightText(previews: unknown, content: RecordStore): string | null {
+  if (!Array.isArray(previews)) return null;
+  const fight = previews.find((p) => p?.effect === 'fight' && Array.isArray(p.outcomes)) as
+    | { readonly health: string; readonly outcomes: readonly FightOutcome[] }
+    | undefined;
+  if (!fight) return null;
+  const health = nameOf(content, 'stat', fight.health) ?? fight.health;
+  return fight.outcomes
+    .map((outcome) => {
+      const parts = [`${RESULT_WORDS[outcome.result]} ${outcome.chance}%`];
+      if (outcome.hurt[1] > 0) parts.push(`${span(outcome.hurt)} ${health} lost`);
+      if (outcome.falls[1] > 0)
+        parts.push(`${span(outcome.falls)} ${outcome.falls[0] === 1 && outcome.falls[1] === 1 ? 'falls' : 'fall'}`);
+      const changes = changesText(outcome.effects ?? [], content);
+      if (changes) parts.push(changes);
+      return parts.join(', ');
+    })
+    .join(' · ');
 }

@@ -244,8 +244,23 @@ function questEffectText(effect: Record<string, unknown>): string | undefined {
       return why ? `fail the quest ${quest}: ${why}` : `fail the quest ${quest}`;
     }
     default:
-      return undefined;
+      return fightText(effect);
   }
+}
+
+// "+15", "−1": a stance's change, signed.
+const signed = (by: number) => (by < 0 ? `−${-by}` : `+${by}`);
+
+/** The encounters kit's effect (M4.7): "fight raiders", "fight bandits with crixus: hit +15, dodge −15". */
+function fightText(effect: Record<string, unknown>): string | undefined {
+  if (effect.effect !== 'fight') return undefined;
+  const fighters =
+    Array.isArray(effect.fighters) && effect.fighters.length > 0 ? ` with ${effect.fighters.join(' and ')}` : '';
+  const stance = ['hit', 'dodge', 'damage', 'armour'].flatMap((key) => {
+    const by = effect[key];
+    return typeof by === 'number' && by !== 0 ? [`${key} ${signed(by)}`] : [];
+  });
+  return `fight ${named(effect.encounter, 'an encounter')}${fighters}${stance.length > 0 ? `: ${stance.join(', ')}` : ''}`;
 }
 
 /** "Do: set met-trader to on, then roll 70 / 30", or "Does nothing yet". */

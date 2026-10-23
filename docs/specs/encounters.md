@@ -134,7 +134,7 @@ The slice, version 1: `{ fought: {}, won: {}, lost: {} }`, each a count by encou
 
 ## On screen
 
-- **A choice's odds:** the session words a choice whose effects hold a fight as its `odds` field, each result in turn: "Win 64%, 2–6 Hull lost · Lose 36%, 10–20 Hull lost, 1 falls". Hurt of 0 says nothing; a range of one number is the number. A choice whose outcomes are written keeps "70% · 30%". With the event's odds hidden, there are none.
+- **A choice's odds:** the session words a choice whose effects hold a fight as its `odds` field, each result in turn with what it costs and does: "Win 67%, 0–10 Hull lost, Credits 30 → 42 · Draw 16%, 0–12 Hull lost, 0–1 fall, heat 0 → 5 · Lose 17%, 12 Hull lost, 1 falls, …". Hurt and falls of 0 say nothing; a range of one number is the number. A choice whose outcomes are written keeps "70% · 30%". With the event's odds hidden, there are none.
 - **A button's `detail`:** a second, smaller line under its label, a template like the label. It is left out when every binding in it is empty, so a choice without odds shows no line. The stock event and talk screens show `{.odds}` there.
 
 ## The editor

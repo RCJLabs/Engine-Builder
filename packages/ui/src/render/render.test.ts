@@ -3,7 +3,7 @@ import type { Screen, Widget } from '../format/screen.ts';
 import { DEFAULT_THEME } from '../format/theme.ts';
 import type { Entry, View } from '../session/types.ts';
 import { tabHolding } from './context.ts';
-import { actionFor, amount, fill, holds, shownText } from './fill.ts';
+import { actionFor, amount, fill, fillSome, holds, shownText } from './fill.ts';
 import { breakpointOf, layoutAt, layoutStyle, themeVars } from './layout.ts';
 import { drawn, screenFor, screenStack, stillOpen } from './stack.ts';
 
@@ -86,6 +86,18 @@ describe('filling templates', () => {
     expect(fill('Open: {hut.open}', view)).toBe('Open: yes');
     expect(fill('Broken {time.day', view)).toBe('Broken {time.day');
     expect(shownText(false)).toBe('no');
+  });
+
+  it('leaves a button’s second line out while every binding in it is empty, and fills it otherwise (M4.7)', () => {
+    const odds: Entry = { ...entry, fields: { odds: 'Win 64% · Lose 36%', none: null, blank: '' } };
+    expect(fillSome('{.odds}', view, odds)).toBe('Win 64% · Lose 36%');
+    expect(fillSome('{.none}', view, odds)).toBeUndefined();
+    expect(fillSome('{.blank} {.missing}', view, odds)).toBeUndefined();
+    expect(fillSome('Odds: {.none}', view, odds)).toBeUndefined();
+    // One binding with a value is enough to draw it, dashes for the rest; no bindings, as written.
+    expect(fillSome('{.odds} ({.none})', view, odds)).toBe('Win 64% · Lose 36% (—)');
+    expect(fillSome('Day {time.day}', view)).toBe('Day 3');
+    expect(fillSome('Always', view)).toBe('Always');
   });
 
   it('reads a number field as written or from its binding', () => {

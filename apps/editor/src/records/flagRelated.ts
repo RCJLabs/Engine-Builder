@@ -2,6 +2,8 @@ import { FLAG } from '@eb/core';
 import {
   ACTOR,
   DIALOGUE,
+  ENCOUNTER,
+  ENCOUNTERS,
   EVENT,
   EVENTS,
   FACTION,
@@ -112,6 +114,14 @@ export const questRelated = (record: IndexedRecord | undefined): boolean =>
 export const mapRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === MAP || record.refs.some((ref) => ref.to.startsWith(`${MAP}:`)));
 
+/**
+ * An encounter, or a record whose fight names one (M4.7): a fight that names no fighters is E054
+ * only when its encounter names none either, so a change to an encounter, or to what fights it,
+ * checks them all again.
+ */
+export const encounterRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === ENCOUNTER || record.refs.some((ref) => ref.to.startsWith(`${ENCOUNTER}:`)));
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -124,4 +134,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(DIALOGUE) ? [talkRelated] : []),
   ...(kits.includes(QUESTS) ? [questRelated] : []),
   ...(kits.includes(MAPS) ? [mapRelated] : []),
+  ...(kits.includes(ENCOUNTERS) ? [encounterRelated] : []),
 ];

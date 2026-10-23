@@ -70,6 +70,7 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
     z.strictObject({
       widget: z.literal('button'),
       label: z.string().min(1),
+      detail: z.string().min(1).optional(),
       action,
       style: z.enum(BUTTON_STYLES).optional(),
       ...base,

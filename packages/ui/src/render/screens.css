@@ -173,6 +173,17 @@
   touch-action: manipulation;
 }
 
+/* A button's second line (M4.7): a choice's odds, under its label. Smaller, never fainter, for contrast. */
+.eb-button-label,
+.eb-button-detail {
+  display: block;
+}
+
+.eb-button-detail {
+  font-size: 0.875em;
+  margin-top: 0.15em;
+}
+
 .eb-primary {
   background: var(--eb-accent);
   border-color: var(--eb-accent);
