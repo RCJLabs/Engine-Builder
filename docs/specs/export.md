@@ -72,7 +72,7 @@ Checked whenever the project is, so they show in Problems as they are made (`che
 | Code | When |
 | --- | --- |
 | E055 | A record an edition keeps names one it leaves out, from the record index's used-by. It is reported at the naming field, once for each edition. |
-| E056 | export.json is malformed, or names something that isn't there: an edition named `full`; a leave-out naming no type, record, scene or asset; a target naming no edition; an icon that isn't a PNG asset; a domain that isn't a host name; an Android target without a web domain, or with a package id that isn't one. |
+| E056 | export.json is malformed, or names something that isn't there: an edition named `full`, or whose name isn't an id; a leave-out naming no type, record, scene or asset; the icon left out; a target naming no edition; an icon that isn't a PNG asset; a domain that isn't a host name; an Android target without a web domain, or with a package id that isn't one. |
 | W138 | The short name is over 12 characters, which launchers cut. |
 | W139 | The Android target has no fingerprints. |
 
@@ -98,7 +98,7 @@ The engine's player for an exported game is built once with the editor (`apps/ed
 
 The editor's build copies them to `runtime/`, which its service worker keeps, so the editor exports offline. `eb export` reads `apps/editor/dist-game/`, or the folder `--runtime` names.
 
-**The page boots from `#eb-game`:** `{ "edition", "pack", "sw" }`.
+**The page boots from `#eb-game`:** `{ "edition", "pack", "sw" }`, and draws the game in `main#game`, the game's name its heading for screen readers.
 - It plays the pack inside the play shell (M4.3), with its saves under the edition's id.
 - Its worker is made from the script's own text, through a blob URL, so it starts from `file://` too. The game's scripts run in it, locked down, as on the player page.
 - With `sw` true and the page served over HTTP(S), it registers `./sw.js`.
@@ -133,7 +133,7 @@ Drawn by the engine's own PNG code (packages/export/src/png.ts), the same bytes 
 - **From export.json's icon:** a PNG, 8 bits a channel, not interlaced, at least 512 px and square. It is scaled down by averaging, its alpha premultiplied.
   - The maskable and Apple icons put it on the background colour, full bleed, its art inside the middle 80% (the maskable safe zone).
   - Any other PNG is refused at export with what to save it as.
-- **Without one:** a rounded square in the theme colour on the background, with a ring in the theme's accent (ui/theme.json's `accent`). Phase 10's icon painter (M10.2) will make better ones.
+- **Without one:** a rounded square in the theme colour, with a ring and a dot in the theme's accent (ui/theme.json's `accent`), drawn at four samples a side; full bleed on the background colour for the maskable and Apple icons. Phase 10's icon painter (M10.2) will make better ones.
 
 ### The service worker
 
@@ -211,9 +211,10 @@ The export's steps run in the Play worker, which compiles, and on the page, whic
 
 ## eb export
 
-`eb export <project> --target web|file|itch|repo --out <path> [--edition <id>] [--runtime <folder>] [--types <module>]`
+`eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]`
 - web writes a folder; file an HTML file; itch and repo a zip.
 - `--edition` overrides the target's own edition.
+- It plays the project's own game, `scripts/game.ts`, as Play does, so it takes no `--types`.
 - The exit codes are eb's: 1 for the project's errors or a leak, 2 for bad arguments or a missing runtime.
 
 ## Checks of this milestone
@@ -236,7 +237,7 @@ The export's steps run in the Play worker, which compiles, and on the page, whic
   - eb export to each target;
   - eb publish into a git repository, committing, and pushing to a bare one.
 - **e2e, the gate:** the hut in the editor, on desktop (`export.spec.ts`) and by touch at 360, 390 and 844×390 (`exportPhone.spec.ts`):
-  - export.json set up with a taster that leaves out a map of the summit, and E055 shown while the store stocks it;
+  - export.json set up with a taster that leaves out a map of the summit, and E055 in Problems while it also leaves out the rope the store stocks;
   - the file played from `file://`: a new game, a step, a reload, Continue;
   - the itch zip served from a folder path and played;
   - the web build served:

@@ -103,6 +103,17 @@ describe('PNG (M4.10)', () => {
     expect([...grey.data]).toEqual([9, 9, 9, 255, 99, 99, 99, 128, 1, 1, 1, 0, 2, 2, 2, 64]);
   });
 
+  it('reads every filter back over rows of mixed bytes, Paeth’s ties among them', () => {
+    let seed = 7;
+    const next = () => {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      return seed % 256;
+    };
+    const rows = Array.from({ length: 10 }, () => Array.from({ length: 8 * 4 }, next));
+    const image = decodePng(png(8, 10, 6, rows, [4, 1, 4, 2, 4, 3, 4, 0]));
+    expect([...image.data]).toEqual(rows.flat());
+  });
+
   it('refuses 16-bit, and what isn’t a PNG, saying what to save instead', () => {
     expect(() => decodePng(png(1, 1, 6, [[0, 0, 0, 0, 0, 0, 0, 0]], [0], 16))).toThrow('Save it as an 8-bit PNG');
     expect(() => decodePng(new Uint8Array([1, 2, 3]))).toThrow('It isn’t a PNG file');

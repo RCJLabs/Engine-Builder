@@ -79,8 +79,12 @@ describe('the hut’s exports (M4.10)', async () => {
     const b = await run('web', 'full');
     expect(b.build).toBe(a.build);
     expect(b.bytes).toEqual(a.bytes);
-    const changed = await run('web', 'full', { runtime: { ...RUNTIME, css: `${RUNTIME.css} ` } });
-    expect(changed.build).not.toBe(a.build);
+    const restyled = await run('web', 'full', { runtime: { ...RUNTIME, css: `${RUNTIME.css} ` } });
+    expect(restyled.build).not.toBe(a.build);
+    // The same paths, one file's bytes changed: the page's description.
+    const described = await run('web', 'full', { settings: { ...settings, description: 'A season up high.' } });
+    expect([...described.files.keys()].sort()).toEqual([...a.files.keys()].sort());
+    expect(described.build).not.toBe(a.build);
   });
 
   it('file: one page with the runtime, the pack and the favicon inside', async () => {

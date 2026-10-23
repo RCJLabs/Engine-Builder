@@ -40,13 +40,16 @@ pnpm check        # typecheck → lint → unit tests → build → e2e (what CI
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
-pnpm build        # apps/editor/dist (the player page at play/ with it), then the 3D spike into apps/editor/dist/spikes/3d
+pnpm build        # an exported game's runtime into apps/editor/dist-game, then apps/editor/dist (the player page at play/
+                  # and the runtime at runtime/ with it), then the 3D spike into apps/editor/dist/spikes/3d
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
 pnpm eb build <project> [--types <module>] --out <file>
 pnpm eb schemas <folder> [--types <module>]    # JSON Schemas for VS Code, in .vscode/eb-schemas/
 pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--golden <file> [--update]]
+pnpm eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]
+pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the repository, committed with your git
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -144,10 +147,20 @@ apps/editor/           the editor PWA
                        ending), index.ts (STOCK, allStock: every one the kits allow, the pages first)
   src/player/          the player page at /play/ (M4.1, play/index.html, a page of the editor's own build): Player.tsx
                        opens a game file and plays it inside the play shell (M4.3, saves under edition "play");
-                       gameWorker.ts (its worker, failing every request still waiting if it dies); pwa.ts (the
-                       update the shell offers on its title); player.worker.ts runs its scripts, locked down
+                       gameWorker.ts (a game's worker client, failing every request still waiting if it dies) and
+                       playerWorker.ts (the page's own worker script, kept apart so the game runtime bundles none);
+                       seed.ts; pwa.ts (the update the shell offers on its title); player.worker.ts runs its
+                       scripts, locked down
+  src/game/            an exported game's runtime (M4.10, D60), built by vite.game.config.ts into dist-game/ as
+                       game.js and game.css, its worker inlined: boot.ts (#eb-game read), Game.tsx (the pack
+                       played in the shell, saves under its edition), pwa.ts (./sw.js and Reload to update);
+                       game/index.html only builds it, as Export writes its own page
+  src/export/          the Project panel's Export section (M4.10): exportForm.ts (export.json as a type file, its
+                       edits), ExportSection.tsx (the form, a button a target, the report) and its lazy
+                       ExportSlot; exporting.ts (packs from the Play worker, the runtime from runtime/,
+                       @eb/export, the download); exportChecks.ts (export.json's problems over the index)
   src/problems/        the Problems panel (M2.8): collect.ts (the list: the catalog's problems, the index's and the
-                       game's scripts', M3.2, and the screens', M4.1),
+                       game's scripts', M3.2, the screens', M4.1, and export.json's, M4.10),
                        problemList.ts (where each opens, titles, words, the view), count.ts (the tab's count),
                        open.ts (openPlace), ProblemsPanel and its lazy ProblemBrowser
   src/types/           the type designer (M2.6): defPaths.ts (paths into a type file and the values they reach),
@@ -182,7 +195,11 @@ apps/editor/           the editor PWA
                        audioPhone.spec.ts are M4.8's, the hut heard through window.__ebAudio, buzzes caught from a
                        stand-in navigator.vibrate, the volumes by touch, and the sound preview;
                        debugHelpers.ts, debug.spec.ts and debugPhone.spec.ts are M4.9's, the hut's debug tools on
-                       desktop (the loads quest edited, Replay stopping at step 1) and by touch on phones
+                       desktop (the loads quest edited, Replay stopping at step 1) and by touch on phones;
+                       exportHelpers.ts (the hut imported, downloads caught and unzipped, a static server of the
+                       e2e's own), export.spec.ts and exportPhone.spec.ts are M4.10's, the hut exported to each
+                       target and played: the file from file://, the web build served, offline and updated, the
+                       itch.io zip, a taster's E055 and leak check, and Publish's repository
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -247,7 +264,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        shell, M4.3), uiFiles.ts (where screens, the theme, the feedback and the shell sit) and jsonLines.ts (a JSON Pointer's line in a
                        file's text); M4.4: credits.ts (the assets' credits, from the provenance log, packed as format 7
                        with screens); M4.8: audioFiles.ts (the stems a music names, as base64, packed as format
-                       8); not pure
+                       8); M4.10: exportFile.ts (export.json's shape, editions and targets), exportCheck.ts (E055,
+                       E056, W138, W139) and edition.ts (editionSource: the files an edition keeps); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -311,6 +329,13 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
                        ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css)
+packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the web build, the single file, the
+                       itch.io zip, the repository), html.ts (the page, its boot JSON escaped), sw.ts (the service
+                       worker, written for each build), site.ts (manifest, version.json, assetlinks), png.ts and
+                       icons.ts (PNG in and out, icons scaled or drawn), hash.ts (the build's hash), leaks.ts (the
+                       leak check and its control), workflows.ts and readme.ts (Publish's), exportGame.ts (one
+                       export, start to end, and the zip)
+  test/                hut.ts (the hut with a map of the summit and a taster), export-bench.ts
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
@@ -320,9 +345,9 @@ packages/platform/     the browser's side of saves; not pure: stores (IndexedDB,
                        createSaves (slots, backups, quarantine; loadWith, a save read where the game runs, raw and
                        forget, M4.3), save codes, requestPersistence
   test/                runs.ts (salvage sessions and saves), fake-storage.ts, code-bench.ts
-tools/cli/             eb validate | build | schemas | sim; folderSource.ts is the Node fs source; modules.ts loads
+tools/cli/             eb validate | build | schemas | sim | export | publish; folderSource.ts is the Node fs source; modules.ts loads
                        --types and --game, a project's game.ts without them (M3.2); schemas.ts is eb schemas; sim.ts
-                       and simReport.ts are eb sim
+                       and simReport.ts are eb sim; exportCmd.ts is eb export and eb publish (M4.10)
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits

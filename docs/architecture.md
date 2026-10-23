@@ -277,19 +277,21 @@ Built in M4.8 (D58); [specs/audio.md](specs/audio.md) is the design as built.
 
 ## Platform and export
 
-- **Target matrix.** A project lists its targets, following chooser-of-the-dead's `targets.ts`. Each target has an edition (demo, full, playtest), content packs, a platform adapter, PWA on/off, a base path and a storage namespace.
-- **Leak check.** A demo build must not contain full-game tokens. A full build must contain its canary, so the check can't pass by doing nothing.
-- **Pages PWA.**
-  - A service worker whose precache is hashed, and whose cache cleanup is prefix-scoped (the origin is shared).
-  - Updates are offered only at safe moments, by prompt, never forced mid-session (project-ascent's update gate).
-  - `version.json` plus a build stamp, and a deploy check that waits for the live commit.
-- **Single-file HTML** (landnam, 2060td, ludus) for hand-off, itch.io and `file://`.
-- **TWA.**
-  - dirtbag's pipeline: pinned Bubblewrap, targetSdk ≥ 36, signing from CI secrets, versionCode from the clock.
-  - `assetlinks.json` at the origin root, so it needs a custom domain or the root github.io repo.
-  - Upload with `include-hidden-files`.
+M4.10's design is [specs/export.md](specs/export.md) (D60); this is its outline.
+
+- **Targets.** A project's `export.json` names what each target ships: the web build, one HTML file, an itch.io zip, and an Android app. Without it, the first three ship the full game.
+- **Editions** leave out records, types, scenes and assets, and are compiled from the project's files without them (`editionSource`). E055 names a kept record that still names something left out. An edition's id names its saves' storage.
+- **Leak check.** Every file of an edition's build is read for the left-out content's ids and long texts, the runtime's own text taken out first. The full build is its control: each thing looked for must be found there, so the check can't pass by doing nothing.
+- **The runtime** (`apps/editor/src/game`) is built once with the editor into one script and one stylesheet, its worker inside. Export writes its own page around them, beside it or inside it; the editor keeps the runtime offline, and `eb export` reads it from `dist-game/`. The same project gives the same bytes from either.
+- **The web build.**
+  - A service worker whose caches are named by its scope and the build's hash, and which deletes only its own (the origin is shared). It installs past the HTTP cache, keeps only whole same-origin answers, and never answers for `version.json` or `/.well-known/`.
+  - Updates are offered only on the title, by prompt, never mid-session (project-ascent's update gate).
+  - `version.json` names the build, and Publish's Pages workflow waits for the live site to serve it.
+- **The single file** plays from `file://`; **the itch.io zip** has relative paths and no service worker.
+- **Publish** writes a repository to push (a zip, or `eb publish` into a git working tree): the web build under `site/`, a Pages workflow uploading with `include-hidden-files`, and a README. The editor makes no network call.
+- **Android (TWA)** is a workflow Publish writes, from dirtbag's pipeline: pinned Bubblewrap, targetSdk ≥ 36, signing from CI secrets, versionCode from the clock. It needs the web build on its own domain, for `assetlinks.json` at the origin's root.
 - **Electron/Steam** later, from dirtbag's `desktop/`: an `app://` protocol, file-backed saves and an achievements adapter.
-- **Icons** are generated from one source. The editor renders them in a canvas, and the CLI uses Playwright.
+- **Icons** are drawn by the engine's own PNG code, from a project's PNG or the theme's colours, the same bytes in the browser and in Node.
 
 ## Testkit
 
@@ -333,14 +335,14 @@ The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Bal
 packages/core       pure: rng, hash, records runtime, conditions/effects, reducers, events, clock, flags and trigger sheets (M3.1)
 packages/kits       pure: the kits' modules, a folder each: inventory and economy (M3.3); stats and gear (M3.4); factions and time (M3.5); roster (M3.6); events (M3.7)
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
-packages/compiler   project loader, validation, packs, export (browser + Node)
+packages/compiler   project loader, validation, packs, export.json and editions (M4.10) (browser + Node)
+packages/export     a game's exports from the runtime and its packs: targets, service worker, icons, leak check, workflows (M4.10)
 packages/ui         runtime UI (M4.1 to M4.9): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, audio (the ZzFX port, renders, the mix, the player and buzzes), and the host the editor's debug tools reach into (M4.9)
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
-apps/editor         the editor PWA
-apps/player         the runtime shell that exports ship (M4.10); until then the player page at /play/ is a page of the editor's build (M4.1)
-tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8); export | test later
+apps/editor         the editor PWA; the player page at /play/ (M4.1) and an exported game's runtime (src/game, M4.10) are built with it
+tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8), export | publish (M4.10); test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)
 templates/*                                                               Phase 4+
@@ -360,7 +362,7 @@ Packages are added in the phase that first needs them, not before.
 These are set from readings, not guesses (see ROADMAP Readings).
 
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
-- **UI-only game export:** a budget set at M4.12 from the first measured template.
+- **UI-only game export:** a budget set at M4.12 from the first measured template. M4.10's reading: the runtime is 87.8 kB of gzipped JS.
 - **3D:** FPS targets per quality tier, set from the M1.10 spike on a real phone.
 
 ## Open questions
