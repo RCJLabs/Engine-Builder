@@ -73,6 +73,10 @@ describe('the debug tools on the hut', () => {
       why: [{ text: 'Carry five loads up: 1 of 5' }, { text: '7 days left before it fails' }],
     });
     expect(quest(look, 'guiding')?.state).toBe('waiting');
+    // A done-when in words, with its truth now: no rope bought yet.
+    expect(quest(look, 'supplies')?.why).toEqual([
+      { text: 'Buy a rope: when carried (rope) is at least 1', holds: false },
+    ]);
   });
 
   it('runs effects as a debug step, marked and counted; a bad one is refused and changes nothing', async () => {
@@ -119,6 +123,9 @@ describe('the debug tools on the hut', () => {
     expect(await send({ kind: 'debug-forward', at: 6 })).toMatchObject({ kind: 'debug-refused' });
 
     await send({ kind: 'debug-back', at: 7 });
+    await send({ kind: 'debug-back', at: 8 });
+    // Forward from two back takes one step again and keeps the other ahead.
+    expect(lookOf(await send({ kind: 'debug-forward', at: 8 }))).toMatchObject({ cursor: 2, recorded: 3 });
     await send({ kind: 'debug-back', at: 8 });
     await send({ kind: 'act', action: { type: 'hut/carry' }, at: 9 });
     const look = lookOf(await send({ kind: 'debug-look' }));

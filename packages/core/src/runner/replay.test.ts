@@ -105,6 +105,9 @@ describe('placeOf', () => {
     expect(placeOf(start, first)).toEqual({ slice: 'camp', path: '/loads', was: 0, now: 1, also: [] });
     const later = { ...start, kernel: { ...start.kernel, step: 4 } };
     expect(placeOf(start, later)).toEqual({ slice: 'kernel', path: '/step', was: 0, now: 4, also: [] });
+    // A slice that sorts after the kernel's is still named before it.
+    const after = { ...start, kernel: { ...start.kernel, step: 1 }, purse: { coins: 1 } } as GameState;
+    expect(placeOf(start, after)).toMatchObject({ slice: 'purse', path: '', also: [] });
     // Two slices changed: the first by its key, and the other named.
     const both = { ...first, purse: { coins: 1 } } as GameState;
     expect(placeOf(start, both)).toMatchObject({ slice: 'camp', also: ['purse'] });

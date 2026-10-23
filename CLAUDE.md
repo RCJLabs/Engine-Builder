@@ -112,7 +112,12 @@ apps/editor/           the editor PWA
                        play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, its
                        template chosen in NewScreen.tsx (M4.4), New theme, New feedback, New shell); jobs.ts (a
                        project packed, or opened, in a copy of the script worker), protocol.ts, playClient.ts (its
-                       client, with timeouts); moment.ts (its last save, which the designer's frame draws, M4.5)
+                       client, with timeouts) and client.ts (the panel's one); moment.ts (its last save, which the
+                       designer's frame draws, M4.5); debug/ (M4.9, D59): in the worker, host.ts (the run recorded
+                       and the tools' requests), recording.ts, steps.ts, moves.ts (back, forward, replay), look.ts
+                       and quests.ts (what the panel shows, each quest's why), protocol.ts; on the page, tools.ts
+                       (signals and requests), words.ts, DebugTools and its sections (DebugSteps, DebugQuests,
+                       RunEffect, DebugState, NamedStates)
   src/maps/            the World panel (M4.6, D56): worldList.ts (its rows, a new map's rules) and mapPreview.ts
                        (a seed's map, a drawn map, the check over seeds in words) as plain functions; WorldPanel
                        and its lazy WorldBrowser; MapPreview above a map's form, MapBoard (laid out as the map
@@ -154,7 +159,7 @@ apps/editor/           the editor PWA
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
                        is the save journal with big files; loot-, stats-, factions-, roster-, events- and dialogue-bench.ts
-                       the index with kits; scenes-bench.ts, with ink scenes)
+                       the index with kits; scenes-bench.ts, with ink scenes; debug-bench.ts, the debug tools, M4.9)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share;
@@ -175,15 +180,18 @@ apps/editor/           the editor PWA
                        hutAudio.ts is M4.8's step of hut.spec.ts (the hut's stem imported, its sounds pasted in as
                        ZzFX, its ambiences and music made with forms); audioHelpers.ts, audio.spec.ts and
                        audioPhone.spec.ts are M4.8's, the hut heard through window.__ebAudio, buzzes caught from a
-                       stand-in navigator.vibrate, the volumes by touch, and the sound preview
+                       stand-in navigator.vibrate, the volumes by touch, and the sound preview;
+                       debugHelpers.ts, debug.spec.ts and debugPhone.spec.ts are M4.9's, the hut's debug tools on
+                       desktop (the loads quest edited, Replay stopping at step 1) and by touch on phones
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
-                       a module's start (M3.6)
+                       a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION
   src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files, and the
-                       sweep's report as lines (report.ts: formatSweep, eb sim's and the editor's Run's)
+                       sweep's report as lines (report.ts: formatSweep, eb sim's and the editor's Run's);
+                       replay.ts, a recording played on another build and where it parts (M4.9)
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
   src/time/            calendars, timers and wall-clock settling: timeModule; starts.ts, the start-of events (M3.5)
   src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
@@ -291,8 +299,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        mapView.ts, the map in words from enter-map's preview (M4.6);
                        words.ts (fightText: a fight choice's odds from its preview, M4.7); say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
                        after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
-                       fromPack.ts and host.ts, a pack opened in a worker, its games started or loaded from a save's
-                       text; protocol.ts; audioPack.ts, the audio records as the page plays them, M4.8); audio/
+                       fromPack.ts and host.ts, a pack opened in a worker (with the debug step for the editor's, whose
+                       saves the player page refuses, M4.9), its games started or loaded from a save's text; protocol.ts; audioPack.ts, the audio records as the page plays them, M4.8); audio/
                        (M4.8, D58: zzfx.ts, the ZzFX 1.4.0 port; render.ts, a sound and a layer's loop; mix.ts,
                        mixOf and the heaviest buzz, as plain functions; player.ts, Web Audio's buses, beds, stems
                        and buzzes; hook.ts, window.__ebAudio; useAudio.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts

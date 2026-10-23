@@ -165,14 +165,14 @@ A debug step that throws (a script's error, an effect the game doesn't have) is 
   - the recording: steps, cursor, the cap, the drop after a step mid-run;
   - the debug host's requests, on the hut, in Node;
   - the quests' why, on the hut.
-- **e2e, the gate:** the hut in the Play panel, on desktop, and by touch at 360, 390 and 844×390:
-  - played a few days, and +1 day;
-  - its state and log read, a debug step marked;
+- **e2e, the gate:** the hut in the Play panel, on desktop (`debug.spec.ts`), and by touch at 360, 390 and 844×390 (`debugPhone.spec.ts`):
+  - played a few days, and +1 day, which brings the storm;
+  - its state and log read, a debug step marked, the slot no longer saved out;
   - the loads quest's why read;
-  - its stage set by an effect;
+  - its stage set by an effect, and an effect run from the form;
   - a state kept and restored;
-  - a step taken back;
-  - a record edited, and Replay stops at the first step that differs, naming it.
+  - a step taken back and forward;
+  - on desktop, the loads quest edited by its form, and Replay stops at the first step that differs, naming it; on phones, Replay of the project unchanged, every step the same.
 
 ## Open questions
 
