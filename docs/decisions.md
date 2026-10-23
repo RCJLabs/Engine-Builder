@@ -1526,6 +1526,51 @@ Evan chose on 2026-10-23, from these options:
 - **guide.json's steps follow too.**
 - **Conditions, screens' text, scenes and scripts that name the id as a word still don't follow.** They show as problems to fix by hand (specs/templates.md, open question 4).
 
+### D62. Space-Wrecked's acts 1–2 are rebuilt in this repo at games/space-wrecked/, served at engine.rcjlabs.com/games/space-wrecked/; its text is imported, marked all rights reserved; fights resolve by the encounters kit from the imported stats; parts are gear on the ship, and Launch is the flight checklist over its stats. LOCKED, 2026-10-23 (Evan's calls, M4.12)
+
+Evan chose on 2026-10-23, from these options:
+- **home:**
+  - this repo at engine.rcjlabs.com/games/space-wrecked/;
+  - its own repo and subdomain through `eb publish`;
+  - this repo on a subdomain of its own.
+- **content:**
+  - the imported text committed here, marked all rights reserved, RCJLabs;
+  - only the import script here, with CI cloning space-wrecked to build.
+- **fights:**
+  - the encounters kit from the imported stats;
+  - the original's measured win rates, as fixed odds.
+- **ship:**
+  - parts fitted as gear, with Launch when the ship's stats pass the flight checklist;
+  - a shopping list of the parts each background is missing.
+
+**Decision.**
+- **Home.** The rebuild is a project folder, `games/space-wrecked/`, made by an import script from a read-only copy of the original's `data/`.
+  - The engine's Pages workflow deploys its web export at `engine.rcjlabs.com/games/space-wrecked/`, and the confirm job checks it live.
+  - It installs as its own app, scoped to that path.
+  - `spacewrecked.rcjlabs.com` stays the original game's.
+- **Content.**
+  - The imported text and the project made from it are committed here.
+  - A NOTICE in the folder marks them all rights reserved, RCJLabs, so the engine's licence (still open) doesn't cover the game.
+  - CI validates and sweeps the game with no network.
+- **Fights.** Jobs, hangar raids and boardings resolve with the encounters kit (M4.7), from the imported crew and enemy stats and traits.
+  - The odds a player sees are the odds rolled.
+  - The rebuild is tuned toward the original's measured rates (grab 69%, clear 39%, a cutter boarding about 52% with the start crew), and the gap is recorded as a reading.
+- **Ship.**
+  - Modules are items fitted to the ship's slots with the gear kit. They add thrust, mass, power, berths, life support, cargo and guns.
+  - Launch's condition is the original's flight checklist over those stats.
+  - Buying, selling and fitting parts matter as they do in the original.
+
+**Why.**
+- **Home:** no new repo and no DNS, and the deploy check already exists.
+- **Content:** the game opens in the editor from this repo, and CI needs nothing from outside.
+- **Fights:** odds come from the records, so editing an enemy changes them, and the editor's fight preview shows them. That's the engine's rule, "odds on screen are the odds rolled".
+- **Ship:** the parts economy is half of act 1, and gear keeps it as data.
+
+**Cost.**
+- **Two games to keep in step with the content:** the import is a one-way copy, and later changes to the original don't follow.
+- **The rebuild's fight odds won't match the original's exactly.** The reading says by how much.
+- **The ship's layout, which the builder decides, has no stand-in:** a part's place on the hull doesn't matter here.
+
 ---
 
 ## Open
