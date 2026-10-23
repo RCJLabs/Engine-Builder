@@ -4,7 +4,7 @@
  * A pack goes across as JSON, the form a file of it has, so what plays here plays in /play/. Every
  * game opened here has the debug step (M4.9, D59), and the run in play is recorded for the tools.
  */
-import { compileWithGame, memorySource } from '@eb/compiler';
+import { compileWithGame, editionSource, type LeaveOut, memorySource } from '@eb/compiler';
 import { createHost } from '@eb/ui/session';
 import type { SentFile } from '../scripts/protocol.ts';
 import { debugJobs } from './debug/host.ts';
@@ -15,8 +15,10 @@ type Packed =
   | { readonly ok: true; readonly pack: unknown; readonly name: string }
   | Extract<PlayPageReply, { kind: 'refused' }>;
 
-export async function packFiles(id: number, files: readonly SentFile[]): Promise<Packed> {
-  const compiled = await compileWithGame(memorySource(Object.fromEntries(files)));
+/** The pack of the project's files, or of an edition's (M4.10): the files less what it leaves out. */
+export async function packFiles(id: number, files: readonly SentFile[], leaveOut?: LeaveOut): Promise<Packed> {
+  const source = memorySource(Object.fromEntries(files));
+  const compiled = await compileWithGame(leaveOut ? editionSource(source, leaveOut) : source);
   // A project with any error has no pack.
   if (!compiled.pack)
     return { id, kind: 'refused', errors: compiled.diagnostics.filter((d) => d.severity === 'error') };
@@ -29,7 +31,7 @@ export function playJobs(): (request: PlayPageRequest) => Promise<PlayPageReply>
   const debug = debugJobs(host);
   return async (request) => {
     if (request.kind === 'pack' || request.kind === 'open-files') {
-      const packed = await packFiles(request.id, request.files);
+      const packed = await packFiles(request.id, request.files, request.kind === 'pack' ? request.leaveOut : undefined);
       if (!('ok' in packed)) return packed;
       if (request.kind === 'pack') return { id: request.id, kind: 'packed', pack: packed.pack, name: packed.name };
       const open = { id: request.id, kind: 'open', pack: packed.pack } as const;

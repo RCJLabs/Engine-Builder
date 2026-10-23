@@ -559,8 +559,37 @@ describe('the code table', () => {
         win: [{ effect: 'fight', encounter: 'raid' }],
       }),
     });
+    // M4.10: export.json naming a record there isn't, a long name, an Android app without its
+    // fingerprints, and an edition whose kept store stocks the map it leaves out.
+    const exported = await kitted(['inventory', 'economy'], {
+      'records/item/map.json': '{ "name": "Map", "value": 1 }',
+      'records/resource/coins.json': '{ "name": "Coins" }',
+      'records/shop/store.json': JSON.stringify({
+        name: 'Store',
+        currency: 'coins',
+        stock: { items: [{ item: 'map', count: 1 }] },
+      }),
+      'export.json': JSON.stringify({
+        name: 'A name far too long',
+        editions: { lite: { 'leave-out': { records: ['item:map', 'item:none'] } } },
+        targets: { android: { package: 'com.rcjlabs.kits' } },
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened, mapped, fought];
+    const late = [
+      timed,
+      drifting,
+      rostered,
+      evented,
+      talked,
+      quested,
+      slotted,
+      scened,
+      screened,
+      mapped,
+      fought,
+      exported,
+    ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

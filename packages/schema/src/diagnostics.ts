@@ -58,6 +58,8 @@ export const DIAGNOSTIC_CODES = {
   E052: "A feedback line names an argument its event lacks, or matches one on a value it can't take",
   E053: "An effect names a node its map doesn't have",
   E054: 'A fight names nobody to fight for the player, in a game without the roster kit',
+  E055: 'A record an edition keeps names one the edition leaves out',
+  E056: "export.json is malformed, or names something that isn't there",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -95,6 +97,8 @@ export const DIAGNOSTIC_CODES = {
   W135: "A layered map's rule isn't kept in every seed",
   W136: "A drawn map's node no road reaches from its start",
   W137: "An encounter's fallen leave the roster, in a game without the roster kit",
+  W138: "The export's short name is over 12 characters, which launchers cut",
+  W139: 'The Android app names no signing key fingerprints, so it opens with a browser bar',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

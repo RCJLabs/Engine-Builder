@@ -4,6 +4,7 @@
  * then opened for the play shell to start or load a game of (M4.3), or packed for Export game. The
  * debug tools' requests (M4.9) are debug/protocol.ts's. Answers are plain data, as the script worker's are.
  */
+import type { LeaveOut } from '@eb/compiler';
 import type { Diagnostic } from '@eb/schema';
 import type { PlayReply, PlayRequest } from '@eb/ui/session';
 import type { SentFile } from '../scripts/protocol.ts';
@@ -14,8 +15,11 @@ export type PlayPageRequest =
   | DebugRequest
   /** The open project's files: compiled with its game, then the pack opened. */
   | { readonly id: number; readonly kind: 'open-files'; readonly files: readonly SentFile[] }
-  /** The open project's files, compiled into the pack Export game writes. */
-  | { readonly id: number; readonly kind: 'pack'; readonly files: readonly SentFile[] };
+  /**
+   * The open project's files, compiled into the pack Export game writes; with `leaveOut`, an
+   * edition's (M4.10), compiled from the files less what it leaves out.
+   */
+  | { readonly id: number; readonly kind: 'pack'; readonly files: readonly SentFile[]; readonly leaveOut?: LeaveOut };
 
 export type PlayPageReply =
   | PlayReply

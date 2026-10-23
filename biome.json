@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/node_modules", "!tools/lint-boundaries/fixtures"]
+    "includes": ["**", "!**/dist", "!**/dist-game", "!**/node_modules", "!tools/lint-boundaries/fixtures"]
   },
   "formatter": {
     "enabled": true,

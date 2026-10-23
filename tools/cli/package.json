@@ -10,6 +10,7 @@
   "dependencies": {
     "@eb/compiler": "workspace:*",
     "@eb/core": "workspace:*",
+    "@eb/export": "workspace:*",
     "@eb/kits": "workspace:*",
     "@eb/schema": "workspace:*",
     "@eb/script": "workspace:*"

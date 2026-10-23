@@ -9,3 +9,4 @@ test-results/
 *.tsbuildinfo
 __pycache__/
 *.pyc
+dist-game/

@@ -7,8 +7,10 @@ import { openStore, type Store } from '@eb/platform';
 import type { OpenedGame } from '@eb/ui/shell';
 import { Shell } from '@eb/ui/shell';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { type GameWorker, gameWorker } from './gameWorker.ts';
+import type { GameWorker } from './gameWorker.ts';
+import { playerWorker } from './playerWorker.ts';
 import { applyPlayerUpdate, updateReady } from './pwa.ts';
+import { freshSeed } from './seed.ts';
 
 type Shown =
   | { readonly kind: 'idle' }
@@ -26,12 +28,6 @@ function pickFile(then: (file: File) => void): void {
     if (file) then(file);
   });
   input.click();
-}
-
-/** A seed for a new game: each game played differs, as a game's own start would. */
-function freshSeed(): string {
-  const bytes = crypto.getRandomValues(new Uint32Array(2));
-  return Array.from(bytes, (n) => n.toString(36)).join('');
 }
 
 let opens = 0;
@@ -53,7 +49,7 @@ export function Player() {
       return;
     }
     worker.current?.stop();
-    const next = gameWorker();
+    const next = playerWorker();
     worker.current = next;
     const reply = await next
       .send({ kind: 'open', pack })

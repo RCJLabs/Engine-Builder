@@ -16,6 +16,8 @@ import {
 import { audioFiles } from './audioFiles.ts';
 import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
+import { checkExport } from './exportCheck.ts';
+import { EXPORT_FILE } from './exportFile.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
@@ -51,6 +53,7 @@ export interface CompileOptions extends Omit<ValidateOptions, 'assets'> {
  * Each scene under scenes/ is compiled into a talk, which is checked and packed as one (M3.11).
  * The screens under ui/ are checked against the game and packed as they are (M4.1), the feedback
  * (M4.2) and the shell (M4.3) with them; the assets' credits from the provenance log too (M4.4).
+ * export.json's targets and editions are checked against the records (M4.10), but never packed.
  */
 export async function compileProject(
   source: ProjectSource,
@@ -79,6 +82,16 @@ export async function compileProject(
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
+  const exported = await readExportFile(source, (d) => diagnostics.push(d));
+  const checked = checkExport(exported, {
+    types: new Set(known.types.map((t) => t.type)),
+    records: new Set(records.map((r) => `${r.type}:${r.id}`)),
+    scenes: new Set(scenes.records.map((r) => r.id)),
+    assets: files.assets,
+    usedBy: validation.usedBy,
+    assetsUsedBy: validation.assetsUsedBy,
+  });
+  diagnostics.push(...checked.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
   diagnostics.push(
     ...checkProjectUi(ui, {
       facts: grounds.facts,
@@ -114,6 +127,16 @@ export async function compileProject(
     records: records.length,
     dataTypes: known.data,
   };
+}
+
+/** export.json's value (M4.10), or undefined when there is none or it isn't JSON (E007). */
+async function readExportFile(source: ProjectSource, report: (d: Diagnostic) => void): Promise<unknown> {
+  const bytes = await source.read(EXPORT_FILE);
+  if (bytes === undefined) return undefined;
+  const parsed = parseJsonFile(bytes);
+  if (parsed.ok) return parsed.value;
+  report({ code: 'E007', severity: 'error', message: parsed.message, file: EXPORT_FILE, path: '' });
+  return undefined;
 }
 
 // Any order will do: validation's output doesn't depend on it, and the pack hash is canonical.

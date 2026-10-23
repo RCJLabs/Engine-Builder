@@ -11,6 +11,9 @@ import type { Catalog } from '../forms/catalog.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import { type GameState, gameChecks } from '../scripts/gameState.ts';
 
+// export.json's checks (M4.10) load with these: both run once the record index is read.
+export { exportProblems } from '../export/exportChecks.ts';
+
 /** The index's records, as a fact's arguments look them up. */
 function lookup(index: RecordIndex): RecordLookup {
   const byType = new Map<string, string[]>();

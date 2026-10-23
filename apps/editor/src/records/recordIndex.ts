@@ -76,6 +76,8 @@ export interface RecordIndex {
   readonly grounds: string;
   /** The problems of the screens under ui/ (M4.1), checked against the game once the records are (screenChecks.ts). */
   readonly screens?: readonly Diagnostic[];
+  /** export.json's problems (M4.10), checked once the records are, since editions read their used-by (exportChecks.ts). */
+  readonly exports?: readonly Diagnostic[];
 }
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };

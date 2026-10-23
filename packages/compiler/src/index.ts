@@ -6,6 +6,21 @@
 export { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
 export { type ParsedFile, parseJsonFile } from './decode.ts';
 export { type DirectoryHandleLike, directorySource, type FileHandleLike, type HandleLike } from './directorySource.ts';
+export { editionSource, hiddenByEdition, leavesOutAnything, leftOutRecords } from './edition.ts';
+export { checkExport, type ExportChecked, type ExportContext, leavesOutRecord } from './exportCheck.ts';
+export {
+  EXPORT_FILE,
+  type ExportJson,
+  editionOf,
+  exportSchema,
+  FULL,
+  type LeaveOut,
+  leaveOutOf,
+  NOTHING_LEFT_OUT,
+  packageIdFor,
+  TARGETS,
+  type TargetName,
+} from './exportFile.ts';
 export { placeOfPointer, type TextPlace } from './jsonLines.ts';
 export {
   ASSETS_DIR,

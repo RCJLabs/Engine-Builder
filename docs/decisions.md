@@ -1447,9 +1447,49 @@ Evan chose on 2026-10-23, from these options:
 
 ---
 
+### D60. A project exports to the web, one file, itch.io and Android, each target shipping an edition; editions only leave things out, and a leak check with a control reads every built file; Publish writes a repository to push. LOCKED, 2026-10-23 (Evan's calls, M4.10)
+
+**Decision.**
+- **All four targets, checked by machine** (Evan's call):
+  - a web build: a folder with the player, the pack, a service worker named by the build's hash and scoped to its own caches, the update gate, and `version.json`;
+  - a single HTML file that plays from `file://`;
+  - an itch.io zip with relative paths and no service worker;
+  - an Android app as a generated GitHub workflow, from Dirtbag's pipeline, offered only for a web build on its own domain, since `assetlinks.json` must sit at the domain's root.
+
+  The gate exports the hut to each and plays it by machine. Installing on a phone is a worth-a-look, so the milestone merges on green.
+- **Publish to GitHub is a repository you push** (Evan's call). Export writes a zip of a ready repository: the web build, a Pages workflow, and a README with three steps. `eb publish` writes the same into a git working tree and commits with your own git. The editor makes no network call.
+- **Editions are leave-out lists, with a leak check** (Evan's call).
+  - Each target names an edition, and an edition lists the record types, records, scenes and assets it leaves out. The compiler builds it from the project's files without them.
+  - A scan of every built file for the left-out content's ids and text fails the export (from Chooser's leak check and Dirtbag's demo diff).
+  - The full build must contain what the scan looks for, so the scan is seen working.
+- **Package ids are `com.rcjlabs.<game>`** (Evan's call; ROADMAP open question 4). Dirtbag keeps `io.github.rcjlabs.dirtbag`, which Play already has.
+- **Not asked, and following from the calls:**
+  - **Targets and editions live in `export.json`** beside project.json, checked with the project: E055 when a kept record names a left-out one, E056 when the file is wrong, W138 for a long short name, W139 for an Android app without its signing fingerprints. The spec is docs/specs/export.md.
+  - **The runtime is built once with the editor,** and the editor keeps it offline, so an export is the runtime plus the edition's pack, the same bytes in the editor and in `eb export`.
+  - **An edition's saves are its own:** its id names their storage, so a taster and the full game on one site don't share saves.
+  - **Icons are drawn by the engine's own PNG code,** from a project's PNG or from the theme's colours, until Phase 10's icon painter.
+
+Evan chose on 2026-10-23, from these options:
+- targets: all four, checked by machine; the web build and the single file first, itch and Android at M4.12; or the web build only, done thoroughly;
+- Publish: a repository you push; one button in the editor, with a token you paste; or the zip now and the button later;
+- editions: leave-out lists with a leak check; content packs by folder (Chooser's model); or no editions yet;
+- package ids: `com.rcjlabs.<game>`; or `io.github.rcjlabs.<game>`.
+
+**Why.**
+- **Each target is a place Evan's games already ship,** and each has bitten them: Pages' stale caches and shared origin, `.well-known` dropped from the upload, assetlinks hidden by the navigation fallback (docs/research/export.md). Building them once in the engine fixes each for every game.
+- **A token in the editor is a secret in a browser,** and pushing from the editor is a network call it otherwise never makes. A repository zip and your own git keep the editor offline.
+- **Leaving out is the one edition rule that can be checked after the build:** what isn't there can be searched for. The full build's control proves the search can see what it looks for, as Chooser's canary does.
+- **One package id scheme** settles open question 4 before the first engine-built app; `com.rcjlabs` is what most of the games use.
+
+**Cost.**
+- **Editions can't swap content.** A demo's ending has to be its own records, kept in the full game too (spec, open question 1).
+- **The Android app can't be built or tried here:** the workflow is checked as text, and the first build on GitHub is its real test.
+- **The leak check looks for ids and text,** not meaning: a left-out quest retold in other words isn't found.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
 - **Theme of proof #2** (ROADMAP open question 3).
-- **TWA package id scheme** (ROADMAP open question 4).
 - **Theme and genre of proof #4** (ROADMAP open question 7).

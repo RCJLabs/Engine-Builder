@@ -118,8 +118,12 @@ function refresher(copy: WorkingCopy): Refresh {
       const { EMPTY_INDEX, updateIndex } = await loadIndex();
       const checks = gameChecks(game);
       const updated = await updateIndex(open.index ?? EMPTY_INDEX, copy, catalog, open.index ? paths : null, checks);
-      const { screenProblems } = await loadScreenChecks();
-      const index = { ...updated, screens: await screenProblems(copy, catalog, updated, game) };
+      const { screenProblems, exportProblems } = await loadScreenChecks();
+      const index = {
+        ...updated,
+        screens: await screenProblems(copy, catalog, updated, game),
+        exports: await exportProblems(copy, catalog, updated),
+      };
       open = current.value;
       if (open?.source !== copy) return false;
       current.value = { ...open, index };
