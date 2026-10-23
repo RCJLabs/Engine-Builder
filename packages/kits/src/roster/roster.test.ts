@@ -39,6 +39,12 @@ describe('members', () => {
     expect(fact(state, 'roster.left', { actor: 'ana' })).toBeUndefined();
   });
 
+  it('have a place from 1 in the order they joined, and anyone not on the roster has 0 (M4.7)', () => {
+    let state = apply(start(), { effect: 'leave', actor: 'ana', why: 'dismissed' });
+    state = apply(state, { effect: 'join', actor: 'ana' });
+    expect(['bo', 'ana', 'cy'].map((actor) => fact(state, 'roster.place', { actor }))).toEqual([1, 2, 0]);
+  });
+
   it('are refused past the cap, from a number or from a flag, which wins', () => {
     let state = apply(start(), { effect: 'join', actor: 'cy' }, { effect: 'recruit', recruit: 'medic' });
     expect(fact(state, 'roster.room')).toBe(0);

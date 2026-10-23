@@ -4,6 +4,8 @@ import { dialogueModule } from './dialogue/module.ts';
 import { DIALOGUE } from './dialogue/types.ts';
 import { economyKit } from './economy/module.ts';
 import { ECONOMY } from './economy/types.ts';
+import { encountersModule } from './encounters/module.ts';
+import { ENCOUNTERS } from './encounters/types.ts';
 import { eventsModule } from './events/module.ts';
 import { EVENTS } from './events/types.ts';
 import { factionsKit } from './factions/module.ts';
@@ -39,6 +41,9 @@ const DIALOGUE_WITH_ECONOMY = dialogueModule(true);
 // A map's moves cost only with economy on, and take time only with time on, by its calendar (M4.6).
 const MAPS_ALONE = mapsModule(false);
 const MAPS_WITH_ECONOMY = mapsModule(true);
+// The roster's members fight, and leave when they fall, only with the roster kit on (M4.7).
+const ENCOUNTERS_ALONE = encountersModule(false);
+const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
 
 /** The modules of the kits on, in the engine's order; the time kit's with the project's calendar (M3.5). */
 export function kitModules(on: readonly string[], calendar?: CalendarDef): Module[] {
@@ -52,6 +57,7 @@ export function kitModules(on: readonly string[], calendar?: CalendarDef): Modul
       if (on.includes(TIME)) return mapsModule(on.includes(ECONOMY), calendar ?? DEFAULT_CALENDAR);
       return on.includes(ECONOMY) ? MAPS_WITH_ECONOMY : MAPS_ALONE;
     }
+    if (kit.id === ENCOUNTERS) return on.includes(ROSTER) ? ENCOUNTERS_WITH_ROSTER : ENCOUNTERS_ALONE;
     return MODULES.get(kit.id) as Module;
   });
 }

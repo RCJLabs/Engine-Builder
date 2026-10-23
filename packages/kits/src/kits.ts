@@ -6,6 +6,7 @@
  */
 import { DIALOGUE } from './dialogue/types.ts';
 import { ECONOMY } from './economy/types.ts';
+import { ENCOUNTERS } from './encounters/types.ts';
 import { EVENTS } from './events/types.ts';
 import { FACTIONS } from './factions/types.ts';
 import { GEAR } from './gear/types.ts';
@@ -34,6 +35,7 @@ export const KITS: readonly Kit[] = Object.freeze([
   { id: DIALOGUE, needs: [] },
   { id: QUESTS, needs: [] },
   { id: MAPS, needs: [] },
+  { id: ENCOUNTERS, needs: [STATS] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));

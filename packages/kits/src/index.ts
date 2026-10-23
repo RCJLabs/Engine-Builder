@@ -7,8 +7,9 @@
  * recruits made in play, halls, ranks, bonds; M3.6, docs/specs/roster.md), the events kit
  * (choice events, decks, consequences; M3.7, docs/specs/events.md), the dialogue kit (speakers
  * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
- * M3.9, docs/specs/quests.md), and the maps kit (layered and drawn maps, travel; M4.6,
- * docs/specs/maps.md). Their record types and checks are in @eb/schema.
+ * M3.9, docs/specs/quests.md), the maps kit (layered and drawn maps, travel; M4.6,
+ * docs/specs/maps.md), and the encounters kit (fights worked out exactly and rolled once; M4.7,
+ * docs/specs/encounters.md). Their record types and checks are in @eb/schema.
  */
 export { goesOnTo, leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
@@ -46,6 +47,48 @@ export {
   type ShopState,
   type StockItem,
 } from './economy/types.ts';
+export {
+  breakAt,
+  COMBAT,
+  type CombatRecord,
+  combatRecord,
+  ENCOUNTER,
+  ENCOUNTERS,
+  type EncounterRecord,
+  type EncountersSlice,
+  type Ends,
+  encounterRecord,
+  encountersModule,
+  endsOf,
+  type Falls,
+  type FightBuilt,
+  type Fighter,
+  type FightOutcome,
+  type FightRow,
+  type FightTable,
+  type Foe,
+  fallenAt,
+  fight,
+  fightShown,
+  fightTable,
+  HIT_MAX,
+  HIT_MIN,
+  type Match,
+  matchOf,
+  outcomesOf,
+  partyIds,
+  RESULTS,
+  type Reader as FightReader,
+  type Result as FightResult,
+  ROLL_OUT_OF,
+  ROUNDS,
+  rowAt,
+  rowsOf,
+  STANCE,
+  type Stance,
+  shares,
+  volley,
+} from './encounters/index.ts';
 export {
   type Asked,
   type ChoiceVerdict,
