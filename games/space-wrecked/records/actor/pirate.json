@@ -1,0 +1,12 @@
+{
+  "name": "Pirate",
+  "stats": {
+    "hp": 7,
+    "aim": 60,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 4
+  },
+  "weapon": "Carbine"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Ines Varga",
+  "description": "Twenty years in the Fleet's engine rooms, the last six on a supply tender nobody remembered to resupply. She got the reactor back on your spares and decided she liked civilians better.",
+  "stats": {
+    "hp": 8,
+    "aim": 65,
+    "defense": 5,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 5,
+    "fights": 3
+  },
+  "statuses": [
+    "old-hand",
+    "thick-skull"
+  ],
+  "job": "engineer",
+  "weapon": "Shotgun"
+}

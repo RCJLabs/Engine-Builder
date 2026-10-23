@@ -1,0 +1,57 @@
+{
+  "title": "The station bar",
+  "shows": ["hiring"],
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Crew looking for a berth",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Room aboard for {roster.room} more. {economy.amount(resource: credits)} credits."
+      },
+      {
+        "widget": "button",
+        "label": "Hire {roster.offer(hall: station, slot: 0)}",
+        "action": {
+          "take": "roster/hire",
+          "args": {
+            "slot": 0
+          }
+        },
+        "detail": "{crew.offer-kind(slot: 0)} · {roster.offer-fee(hall: station, slot: 0, resource: credits)} credits · {roster.offer-traits(hall: station, slot: 0)}"
+      },
+      {
+        "widget": "button",
+        "label": "Hire {roster.offer(hall: station, slot: 1)}",
+        "action": {
+          "take": "roster/hire",
+          "args": {
+            "slot": 1
+          }
+        },
+        "detail": "{crew.offer-kind(slot: 1)} · {roster.offer-fee(hall: station, slot: 1, resource: credits)} credits · {roster.offer-traits(hall: station, slot: 1)}"
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Leave the bar",
+        "action": {
+          "take": "roster/leave-hall"
+        }
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

@@ -110,6 +110,17 @@ export const RECORDS_FIELDS: Readonly<Record<string, FieldDef>> = {
   },
 };
 
+/** An `offered` list's own field, which only it has (M4.12). */
+export const OFFERED_FIELDS: Readonly<Record<string, FieldDef>> = {
+  takes: {
+    kind: 'list',
+    of: { kind: 'text' },
+    optional: true,
+    label: 'Only these actions',
+    description: 'Action types, or a module’s as module/*: only those are listed. Everything on offer when empty.',
+  },
+};
+
 /** The fields the form shows for a kind, without its action, amounts and shows-when, which have fields of their own. */
 export const fieldsOf = (kind: WidgetKind): Readonly<Record<string, FieldDef>> => OWN[kind];
 
@@ -119,7 +130,7 @@ export function typeFileOf(kind: WidgetKind): TypeFile {
     title: kind,
     fields: {
       ...OWN[kind],
-      ...(kind === 'list' ? RECORDS_FIELDS : {}),
+      ...(kind === 'list' ? { ...RECORDS_FIELDS, ...OFFERED_FIELDS } : {}),
       'shows-when': SHOWS_WHEN,
     },
   };
@@ -131,7 +142,7 @@ const AFTER = ['style', 'action', 'shows-when', 'at'];
 const HOLDS = ['children', 'item', 'unknown', 'tabs'];
 const SPECIAL: Partial<Record<WidgetKind, readonly string[]>> = {
   progress: ['value', 'max', 'label'],
-  list: ['of', 'type', 'known', 'empty'],
+  list: ['of', 'type', 'known', 'takes', 'empty'],
 };
 
 export function widgetKeys(kind: string): readonly string[] {

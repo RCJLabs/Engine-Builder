@@ -1,0 +1,16 @@
+{
+  "name": "Dockers",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "docker",
+      "count": 2
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "docker"
+    }
+  ]
+}

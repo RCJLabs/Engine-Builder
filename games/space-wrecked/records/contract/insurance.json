@@ -1,0 +1,31 @@
+{
+  "title": "Insurance job",
+  "mission": "grab",
+  "pitch": "{client} sold a load at {site} and then reported it stolen. Now it needs stealing. Three crates, and the scavvers there have the same idea.",
+  "clients": [
+    "ferris"
+  ],
+  "sites": [
+    "kettle"
+  ],
+  "encounter": "scavvers",
+  "pay": {
+    "min": 40,
+    "max": 60
+  },
+  "drops": {
+    "chance": 80,
+    "parts": {
+      "cargo": 1,
+      "engine": 1,
+      "lightengine": 1,
+      "heavyengine": 1,
+      "smallreactor": 1,
+      "corridor": 1,
+      "largehold": 1,
+      "kestrel-engine": 1,
+      "kestrel-cargo": 1
+    }
+  },
+  "crates": 3
+}

@@ -7,7 +7,7 @@ import { type DeepReadonly, defineModule, type FactArgs, type RecordStore } from
 import { room } from '../inventory/items.ts';
 import { ITEM } from '../inventory/types.ts';
 import { ACTOR, STAT } from '../stats/types.ts';
-import { GEAR, type GearSlice, SLOT } from './types.ts';
+import { GEAR, type GearSlice, SLOT, type SlotRecord } from './types.ts';
 import { gearParts, wearable, wearer, wornBy } from './worn.ts';
 
 type Fact = (id: string, args?: FactArgs) => unknown;
@@ -26,17 +26,36 @@ const wornIn = (content: RecordStore, slice: DeepReadonly<GearSlice>, actor: str
 const fits = (content: RecordStore, fact: Fact, item: string) =>
   room(wearable(content, item), fact('inventory.count', { item }) as number, 1) >= 1;
 
+/**
+ * The slots the item can be worn in, in slot order: the one its record names, or else every slot
+ * that takes one of its tags (M4.12), so a ship's engine fits any of its engine bays.
+ */
+function slotsFor(content: RecordStore, item: string): string[] {
+  const { slot, tags = [] } = wearable(content, item);
+  if (slot !== undefined) return [slot];
+  if (tags.length === 0) return [];
+  return content
+    .ids(SLOT)
+    .filter((id) => ((content.get(SLOT, id) as SlotRecord).takes ?? []).some((tag) => tags.includes(tag)));
+}
+
 function equipVerdict(
   content: RecordStore,
   slice: DeepReadonly<GearSlice>,
   fact: Fact,
   actor: string,
   item: string,
+  chosen?: string,
 ): Verdict {
-  const { slot } = wearable(content, item);
-  if (slot === undefined) return no('not-wearable', { actor, item });
+  const fitting = slotsFor(content, item);
+  if (fitting.length === 0) return no('not-wearable', { actor, item });
   const slots = wearer(content, actor).slots;
-  if (slots !== undefined && !slots.includes(slot)) return no('no-such-slot', { actor, slot });
+  const has = (slot: string) => slots === undefined || slots.includes(slot);
+  if (chosen !== undefined && !fitting.includes(chosen)) return no('wrong-slot', { actor, item, slot: chosen });
+  const usable = (chosen === undefined ? fitting : [chosen]).filter(has);
+  if (usable.length === 0) return no('no-such-slot', { actor, slot: chosen ?? (fitting[0] as string) });
+  // A free one first: a second engine goes in the next bay rather than over the first.
+  const slot = usable.find((each) => wornIn(content, slice, actor, each) === undefined) ?? (usable[0] as string);
   const old = wornIn(content, slice, actor, slot);
   if (old === item) return { ok: true, slot, item, old };
   if ((fact('inventory.count', { item }) as number) < 1) return no('not-carried', { actor, item });
@@ -110,7 +129,8 @@ export const gearKit = defineModule<GearSlice>({
       run: (ctx, effect) => {
         const actor = effect.actor as string;
         const item = effect.item as string;
-        const verdict = equipVerdict(ctx.content, ctx.read(), ctx.fact, actor, item);
+        const chosen = effect.slot as string | undefined;
+        const verdict = equipVerdict(ctx.content, ctx.read(), ctx.fact, actor, item, chosen);
         if (!verdict.ok) return ctx.refuse(verdict.reason, verdict.data);
         if (verdict.old === item) return;
         ctx.apply({ effect: 'take-item', item, count: 1 });
@@ -125,7 +145,7 @@ export const gearKit = defineModule<GearSlice>({
       preview: (ctx, effect) => {
         const actor = effect.actor as string;
         const item = effect.item as string;
-        const verdict = equipVerdict(ctx.content, ctx.read(), ctx.fact, actor, item);
+        const verdict = equipVerdict(ctx.content, ctx.read(), ctx.fact, actor, item, effect.slot as string | undefined);
         return verdict.ok
           ? { actor, item, slot: verdict.slot, replaces: verdict.old ?? null }
           : { actor, item, refused: verdict.reason };

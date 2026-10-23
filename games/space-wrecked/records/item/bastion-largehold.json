@@ -1,0 +1,30 @@
+{
+  "name": "Bastion large hold",
+  "description": "Bastion Arms",
+  "value": 155,
+  "tags": [
+    "part",
+    "cargo"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 6
+    },
+    {
+      "stat": "cargo",
+      "add": 40
+    },
+    {
+      "stat": "hull",
+      "add": 45
+    }
+  ],
+  "category": "cargo",
+  "maker": "bastion",
+  "base": "largehold",
+  "size": {
+    "w": 4,
+    "h": 3
+  }
+}

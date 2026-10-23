@@ -1,0 +1,43 @@
+{
+  "title": "Part",
+  "description": "A ship module: Space-Wrecked’s data/modules.json, fitted to the ship as gear.",
+  "fields": {
+    "category": {
+      "kind": "enum",
+      "values": ["command", "power", "engines", "weapons", "defense", "crew", "cargo", "utility"],
+      "optional": true,
+      "label": "Category"
+    },
+    "maker": {
+      "kind": "enum",
+      "values": ["yard", "bastion", "kestrel", "scrapline"],
+      "optional": true,
+      "label": "Maker"
+    },
+    "base": {
+      "kind": "ref",
+      "to": "item",
+      "optional": true,
+      "label": "Maker’s version of",
+      "description": "The yard part it is built on"
+    },
+    "size": {
+      "kind": "group",
+      "fields": {
+        "w": {
+          "kind": "int",
+          "min": 1,
+          "label": "Wide"
+        },
+        "h": {
+          "kind": "int",
+          "min": 1,
+          "label": "High"
+        }
+      },
+      "optional": true,
+      "label": "Size in cells",
+      "description": "On the original’s hull grid, kept for the record"
+    }
+  }
+}

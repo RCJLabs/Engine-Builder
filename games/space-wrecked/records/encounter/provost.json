@@ -1,0 +1,10 @@
+{
+  "name": "Provost squad",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp",
+      "count": 3
+    }
+  ]
+}

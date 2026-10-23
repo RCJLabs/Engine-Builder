@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "space-wrecked",
+  "name": "Space-Wrecked",
+  "version": "0.1.0",
+  "kits": [
+    "inventory",
+    "economy",
+    "stats",
+    "gear",
+    "factions",
+    "roster",
+    "events",
+    "quests",
+    "maps",
+    "encounters",
+    "time"
+  ],
+  "calendar": {
+    "ticksPerDay": 1
+  }
+}

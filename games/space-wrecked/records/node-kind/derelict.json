@@ -1,0 +1,30 @@
+{
+  "name": "Derelict",
+  "description": "Something dead and drifting, with whatever it carried still aboard.",
+  "names": [
+    "Drift Four",
+    "Dust Bank",
+    "The Gap",
+    "Marker Twelve",
+    "Slag Field",
+    "Quiet Water",
+    "Nobody's Rock",
+    "The Long Dark",
+    "Mile Forty",
+    "The Flats",
+    "Old Beacon",
+    "Static",
+    "Cinder Belt",
+    "Low Orbit",
+    "Washout",
+    "The Hollow",
+    "Tin Can Alley",
+    "Scrap Heap"
+  ],
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "derelict"
+    }
+  ]
+}

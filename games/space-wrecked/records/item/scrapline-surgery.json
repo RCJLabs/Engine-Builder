@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline surgery",
+  "description": "Scrapline",
+  "value": 145,
+  "tags": [
+    "part",
+    "medbay"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -3
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 11
+    },
+    {
+      "stat": "heal",
+      "add": 2
+    }
+  ],
+  "category": "crew",
+  "maker": "scrapline",
+  "base": "surgery",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

@@ -112,7 +112,7 @@ function statEffectText(effect: Record<string, unknown>): string | undefined {
     case 'remove-status':
       return `remove ${times(effect.stacks)}${named(effect.status, 'a status')} from ${actor}`;
     case 'equip':
-      return `equip ${actor} with ${named(effect.item, 'an item')}`;
+      return `equip ${actor} with ${named(effect.item, 'an item')}${effect.slot === undefined ? '' : ` in ${named(effect.slot, 'a slot')}`}`;
     case 'unequip':
       return `unequip ${whose(effect.actor, effect.slot, 'a slot')}`;
     default:

@@ -1,0 +1,43 @@
+{
+  "name": "Something grows",
+  "text": "Something green grows in the valleys down there, and the scanners say it won't kill anyone.",
+  "choices": [
+    {
+      "id": "forage",
+      "label": "Forage",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "Roots, fruit and something like grain. The hold comes home full.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 12
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "Something down there bites. The squad comes home with half a hold and a wound.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 6
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Stay in orbit",
+      "result": "The squad watches it all the way home."
+    }
+  ]
+}

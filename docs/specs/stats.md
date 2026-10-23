@@ -116,13 +116,15 @@ Each has a preview: the value, current amount or stacks before and after.
 ```jsonc
 // records/slot/<id>.json
 { "name": "Hand" }
+{ "name": "Engine bay 1", "takes": ["engine"] }
 // an item, with the gear kit on, gains two fields
 { "name": "Rifle", "value": 120, "slot": "hand", "modifiers": [{ "stat": "aim", "add": 10 }] }
 // an actor, with the gear kit on, gains two fields
 { "name": "Ana", "stats": { "aim": 70 }, "slots": ["hand", "body"], "wears": { "hand": "rifle" } }
 ```
 
-- **An item's** `slot` is where it is worn (left out, it can't be); its `modifiers` count while it is worn, as a status's do.
+- **A slot's** `takes` lists item tags it can wear (M4.12): an item with no `slot` of its own fits any slot that takes one of its tags, so a ship's engines fit any of its engine bays.
+- **An item's** `slot` is where it is worn. Left out, it is worn in a slot that takes one of its tags, and with none it can't be. Its `modifiers` count while it is worn, as a status's do.
 - **An actor's** `slots` are the slots it has (left out, every slot); `wears` is what it starts wearing, which comes from no bag.
 
 **State.** The `gear` slice holds what differs from the actors' records: `{ "worn": { "ana": { "hand": "pistol", "body": null } } }`, an item or `null` for a slot emptied.
@@ -133,10 +135,10 @@ Each has a preview: the value, current amount or stacks before and after.
 
 | Effect | Fields | Does |
 | --- | --- | --- |
-| `equip` | actor, item | takes one of the item from the party's bag and wears it in its slot, the slot's old item going back to the bag; nothing when the slot wears it already |
+| `equip` | actor, item, slot (optional) | takes one of the item from the party's bag and wears it in its slot: the one `slot` names, else the first of those it fits that is free, else the first. The slot's old item goes back to the bag; nothing when the slot wears it already |
 | `unequip` | actor, slot | puts the slot's item back in the bag |
 
-They refuse, changing nothing: `not-wearable` (the item has no slot), `no-such-slot` (the actor lacks it), `not-carried` (the bag has none), `empty` (nothing to take off), `no-room` (the bag can't hold the item coming back). They raise `gear/equipped` and `gear/unequipped` (actor, slot, item).
+They refuse, changing nothing: `not-wearable` (the item fits no slot), `wrong-slot` (`slot` doesn't take it), `no-such-slot` (the actor lacks it), `not-carried` (the bag has none), `empty` (nothing to take off), `no-room` (the bag can't hold the item coming back). They raise `gear/equipped` and `gear/unequipped` (actor, slot, item).
 
 ## Checks
 

@@ -1,0 +1,196 @@
+{
+  "title": "The hangar",
+  "shows": ["hangar"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: credits)} credits"
+      },
+      {
+        "widget": "text",
+        "text": "Heat {flag.number(flag: heat)}"
+      },
+      {
+        "widget": "text",
+        "text": "Day {time.day}"
+      }
+    ],
+    "direction": "row",
+    "justify": "between",
+    "wrap": true
+  },
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{campaign.who} · the hangar",
+        "style": "caption"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "The flight checklist",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "Power {stats.value(actor: ship, stat: power)}: enough",
+            "shows-when": "campaign.check(line: power)"
+          },
+          {
+            "widget": "text",
+            "text": "Power {stats.value(actor: ship, stat: power)}: short. Fit a reactor, or take off a part that uses power.",
+            "shows-when": "not campaign.check(line: power)"
+          },
+          {
+            "widget": "text",
+            "text": "Thrust {stats.value(actor: ship, stat: thrust)} for mass {stats.value(actor: ship, stat: mass)}: it flies",
+            "shows-when": "campaign.check(line: thrust)"
+          },
+          {
+            "widget": "text",
+            "text": "Thrust {stats.value(actor: ship, stat: thrust)} for mass {stats.value(actor: ship, stat: mass)}: not enough. Fit an engine.",
+            "shows-when": "not campaign.check(line: thrust)"
+          },
+          {
+            "widget": "text",
+            "text": "Berths {stats.value(actor: ship, stat: berths)} for {roster.count} crew",
+            "shows-when": "campaign.check(line: berths)"
+          },
+          {
+            "widget": "text",
+            "text": "Berths {stats.value(actor: ship, stat: berths)} for {roster.count} crew: fit crew quarters or bunks",
+            "shows-when": "not campaign.check(line: berths)"
+          },
+          {
+            "widget": "text",
+            "text": "Life support {stats.value(actor: ship, stat: life-support)} for {roster.count} crew",
+            "shows-when": "campaign.check(line: air)"
+          },
+          {
+            "widget": "text",
+            "text": "Life support {stats.value(actor: ship, stat: life-support)} for {roster.count} crew: fit life support or bunks",
+            "shows-when": "not campaign.check(line: air)"
+          },
+          {
+            "widget": "text",
+            "text": "A bridge, reactor, engine and airlock aboard",
+            "shows-when": "campaign.check(line: parts)"
+          },
+          {
+            "widget": "text",
+            "text": "Aboard: {stats.value(actor: ship, stat: bridges)} bridge, {stats.value(actor: ship, stat: reactors)} reactor, {stats.value(actor: ship, stat: engines)} engine, {stats.value(actor: ship, stat: airlocks)} airlock. Each needs one.",
+            "shows-when": "not campaign.check(line: parts)"
+          }
+        ]
+      },
+      {
+        "widget": "text",
+        "text": "The pursuer’s hunters join every job now.",
+        "style": "caption",
+        "shows-when": "flag.number(heat) >= 50"
+      },
+      {
+        "widget": "text",
+        "text": "A raid is due: face it, or pay the heat down, before the next job.",
+        "shows-when": "flag.number(heat) >= 75"
+      },
+      {
+        "widget": "stack",
+        "children": [
+          {
+            "widget": "button",
+            "label": "Launch",
+            "action": {
+              "take": "campaign/launch"
+            },
+            "style": "primary",
+            "shows-when": "campaign.ready"
+          },
+          {
+            "widget": "button",
+            "label": "Face the raid",
+            "action": {
+              "take": "campaign/raid"
+            },
+            "style": "primary",
+            "shows-when": "flag.number(heat) >= 75"
+          },
+          {
+            "widget": "button",
+            "label": "The job board",
+            "action": {
+              "take": "campaign/jobs"
+            },
+            "detail": "A day goes by with each job"
+          },
+          {
+            "widget": "button",
+            "label": "The shop",
+            "action": {
+              "take": "campaign/shop"
+            }
+          },
+          {
+            "widget": "button",
+            "label": "Make a payment",
+            "action": {
+              "take": "campaign/pay"
+            },
+            "detail": "Heat down by 15"
+          },
+          {
+            "widget": "button",
+            "label": "Refit the ship",
+            "action": {
+              "open": "refit"
+            },
+            "detail": "{refit.free} hull space free"
+          }
+        ],
+        "gap": 1
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Crew",
+        "action": {
+          "open": "crew"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

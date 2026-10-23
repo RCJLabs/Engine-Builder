@@ -1,0 +1,64 @@
+{
+  "weapons": [
+    {
+      "id": "rifle",
+      "name": "Rifle",
+      "damage": [3, 5],
+      "accuracy": { "close": 0, "mid": 10, "long": 0 },
+      "crit": 10,
+      "critDamage": 2,
+      "clip": 4,
+      "held": { "length": 0.42, "height": 0.075, "bore": 0.011, "hands": 2 }
+    },
+    {
+      "id": "shotgun",
+      "name": "Shotgun",
+      "damage": [4, 6],
+      "accuracy": { "close": 20, "mid": -5, "long": -30 },
+      "crit": 20,
+      "critDamage": 3,
+      "clip": 3,
+      "held": { "length": 0.36, "height": 0.085, "bore": 0.018, "hands": 2 }
+    },
+    {
+      "id": "pistol",
+      "name": "Pistol",
+      "damage": [2, 4],
+      "accuracy": { "close": 15, "mid": 0, "long": -15 },
+      "crit": 10,
+      "critDamage": 1,
+      "clip": 6,
+      "held": { "length": 0.13, "height": 0.055, "bore": 0.009, "hands": 1 }
+    },
+    {
+      "id": "carbine",
+      "name": "Carbine",
+      "damage": [3, 4],
+      "accuracy": { "close": 10, "mid": 5, "long": -10 },
+      "crit": 5,
+      "critDamage": 2,
+      "clip": 3,
+      "held": { "length": 0.32, "height": 0.07, "bore": 0.01, "hands": 2 }
+    },
+    {
+      "id": "longrifle",
+      "name": "Long rifle",
+      "damage": [3, 5],
+      "accuracy": { "close": -10, "mid": 5, "long": 20 },
+      "crit": 15,
+      "critDamage": 2,
+      "clip": 3,
+      "held": { "length": 0.46, "height": 0.07, "bore": 0.01, "hands": 2 }
+    },
+    {
+      "id": "dartgun",
+      "name": "Dart gun",
+      "damage": [2, 3],
+      "accuracy": { "close": 10, "mid": 5, "long": -20 },
+      "crit": 5,
+      "critDamage": 1,
+      "clip": 4,
+      "held": { "length": 0.22, "height": 0.06, "bore": 0.014, "hands": 1 }
+    }
+  ]
+}

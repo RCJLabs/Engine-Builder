@@ -1,0 +1,33 @@
+{
+  "name": "Weapon mount",
+  "description": "Yard standard",
+  "value": 130,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "guns",
+      "add": 15
+    }
+  ],
+  "category": "weapons",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

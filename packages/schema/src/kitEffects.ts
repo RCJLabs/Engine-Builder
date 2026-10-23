@@ -167,6 +167,13 @@ const FILES: EffectFile[] = [
         label: 'Item',
         description: 'Taken from the party’s bag; what its slot wore goes back',
       },
+      slot: {
+        kind: 'ref',
+        to: SLOT,
+        optional: true,
+        label: 'Slot',
+        description: 'Which of the slots it fits: a free one, else the first, when left out',
+      },
     },
   },
   {

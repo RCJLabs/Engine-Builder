@@ -1,0 +1,67 @@
+{
+  "name": "Halloran runner",
+  "text": "A Halloran runner on one engine, her crew patched up in the hold by the family's medic. Dez Halloran heard you call the drop in. The family wants him home, and he would rather not go.",
+  "choices": [
+    {
+      "id": "towjoin",
+      "label": "Tow her, sign on Dez",
+      "needs": "roster.room >= 1",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "You tow her to the family's drop, and Dez stays aboard. Old Halloran sends word that the family will want him back.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "hallorans",
+          "by": 1
+        },
+        {
+          "effect": "join",
+          "actor": "halloran"
+        },
+        {
+          "effect": "start-quest",
+          "quest": "halloran-loyal"
+        }
+      ]
+    },
+    {
+      "id": "tow",
+      "label": "Tow her in",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "You tow her to the family's drop. Old Halloran sends his thanks, which he never does.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "hallorans",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "rob",
+      "label": "Take her cargo",
+      "result": "Her hold is family business, and now it's yours. Dez watches you do it and says nothing, which the family will hear about.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 30
+        },
+        {
+          "effect": "change-standing",
+          "faction": "hallorans",
+          "by": -4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave her",
+      "result": "Dez watches you go from her viewport."
+    }
+  ]
+}

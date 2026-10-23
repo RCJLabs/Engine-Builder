@@ -1,0 +1,50 @@
+{
+  "name": "Provost cutter",
+  "text": "A Provost cutter is working the lanes, checking every transponder it meets.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "waved",
+      "label": "Show your transponder",
+      "if": "factions.reached(faction: fleet, band: friendly)",
+      "result": "The corvette checks your transponder against the Fleet's lists, finds a friend of the Fleet, and waves you on without a search."
+    },
+    {
+      "id": "fight",
+      "label": "Fight them off",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "ship-provostcutter"
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Run for it",
+      "outcomes": [
+        {
+          "chance": 35,
+          "result": "The engines hold, and the ship outruns them. Every band heard the chase.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 4
+            }
+          ]
+        },
+        {
+          "chance": 65,
+          "result": "They close before the engines can open the gap.",
+          "effects": [
+            {
+              "effect": "fight",
+              "encounter": "ship-provostcutter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

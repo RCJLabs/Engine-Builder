@@ -1,0 +1,137 @@
+{
+  "name": "Voss's chandlery: the shelf",
+  "picks": {
+    "min": 4
+  },
+  "unique": true,
+  "entries": [
+    {
+      "item": "engine",
+      "weight": 9
+    },
+    {
+      "item": "reactor",
+      "weight": 1
+    },
+    {
+      "item": "quarters",
+      "weight": 2
+    },
+    {
+      "item": "lifesupport",
+      "weight": 2
+    },
+    {
+      "item": "corridor",
+      "weight": 2
+    },
+    {
+      "item": "airlock",
+      "weight": 1
+    },
+    {
+      "item": "cargo",
+      "weight": 1
+    },
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 2
+    },
+    {
+      "item": "weapon",
+      "weight": 2
+    },
+    {
+      "item": "shield",
+      "weight": 2
+    },
+    {
+      "item": "lightengine",
+      "weight": 1
+    },
+    {
+      "item": "heavyengine",
+      "weight": 1
+    },
+    {
+      "item": "smallreactor",
+      "weight": 2
+    },
+    {
+      "item": "pointdefense",
+      "weight": 2
+    },
+    {
+      "item": "cannon",
+      "weight": 2
+    },
+    {
+      "item": "shieldarray",
+      "weight": 1
+    },
+    {
+      "item": "bunks",
+      "weight": 1
+    },
+    {
+      "item": "surgery",
+      "weight": 1
+    },
+    {
+      "item": "largehold",
+      "weight": 1
+    },
+    {
+      "item": "bastion-engine",
+      "weight": 2
+    },
+    {
+      "item": "bastion-reactor",
+      "weight": 1
+    },
+    {
+      "item": "bastion-weapon",
+      "weight": 2
+    },
+    {
+      "item": "bastion-shield",
+      "weight": 2
+    },
+    {
+      "item": "bastion-cannon",
+      "weight": 1
+    },
+    {
+      "item": "bastion-armory",
+      "weight": 1
+    },
+    {
+      "item": "bastion-pointdefense",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-engine",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-weapon",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-shield",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-weapon",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-reactor",
+      "weight": 1
+    }
+  ]
+}

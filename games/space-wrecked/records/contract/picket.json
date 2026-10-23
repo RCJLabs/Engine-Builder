@@ -1,0 +1,30 @@
+{
+  "title": "The picket line",
+  "mission": "clear",
+  "pitch": "Con-Reg hired muscle to break the picket at {site}. {client} hired you to break the muscle.",
+  "clients": [
+    "marta"
+  ],
+  "sites": [
+    "pit9",
+    "depot"
+  ],
+  "encounter": "strikebreakers",
+  "against": "conreg",
+  "pay": {
+    "min": 100,
+    "max": 140
+  },
+  "drops": {
+    "chance": 30,
+    "parts": {
+      "shield": 1,
+      "weapon": 1,
+      "cannon": 1,
+      "pointdefense": 1,
+      "shieldarray": 1,
+      "bastion-weapon": 1,
+      "bastion-shield": 1
+    }
+  }
+}

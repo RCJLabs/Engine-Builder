@@ -1,0 +1,15 @@
+{
+  "name": "Hostile ships",
+  "description": "Who a hostile node turns out to be.",
+  "events": [
+    {
+      "event": "ship-cutter",
+      "weight": 3
+    },
+    {
+      "event": "ship-corvette",
+      "weight": 1,
+      "if": "maps.entered >= 3"
+    }
+  ]
+}

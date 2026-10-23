@@ -1,0 +1,26 @@
+{
+  "name": "Kestrel armory",
+  "description": "Kestrel Dynamics",
+  "value": 110,
+  "tags": [
+    "part",
+    "armory"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    }
+  ],
+  "category": "utility",
+  "maker": "kestrel",
+  "base": "armory",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

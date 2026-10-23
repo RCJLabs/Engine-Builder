@@ -1,0 +1,17 @@
+{
+  "name": "Careful",
+  "description": "You never cross open ground you could go round.",
+  "modifiers": [
+    {
+      "stat": "defense",
+      "add": 10
+    },
+    {
+      "stat": "mobility",
+      "add": -1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Distress calls",
+  "events": [
+    {
+      "event": "stalled-miner"
+    },
+    {
+      "event": "bad-beacon"
+    },
+    {
+      "event": "lost-courier"
+    },
+    {
+      "event": "fleet-tender"
+    },
+    {
+      "event": "survey-skiff"
+    }
+  ],
+  "recent": 4
+}

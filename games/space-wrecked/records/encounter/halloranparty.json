@@ -1,0 +1,16 @@
+{
+  "name": "Old Halloran's crew",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector",
+      "count": 3
+    }
+  ]
+}

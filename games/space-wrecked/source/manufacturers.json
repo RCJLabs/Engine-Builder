@@ -1,0 +1,30 @@
+{
+  "manufacturers": [
+    {
+      "id": "yard",
+      "name": "Yard standard",
+      "short": "Yard"
+    },
+    {
+      "id": "bastion",
+      "name": "Bastion Arms",
+      "short": "Bastion",
+      "blurb": "Built to take a beating: tougher than the yard's, and heavier.",
+      "mark": "chevrons"
+    },
+    {
+      "id": "kestrel",
+      "name": "Kestrel Dynamics",
+      "short": "Kestrel",
+      "blurb": "Built light: lighter than the yard's and dearer, and quicker to break.",
+      "mark": "stripes"
+    },
+    {
+      "id": "scrapline",
+      "name": "Scrapline",
+      "short": "Scrapline",
+      "blurb": "Built cheap: a third off the yard's price, weaker, and hungrier for power.",
+      "mark": "patches"
+    }
+  ]
+}

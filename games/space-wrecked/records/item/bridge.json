@@ -1,0 +1,33 @@
+{
+  "name": "Bridge",
+  "description": "Yard standard",
+  "value": 120,
+  "tags": [
+    "part",
+    "bridge"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 20
+    },
+    {
+      "stat": "bridges",
+      "add": 1
+    }
+  ],
+  "category": "command",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}

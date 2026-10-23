@@ -1,0 +1,27 @@
+{
+  "title": "Hot cargo",
+  "mission": "grab",
+  "pitch": "Customs seized a load {client} had already sold twice. It's in {site}, two crates, tagged. She'd like them back before the buyers come asking.",
+  "clients": [
+    "linnet"
+  ],
+  "sites": [
+    "bonded"
+  ],
+  "encounter": "customs",
+  "against": "fleet",
+  "pay": {
+    "min": 60,
+    "max": 90
+  },
+  "drops": {
+    "chance": 50,
+    "parts": {
+      "cargo": 1,
+      "armory": 1,
+      "bunks": 1,
+      "kestrel-cargo": 1
+    }
+  },
+  "crates": 2
+}

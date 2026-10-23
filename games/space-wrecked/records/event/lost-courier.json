@@ -1,0 +1,61 @@
+{
+  "name": "Lost courier",
+  "text": "A courier pod with a cracked nav core, asking for a fix and a heading. The sender paid for delivery, and you look like delivery.",
+  "choices": [
+    {
+      "id": "fix",
+      "label": "Fix it up",
+      "result": "Twenty minutes with a wrench and a heading. The fee clears. The pod's log mentions you.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 20
+        },
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "crack",
+      "label": "Crack it open",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "Inside: bearer bonds. Someone will miss those.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 40
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 10
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "Inside: somebody's mail. Now the pod is screaming about it.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "It'll find its own way. Or it won't."
+    }
+  ]
+}

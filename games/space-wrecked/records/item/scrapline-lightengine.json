@@ -1,0 +1,38 @@
+{
+  "name": "Scrapline light engine",
+  "description": "Scrapline",
+  "value": 60,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "thrust",
+      "add": 6
+    },
+    {
+      "stat": "hull",
+      "add": 6
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "scrapline",
+  "base": "lightengine",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

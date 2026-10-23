@@ -16,7 +16,10 @@ type Template = RecruitRecord;
 // The spec's number, written out: a port draws a worn name again up to 20 times.
 const NAME_TRIES = 20;
 
-/** A recruit drawn by hand from a stream, as the spec lists the draws: name, stats by id, traits until `most`. */
+/**
+ * A recruit drawn by hand from a stream, as the spec lists the draws: name, stats by id, then traits until
+ * `most`, or the traits shuffled and the first `most` taken.
+ */
 function rolledByHand(template: Template, rng: Rng, worn: ReadonlySet<string>) {
   let name = '';
   for (let i = 0; i < NAME_TRIES; i++) {
@@ -31,10 +34,19 @@ function rolledByHand(template: Template, rng: Rng, worn: ReadonlySet<string>) {
     const { min, max } = ranges[id] as { min: number; max?: number };
     stats[id] = rng.int(min, max ?? min);
   }
+  const all = (template.traits ?? []).map((trait) => trait.status);
+  if (template.draw === 'shuffle') {
+    // Fisher–Yates from the end, each swap one draw, then the first `most`.
+    for (let i = all.length - 1; i > 0; i--) {
+      const j = rng.int(0, i);
+      [all[i], all[j]] = [all[j] as string, all[i] as string];
+    }
+    return { name, stats, traits: all.slice(0, template.most ?? all.length) };
+  }
   const traits: string[] = [];
   for (const trait of template.traits ?? []) {
     if (traits.length === template.most) break;
-    if (rng.int(1, 100) <= trait.chance) traits.push(trait.status);
+    if (rng.int(1, 100) <= (trait.chance ?? 100)) traits.push(trait.status);
   }
   return { name, stats, traits };
 }
@@ -131,6 +143,36 @@ describe('rolling a recruit', () => {
     const never = { ...template, traits: [{ status: 'steady', chance: 1 }] };
     const counts = Array.from({ length: 200 }, (_, i) => roll(never, 't', Rng.create(`n${i}`), new Set()));
     expect(counts.filter((r) => r.traits !== undefined).length).toBeLessThan(10);
+  });
+
+  it('shuffles the traits and takes the first `most` when the template says so, each chance unread', () => {
+    const five = ['brave', 'calm', 'deft', 'grim', 'keen'].map((status) => ({ status, chance: 1 }));
+    const template: Template = { actor: 'doc', names: ['Ida'], traits: five, most: 2, draw: 'shuffle' };
+    const seen = new Set<string>();
+    for (let i = 0; i < 60; i++) {
+      const rolled = roll(template, 't', Rng.create(`s${i}`), new Set());
+      expect(rolled.traits).toEqual(rolledByHand(template, Rng.create(`s${i}`), new Set()).traits);
+      expect(rolled.traits).toHaveLength(2);
+      expect(new Set(rolled.traits).size).toBe(2);
+      for (const trait of rolled.traits ?? []) seen.add(trait);
+    }
+    // Every trait comes up, and not only in the list's order.
+    expect(seen.size).toBe(5);
+    const orders = new Set(
+      Array.from({ length: 60 }, (_, i) => (roll(template, 't', Rng.create(`s${i}`), new Set()).traits ?? []).join()),
+    );
+    expect([...orders].some((order) => (order.split(',')[0] as string) > (order.split(',')[1] as string))).toBe(true);
+    // Without `most`, all of them, shuffled; with none to draw, none.
+    const all = roll({ ...template, most: undefined }, 't', Rng.create('a'), new Set()).traits ?? [];
+    expect([...all].sort()).toEqual(five.map((t) => t.status));
+    expect(roll({ ...template, most: 0 }, 't', Rng.create('a'), new Set()).traits).toBeUndefined();
+  });
+
+  it('reads a trait with no chance as a sure one', () => {
+    const template: Template = { actor: 'doc', names: ['Ida'], traits: [{ status: 'steady' }, { status: 'sharp' }] };
+    for (const seed of ['a', 'b', 'c']) {
+      expect(roll(template, 't', Rng.create(seed), new Set()).traits).toEqual(['steady', 'sharp']);
+    }
   });
 
   it('by the recruit effect draws from the recruit’s number, without a template to pick', () => {

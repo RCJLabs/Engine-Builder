@@ -1,0 +1,31 @@
+{
+  "title": "An event",
+  "shows": ["choosing"],
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{event.name}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{event.text}"
+      },
+      {
+        "widget": "list",
+        "of": "event",
+        "item": {
+          "widget": "button",
+          "label": "{.label}",
+          "action": {
+            "take": "entry"
+          },
+          "detail": "{.odds}"
+        }
+      }
+    ]
+  }
+}

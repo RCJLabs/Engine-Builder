@@ -1,0 +1,15 @@
+{
+  "name": "Provost raiding squad",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp"
+    },
+    {
+      "actor": "cadet"
+    },
+    {
+      "actor": "mp"
+    }
+  ]
+}

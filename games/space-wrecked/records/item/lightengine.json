@@ -1,0 +1,37 @@
+{
+  "name": "Light engine",
+  "description": "Yard standard",
+  "value": 90,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "thrust",
+      "add": 6
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

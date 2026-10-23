@@ -1,0 +1,17 @@
+{
+  "name": "Bar fighter",
+  "description": "Thrown out of every bar on the Strand, and never by just the one bouncer.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 1
+    },
+    {
+      "stat": "aim",
+      "add": 3
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

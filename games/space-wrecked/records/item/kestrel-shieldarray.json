@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel shield array",
+  "description": "Kestrel Dynamics",
+  "value": 360,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -4
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 10
+    },
+    {
+      "stat": "shield",
+      "add": 25
+    }
+  ],
+  "category": "defense",
+  "maker": "kestrel",
+  "base": "shieldarray",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

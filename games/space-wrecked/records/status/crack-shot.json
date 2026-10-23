@@ -1,0 +1,17 @@
+{
+  "name": "Crack shot",
+  "description": "You'd rather hit than be hit. You don't always get to choose.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 10
+    },
+    {
+      "stat": "hp",
+      "add": -2
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

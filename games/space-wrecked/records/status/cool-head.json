@@ -1,0 +1,17 @@
+{
+  "name": "Cool head",
+  "description": "You've never once raised your voice. People find it unsettling.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 2
+    },
+    {
+      "stat": "defense",
+      "add": 3
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

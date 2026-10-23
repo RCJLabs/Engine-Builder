@@ -1,0 +1,15 @@
+{
+  "name": "Marine",
+  "description": "Rank 1, Pinning fire: Knows where to put the rounds to keep heads down. Rank 2, Gun captain: Has called fire from a gun deck before.",
+  "stats": {
+    "hp": 10,
+    "aim": 70,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 1,
+    "damage": 4,
+    "fights": 0
+  },
+  "job": "marine",
+  "weapon": "Rifle"
+}

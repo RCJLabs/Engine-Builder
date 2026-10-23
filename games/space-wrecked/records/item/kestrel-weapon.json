@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel weapon mount",
+  "description": "Kestrel Dynamics",
+  "value": 155,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    },
+    {
+      "stat": "guns",
+      "add": 15
+    }
+  ],
+  "category": "weapons",
+  "maker": "kestrel",
+  "base": "weapon",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

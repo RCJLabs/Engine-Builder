@@ -1,0 +1,35 @@
+{
+  "name": "The Hallorans",
+  "description": "The Halloran family at the hangar door.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector",
+      "count": 4
+    }
+  ],
+  "breaks": 40,
+  "win": [
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
+    }
+  ],
+  "lose": [
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
+    },
+    {
+      "effect": "raid-loss"
+    }
+  ]
+}

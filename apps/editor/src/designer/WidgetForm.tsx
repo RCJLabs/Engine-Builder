@@ -15,7 +15,7 @@ import { DraftInput } from './DraftInput.tsx';
 import { changeUnder, formApi, type Part } from './formApi.ts';
 import { editFile, onlyHere } from './state.ts';
 import { isKind } from './tree.ts';
-import { fieldsOf, LAYOUT_FIELDS, type LayoutField, RECORDS_FIELDS, typeFileOf } from './widgets.ts';
+import { fieldsOf, LAYOUT_FIELDS, type LayoutField, OFFERED_FIELDS, RECORDS_FIELDS, typeFileOf } from './widgets.ts';
 
 type Loose = Record<string, unknown>;
 const HOLDS = ['children', 'item', 'unknown', 'tabs'];
@@ -60,7 +60,7 @@ export function WidgetForm(props: Props) {
       <div class="designer-form" data-at={at}>
         <WidgetProblems
           {...props}
-          rendered={[...own.map(([n]) => n), 'action', 'value', 'max', 'type', 'known', 'shows-when']}
+          rendered={[...own.map(([n]) => n), 'action', 'value', 'max', 'type', 'known', 'takes', 'shows-when']}
         />
         {layout ? (
           <SizesSwitch breakpoint={breakpoint} overrides={Object.keys((widget.at as Loose | undefined) ?? {})} />
@@ -85,6 +85,15 @@ export function WidgetForm(props: Props) {
           />
         ) : null}
         {kind === 'list' && widget.of === 'records' ? <RecordsFields {...props} /> : null}
+        {kind === 'list' && widget.of === 'offered' ? (
+          <FieldView
+            label={OFFERED_FIELDS.takes?.label ?? 'Only these actions'}
+            def={OFFERED_FIELDS.takes as FieldDef}
+            info={OFFERED_FIELDS.takes as FieldDef}
+            path={['takes']}
+            value={widget.takes}
+          />
+        ) : null}
         <FieldView
           label="Shows when"
           def={typeFileOf(kind).fields['shows-when'] as FieldDef}

@@ -1,0 +1,73 @@
+{
+  "name": "Company wreck",
+  "text": "A Con-Reg survey boat, holed and abandoned. Its transponder is still pinging head office, faithful to the last.",
+  "choices": [
+    {
+      "id": "fast",
+      "label": "Strip it fast",
+      "result": "Good parts, company issue. The transponder logs your visit, naturally.",
+      "effects": [
+        {
+          "effect": "roll-loot",
+          "table": "salvage"
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 15
+        },
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 8
+        },
+        {
+          "effect": "change-standing",
+          "faction": "conreg",
+          "by": -1
+        }
+      ]
+    },
+    {
+      "id": "pinger",
+      "label": "Pull the pinger first",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "Pinger out, then the shopping. A clean job.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "salvage"
+            },
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 15
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "The pinger was wired to a charge. Company humour. You still get the till.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 15
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "Not worth the paperwork."
+    }
+  ]
+}

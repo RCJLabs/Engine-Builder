@@ -1,0 +1,39 @@
+{
+  "name": "Kestrel bunks",
+  "description": "Kestrel Dynamics",
+  "value": 120,
+  "tags": [
+    "part",
+    "quarters",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "berths",
+      "add": 2
+    },
+    {
+      "stat": "life-support",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 6
+    }
+  ],
+  "category": "crew",
+  "maker": "kestrel",
+  "base": "bunks",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

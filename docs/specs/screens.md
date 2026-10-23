@@ -53,7 +53,7 @@ Every widget has `widget`, its kind, and may have:
 | `image` | `asset`, `alt` | An asset of the project's. |
 | `button` | `label`, `action`, `style` (`primary` or `plain`), `detail` | At least 44 px high and wide. Disabled while its action isn't on offer. `detail` (M4.7) is a second, smaller line under the label, a template like it, left out while every binding in it is empty, so a choice with no odds shows none. |
 | `progress` | `value`, `max`, `label` | `value` and `max` are numbers or bindings. |
-| `list` | `of`, `item`, `empty`; for `records`, `type`, `known` and `unknown` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
+| `list` | `of`, `item`, `empty`; for `records`, `type`, `known` and `unknown`; for `offered`, `takes` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
 | `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. A pad's LB and RB and a swipe turn them too (M4.2). |
 | `log` | `lines` (1 to 100, default 10), `label`, `empty` | The lines the game's feedback said to the log, newest first (M4.2, [input.md](input.md#the-log)). |
 | `map` | `label`, `empty` | The map the party is on, its nodes as buttons and a picked node's moves under it (M4.6, [maps.md](maps.md#the-map-widget)). Without the maps kit it is E049; before a map is entered it shows `empty`. |
@@ -87,11 +87,13 @@ In a list, an item's button can use `{"take": "entry"}`: the action that comes w
 | `shelf` | the open shop's shelf | `item`, `name`, `price`, `count`; the action buys it |
 | `bag` | the items carried | `item`, `name`, `count`, `price` while a shop is open; the action sells it |
 | `journal` | the quests started, as the quests kit's journal shows them | `quest`, `name`, `state`, `log`, `objectives` |
-| `offered` | every action on offer | `type`, `label`; the action takes it |
+| `offered` | every action on offer, or with `takes` only those it names | `type`, `label`; the action takes it |
 | `records` | every record of the list's `type`, in id order (M4.4) | `id`, `name`, and the record's own fields whose values are text, numbers or yes/no |
 | `credits` | each asset's credit, from the pack (M4.4) | `asset`, `author`, `licence`, `source`, `tool` |
 
 The talk's own line, its speaker and the event's text are views too, read as `{talk.text}`, `{talk.speaker}` and `{event.text}` in templates.
+
+**An `offered` list's `takes`** (M4.12) narrows it to the action types it names, or a module's as `module/*`: Space-Wrecked's refit screen takes `refit/*`, so it lists fitting and stripping and not Launch or Undock. Only an `offered` list has `takes`, and each must name one of the game's actions or a module that has one (E049). Without it, the list holds everything on offer. The designer shows it as Only these actions.
 
 **A `records` list** (M4.4, D54) is the codex's:
 - **`type`** names the record type, which the project must have.

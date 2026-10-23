@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel small reactor",
+  "description": "Kestrel Dynamics",
+  "value": 155,
+  "tags": [
+    "part",
+    "reactor"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": 4
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    },
+    {
+      "stat": "reactors",
+      "add": 1
+    }
+  ],
+  "category": "power",
+  "maker": "kestrel",
+  "base": "smallreactor",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

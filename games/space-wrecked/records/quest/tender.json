@@ -1,0 +1,18 @@
+{
+  "name": "The tender's stores",
+  "stages": [
+    {
+      "id": "storespod",
+      "log": "Pirates took the Fleet tender's stores pod. Bring it home, and the Fleet remembers who did. The tender's stolen stores pod: marked on the chart, from the next sector on. Her bosun would sign on, given a berth.",
+      "objectives": [
+        {
+          "id": "done",
+          "text": "Tag it for the Fleet, or Tag it, sign on Varga",
+          "done-when": "events.chose(event: storespod, choice: tag) or events.chose(event: storespod, choice: tagjoin)"
+        }
+      ],
+      "fail-when": "events.chose(event: storespod, choice: strip) or run.past-charts",
+      "why": "It went cold: strip what's left."
+    }
+  ]
+}

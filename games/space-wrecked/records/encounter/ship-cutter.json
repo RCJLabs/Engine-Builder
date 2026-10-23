@@ -1,0 +1,24 @@
+{
+  "name": "Pirate cutter",
+  "description": "Her boarding party: Boarding party.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "pirate",
+      "count": 2
+    },
+    {
+      "actor": "brute"
+    },
+    {
+      "actor": "pirate"
+    }
+  ],
+  "breaks": 62,
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-cutter"
+    }
+  ]
+}

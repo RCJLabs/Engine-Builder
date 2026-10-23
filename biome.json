@@ -6,7 +6,15 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/dist-game", "!**/node_modules", "!tools/lint-boundaries/fixtures"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/dist-game",
+      "!**/node_modules",
+      "!tools/lint-boundaries/fixtures",
+      "!games/*/source",
+      "!games/*/records"
+    ]
   },
   "formatter": {
     "enabled": true,

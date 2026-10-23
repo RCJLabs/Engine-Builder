@@ -1,0 +1,89 @@
+{
+  "name": "Salvage",
+  "entries": [
+    {
+      "item": "corridor",
+      "weight": 3
+    },
+    {
+      "item": "armory",
+      "weight": 2
+    },
+    {
+      "item": "cargo",
+      "weight": 2
+    },
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "shield",
+      "weight": 1
+    },
+    {
+      "item": "weapon",
+      "weight": 1
+    },
+    {
+      "item": "engine",
+      "weight": 1
+    },
+    {
+      "item": "lightengine",
+      "weight": 1
+    },
+    {
+      "item": "smallreactor",
+      "weight": 1
+    },
+    {
+      "item": "pointdefense",
+      "weight": 1
+    },
+    {
+      "item": "bunks",
+      "weight": 1
+    },
+    {
+      "item": "largehold",
+      "weight": 1
+    },
+    {
+      "item": "bastion-armory",
+      "weight": 1
+    },
+    {
+      "item": "bastion-shield",
+      "weight": 1
+    },
+    {
+      "item": "bastion-weapon",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-engine",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-shield",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-weapon",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-engine",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-reactor",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-shield",
+      "weight": 1
+    }
+  ]
+}

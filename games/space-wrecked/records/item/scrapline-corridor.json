@@ -1,0 +1,26 @@
+{
+  "name": "Scrapline corridor",
+  "description": "Scrapline",
+  "value": 5,
+  "tags": [
+    "part",
+    "corridor"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    }
+  ],
+  "category": "utility",
+  "maker": "scrapline",
+  "base": "corridor",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

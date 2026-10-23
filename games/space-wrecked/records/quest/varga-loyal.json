@@ -1,0 +1,16 @@
+{
+  "name": "Varga's tender",
+  "stages": [
+    {
+      "id": "colony",
+      "log": "The pirates who cut the tender's stores pod open are laid up somewhere past the charts. Varga would like a word with them. The pirates who took the tender's stores, within reach of the colony.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Pirate cutter: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Kestrel heavy engine",
+  "description": "Kestrel Dynamics",
+  "value": 505,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "thrust",
+      "add": 26
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "kestrel",
+  "base": "heavyengine",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}

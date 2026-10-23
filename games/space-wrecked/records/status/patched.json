@@ -1,0 +1,13 @@
+{
+  "name": "Patched suit",
+  "description": "More tape than suit by now, but it holds.",
+  "modifiers": [
+    {
+      "stat": "armor",
+      "add": 1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

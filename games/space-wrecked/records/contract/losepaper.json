@@ -1,0 +1,19 @@
+{
+  "title": "Losing the paper",
+  "mission": "hack",
+  "pitch": "Con-Reg keeps the paper on every miner's debt on a terminal at {site}. {client} has money on how long you'll last, and wants better odds: lose your file, and he'll pay for the trouble.",
+  "clients": [
+    "rook"
+  ],
+  "sites": [
+    "depot"
+  ],
+  "encounter": "guards",
+  "against": "conreg",
+  "pay": {
+    "min": 40,
+    "max": 60
+  },
+  "quest": "debt",
+  "turns": 2
+}

@@ -1,0 +1,44 @@
+{
+  "name": "Con-Reg repo tug",
+  "text": "A Con-Reg repo tug is working the lanes, asking after you by name.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "fight",
+      "label": "Fight them off",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "ship-repotug"
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Run for it",
+      "outcomes": [
+        {
+          "chance": 35,
+          "result": "The engines hold, and the ship outruns them. Every band heard the chase.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 4
+            }
+          ]
+        },
+        {
+          "chance": 65,
+          "result": "They close before the engines can open the gap.",
+          "effects": [
+            {
+              "effect": "fight",
+              "encounter": "ship-repotug"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

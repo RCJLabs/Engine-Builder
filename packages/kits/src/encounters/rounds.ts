@@ -55,8 +55,37 @@ export function volley(strikers: readonly Fighter[], from: number, target: Fight
 
 const resultOf = (broken: boolean, down: boolean): Result => (broken && down ? 'draw' : broken ? 'win' : 'lose');
 
-/** Every way the fight can end, by result and the party's hurt. */
+// The ends of the last fights worked out, by their numbers: a choice's odds, a bot's look at them
+// and the fight itself all ask for the same table, and a big one takes milliseconds (M4.12).
+const KEPT = 64;
+const kept = new Map<string, Ends>();
+
+const keyOf = (match: Match) =>
+  JSON.stringify([
+    match.hitMin,
+    match.hitMax,
+    match.breaks,
+    match.rounds,
+    ...[match.party, match.foes].map((line) => line.map((f) => [f.health, f.hit, f.dodge, f.damage, f.armour])),
+  ]);
+
+/** Every way the fight can end, by result and the party's hurt: worked out once for the same numbers. */
 export function endsOf(match: Match): Ends {
+  const key = keyOf(match);
+  const known = kept.get(key);
+  if (known) return known;
+  const ends = workedOut(match);
+  if (kept.size >= KEPT) kept.delete(kept.keys().next().value as string);
+  const frozen: Ends = Object.freeze({
+    win: Object.freeze(ends.win),
+    draw: Object.freeze(ends.draw),
+    lose: Object.freeze(ends.lose),
+  });
+  kept.set(key, frozen);
+  return frozen;
+}
+
+function workedOut(match: Match): Record<Result, number[]> {
   const partyTotal = total(match.party);
   const breaking = breakAt(match.foes, match.breaks);
   const ends: Record<Result, number[]> = {

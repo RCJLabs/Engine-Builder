@@ -1,0 +1,38 @@
+{
+  "name": "Bastion engine",
+  "description": "Bastion Arms",
+  "value": 220,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "thrust",
+      "add": 12
+    },
+    {
+      "stat": "hull",
+      "add": 23
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "bastion",
+  "base": "engine",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

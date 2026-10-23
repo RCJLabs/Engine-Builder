@@ -1,0 +1,10 @@
+{
+  "name": "Claim jumpers",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "jumper",
+      "count": 4
+    }
+  ]
+}

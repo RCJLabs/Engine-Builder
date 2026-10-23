@@ -1,0 +1,73 @@
+{
+  "name": "Halloran drop",
+  "text": "A sealed cargo pod on a slow drift, a Halloran tag on the hatch and no ship in sight. Somebody's drop, waiting for somebody's pickup.",
+  "choices": [
+    {
+      "id": "take",
+      "label": "Take it",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "Machine parts, and cash in a coffee tin. The Hallorans count their drops. They'll know who came by.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "salvage"
+            },
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 20
+            },
+            {
+              "effect": "change-standing",
+              "faction": "hallorans",
+              "by": -2
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "The pod was wired, as the family's pods are. Somebody will feel it tomorrow, but the tin came too.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 20
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            },
+            {
+              "effect": "change-standing",
+              "faction": "hallorans",
+              "by": -2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "call",
+      "label": "Call it in",
+      "result": "You read the tag out on the family's band. A voice says thank you, which the Hallorans never say. Someone will remember.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "runner"
+        },
+        {
+          "effect": "change-standing",
+          "faction": "hallorans",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "Not your drop. Not your problem."
+    }
+  ]
+}

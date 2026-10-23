@@ -1,0 +1,48 @@
+{
+  "name": "Odd beacon",
+  "text": "A distress beacon on a band nobody uses any more. It could be someone in trouble. It could be someone making trouble.",
+  "choices": [
+    {
+      "id": "answer",
+      "label": "Answer it",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "A lone prospector, grateful and flush. She tips well and shares her rations.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 25
+            },
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 4
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "Claim jumpers. You get away, but not clean, and they'll talk.",
+          "effects": [
+            {
+              "effect": "wound",
+              "hp": 3
+            },
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pass",
+      "label": "Pass it by",
+      "result": "Not your problem. Probably."
+    }
+  ]
+}

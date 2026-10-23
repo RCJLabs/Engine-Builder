@@ -91,12 +91,26 @@ export function recruitTypeFile(economy: boolean): TypeFile {
           kind: 'group',
           fields: {
             status: { kind: 'ref', to: STATUS, label: 'Status', description: 'What a recruit drawing it starts with' },
-            chance: { kind: 'int', min: 1, max: 100, label: 'Chance (%)' },
+            chance: {
+              kind: 'int',
+              min: 1,
+              max: 100,
+              optional: true,
+              label: 'Chance (%)',
+              description: '100 when left out; not read when traits are shuffled',
+            },
             fee: fee(economy, 'Added to the recruit’s fee when drawn'),
           },
         },
       },
       most: { kind: 'int', min: 0, optional: true, label: 'Most traits', description: 'No limit when left out' },
+      draw: {
+        kind: 'enum',
+        values: ['chance', 'shuffle'],
+        optional: true,
+        label: 'Traits drawn',
+        description: 'Each by its chance in turn, or shuffled and the first Most taken: by chance when left out',
+      },
       fee: fee(economy, 'What hiring one costs, before its traits’ fees: nothing when left out'),
     },
   };

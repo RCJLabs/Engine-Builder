@@ -1,0 +1,33 @@
+{
+  "name": "Point defense",
+  "description": "Yard standard",
+  "value": 120,
+  "tags": [
+    "part",
+    "pointdefense"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 10
+    },
+    {
+      "stat": "intercept",
+      "add": 10
+    }
+  ],
+  "category": "weapons",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

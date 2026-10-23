@@ -1,0 +1,16 @@
+{
+  "name": "Teo's list",
+  "stages": [
+    {
+      "id": "colony",
+      "log": "The strikebreakers who broke Pier Nine hire out to claims past the charts now. Teo has kept a list of their names. The strikebreakers' tug from Pier Nine, within reach of the colony.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Strikebreakers' tug: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

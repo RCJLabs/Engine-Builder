@@ -1,0 +1,33 @@
+{
+  "name": "Shield generator",
+  "description": "Yard standard",
+  "value": 140,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 12
+    },
+    {
+      "stat": "shield",
+      "add": 10
+    }
+  ],
+  "category": "defense",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Hothead",
+  "description": "Shoot first. Apologize to the Company later.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 10
+    },
+    {
+      "stat": "defense",
+      "add": -5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

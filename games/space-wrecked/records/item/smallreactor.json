@@ -1,0 +1,33 @@
+{
+  "name": "Small reactor",
+  "description": "Yard standard",
+  "value": 130,
+  "tags": [
+    "part",
+    "reactor"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": 4
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "reactors",
+      "add": 1
+    }
+  ],
+  "category": "power",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

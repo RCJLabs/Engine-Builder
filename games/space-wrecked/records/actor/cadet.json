@@ -1,0 +1,12 @@
+{
+  "name": "Provost cadet",
+  "stats": {
+    "hp": 7,
+    "aim": 70,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 1,
+    "damage": 4
+  },
+  "weapon": "Carbine"
+}

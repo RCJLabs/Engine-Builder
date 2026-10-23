@@ -1,0 +1,28 @@
+{
+  "title": "Redistribution",
+  "mission": "grab",
+  "pitch": "The mission kitchen is out of antiseptic, and {site} is full of it. {client} calls it redistribution. The guards on the door call it theft.",
+  "clients": [
+    "agnes"
+  ],
+  "sites": [
+    "depot",
+    "whistle"
+  ],
+  "encounter": "guards",
+  "against": "conreg",
+  "pay": {
+    "min": 30,
+    "max": 50
+  },
+  "drops": {
+    "chance": 60,
+    "parts": {
+      "medbay": 1,
+      "lifesupport": 1,
+      "surgery": 1,
+      "bunks": 1
+    }
+  },
+  "crates": 2
+}

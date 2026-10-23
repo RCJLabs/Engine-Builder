@@ -1,0 +1,34 @@
+{
+  "name": "Bastion point defense",
+  "description": "Bastion Arms",
+  "value": 130,
+  "tags": [
+    "part",
+    "pointdefense"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "intercept",
+      "add": 10
+    }
+  ],
+  "category": "weapons",
+  "maker": "bastion",
+  "base": "pointdefense",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Grab and go",
+  "brief": "Grab {crates}. You have to stand right beside a crate to grab it, and the job's done when the last one's in hand.",
+  "breaks": 60
+}

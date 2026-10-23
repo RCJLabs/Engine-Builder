@@ -1,0 +1,38 @@
+{
+  "name": "Scrapline engine",
+  "description": "Scrapline",
+  "value": 130,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "thrust",
+      "add": 12
+    },
+    {
+      "stat": "hull",
+      "add": 11
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "scrapline",
+  "base": "engine",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

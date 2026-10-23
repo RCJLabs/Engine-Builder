@@ -1,0 +1,15 @@
+{
+  "name": "Traders",
+  "events": [
+    {
+      "event": "ration-barge"
+    },
+    {
+      "event": "scrap-dealer"
+    },
+    {
+      "event": "coop-barge"
+    }
+  ],
+  "recent": 2
+}

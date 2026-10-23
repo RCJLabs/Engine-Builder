@@ -1,0 +1,12 @@
+{
+  "name": "Halloran collector",
+  "stats": {
+    "hp": 6,
+    "aim": 55,
+    "defense": 5,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 3
+  },
+  "weapon": "Pistol"
+}

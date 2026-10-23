@@ -1,0 +1,29 @@
+{
+  "name": "Airlock",
+  "description": "Yard standard",
+  "value": 40,
+  "tags": [
+    "part",
+    "airlock"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 12
+    },
+    {
+      "stat": "airlocks",
+      "add": 1
+    }
+  ],
+  "category": "utility",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

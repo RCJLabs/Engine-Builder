@@ -1,0 +1,54 @@
+{
+  "name": "Crashed probe",
+  "text": "An old survey probe, crashed into a hillside and half buried. Whoever sent it never came back for it.",
+  "choices": [
+    {
+      "id": "dig",
+      "label": "Dig it out",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "Most of the probe comes out whole, and part of it is worth fitting.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "colony"
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "The hillside comes down on the dig. Someone is hurt, but its panels are in the hold.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 3
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "panels",
+      "label": "Strip its panels",
+      "result": "The probe's panels and frame, light and easy to carry.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "materials",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "It can lie there a while longer."
+    }
+  ]
+}

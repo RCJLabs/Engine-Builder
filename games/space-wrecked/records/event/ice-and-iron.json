@@ -1,0 +1,35 @@
+{
+  "name": "Ice and iron",
+  "text": "Dirty ice over a core of iron. The squad can cut one or the other before the ship has to turn for home.",
+  "choices": [
+    {
+      "id": "iron",
+      "label": "Cut the iron",
+      "result": "Iron, in slabs, in the hold.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "materials",
+          "by": 8
+        }
+      ]
+    },
+    {
+      "id": "ice",
+      "label": "Cut the ice",
+      "result": "Ice, melted down for the stores: water to drink and to cook with.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "The rock tumbles on."
+    }
+  ]
+}

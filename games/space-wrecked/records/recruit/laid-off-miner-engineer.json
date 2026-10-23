@@ -1,0 +1,106 @@
+{
+  "name": "Laid-off miner, engineer",
+  "description": "Twenty years on Con-Reg's ore line, until a machine did it cheaper.",
+  "actor": "engineer",
+  "names": [
+    "Ada",
+    "Bram",
+    "Cass",
+    "Dov",
+    "Edda",
+    "Fen",
+    "Gus",
+    "Hana",
+    "Ivo",
+    "Jessa",
+    "Kit",
+    "Lark",
+    "Moss",
+    "Nell",
+    "Otto",
+    "Pim",
+    "Quill",
+    "Rhea",
+    "Sully",
+    "Tam",
+    "Ula",
+    "Vik",
+    "Wes",
+    "Yara"
+  ],
+  "bynames": [
+    "Abara",
+    "Brask",
+    "Corrigan",
+    "Dahl",
+    "Esposito",
+    "Faraday",
+    "Grieve",
+    "Hoskins",
+    "Ibarra",
+    "Juarez",
+    "Kettle",
+    "Lindqvist",
+    "Mbeki",
+    "Nakamura",
+    "Oduya",
+    "Petrov",
+    "Quaye",
+    "Reyes",
+    "Sato",
+    "Thorne",
+    "Ueda",
+    "Varga",
+    "Whitlock",
+    "Zeller"
+  ],
+  "stats": {
+    "fights": {
+      "min": 0,
+      "max": 2
+    }
+  },
+  "traits": [
+    {
+      "status": "thick-skull",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "shift-fit",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "bruiser",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "brawler",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "patched",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "steady",
+      "fee": {
+        "credits": 20
+      }
+    }
+  ],
+  "most": 1,
+  "draw": "shuffle",
+  "fee": {
+    "credits": 30
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "title": "Background",
+  "description": "Who the captain was: data/backgrounds.json.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "description": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Description"
+    },
+    "district": {
+      "kind": "ref",
+      "to": "district",
+      "label": "District"
+    },
+    "credits": {
+      "kind": "int",
+      "min": 0,
+      "label": "Credits"
+    },
+    "parts": {
+      "kind": "map",
+      "key": {
+        "kind": "ref",
+        "to": "item"
+      },
+      "of": {
+        "kind": "int",
+        "min": 1
+      },
+      "label": "Parts on hand"
+    },
+    "crew": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "actor"
+      },
+      "min": 1,
+      "label": "Crew",
+      "description": "Their jobs, the captain’s first"
+    },
+    "ship": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "item"
+      },
+      "min": 1,
+      "label": "Ship",
+      "description": "The parts fitted to the half-built hull"
+    },
+    "captain": {
+      "kind": "ref",
+      "to": "recruit",
+      "label": "Captain"
+    },
+    "pursuer": {
+      "kind": "ref",
+      "to": "pursuer",
+      "label": "Pursuer"
+    },
+    "thread": {
+      "kind": "ref",
+      "to": "quest",
+      "optional": true,
+      "label": "Thread"
+    },
+    "launch": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Launch"
+    },
+    "escaped": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Escaped"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Dutch's yard",
+  "description": "Dutch sells what the scavvers missed, and buys whatever you can carry in. Cash, no questions, no refunds.",
+  "currency": "credits",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": [
+      "part"
+    ]
+  },
+  "stock": {
+    "table": "dutchs-yard-stock",
+    "every": {
+      "days": 1
+    }
+  }
+}

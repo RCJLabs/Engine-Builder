@@ -1,0 +1,30 @@
+{
+  "name": "Bastion airlock",
+  "description": "Bastion Arms",
+  "value": 45,
+  "tags": [
+    "part",
+    "airlock"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 18
+    },
+    {
+      "stat": "airlocks",
+      "add": 1
+    }
+  ],
+  "category": "utility",
+  "maker": "bastion",
+  "base": "airlock",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

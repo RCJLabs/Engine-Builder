@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel life support",
+  "description": "Kestrel Dynamics",
+  "value": 110,
+  "tags": [
+    "part",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "life-support",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 6
+    }
+  ],
+  "category": "crew",
+  "maker": "kestrel",
+  "base": "lifesupport",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

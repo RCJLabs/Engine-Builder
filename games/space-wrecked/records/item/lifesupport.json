@@ -1,0 +1,33 @@
+{
+  "name": "Life support",
+  "description": "Yard standard",
+  "value": 90,
+  "tags": [
+    "part",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "life-support",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 12
+    }
+  ],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

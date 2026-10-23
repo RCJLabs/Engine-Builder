@@ -1,0 +1,65 @@
+{
+  "title": "Journal",
+  "modal": true,
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Quests",
+        "children": [
+          {
+            "widget": "list",
+            "of": "journal",
+            "empty": "Nothing in the journal yet.",
+            "item": {
+              "widget": "panel",
+              "children": [
+                {
+                  "widget": "text",
+                  "text": "{.name}",
+                  "style": "heading"
+                },
+                {
+                  "widget": "text",
+                  "text": "{.log}"
+                },
+                {
+                  "widget": "text",
+                  "text": "{.objectives}",
+                  "style": "caption"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "label": "Log",
+        "children": [
+          {
+            "widget": "log",
+            "lines": 20,
+            "label": "So far",
+            "empty": "Nothing yet."
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        },
+        "style": "primary"
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

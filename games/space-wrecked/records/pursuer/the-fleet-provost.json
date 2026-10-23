@@ -1,0 +1,27 @@
+{
+  "name": "The Fleet Provost",
+  "side": "fleet",
+  "description": "The Navy's police. They never forget a deserter, and they never take cash.",
+  "levels": {
+    "calm": "The Provost has a desk full of deserters, and yours is near the bottom. For now.",
+    "rumors": "A Provost lieutenant is asking round the Strand's bars after a gunner's mate and a missing crate.",
+    "hunters": "A Provost MP tails the crew to every job, taking notes.",
+    "raid": "The Fleet Provost is at the dry dock's gate with a warrant and a squad of MPs."
+  },
+  "hunters": [
+    "mp"
+  ],
+  "raid": "raid-deserter",
+  "run": {
+    "levels": {
+      "calm": "Out here the Provost is a name on a wanted list nobody reads. Keep it that way.",
+      "rumors": "Your face is on the Fleet's wanted board at every station: desertion, and theft of stores.",
+      "hunters": "A Provost cutter is working the lanes, checking every transponder it meets.",
+      "task-force": "The Fleet has sent a frigate after one gunner's mate. Somebody upstairs is taking it personally.",
+      "cornered": "The Provost knows where you'll come out. The next jump meets them."
+    },
+    "hunters": "ship-provostcutter",
+    "task-force": "ship-frigate",
+    "faced": "The Provost will have to file for another ship. The Fleet runs on forms, and that buys some quiet."
+  }
+}

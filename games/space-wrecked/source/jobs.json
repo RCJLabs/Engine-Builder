@@ -1,0 +1,81 @@
+{
+  "jobs": [
+    {
+      "id": "marine", "name": "Marine", "hp": 10, "aim": 70, "defense": 0, "mobility": 4, "armor": 1, "weapon": "rifle",
+      "order": { "type": "suppress", "name": "Suppress", "uses": 2, "aim": -30 },
+      "station": { "gunnery": 10 },
+      "colony": { "landing": 10 },
+      "ranks": [
+        { "name": "Pinning fire", "text": "Knows where to put the rounds to keep heads down.", "order": { "uses": 3, "aim": -40 } },
+        { "name": "Gun captain", "text": "Has called fire from a gun deck before.", "station": { "gunnery": 15 } }
+      ],
+      "look": { "suit": "skinsuit", "build": "standard", "helmet": "fin", "back": "spine", "marks": "plates" }
+    },
+    {
+      "id": "engineer", "name": "Engineer", "hp": 8, "aim": 65, "defense": 5, "mobility": 4, "armor": 0, "weapon": "shotgun",
+      "order": { "type": "weld", "name": "Weld", "uses": 2, "rounds": 3 },
+      "station": { "repair": 1 },
+      "colony": { "mines": 1 },
+      "ranks": [
+        { "name": "Hot welds", "text": "Lays a bead that holds.", "order": { "uses": 3, "rounds": 5 } },
+        { "name": "Running repairs", "text": "Never waits for a dockyard.", "station": { "repair": 2 } }
+      ],
+      "look": { "suit": "eva", "build": "standard", "helmet": "lamps", "back": "tools", "marks": "stripes" }
+    },
+    {
+      "id": "medic", "name": "Medic", "hp": 8, "aim": 60, "defense": 10, "mobility": 5, "armor": 0, "weapon": "pistol",
+      "order": { "type": "patch", "name": "Patch", "uses": 2, "hp": 3 },
+      "station": { "heal": 1 },
+      "colony": { "heal": 1 },
+      "ranks": [
+        { "name": "Field surgery", "text": "Steady hands, under fire or not.", "order": { "uses": 3, "hp": 5 } },
+        { "name": "Ward chief", "text": "Runs a sick bay the way it should be run.", "station": { "heal": 2 }, "colony": { "heal": 2 } }
+      ],
+      "look": { "suit": "eva", "build": "light", "helmet": "bubble", "back": "med", "marks": "stripes" }
+    },
+    {
+      "id": "pilot", "name": "Pilot", "hp": 8, "aim": 65, "defense": 10, "mobility": 5, "armor": 0, "weapon": "pistol",
+      "order": { "type": "hustle", "name": "Hustle", "uses": 1, "ap": 1 },
+      "station": { "evasion": 10 },
+      "colony": { "tripDays": 1 },
+      "ranks": [
+        { "name": "Second wind", "text": "Always has another move or two in them.", "order": { "uses": 2, "ap": 2 } },
+        { "name": "Ace", "text": "Flies the ship like part of themselves.", "station": { "evasion": 15 } }
+      ],
+      "look": { "suit": "skinsuit", "build": "light", "helmet": "egg", "back": "jump", "marks": "seams" }
+    },
+    {
+      "id": "scout", "name": "Scout", "hp": 8, "aim": 75, "defense": 5, "mobility": 5, "armor": 0, "weapon": "longrifle",
+      "order": { "type": "mark", "name": "Mark", "uses": 2, "aim": 15 },
+      "station": { "scan": 1 },
+      "colony": { "places": 1 },
+      "ranks": [
+        { "name": "Spotter", "text": "Calls the target before anyone else sees it.", "order": { "uses": 3, "aim": 20 } },
+        { "name": "Long eyes", "text": "Reads a sensor return like a map.", "station": { "scan": 2 } }
+      ],
+      "look": { "suit": "skinsuit", "build": "light", "helmet": "mirror", "back": "spine", "marks": "seams" }
+    },
+    {
+      "id": "xenobiologist", "name": "Xenobiologist", "hp": 7, "aim": 60, "defense": 5, "mobility": 4, "armor": 0, "weapon": "dartgun",
+      "order": { "type": "sedate", "name": "Sedate", "uses": 2, "aim": 0 },
+      "station": { "freeSurvey": 1 },
+      "colony": { "farms": 1 },
+      "ranks": [
+        { "name": "Steady dart", "text": "Has darted worse things than this.", "order": { "uses": 3, "aim": 10 } },
+        { "name": "Green thumb", "text": "Gets something to grow in any dirt.", "colony": { "farms": 2 } }
+      ],
+      "look": { "suit": "eva", "build": "standard", "helmet": "bar", "back": "tanks", "marks": "plain" }
+    },
+    {
+      "id": "quartermaster", "name": "Quartermaster", "hp": 10, "aim": 60, "defense": 0, "mobility": 4, "armor": 1, "weapon": "carbine",
+      "order": { "type": "kit", "name": "Kit out", "uses": 2, "armor": 1 },
+      "station": { "lockers": 10 },
+      "colony": { "stores": 20 },
+      "ranks": [
+        { "name": "Deep pockets", "text": "Always has one more clip somewhere.", "order": { "uses": 3 } },
+        { "name": "Stores master", "text": "Finds room where there was none.", "station": { "lockers": 20 }, "colony": { "stores": 40 } }
+      ],
+      "look": { "suit": "skinsuit", "build": "heavy", "helmet": "crest", "back": "spine", "marks": "plates" }
+    }
+  ]
+}

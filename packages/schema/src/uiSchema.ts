@@ -87,6 +87,7 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
       type: z.string().min(1).optional(),
       known: z.string().min(1).optional(),
       unknown: z.lazy(() => widgetSchema).optional(),
+      takes: z.array(z.string().min(1)).min(1).optional(),
       ...base,
     }),
     z.strictObject({

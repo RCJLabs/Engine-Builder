@@ -1,0 +1,15 @@
+{
+  "name": "Provost boarding party",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp"
+    },
+    {
+      "actor": "rating"
+    },
+    {
+      "actor": "mp"
+    }
+  ]
+}

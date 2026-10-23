@@ -51,8 +51,9 @@ A template for recruits. `records/recruit/<id>.json`:
 | `names` | first names, at least one. Required |
 | `bynames` | second names: a recruit is then called a first name, a space and a byname |
 | `stats` | `{ "aim": { "min": 2, "max": 5 } }`: each rolled between `min` and `max`, both included, in place of the actor's base. `max` is `min` when left out |
-| `traits` | `[{ "status": "steady", "chance": 30, "fee": { "credits": 20 } }]`: each drawn in turn with its chance, a whole percent, until `most` are drawn. A trait's `fee` adds to the recruit's |
+| `traits` | `[{ "status": "steady", "chance": 30, "fee": { "credits": 20 } }]`: each drawn in turn with its chance, a whole percent (100 when left out), until `most` are drawn. A trait's `fee` adds to the recruit's |
 | `most` | the most traits a recruit draws: no limit when left out |
+| `draw` | `chance`, as above, or `shuffle`: the list shuffled and the first `most` taken, each chance unread, so a recruit has exactly `most` traits when there are that many (Space-Wrecked's recruits, M4.12). `chance` when left out |
 | `fee` | `{ "credits": 30 }`: what hiring a recruit from it costs, before its traits' fees. Nothing when left out |
 
 ### hall
@@ -109,7 +110,7 @@ The roster's settings. A game has at most one roster record; without one, the ro
   1. the template, by `weightedIndex` of the hall's weights;
   2. the name: a first name by `int(0, names − 1)`, then a byname the same way. A name worn by a member now is drawn again, up to 20 draws, then kept;
   3. each rolled stat in id order, by `int(min, max)`: id order, not the file's, since a pack's keys are sorted and a compiled record's are as written;
-  4. each trait in turn by `chance(chance, 100)`, stopping once `most` are drawn.
+  4. each trait in turn by `chance(chance, 100)`, stopping once `most` are drawn; or, when the template's `draw` is `shuffle`, the list by `shuffle` (Fisher–Yates from the end, `int(0, i)` for each `i` from the last index down to 1) and its first `most` kept, in that order.
 - **A recruit made by the `recruit` effect** is drawn the same way, without step 1, from `Rng.create("<salt>/recruit/<n>")`, `n` being its number.
 - **The fee** is the template's fee and each drawn trait's, added by resource.
 - **Rounds.** A hall starts in round 0. `refresh-hall` starts the next round: new offers, none of them hired.
@@ -159,6 +160,10 @@ The options and the action share one check, so what is offered is what a hire ac
 | `roster.ranked(rank)` | int from 0: members who have reached the rank | "the number of members at least veteran is at least 2" |
 | `roster.bond(actor, with)` | int. An actor's bond with itself throws | "the bond of ana and bo is at least 4" |
 | `roster.bond-band(actor, with)` | text: the band's id; no value with no bands | "the bond of ana and bo is mates" |
+| `roster.offer(hall, slot)` | text: the name of who stands in a hall's slot this round; no value for a slot the hall lacks or one hired (M4.12) | "who stands in a hall’s slot" |
+| `roster.offer-recruit(hall, slot)` | ref to a recruit: the template the offer was rolled from | |
+| `roster.offer-traits(hall, slot)` | text: its traits' names, joined; no value with none | |
+| `roster.offer-fee(hall, slot, resource)` | int from 0: what hiring it costs in the resource | |
 
 A rank or a band the roster doesn't have throws, and validation stops it in content (E040).
 
@@ -201,7 +206,7 @@ A rank or a band the roster doesn't have throws, and validation stops it in cont
 
 ## Proof
 
-- **Unit tests** (`packages/kits/src/roster/`, with the muster game in `packages/kits/test/muster.ts`): offers equal to the draws made by hand in this spec's order; offers worked out twice the same, in any order of asking, and from a save; names drawn again while worn; traits stopping at `most`; recruits' ids never reused across leaving; the cap, from a number and from a flag; hiring paying the fee and refused when short; ranks moving with the ladder stat and their statuses with them; bonds within bounds, in bands, and every pair by change-bonds; members kept as gone.
+- **Unit tests** (`packages/kits/src/roster/`, with the muster game in `packages/kits/test/muster.ts`): offers equal to the draws made by hand in this spec's order; offers worked out twice the same, in any order of asking, and from a save; names drawn again while worn; traits stopping at `most`, or shuffled and the first `most` kept; recruits' ids never reused across leaving; the cap, from a number and from a flag; hiring paying the fee and refused when short; ranks moving with the ladder stat and their statuses with them; bonds within bounds, in bands, and every pair by change-bonds; members kept as gone.
 - **Kernel tests:** made records read, checked and named like content's, and in `game.content`; a clash with a content id throws; a made record seen by later effects in the same action; `start` run once after every init.
 - **Schema tests:** every E035 rule at its bound; E040 in each kind of condition; W117.
 - **The crew fixture** (`tools/cli/test/fixtures/crew`), a slice of Space-Wrecked: stations offering recruits from backgrounds, fees by trait, ranks at 3 and 8 fights, wounds that last days, bonds that grow with fights won, and the dead kept. Its golden runs, and a test that every recruit hired in 30 seeds' runs is the offer worked out again from its hall, round and slot.

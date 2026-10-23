@@ -1,0 +1,72 @@
+{
+  "name": "Hall food run",
+  "text": "A union barge riding low with rations for a striking hall, her pilot down with fever. The steward at her helm, Teo Brandt, has flown her this far on a docker's licence and a prayer.",
+  "choices": [
+    {
+      "id": "carryjoin",
+      "label": "Fly it, sign on Teo",
+      "needs": "roster.room >= 1",
+      "cost": {
+        "supplies": 4
+      },
+      "result": "You fly her in on your pilot's hours. Teo stays aboard: the local can find another steward, he says, and you can't find another quartermaster.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "union",
+          "by": 4
+        },
+        {
+          "effect": "join",
+          "actor": "brandt"
+        },
+        {
+          "effect": "start-quest",
+          "quest": "brandt-loyal"
+        }
+      ]
+    },
+    {
+      "id": "carry",
+      "label": "Fly the food run",
+      "cost": {
+        "supplies": 4
+      },
+      "result": "The hall eats tonight. Teo shakes every hand aboard, and the local pays what it can for the fuel.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 10
+        },
+        {
+          "effect": "change-standing",
+          "faction": "union",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "take",
+      "label": "Take the rations",
+      "result": "A hold of union rations, and nobody to stop you but a docker at a helm. The halls will hear of it before you're out of the sector.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 8
+        },
+        {
+          "effect": "change-standing",
+          "faction": "union",
+          "by": -4
+        }
+      ]
+    },
+    {
+      "id": "move",
+      "label": "Move on",
+      "result": "Teo waves you on, and goes back to reading the barge's manual."
+    }
+  ]
+}

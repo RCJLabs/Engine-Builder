@@ -1,0 +1,12 @@
+{
+  "name": "Hazards",
+  "events": [
+    {
+      "event": "ion-storm"
+    },
+    {
+      "event": "loose-rock"
+    }
+  ],
+  "recent": 1
+}

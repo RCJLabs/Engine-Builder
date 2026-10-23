@@ -1,0 +1,55 @@
+{
+  "name": "Split cargo pod",
+  "text": "A cargo pod torn open in the field, its crates spinning slowly out of it.",
+  "choices": [
+    {
+      "id": "crates",
+      "label": "Grab the crates",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "Food, most of it, and none of it spoiled in the cold.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 10
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "A crate comes in faster than anyone liked. The food is fine; the one who caught it isn't.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "supplies",
+              "by": 10
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pod",
+      "label": "Cut up the pod",
+      "result": "The pod's frame, in pieces, in the hold.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "materials",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "The crates spin on."
+    }
+  ]
+}

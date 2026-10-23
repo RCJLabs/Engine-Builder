@@ -1,0 +1,15 @@
+{
+  "name": "Con-Reg Recovery",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "agent"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "agent"
+    }
+  ]
+}

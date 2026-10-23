@@ -1,0 +1,124 @@
+{
+  "traits": [
+    {
+      "id": "steady",
+      "name": "Steady hands",
+      "text": "Eleven years of setting charges, and you still have all ten fingers.",
+      "effects": { "aim": 5 }
+    },
+    {
+      "id": "thick-skull",
+      "name": "Thick skull",
+      "text": "A rockfall in the Tailings put you out for one shift. Just the one.",
+      "effects": { "hp": 2 }
+    },
+    {
+      "id": "quick",
+      "name": "Quick feet",
+      "text": "First one out when the roof creaks.",
+      "effects": { "mobility": 1 }
+    },
+    {
+      "id": "low-profile",
+      "name": "Low profile",
+      "text": "You learned to keep your head down before you learned to read.",
+      "effects": { "defense": 5 }
+    },
+    {
+      "id": "patched",
+      "name": "Patched suit",
+      "text": "More tape than suit by now, but it holds.",
+      "effects": { "armor": 1 }
+    },
+    {
+      "id": "hothead",
+      "name": "Hothead",
+      "text": "Shoot first. Apologize to the Company later.",
+      "effects": { "aim": 10, "defense": -5 }
+    },
+    {
+      "id": "old-hand",
+      "name": "Old hand",
+      "text": "You've been shot at by better than this lot.",
+      "effects": { "aim": 3, "defense": 2 }
+    },
+    {
+      "id": "cool-head",
+      "name": "Cool head",
+      "text": "You've never once raised your voice. People find it unsettling.",
+      "effects": { "aim": 2, "defense": 3 }
+    },
+    {
+      "id": "bar-fighter",
+      "name": "Bar fighter",
+      "text": "Thrown out of every bar on the Strand, and never by just the one bouncer.",
+      "effects": { "hp": 1, "aim": 3 }
+    },
+    {
+      "id": "light-sleeper",
+      "name": "Light sleeper",
+      "text": "Nobody has ever crept up on you. Several have tried.",
+      "effects": { "hp": 1, "defense": 3 }
+    },
+    {
+      "id": "shift-fit",
+      "name": "Shift fit",
+      "text": "Twelve-hour shifts on the ore line keep you fit, if nothing else.",
+      "effects": { "hp": 1, "aim": 2, "defense": 1 }
+    },
+    {
+      "id": "bruiser",
+      "name": "Bruiser",
+      "text": "Built like a cargo lifter, and about as quick.",
+      "effects": { "hp": 4, "mobility": -1 }
+    },
+    {
+      "id": "brawler",
+      "name": "Brawler",
+      "text": "Better with a wrench than a rifle. Much better.",
+      "effects": { "hp": 4, "aim": -5 }
+    },
+    {
+      "id": "crack-shot",
+      "name": "Crack shot",
+      "text": "You'd rather hit than be hit. You don't always get to choose.",
+      "effects": { "aim": 10, "hp": -2 }
+    },
+    {
+      "id": "patient",
+      "name": "Patient",
+      "text": "You'd wait all day for the shot. Some days you do.",
+      "effects": { "aim": 10, "mobility": -1 }
+    },
+    {
+      "id": "jumpy",
+      "name": "Jumpy",
+      "text": "You flinch at everything, which is why you're still breathing.",
+      "effects": { "defense": 10, "aim": -5 }
+    },
+    {
+      "id": "careful",
+      "name": "Careful",
+      "text": "You never cross open ground you could go round.",
+      "effects": { "defense": 10, "mobility": -1 }
+    },
+    {
+      "id": "wiry",
+      "name": "Wiry",
+      "text": "Not much of you to hit, and not much to spare.",
+      "effects": { "defense": 10, "hp": -2 }
+    },
+    {
+      "id": "reckless",
+      "name": "Reckless",
+      "text": "Straight through the door, every time. It's worked so far.",
+      "effects": { "mobility": 2, "defense": -5 }
+    },
+    {
+      "id": "long-legs",
+      "name": "Long legs",
+      "text": "Built for running. Mostly away.",
+      "effects": { "mobility": 2, "hp": -2 }
+    }
+  ]
+}

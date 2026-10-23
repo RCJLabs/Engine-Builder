@@ -1,0 +1,27 @@
+{
+  "title": "House call",
+  "mission": "grab",
+  "pitch": "The Pikes took {client}'s instruments as payment for a patient who didn't make it. Two cases, at {site}. He'd like them back before the next patient.",
+  "clients": [
+    "haverty"
+  ],
+  "sites": [
+    "quarry"
+  ],
+  "encounter": "pikes",
+  "pay": {
+    "min": 30,
+    "max": 50
+  },
+  "drops": {
+    "chance": 60,
+    "parts": {
+      "medbay": 1,
+      "quarters": 1,
+      "lifesupport": 1,
+      "surgery": 1,
+      "bunks": 1
+    }
+  },
+  "crates": 2
+}

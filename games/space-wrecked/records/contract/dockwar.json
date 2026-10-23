@@ -1,0 +1,25 @@
+{
+  "title": "Dock war",
+  "mission": "clear",
+  "pitch": "The other gang has been loading ships at {site} without {client}'s say-so. He'd like them persuaded, and he isn't fussy how.",
+  "clients": [
+    "gage"
+  ],
+  "sites": [
+    "pits",
+    "breakers"
+  ],
+  "encounter": "dockers",
+  "pay": {
+    "min": 70,
+    "max": 100
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "corridor": 1,
+      "airlock": 1,
+      "pointdefense": 1
+    }
+  }
+}

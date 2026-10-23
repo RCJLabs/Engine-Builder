@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline cannon",
+  "description": "Scrapline",
+  "value": 155,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -3
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "guns",
+      "add": 30
+    }
+  ],
+  "category": "weapons",
+  "maker": "scrapline",
+  "base": "cannon",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

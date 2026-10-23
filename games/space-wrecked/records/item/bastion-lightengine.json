@@ -1,0 +1,38 @@
+{
+  "name": "Bastion light engine",
+  "description": "Bastion Arms",
+  "value": 100,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "thrust",
+      "add": 6
+    },
+    {
+      "stat": "hull",
+      "add": 12
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "bastion",
+  "base": "lightengine",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

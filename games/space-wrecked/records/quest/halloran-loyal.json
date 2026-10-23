@@ -1,0 +1,16 @@
+{
+  "name": "Dez's homecoming",
+  "stages": [
+    {
+      "id": "colony",
+      "log": "The family has sent the collectors to bring Dez home for Old Halloran's birthday, whatever Dez says about it. The family's runner, come to take Dez home, within reach of the colony.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Family runner: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

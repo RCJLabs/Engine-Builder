@@ -1,0 +1,52 @@
+{
+  "name": "Fleet tender",
+  "text": "A Fleet supply tender on the emergency band, reactor scrammed, a midshipman reading regulations into the mic. The Fleet doesn't ask civilians for help. This one is asking.",
+  "choices": [
+    {
+      "id": "help",
+      "label": "Lend a hand",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "The reactor's back on your spares, and the midshipman logs you a friend of the Fleet. Pirates took her other stores pod: the Fleet would like it home.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "tender"
+        },
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "stores",
+      "label": "Raid the stores pod",
+      "result": "Their stores pod is right there, and they can't move to stop you. The midshipman takes your registration down, very slowly.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 10
+        },
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": -2
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "The midshipman is still reading regulations as the band fades."
+    }
+  ]
+}

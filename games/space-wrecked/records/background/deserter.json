@@ -1,0 +1,32 @@
+{
+  "name": "Navy deserter",
+  "description": "Six years a gunner's mate on the Fleet tender Resolute, keeping other people's guns working for pay that came when it felt like it. When she put in at the Strand you walked off with a crate of her spares. The half-built hull in Nell Achebe's dry dock is yours now. The Fleet Provost has a warrant that says otherwise.",
+  "district": "strand",
+  "credits": 0,
+  "parts": {
+    "engine": 1,
+    "quarters": 1,
+    "corridor": 2
+  },
+  "crew": [
+    "marine",
+    "pilot",
+    "medic"
+  ],
+  "ship": [
+    "bridge",
+    "reactor",
+    "corridor",
+    "corridor",
+    "corridor",
+    "airlock",
+    "weapon",
+    "shield",
+    "smallreactor"
+  ],
+  "captain": "captain-deserter",
+  "pursuer": "the-fleet-provost",
+  "thread": "pardon",
+  "launch": "The dry dock drops away, then the Strand, then the whole grey rock. Six years of the Fleet's guns, and you leave in a ship that's yours, with a few of theirs aboard. The Provost will be along.",
+  "escaped": "The Fleet Provost storms the dry dock with its warrant and finds an empty cradle. They'll add it to the charges."
+}

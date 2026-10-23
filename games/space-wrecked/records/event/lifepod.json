@@ -1,0 +1,59 @@
+{
+  "name": "Company lifepod",
+  "text": "A Con-Reg lifepod on the company band, one aboard: the junior surveyor from the skiff you towed, let go for the fuel the tow cost and put out at the lanes with a lifepod and a reference.",
+  "choices": [
+    {
+      "id": "signon",
+      "label": "Sign Ama on",
+      "needs": "roster.room >= 1",
+      "result": "Ama Osei comes aboard with her survey kit and the Company's reference, which says she is honest to a fault. You'll see.",
+      "effects": [
+        {
+          "effect": "join",
+          "actor": "osei"
+        },
+        {
+          "effect": "start-quest",
+          "quest": "osei-loyal"
+        }
+      ]
+    },
+    {
+      "id": "drop",
+      "label": "Drop her at the lanes",
+      "cost": {
+        "supplies": 2
+      },
+      "result": "You see her to a lanes station with a week's rations. She pays you in Company survey lines, which she shouldn't have and you can sell.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 20
+        }
+      ]
+    },
+    {
+      "id": "report",
+      "label": "Hand her to Recovery",
+      "result": "Recovery pays a finder's fee on Company property, lifepods included. She doesn't say anything as they take her off.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 15
+        },
+        {
+          "effect": "change-standing",
+          "faction": "conreg",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "The pod's beacon blinks on the company band behind you."
+    }
+  ]
+}

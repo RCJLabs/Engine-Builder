@@ -1,0 +1,25 @@
+{
+  "title": "Divers",
+  "mission": "clear",
+  "pitch": "Divers are pulling what people dropped in {site} and selling it to everyone but {client}. He'd like them to take up another hobby.",
+  "clients": [
+    "ferris"
+  ],
+  "sites": [
+    "quarry",
+    "kettle"
+  ],
+  "encounter": "jumpers",
+  "pay": {
+    "min": 70,
+    "max": 100
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "corridor": 1,
+      "armory": 1,
+      "pointdefense": 1
+    }
+  }
+}

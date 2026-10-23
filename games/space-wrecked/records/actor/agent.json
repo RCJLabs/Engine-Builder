@@ -1,0 +1,12 @@
+{
+  "name": "Recovery agent",
+  "stats": {
+    "hp": 8,
+    "aim": 65,
+    "defense": 5,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 4
+  },
+  "weapon": "Carbine"
+}

@@ -27,7 +27,8 @@ export interface Trait {
   /** A status the stats kit has, which a recruit drawing it starts with. */
   readonly status: string;
   /** Whole percent, 1 to 100. */
-  readonly chance: number;
+  /** In percent, 100 when left out; not read when the template's traits are shuffled. */
+  readonly chance?: number;
   /** Added to the recruit's fee when drawn. */
   readonly fee?: Fee;
 }
@@ -44,6 +45,11 @@ export interface RecruitRecord {
   readonly traits?: readonly Trait[];
   /** The most traits a recruit draws: no limit when left out. */
   readonly most?: number;
+  /**
+   * How traits are drawn: `chance`, each in turn by its chance (the default), or `shuffle`, the list
+   * shuffled and the first `most` taken, as Space-Wrecked's recruits are (M4.12).
+   */
+  readonly draw?: 'chance' | 'shuffle';
   readonly fee?: Fee;
 }
 

@@ -1,0 +1,18 @@
+{
+  "title": "Cooking the books",
+  "mission": "hack",
+  "pitch": "The Company's auditors want {client}'s ledger, and they sent Recovery to fetch it. {client} wants it wiped first. It's on the terminal in the back of {site}.",
+  "clients": [
+    "rook"
+  ],
+  "sites": [
+    "whistle"
+  ],
+  "encounter": "recovery",
+  "against": "conreg",
+  "pay": {
+    "min": 80,
+    "max": 110
+  },
+  "turns": 2
+}

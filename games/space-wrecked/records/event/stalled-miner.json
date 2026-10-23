@@ -1,0 +1,72 @@
+{
+  "name": "Stalled miner",
+  "text": "A mining skiff on the emergency band: drive dead, two aboard, rations low, union pins on their collars. They can pay, they say. Miners always say that.",
+  "choices": [
+    {
+      "id": "tow",
+      "label": "Tow them in",
+      "cost": {
+        "supplies": 3
+      },
+      "outcomes": [
+        {
+          "chance": 80,
+          "result": "They pay, and in cash. Somewhere a pig is flying.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 25
+            },
+            {
+              "effect": "change-standing",
+              "faction": "union",
+              "by": 1
+            }
+          ]
+        },
+        {
+          "chance": 20,
+          "result": "They pay in IOUs and a bag of ore samples. Worth about what you'd think.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 5
+            },
+            {
+              "effect": "change-standing",
+              "faction": "union",
+              "by": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crate",
+      "label": "Toss them a crate",
+      "cost": {
+        "supplies": 2
+      },
+      "result": "They swear they never saw you. Word gets around the right way.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -4
+        },
+        {
+          "effect": "change-standing",
+          "faction": "union",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "The band goes quiet behind you."
+    }
+  ]
+}

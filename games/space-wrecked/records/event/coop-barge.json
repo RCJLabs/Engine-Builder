@@ -1,0 +1,45 @@
+{
+  "name": "Co-op barge",
+  "text": "A barge in union colours, selling rations at cost to members and with a markup to everyone else. The purser would like to know which you are.",
+  "choices": [
+    {
+      "id": "buy",
+      "label": "Buy 6 supplies",
+      "cost": {
+        "credits": 6
+      },
+      "result": "Six crates, at the markup. The purser is polite about it.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "fund",
+      "label": "Pay into the strike fund",
+      "cost": {
+        "credits": 15
+      },
+      "result": "The purser writes you a receipt, and the radio does the rest. The halls will hear you paid in.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "foodrun"
+        },
+        {
+          "effect": "change-standing",
+          "faction": "union",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "move",
+      "label": "Move on",
+      "result": "The purser waves you off, union fashion."
+    }
+  ]
+}

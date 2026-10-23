@@ -1,0 +1,33 @@
+{
+  "name": "Shield array",
+  "description": "Yard standard",
+  "value": 300,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -4
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 20
+    },
+    {
+      "stat": "shield",
+      "add": 25
+    }
+  ],
+  "category": "defense",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

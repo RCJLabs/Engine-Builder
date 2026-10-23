@@ -1,0 +1,38 @@
+{
+  "name": "Scrap dealer",
+  "text": "A dealer with a hold full of junk and an eye for yours. He buys parts, no questions asked, and sells rations to anyone with cash.",
+  "choices": [
+    {
+      "id": "sell",
+      "label": "Sell a part",
+      "needs": "inventory.tagged(tag: part) >= 1",
+      "result": "He looks it over, sniffs, and pays. Fair enough.",
+      "effects": [
+        {
+          "effect": "sell-part",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "buy",
+      "label": "Buy 6 supplies",
+      "cost": {
+        "credits": 5
+      },
+      "result": "Six crates. He counts the change twice.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "move",
+      "label": "Move on",
+      "result": "He's already looking at the next ship."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Wiry",
+  "description": "Not much of you to hit, and not much to spare.",
+  "modifiers": [
+    {
+      "stat": "defense",
+      "add": 10
+    },
+    {
+      "stat": "hp",
+      "add": -2
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

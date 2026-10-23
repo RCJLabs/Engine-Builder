@@ -1,0 +1,13 @@
+{
+  "name": "Steady hands",
+  "description": "Eleven years of setting charges, and you still have all ten fingers.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

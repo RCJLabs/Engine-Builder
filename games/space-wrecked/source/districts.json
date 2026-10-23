@@ -1,0 +1,135 @@
+{
+  "districts": [
+    {
+      "id": "tailings",
+      "name": "The Tailings",
+      "blurb": "A company town built on the ponds where the mine dumps what it can't sell. Everyone here works for Con-Reg, used to, or owes them.",
+      "clients": [
+        { "id": "marta", "name": "Marta Okafor", "title": "the union steward", "blurb": "Runs the night-shift local out of the back of the Last Whistle. Pays in cash and grudges.", "side": "union" },
+        { "id": "dutch", "name": "Dutch Abernathy", "title": "the scrap dealer", "blurb": "Owns the Cable Street yard and most of what's in it. Pays in parts, some of them his." },
+        { "id": "sully", "name": "Foreman Sully", "title": "a company foreman", "blurb": "Works for Con-Reg by day and for himself the rest of the time.", "side": "conreg" },
+        { "id": "prewitt", "name": "Ma Prewitt", "title": "your landlady", "blurb": "Owns the hangar your ship sits in. Rent's due, but she'll take a favour." },
+        { "id": "rook", "name": "Rook", "title": "a bookie at the Last Whistle", "blurb": "Takes bets on shift quotas, cave-ins and you." },
+        { "id": "agnes", "name": "Sister Agnes", "title": "the mission kitchen", "blurb": "Feeds half the Tailings on donations and the other half on what she can lift." }
+      ],
+      "sites": [
+        { "id": "pit9", "name": "Pit Nine", "map": "bench", "blurb": "An open cut gone quiet since the last cave-in. Quiet isn't empty." },
+        { "id": "yard", "name": "the Cable Street yard", "map": "yard", "blurb": "Dutch's scrapyard: a mile of dead machinery and a fence with opinions." },
+        { "id": "depot", "name": "Depot 4", "map": "depot", "blurb": "The Company's warehouse for everything it charges you for twice." },
+        { "id": "whistle", "name": "the Last Whistle", "map": "bar", "blurb": "The shift bar. Watered beer, honest fights." }
+      ],
+      "shop": {
+        "name": "Dutch's yard",
+        "dealer": "dutch",
+        "pitch": "Dutch sells what the scavvers missed, and buys whatever you can carry in. Cash, no questions, no refunds.",
+        "size": 4,
+        "parts": { "engine": 9, "reactor": 1, "quarters": 1, "lifesupport": 1, "corridor": 2, "airlock": 1, "cargo": 2, "medbay": 1, "armory": 1, "weapon": 1, "shield": 1, "lightengine": 1, "heavyengine": 1, "smallreactor": 1, "pointdefense": 1, "cannon": 1, "shieldarray": 1, "bunks": 1, "surgery": 1, "largehold": 1, "bastion-engine": 2, "bastion-reactor": 1, "bastion-weapon": 1, "bastion-shield": 1, "bastion-cannon": 1, "bastion-armory": 1, "scrapline-engine": 1, "scrapline-reactor": 1, "scrapline-quarters": 1, "scrapline-cargo": 1, "kestrel-engine": 1, "kestrel-weapon": 1 }
+      }
+    },
+    {
+      "id": "strand",
+      "name": "The Strand",
+      "blurb": "The spaceport's sailors' quarter, along the landing field's fence: chandlers, pawnshops, a mission and bars, all of them open when a Fleet ship is in.",
+      "clients": [
+        { "id": "achebe", "name": "Nell Achebe", "title": "your landlady", "blurb": "Owns the dry dock your hull sits in. Asks no questions about crates, and charges for not asking." },
+        { "id": "voss", "name": "Hal Voss", "title": "the ship's chandler", "blurb": "Sells rope, rivets and rations to every ship that lands, and buys whatever falls off them." },
+        { "id": "dunne", "name": "Storekeeper Dunne", "title": "a Fleet storekeeper", "blurb": "Signs for the Fleet's stores at the port, and signs some of them out again for cash." },
+        { "id": "ilse", "name": "Mother Ilse", "title": "the seamen's mission", "blurb": "Runs the mission's soup and bunks, and hides deserters in the coal cellar for the love of God and a little rent." },
+        { "id": "gage", "name": "Big Gage", "title": "the dockers' boss", "blurb": "Runs the stevedores on the landing field. Nothing gets loaded without him, and nothing goes missing without him either.", "side": "union" },
+        { "id": "linnet", "name": "Linnet", "title": "a pawnbroker", "blurb": "Buys medals, sidearms and sad stories. Pays in cash, and in parts when the cash runs short." }
+      ],
+      "sites": [
+        { "id": "breakers", "name": "the breakers' yard", "map": "yard", "blurb": "Where old ships come apart for scrap. Some of the scrap is still arguing about it." },
+        { "id": "bonded", "name": "Bonded Store 12", "map": "depot", "blurb": "The customs warehouse for cargo nobody has paid the duty on. Yet." },
+        { "id": "pits", "name": "the blast pits", "map": "bench", "blurb": "Terraced pits at the field's edge, cut for engine tests. Quiet between firings." },
+        { "id": "brig", "name": "the Brig", "map": "bar", "blurb": "The Strand's sailors' bar, named by someone with a sense of humor and a record." }
+      ],
+      "shop": {
+        "name": "Voss's chandlery",
+        "dealer": "voss",
+        "pitch": "Voss sells what ships drop and sailors pawn: Fleet surplus, mostly, with the serial numbers filed off. Cash only.",
+        "size": 4,
+        "parts": {
+          "engine": 9,
+          "reactor": 1,
+          "quarters": 2,
+          "lifesupport": 2,
+          "corridor": 2,
+          "airlock": 1,
+          "cargo": 1,
+          "medbay": 1,
+          "armory": 2,
+          "weapon": 2,
+          "shield": 2,
+          "lightengine": 1,
+          "heavyengine": 1,
+          "smallreactor": 2,
+          "pointdefense": 2,
+          "cannon": 2,
+          "shieldarray": 1,
+          "bunks": 1,
+          "surgery": 1,
+          "largehold": 1,
+          "bastion-engine": 2,
+          "bastion-reactor": 1,
+          "bastion-weapon": 2,
+          "bastion-shield": 2,
+          "bastion-cannon": 1,
+          "bastion-armory": 1,
+          "bastion-pointdefense": 1, "kestrel-engine": 1, "kestrel-weapon": 1, "kestrel-shield": 1, "scrapline-weapon": 1, "scrapline-reactor": 1
+        }
+      }
+    },
+    {
+      "id": "narrows",
+      "name": "The Narrows",
+      "blurb": "The old town's back streets under the ore conveyors: clubs, lock-ups and stairways that go somewhere, if you know someone.",
+      "clients": [
+        { "id": "marlowe", "name": "Kit Marlowe", "title": "your landlady", "blurb": "Rents lock-ups to people who need a door that locks. Yours has a hull in it, and she's never asked how." },
+        { "id": "ferris", "name": "Ferris", "title": "a fence", "blurb": "Buys anything that isn't nailed down, and sells the nails separately." },
+        { "id": "dacosta", "name": "Lena DaCosta", "title": "the customs broker", "blurb": "Gets cargo through customs for a fee, and customs officers through the week for another." },
+        { "id": "haverty", "name": "Doc Haverty", "title": "a back-room doctor", "blurb": "Patches people up off the books. Struck off twice, and still the steadiest hands in the Narrows." },
+        { "id": "pike", "name": "Sal Pike", "title": "the other family", "blurb": "Runs the Pikes, who'd like the Hallorans' business, and don't mind using you to get it." },
+        { "id": "mags", "name": "Mags", "title": "the Velvet's owner", "blurb": "Owns the Narrows' one honest club. Honest about the watered drinks, anyway." }
+      ],
+      "sites": [
+        { "id": "kettle", "name": "Kettle's salvage", "map": "yard", "blurb": "A salvage yard that also handles insurance claims. The two businesses help each other." },
+        { "id": "pound", "name": "the customs pound", "map": "depot", "blurb": "Where customs keeps what it seizes, until it sells it back to the people it seized it from." },
+        { "id": "quarry", "name": "the flooded quarry", "map": "bench", "blurb": "An old cut below the conveyors, half full of water and the things people drop in it." },
+        { "id": "velvet", "name": "the Velvet", "map": "bar", "blurb": "Mags's club. Low lights, a loud band, back rooms." }
+      ],
+      "shop": {
+        "name": "Ferris's back room",
+        "dealer": "ferris",
+        "pitch": "Ferris sells what fell off other people's ships, and buys what falls off yours. No receipts.",
+        "size": 4,
+        "parts": {
+          "engine": 9,
+          "reactor": 1,
+          "quarters": 3,
+          "lifesupport": 1,
+          "corridor": 2,
+          "airlock": 1,
+          "cargo": 3,
+          "medbay": 1,
+          "armory": 1,
+          "weapon": 1,
+          "shield": 1,
+          "lightengine": 3,
+          "heavyengine": 1,
+          "smallreactor": 1,
+          "pointdefense": 1,
+          "cannon": 1,
+          "shieldarray": 1,
+          "bunks": 2,
+          "surgery": 1,
+          "largehold": 2,
+          "bastion-engine": 2,
+          "bastion-reactor": 1,
+          "bastion-lightengine": 1,
+          "bastion-cargo": 1, "kestrel-engine": 1, "kestrel-cargo": 1, "kestrel-lifesupport": 1, "scrapline-engine": 1, "scrapline-shield": 1
+        }
+      }
+    }
+  ]
+}

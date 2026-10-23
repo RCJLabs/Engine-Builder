@@ -1,0 +1,19 @@
+{
+  "enemies": [
+    { "id": "pirate", "name": "Pirate", "hp": 7, "aim": 60, "defense": 0, "mobility": 4, "armor": 0, "weapon": "carbine", "look": { "suit": "skinsuit", "build": "standard", "helmet": "crest", "back": "none", "marks": "plates" } },
+    { "id": "brute", "name": "Pirate brute", "hp": 11, "aim": 55, "defense": 0, "mobility": 3, "armor": 1, "weapon": "shotgun", "look": { "suit": "skinsuit", "build": "heavy", "helmet": "egg", "back": "spine", "marks": "plates" } },
+    { "id": "scavver", "name": "Scavver", "hp": 6, "aim": 55, "defense": 5, "mobility": 5, "armor": 0, "weapon": "pistol", "look": { "suit": "eva", "build": "light", "helmet": "lamps", "back": "junk", "marks": "plain" } },
+    { "id": "jumper", "name": "Claim jumper", "hp": 7, "aim": 60, "defense": 0, "mobility": 4, "armor": 0, "weapon": "carbine", "look": { "suit": "skinsuit", "build": "light", "helmet": "fin", "back": "jump", "marks": "seams" } },
+    { "id": "guard", "name": "Company guard", "hp": 8, "aim": 65, "defense": 0, "mobility": 4, "armor": 1, "weapon": "rifle", "look": { "suit": "eva", "build": "standard", "helmet": "bar", "back": "life", "marks": "stripes" } },
+    { "id": "heavy", "name": "Hired heavy", "hp": 11, "aim": 55, "defense": 0, "mobility": 3, "armor": 1, "weapon": "shotgun", "look": { "suit": "eva", "build": "heavy", "helmet": "bar", "back": "tanks", "marks": "plain" } },
+    { "id": "agent", "name": "Recovery agent", "hp": 8, "aim": 65, "defense": 5, "mobility": 5, "armor": 0, "weapon": "carbine", "look": { "suit": "eva", "build": "light", "helmet": "bubble", "back": "none", "marks": "stripes" } },
+    { "id": "mp", "name": "Provost MP", "hp": 11, "aim": 75, "defense": 5, "mobility": 4, "armor": 1, "weapon": "rifle", "look": { "suit": "skinsuit", "build": "heavy", "helmet": "egg", "back": "jump", "marks": "seams" } },
+    { "id": "customs", "name": "Customs officer", "hp": 8, "aim": 65, "defense": 5, "mobility": 4, "armor": 1, "weapon": "carbine", "look": { "suit": "eva", "build": "standard", "helmet": "bubble", "back": "tanks", "marks": "plain" } },
+    { "id": "docker", "name": "Docker", "hp": 9, "aim": 55, "defense": 0, "mobility": 4, "armor": 0, "weapon": "shotgun", "look": { "suit": "eva", "build": "heavy", "helmet": "bubble", "back": "life", "marks": "stripes" } },
+    { "id": "rating", "name": "Fleet rating", "hp": 8, "aim": 65, "defense": 0, "mobility": 4, "armor": 0, "weapon": "carbine", "look": { "suit": "eva", "build": "light", "helmet": "bar", "back": "tools", "marks": "stripes" } },
+    { "id": "cadet", "name": "Provost cadet", "hp": 7, "aim": 70, "defense": 0, "mobility": 4, "armor": 1, "weapon": "carbine", "look": { "suit": "skinsuit", "build": "light", "helmet": "mirror", "back": "none", "marks": "plates" } },
+    { "id": "collector", "name": "Halloran collector", "hp": 6, "aim": 55, "defense": 5, "mobility": 5, "armor": 0, "weapon": "pistol", "look": { "suit": "skinsuit", "build": "light", "helmet": "egg", "back": "none", "marks": "seams" } },
+    { "id": "enforcer", "name": "Halloran enforcer", "hp": 11, "aim": 60, "defense": 0, "mobility": 3, "armor": 1, "weapon": "shotgun", "look": { "suit": "skinsuit", "build": "heavy", "helmet": "mirror", "back": "none", "marks": "seams" } },
+    { "id": "pike", "name": "Pike soldier", "hp": 7, "aim": 60, "defense": 0, "mobility": 4, "armor": 0, "weapon": "carbine", "look": { "suit": "skinsuit", "build": "standard", "helmet": "mirror", "back": "spine", "marks": "seams" } }
+  ]
+}

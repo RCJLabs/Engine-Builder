@@ -1,0 +1,5 @@
+{
+  "name": "Work the terminal",
+  "brief": "Work the terminal for {turns}. It takes a crew member's whole turn, and it only counts once a round.",
+  "breaks": 58
+}

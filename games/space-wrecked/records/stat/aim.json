@@ -1,0 +1,5 @@
+{
+  "name": "Aim",
+  "description": "The chance to hit, in percent, before the target’s defense",
+  "min": -100
+}

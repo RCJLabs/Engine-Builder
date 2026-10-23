@@ -1,0 +1,15 @@
+{
+  "name": "Engineer",
+  "description": "Rank 1, Hot welds: Lays a bead that holds. Rank 2, Running repairs: Never waits for a dockyard.",
+  "stats": {
+    "hp": 8,
+    "aim": 65,
+    "defense": 5,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 5,
+    "fights": 0
+  },
+  "job": "engineer",
+  "weapon": "Shotgun"
+}

@@ -1,0 +1,125 @@
+{
+  "name": "Ferris's back room: the shelf",
+  "picks": {
+    "min": 4
+  },
+  "unique": true,
+  "entries": [
+    {
+      "item": "engine",
+      "weight": 9
+    },
+    {
+      "item": "reactor",
+      "weight": 1
+    },
+    {
+      "item": "quarters",
+      "weight": 3
+    },
+    {
+      "item": "lifesupport",
+      "weight": 1
+    },
+    {
+      "item": "corridor",
+      "weight": 2
+    },
+    {
+      "item": "airlock",
+      "weight": 1
+    },
+    {
+      "item": "cargo",
+      "weight": 3
+    },
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 1
+    },
+    {
+      "item": "weapon",
+      "weight": 1
+    },
+    {
+      "item": "shield",
+      "weight": 1
+    },
+    {
+      "item": "lightengine",
+      "weight": 3
+    },
+    {
+      "item": "heavyengine",
+      "weight": 1
+    },
+    {
+      "item": "smallreactor",
+      "weight": 1
+    },
+    {
+      "item": "pointdefense",
+      "weight": 1
+    },
+    {
+      "item": "cannon",
+      "weight": 1
+    },
+    {
+      "item": "shieldarray",
+      "weight": 1
+    },
+    {
+      "item": "bunks",
+      "weight": 2
+    },
+    {
+      "item": "surgery",
+      "weight": 1
+    },
+    {
+      "item": "largehold",
+      "weight": 2
+    },
+    {
+      "item": "bastion-engine",
+      "weight": 2
+    },
+    {
+      "item": "bastion-reactor",
+      "weight": 1
+    },
+    {
+      "item": "bastion-lightengine",
+      "weight": 1
+    },
+    {
+      "item": "bastion-cargo",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-engine",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-cargo",
+      "weight": 1
+    },
+    {
+      "item": "kestrel-lifesupport",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-engine",
+      "weight": 1
+    },
+    {
+      "item": "scrapline-shield",
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Corridor",
+  "description": "Yard standard",
+  "value": 10,
+  "tags": [
+    "part",
+    "corridor"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 10
+    }
+  ],
+  "category": "utility",
+  "maker": "yard",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

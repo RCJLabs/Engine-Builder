@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline point defense",
+  "description": "Scrapline",
+  "value": 80,
+  "tags": [
+    "part",
+    "pointdefense"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    },
+    {
+      "stat": "intercept",
+      "add": 10
+    }
+  ],
+  "category": "weapons",
+  "maker": "scrapline",
+  "base": "pointdefense",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

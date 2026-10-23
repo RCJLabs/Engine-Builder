@@ -14,11 +14,13 @@ export const SLOT = 'slot';
 export interface SlotRecord {
   readonly name?: string;
   readonly description?: string;
+  /** Item tags it can wear: an item with no slot of its own fits any slot taking one of its tags (M4.12). */
+  readonly takes?: readonly string[];
 }
 
 /** An item with the gear kit on. */
 export interface WearableItem extends ItemRecord {
-  /** Where it is worn: left out, it can't be. */
+  /** Where it is worn: left out, any slot that takes one of its tags, else it can't be. */
   readonly slot?: string;
   /** What it does while worn, as a status's modifiers do. */
   readonly modifiers?: readonly Modifier[];

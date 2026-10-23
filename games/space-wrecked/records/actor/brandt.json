@@ -1,0 +1,19 @@
+{
+  "name": "Teo Brandt",
+  "description": "Thirty years loading other people's ships at Pier Nine, the last ten as shop steward. When the Company broke the strike, the local put him on the food run, and he has ridden it since.",
+  "stats": {
+    "hp": 10,
+    "aim": 60,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 1,
+    "damage": 4,
+    "fights": 3
+  },
+  "statuses": [
+    "bruiser",
+    "cool-head"
+  ],
+  "job": "quartermaster",
+  "weapon": "Carbine"
+}

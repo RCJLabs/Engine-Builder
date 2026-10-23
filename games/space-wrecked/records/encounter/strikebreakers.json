@@ -1,0 +1,16 @@
+{
+  "name": "Strikebreakers",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "guard",
+      "count": 2
+    },
+    {
+      "actor": "heavy"
+    }
+  ]
+}

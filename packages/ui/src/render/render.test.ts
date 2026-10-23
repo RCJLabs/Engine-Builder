@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Screen, Widget } from '../format/screen.ts';
+import { type ListWidget, listTakes, type Screen, type Widget } from '../format/screen.ts';
 import { DEFAULT_THEME } from '../format/theme.ts';
 import type { Entry, View } from '../session/types.ts';
 import { tabHolding } from './context.ts';
@@ -77,6 +77,24 @@ const entry: Entry = {
   action: { type: 'economy/buy', item: 'rope' },
   enabled: true,
 };
+
+describe('an offered list’s takes (M4.12)', () => {
+  it('lists only the action types it names, or a module’s by module/*, and every one without takes', () => {
+    const rest = { type: 'hut/rest' };
+    const visit = { type: 'hut/visit', who: 'greta' };
+    const buy = { type: 'economy/buy', item: 'rope' };
+    const takes = (list: Partial<ListWidget>) =>
+      [rest, visit, buy, undefined].map((action) => listTakes({ of: 'offered', ...list }, action));
+    expect(takes({})).toEqual([true, true, true, true]);
+    expect(takes({ takes: ['hut/visit'] })).toEqual([false, true, false, false]);
+    expect(takes({ takes: ['hut/*'] })).toEqual([true, true, false, false]);
+    expect(takes({ takes: ['hut/*', 'economy/buy'] })).toEqual([true, true, true, false]);
+    // `hut/*` is the hut module's, not a module whose name starts with hut.
+    expect(listTakes({ of: 'offered', takes: ['hut/*'] }, { type: 'hutch/rest' })).toBe(false);
+    // Only an offered list is narrowed.
+    expect(listTakes({ of: 'bag', takes: ['hut/visit'] }, buy)).toBe(true);
+  });
+});
 
 describe('filling templates', () => {
   it('fills facts, views’ fields and entries’ fields, with a dash for no value', () => {

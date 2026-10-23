@@ -1,0 +1,33 @@
+{
+  "name": "The Halloran family",
+  "side": "hallorans",
+  "description": "They run the Narrows' back rooms and half its front ones. They'll take a payment, and then another.",
+  "levels": {
+    "calm": "The Hallorans have bigger debts to collect. Yours is gathering interest quietly.",
+    "rumors": "Word in the Narrows is that the Hallorans have put a number on you. Not a big one. Yet.",
+    "hunters": "A Halloran collector tails the crew to every job, smiling.",
+    "raid": "The Hallorans are at the lock-up's door with a ledger and a lot of friends."
+  },
+  "hunters": [
+    "collector"
+  ],
+  "raid": "raid-smuggler",
+  "payment": {
+    "name": "Pay the vig",
+    "text": "Pay something toward the cargo. The Hallorans ease off while the money comes in, and add the interest to what's left.",
+    "credits": 75,
+    "heat": 15
+  },
+  "run": {
+    "levels": {
+      "calm": "Out here the Hallorans are a rumor in station bars. Keep it that way.",
+      "rumors": "Station talk has a Halloran price on your ship, payable on delivery.",
+      "hunters": "A Halloran runner is working the lanes, fast, and asking after you by name.",
+      "task-force": "The Hallorans have sent the yacht. Old Halloran doesn't usually come himself.",
+      "cornered": "The Hallorans know where you'll come out. The next jump meets them."
+    },
+    "hunters": "ship-runner",
+    "task-force": "ship-yacht",
+    "faced": "The Hallorans will have to hire another crew. That buys some quiet."
+  }
+}

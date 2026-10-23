@@ -1,0 +1,8 @@
+{
+  "name": "Room aboard",
+  "description": "The lesser of the berths and the life support: the most crew the roster takes",
+  "number": {
+    "start": 0,
+    "min": 0
+  }
+}

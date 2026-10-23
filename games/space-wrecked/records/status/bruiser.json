@@ -1,0 +1,17 @@
+{
+  "name": "Bruiser",
+  "description": "Built like a cargo lifter, and about as quick.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 4
+    },
+    {
+      "stat": "mobility",
+      "add": -1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

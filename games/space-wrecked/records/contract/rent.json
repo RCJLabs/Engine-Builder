@@ -1,0 +1,25 @@
+{
+  "title": "Back rent",
+  "mission": "clear",
+  "pitch": "{client}'s other tenants are three months behind and armed about it. She calls it an eviction. You'll call it Tuesday.",
+  "clients": [
+    "prewitt"
+  ],
+  "sites": [
+    "whistle",
+    "yard"
+  ],
+  "encounter": "regulars",
+  "pay": {
+    "min": 60,
+    "max": 90
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "quarters": 1,
+      "lifesupport": 1,
+      "bunks": 1
+    }
+  }
+}

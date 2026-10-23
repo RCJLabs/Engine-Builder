@@ -1,0 +1,13 @@
+{
+  "name": "Scavvers",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "scavver",
+      "count": 3
+    },
+    {
+      "actor": "heavy"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "title": "Claim jumpers",
+  "mission": "clear",
+  "pitch": "Somebody's working {site} without a permit, and they brought guns to the paperwork. {client} wants them gone.",
+  "clients": [
+    "marta",
+    "sully"
+  ],
+  "sites": [
+    "pit9",
+    "yard"
+  ],
+  "encounter": "jumpers",
+  "pay": {
+    "min": 70,
+    "max": 100
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "corridor": 1,
+      "armory": 1,
+      "pointdefense": 1
+    }
+  }
+}

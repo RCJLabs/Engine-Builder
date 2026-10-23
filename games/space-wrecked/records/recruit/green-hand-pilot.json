@@ -1,0 +1,66 @@
+{
+  "name": "Green hand, pilot",
+  "description": "First time off the rock, keen to learn, and cheap with it.",
+  "actor": "pilot",
+  "names": [
+    "Ada",
+    "Bram",
+    "Cass",
+    "Dov",
+    "Edda",
+    "Fen",
+    "Gus",
+    "Hana",
+    "Ivo",
+    "Jessa",
+    "Kit",
+    "Lark",
+    "Moss",
+    "Nell",
+    "Otto",
+    "Pim",
+    "Quill",
+    "Rhea",
+    "Sully",
+    "Tam",
+    "Ula",
+    "Vik",
+    "Wes",
+    "Yara"
+  ],
+  "bynames": [
+    "Abara",
+    "Brask",
+    "Corrigan",
+    "Dahl",
+    "Esposito",
+    "Faraday",
+    "Grieve",
+    "Hoskins",
+    "Ibarra",
+    "Juarez",
+    "Kettle",
+    "Lindqvist",
+    "Mbeki",
+    "Nakamura",
+    "Oduya",
+    "Petrov",
+    "Quaye",
+    "Reyes",
+    "Sato",
+    "Thorne",
+    "Ueda",
+    "Varga",
+    "Whitlock",
+    "Zeller"
+  ],
+  "stats": {
+    "fights": {
+      "min": 0,
+      "max": 0
+    }
+  },
+  "fee": {
+    "credits": 30
+  }
+}

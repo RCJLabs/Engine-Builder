@@ -1,0 +1,72 @@
+{
+  "name": "Past the charts",
+  "description": "Past the last charted jump point: a star no survey lists, and worlds around it where a colony could take root.",
+  "nodes": [
+    {
+      "id": "way-in",
+      "name": "Way in",
+      "kind": "start",
+      "x": 10,
+      "y": 50
+    },
+    {
+      "id": "world-1",
+      "name": "First world",
+      "kind": "world",
+      "x": 35,
+      "y": 70
+    },
+    {
+      "id": "world-2",
+      "name": "Second world",
+      "kind": "world",
+      "x": 60,
+      "y": 30
+    },
+    {
+      "id": "world-3",
+      "name": "Third world",
+      "kind": "world",
+      "x": 85,
+      "y": 70
+    }
+  ],
+  "roads": [
+    {
+      "from": "way-in",
+      "to": "world-1"
+    },
+    {
+      "from": "world-1",
+      "to": "world-2"
+    },
+    {
+      "from": "world-1",
+      "to": "world-3"
+    },
+    {
+      "from": "way-in",
+      "to": "world-2"
+    },
+    {
+      "from": "world-2",
+      "to": "world-3"
+    },
+    {
+      "from": "way-in",
+      "to": "world-3"
+    }
+  ],
+  "start": "way-in",
+  "moves": [
+    {
+      "id": "fly",
+      "label": "Fly there",
+      "effects": [
+        {
+          "effect": "jump"
+        }
+      ]
+    }
+  ]
+}

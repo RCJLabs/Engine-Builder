@@ -1,0 +1,14 @@
+{
+  "name": "Space-Wrecked",
+  "short-name": "Wrecked",
+  "description": "Build a half-built ship on the job board's pay, run five sectors ahead of your pursuer, and settle a world past the charts. Acts 1 and 2, rebuilt with Engine-Builder.",
+  "orientation": "landscape",
+  "colors": {
+    "background": "#0b0f17",
+    "theme": "#172033"
+  },
+  "targets": {
+    "web": {},
+    "file": {}
+  }
+}

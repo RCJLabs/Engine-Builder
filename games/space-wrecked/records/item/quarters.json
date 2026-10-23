@@ -1,0 +1,33 @@
+{
+  "name": "Crew quarters",
+  "description": "Yard standard",
+  "value": 80,
+  "tags": [
+    "part",
+    "quarters"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "berths",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    }
+  ],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}

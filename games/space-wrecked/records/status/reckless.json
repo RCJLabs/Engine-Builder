@@ -1,0 +1,17 @@
+{
+  "name": "Reckless",
+  "description": "Straight through the door, every time. It's worked so far.",
+  "modifiers": [
+    {
+      "stat": "mobility",
+      "add": 2
+    },
+    {
+      "stat": "defense",
+      "add": -5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

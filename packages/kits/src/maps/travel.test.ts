@@ -125,15 +125,17 @@ describe('arriving', () => {
     expect(seen.has('jump-point')).toBe(true);
   });
 
-  it('answers the facts: on, at, at-end, layer, entered, visited', () => {
+  it('answers the facts: on, at, at-end, name, layer, entered, visited', () => {
     let state = g.start();
     expect(g.fact(state, 'maps.on', { map: 'sector' })).toBe(true);
     expect(g.fact(state, 'maps.on', { map: 'valley' })).toBe(false);
     expect(g.fact(state, 'maps.at', { kind: 'way-in' })).toBe(true);
     expect(g.fact(state, 'maps.layer')).toBe(0);
     expect(g.fact(state, 'maps.entered')).toBe(1);
-    const to = made(state).nodes.find((node) => node.layer === 1) as { id: string; kind: string };
+    const to = made(state).nodes.find((node) => node.layer === 1) as { id: string; kind: string; name: string };
+    expect(g.fact(state, 'maps.name')).toBe(made(state).nodes.find((node) => node.layer === 0)?.name);
     state = g.travel(state, to.id);
+    expect(g.fact(state, 'maps.name')).toBe(to.name);
     expect(g.fact(state, 'maps.layer')).toBe(1);
     expect(g.fact(state, 'maps.visited', { kind: to.kind })).toBeGreaterThanOrEqual(1);
     expect(g.fact(state, 'maps.at-end')).toBe(false);

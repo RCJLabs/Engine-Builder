@@ -1,0 +1,67 @@
+{
+  "name": "Loose rock",
+  "text": "A field of drifting rock, thick enough to scrape paint. Thick enough to scrape worse.",
+  "choices": [
+    {
+      "id": "thread",
+      "label": "Thread through",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "Not a scratch. The pilot will be insufferable.",
+          "effects": []
+        },
+        {
+          "chance": 30,
+          "result": "A rock comes through the forward plating. Someone takes it on the shoulder.",
+          "effects": [
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "around",
+      "label": "Go the long way",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "Slow and dull, and nobody gets hurt."
+    },
+    {
+      "id": "hide",
+      "label": "Run dark in the rocks",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "The rocks hide you from anyone watching.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": -6
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "The rocks hide you, and one of them hits you.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": -6
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

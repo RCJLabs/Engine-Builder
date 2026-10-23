@@ -1,0 +1,30 @@
+{
+  "name": "Scrapline airlock",
+  "description": "Scrapline",
+  "value": 25,
+  "tags": [
+    "part",
+    "airlock"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 9
+    },
+    {
+      "stat": "airlocks",
+      "add": 1
+    }
+  ],
+  "category": "utility",
+  "maker": "scrapline",
+  "base": "airlock",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

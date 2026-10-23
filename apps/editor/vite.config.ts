@@ -114,9 +114,10 @@ export default defineConfig(({ command, isPreview }) => ({
         // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',
         cleanupOutdatedCaches: true,
-        // The spikes are separate pages deployed beside the editor (apps/spike-3d). Without
-        // this, an installed editor would answer /spikes/3d/ with its own index.html.
-        navigateFallbackDenylist: [/\/version\.json$/, /\/spikes\//],
+        // The spikes and the games are separate pages deployed beside the editor (apps/spike-3d,
+        // games/, D62), each a game with its own service worker. Without this, an installed
+        // editor would answer /spikes/3d/ or /games/space-wrecked/ with its own index.html.
+        navigateFallbackDenylist: [/\/version\.json$/, /\/spikes\//, /\/games\//],
       },
     }),
   ],

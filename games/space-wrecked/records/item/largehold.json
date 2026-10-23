@@ -1,0 +1,29 @@
+{
+  "name": "Large hold",
+  "description": "Yard standard",
+  "value": 140,
+  "tags": [
+    "part",
+    "cargo"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 5
+    },
+    {
+      "stat": "cargo",
+      "add": 40
+    },
+    {
+      "stat": "hull",
+      "add": 30
+    }
+  ],
+  "category": "cargo",
+  "maker": "yard",
+  "size": {
+    "w": 4,
+    "h": 3
+  }
+}
