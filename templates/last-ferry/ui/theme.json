@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "background": "#12121c",
+    "surface": "#1f2030",
+    "text": "#f1eee6",
+    "muted": "#b5b0a4",
+    "accent": "#d9a44a",
+    "on-accent": "#1b1305"
+  },
+  "font": "Georgia, serif",
+  "size": 17,
+  "space": 8,
+  "radius": 6,
+  "sounds": {
+    "press": "oar",
+    "open": "oar",
+    "back": "oar"
+  }
+}

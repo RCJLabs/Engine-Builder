@@ -1,0 +1,33 @@
+{
+  "name": "Ines’s crossing",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "aboard",
+      "log": "Ines must reach the mill house before the child comes.",
+      "objectives": [
+        {
+          "id": "in-time",
+          "text": "Get her there in time",
+          "done-when": "flag.on(ines-in-time)",
+          "next": "in-time"
+        },
+        {
+          "id": "late",
+          "text": "Or keep to the slow water",
+          "done-when": "flag.on(ines-late)",
+          "next": "late"
+        }
+      ]
+    },
+    {
+      "id": "in-time",
+      "log": "You took the weir channel, and she ran up the bank with her bag."
+    },
+    {
+      "id": "late",
+      "log": "You kept to the slow water. She was late.",
+      "fails": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Marta’s crossing",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "aboard",
+      "log": "Marta carries her husband, who rowed this ferry for forty years.",
+      "objectives": [
+        {
+          "id": "scattered",
+          "text": "Stop in the middle of the river",
+          "done-when": "flag.on(marta-stopped)",
+          "next": "scattered"
+        },
+        {
+          "id": "kept",
+          "text": "Or keep rowing",
+          "done-when": "flag.on(marta-kept)",
+          "next": "kept"
+        }
+      ]
+    },
+    {
+      "id": "scattered",
+      "log": "He went into the river from the middle of it, as he wanted."
+    },
+    {
+      "id": "kept",
+      "log": "She kept the box, for another night.",
+      "fails": true
+    }
+  ]
+}

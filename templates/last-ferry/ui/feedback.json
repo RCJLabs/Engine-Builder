@@ -1,0 +1,26 @@
+{
+  "lines": [
+    {
+      "on": "ferry/rowed",
+      "say": "You row on: leg {.leg}.",
+      "to": "log",
+      "sound": "oar",
+      "buzz": "tap"
+    },
+    {
+      "on": "ferry/ashore",
+      "say": "The far bank.",
+      "to": "log"
+    },
+    {
+      "on": "quests/done",
+      "say": "{.quest}",
+      "sound": "chime",
+      "buzz": "double"
+    },
+    {
+      "on": "quests/failed",
+      "say": "{.quest}: {.why}"
+    }
+  ]
+}

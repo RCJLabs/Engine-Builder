@@ -1,0 +1,33 @@
+{
+  "name": "Tomas’s crossing",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "aboard",
+      "log": "Tomas walked away from a war, and the patrol is looking for him.",
+      "objectives": [
+        {
+          "id": "hidden",
+          "text": "Hide him from the patrol",
+          "done-when": "flag.on(tomas-hidden)",
+          "next": "hidden"
+        },
+        {
+          "id": "alone",
+          "text": "Or leave him to it",
+          "done-when": "flag.on(tomas-alone)",
+          "next": "alone"
+        }
+      ]
+    },
+    {
+      "id": "hidden",
+      "log": "You hid him under the sailcloth."
+    },
+    {
+      "id": "alone",
+      "log": "You told him you couldn’t help.",
+      "fails": true
+    }
+  ]
+}
