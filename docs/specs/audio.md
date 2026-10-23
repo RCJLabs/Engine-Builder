@@ -107,7 +107,7 @@ A feedback line ([input.md](input.md#feedback)) gains `sound` and `buzz`, and `s
 - **Starts on the first gesture:** a press, a key or a pad's button makes the audio context, or resumes it. Opening a game is not one; raising Sound from 0 in the settings is, since it is a press.
 - **A hidden tab** suspends it; a shown one resumes it.
 - **Buzzes** wait for the page's first activation and need `navigator.vibrate`; with Vibration off, none. They don't need the context: with Sound at 0 a step still buzzes.
-- **The hook:** `window.__ebAudio` holds what the player is doing: `{ context, ambience, music, levels, buses, played }`, `context` one of `none`, `running` and `suspended`, `buses` each bus's gain as set (empty with no context), `played` the last 50 sounds and buzzes, each `{ kind, id, at }`. The editor's previews note what they play there too. The e2e reads it; nothing else does.
+- **The hook:** `window.__ebAudio` holds what the player is doing: `{ context, ambience, music, levels, buses, played }`, `context` one of `none`, `running` and `suspended`, `buses` each bus's gain as set (empty with no context), `gains` each playing layer's and stem's level as the player set it, `played` the last 50 sounds and buzzes, each `{ kind, id, bus, at }`, `bus` the one a sound played through. The editor's previews note what they play there too. The e2e reads it; nothing else does.
 
 ## Checks
 

@@ -11,7 +11,8 @@ export interface Heard {
   readonly music?: string;
   readonly levels: Readonly<Record<string, number>>;
   readonly buses: Readonly<Record<string, number>>;
-  readonly played: readonly { readonly kind: 'sound' | 'buzz'; readonly id: string }[];
+  readonly gains?: Readonly<Record<string, number>>;
+  readonly played: readonly { readonly kind: 'sound' | 'buzz'; readonly id: string; readonly bus?: string }[];
 }
 
 type Hooked = { __ebAudio?: Heard; __buzzes?: number[][] };
@@ -55,7 +56,7 @@ export async function setHidden(page: Page, hidden: boolean): Promise<void> {
   }, hidden);
 }
 
-/** Presses a volume's Quieter or Louder until it shows `to`. */
+/** Presses a volume's Quieter or Louder until it shows `to`, each press one step of 10. */
 export async function setVolume(
   page: Page,
   name: string,
@@ -64,11 +65,13 @@ export async function setVolume(
 ): Promise<void> {
   const row = page.locator('.eb-shell-screens').getByRole('group', { name, exact: true });
   const value = row.locator('output');
+  const level = (text: string | null) => (text === 'Off' ? 0 : Number(text));
   for (let n = 0; n < 11 && (await value.textContent()) !== to; n++) {
-    const now = (await value.textContent()) ?? '';
-    const down = to === 'Off' || (now !== 'Off' && Number(now) > Number(to));
+    const now = level(await value.textContent());
+    const down = now > level(to);
     await press(row.getByRole('button', { name: `${name} ${down ? 'quieter' : 'louder'}` }));
-    await expect(value).not.toHaveText(now);
+    const next = down ? now - 10 : now + 10;
+    await expect(value).toHaveText(next === 0 ? 'Off' : String(next));
   }
   await expect(value).toHaveText(to);
 }

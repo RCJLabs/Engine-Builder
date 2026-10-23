@@ -60,6 +60,8 @@ export class AudioPlayer {
   #ambience: Playing | undefined;
   #music: Playing | undefined;
   #hidden = false;
+  /** Each playing layer's and stem's level as last set, for the hook. */
+  #set = new Map<string, number>();
 
   constructor(audio: AudioPack, uiSounds: Partial<Record<UiSound, string>>, volumes: Volumes) {
     this.#audio = audio;
@@ -157,9 +159,10 @@ export class AudioPlayer {
     source.playbackRate.value = 1 + randomness * (Math.random() * 2 - 1);
     const gain = ctx.createGain();
     gain.gain.value = ZZFX_VOLUME;
-    source.connect(gain).connect(this.#buses[bus ?? sound.bus ?? 'effects']);
+    const through = bus ?? sound.bus ?? 'effects';
+    source.connect(gain).connect(this.#buses[through]);
     source.start();
-    notePlayed('sound', id);
+    notePlayed('sound', id, through);
   }
 
   buzz(name: Buzz): void {
@@ -175,7 +178,7 @@ export class AudioPlayer {
     void this.#ctx?.close();
     this.#ctx = undefined;
     this.#buses = undefined;
-    noteAudio({ context: 'none', levels: {}, buses: {} });
+    noteAudio({ context: 'none', levels: {}, buses: {}, gains: {} });
   }
 
   /** Brings the ambience and music playing to the mix. */
@@ -193,8 +196,13 @@ export class AudioPlayer {
       this.#music = mix.music === undefined ? undefined : this.#startMusic(mix.music, ctx);
     }
     for (const playing of [this.#ambience, this.#music])
-      for (const [key, gain] of playing?.gains ?? [])
-        gain.gain.setTargetAtTime(mix.levels[key] ?? 0, ctx.currentTime, EASE / 3);
+      for (const [key, gain] of playing?.gains ?? []) this.#level(key, gain, mix.levels[key] ?? 0, ctx);
+  }
+
+  /** A layer's or stem's gain eased to its level, and kept for the hook. */
+  #level(key: string, gain: GainNode, level: number, ctx: AudioContext): void {
+    gain.gain.setTargetAtTime(level, ctx.currentTime, EASE / 3);
+    this.#set.set(key, level);
   }
 
   #playing(id: string, ctx: AudioContext, bus: Bus, fade: number): Playing {
@@ -207,7 +215,9 @@ export class AudioPlayer {
 
   #loop(playing: Playing, key: string, buffer: AudioBuffer, ctx: AudioContext, at?: number): void {
     const gain = ctx.createGain();
-    gain.gain.value = this.#mix.levels[key] ?? 0;
+    const level = this.#mix.levels[key] ?? 0;
+    gain.gain.value = level;
+    this.#set.set(key, level);
     gain.connect(playing.output);
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -264,6 +274,7 @@ export class AudioPlayer {
       buffers.forEach((buffer, n) => {
         if (buffer) this.#loop(playing, `stem/${n}`, buffer, ctx, at);
       });
+      this.#note();
     });
     return playing;
   }
@@ -282,6 +293,7 @@ export class AudioPlayer {
   #stop(playing: Playing, fade: number): void {
     const ctx = this.#ctx;
     for (const timer of playing.timers) clearTimeout(timer);
+    for (const key of playing.gains.keys()) this.#set.delete(key);
     if (!ctx) return;
     playing.output.gain.setTargetAtTime(0, ctx.currentTime, Math.max(fade, 0.01) / 3);
     for (const source of playing.sources) source.stop(ctx.currentTime + fade + 0.1);
@@ -296,6 +308,7 @@ export class AudioPlayer {
       ...(this.#mix.music !== undefined ? { music: this.#mix.music } : { music: undefined }),
       levels: this.#mix.levels,
       buses: ctx ? gains : {},
+      gains: Object.fromEntries(this.#set),
     });
   }
 }

@@ -7,6 +7,8 @@
 export interface Played {
   readonly kind: 'sound' | 'buzz';
   readonly id: string;
+  /** The bus a sound played through: the player's, not the editor's preview, which has none. */
+  readonly bus?: string;
   /** The page's clock, in ms. */
   readonly at: number;
 }
@@ -18,6 +20,8 @@ export interface AudioState {
   readonly levels: Readonly<Record<string, number>>;
   /** Each bus's gain as set: master, music, ambience, effects and interface. */
   readonly buses: Readonly<Record<string, number>>;
+  /** Each layer's, sound now and then's and stem's gain as the player last set it, by the mix's keys. */
+  readonly gains?: Readonly<Record<string, number>>;
   readonly played: readonly Played[];
 }
 
@@ -36,8 +40,9 @@ export function noteAudio(change: Partial<Omit<AudioState, 'played'>>): void {
 }
 
 /** Adds a sound or a buzz to the log, the oldest falling out past 50. */
-export function notePlayed(kind: Played['kind'], id: string): void {
+export function notePlayed(kind: Played['kind'], id: string, bus?: string): void {
   const state = audioState();
   const at = typeof performance === 'undefined' ? 0 : performance.now();
-  (globalThis as Hooked).__ebAudio = { ...state, played: [...state.played, { kind, id, at }].slice(-PLAYED_KEPT) };
+  const played: Played = { kind, id, ...(bus !== undefined ? { bus } : {}), at };
+  (globalThis as Hooked).__ebAudio = { ...state, played: [...state.played, played].slice(-PLAYED_KEPT) };
 }

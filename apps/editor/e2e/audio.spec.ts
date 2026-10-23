@@ -45,6 +45,8 @@ test('the hut heard in the Play panel: nothing before a press, its beds, the sto
       // The rain waits for day 4; the door comes now and then; the stem plays at its gain.
       levels: { 'layer/0': 1, 'layer/1': 0, 'then/0': 1, 'stem/0': 0.7 },
       buses: { master: 0.8, music: 0.6, ambience: 0.7, effects: 1, interface: 0.6 },
+      // The player sets each layer and the stem to its level, the stem once its file is decoded.
+      gains: { 'layer/0': 1, 'layer/1': 0, 'stem/0': 0.7 },
     });
 
   const all = new Set<string>();
@@ -54,6 +56,10 @@ test('the hut heard in the Play panel: nothing before a press, its beds, the sto
     .poll(async () => [...(await gather(page, all))])
     .toEqual(expect.arrayContaining(['sound:click', 'sound:load', 'buzz:knock']));
   expect(await buzzes(page)).toContainEqual([30]);
+  // Each through its bus: the click the interface's, the load the effects'.
+  const played = (await heard(page))?.played ?? [];
+  expect(played).toContainEqual(expect.objectContaining({ kind: 'sound', id: 'click', bus: 'interface' }));
+  expect(played).toContainEqual(expect.objectContaining({ kind: 'sound', id: 'load', bus: 'effects' }));
 
   let stormHeard = false;
   let rainHeard = false;
@@ -62,7 +68,9 @@ test('the hut heard in the Play panel: nothing before a press, its beds, the sto
     if (!next) break;
     if (next.title === 'An event') {
       // The storm's screen names its own ambience; the hut's music, named below it, plays on.
-      await expect.poll(() => heard(page)).toMatchObject({ ambience: 'storm', music: 'hut' });
+      await expect
+        .poll(() => heard(page))
+        .toMatchObject({ ambience: 'storm', music: 'hut', gains: { 'layer/2': 1, 'stem/0': 0.7 } });
       stormHeard = true;
     }
     await press(page, next.button);
@@ -71,7 +79,7 @@ test('the hut heard in the Play panel: nothing before a press, its beds, the sto
       await expect.poll(async () => (await heard(page))?.ambience).toBe('hut');
     // The rain comes in once its condition holds, from day 4.
     const now = await heard(page);
-    if (now?.ambience === 'hut' && now.levels['layer/1'] === 1) rainHeard = true;
+    if (now?.ambience === 'hut' && now.levels['layer/1'] === 1 && now.gains?.['layer/1'] === 1) rainHeard = true;
   }
   expect(stormHeard).toBe(true);
   expect(rainHeard).toBe(true);
@@ -97,6 +105,8 @@ test('at /play/: Sound at 0 makes no context, Music at 0 its bus, and a hidden p
   const screens = shellScreens(page);
   await screens.getByRole('button', { name: 'Settings' }).click();
   await setVolume(page, 'Sound', 'Off');
+  // The press on Settings started the context; Sound at 0 suspends it.
+  await expect.poll(async () => (await heard(page))?.context).toBe('suspended');
   await screens.getByRole('button', { name: 'Back' }).click();
 
   // Kept across a reload: with Sound off, presses make no context and play no sound, but still buzz.
@@ -126,6 +136,11 @@ test('at /play/: Sound at 0 makes no context, Music at 0 its bus, and a hidden p
   await expect.poll(async () => (await heard(page))?.context).toBe('running');
   await press(page, topScreen(page).getByRole('button', { name: 'Carry a load up' }));
   await expect.poll(async () => (await heard(page))?.played.some((p) => p.id === 'load')).toBe(true);
+  // Back at the title nothing plays: no ambience, no music.
+  await page.getByRole('button', { name: 'Pause' }).click();
+  await pauseDialog(page).getByRole('button', { name: 'Quit to title' }).click();
+  await expect.poll(() => heard(page)).toMatchObject({ levels: {}, gains: {} });
+  expect((await heard(page))?.ambience).toBeUndefined();
   expect(errors).toEqual([]);
 });
 
@@ -150,6 +165,11 @@ test('above a sound’s form: Play, Start from and Paste ZzFX; above an ambience
   const voices = async () =>
     ((await stored(page, 'the-hut', 'records/sound/zap.json')) as { voices?: unknown[] })?.voices;
   await expect.poll(voices).toEqual([expect.objectContaining({ shape: 'saw' })]);
+  // A preset is drawn from its ranges each time: Laser again is another laser.
+  const first = await voices();
+  await preview.getByLabel('Start from').selectOption('Laser');
+  await expect.poll(voices).not.toEqual(first);
+  expect(await voices()).toEqual([expect.objectContaining({ shape: 'saw' })]);
   await expect(preview.locator('.sound-note')).toHaveText(/ s · peak /);
 
   const zzfx = preview.getByLabel('ZzFX', { exact: true });

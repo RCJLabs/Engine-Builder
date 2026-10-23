@@ -64,10 +64,8 @@ export function LoopPreview(props: {
     next.unlock();
     setPlayer(next);
   };
-  const stop = () => {
-    player?.dispose();
-    setPlayer(undefined);
-  };
+  // The effect above disposes of the player as it goes.
+  const stop = () => setPlayer(undefined);
   const ref = formatRef(type, id);
   return (
     <section class="loop-preview" aria-label="How it plays">
