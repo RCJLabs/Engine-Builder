@@ -1,6 +1,7 @@
 import type { FactCatalog, FactInfo } from '../logic/types.ts';
 import { domainError, FACT_PATTERN, NAME_PATTERN } from '../logic/values.ts';
 import { isRecordId } from '../records.ts';
+import { DEBUG, isDebugModule } from './debug.ts';
 import { type EventCatalog, type EventInfo, eventInfoError } from './events.ts';
 import type { Maker } from './made.ts';
 import type { ActionRun, ActionSpec, EffectRun, EffectSpec, FactRead, Listener, Module } from './module.ts';
@@ -18,6 +19,8 @@ export interface ActionEntry {
   readonly module: string;
   readonly run: ActionRun<unknown>;
   readonly options?: ActionSpec<unknown>['options'];
+  /** The debug step (M4.9): allowed in every mode, and in no mode's list, so nothing offers it. */
+  readonly anyMode?: true;
 }
 
 export interface EffectEntry {
@@ -64,6 +67,9 @@ export function buildRegistry(modules: readonly Module[]): Registry {
   for (const module of modules) {
     name(module.id, 'module id');
     if (module.id === KERNEL) throw new Error(`"${KERNEL}" is the kernel's own state; pick another module id`);
+    const debug = isDebugModule(module);
+    if (module.id === DEBUG && !debug)
+      throw new Error(`"${DEBUG}" is the editor's debug step (M4.9); pick another module id`);
     if (ids.has(module.id)) throw new Error(`Two modules have the id "${module.id}"`);
     ids.add(module.id);
     checkVersion(module);
@@ -77,7 +83,12 @@ export function buildRegistry(modules: readonly Module[]): Registry {
       if (spec.options !== undefined && typeof spec.options !== 'function') {
         throw new Error(`Action "${type}": options must be a function`);
       }
-      actions.set(type, { module: module.id, run: spec.run, ...(spec.options ? { options: spec.options } : {}) });
+      actions.set(type, {
+        module: module.id,
+        run: spec.run,
+        ...(spec.options ? { options: spec.options } : {}),
+        ...(debug ? { anyMode: true as const } : {}),
+      });
     }
     for (const [fact, def] of Object.entries(module.facts ?? {})) {
       const id = `${module.id}.${name(fact, `${module.id} fact`)}`;
@@ -191,14 +202,16 @@ function checkFact(id: string, info: FactInfo): void {
   if (problem) throw new Error(`Fact "${id}": ${problem}`);
 }
 
-function expandModes(modules: readonly Module[], actions: ReadonlyMap<string, unknown>): Map<string, Set<string>> {
+function expandModes(modules: readonly Module[], actions: ReadonlyMap<string, ActionEntry>): Map<string, Set<string>> {
   const modes = new Map<string, Set<string>>();
+  // The debug step is in no mode's list, "*" included, so options() never offers it.
+  const listed = [...actions].filter(([, entry]) => !entry.anyMode).map(([type]) => type);
   for (const module of modules) {
     for (const [mode, def] of Object.entries(module.modes ?? {})) {
       if (modes.has(name(mode, `${module.id} mode`))) throw new Error(`Two modules register the mode "${mode}"`);
       const allowed = new Set<string>();
       for (const pattern of def.actions) {
-        const matched = [...actions.keys()].filter((type) => matches(pattern, type));
+        const matched = listed.filter((type) => matches(pattern, type));
         if (matched.length === 0) throw new Error(`Mode "${mode}" allows "${pattern}", which matches no action`);
         for (const type of matched) allowed.add(type);
       }

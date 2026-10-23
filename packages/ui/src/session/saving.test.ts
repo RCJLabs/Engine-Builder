@@ -28,6 +28,7 @@ const opened = (line?: string): Opened => ({
   shell: line === undefined ? undefined : { 'slot-line': line },
   name: 'Counting',
   audio: { sounds: {}, ambience: {}, music: {}, files: {} },
+  debug: false,
 });
 
 describe('a play’s saves (M4.3)', () => {

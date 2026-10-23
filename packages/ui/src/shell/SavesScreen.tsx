@@ -77,6 +77,11 @@ export function SavesScreen({ state, opened, memory, back }: SavesProps) {
               <strong>{slotName(info.slot)}</strong>
               {` · ${info.readable ? info.line : 'Its summary can’t be read'}`}
             </p>
+            {info.readable && info.debugged ? (
+              <p class="eb-text eb-shell-debugged">
+                Changed by the debug tools, so it stays here: it can’t be saved out.
+              </p>
+            ) : null}
             <div class="eb-shell-row">
               <button
                 type="button"
@@ -87,22 +92,26 @@ export function SavesScreen({ state, opened, memory, back }: SavesProps) {
               >
                 {`Load ${slotName(info.slot)}`}
               </button>
-              <button
-                type="button"
-                class="eb-button"
-                data-key={`file:${info.slot}`}
-                onClick={() => void saveFile(info.slot)}
-              >
-                Save file
-              </button>
-              <button
-                type="button"
-                class="eb-button"
-                data-key={`code:${info.slot}`}
-                onClick={() => void copyCode(info.slot)}
-              >
-                Copy code
-              </button>
+              {info.readable && info.debugged ? null : (
+                <>
+                  <button
+                    type="button"
+                    class="eb-button"
+                    data-key={`file:${info.slot}`}
+                    onClick={() => void saveFile(info.slot)}
+                  >
+                    Save file
+                  </button>
+                  <button
+                    type="button"
+                    class="eb-button"
+                    data-key={`code:${info.slot}`}
+                    onClick={() => void copyCode(info.slot)}
+                  >
+                    Copy code
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 class="eb-button"

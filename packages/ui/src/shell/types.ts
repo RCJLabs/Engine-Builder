@@ -3,8 +3,10 @@
  * requests, and where its saves and settings are kept. The player page and the Play panel each make
  * these their own way.
  */
+import type { SaveFile } from '@eb/core';
 import type { Store } from '@eb/platform';
 import type { PlayReply, PlayRequest } from '../session/protocol.ts';
+import type { View } from '../session/types.ts';
 
 /** A request as the page sends it: its client numbers it. */
 export type ShellRequest = PlayRequest extends infer R ? (R extends { id: number } ? Omit<R, 'id'> : never) : never;
@@ -27,4 +29,18 @@ export interface ShellProps {
   readonly update?: { readonly ready: boolean; readonly apply: () => void };
   /** The player page's crash screen covers the page; the editor shows what stopped in place. */
   readonly crashes?: boolean;
+  /**
+   * The editor's debug tools moved the game in play (M4.9): a debug step, a step back, a state
+   * restored, a replay. The shell shows the view and keeps the save in the slot in play, as after a
+   * step. A new `n` each time.
+   */
+  readonly moved?: Moved;
+  /** Told whenever a game comes into play or leaves it: the editor shows its debug tools while one is. */
+  readonly onPlay?: (playing: boolean) => void;
+}
+
+export interface Moved {
+  readonly n: number;
+  readonly view: View;
+  readonly save: SaveFile;
 }

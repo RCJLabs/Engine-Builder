@@ -54,7 +54,8 @@ export type PlayReply =
       readonly id: number;
       readonly kind: 'loaded';
       readonly ok: false;
-      readonly problem: SaveProblem | 'crashed';
+      /** 'debug': a save the editor's debug tools changed, which only the editor plays (M4.9). */
+      readonly problem: SaveProblem | 'crashed' | 'debug';
       readonly message: string;
     }
   | {

@@ -29,13 +29,15 @@ export type SlotInfo =
       readonly line: string;
       /** The Daily's number, for the Daily slot. */
       readonly daily: number | undefined;
+      /** The editor's debug tools changed this game (M4.9, D59): it is never saved out. */
+      readonly debugged: boolean;
     }
   | { readonly slot: string; readonly readable: false };
 
 /** A summary's fields read one by one: a slot whose line is missing still shows its step. */
 export function slotInfo(summary: SlotSummary): SlotInfo {
   if (!summary.readable) return summary;
-  const { line, turn, daily } = summary.summary;
+  const { line, turn, daily, debug } = summary.summary;
   const shown = typeof line === 'string' ? line : `Step ${typeof turn === 'number' ? turn : 0}`;
   return {
     slot: summary.slot,
@@ -43,6 +45,7 @@ export function slotInfo(summary: SlotSummary): SlotInfo {
     savedAt: summary.savedAt,
     line: shown,
     daily: Number.isInteger(daily) ? (daily as number) : undefined,
+    debugged: typeof debug === 'number' && debug > 0,
   };
 }
 

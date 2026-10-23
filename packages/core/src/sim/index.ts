@@ -1,3 +1,12 @@
+export {
+  DEBUG,
+  type DebugSlice,
+  debugModule,
+  debugRun,
+  debugStepsOf,
+  isDebugModule,
+  MAX_DEBUG_EFFECTS,
+} from './debug.ts';
 export { type EventCatalog, type EventInfo, eventDataProblem } from './events.ts';
 export { ActionError, createGame, type Game, type GameDefinition } from './game.ts';
 export { MigrationError, type MigrationReport } from './migrate.ts';

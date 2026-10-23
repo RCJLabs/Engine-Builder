@@ -20,7 +20,11 @@ describe('slots', () => {
       savedAt: 5,
       line: 'Day 3',
       daily: undefined,
+      debugged: false,
     });
+    // A game the editor's debug tools changed (M4.9): never saved out.
+    expect(slotInfo(summary('slot-1', 5, { turn: 9, debug: 2 }))).toMatchObject({ debugged: true });
+    expect(slotInfo(summary('slot-1', 5, { turn: 9, debug: 'yes' }))).toMatchObject({ debugged: false });
     expect(slotInfo(summary('slot-1', 5, { turn: 9 }))).toMatchObject({ line: 'Step 9' });
     expect(slotInfo(summary('slot-1', 5, { line: 7, turn: 'x' }))).toMatchObject({ line: 'Step 0' });
     expect(slotInfo(summary(DAILY_SLOT, 5, { daily: 293 }))).toMatchObject({ daily: 293 });

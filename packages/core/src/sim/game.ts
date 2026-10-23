@@ -106,7 +106,7 @@ export function createGame(definition: GameDefinition): Game {
       const entry = registry.actions.get(action.type);
       if (!entry) throw new ActionError(`Unknown action "${action.type}"`);
       const mode = (state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame).id;
-      if (!allowedIn(state).has(action.type)) return refused(state, action, 'mode', { mode });
+      if (!entry.anyMode && !allowedIn(state).has(action.type)) return refused(state, action, 'mode', { mode });
       return runAction(registry, entry, state, action, sim);
     },
 

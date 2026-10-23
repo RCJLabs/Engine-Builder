@@ -10,6 +10,16 @@ import type { PlayPageReply, PlayPageRequest } from './protocol.ts';
 export const START_MS = 30_000;
 export const STEP_MS = 10_000;
 
+const STEP_KINDS: ReadonlySet<string> = new Set([
+  'act',
+  'look',
+  'debug-look',
+  'debug-run',
+  'debug-preview',
+  'debug-forward',
+  'debug-keep',
+]);
+
 type Request = PlayPageRequest extends infer R ? (R extends { id: number } ? Omit<R, 'id'> : never) : never;
 
 interface WorkerLike {
@@ -59,7 +69,8 @@ export function playClient(start: () => WorkerLike = startWorker): PlayClient {
       worker ??= connect();
       const id = next++;
       // Loading a save replays its log, as long as starting can take; a look (M4.5) reads as a step does.
-      const ms = request.kind === 'act' || request.kind === 'look' ? STEP_MS : START_MS;
+      // So do the debug tools' requests (M4.9), but those that play the recording again.
+      const ms = STEP_KINDS.has(request.kind) ? STEP_MS : START_MS;
       return new Promise((resolve, reject) => {
         const timer = setTimeout(
           () => stop(new Error(`The game didn’t answer within ${ms / 1000} seconds: does a script loop forever?`)),
