@@ -97,12 +97,23 @@ export async function columnsAt(region: Locator, device: string, turned: boolean
   await type(region, new RegExp(`^Columns at ${breakpoint}`), columns);
 }
 
-/** ui/hut.json, from a blank screen: the day and coins on top, the season, the hut's words, six buttons and the log. */
+/**
+ * ui/hut.json, from a blank screen: the day and coins on top, the season, the hut's words, six
+ * buttons and the log, and its ambience and music.
+ */
 export async function makeHut(page: Page): Promise<Locator> {
   const region = await newBlank(page, 'hut');
   await pick(region, 'Screen');
   await type(region, /^Title/, 'The hut');
   await tick(region, 'hut');
+  // What the hut plays while it is up (M4.8).
+  for (const [field, dialog] of [
+    ['Ambience', 'Choose an ambience'],
+    ['Music', 'Choose a music'],
+  ] as const) {
+    await region.getByRole('button', { name: new RegExp(`^${field}`) }).click();
+    await region.page().getByRole('dialog', { name: dialog }).getByRole('option', { name: 'Hut (hut)' }).click();
+  }
   await pick(region, 'Top: empty');
   await add(region, 'Stack');
   await region.getByLabel(/^Direction/).selectOption('row');
