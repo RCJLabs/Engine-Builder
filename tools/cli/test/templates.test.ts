@@ -4,7 +4,7 @@
  * quest and every ending, with no offer refused, so a template that changes stays one that plays.
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { compileWithGame, projectGame } from '@eb/compiler';
@@ -90,4 +90,46 @@ describe.each(LISTED.map((t) => t.id))('the %s template', (id) => {
     expect([...ended].sort()).toEqual([...endings].sort());
     expect(stages.filter((at) => !reached.has(at))).toEqual([]);
   }, 60_000);
+});
+
+describe('eb new', () => {
+  const made = () => mkdtempSync(join(tmpdir(), 'eb-new-'));
+
+  it('writes a template into a new folder under the name given, which validates clean', () => {
+    const folder = join(made(), 'grey-sound');
+    const run = eb(['new', folder, '--template', 'salvage-coast', '--name', 'The Grey Sound']);
+    expect(run.code, run.out + run.err).toBe(0);
+    expect(JSON.parse(readFileSync(join(folder, 'project.json'), 'utf8'))).toMatchObject({
+      id: 'the-grey-sound',
+      name: 'The Grey Sound',
+    });
+    // Over 12 characters, so a short name of the words that fit, never the template's.
+    expect(JSON.parse(readFileSync(join(folder, 'export.json'), 'utf8'))).toMatchObject({ 'short-name': 'The Grey' });
+    expect(readFileSync(join(folder, 'scripts/harbour.ts'), 'utf8')).toBe(
+      readFileSync(join(TEMPLATES, 'salvage-coast/scripts/harbour.ts'), 'utf8'),
+    );
+    expect(eb(['validate', folder]).out).toMatch(/: no problems, hash /);
+  });
+
+  it('names the project after its folder unless told otherwise', () => {
+    const folder = join(made(), 'nightboat');
+    expect(eb(['new', folder, '--template', 'last-ferry']).code).toBe(0);
+    expect(JSON.parse(readFileSync(join(folder, 'export.json'), 'utf8'))).toMatchObject({
+      name: 'nightboat',
+      'short-name': 'nightboat',
+    });
+  });
+
+  it('lists the templates when none or an unknown one is named, and refuses a folder that isn’t empty', () => {
+    const none = eb(['new', join(made(), 'x')]);
+    expect(none.code).toBe(2);
+    for (const t of LISTED) expect(none.err).toContain(`${t.id}: ${t.title}.`);
+    expect(eb(['new', join(made(), 'x'), '--template', 'tower-defence']).err).toContain('No template "tower-defence".');
+    const full = made();
+    writeFileSync(join(full, 'notes.txt'), 'mine');
+    const refused = eb(['new', full, '--template', 'last-ferry']);
+    expect(refused.code).toBe(2);
+    expect(refused.err).toContain("isn't empty");
+    expect(readFileSync(join(full, 'notes.txt'), 'utf8')).toBe('mine');
+  });
 });

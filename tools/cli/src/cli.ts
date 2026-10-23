@@ -21,6 +21,7 @@ import { canonicalJson } from '@eb/core';
 import { runExport, runPublish } from './exportCmd.ts';
 import { folderSource } from './folderSource.ts';
 import { type GameModule, loadGame, loadTypes, UsageError } from './modules.ts';
+import { runNew } from './newCmd.ts';
 import { formatResult } from './report.ts';
 import { runSchemas } from './schemas.ts';
 import { runSim } from './sim.ts';
@@ -33,6 +34,7 @@ const USAGE = `Usage:
          [--max-turns <n>] [--golden <file> [--update]] [--json]
   eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]
   eb publish <project> --repo <folder> [--message <text>] [--push] [--runtime <folder>]
+  eb new <folder> --template <id> [--name <text>]
 
 <project> is a project folder or a .zip of one. --types names a JS or TS module whose
 recordTypes export lists the record types to check against; whose facts and events exports (or
@@ -55,10 +57,15 @@ export makes the game for one target (docs/specs/export.md): web, a folder to se
 HTML file; itch, a zip for itch.io; repo, the repository Publish writes, as a zip. Each ships the
 edition export.json gives it, or --edition's, after the leak check. The runtime is the one
 apps/editor builds into dist-game/, or --runtime's. publish writes the repository into --repo, a
-git working tree, and commits it with your git; --push pushes it.`;
+git working tree, and commits it with your git; --push pushes it.
+
+new writes a project into a new, empty folder from a template (docs/specs/templates.md), as the
+editor's New project does: the folder's name is the project's unless --name gives one. Without
+--template it lists the templates.`;
 
 const SIM_ONLY = ['game', 'policy', 'seeds', 'prefix', 'max-turns', 'golden', 'update'] as const;
 const EXPORT_ONLY = ['target', 'edition', 'runtime', 'repo', 'message', 'push'] as const;
+const NEW_ONLY = ['template', 'name'] as const;
 
 async function main(argv: readonly string[]): Promise<number> {
   const { values, positionals } = parseArgs({
@@ -81,13 +88,22 @@ async function main(argv: readonly string[]): Promise<number> {
       repo: { type: 'string' },
       message: { type: 'string' },
       push: { type: 'boolean' },
+      template: { type: 'string' },
+      name: { type: 'string' },
     },
   });
   const [command, project, ...extra] = positionals;
-  const commands = ['validate', 'build', 'schemas', 'sim', 'export', 'publish'];
+  const commands = ['validate', 'build', 'schemas', 'sim', 'export', 'publish', 'new'];
   if (!commands.includes(command ?? '') || project === undefined || extra.length > 0) {
     throw new UsageError(USAGE);
   }
+  if (command === 'new') {
+    const other = Object.keys(values).find((flag) => !(NEW_ONLY as readonly string[]).includes(flag));
+    if (other) throw new UsageError(`--${other} doesn't apply to eb new`);
+    return runNew(project, values);
+  }
+  const newFlag = NEW_ONLY.find((flag) => values[flag] !== undefined);
+  if (newFlag) throw new UsageError(`--${newFlag} only applies to eb new`);
   if (command === 'export' || command === 'publish') {
     if (values.types !== undefined) throw new UsageError(`eb ${command} plays the project's own game: no --types`);
     const source = await openProject(project);

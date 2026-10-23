@@ -31,7 +31,7 @@ The survey behind them is [research/templates.md](../research/templates.md).
   - each template, by its title, with its blurb under the choice.
 - **What it writes:** every file of the template, with two changes for the author's name:
   - **project.json** takes the id made from the name (as an empty project does) and the name as typed. Kits, calendar and version are kept.
-  - **export.json** takes the name as its `name`. Its `short-name` is the name when that is 12 characters or fewer, and is dropped otherwise, so it never starts with W138.
+  - **export.json** takes the name as its `name`, and a `short-name` that fits in 12 characters, so it never starts with W138. That is the name itself when it fits, else its first whole words that do, else its first 12 characters.
 - **The new project is the author's own:**
   - nothing in it points back at the template;
   - its scripts run without being trusted first, as for any project made in this browser, since they came with the editor.

@@ -60,6 +60,7 @@ export { classifyScene, SCENES_DIR, type SceneFile, scenePath } from './sceneFil
 export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
+export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
