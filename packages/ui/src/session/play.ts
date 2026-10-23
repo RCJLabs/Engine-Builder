@@ -38,14 +38,21 @@ export interface Play {
   /** The view of the state now for other wants, taking no step: a screen being designed (M4.5, D55). */
   look(wants: Wants): View;
   /** Takes an action on offer: the step's beats, what the game's feedback says of them (M4.2), and the view after it. */
-  act(action: Action): {
-    readonly view: View;
-    readonly beats: readonly Beat[];
-    readonly said: readonly Said[];
-    /** The sounds and buzzes the feedback gives the beats (M4.8). */
-    readonly cues: readonly Cue[];
-    readonly accepted: boolean;
-  };
+  act(action: Action): Taken;
+  /**
+   * Takes an action whether or not it is on offer, as the sim would: the editor's debug steps,
+   * which nothing offers, and a recording stepped forward (M4.9).
+   */
+  take(action: Action): Taken;
+}
+
+export interface Taken {
+  readonly view: View;
+  readonly beats: readonly Beat[];
+  readonly said: readonly Said[];
+  /** The sounds and buzzes the feedback gives the beats (M4.8). */
+  readonly cues: readonly Cue[];
+  readonly accepted: boolean;
 }
 
 export interface PlaySetup {
@@ -131,6 +138,14 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
   }
 
   let view = viewOf(session.state);
+  const take = (action: Action): Taken => {
+    const step = session.dispatch(action);
+    view = viewOf(session.state);
+    const beats = session.drain();
+    // The step's records name what its beats carry, those it made among them.
+    const felt = say ? say(beats, game.content(session.state, sim)) : { said: [], cues: [] };
+    return { view, beats, said: felt.said, cues: felt.cues, accepted: step.accepted };
+  };
   return {
     get view() {
       return view;
@@ -147,13 +162,9 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], cues: [], accepted: false };
       }
-      const step = session.dispatch(action);
-      view = viewOf(session.state);
-      const beats = session.drain();
-      // The step's records name what its beats carry, those it made among them.
-      const felt = say ? say(beats, game.content(session.state, sim)) : { said: [], cues: [] };
-      return { view, beats, said: felt.said, cues: felt.cues, accepted: step.accepted };
+      return take(action);
     },
+    take,
   };
 }
 

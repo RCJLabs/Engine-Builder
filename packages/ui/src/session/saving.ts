@@ -2,7 +2,7 @@
  * A play's save, made in the worker after each step (M4.3, D53, docs/specs/shell.md#saving): the
  * page only keeps it, so the worker never touches storage. Its summary is what a slot shows.
  */
-import { createSaveFile, type SaveFile } from '@eb/core';
+import { createSaveFile, DEBUG, type DebugSlice, type SaveFile } from '@eb/core';
 import { MAX_LOG } from '@eb/platform';
 import { fill } from '../render/fill.ts';
 import type { Opened } from './fromPack.ts';
@@ -18,10 +18,13 @@ export interface Saving {
 export function saveOf(opened: Opened, play: Play, saving: Saving, at: number): SaveFile {
   const { view } = play;
   const line = opened.shell?.['slot-line'];
+  // The editor's debug steps in the game's history (M4.9): the shell won't save such a game out.
+  const debug = (play.state[DEBUG] as DebugSlice | undefined)?.steps ?? 0;
   const summary = {
     turn: view.turn,
     ...(line !== undefined ? { line: fill(line, view) } : {}),
     ...(saving.daily !== undefined ? { daily: saving.daily } : {}),
+    ...(debug > 0 ? { debug } : {}),
   };
   const { id } = opened.pack.project;
   const file = createSaveFile(play.run, {

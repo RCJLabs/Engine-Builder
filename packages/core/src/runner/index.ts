@@ -19,6 +19,15 @@ export {
   turnFor,
   weightedPolicy,
 } from './policy.ts';
+export {
+  type Place,
+  placeOf,
+  type RecordedStep,
+  type ReplayInput,
+  type ReplayResult,
+  type ReplayStop,
+  replayRecording,
+} from './replay.ts';
 export { formatSweep } from './report.ts';
 export { type Interval, type NumberSummary, nearestRank, summarize, t95, wilson, Z95 } from './stats.ts';
 export {

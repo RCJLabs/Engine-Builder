@@ -21,6 +21,19 @@ type Hooked = { __ebAudio?: Heard; __buzzes?: number[][] };
 export const heard = (page: Page): Promise<Heard | null> =>
   page.evaluate(() => (window as unknown as Hooked).__ebAudio ?? null);
 
+/**
+ * Waits until nothing plays: no ambience or music named, no level and no gain. Matched exactly,
+ * since a match on `{ levels: {} }` holds for any levels at all, before the quiet has landed.
+ */
+export async function expectQuiet(page: Page): Promise<void> {
+  await expect
+    .poll(async () => {
+      const now = await heard(page);
+      return { ambience: now?.ambience, music: now?.music, levels: now?.levels, gains: now?.gains ?? {} };
+    })
+    .toEqual({ ambience: undefined, music: undefined, levels: {}, gains: {} });
+}
+
 /** Every vibration a page asks for, kept as its pattern; set before the page loads. */
 export async function catchBuzzes(page: Page): Promise<void> {
   await page.addInitScript(() => {

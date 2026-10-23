@@ -3,4 +3,4 @@ export { type CrashContext, crashReport, isNoise, showCrash, watchCrashes } from
 export { Shell } from './Shell.tsx';
 export { DEFAULT_SETTINGS, readSettings, type Settings, settingsAttrs, settingsKey } from './settings.ts';
 export { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, slotIds, slotInfo, slotName } from './slots.ts';
-export type { OpenedGame, ShellProps, ShellRequest } from './types.ts';
+export type { Moved, OpenedGame, ShellProps, ShellRequest } from './types.ts';

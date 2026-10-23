@@ -2,8 +2,8 @@
  * The open project played through its screens (M4.1, D51): compiled into the pack Export game
  * writes, then opened in the Play worker inside the play shell (M4.3), whose saves are kept under
  * edition "playtest", apart from the player page's. New starts with the seed typed here. Nothing
- * plays while the project has errors, as nothing exports. Loaded when a project is first open,
- * with the renderer.
+ * plays while the project has errors, as nothing exports. While a game is in play, the debug tools
+ * sit under it (M4.9). Loaded when a project is first open, with the renderer.
  */
 import { openStore, type Store } from '@eb/platform';
 import type { PlayReply } from '@eb/ui/session';
@@ -15,19 +15,24 @@ import { showPanel } from '../app/panelControl.ts';
 import { problemCount } from '../problems/count.ts';
 import { type OpenProject, revision, runScripts } from '../projects/opened.ts';
 import { playFiles } from '../scripts/playFiles.ts';
+import { playing } from './client.ts';
+import { DebugTools } from './debug/DebugTools.tsx';
+import { debugMoved, refreshLook, replayedGame, resetDebug } from './debug/tools.ts';
 import { noteMoment } from './moment.ts';
-import { playClient } from './playClient.ts';
 import type { PlayPageReply } from './protocol.ts';
 import { ScreensList } from './ScreensList.tsx';
 import '../styles/logic.css';
 import '../styles/play.css';
 
-const client = playClient();
 // The shell's requests are the session's own; the Play worker answers them as the player's does.
-// Each save is kept as the moment the designer draws (M4.5).
+// Each save is kept as the moment the designer draws (M4.5), and each step read by the debug
+// tools (M4.9) once it lands.
 const send = (request: ShellRequest) =>
-  client.send(request).then((reply) => {
+  playing.send(request).then((reply) => {
     noteMoment(reply);
+    if (reply.kind === 'started' || reply.kind === 'stepped' || (reply.kind === 'loaded' && reply.ok)) {
+      void refreshLook();
+    }
     return reply as PlayReply;
   });
 
@@ -49,17 +54,21 @@ export function PlayView({ project }: { project: OpenProject }) {
   const [shown, setShown] = useState<Shown>({ kind: 'idle' });
   const [seed, setSeed] = useState('1');
   const [store, setStore] = useState<Store | undefined>(undefined);
+  const [inPlay, setInPlay] = useState(false);
   const seedId = useUniqueId();
   const errors = problemCount.value?.errors ?? 0;
   const ready = project.game.status === 'loaded';
+  // After a Replay the shell draws the edited project's game, which the project is as of then.
+  const replayed = replayedGame.value;
   useEffect(() => {
     void openStore().then(setStore);
   }, []);
   const start = async () => {
     setShown({ kind: 'starting' });
+    resetDebug();
     const at = revision.value;
     try {
-      const reply = await client.send({ kind: 'open-files', files: await playFiles(project.source) });
+      const reply = await playing.send({ kind: 'open-files', files: await playFiles(project.source) });
       setShown(opened(reply, at));
     } catch (error) {
       setShown(failed(error));
@@ -94,14 +103,29 @@ export function PlayView({ project }: { project: OpenProject }) {
         {shown.kind === 'refused' ? (
           <p class="logic-problem">{`Nothing was played: the project has ${shown.errors === 1 ? 'an error' : `${shown.errors} errors`}. See Problems.`}</p>
         ) : null}
-        {shown.kind === 'open' && shown.at !== revision.value ? (
-          <p class="muted">The project has changed since this game started: start again to play it as it is now.</p>
+        {shown.kind === 'open' && (replayed?.at ?? shown.at) !== revision.value ? (
+          <p class="muted">
+            The project has changed since this game started: start again to play it as it is now, or replay it under
+            Debug.
+          </p>
         ) : null}
       </div>
       {shown.kind === 'open' && store ? (
-        <div class="play-game">
-          <Shell key={shown.n} opened={shown.opened} send={send} edition="playtest" store={store} seed={() => seed} />
-        </div>
+        <>
+          <div class="play-game">
+            <Shell
+              key={shown.n}
+              opened={replayed?.opened ?? shown.opened}
+              send={send}
+              edition="playtest"
+              store={store}
+              seed={() => seed}
+              moved={debugMoved.value}
+              onPlay={setInPlay}
+            />
+          </div>
+          {inPlay ? <DebugTools project={project} store={store} game={shown.opened.game} /> : null}
+        </>
       ) : null}
       <ScreensList project={project} />
     </div>

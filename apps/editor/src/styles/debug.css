@@ -1,0 +1,174 @@
+/* The Play panel's debug tools (M4.9): sections under the game, one open at a time. Every control
+   is at least 44 px tall; the log and the state wrap rather than scroll, so the panel is the one
+   thing that scrolls. */
+
+.debug {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.debug h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.debug-said:empty {
+  display: none;
+}
+
+.debug-part {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.debug-part > summary,
+.debug-slice > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: var(--tap);
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.debug-part > summary {
+  font-weight: 600;
+}
+
+.debug-body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px 12px;
+}
+
+.debug-where,
+.debug-report {
+  margin: 0;
+}
+
+.debug-log,
+.debug-quests,
+.debug-slices,
+.debug-states,
+.debug-previews {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A list that is a section's whole body keeps the body's inset. */
+.debug-body.debug-quests,
+.debug-body.debug-slices {
+  padding: 0 12px 12px;
+}
+
+.debug-line {
+  min-width: 0;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.debug-line[data-ahead] {
+  opacity: 0.6;
+}
+
+.debug-line-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.debug-n {
+  min-width: 2ch;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.debug-tag {
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.85em;
+}
+
+.debug-line[data-refused] .debug-tag,
+.debug-line .debug-tag:first-of-type {
+  font-weight: 600;
+}
+
+.debug-beats,
+.debug-why {
+  margin: 2px 0 0;
+  padding-inline-start: 1.2rem;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.debug-quest p {
+  margin: 0;
+}
+
+.debug-quest,
+.debug-state {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.debug-hash {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.debug-slice-key {
+  font-weight: 600;
+}
+
+.debug-json {
+  margin: 0;
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.debug-date {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+.debug-date div {
+  display: flex;
+  gap: 6px;
+}
+
+.debug-date dt {
+  color: var(--muted);
+}
+
+.debug-date dd {
+  margin: 0;
+}
+
+.debug-name {
+  width: 12rem;
+  max-width: 100%;
+}
+
+.debug-previews code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}

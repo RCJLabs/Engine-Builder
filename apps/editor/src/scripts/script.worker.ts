@@ -7,6 +7,7 @@
  * through its screens, so the compiler and the kits ship once, and a check that times out here
  * never ends a game being played there.
  */
+import { isDebugRequest } from '../play/debug/protocol.ts';
 import { playJobs } from '../play/jobs.ts';
 import type { PlayPageReply, PlayPageRequest } from '../play/protocol.ts';
 import { checkJob, playJob } from './jobs.ts';
@@ -25,6 +26,7 @@ let locked = false;
 const playing = playJobs();
 
 const isPlay = (request: Request): request is PlayPageRequest =>
+  isDebugRequest(request) ||
   request.kind === 'open' ||
   request.kind === 'start' ||
   request.kind === 'load' ||

@@ -1415,6 +1415,36 @@ Evan chose on 2026-10-23, from these options:
 - **Base64 audio makes game files bigger:** a minute of 16-bit mono at 22,050 Hz is about 3.5 MB as text. M4.10's export targets can carry files beside the pack instead.
 - **ZzFX's sounds are short by nature;** an ambience bed is the engine's own synth, not ZzFX.
 
+### D59. Play-in-Editor changes a game only by the game's own effects, marked as debug steps; a playtest is recorded from its start and replayed against an edited project to the first step that differs; time moves by the calendar; the hut proves it, checked by machine. LOCKED, 2026-10-23 (Evan's calls, M4.9)
+
+**Decision.**
+- **Run any effect** (Evan's call). The Play panel's debug tools change a game only by effects, the same ones content uses (give an item, add coins, set a flag, set a quest's stage, wait a day), picked with the effects forms and run through the sim as a step of their own, `debug/run`. Each is marked in the log as a debug step. A game changed this way stays a playtest save: the shell offers no Save as file or Copy code for it, and the player page refuses it.
+- **Replay after edits** (Evan's call). Every playtest is recorded from its start: the seed (or the state it was loaded from) and each accepted step with the state's hash after it. Step back and Step forward move along the recording. Replay plays the recording again on the project as it is now and stops at the first step the game refuses or that leaves a different state, naming the step and the first place in the state that changed. The game goes on from there under the edited project.
+- **Calendar steps, step back** (Evan's call). Time moves by the calendar's own units, +1 of each, through the time kit's `wait`, so timers, jobs and start-of-day rows fire as they would in play. Step back is the run played again from its start to the step before, never an undo of the state. The sim is turn-based: no real-time pause or speed.
+- **The gate: the hut, checked by machine** (Evan's call). In the Play panel the hut is played a few days; its state and events are read; its quests are listed with why one can't advance; a stage is set by an effect; a named state is saved and restored; a step is taken back; then a record is edited and Replay stops at the first step that differs, naming it. On desktop and by touch at 360, 390 and sideways. Trying it on a phone is a "worth a look", so the milestone merges on green.
+- **Not asked, and following from the calls:**
+  - **The debug step is an engine module,** `debug`, built only into the games the editor's Play worker opens. Its one action is allowed in every mode and is never offered, so no bot, menu or screen takes it; its slice counts the debug steps in the state's history. The player page refuses a save that holds any, before replaying it: without the module, the replay would skip those steps and reach a state the player never had. The spec is docs/specs/play-in-editor.md.
+  - **The recording keeps at most 10,000 steps** and never stops play when full (Landnam's `record.ts`); a step the game refuses changes nothing and is logged, not recorded.
+  - **Named save states** are kept per project in the editor's own storage, apart from the shell's slots.
+  - **Where a difference is,** the state's parts are each module's slice (the M1.2 facets), and the first changed path in it is shown with its value before and after.
+
+Evan chose on 2026-10-23, from these options:
+- how the tools change a game: run any effect; read-only; or edit the state's JSON;
+- replay: replay after edits; a scrubber only; or a bug-report bundle;
+- time: calendar steps and step back; calendar steps only; or a wall-clock warp too;
+- the gate: the hut, checked by machine; the hut, plus his phone; or the drift.
+
+**Why.**
+- **Effects can't make a state the sim couldn't reach,** and they are what content is already made of, with forms and previews. Raw JSON edits make impossible states; read-only tools can't reach day 9 or a late quest stage quickly.
+- **A cheat must never leak into a player's save** (Landnam, Wasteland Protocol and Rule or Drool wrote theirs into the real save, docs/research/play-in-editor.md). Keeping the module out of every game a player opens makes that structural, not a matter of a flag someone remembers.
+- **Replay after an edit answers the question an author asks** after changing a number: what did that change in the run I just played? The engine's state hashes and facets (M1.2) already say where two states part.
+- **Time through `wait`** means a skipped day fires everything a played day would; Landnam's `skip(days)` didn't, and so tested nothing.
+
+**Cost.**
+- **The editor's Play game isn't the player page's game:** it has one module more, and its states carry a `debug` slice and its version. So its saves are never strict on the player page, and its state hashes differ from a player's game's at the same step.
+- **A recording from the start grows with the run;** past 10,000 steps it stops recording, and Replay and Step back then work only within what was recorded.
+- **Replay can only say where a run first parts,** not why; the author reads the step and the changed path.
+
 ---
 
 ## Open

@@ -116,6 +116,17 @@ export function useShell(props: ShellProps) {
     });
   };
 
+  // The editor's debug tools moved the game (M4.9): shown, and kept in the slot, as a step is.
+  const { moved, onPlay } = props;
+  useEffect(() => {
+    if (!moved || !play) return;
+    void run(async () => {
+      await keep(play.slot, moved.save);
+      setPlay({ ...play, view: moved.view, said: [], cues: [] });
+    });
+  }, [moved?.n]);
+  useEffect(() => onPlay?.(play !== undefined), [play === undefined]);
+
   const daily = () => {
     const n = dailyNumber(now());
     const held = slots?.find((info) => info.slot === DAILY_SLOT);

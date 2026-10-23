@@ -8,6 +8,8 @@
 import {
   createGame,
   createRecordStore,
+  debugModule,
+  debugStepsOf,
   type LoadReport,
   loadSave,
   type Pack,
@@ -15,6 +17,7 @@ import {
   readPack,
   type SaveFile,
   type SaveProblem,
+  verifySaveFile,
 } from '@eb/core';
 import { loadProjectGame } from '@eb/script';
 import { audioConditions } from '../audio/mix.ts';
@@ -37,14 +40,22 @@ export interface Opened {
   readonly name: string;
   /** Its sounds, ambience and music, and the files its music names (M4.8). */
   readonly audio: AudioPack;
+  /** Its game has the debug step (M4.9, D59): the editor's games, never the player page's. */
+  readonly debug: boolean;
 }
 
 export type OpenResult =
   | { readonly ok: true; readonly opened: Opened }
   | { readonly ok: false; readonly message: string };
 
+export interface OpenOptions {
+  /** Adds the debug module after the game's own (M4.9): only the editor's Play worker asks for it. */
+  readonly debug?: boolean;
+}
+
 /** A pack as it came from a file, checked by readPack, and its game loaded. */
-export function openPack(value: unknown): OpenResult {
+export function openPack(value: unknown, options: OpenOptions = {}): OpenResult {
+  const debug = options.debug === true;
   let pack: Pack;
   try {
     pack = readPack(value);
@@ -65,7 +76,8 @@ export function openPack(value: unknown): OpenResult {
   const screens = (pack.ui?.screens ?? {}) as Readonly<Record<string, Screen>>;
   const shell = pack.ui?.shell as ShellFile | undefined;
   const feedback = pack.ui?.feedback as Feedback | undefined;
-  const game = createGame({ modules, start });
+  // Last, so the game's own modules start and draw exactly as they do without it.
+  const game = createGame({ modules: debug ? [...modules, debugModule()] : modules, start });
   const audio = audioOf(pack, game.catalog());
   // The shell's slot line is filled from the view as each save is made, so its facts are read too.
   const screenWants = wantsOf(Object.values(screens), shell?.['slot-line'] === undefined ? [] : [shell['slot-line']]);
@@ -83,7 +95,7 @@ export function openPack(value: unknown): OpenResult {
     ...(pack.credits ? { credits: pack.credits } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
-  return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio } };
+  return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio, debug } };
 }
 
 export type Loaded =
@@ -106,11 +118,13 @@ export function playPack(value: unknown, seed: string): Loaded {
 
 export type Resumed =
   | { readonly ok: true; readonly play: Play; readonly file: SaveFile; readonly report: LoadReport }
-  | { readonly ok: false; readonly problem: SaveProblem | 'crashed'; readonly message: string };
+  | { readonly ok: false; readonly problem: SaveProblem | 'crashed' | 'debug'; readonly message: string };
 
 /**
  * A save's text loaded into a game of the opened pack, as `@eb/platform`'s `loadWith` asks: what
- * won't parse is damaged, and a game that throws while it replays has crashed.
+ * won't parse is damaged, and a game that throws while it replays has crashed. A game without the
+ * debug step refuses a save that holds one (D59), before replaying it: the replay would skip those
+ * steps and reach a state the player never had.
  */
 export function resumeFrom(opened: Opened, raw: string): Resumed {
   let parsed: unknown;
@@ -120,8 +134,13 @@ export function resumeFrom(opened: Opened, raw: string): Resumed {
     return { ok: false, problem: 'damaged', message: 'The save is not JSON' };
   }
   const { game, sim } = opened.setup;
+  const id = opened.pack.project.id;
+  if (!opened.debug) {
+    const verified = verifySaveFile(parsed, id);
+    if (verified.ok && debugStepsOf(verified.file) > 0) return DEBUGGED;
+  }
   try {
-    const result = loadSave(game, parsed, sim, { game: opened.pack.project.id, build: opened.pack.hash });
+    const result = loadSave(game, parsed, sim, { game: id, build: opened.pack.hash });
     if (!result.ok) return result;
     return { ok: true, play: resumePlay(opened.setup, result.state), file: result.file, report: result.report };
   } catch (error) {
@@ -129,3 +148,9 @@ export function resumeFrom(opened: Opened, raw: string): Resumed {
     return { ok: false, problem: 'crashed', message: `The game failed while loading the save: ${message}` };
   }
 }
+
+const DEBUGGED = {
+  ok: false,
+  problem: 'debug',
+  message: 'The editor’s debug tools changed this game, so it plays only in the editor',
+} as const;
