@@ -19,14 +19,11 @@ import {
 } from '@eb/ui/session';
 import { lookAt } from './look.ts';
 import { replayOn, stepBack, stepForward } from './moves.ts';
-import type { DebugReply, DebugRequest } from './protocol.ts';
+import { type DebugReply, type DebugRequest, STATES_EDITION } from './protocol.ts';
 import { newRecording, type Recording, recorded, refused } from './recording.ts';
 import { labelOf, recordingFrom, stepOf } from './steps.ts';
 
 type Failed = Extract<PlayReply, { kind: 'failed' }>;
-
-/** The edition a named state is saved under, apart from the shell's slots (D59). */
-export const STATES_EDITION = 'states';
 
 export interface DebugJobs {
   /** Keeps the recording up with what the shell's request did. */

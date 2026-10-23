@@ -5,21 +5,13 @@
 import { type Action, ActionError, type Beat, type Effect, type GameState, type SaveFile, stateHash } from '@eb/core';
 import { actionLabel, type Opened } from '@eb/ui/session';
 import { newRecording, type Recorded, type Recording, recorded } from './recording.ts';
-
-const valueText = (value: unknown): string =>
-  typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value);
+import { effectWords, valueText } from './words.ts';
 
 /** A beat in words: its type, then its data as key=value. */
 export function beatText(beat: Beat): string {
   const { type, ...data } = beat;
   const parts = Object.entries(data).map(([key, value]) => `${key}=${valueText(value)}`);
   return [type, ...parts].join(' ');
-}
-
-/** An effect in words: its name, then its fields as key=value. */
-export function effectWords(effect: Effect): string {
-  const { effect: name, ...fields } = effect;
-  return [name, ...Object.entries(fields).map(([key, value]) => `${key}=${valueText(value)}`)].join(' ');
 }
 
 const isDebug = (action: Action) => action.type === 'debug/run';

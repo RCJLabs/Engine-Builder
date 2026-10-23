@@ -87,5 +87,8 @@ export type DebugReply =
       readonly opened: OpenedGame;
     };
 
+/** The edition a named state is saved under, apart from the shell's slots (D59). */
+export const STATES_EDITION = 'states';
+
 export const isDebugRequest = (request: { readonly kind: string }): request is DebugRequest =>
   request.kind.startsWith('debug-');

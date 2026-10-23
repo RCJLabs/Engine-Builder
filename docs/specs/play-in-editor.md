@@ -50,7 +50,7 @@ The worker records the game in play from its start, in `apps/editor/src/play/deb
 
 - **Step back** plays the recording again from its start to the step before the cursor. It never undoes a state. Each step is checked against its recorded hash on the way. A difference stops it with "This game doesn't play the same twice", naming the step, which is a bug in a script (the sim's own rules forbid it).
 - **Step forward** takes the step after the cursor again. If the game refuses it now (after a Replay under new rules), the cursor stays and the refusal is noted.
-- **After either, the game in play is the state reached.** The shell keeps a save of it in its slot, as after any step.
+- **After either, the game in play is the state reached.** The shell keeps a save of it in its slot, as after any step. After a step back, that save starts at the state stepped back to: the recording in the worker keeps the run, and the save keeps only what comes after.
 
 ## Replay
 

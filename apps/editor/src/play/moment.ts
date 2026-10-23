@@ -16,10 +16,13 @@ export interface PlayMoment {
 
 export const playMoment = signal<PlayMoment | null>(null);
 
-/** Keeps the save a reply carries: a game started, loaded or stepped. */
+/** Keeps the save a reply carries: a game started, loaded or stepped, or moved by the debug tools (M4.9). */
 export function noteMoment(reply: PlayPageReply): void {
   const save: SaveFile | undefined =
-    reply.kind === 'started' || reply.kind === 'stepped'
+    reply.kind === 'started' ||
+    reply.kind === 'stepped' ||
+    reply.kind === 'debug-moved' ||
+    reply.kind === 'debug-replayed'
       ? reply.save
       : reply.kind === 'loaded' && reply.ok
         ? reply.file
