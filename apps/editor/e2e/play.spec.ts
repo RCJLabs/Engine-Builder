@@ -124,7 +124,7 @@ test('the hut exported as a game file and played at /play/, which opens again of
   expect(download.suggestedFilename()).toBe('the-hut-0.1.0.game.json');
   const file = join(scratch, `the-hut-${Date.now()}.game.json`);
   await download.saveAs(file);
-  expect(JSON.parse(readFileSync(file, 'utf8'))).toMatchObject({ format: 6, project: { id: 'the-hut' } });
+  expect(JSON.parse(readFileSync(file, 'utf8'))).toMatchObject({ format: 8, project: { id: 'the-hut' } });
 
   await page.goto('play/');
   await expect(page.getByRole('heading', { level: 1, name: 'Play a game' })).toBeVisible();

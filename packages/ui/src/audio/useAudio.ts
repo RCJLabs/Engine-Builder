@@ -3,7 +3,7 @@
  * volumes as they change, woken by the first gesture anywhere on the page, suspended while the
  * page is hidden, and closed with the game.
  */
-import { useEffect, useMemo } from 'preact/hooks';
+import { useEffect, useMemo, useRef } from 'preact/hooks';
 import type { AudioPack, UiSound } from '../format/audio.ts';
 import { AudioPlayer, type Volumes } from './player.ts';
 
@@ -31,10 +31,12 @@ export function useAudio(
     };
   }, [player]);
   const { sound, music, ambience, effects, vibration } = volumes;
+  const was = useRef(sound);
   useEffect(() => {
     player.setVolumes({ sound, music, ambience, effects, vibration });
-    // Raising Sound from 0 is itself a press: it may start the audio.
-    if (sound > 0) player.unlock();
+    // Raising Sound from 0 is itself a press, so it may start the audio; opening a game is not.
+    if (was.current === 0 && sound > 0) player.unlock();
+    was.current = sound;
   }, [player, sound, music, ambience, effects, vibration]);
   return player;
 }
