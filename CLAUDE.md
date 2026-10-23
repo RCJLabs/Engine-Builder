@@ -332,8 +332,8 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        adventure at an alpine hut that hut.spec.ts builds in the editor, and hut-keeper.golden.json;
                        its ui/ (M4.1), six screens and a theme, which hutScreens.test.ts plays through, its
                        feedback (M4.2) and its shell (M4.3), whose saves the same test loads back; its sounds,
-                       ambiences and music (M4.8), whose stem hut-theme.ts renders and hutAudio.test.ts holds to
-                       their hashes; drift/, a slice
+                       ambiences and music (M4.8), whose stem hut-theme.ts renders, hutAudio.test.ts holds to
+                       their hashes and audio-bench.ts times; drift/, a slice
                        of Space-Wrecked's sector run made with the maps kit, its stock screens, which
                        driftScreens.test.ts plays through, and drift-pilot.golden.json; valley/, a map drawn by
                        hand in Dirtbag's style, and valley-random.golden.json (M4.6); the drift's hostile ships
