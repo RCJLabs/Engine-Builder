@@ -24,6 +24,7 @@ import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
+import { checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
 
 export interface CompileResult {
@@ -70,11 +71,14 @@ export async function compileProject(
   const grounds = knownFrom(kitted);
   const scenes = await readScenes(source, grounds.facts, files.kits);
   const ui = await readUi(source);
+  const spaces = await readSpaces(source);
   const diagnostics: Diagnostic[] = [
     ...files.diagnostics,
     ...scripts.diagnostics,
     ...scenes.diagnostics,
     ...ui.diagnostics,
+    ...spaces.diagnostics,
+    ...checkProjectSpaces(spaces.files),
   ];
   // A scene beside a talk record of its id is E004 at both, and isn't checked: one problem, as the editor has it.
   const talks = new Set(files.recordFiles.filter((r) => r.type === TALK).map((r) => r.id));

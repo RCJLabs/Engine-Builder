@@ -21,6 +21,9 @@ export const PROJECT_FOLDERS: readonly string[] = [
   'dialogue',
   ASSETS_DIR,
   'locales',
+  // A 3D world's places and their reusable parts (M5.1, D63).
+  'spaces',
+  'prefabs',
 ];
 
 export type TypeFileRole =

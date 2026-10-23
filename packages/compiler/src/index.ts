@@ -60,6 +60,25 @@ export { classifyScene, SCENES_DIR, type SceneFile, scenePath } from './sceneFil
 export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
+export {
+  classifySpaceFile,
+  PREFABS_DIR,
+  SPACES_DIR,
+  type SpaceFile,
+  type SpaceKind,
+  spacePath,
+} from './spaceFiles.ts';
+export {
+  checkProjectSpaces,
+  checkSpaces,
+  readSpaces,
+  SHAPES,
+  type Shape,
+  type SpaceFileRead,
+  type SpaceJson,
+  type SpaceObject,
+  spaceSchema,
+} from './spaces.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';

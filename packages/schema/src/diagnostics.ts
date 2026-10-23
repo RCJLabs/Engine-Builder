@@ -61,6 +61,10 @@ export const DIAGNOSTIC_CODES = {
   E055: 'A record an edition keeps names one the edition leaves out',
   E056: "export.json is malformed, or names something that isn't there",
   E057: 'guide.json is malformed: a missing or unknown field, too many steps, or a step id used twice',
+  E058: "A space or prefab file isn't of its shape: a field missing, unknown or of the wrong kind",
+  E059: 'Two objects in one space or prefab share an id',
+  E060: "An object places a prefab that prefabs/ doesn't have",
+  E061: 'A prefab places itself, directly or through others',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -101,6 +105,7 @@ export const DIAGNOSTIC_CODES = {
   W138: "The export's short name is over 12 characters, which launchers cut",
   W139: 'The Android app names no signing key fingerprints, so it opens with a browser bar',
   W140: "A guide step opens a file the project doesn't have, or one the editor has no place for",
+  W141: 'A file under spaces/ or prefabs/ that the compiler ignores: in a folder, or not named by an id',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;
