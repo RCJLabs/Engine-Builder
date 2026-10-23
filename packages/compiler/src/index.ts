@@ -9,6 +9,18 @@ export { type DirectoryHandleLike, directorySource, type FileHandleLike, type Ha
 export { editionSource, hiddenByEdition, leavesOutAnything, leftOutRecords } from './edition.ts';
 export { checkExport, type ExportChecked, type ExportContext, leavesOutRecord } from './exportCheck.ts';
 export {
+  checkGuide,
+  GUIDE_FILE,
+  GUIDE_PANELS,
+  GUIDE_TITLE,
+  type GuideChecked,
+  type GuideJson,
+  type GuidePanel,
+  type GuideStep,
+  guideSchema,
+  opensInEditor,
+} from './guide.ts';
+export {
   EXPORT_FILE,
   type ExportJson,
   editionOf,

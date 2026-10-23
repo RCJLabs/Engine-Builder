@@ -1,0 +1,15 @@
+{
+  "name": "Salvage coast",
+  "short-name": "Salvage",
+  "description": "Five voyages to pay off the Kittiwake.",
+  "orientation": "any",
+  "colors": {
+    "background": "#0e1a22",
+    "theme": "#18303d"
+  },
+  "targets": {
+    "web": {},
+    "file": {},
+    "itch": {}
+  }
+}

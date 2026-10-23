@@ -1,0 +1,62 @@
+{
+  "name": "The coast",
+  "description": "From the harbour mouth along the coast and back round the home light. Made fresh each voyage.",
+  "layers": {
+    "count": 6,
+    "widths": {
+      "min": 2,
+      "max": 3
+    },
+    "start": "harbour-mouth",
+    "end": "home-light",
+    "links": "forward",
+    "extra": 30,
+    "place": [
+      {
+        "kind": "cove",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "mix": [
+      {
+        "kind": "open-water",
+        "weight": 2
+      },
+      {
+        "kind": "wreck",
+        "weight": 4
+      },
+      {
+        "kind": "storm",
+        "weight": 2
+      },
+      {
+        "kind": "raiders",
+        "weight": 1
+      }
+    ]
+  },
+  "moves": [
+    {
+      "id": "sail",
+      "label": "Sail",
+      "cost": {
+        "stores": 1
+      }
+    },
+    {
+      "id": "limp",
+      "label": "Limp on, hungry",
+      "if": "economy.amount(resource: stores) == 0",
+      "effects": [
+        {
+          "effect": "damage-stat",
+          "actor": "boat",
+          "stat": "hull",
+          "by": 1
+        }
+      ]
+    }
+  ]
+}

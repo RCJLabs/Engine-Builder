@@ -1,0 +1,10 @@
+{
+  "name": "Raider waters",
+  "description": "A sail that doesn’t answer hails.",
+  "arrive": [
+    {
+      "effect": "open-event",
+      "event": "sail-sighted"
+    }
+  ]
+}

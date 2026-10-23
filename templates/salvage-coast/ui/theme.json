@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "background": "#0e1a22",
+    "surface": "#18303d",
+    "text": "#eef4f6",
+    "muted": "#a8bfc8",
+    "accent": "#e9b44c",
+    "on-accent": "#1c1404"
+  },
+  "font": "system-ui, sans-serif",
+  "size": 16,
+  "space": 8,
+  "radius": 8,
+  "sounds": {
+    "press": "click",
+    "open": "click",
+    "back": "click"
+  }
+}

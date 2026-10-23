@@ -1,0 +1,11 @@
+{
+  "name": "Wreck",
+  "names": ["The Petrel", "Old Hester", "The Lark", "A coaster", "The Three Sisters"],
+  "description": "A hull on the rocks or under the swell, with its hold still in it.",
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "wrecks"
+    }
+  ]
+}

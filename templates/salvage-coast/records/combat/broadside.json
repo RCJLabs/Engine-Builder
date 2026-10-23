@@ -1,0 +1,8 @@
+{
+  "name": "Broadside",
+  "health": "hull",
+  "hit": "aim",
+  "damage": "guns",
+  "armour": "planking",
+  "rounds": 10
+}

@@ -1,0 +1,22 @@
+{
+  "name": "The Gannet",
+  "text": "Her name is still on the bow. The bell hangs where it fell, in two fathoms of clear water.",
+  "choices": [
+    {
+      "id": "raise",
+      "label": "Raise the bell",
+      "result": "It comes up ringing.",
+      "effects": [
+        {
+          "effect": "give-item",
+          "item": "bell"
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it for now",
+      "result": "She has waited this long."
+    }
+  ]
+}

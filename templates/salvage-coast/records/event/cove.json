@@ -1,0 +1,26 @@
+{
+  "name": "The cove",
+  "text": "A fisher mends nets on the shingle and nods at the Kittiwake.",
+  "choices": [
+    {
+      "id": "fish",
+      "label": "Buy fish and water",
+      "cost": {
+        "coin": 6
+      },
+      "result": "Two days’ stores, salted.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "stores",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "rest",
+      "label": "Rest and patch",
+      "result": "A quiet night, and the worst leaks stopped."
+    }
+  ]
+}

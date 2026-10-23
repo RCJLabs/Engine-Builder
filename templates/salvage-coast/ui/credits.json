@@ -1,0 +1,59 @@
+{
+  "title": "Credits",
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "Salvage coast",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "Made with Engine-Builder",
+        "style": "caption"
+      },
+      {
+        "widget": "list",
+        "of": "credits",
+        "empty": "No assets to credit.",
+        "item": {
+          "widget": "panel",
+          "children": [
+            {
+              "widget": "text",
+              "text": "{.asset}",
+              "style": "heading"
+            },
+            {
+              "widget": "text",
+              "text": "{.author} · {.licence}"
+            },
+            {
+              "widget": "text",
+              "text": "{.source}",
+              "style": "caption"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

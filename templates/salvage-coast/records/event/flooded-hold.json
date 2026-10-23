@@ -1,0 +1,28 @@
+{
+  "name": "Flooded hold",
+  "text": "Something glints down in the black water of the hold.",
+  "choices": [
+    {
+      "id": "dive",
+      "label": "Dive for it",
+      "result": "You come up with copper, and a gash where the hull bit you back.",
+      "effects": [
+        {
+          "effect": "give-item",
+          "item": "copper"
+        },
+        {
+          "effect": "damage-stat",
+          "actor": "boat",
+          "stat": "hull",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Not today",
+      "result": "You mark it on the chart and sail on."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "The contract board",
+  "text": "Notices nailed over notices, most of them about wrecks.",
+  "choices": [
+    {
+      "id": "bell",
+      "label": "Take the Gannet’s bell",
+      "needs": "quests.state(quest: bell) == \"waiting\"",
+      "result": "A widow on the quay will pay for her husband’s bell.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "bell"
+        }
+      ]
+    },
+    {
+      "id": "survey",
+      "label": "Take the wreck survey",
+      "needs": "quests.state(quest: survey) == \"waiting\"",
+      "result": "The harbour wants three wrecks charted.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "survey"
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave the board",
+      "result": "Nothing worth taking."
+    }
+  ]
+}

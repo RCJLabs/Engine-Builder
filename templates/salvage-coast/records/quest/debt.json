@@ -1,0 +1,22 @@
+{
+  "name": "The Kittiwake’s debt",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "owing",
+      "log": "The harbourmaster gave you five voyages to pay off 120 coin, or he takes the Kittiwake.",
+      "objectives": [
+        {
+          "id": "paid",
+          "text": "Pay off the debt",
+          "done-when": "economy.amount(resource: debt) <= 0"
+        }
+      ],
+      "next": "clear"
+    },
+    {
+      "id": "clear",
+      "log": "The ledger page is crossed through. She is yours."
+    }
+  ]
+}

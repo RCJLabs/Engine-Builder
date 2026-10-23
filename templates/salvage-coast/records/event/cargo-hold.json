@@ -1,0 +1,36 @@
+{
+  "name": "Cargo hold",
+  "text": "The hold is half out of the water, and full of the coast’s trade.",
+  "choices": [
+    {
+      "id": "strip",
+      "label": "Strip the fittings",
+      "result": "Brass, enough to make the trip worth it.",
+      "effects": [
+        {
+          "effect": "give-item",
+          "item": "brass",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "haul",
+      "label": "Haul the sheathing with the net",
+      "needs": "inventory.count(item: net) >= 1",
+      "result": "The net comes up heavy with copper.",
+      "effects": [
+        {
+          "effect": "give-item",
+          "item": "copper",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave her be",
+      "result": "Some wrecks are graves."
+    }
+  ]
+}

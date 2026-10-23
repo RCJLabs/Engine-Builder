@@ -1,0 +1,6 @@
+{
+  "name": "Aim",
+  "description": "The chance, in percent, that a shot hits.",
+  "min": 0,
+  "max": 100
+}

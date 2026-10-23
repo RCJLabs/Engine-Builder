@@ -1,0 +1,90 @@
+{
+  "title": "Make it yours",
+  "steps": [
+    {
+      "id": "name",
+      "title": "Name your game",
+      "text": "Your game's name is in the project's settings. It's also what the title screen and an exported game show.",
+      "open": {
+        "file": "project.json"
+      }
+    },
+    {
+      "id": "debt",
+      "title": "Change what the boat owes",
+      "text": "The debt is a resource. Raise its start for a longer game, lower it for a shorter one.",
+      "open": {
+        "file": "records/resource/debt.json",
+        "at": "/start"
+      }
+    },
+    {
+      "id": "wrecks",
+      "title": "Add something to find in a wreck",
+      "text": "Each wreck draws one event from this deck. Add an event of your own, and give it a weight.",
+      "open": {
+        "file": "records/deck/wrecks.json",
+        "at": "/events"
+      }
+    },
+    {
+      "id": "coast",
+      "title": "Reshape the coast",
+      "text": "The coast is made fresh each voyage from these rules. Add a layer, or change what turns up how often.",
+      "open": {
+        "file": "records/map/coast.json",
+        "at": "/layers"
+      }
+    },
+    {
+      "id": "raiders",
+      "title": "Make the raiders tougher",
+      "text": "The raider's stats are what the fight's odds come from. Raise its guns, then look at the odds before you fight.",
+      "open": {
+        "file": "records/actor/raider.json",
+        "at": "/stats"
+      }
+    },
+    {
+      "id": "contract",
+      "title": "Change a contract's pay",
+      "text": "A contract is a quest. Its last stage pays: change the coin, or what else it gives.",
+      "open": {
+        "file": "records/quest/survey.json",
+        "at": "/stages/2/effects"
+      }
+    },
+    {
+      "id": "voyages",
+      "title": "Give the skipper more voyages",
+      "text": "How the game ends is the harbour script's: VOYAGES is how many voyages the harbourmaster allows.",
+      "open": {
+        "file": "scripts/harbour.ts"
+      }
+    },
+    {
+      "id": "colours",
+      "title": "Recolour it",
+      "text": "Six colours and a type size are the whole theme. The designer checks they stay readable.",
+      "open": {
+        "file": "ui/theme.json"
+      }
+    },
+    {
+      "id": "play",
+      "title": "Play it",
+      "text": "Play your changes here, and use the debug tools to jump ahead.",
+      "open": {
+        "panel": "play"
+      }
+    },
+    {
+      "id": "export",
+      "title": "Export it",
+      "text": "Export a web build, a single file or an itch.io zip from the Project panel.",
+      "open": {
+        "panel": "project"
+      }
+    }
+  ]
+}

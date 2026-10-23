@@ -1,0 +1,55 @@
+{
+  "lines": [
+    {
+      "on": "harbour/home",
+      "say": "The Kittiwake rounds the light: home from voyage {.voyage}.",
+      "to": "log",
+      "sound": "bell",
+      "buzz": "double"
+    },
+    {
+      "on": "maps/arrived",
+      "say": "{.node}",
+      "to": "log"
+    },
+    {
+      "on": "inventory/gained",
+      "say": "{.item} ×{.count} into the hold"
+    },
+    {
+      "on": "economy/changed",
+      "where": {
+        "resource": "coin"
+      },
+      "say": "Coin: {.by}",
+      "to": "log",
+      "sound": "coin",
+      "buzz": "tap"
+    },
+    {
+      "on": "stats/damaged",
+      "where": {
+        "actor": "boat"
+      },
+      "say": "The hull takes {.by}.",
+      "to": "log",
+      "sound": "crack",
+      "buzz": "thud"
+    },
+    {
+      "on": "encounters/fought",
+      "say": "The fight is over: {.result}.",
+      "to": "log"
+    },
+    {
+      "on": "quests/started",
+      "say": "Contract taken: {.quest}"
+    },
+    {
+      "on": "quests/done",
+      "say": "Done: {.quest}",
+      "sound": "bell",
+      "buzz": "double"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "The chandlery",
+  "description": "Rope, nets and a counter where salvage is weighed and paid for.",
+  "currency": "coin",
+  "buys": {
+    "tags": ["salvage"]
+  },
+  "buys-at": 60,
+  "stock": {
+    "items": [
+      {
+        "item": "net",
+        "count": 1
+      }
+    ]
+  }
+}

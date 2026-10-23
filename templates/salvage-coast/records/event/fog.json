@@ -1,0 +1,27 @@
+{
+  "name": "Fog",
+  "text": "Fog closes in until the bow is a rumour.",
+  "choices": [
+    {
+      "id": "wait",
+      "label": "Heave to and wait",
+      "cost": {
+        "stores": 1
+      },
+      "result": "It lifts by morning."
+    },
+    {
+      "id": "feel",
+      "label": "Feel your way on",
+      "result": "Rocks scrape the keel, once.",
+      "effects": [
+        {
+          "effect": "damage-stat",
+          "actor": "boat",
+          "stat": "hull",
+          "by": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "The Kittiwake",
+  "description": "Forty feet of tarred oak, a winch and two swivel guns.",
+  "stats": {
+    "hull": 10,
+    "aim": 60,
+    "guns": 2,
+    "planking": 1
+  }
+}

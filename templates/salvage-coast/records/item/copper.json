@@ -1,0 +1,6 @@
+{
+  "name": "Copper sheathing",
+  "description": "Sheets prised off a hull below the waterline.",
+  "value": 20,
+  "tags": ["salvage"]
+}

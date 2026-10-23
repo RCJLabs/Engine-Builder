@@ -1,0 +1,27 @@
+{
+  "name": "The harbourmaster",
+  "text": "The harbourmaster opens his ledger at the Kittiwake’s page.",
+  "choices": [
+    {
+      "id": "pay",
+      "label": "Pay 40 off the debt",
+      "cost": {
+        "coin": 40
+      },
+      "needs": "economy.amount(resource: debt) >= 40",
+      "result": "He writes it down, slowly.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "debt",
+          "by": -40
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Not today",
+      "result": "He closes the ledger."
+    }
+  ]
+}

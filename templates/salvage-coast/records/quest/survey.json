@@ -1,0 +1,46 @@
+{
+  "name": "The wreck survey",
+  "stages": [
+    {
+      "id": "chart",
+      "log": "The harbour pays 30 coin for three wrecks charted.",
+      "objectives": [
+        {
+          "id": "wrecks",
+          "text": "Visit three wrecks",
+          "count": {
+            "event": "maps/arrived",
+            "args": {
+              "kind": "wreck"
+            },
+            "to": 3
+          }
+        }
+      ],
+      "next": "report"
+    },
+    {
+      "id": "report",
+      "log": "Three wrecks on the chart.",
+      "objectives": [
+        {
+          "id": "hand-in",
+          "text": "Bring the chart into harbour",
+          "done-when": "harbour.in-port"
+        }
+      ],
+      "next": "paid"
+    },
+    {
+      "id": "paid",
+      "log": "The harbour paid 30 coin for the chart.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "coin",
+          "by": 30
+        }
+      ]
+    }
+  ]
+}
