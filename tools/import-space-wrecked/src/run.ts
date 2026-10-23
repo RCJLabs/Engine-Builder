@@ -34,6 +34,7 @@ export const RULE_KEYS = [
   'jumpHeat',
   'longJumpHeat',
   'scanHeat',
+  'scanRange',
   'approachHeat',
   'patchPrice',
   'squadSize',
@@ -120,9 +121,12 @@ export function importRun(source: Source, set: RecordSet): void {
 
   // The system past the charts: the way in and its worlds, every one in reach of the others.
   const worlds = source.worlds.system.worlds;
-  const nodes = [{ id: 'way-in', kind: 'start', x: 10, y: 50 }];
-  for (let i = 1; i <= worlds; i++)
-    nodes.push({ id: `world-${i}`, kind: 'world', x: 35 + 25 * (i - 1), y: i % 2 === 0 ? 30 : 70 });
+  const nodes: Record<string, unknown>[] = [{ id: 'way-in', name: 'Way in', kind: 'start', x: 10, y: 50 }];
+  const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth'];
+  for (let i = 1; i <= worlds; i++) {
+    const name = `${ordinals[i - 1] ?? 'Another'} world`;
+    nodes.push({ id: `world-${i}`, name, kind: 'world', x: 35 + 25 * (i - 1), y: i % 2 === 0 ? 30 : 70 });
+  }
   const roads: { from: string; to: string }[] = [];
   for (let i = 1; i <= worlds; i++) {
     roads.push({ from: 'way-in', to: `world-${i}` });
@@ -151,7 +155,12 @@ export function importRun(source: Source, set: RecordSet): void {
   set.add('rules', 'balance', {
     name: 'Balance',
     'sector-count': source.campaign.acts.find((act) => act.act === 2)?.sectors as number,
-    'lift-off': liftOff,
+    // Thrust for each point of mass, in percent: act 1's to lift off, and the frame's to fly.
+    'lift-off': Math.round(liftOff * 100),
+    'flight-thrust': Math.round((source.frames.frames[0]?.minThrustToMass ?? 0) * 100),
+    // The board's own numbers, from data/contracts.json.
+    'board-size': source.contracts.boardSize,
+    'twist-chance': source.contracts.twistChance,
     ...rules,
     'sector-names': [...(source.sectors.names.sectors ?? [])],
     'world-names': [...(source.worlds.names.worlds ?? [])],

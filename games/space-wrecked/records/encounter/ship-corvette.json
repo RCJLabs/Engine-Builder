@@ -1,6 +1,6 @@
 {
   "name": "Patrol corvette",
-  "description": "Her boarding party: patrol crew.",
+  "description": "Her boarding party: Patrol crew.",
   "combat": "boarding",
   "foes": [
     {

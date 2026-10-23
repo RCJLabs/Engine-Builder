@@ -1,6 +1,6 @@
 {
   "name": "Con-Reg repo tug",
-  "description": "Her boarding party: con-reg recovery.",
+  "description": "Her boarding party: Con-Reg Recovery.",
   "combat": "boarding",
   "foes": [
     {
@@ -22,6 +22,11 @@
       "effect": "change-standing",
       "faction": "conreg",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }

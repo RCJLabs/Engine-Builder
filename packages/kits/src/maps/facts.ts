@@ -45,6 +45,12 @@ export const facts: Def['facts'] = {
     describe: holds(() => 'the party is at the map’s end'),
     read: ({ state }) => state.at !== undefined && state.at === state.made?.end,
   },
+  // A station's side is keyed by its name, as Space-Wrecked's are (M4.12).
+  name: {
+    domain: { type: 'text' },
+    label: 'the name of the node the party stands on',
+    read: ({ state }) => state.made?.nodes.find((node) => node.id === state.at)?.name,
+  },
   layer: {
     domain: COUNT,
     label: 'the party’s layer',

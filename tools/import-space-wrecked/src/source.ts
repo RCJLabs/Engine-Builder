@@ -225,7 +225,9 @@ export interface Companion {
 export interface Source {
   readonly balance: Stats;
   readonly campaign: { readonly acts: readonly Readonly<Record<string, unknown>>[] };
-  readonly frames: { readonly frames: readonly { readonly id: string; readonly maxModules: number }[] };
+  readonly frames: {
+    readonly frames: readonly { readonly id: string; readonly maxModules: number; readonly minThrustToMass: number }[];
+  };
   readonly manufacturers: { readonly manufacturers: readonly { readonly id: string; readonly name: string }[] };
   readonly modules: { readonly modules: readonly Module[]; readonly categories: readonly { readonly id: string }[] };
   readonly weapons: {

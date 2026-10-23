@@ -16,8 +16,26 @@
     "lift-off": {
       "kind": "int",
       "min": 0,
-      "label": "Lift-off",
-      "description": "Thrust for each point of mass, to launch in act 1"
+      "label": "Lift-off thrust",
+      "description": "Thrust for each point of mass, in percent, to launch in act 1"
+    },
+    "flight-thrust": {
+      "kind": "int",
+      "min": 0,
+      "label": "Flight thrust",
+      "description": "Thrust for each point of mass, in percent, to fly after act 1: the frame’s"
+    },
+    "board-size": {
+      "kind": "int",
+      "min": 1,
+      "label": "Jobs on the board"
+    },
+    "twist-chance": {
+      "kind": "int",
+      "min": 0,
+      "max": 100,
+      "label": "Twist chance",
+      "description": "In percent, for each job on the board"
     },
     "job-heat": {
       "kind": "int",
@@ -70,6 +88,10 @@
     "scan-heat": {
       "kind": "int",
       "label": "scanHeat"
+    },
+    "scan-range": {
+      "kind": "int",
+      "label": "scanRange"
     },
     "approach-heat": {
       "kind": "int",

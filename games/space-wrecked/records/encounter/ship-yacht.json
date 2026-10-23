@@ -1,6 +1,6 @@
 {
   "name": "Halloran yacht",
-  "description": "Her boarding party: old halloran's crew.",
+  "description": "Her boarding party: Old Halloran's crew.",
   "combat": "boarding",
   "foes": [
     {
@@ -23,6 +23,11 @@
       "effect": "change-standing",
       "faction": "hallorans",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }

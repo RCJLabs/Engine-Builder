@@ -108,6 +108,7 @@ Known from the start are the start, the end, and nodes of charted kinds. An unkn
 | `maps.on(map)` | bool | the party is on this map |
 | `maps.at(kind)` | bool | the party stands on a node of this kind |
 | `maps.at-end` | bool | on the map's end (a layered map's last node) |
+| `maps.name` | text | the name of the node the party stands on; no value off a map (M4.12: a station's side is keyed by it) |
 | `maps.layer` | int | the party's layer; 0 on a drawn map or off a map |
 | `maps.entered` | int | maps entered in the game |
 | `maps.visited(kind)` | int | nodes of this kind visited on this map |

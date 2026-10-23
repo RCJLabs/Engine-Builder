@@ -1,6 +1,6 @@
 {
   "name": "Halloran runner",
-  "description": "Her boarding party: halloran collectors.",
+  "description": "Her boarding party: Halloran collectors.",
   "combat": "boarding",
   "foes": [
     {
@@ -22,6 +22,11 @@
       "effect": "change-standing",
       "faction": "hallorans",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }

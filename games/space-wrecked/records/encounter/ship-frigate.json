@@ -1,6 +1,6 @@
 {
   "name": "Fleet frigate",
-  "description": "Her boarding party: provost squad.",
+  "description": "Her boarding party: Provost squad.",
   "combat": "boarding",
   "foes": [
     {
@@ -17,6 +17,11 @@
       "effect": "change-standing",
       "faction": "fleet",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }

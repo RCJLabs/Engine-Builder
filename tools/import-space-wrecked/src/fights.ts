@@ -58,6 +58,9 @@ function importShips(source: Source, set: RecordSet): void {
   const hostile = source.sectors.nodes.find((n) => n.id === 'hostile');
   const sides = new Map(source.factions.sides.map((s) => [s.id, s]));
   const { fleeChance, approachHeat, shipStanding } = source.balance;
+  const pursuers = new Set(
+    source.backgrounds.backgrounds.flatMap((b) => [b.pursuer.run.hunters, b.pursuer.run.taskForce]),
+  );
   for (const ship of source.ships.ships) {
     if (!ship.party) continue;
     const id = `ship-${ship.id}`;
@@ -80,13 +83,15 @@ function importShips(source: Source, set: RecordSet): void {
       id,
       defined({
         name: ship.name,
-        description: `Her boarding party: ${encounterOf(source, ship.party).name.toLowerCase()}.`,
+        description: `Her boarding party: ${encounterOf(source, ship.party).name}.`,
         combat: 'boarding',
         foes: foesOf(encounterOf(source, ship.party).enemies),
         // Boarding a side's ship costs standing with it (shipStanding).
         win: [
           ...(pays ? [{ effect: 'roll-loot', table: id }] : []),
           ...(ship.side ? [{ effect: 'change-standing', faction: ship.side, by: -shipStanding }] : []),
+          // Facing the pursuer's own ship drops heat to heatAfterRaid: they have to send for another.
+          ...(pursuers.has(ship.id) ? [{ effect: 'set-flag', flag: 'heat', to: source.balance.heatAfterRaid }] : []),
         ],
       }),
     );

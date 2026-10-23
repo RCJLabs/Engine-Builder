@@ -4,24 +4,28 @@
   "nodes": [
     {
       "id": "way-in",
+      "name": "Way in",
       "kind": "start",
       "x": 10,
       "y": 50
     },
     {
       "id": "world-1",
+      "name": "First world",
       "kind": "world",
       "x": 35,
       "y": 70
     },
     {
       "id": "world-2",
+      "name": "Second world",
       "kind": "world",
       "x": 60,
       "y": 30
     },
     {
       "id": "world-3",
+      "name": "Third world",
       "kind": "world",
       "x": 85,
       "y": 70

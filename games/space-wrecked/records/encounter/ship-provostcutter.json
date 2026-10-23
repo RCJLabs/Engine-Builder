@@ -1,6 +1,6 @@
 {
   "name": "Provost cutter",
-  "description": "Her boarding party: provost boarding party.",
+  "description": "Her boarding party: Provost boarding party.",
   "combat": "boarding",
   "foes": [
     {
@@ -22,6 +22,11 @@
       "effect": "change-standing",
       "faction": "fleet",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }

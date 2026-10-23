@@ -1,6 +1,6 @@
 {
   "name": "Con-Reg gunship",
-  "description": "Her boarding party: recovery task force.",
+  "description": "Her boarding party: Recovery task force.",
   "combat": "boarding",
   "foes": [
     {
@@ -25,6 +25,11 @@
       "effect": "change-standing",
       "faction": "conreg",
       "by": -3
+    },
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
     }
   ]
 }
