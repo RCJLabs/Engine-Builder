@@ -1,0 +1,19 @@
+{
+  "name": "@eb/export",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Builds a game's exports from the engine's runtime and its packs: the web build, one HTML file, an itch.io zip, and the repository Publish writes (M4.10). Runs in the browser and in Node.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/compiler": "workspace:*",
+    "@eb/core": "workspace:*",
+    "fflate": "0.8.3"
+  }
+}

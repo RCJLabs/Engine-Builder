@@ -1,11 +1,15 @@
 import { zipSync } from 'fflate';
+import { EXPORT_FILE } from './exportFile.ts';
 import { MANIFEST_FILE, PROJECT_FOLDERS } from './layout.ts';
 import type { ProjectSource } from './source.ts';
 
-/** The project's own files, sorted: project.json and everything in PROJECT_FOLDERS, hidden entries left out. */
+/**
+ * The project's own files, sorted: project.json, export.json (M4.10) and everything in
+ * PROJECT_FOLDERS, hidden entries left out.
+ */
 export async function projectFiles(source: ProjectSource): Promise<string[]> {
   const found: string[] = [];
-  if ((await source.read(MANIFEST_FILE)) !== undefined) found.push(MANIFEST_FILE);
+  for (const file of [MANIFEST_FILE, EXPORT_FILE]) if ((await source.read(file)) !== undefined) found.push(file);
   for (const folder of PROJECT_FOLDERS) found.push(...(await source.files(folder)));
   return found.sort();
 }

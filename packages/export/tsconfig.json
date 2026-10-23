@@ -1,0 +1,10 @@
+{
+  "//": "Runs on the editor's page (browser) and in the CLI (Node), so it uses neither platform's types; src/globals.d.ts declares the shared globals it needs. Not eb.pure: it hashes with crypto.subtle and zips with fflate.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

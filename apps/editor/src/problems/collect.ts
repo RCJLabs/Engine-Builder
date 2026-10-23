@@ -2,7 +2,8 @@
  * The Problems panel's list (M2.8): every problem `eb validate` gives for the open project, from
  * what the editor keeps up to date already. The catalog has the files' own, read as the compiler
  * reads them (readProjectFiles); the record index has each record's, from the compiler's checks;
- * the game has its scripts' (M3.2), from the script worker; the index also holds the screens' (M4.1). A test holds the three together to
+ * the game has its scripts' (M3.2), from the script worker; the index also holds the screens' (M4.1) and export.json's
+ * (M4.10). A test holds the three together to
  * the list `eb validate` gives.
  */
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
@@ -15,7 +16,7 @@ export function projectProblems(catalog: Catalog, index: RecordIndex | null, gam
   // A record that isn't JSON has its E007 among its problems (the index's own).
   const found: Diagnostic[] = [...catalog.problems, ...(game?.problems ?? [])];
   for (const record of index?.records.values() ?? []) found.push(...record.problems);
-  found.push(...(index?.screens ?? []));
+  found.push(...(index?.screens ?? []), ...(index?.exports ?? []));
   return found.sort(compareDiagnostics);
 }
 
@@ -41,6 +42,7 @@ export function tally(catalog: Catalog, index: RecordIndex | null, game?: GameSt
   game?.problems.forEach(add);
   for (const record of index?.records.values() ?? []) record.problems.forEach(add);
   index?.screens?.forEach(add);
+  index?.exports?.forEach(add);
   return { errors, warnings };
 }
 

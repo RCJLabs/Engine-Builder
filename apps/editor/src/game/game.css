@@ -1,0 +1,22 @@
+/*
+ * An exported game's page (M4.10): the play shell fills it, the safe area kept clear by the shell.
+ * The shell and the screens bring their own styles; these only size the page.
+ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #10161d;
+  color: #eef3f7;
+  font-family: system-ui, sans-serif;
+}
+
+#game {
+  height: 100%;
+}
+
+.game-note {
+  margin: 1rem;
+  max-width: 40rem;
+  line-height: 1.5;
+}

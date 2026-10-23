@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
@@ -44,6 +44,28 @@ function versionFile(): Plugin {
   };
 }
 
+/**
+ * The runtime of an exported game (M4.10), built first by vite.game.config.ts into dist-game/, is
+ * served at runtime/ beside the editor, so the service worker keeps it and Export works offline.
+ * A dev server has none until it is built; Export then says so.
+ */
+function gameRuntime(): Plugin {
+  const dir = resolve(import.meta.dirname, 'dist-game');
+  return {
+    name: 'eb-game-runtime',
+    apply: 'build',
+    generateBundle() {
+      const list = resolve(dir, 'files.json');
+      if (!existsSync(list))
+        this.error('No game runtime in dist-game/: build it first (vite build -c vite.game.config.ts)');
+      const { files } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[] };
+      for (const file of ['files.json', ...files]) {
+        this.emitFile({ type: 'asset', fileName: `runtime/${file}`, source: readFileSync(resolve(dir, file)) });
+      }
+    },
+  };
+}
+
 export default defineConfig(({ command, isPreview }) => ({
   // Dev serves from `/`; the build and `vite preview` (which serves the build) use BASE.
   base: command === 'build' || isPreview ? BASE : '/',
@@ -61,6 +83,7 @@ export default defineConfig(({ command, isPreview }) => ({
   plugins: [
     preact(),
     versionFile(),
+    gameRuntime(),
     VitePWA({
       // Prompt, never auto-update: an editor reloading under someone loses their place. The
       // update gate (src/pwa/updateGate.ts) decides when the prompt may appear.
@@ -85,7 +108,8 @@ export default defineConfig(({ command, isPreview }) => ({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // runtime/files.json too: Export reads it to find the game runtime's files (M4.10).
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'runtime/files.json'],
         // The editor had rcjlabs.github.io's origin, shared with the games, before it moved to
         // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',

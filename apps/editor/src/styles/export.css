@@ -1,0 +1,52 @@
+/* The Project panel's Export section (M4.10): export.json's form in a box like the calendar's, then a
+   button for each target with a line under it, and the last export's report. */
+.project-export {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.project-export h4,
+.project-export > p {
+  margin: 0;
+}
+
+.export-form {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.export-targets {
+  display: grid;
+  gap: 8px;
+}
+
+.export-target {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+.export-target p {
+  margin: 0;
+}
+
+.export-report {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.export-report p {
+  margin: 0 0 4px;
+}
+
+.export-failed {
+  border-color: var(--danger);
+}

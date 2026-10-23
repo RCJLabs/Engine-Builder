@@ -9,6 +9,7 @@ import {
   classifyScene,
   classifyTypeFile,
   classifyUi,
+  EXPORT_FILE,
   MANIFEST_FILE,
   RECORDS_DIR,
   SCENES_DIR,
@@ -50,7 +51,7 @@ const uiOf = (file: string) => {
 /** Where `problem` is fixed, or null for a file the editor has no place for (a misplaced file). */
 export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   const file = problem.file ?? '';
-  if (file === MANIFEST_FILE) return { kind: 'panel', panel: 'project' };
+  if (file === MANIFEST_FILE || file === EXPORT_FILE) return { kind: 'panel', panel: 'project' };
   if (file.startsWith(`${RECORDS_DIR}/`)) {
     const role = classifyRecordFile(file);
     return role.kind === 'record' ? { kind: 'record', type: role.type, id: role.id, at: problem.path } : null;
