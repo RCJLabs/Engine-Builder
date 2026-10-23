@@ -56,7 +56,16 @@ describe('readCatalog', () => {
   it('lists the types, their records and the assets, sorted', async () => {
     const catalog = await readCatalog(ludus());
     // The engine's flag and sheet come first, with forms of their own (D36).
-    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school', 'weapon']);
+    expect([...catalog.types.keys()]).toEqual([
+      'flag',
+      'sheet',
+      'sound',
+      'ambience',
+      'music',
+      'gladiator',
+      'school',
+      'weapon',
+    ]);
     expect(catalog.names).toEqual(['gladiator', 'school', 'weapon']);
     expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
     expect(catalog.assets).toEqual(['portraits/spiculus.svg']);
@@ -90,7 +99,7 @@ describe('readCatalog', () => {
         'records/horse/bucephalus.json': '{}',
       }),
     );
-    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'gladiator', 'school']);
+    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'sound', 'ambience', 'music', 'gladiator', 'school']);
     // Its first problem in the file's own order: the title comes before the fields.
     expect(catalog.broken.get('weapon')).toMatchObject({ code: 'E015', file: 'types/weapon.json', path: '/title' });
     expect(catalog.names).toEqual(['gladiator', 'horse', 'school', 'weapon']);

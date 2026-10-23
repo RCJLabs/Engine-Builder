@@ -234,6 +234,10 @@ importers:
       preact:
         specifier: 11.0.1
         version: 11.0.1
+    devDependencies:
+      zzfx:
+        specifier: 1.4.0
+        version: 1.4.0
 
   tools/cli:
     dependencies:
@@ -2686,6 +2690,9 @@ packages:
 
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
+  zzfx@1.4.0:
+    resolution: {integrity: sha512-yV/7JnIBPThWh/ZLVZLlmadms5bHQQeoWKKA+DafX4554FHypsop1BQrDHhsf2xxXweUmwjWrnpiB42uBGyGlQ==}
 
 snapshots:
 
@@ -5282,3 +5289,5 @@ snapshots:
   zimmerframe@1.1.5: {}
 
   zod@4.6.7: {}
+
+  zzfx@1.4.0: {}

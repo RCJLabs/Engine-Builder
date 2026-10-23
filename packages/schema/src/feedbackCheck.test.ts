@@ -5,8 +5,8 @@ import { knownFrom } from './known.ts';
 import { checkUi, type UiCheckOptions, type UiFile } from './uiCheck.ts';
 
 const records: RecordIndex = {
-  ids: (type) => (type === 'item' ? ['rope'] : []),
-  has: (type, id) => type === 'item' && id === 'rope',
+  ids: (type) => (type === 'item' ? ['rope'] : type === 'sound' ? ['door'] : []),
+  has: (type, id) => (type === 'item' && id === 'rope') || (type === 'sound' && id === 'door'),
 };
 const events: EventCatalog = {
   'inventory/gained': { args: { item: { type: 'ref', to: 'item' }, count: { type: 'int', min: 1 } } },
@@ -46,12 +46,36 @@ describe('feedback', () => {
     expect(said([{ on: 'hut/closed', say: 'Shut', to: 'everywhere' }])).toEqual([
       expect.objectContaining({ code: 'E047', path: '/lines/0/to' }),
     ]);
+    // A line with nothing to say, sound or buzz is wrong as a whole (M4.8).
     expect(said([{ on: 'hut/closed', words: 'Shut' }]).map((d) => [d.code, d.path])).toEqual([
-      ['E047', '/lines/0/say'],
+      ['E047', '/lines/0'],
       ['E047', '/lines/0/words'],
     ]);
     expect(said([{ on: 'hut/closed', say: 'Shut {' }])).toEqual([
       { code: 'E047', path: '/lines/0/say', message: 'This { isn’t closed' },
+    ]);
+  });
+
+  it('sounds and buzzes a line, its words or none, naming a sound there is (M4.8)', () => {
+    expect(
+      said([
+        { on: 'hut/closed', sound: 'door', buzz: 'thud' },
+        { on: 'hut/visited', say: 'Someone at the door.', sound: 'door', to: 'toast' },
+        { on: 'inventory/gained', buzz: 'tap' },
+      ]),
+    ).toEqual([]);
+    expect(said([{ on: 'hut/closed', sound: 'gong' }])).toEqual([
+      { code: 'E049', path: '/lines/0/sound', message: 'There’s no sound record "gong"' },
+    ]);
+    expect(said([{ on: 'hut/closed', buzz: 'rumble' }]).map((d) => [d.code, d.path])).toEqual([
+      ['E047', '/lines/0/buzz'],
+    ]);
+    expect(said([{ on: 'hut/closed', sound: 'door', to: 'log' }])).toEqual([
+      {
+        code: 'E047',
+        path: '/lines/0/to',
+        message: 'Only words go to a toast or the log: give this line say, or take out to',
+      },
     ]);
   });
 

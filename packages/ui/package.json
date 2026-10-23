@@ -21,5 +21,8 @@
     "@eb/script": "workspace:*",
     "@preact/signals": "2.11.3",
     "preact": "11.0.1"
+  },
+  "devDependencies": {
+    "zzfx": "1.4.0"
   }
 }

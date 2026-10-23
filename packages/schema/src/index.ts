@@ -16,6 +16,15 @@ export {
   assetKindOf,
   isAssetOf,
 } from './assets.ts';
+export {
+  AMBIENCE_DATA,
+  AMBIENCE_TYPE_FILE,
+  AUDIO_DATA,
+  MUSIC_DATA,
+  MUSIC_TYPE_FILE,
+  SOUND_DATA,
+  SOUND_TYPE_FILE,
+} from './audioTypes.ts';
 export { CONDITION_KEY, condition, isConditionSchema, valueSchema } from './condition.ts';
 export {
   compareDiagnostics,
@@ -39,6 +48,7 @@ export {
   setFlagEffect,
 } from './effect.ts';
 export {
+  ENGINE_DATA,
   ENGINE_TYPES,
   FLAG_TYPE,
   FLAG_TYPE_FILE,

@@ -271,7 +271,14 @@ describe('the engine’s types', () => {
   it('join a game’s, which can’t take their names', () => {
     const own = defineRecordType({ type: 'sheet', title: 'Mine', description: '', schema: z.strictObject({}) });
     expect(() => withEngineTypes([own])).toThrow('"sheet" is one of the engine\'s own record types');
-    expect(withEngineTypes([SHEET_TYPE, item]).map((t) => t.type)).toEqual(['flag', 'sheet', 'item']);
+    expect(withEngineTypes([SHEET_TYPE, item]).map((t) => t.type)).toEqual([
+      'flag',
+      'sheet',
+      'sound',
+      'ambience',
+      'music',
+      'item',
+    ]);
   });
 });
 

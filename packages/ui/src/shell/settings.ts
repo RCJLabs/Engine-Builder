@@ -9,12 +9,34 @@ export type TextSize = (typeof TEXT_SIZES)[number];
 export const MOTIONS = ['device', 'less', 'full'] as const;
 export type Motion = (typeof MOTIONS)[number];
 
+/** The player's volumes (M4.8, D58): Sound is the master, Effects the effects and the interface's sounds. */
+export const VOLUMES = ['sound', 'music', 'ambience', 'effects'] as const;
+export type VolumeName = (typeof VOLUMES)[number];
+/** A volume moves in tens from 0 to 100. */
+export const VOLUME_STEP = 10;
+
 export interface Settings {
   readonly text: TextSize;
   readonly motion: Motion;
+  readonly sound: number;
+  readonly music: number;
+  readonly ambience: number;
+  readonly effects: number;
+  readonly vibration: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { text: 'normal', motion: 'device' };
+export const DEFAULT_SETTINGS: Settings = {
+  text: 'normal',
+  motion: 'device',
+  sound: 80,
+  music: 100,
+  ambience: 100,
+  effects: 100,
+  vibration: true,
+};
+
+const isVolume = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value / VOLUME_STEP) && value >= 0 && value <= 100;
 
 const SCALES: Readonly<Record<TextSize, number>> = { normal: 1, large: 1.2, larger: 1.4 };
 
@@ -32,9 +54,15 @@ export function readSettings(text: string | undefined): Settings {
   } catch {
     // Unreadable: every field takes its default.
   }
+  const volume = (name: VolumeName) => (isVolume(stored[name]) ? (stored[name] as number) : DEFAULT_SETTINGS[name]);
   return {
     text: one(TEXT_SIZES, stored.text, DEFAULT_SETTINGS.text),
     motion: one(MOTIONS, stored.motion, DEFAULT_SETTINGS.motion),
+    sound: volume('sound'),
+    music: volume('music'),
+    ambience: volume('ambience'),
+    effects: volume('effects'),
+    vibration: typeof stored.vibration === 'boolean' ? stored.vibration : DEFAULT_SETTINGS.vibration,
   };
 }
 

@@ -17,11 +17,14 @@ import {
   type SaveProblem,
 } from '@eb/core';
 import { loadProjectGame } from '@eb/script';
+import { audioConditions } from '../audio/mix.ts';
+import type { AudioPack } from '../format/audio.ts';
 import { wantsOf } from '../format/bindings.ts';
 import type { Feedback } from '../format/feedback.ts';
 import type { Screen } from '../format/screen.ts';
 import type { ShellFile } from '../format/shell.ts';
 import type { Theme } from '../format/theme.ts';
+import { audioOf } from './audioPack.ts';
 import { type Play, type PlaySetup, resumePlay, startPlay } from './play.ts';
 
 /** A pack read and its game loaded, ready to start or load games of. */
@@ -32,6 +35,8 @@ export interface Opened {
   readonly theme: Theme | undefined;
   readonly shell: ShellFile | undefined;
   readonly name: string;
+  /** Its sounds, ambience and music, and the files its music names (M4.8). */
+  readonly audio: AudioPack;
 }
 
 export type OpenResult =
@@ -60,10 +65,17 @@ export function openPack(value: unknown): OpenResult {
   const screens = (pack.ui?.screens ?? {}) as Readonly<Record<string, Screen>>;
   const shell = pack.ui?.shell as ShellFile | undefined;
   const feedback = pack.ui?.feedback as Feedback | undefined;
+  const game = createGame({ modules, start });
+  const audio = audioOf(pack, game.catalog());
   // The shell's slot line is filled from the view as each save is made, so its facts are read too.
-  const wants = wantsOf(Object.values(screens), shell?.['slot-line'] === undefined ? [] : [shell['slot-line']]);
+  const screenWants = wantsOf(Object.values(screens), shell?.['slot-line'] === undefined ? [] : [shell['slot-line']]);
+  // The audio's conditions are read after each step as a screen's are: the page's mix follows them.
+  const wants = {
+    ...screenWants,
+    conditions: [...new Set([...screenWants.conditions, ...audioConditions(audio)])],
+  };
   const setup: PlaySetup = {
-    game: createGame({ modules, start }),
+    game,
     sim: { content: createRecordStore(pack.records) },
     kits,
     wants,
@@ -71,7 +83,7 @@ export function openPack(value: unknown): OpenResult {
     ...(pack.credits ? { credits: pack.credits } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
-  return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name } };
+  return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio } };
 }
 
 export type Loaded =

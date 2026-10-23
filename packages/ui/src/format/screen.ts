@@ -187,6 +187,9 @@ export interface Screen {
   readonly top?: Widget;
   readonly main: Widget;
   readonly bottom?: Widget;
+  /** The ambience and the music this screen plays, by id: the topmost on the stack that names one wins (M4.8). */
+  readonly ambience?: string;
+  readonly music?: string;
 }
 
 /** The widgets a widget holds, in order: what a walk over a screen descends into. */

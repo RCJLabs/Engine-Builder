@@ -5,9 +5,10 @@
  * shape and the templates' braces are checked, as a button's take is without actions.
  */
 import { domainProblem, type EventCatalog, pointerSegment, type RecordIndex } from '@eb/core';
-import { type Feedback, type FeedbackLine, splitTemplate } from '@eb/ui/format';
+import { type Feedback, type FeedbackLine, SOUND, splitTemplate } from '@eb/ui/format';
 import { type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { schemaIssues } from './issues.ts';
+import { missingRecord } from './missingRecord.ts';
 import { feedbackSchema } from './uiSchema.ts';
 
 /** The feedback file's problems, in no order: checkUi sorts them with the screens'. */
@@ -48,6 +49,9 @@ function checkLine(
     const problem = domain === undefined ? lacks(name) : domainProblem(wanted, domain, records);
     if (problem) report('E052', `/where/${pointerSegment(name)}`, problem);
   }
+  const sound = missingRecord(records, SOUND, line.sound);
+  if (sound) report('E049', '/sound', sound);
+  if (line.say === undefined) return;
   const split = splitTemplate(line.say);
   if (!split.ok) {
     report('E047', '/say', split.message);

@@ -9,8 +9,8 @@ import {
   type DataType,
   type DiagnosticCode,
   defineRecordType,
+  ENGINE_DATA,
   ENGINE_TYPES,
-  FLAG_TYPE,
   isEngineType,
   joinKitType,
   kitClash,
@@ -18,7 +18,6 @@ import {
   kitTypeFiles,
   type RecordType,
   readTypeFile,
-  SHEET_DATA,
   type TypeFile,
   typeFromFile,
   typeRefs,
@@ -73,10 +72,7 @@ export async function readTypes(
   }
   // Every type there is, sound or not, so a ref to a type whose file has problems isn't one more.
   const known = new Set([...taken, ...kitFiles.keys(), ...files.keys()]);
-  const data = new Map<string, DataType>([
-    [FLAG_TYPE.type, FLAG_TYPE],
-    [SHEET_DATA.type, SHEET_DATA],
-  ]);
+  const data = new Map<string, DataType>(ENGINE_DATA.map((d) => [d.type, d]));
   for (const [type, file] of kitFiles) if (!files.has(type)) data.set(type, kitType(type, file, kits));
   for (const [type, file] of files) {
     if (file === null) continue;
