@@ -10,6 +10,9 @@ import { audioConditions, heaviest, mixOf } from './mix.ts';
 import { LOOP_RATE, LOOP_SECONDS, peakOf, renderLayer, renderSound } from './render.ts';
 import { buildSamples } from './zzfx.ts';
 
+/** Two renders the same, sample for sample: a yes or no, so a failure doesn't diff 176,400 numbers. */
+const same = (a: Float32Array, b: Float32Array) => a.length === b.length && a.every((s, i) => Object.is(s, b[i]));
+
 const audio: AudioPack = {
   sounds: { door: { voices: [{ frequency: 180 }] } },
   ambience: {
@@ -86,18 +89,29 @@ describe('rendering', () => {
     for (const layer of audio.ambience.hut?.layers ?? []) {
       const loop = renderLayer(layer, 'hut/0');
       expect(loop.length).toBe(LOOP_SECONDS * LOOP_RATE);
-      expect(renderLayer(layer, 'hut/0')).toEqual(loop);
+      expect(same(renderLayer(layer, 'hut/0'), loop)).toBe(true);
       // Across the seam the step is no bigger than the steps inside the loop.
       const steps = Array.from({ length: 2000 }, (_, i) => Math.abs((loop[i + 1] as number) - (loop[i] as number)));
       const seam = Math.abs((loop[0] as number) - (loop.at(-1) as number));
       expect(seam).toBeLessThanOrEqual(Math.max(...steps) * 1.5);
       expect(peakOf(loop)).toBeLessThan(1);
     }
-    expect(renderLayer({ kind: 'noise' }, 'a/0')).not.toEqual(renderLayer({ kind: 'noise' }, 'b/0'));
+    expect(same(renderLayer({ kind: 'noise' }, 'a/0'), renderLayer({ kind: 'noise' }, 'b/0'))).toBe(false);
   });
 
   it('fits a drone’s pitch to whole cycles in the loop, so it meets itself', () => {
     const loop = renderLayer({ kind: 'drone', frequency: 110.3, gain: 1 }, 'x/0');
     expect(Math.abs((loop[0] as number) - (loop.at(-1) as number))).toBeLessThan(0.02);
+    // The seam's crossfade hides a drone that doesn't fit, but not the dip where its two ends,
+    // out of step, cancel: a fitted drone is as loud across the seam as in the middle.
+    const peakAt = (from: number) =>
+      peakOf(loop.subarray(Math.round(from * LOOP_RATE), Math.round((from + 0.05) * LOOP_RATE)));
+    expect(peakAt(0.1)).toBeGreaterThan(peakAt(4) * 0.95);
+  });
+
+  it('filters a noise low-pass when its record says no filter', () => {
+    const noise = { kind: 'noise', frequency: 300 } as const;
+    expect(same(renderLayer(noise, 'x/0'), renderLayer({ ...noise, filter: 'lowpass' }, 'x/0'))).toBe(true);
+    expect(same(renderLayer(noise, 'x/0'), renderLayer({ ...noise, filter: 'none' }, 'x/0'))).toBe(false);
   });
 });

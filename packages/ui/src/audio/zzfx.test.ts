@@ -7,6 +7,9 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { voiceFromZzfx, zzfxArgs } from '../format/audio.ts';
 import { buildSamples, ZZFX_RATE } from './zzfx.ts';
 
+/** Two renders the same, sample for sample: a yes or no, so a failure doesn't diff 176,400 numbers. */
+const same = (a: Float32Array, b: Float32Array) => a.length === b.length && a.every((s, i) => Object.is(s, b[i]));
+
 let theirs: typeof import('zzfx')['ZZFX'];
 
 beforeAll(async () => {
@@ -83,9 +86,11 @@ describe('the ZzFX port', () => {
 
   it('renders the same samples every time with no roll given', () => {
     const args = [1, 0.4, 440, 0, 0.1, 0.2];
-    expect(buildSamples(args)).toEqual(buildSamples(args));
+    expect(same(buildSamples(args), buildSamples(args))).toBe(true);
     // A roll of 0.5 leaves the frequency where randomness 0 puts it, to the last digit.
-    expect(buildSamples([1, 0, 440, 0, 0.1, 0.2])).toEqual(buildSamples([1, 0, 440, 0, 0.1, 0.2], ZZFX_RATE, 0.9));
+    expect(same(buildSamples([1, 0, 440, 0, 0.1, 0.2]), buildSamples([1, 0, 440, 0, 0.1, 0.2], ZZFX_RATE, 0.9))).toBe(
+      true,
+    );
   });
 });
 
@@ -100,6 +105,8 @@ describe('a voice as ZzFX’s arguments', () => {
       shape: 'saw',
       noise: 0.5,
     });
+    // ZzFX's own defaults, written out rather than left as holes, are still nothing to keep.
+    expect(voiceFromZzfx([1, 0.05, 220, 0, 0, 0.1, 0, 1])).toEqual({});
     expect(zzfxArgs({ frequency: 330, shape: 'square', filter: -800 })).toEqual([
       1, 0.05, 330, 0, 0, 0.1, 5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, -800,
     ]);
