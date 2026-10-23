@@ -76,10 +76,14 @@ describe('export.json’s form (M4.10)', () => {
     const file = exportTypeFile({ editions: ['taster'], types: ['item', 'quest'], scenes: ['evening'] });
     const targets = file.fields.targets as { fields: Record<string, { fields: Record<string, unknown> }> };
     expect(targets.fields.file?.fields.edition).toMatchObject({ kind: 'enum', values: ['full', 'taster'] });
-    const editions = file.fields.editions as { of: { fields: { 'leave-out': { fields: Record<string, unknown> } } } };
+    const editions = file.fields.editions as unknown as {
+      of: { fields: { 'leave-out': { fields: Record<string, unknown> } } };
+    };
     expect(Object.keys(editions.of.fields['leave-out'].fields)).toEqual(['records', 'types', 'scenes', 'assets']);
     const none = exportTypeFile({ editions: [], types: ['item'], scenes: [] });
-    const bare = none.fields.editions as { of: { fields: { 'leave-out': { fields: Record<string, unknown> } } } };
+    const bare = none.fields.editions as unknown as {
+      of: { fields: { 'leave-out': { fields: Record<string, unknown> } } };
+    };
     expect(Object.keys(bare.of.fields['leave-out'].fields)).toEqual(['records', 'types', 'assets']);
   });
 

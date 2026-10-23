@@ -56,10 +56,12 @@ function install(
     delete: async (name: string) => fake.caches.delete(name),
   };
   class Request {
-    constructor(
-      readonly url: string,
-      readonly init: { cache?: string } = {},
-    ) {}
+    readonly url: string;
+    readonly init: { cache?: string };
+    constructor(url: string, init: { cache?: string } = {}) {
+      this.url = url;
+      this.init = init;
+    }
   }
   const fetch = async (request: Request | { url: string }) => {
     const url = new URL(request.url, SCOPE).href;
