@@ -22,8 +22,9 @@ test('a widget dragged by its handle among its siblings, one step that Undo take
   const region = page.getByRole('region', { name: 'Screen hut' });
   const row = (label: string) => outline(region).locator('li', { hasText: label });
   const grid = async () => {
-    const screen = JSON.parse(await storedScreen(page, 'hut'));
-    return screen.main.children[2].children.map((b: { label: string }) => b.label);
+    // Caught mid-write, the file reads as not there yet, and the poll asks again.
+    const text = await storedScreen(page, 'hut');
+    return text === '' ? [] : JSON.parse(text).main.children[2].children.map((b: { label: string }) => b.label);
   };
   // The outline sits below the frame: the rows are scrolled to before the mouse moves over them.
   const handle = row('Rest a day').locator('[data-target]');

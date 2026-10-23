@@ -87,7 +87,8 @@ test('the hut made again from stock screens in the editor, and played to its end
   const file = await exportGame(page);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
   const built = JSON.parse(readFileSync(await stockHutGame(), 'utf8'));
-  expect(exported.format).toBe(7);
+  // Format 8 since the hut's music travels with it (M4.8); its credits still format 7's.
+  expect(exported.format).toBe(8);
   expect(exported.ui.screens).toEqual(built.ui.screens);
   expect(exported.credits).toEqual(built.credits);
 

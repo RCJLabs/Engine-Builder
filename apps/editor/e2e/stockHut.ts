@@ -5,7 +5,7 @@
  * pressing only what they draw.
  */
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { compileWithGame, projectGame } from '@eb/compiler';
 import { expect, type Locator, type Page } from '@playwright/test';
@@ -40,9 +40,11 @@ export async function stockHutGame(): Promise<string> {
   const dir = stockHutDir();
   mkdirSync(join(dir, 'assets/images'), { recursive: true });
   writeFileSync(join(dir, 'assets', ROPE_ART), PNG);
+  // The hut's own entries stay: its music's stem is logged there (M4.8).
+  const log = JSON.parse(readFileSync(join(dir, 'assets/assets.json'), 'utf8')) as { files: Record<string, unknown> };
   writeFileSync(
     join(dir, 'assets/assets.json'),
-    JSON.stringify({ files: { [ROPE_ART]: { ...ROPE_CREDIT, date: '2026-10-20' } } }),
+    JSON.stringify({ files: { ...log.files, [ROPE_ART]: { ...ROPE_CREDIT, date: '2026-10-20' } } }),
   );
   const source = folderSource(dir);
   const loaded = await projectGame(source);
