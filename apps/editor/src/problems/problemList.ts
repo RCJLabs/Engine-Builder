@@ -10,6 +10,8 @@ import {
   classifyTypeFile,
   classifyUi,
   EXPORT_FILE,
+  GUIDE_FILE,
+  type GuidePanel,
   MANIFEST_FILE,
   RECORDS_DIR,
   SCENES_DIR,
@@ -32,7 +34,7 @@ export type Place =
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'ui'; readonly path: string; readonly line?: number; readonly column?: number }
-  | { readonly kind: 'panel'; readonly panel: 'project' | 'assets' };
+  | { readonly kind: 'panel'; readonly panel: 'project' | 'assets' | GuidePanel };
 
 /** The script a file under scripts/ is, or undefined for one the compiler ignores or that is misplaced. */
 const scriptOf = (file: string): string | undefined => {
@@ -51,7 +53,7 @@ const uiOf = (file: string) => {
 /** Where `problem` is fixed, or null for a file the editor has no place for (a misplaced file). */
 export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   const file = problem.file ?? '';
-  if (file === MANIFEST_FILE || file === EXPORT_FILE) return { kind: 'panel', panel: 'project' };
+  if (file === MANIFEST_FILE || file === EXPORT_FILE || file === GUIDE_FILE) return { kind: 'panel', panel: 'project' };
   if (file.startsWith(`${RECORDS_DIR}/`)) {
     const role = classifyRecordFile(file);
     return role.kind === 'record' ? { kind: 'record', type: role.type, id: role.id, at: problem.path } : null;

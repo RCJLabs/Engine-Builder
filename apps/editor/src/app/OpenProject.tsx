@@ -1,5 +1,6 @@
 import { TIME } from '@eb/kits';
 import { ExportSlot } from '../export/ExportSlot.tsx';
+import { GuideSlot } from '../guide/GuideSlot.tsx';
 import { busy, closeProject, copyCurrentIn, exportCurrent, exportGame, type OpenProject } from '../projects/session.ts';
 import { recordsLine } from '../projects/summary.ts';
 import { TypeList } from '../records/TypeList.tsx';
@@ -39,6 +40,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       {summary.project ? <ProjectKits on={summary.project.kits ?? []} /> : null}
       {summary.project?.kits?.includes(TIME) ? <CalendarSlot project={project} /> : null}
       <TypeList project={project} />
+      {summary.project ? <GuideSlot project={project} /> : null}
       {summary.project ? <ExportSlot project={project} /> : null}
       <div class="actions">
         <button type="button" class="button primary" disabled={!idle} onClick={() => void exportCurrent()}>

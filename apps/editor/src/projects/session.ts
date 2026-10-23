@@ -3,7 +3,7 @@
  * panel offers. One action runs at a time; each notes what happened in the console and leaves a
  * failure in `trouble` for the panel to show.
  */
-import { type ProjectSource, zipProject, zipSource } from '@eb/compiler';
+import { memorySource, type ProjectSource, zipProject, zipSource } from '@eb/compiler';
 import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
 import { browserLocks, projectLockName, takeLock } from '../editing/projectLock.ts';
@@ -29,6 +29,7 @@ import { type OpfsWorker, opfsWorker } from './opfsClient.ts';
 import { recoverAll } from './recovery.ts';
 import { requestPersistence, type StorageState, sizeText, storageState } from './storage.ts';
 import { type ProjectSummary, summarize } from './summary.ts';
+import { projectFromTemplate } from './templates.ts';
 
 export { current, type OpenProject } from './opened.ts';
 
@@ -134,9 +135,14 @@ const noStore: FolderStore = {
   remove: async () => undefined,
 };
 
-export const newProject = (name: string) =>
-  run('Creating the project', async () => {
-    const folder = await needLibrary().create(name);
+/** A new project: empty, or from a template (M4.11, D61), whose files come with the editor. */
+export const newProject = (name: string, template?: string) =>
+  run(template ? 'Creating the project from its template' : 'Creating the project', async () => {
+    const folder = template
+      ? await needLibrary().copyIn(memorySource(Object.fromEntries(await projectFromTemplate(template, name))))
+      : await needLibrary().create(name);
+    // A template's scripts shipped with the editor: they run without asking, as a new project's own do.
+    if (template) trust.trust(libraryKey(folder));
     await keep();
     await refresh();
     await openStored(folder);
