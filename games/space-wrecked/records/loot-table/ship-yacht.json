@@ -1,0 +1,24 @@
+{
+  "name": "Halloran yacht: salvage",
+  "picks": {
+    "min": 2
+  },
+  "unique": true,
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 25,
+        "max": 45
+      }
+    },
+    {
+      "table": "salvage",
+      "weight": 1,
+      "count": {
+        "min": 2
+      }
+    }
+  ]
+}

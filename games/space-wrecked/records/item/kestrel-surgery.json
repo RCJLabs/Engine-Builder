@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel surgery",
+  "description": "Kestrel Dynamics",
+  "value": 265,
+  "tags": [
+    "part",
+    "medbay"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 8
+    },
+    {
+      "stat": "heal",
+      "add": 2
+    }
+  ],
+  "category": "crew",
+  "maker": "kestrel",
+  "base": "surgery",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

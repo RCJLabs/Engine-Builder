@@ -1,0 +1,100 @@
+{
+  "name": "Long-hauler, quartermaster",
+  "description": "Drove freight on the long lanes, and stood off the odd pirate doing it.",
+  "actor": "quartermaster",
+  "names": [
+    "Ada",
+    "Bram",
+    "Cass",
+    "Dov",
+    "Edda",
+    "Fen",
+    "Gus",
+    "Hana",
+    "Ivo",
+    "Jessa",
+    "Kit",
+    "Lark",
+    "Moss",
+    "Nell",
+    "Otto",
+    "Pim",
+    "Quill",
+    "Rhea",
+    "Sully",
+    "Tam",
+    "Ula",
+    "Vik",
+    "Wes",
+    "Yara"
+  ],
+  "bynames": [
+    "Abara",
+    "Brask",
+    "Corrigan",
+    "Dahl",
+    "Esposito",
+    "Faraday",
+    "Grieve",
+    "Hoskins",
+    "Ibarra",
+    "Juarez",
+    "Kettle",
+    "Lindqvist",
+    "Mbeki",
+    "Nakamura",
+    "Oduya",
+    "Petrov",
+    "Quaye",
+    "Reyes",
+    "Sato",
+    "Thorne",
+    "Ueda",
+    "Varga",
+    "Whitlock",
+    "Zeller"
+  ],
+  "stats": {
+    "fights": {
+      "min": 2,
+      "max": 4
+    }
+  },
+  "traits": [
+    {
+      "status": "old-hand",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "light-sleeper",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "careful",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "patient",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "cool-head",
+      "fee": {
+        "credits": 20
+      }
+    }
+  ],
+  "most": 1,
+  "draw": "shuffle",
+  "fee": {
+    "credits": 30
+  }
+}

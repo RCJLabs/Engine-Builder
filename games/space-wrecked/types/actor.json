@@ -1,0 +1,20 @@
+{
+  "title": "Fighter",
+  "description": "A crew member, an enemy or the ship.",
+  "fields": {
+    "job": {
+      "kind": "enum",
+      "values": ["marine", "engineer", "medic", "pilot", "scout", "xenobiologist", "quartermaster"],
+      "optional": true,
+      "label": "Job",
+      "description": "What a crew member does aboard: a quartermaster’s lockers, a medic’s care"
+    },
+    "weapon": {
+      "kind": "text",
+      "min": 1,
+      "optional": true,
+      "label": "Weapon",
+      "description": "What they carry: its damage is their Damage"
+    }
+  }
+}

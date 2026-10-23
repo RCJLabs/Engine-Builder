@@ -1,0 +1,15 @@
+{
+  "name": "Medic",
+  "description": "Rank 1, Field surgery: Steady hands, under fire or not. Rank 2, Ward chief: Runs a sick bay the way it should be run.",
+  "stats": {
+    "hp": 8,
+    "aim": 60,
+    "defense": 10,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 3,
+    "fights": 0
+  },
+  "job": "medic",
+  "weapon": "Pistol"
+}

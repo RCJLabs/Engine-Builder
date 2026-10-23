@@ -1,0 +1,27 @@
+{
+  "name": "Provost cutter",
+  "description": "Her boarding party: provost boarding party.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp"
+    },
+    {
+      "actor": "rating"
+    },
+    {
+      "actor": "mp"
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-provostcutter"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "fleet",
+      "by": -3
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Boarding party",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "pirate",
+      "count": 2
+    },
+    {
+      "actor": "brute"
+    },
+    {
+      "actor": "pirate"
+    }
+  ]
+}

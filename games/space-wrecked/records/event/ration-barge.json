@@ -1,0 +1,41 @@
+{
+  "name": "Ration barge",
+  "text": "A family barge selling food out of the hold. The prices are fair. The cat is not for sale.",
+  "choices": [
+    {
+      "id": "six",
+      "label": "Buy 6 supplies",
+      "cost": {
+        "credits": 4
+      },
+      "result": "Six crates of the good stuff. Well, the edible stuff.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "twelve",
+      "label": "Buy 12 supplies",
+      "cost": {
+        "credits": 8
+      },
+      "result": "Twelve crates, and a jar of pickles thrown in.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 12
+        }
+      ]
+    },
+    {
+      "id": "look",
+      "label": "Just looking",
+      "result": "The cat watches you go."
+    }
+  ]
+}

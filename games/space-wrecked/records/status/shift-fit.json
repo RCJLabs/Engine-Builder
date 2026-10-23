@@ -1,0 +1,21 @@
+{
+  "name": "Shift fit",
+  "description": "Twelve-hour shifts on the ore line keep you fit, if nothing else.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 1
+    },
+    {
+      "stat": "aim",
+      "add": 2
+    },
+    {
+      "stat": "defense",
+      "add": 1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

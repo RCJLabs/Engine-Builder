@@ -1,0 +1,15 @@
+{
+  "name": "Patrol crew",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "guard"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "guard"
+    }
+  ]
+}

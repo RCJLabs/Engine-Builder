@@ -1,0 +1,19 @@
+{
+  "title": "A clerk's favour",
+  "mission": "hack",
+  "pitch": "The Provost's clerk drinks at {site} on credit, and {client} holds his bill. While the duty MPs walk their rounds his terminal is yours: lose a warrant in the filing. Yours.",
+  "clients": [
+    "ilse"
+  ],
+  "sites": [
+    "brig"
+  ],
+  "encounter": "provostpatrol",
+  "against": "fleet",
+  "pay": {
+    "min": 30,
+    "max": 50
+  },
+  "quest": "pardon",
+  "turns": 2
+}

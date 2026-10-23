@@ -1,0 +1,33 @@
+{
+  "name": "Med bay",
+  "description": "Yard standard",
+  "value": 110,
+  "tags": [
+    "part",
+    "medbay"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "heal",
+      "add": 1
+    }
+  ],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}

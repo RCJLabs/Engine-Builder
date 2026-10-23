@@ -1,0 +1,30 @@
+{
+  "title": "The press gang",
+  "mission": "clear",
+  "pitch": "The Provost is pressing sailors at {site} to fill a cruiser's crew, and two of them are {client}'s. She'd like them back. The Provost would like you.",
+  "clients": [
+    "ilse"
+  ],
+  "sites": [
+    "brig",
+    "breakers"
+  ],
+  "encounter": "provostpatrol",
+  "against": "fleet",
+  "pay": {
+    "min": 100,
+    "max": 140
+  },
+  "drops": {
+    "chance": 30,
+    "parts": {
+      "shield": 1,
+      "weapon": 1,
+      "cannon": 1,
+      "pointdefense": 1,
+      "shieldarray": 1,
+      "bastion-weapon": 1,
+      "bastion-shield": 1
+    }
+  }
+}

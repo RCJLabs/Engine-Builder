@@ -1,0 +1,39 @@
+{
+  "name": "Bastion bunks",
+  "description": "Bastion Arms",
+  "value": 110,
+  "tags": [
+    "part",
+    "quarters",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "berths",
+      "add": 2
+    },
+    {
+      "stat": "life-support",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 18
+    }
+  ],
+  "category": "crew",
+  "maker": "bastion",
+  "base": "bunks",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

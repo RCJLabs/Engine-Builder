@@ -1,0 +1,13 @@
+{
+  "name": "Provost snatch squad",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp"
+    },
+    {
+      "actor": "cadet",
+      "count": 2
+    }
+  ]
+}

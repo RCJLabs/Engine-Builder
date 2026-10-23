@@ -1,0 +1,63 @@
+{
+  "name": "Dead hauler",
+  "text": "A bulk hauler drifts with its running lights still on. Nobody answers. The cargo doors are open, which is either good news or very bad news.",
+  "choices": [
+    {
+      "id": "strip",
+      "label": "Strip it",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "The crew comes back with a crate of parts and a few things nobody asks about.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "salvage"
+            },
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 10
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "A pressure door gives on the way out. Someone will feel it tomorrow, but the crate came too.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "salvage"
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "loose",
+      "label": "Grab what's loose",
+      "result": "Loose change and canned food from the galley. Nobody gets hurt.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 6
+        },
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "Some things are best left drifting."
+    }
+  ]
+}

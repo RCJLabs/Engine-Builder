@@ -1,0 +1,30 @@
+{
+  "name": "Kestrel large hold",
+  "description": "Kestrel Dynamics",
+  "value": 170,
+  "tags": [
+    "part",
+    "cargo"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "cargo",
+      "add": 40
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    }
+  ],
+  "category": "cargo",
+  "maker": "kestrel",
+  "base": "largehold",
+  "size": {
+    "w": 4,
+    "h": 3
+  }
+}

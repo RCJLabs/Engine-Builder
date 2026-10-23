@@ -1,0 +1,106 @@
+{
+  "name": "Hired gun, pilot",
+  "description": "Fought for whoever paid, until nobody did.",
+  "actor": "pilot",
+  "names": [
+    "Ada",
+    "Bram",
+    "Cass",
+    "Dov",
+    "Edda",
+    "Fen",
+    "Gus",
+    "Hana",
+    "Ivo",
+    "Jessa",
+    "Kit",
+    "Lark",
+    "Moss",
+    "Nell",
+    "Otto",
+    "Pim",
+    "Quill",
+    "Rhea",
+    "Sully",
+    "Tam",
+    "Ula",
+    "Vik",
+    "Wes",
+    "Yara"
+  ],
+  "bynames": [
+    "Abara",
+    "Brask",
+    "Corrigan",
+    "Dahl",
+    "Esposito",
+    "Faraday",
+    "Grieve",
+    "Hoskins",
+    "Ibarra",
+    "Juarez",
+    "Kettle",
+    "Lindqvist",
+    "Mbeki",
+    "Nakamura",
+    "Oduya",
+    "Petrov",
+    "Quaye",
+    "Reyes",
+    "Sato",
+    "Thorne",
+    "Ueda",
+    "Varga",
+    "Whitlock",
+    "Zeller"
+  ],
+  "stats": {
+    "fights": {
+      "min": 4,
+      "max": 9
+    }
+  },
+  "traits": [
+    {
+      "status": "hothead",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "crack-shot",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "reckless",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "bar-fighter",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "wiry",
+      "fee": {
+        "credits": 20
+      }
+    },
+    {
+      "status": "jumpy",
+      "fee": {
+        "credits": 20
+      }
+    }
+  ],
+  "most": 2,
+  "draw": "shuffle",
+  "fee": {
+    "credits": 30
+  }
+}

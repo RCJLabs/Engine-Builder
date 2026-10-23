@@ -1,0 +1,10 @@
+{
+  "name": "Customs men",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "customs",
+      "count": 3
+    }
+  ]
+}

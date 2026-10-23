@@ -1,0 +1,34 @@
+{
+  "name": "Bastion life support",
+  "description": "Bastion Arms",
+  "value": 100,
+  "tags": [
+    "part",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "life-support",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 18
+    }
+  ],
+  "category": "crew",
+  "maker": "bastion",
+  "base": "lifesupport",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

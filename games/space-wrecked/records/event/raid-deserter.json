@@ -1,0 +1,17 @@
+{
+  "name": "The Fleet Provost at the door",
+  "text": "The Fleet Provost is at the dry dock's gate with a warrant and a squad of MPs.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "face",
+      "label": "Face them",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "raid-deserter"
+        }
+      ]
+    }
+  ]
+}

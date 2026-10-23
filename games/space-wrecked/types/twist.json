@@ -1,0 +1,50 @@
+{
+  "title": "Twist",
+  "description": "What makes a job harder, or pay more: data/contracts.json’s twists.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "text": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Text"
+    },
+    "enemies": {
+      "kind": "int",
+      "min": -3,
+      "max": 3,
+      "optional": true,
+      "label": "Enemies",
+      "description": "Foes added, or taken away"
+    },
+    "pay": {
+      "kind": "int",
+      "min": -100,
+      "max": 100,
+      "optional": true,
+      "label": "Pay",
+      "description": "Percent on the pay"
+    },
+    "loud": {
+      "kind": "bool",
+      "optional": true,
+      "label": "Loud"
+    },
+    "missions": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "mission"
+      },
+      "min": 1,
+      "optional": true,
+      "label": "Only on",
+      "description": "The missions it can come with: any when left out"
+    }
+  }
+}

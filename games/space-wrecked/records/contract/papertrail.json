@@ -1,0 +1,28 @@
+{
+  "title": "Paper trail",
+  "mission": "hack",
+  "pitch": "{client} needs a few lines of the customs ledger to say something new. The terminal's at {site}, and so are the people who'd mind.",
+  "clients": [
+    "dacosta"
+  ],
+  "sites": [
+    "pound",
+    "kettle"
+  ],
+  "encounter": "customs",
+  "against": "fleet",
+  "pay": {
+    "min": 80,
+    "max": 120
+  },
+  "drops": {
+    "chance": 50,
+    "parts": {
+      "medbay": 1,
+      "cargo": 1,
+      "surgery": 1,
+      "largehold": 1
+    }
+  },
+  "turns": 2
+}

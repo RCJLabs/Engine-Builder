@@ -1,0 +1,17 @@
+{
+  "name": "Light sleeper",
+  "description": "Nobody has ever crept up on you. Several have tried.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 1
+    },
+    {
+      "stat": "defense",
+      "add": 3
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

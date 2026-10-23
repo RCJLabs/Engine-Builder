@@ -1,0 +1,52 @@
+{
+  "name": "Survey skiff",
+  "text": "A Con-Reg survey skiff with a cracked drive housing, two surveyors in company orange asking for a tow to the lanes. They're very polite. They haven't checked your registration yet.",
+  "choices": [
+    {
+      "id": "tow",
+      "label": "Tow them to the lanes",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "They sign for the tow on a company form, in triplicate. A good word goes up the line, for what that's worth at Con-Reg.",
+      "effects": [
+        {
+          "effect": "start-quest",
+          "quest": "lifepod"
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 15
+        },
+        {
+          "effect": "change-standing",
+          "faction": "conreg",
+          "by": 2
+        }
+      ]
+    },
+    {
+      "id": "cores",
+      "label": "Take their survey cores",
+      "result": "Survey cores sell well to the right broker, and you know three. The surveyors will file a complaint. Con-Reg reads every one.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 35
+        },
+        {
+          "effect": "change-standing",
+          "faction": "conreg",
+          "by": -2
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "The skiff's lights shrink behind you, blinking politely."
+    }
+  ]
+}

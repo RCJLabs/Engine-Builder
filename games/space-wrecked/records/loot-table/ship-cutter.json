@@ -1,0 +1,24 @@
+{
+  "name": "Pirate cutter: salvage",
+  "picks": {
+    "min": 2
+  },
+  "unique": true,
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 10,
+        "max": 25
+      }
+    },
+    {
+      "table": "salvage",
+      "weight": 1,
+      "count": {
+        "min": 1
+      }
+    }
+  ]
+}

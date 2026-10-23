@@ -1,0 +1,17 @@
+{
+  "name": "Long legs",
+  "description": "Built for running. Mostly away.",
+  "modifiers": [
+    {
+      "stat": "mobility",
+      "add": 2
+    },
+    {
+      "stat": "hp",
+      "add": -2
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

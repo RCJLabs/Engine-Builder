@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline weapon mount",
+  "description": "Scrapline",
+  "value": 85,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 11
+    },
+    {
+      "stat": "guns",
+      "add": 15
+    }
+  ],
+  "category": "weapons",
+  "maker": "scrapline",
+  "base": "weapon",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

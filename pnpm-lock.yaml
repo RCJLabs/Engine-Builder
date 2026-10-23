@@ -291,6 +291,8 @@ importers:
         specifier: 5.7.2
         version: 5.7.2
 
+  tools/import-space-wrecked: {}
+
   tools/lint-boundaries:
     dependencies:
       '@eb/purity':

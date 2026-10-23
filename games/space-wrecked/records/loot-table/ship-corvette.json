@@ -1,0 +1,24 @@
+{
+  "name": "Patrol corvette: salvage",
+  "picks": {
+    "min": 2
+  },
+  "unique": true,
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 20,
+        "max": 40
+      }
+    },
+    {
+      "table": "salvage",
+      "weight": 1,
+      "count": {
+        "min": 2
+      }
+    }
+  ]
+}

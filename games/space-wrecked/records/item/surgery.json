@@ -1,0 +1,33 @@
+{
+  "name": "Surgery",
+  "description": "Yard standard",
+  "value": 220,
+  "tags": [
+    "part",
+    "medbay"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "heal",
+      "add": 2
+    }
+  ],
+  "category": "crew",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

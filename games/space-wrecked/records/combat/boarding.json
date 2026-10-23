@@ -1,0 +1,10 @@
+{
+  "name": "Boarding",
+  "health": "hp",
+  "hit": "aim",
+  "dodge": "defense",
+  "damage": "damage",
+  "armour": "armor",
+  "hit-min": 5,
+  "hit-max": 95
+}

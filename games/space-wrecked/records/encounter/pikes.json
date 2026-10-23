@@ -1,0 +1,15 @@
+{
+  "name": "Pike crew",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "pike"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "pike"
+    }
+  ]
+}

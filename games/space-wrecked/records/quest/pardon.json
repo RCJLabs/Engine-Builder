@@ -1,0 +1,58 @@
+{
+  "name": "The deserter's pardon",
+  "starts-when": "campaign.background == deserter",
+  "stages": [
+    {
+      "id": "warrant",
+      "log": "The Provost has a warrant with your name on it. Lose the warrant, square it with your old ship, and the Provost has nothing to go on. Mother Ilse's job, on the board: lose your warrant in the Provost's filing.",
+      "objectives": [
+        {
+          "id": "job",
+          "text": "Win A clerk's favour on the board",
+          "count": {
+            "event": "board/won",
+            "args": {
+              "job": "warrant"
+            },
+            "to": 1
+          }
+        }
+      ],
+      "next": "resolute",
+      "fail-when": "campaign.act >= 2",
+      "why": "The ship launched: the job went to someone else."
+    },
+    {
+      "id": "resolute",
+      "log": "Your warrant is in the wrong drawer under the wrong name. The Provost will find it, eventually. The Resolute, your old tender, short of spares: marked on the chart.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -20
+        }
+      ],
+      "objectives": [
+        {
+          "id": "done",
+          "text": "Pay for her spares",
+          "done-when": "events.chose(event: resolute, choice: pay)"
+        }
+      ],
+      "next": "colony",
+      "fail-when": "run.past-charts",
+      "why": "The run left the charts behind."
+    },
+    {
+      "id": "colony",
+      "log": "The Provost's courier, within reach of the colony: her MPs hold her.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Provost courier: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

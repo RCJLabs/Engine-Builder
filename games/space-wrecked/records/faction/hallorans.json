@@ -1,0 +1,38 @@
+{
+  "name": "the Hallorans",
+  "description": "Old Halloran's family: the Narrows' loans, rackets and rents, collected with a smile.",
+  "min": -10,
+  "max": 10,
+  "start": 0,
+  "bands": [
+    {
+      "id": "hostile",
+      "name": "Hostile",
+      "price": 150
+    },
+    {
+      "id": "cold",
+      "name": "Cold",
+      "from": -5,
+      "price": 125
+    },
+    {
+      "id": "neutral",
+      "name": "Neutral",
+      "from": -1,
+      "price": 100
+    },
+    {
+      "id": "friendly",
+      "name": "Friendly",
+      "from": 2,
+      "price": 90
+    },
+    {
+      "id": "trusted",
+      "name": "Trusted",
+      "from": 6,
+      "price": 75
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@eb/import-space-wrecked",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Writes games/space-wrecked/records/ from a copy of Space-Wrecked's data/ (M4.12, D62).",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "The crew",
+  "description": "Everyone aboard. Room is the lesser of the berths and the life support.",
+  "cap-flag": "room",
+  "ranks": {
+    "stat": "fights",
+    "bands": [
+      {
+        "id": "green",
+        "name": "Green"
+      },
+      {
+        "id": "rank-1",
+        "name": "Rank 1",
+        "from": 3
+      },
+      {
+        "id": "rank-2",
+        "name": "Rank 2",
+        "from": 8
+      }
+    ]
+  }
+}

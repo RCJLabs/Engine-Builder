@@ -1,0 +1,17 @@
+{
+  "name": "Con-Reg Recovery at the door",
+  "text": "Con-Reg Recovery is at the hangar door with a court order and a lot of friends.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "face",
+      "label": "Face them",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "raid-miner"
+        }
+      ]
+    }
+  ]
+}

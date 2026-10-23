@@ -1,0 +1,33 @@
+{
+  "name": "Cannon",
+  "description": "Yard standard",
+  "value": 240,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 20
+    },
+    {
+      "stat": "guns",
+      "add": 30
+    }
+  ],
+  "category": "weapons",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

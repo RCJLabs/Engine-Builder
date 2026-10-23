@@ -1,0 +1,17 @@
+{
+  "name": "Patient",
+  "description": "You'd wait all day for the shot. Some days you do.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 10
+    },
+    {
+      "stat": "mobility",
+      "add": -1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Repossession",
+  "mission": "grab",
+  "pitch": "Con-Reg impounded {client}'s late husband's engine for storage fees. It's sitting in {site}. She'd like it back. You'd like it more.",
+  "clients": [
+    "prewitt"
+  ],
+  "sites": [
+    "depot"
+  ],
+  "encounter": "recovery",
+  "against": "conreg",
+  "pay": {
+    "min": 20,
+    "max": 40
+  },
+  "drops": {
+    "chance": 100,
+    "parts": {
+      "engine": 1
+    }
+  },
+  "once": true,
+  "crates": 1
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Con-Reg courier",
+  "text": "A Con-Reg courier skiff on the emergency band, one engine out. Her hold is full of paper filed again from Depot 4's backups, and yours is in there somewhere.",
+  "choices": [
+    {
+      "id": "board",
+      "label": "Find your file",
+      "outcomes": [
+        {
+          "chance": 75,
+          "result": "Her pilot opens the hold for a tow and doesn't watch what goes out the airlock. Con-Reg's paper on you is a cloud of confetti.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": -15
+            }
+          ]
+        },
+        {
+          "chance": 25,
+          "result": "Her pilot did watch. The argument costs someone a bruise, and the paper goes out the airlock all the same.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": -15
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "Someone else will tow her. Your paper will get where it's going."
+    }
+  ]
+}

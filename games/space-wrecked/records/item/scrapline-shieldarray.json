@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline shield array",
+  "description": "Scrapline",
+  "value": 195,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -5
+    },
+    {
+      "stat": "mass",
+      "add": 4
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    },
+    {
+      "stat": "shield",
+      "add": 25
+    }
+  ],
+  "category": "defense",
+  "maker": "scrapline",
+  "base": "shieldarray",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

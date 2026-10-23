@@ -1,0 +1,25 @@
+{
+  "title": "Left luggage",
+  "mission": "grab",
+  "pitch": "{client}'s last tenant left an engine behind, and customs took it for the duty. It's in {site}. Bring it home and it goes in your ship.",
+  "clients": [
+    "marlowe"
+  ],
+  "sites": [
+    "pound"
+  ],
+  "encounter": "customs",
+  "against": "fleet",
+  "pay": {
+    "min": 20,
+    "max": 40
+  },
+  "drops": {
+    "chance": 100,
+    "parts": {
+      "engine": 1
+    }
+  },
+  "once": true,
+  "crates": 1
+}

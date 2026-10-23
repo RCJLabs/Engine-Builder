@@ -1,0 +1,12 @@
+{
+  "name": "Fleet rating",
+  "stats": {
+    "hp": 8,
+    "aim": 65,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 4
+  },
+  "weapon": "Carbine"
+}

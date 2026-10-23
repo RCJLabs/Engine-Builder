@@ -1,0 +1,12 @@
+{
+  "name": "Halloran enforcer",
+  "stats": {
+    "hp": 11,
+    "aim": 60,
+    "defense": 0,
+    "mobility": 3,
+    "armor": 1,
+    "damage": 5
+  },
+  "weapon": "Shotgun"
+}

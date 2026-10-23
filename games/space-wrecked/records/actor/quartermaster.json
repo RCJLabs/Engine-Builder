@@ -1,0 +1,15 @@
+{
+  "name": "Quartermaster",
+  "description": "Rank 1, Deep pockets: Always has one more clip somewhere. Rank 2, Stores master: Finds room where there was none.",
+  "stats": {
+    "hp": 10,
+    "aim": 60,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 1,
+    "damage": 4,
+    "fights": 0
+  },
+  "job": "quartermaster",
+  "weapon": "Carbine"
+}

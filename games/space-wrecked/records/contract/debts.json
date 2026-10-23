@@ -1,0 +1,16 @@
+{
+  "title": "Bad debts",
+  "mission": "clear",
+  "pitch": "A table of {client}'s customers decided they don't owe. {client} disagrees, and you're the disagreement. They're drinking at {site}.",
+  "clients": [
+    "rook"
+  ],
+  "sites": [
+    "whistle"
+  ],
+  "encounter": "regulars",
+  "pay": {
+    "min": 60,
+    "max": 90
+  }
+}

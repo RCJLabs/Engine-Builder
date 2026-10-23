@@ -1,0 +1,24 @@
+{
+  "title": "Last orders",
+  "mission": "clear",
+  "pitch": "The Pikes have taken over the back room at {site} and drink on the house. {client} says the house is closing.",
+  "clients": [
+    "mags"
+  ],
+  "sites": [
+    "velvet"
+  ],
+  "encounter": "pikes",
+  "pay": {
+    "min": 60,
+    "max": 90
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "quarters": 1,
+      "lifesupport": 1,
+      "bunks": 1
+    }
+  }
+}

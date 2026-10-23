@@ -1,0 +1,24 @@
+{
+  "name": "Station",
+  "description": "A tired station selling supplies by the crate. Cash only, and the coffee is extra.",
+  "names": [
+    "Mac's Pumps",
+    "Halfway House",
+    "Rest Stop Nine",
+    "The Depot",
+    "Ruth's Canteen",
+    "Union Hall Twelve",
+    "Fuel and Grub",
+    "Station Okay",
+    "The Truck Stop",
+    "Big Rita's",
+    "Last Chance Supply",
+    "Dock Seven"
+  ],
+  "charted": true,
+  "arrive": [
+    {
+      "effect": "dock"
+    }
+  ]
+}

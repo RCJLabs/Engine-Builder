@@ -1,0 +1,58 @@
+{
+  "name": "Cold hauler",
+  "text": "A hauler with her lights out and her holds still sealed. Whoever left her left in a hurry, and took nothing with them.",
+  "choices": [
+    {
+      "id": "strip",
+      "label": "Strip her",
+      "outcomes": [
+        {
+          "chance": 70,
+          "result": "The squad cracks the holds and brings back a crate of parts and some of her plating.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "colony"
+            },
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 4
+            }
+          ]
+        },
+        {
+          "chance": 30,
+          "result": "A hold door gives on the way out. Someone takes the weight of it, but the crate came too.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "colony"
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plates",
+      "label": "Cut her plating",
+      "result": "Hull plates, cut and stacked in the hold. Slow work, and nobody gets hurt.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "materials",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave her",
+      "result": "Some ships are better left as they are."
+    }
+  ]
+}

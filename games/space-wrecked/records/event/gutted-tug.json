@@ -1,0 +1,50 @@
+{
+  "name": "Gutted tug",
+  "text": "Someone got here first. The tug's been picked over by people in a hurry, and people in a hurry miss things.",
+  "choices": [
+    {
+      "id": "search",
+      "label": "Go through it properly",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "Under a deck plate: a part, still in its wrapping.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "salvage"
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "Nothing but cut wiring and a strongly worded note. Some loose change, at least.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "credits",
+              "by": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "galley",
+      "label": "Raid the galley",
+      "result": "Half a pallet of ration packs, only slightly past their date.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "Whoever picked it over can have the rest."
+    }
+  ]
+}

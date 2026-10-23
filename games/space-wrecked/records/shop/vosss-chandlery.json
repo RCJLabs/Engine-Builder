@@ -1,0 +1,18 @@
+{
+  "name": "Voss's chandlery",
+  "description": "Voss sells what ships drop and sailors pawn: Fleet surplus, mostly, with the serial numbers filed off. Cash only.",
+  "currency": "credits",
+  "sells-at": 100,
+  "buys-at": 50,
+  "buys": {
+    "tags": [
+      "part"
+    ]
+  },
+  "stock": {
+    "table": "vosss-chandlery-stock",
+    "every": {
+      "days": 1
+    }
+  }
+}

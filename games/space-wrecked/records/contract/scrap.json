@@ -1,0 +1,33 @@
+{
+  "title": "Scrap run",
+  "mission": "grab",
+  "pitch": "Scavvers are walking the good stuff out of {site}. {client} tagged what's his. Get it before they do.",
+  "clients": [
+    "dutch"
+  ],
+  "sites": [
+    "yard"
+  ],
+  "encounter": "scavvers",
+  "pay": {
+    "min": 40,
+    "max": 60
+  },
+  "drops": {
+    "chance": 80,
+    "parts": {
+      "cargo": 1,
+      "armory": 1,
+      "shield": 1,
+      "corridor": 1,
+      "engine": 1,
+      "lightengine": 1,
+      "heavyengine": 1,
+      "smallreactor": 1,
+      "largehold": 1,
+      "scrapline-engine": 1,
+      "scrapline-smallreactor": 1
+    }
+  },
+  "crates": 3
+}

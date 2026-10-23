@@ -1,0 +1,31 @@
+{
+  "title": "Mission",
+  "description": "What a job asks of the crew: data/contracts.json’s missions.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "brief": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Brief"
+    },
+    "loud": {
+      "kind": "bool",
+      "optional": true,
+      "label": "Loud",
+      "description": "Raises more heat: the original’s loud job"
+    },
+    "breaks": {
+      "kind": "int",
+      "min": 1,
+      "max": 100,
+      "label": "Done at",
+      "description": "The share of the foes’ health, in percent, the crew has to take off: the rebuild’s tuning, not the original’s data"
+    }
+  }
+}

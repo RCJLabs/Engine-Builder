@@ -1,0 +1,19 @@
+{
+  "name": "Ama Osei",
+  "description": "Two years out of the Company's survey school. She logged your tow honestly, in triplicate, and was let go for the fuel it cost. She knows where Con-Reg's survey lines run, and where they don't.",
+  "stats": {
+    "hp": 8,
+    "aim": 75,
+    "defense": 5,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 4,
+    "fights": 3
+  },
+  "statuses": [
+    "quick",
+    "steady"
+  ],
+  "job": "scout",
+  "weapon": "Long rifle"
+}

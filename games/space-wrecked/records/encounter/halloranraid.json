@@ -1,0 +1,21 @@
+{
+  "name": "Old Halloran's raiders",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector"
+    }
+  ]
+}

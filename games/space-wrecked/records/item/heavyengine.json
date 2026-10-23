@@ -1,0 +1,37 @@
+{
+  "name": "Heavy engine",
+  "description": "Yard standard",
+  "value": 420,
+  "tags": [
+    "part",
+    "engine"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 6
+    },
+    {
+      "stat": "thrust",
+      "add": 26
+    },
+    {
+      "stat": "hull",
+      "add": 30
+    },
+    {
+      "stat": "engines",
+      "add": 1
+    }
+  ],
+  "category": "engines",
+  "maker": "yard",
+  "size": {
+    "w": 3,
+    "h": 2
+  }
+}

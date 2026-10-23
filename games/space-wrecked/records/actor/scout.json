@@ -1,0 +1,15 @@
+{
+  "name": "Scout",
+  "description": "Rank 1, Spotter: Calls the target before anyone else sees it. Rank 2, Long eyes: Reads a sensor return like a map.",
+  "stats": {
+    "hp": 8,
+    "aim": 75,
+    "defense": 5,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 4,
+    "fights": 0
+  },
+  "job": "scout",
+  "weapon": "Long rifle"
+}

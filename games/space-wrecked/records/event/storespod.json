@@ -1,0 +1,71 @@
+{
+  "name": "Stolen stores pod",
+  "text": "The Fleet tender's other stores pod, tumbling where the pirates left it: seals cut, her number still stencilled on the side. They took the good stuff and left the rest.",
+  "choices": [
+    {
+      "id": "tag",
+      "label": "Tag it for the Fleet",
+      "result": "You tow it to the beacon and log it on the Fleet's band. A lieutenant thanks you by name, and a finder's fee follows.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 25
+        },
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "tagjoin",
+      "label": "Tag it, sign on Varga",
+      "needs": "roster.room >= 1",
+      "result": "You log the pod on the Fleet's band. The tender's bosun, Ines Varga, asks to come aboard, and the lieutenant signs her over in place of a fee.",
+      "effects": [
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": 4
+        },
+        {
+          "effect": "join",
+          "actor": "varga"
+        },
+        {
+          "effect": "start-quest",
+          "quest": "varga-loyal"
+        }
+      ]
+    },
+    {
+      "id": "strip",
+      "label": "Strip what's left",
+      "result": "Tinned rations and a crate of filters, the tender's number on every tin. The Fleet will know.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 8
+        },
+        {
+          "effect": "add-resource",
+          "resource": "credits",
+          "by": 10
+        },
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": -2
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "It isn't going anywhere."
+    }
+  ]
+}

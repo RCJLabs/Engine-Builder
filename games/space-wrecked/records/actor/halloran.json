@@ -1,0 +1,19 @@
+{
+  "name": "Dez Halloran",
+  "description": "Old Halloran's nephew, who patched up the family's runners for ten years and asked one question too many about what they ran. The family calls it a sabbatical.",
+  "stats": {
+    "hp": 8,
+    "aim": 60,
+    "defense": 10,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 3,
+    "fights": 3
+  },
+  "statuses": [
+    "light-sleeper",
+    "careful"
+  ],
+  "job": "medic",
+  "weapon": "Pistol"
+}

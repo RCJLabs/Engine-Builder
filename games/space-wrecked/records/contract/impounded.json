@@ -1,0 +1,25 @@
+{
+  "title": "Impounded",
+  "mission": "grab",
+  "pitch": "The Provost impounded {client}'s old tug engine as evidence in a case nobody remembers. It's in {site}, tagged. She'd like it back. Your ship would like it more.",
+  "clients": [
+    "achebe"
+  ],
+  "sites": [
+    "bonded"
+  ],
+  "encounter": "provostpatrol",
+  "against": "fleet",
+  "pay": {
+    "min": 20,
+    "max": 40
+  },
+  "drops": {
+    "chance": 100,
+    "parts": {
+      "engine": 1
+    }
+  },
+  "once": true,
+  "crates": 1
+}

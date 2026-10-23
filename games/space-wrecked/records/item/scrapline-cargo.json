@@ -1,0 +1,30 @@
+{
+  "name": "Scrapline cargo hold",
+  "description": "Scrapline",
+  "value": 40,
+  "tags": [
+    "part",
+    "cargo"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "cargo",
+      "add": 20
+    },
+    {
+      "stat": "hull",
+      "add": 19
+    }
+  ],
+  "category": "cargo",
+  "maker": "scrapline",
+  "base": "cargo",
+  "size": {
+    "w": 3,
+    "h": 3
+  }
+}

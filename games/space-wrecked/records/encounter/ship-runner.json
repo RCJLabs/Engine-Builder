@@ -1,0 +1,27 @@
+{
+  "name": "Halloran runner",
+  "description": "Her boarding party: halloran collectors.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector"
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-runner"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "hallorans",
+      "by": -3
+    }
+  ]
+}

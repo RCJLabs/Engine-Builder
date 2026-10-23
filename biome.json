@@ -12,7 +12,8 @@
       "!**/dist-game",
       "!**/node_modules",
       "!tools/lint-boundaries/fixtures",
-      "!games/*/source"
+      "!games/*/source",
+      "!games/*/records"
     ]
   },
   "formatter": {

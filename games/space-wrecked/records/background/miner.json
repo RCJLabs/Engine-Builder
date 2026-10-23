@@ -1,0 +1,30 @@
+{
+  "name": "Debt-bound miner",
+  "description": "Eleven years hauling ore for Consolidated Regolith, and you still owe them for the boots. The half-built ship in Ma Prewitt's hangar is the first thing you've owned outright. The Company's lawyers disagree.",
+  "district": "tailings",
+  "credits": 0,
+  "parts": {
+    "quarters": 1,
+    "lifesupport": 1,
+    "corridor": 2
+  },
+  "crew": [
+    "marine",
+    "engineer",
+    "medic"
+  ],
+  "ship": [
+    "bridge",
+    "reactor",
+    "corridor",
+    "corridor",
+    "corridor",
+    "airlock",
+    "weapon"
+  ],
+  "captain": "captain-miner",
+  "pursuer": "con-reg-recovery",
+  "thread": "debt",
+  "launch": "The hangar drops away, then the Tailings, then the whole grey rock. Eleven years of Con-Reg's ore, and you leave in a ship that's yours. The Company will be along for it.",
+  "escaped": "Con-Reg Recovery storms the hangar with its court order and finds an empty cradle. They'll bill you for the trip."
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Provost cutter: salvage",
+  "picks": {
+    "min": 2
+  },
+  "unique": true,
+  "entries": [
+    {
+      "resource": "credits",
+      "weight": 1,
+      "count": {
+        "min": 15,
+        "max": 30
+      }
+    },
+    {
+      "table": "salvage",
+      "weight": 1,
+      "count": {
+        "min": 1
+      }
+    }
+  ]
+}

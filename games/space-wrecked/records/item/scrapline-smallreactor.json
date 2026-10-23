@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline small reactor",
+  "description": "Scrapline",
+  "value": 85,
+  "tags": [
+    "part",
+    "reactor"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": 3
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 11
+    },
+    {
+      "stat": "reactors",
+      "add": 1
+    }
+  ],
+  "category": "power",
+  "maker": "scrapline",
+  "base": "smallreactor",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

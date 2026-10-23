@@ -1,0 +1,121 @@
+{
+  "title": "Job",
+  "description": "A job on act 1’s board: data/contracts.json’s jobs.",
+  "nameField": "title",
+  "fields": {
+    "title": {
+      "kind": "text",
+      "min": 1,
+      "label": "Title"
+    },
+    "mission": {
+      "kind": "ref",
+      "to": "mission",
+      "label": "Mission"
+    },
+    "pitch": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Pitch",
+      "description": "{client} and {site} are filled in as it goes on the board"
+    },
+    "clients": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "client"
+      },
+      "min": 1,
+      "label": "Clients"
+    },
+    "sites": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "site"
+      },
+      "min": 1,
+      "label": "Sites"
+    },
+    "encounter": {
+      "kind": "ref",
+      "to": "encounter",
+      "label": "Fought"
+    },
+    "against": {
+      "kind": "ref",
+      "to": "faction",
+      "optional": true,
+      "label": "Against",
+      "description": "The side whose people the crew fights"
+    },
+    "pay": {
+      "kind": "group",
+      "fields": {
+        "min": {
+          "kind": "int",
+          "min": 0,
+          "label": "From"
+        },
+        "max": {
+          "kind": "int",
+          "min": 0,
+          "label": "To"
+        }
+      },
+      "label": "Pay"
+    },
+    "drops": {
+      "kind": "group",
+      "fields": {
+        "chance": {
+          "kind": "int",
+          "min": 1,
+          "max": 100,
+          "label": "Chance"
+        },
+        "parts": {
+          "kind": "map",
+          "key": {
+            "kind": "ref",
+            "to": "item"
+          },
+          "of": {
+            "kind": "int",
+            "min": 1
+          },
+          "label": "Parts, by weight"
+        }
+      },
+      "optional": true,
+      "label": "Drops",
+      "description": "A part it pays with, by chance"
+    },
+    "once": {
+      "kind": "bool",
+      "optional": true,
+      "label": "Once",
+      "description": "Won once, it never comes back"
+    },
+    "quest": {
+      "kind": "ref",
+      "to": "quest",
+      "optional": true,
+      "label": "For quest",
+      "description": "On the board only while the quest waits on it"
+    },
+    "crates": {
+      "kind": "int",
+      "min": 1,
+      "optional": true,
+      "label": "Crates"
+    },
+    "turns": {
+      "kind": "int",
+      "min": 1,
+      "optional": true,
+      "label": "Turns"
+    }
+  }
+}

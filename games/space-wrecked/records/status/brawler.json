@@ -1,0 +1,17 @@
+{
+  "name": "Brawler",
+  "description": "Better with a wrench than a rifle. Much better.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 4
+    },
+    {
+      "stat": "aim",
+      "add": -5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

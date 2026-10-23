@@ -1,0 +1,28 @@
+{
+  "title": "Seized",
+  "mission": "grab",
+  "pitch": "Customs seized a shipment {client} had already cleared, then forgot she'd cleared it. Two crates in {site}. Bring them out before anyone remembers.",
+  "clients": [
+    "dacosta"
+  ],
+  "sites": [
+    "pound"
+  ],
+  "encounter": "customs",
+  "against": "fleet",
+  "pay": {
+    "min": 70,
+    "max": 100
+  },
+  "drops": {
+    "chance": 50,
+    "parts": {
+      "lightengine": 1,
+      "cargo": 1,
+      "shield": 1,
+      "bunks": 1,
+      "kestrel-shield": 1
+    }
+  },
+  "crates": 2
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Jumpy",
+  "description": "You flinch at everything, which is why you're still breathing.",
+  "modifiers": [
+    {
+      "stat": "defense",
+      "add": 10
+    },
+    {
+      "stat": "aim",
+      "add": -5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

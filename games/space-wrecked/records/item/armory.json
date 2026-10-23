@@ -1,0 +1,25 @@
+{
+  "name": "Armory",
+  "description": "Yard standard",
+  "value": 90,
+  "tags": [
+    "part",
+    "armory"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    }
+  ],
+  "category": "utility",
+  "maker": "yard",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

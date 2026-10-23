@@ -1,0 +1,26 @@
+{
+  "name": "Scrapline armory",
+  "description": "Scrapline",
+  "value": 60,
+  "tags": [
+    "part",
+    "armory"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 11
+    }
+  ],
+  "category": "utility",
+  "maker": "scrapline",
+  "base": "armory",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Halloran collectors",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector"
+    }
+  ]
+}

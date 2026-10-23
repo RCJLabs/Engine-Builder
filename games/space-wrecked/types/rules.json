@@ -1,0 +1,165 @@
+{
+  "title": "Rules",
+  "description": "Space-Wrecked’s balance numbers that acts 1 and 2 read: data/balance.json.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "sector-count": {
+      "kind": "int",
+      "min": 1,
+      "label": "Sectors"
+    },
+    "lift-off": {
+      "kind": "int",
+      "min": 0,
+      "label": "Lift-off",
+      "description": "Thrust for each point of mass, to launch in act 1"
+    },
+    "job-heat": {
+      "kind": "int",
+      "label": "jobHeat"
+    },
+    "loud-job-heat": {
+      "kind": "int",
+      "label": "loudJobHeat"
+    },
+    "hunt-heat": {
+      "kind": "int",
+      "label": "huntHeat"
+    },
+    "raid-heat": {
+      "kind": "int",
+      "label": "raidHeat"
+    },
+    "heat-after-raid": {
+      "kind": "int",
+      "label": "heatAfterRaid"
+    },
+    "base-supplies": {
+      "kind": "int",
+      "label": "baseSupplies"
+    },
+    "jump-supplies": {
+      "kind": "int",
+      "label": "jumpSupplies"
+    },
+    "long-jump-factor": {
+      "kind": "int",
+      "label": "longJumpFactor"
+    },
+    "supply-price": {
+      "kind": "int",
+      "label": "supplyPrice"
+    },
+    "hunger-hp": {
+      "kind": "int",
+      "label": "hungerHp"
+    },
+    "jump-heat": {
+      "kind": "int",
+      "label": "jumpHeat"
+    },
+    "long-jump-heat": {
+      "kind": "int",
+      "label": "longJumpHeat"
+    },
+    "scan-heat": {
+      "kind": "int",
+      "label": "scanHeat"
+    },
+    "approach-heat": {
+      "kind": "int",
+      "label": "approachHeat"
+    },
+    "patch-price": {
+      "kind": "int",
+      "label": "patchPrice"
+    },
+    "squad-size": {
+      "kind": "int",
+      "label": "squadSize"
+    },
+    "hunt-chance": {
+      "kind": "int",
+      "label": "huntChance"
+    },
+    "task-force-chance": {
+      "kind": "int",
+      "label": "taskForceChance"
+    },
+    "regroup-hp": {
+      "kind": "int",
+      "label": "regroupHp"
+    },
+    "regroup-heat": {
+      "kind": "int",
+      "label": "regroupHeat"
+    },
+    "hide-heat": {
+      "kind": "int",
+      "label": "hideHeat"
+    },
+    "swap-heat": {
+      "kind": "int",
+      "label": "swapHeat"
+    },
+    "swap-price": {
+      "kind": "int",
+      "label": "swapPrice"
+    },
+    "survey-heat": {
+      "kind": "int",
+      "label": "surveyHeat"
+    },
+    "pursuer-standing": {
+      "kind": "int",
+      "label": "pursuerStanding"
+    },
+    "job-standing": {
+      "kind": "int",
+      "label": "jobStanding"
+    },
+    "lost-standing": {
+      "kind": "int",
+      "label": "lostStanding"
+    },
+    "ship-standing": {
+      "kind": "int",
+      "label": "shipStanding"
+    },
+    "friendly-pay": {
+      "kind": "int",
+      "label": "friendlyPay"
+    },
+    "trusted-pay": {
+      "kind": "int",
+      "label": "trustedPay"
+    },
+    "dock-heat": {
+      "kind": "int",
+      "label": "dockHeat"
+    },
+    "sector-names": {
+      "kind": "list",
+      "of": {
+        "kind": "text",
+        "min": 1
+      },
+      "min": 1,
+      "label": "Sector names"
+    },
+    "world-names": {
+      "kind": "list",
+      "of": {
+        "kind": "text",
+        "min": 1
+      },
+      "min": 1,
+      "label": "World names"
+    }
+  }
+}

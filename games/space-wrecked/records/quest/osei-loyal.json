@@ -1,0 +1,16 @@
+{
+  "name": "Ama's survey chief",
+  "stages": [
+    {
+      "id": "colony",
+      "log": "The survey chief who let Ama go is staking this system for the Company. His guards don't know her. He does. Ama's old survey chief, staking the system for the Company, within reach of the colony.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Survey chief's tug: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Thick skull",
+  "description": "A rockfall in the Tailings put you out for one shift. Just the one.",
+  "modifiers": [
+    {
+      "stat": "hp",
+      "add": 2
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

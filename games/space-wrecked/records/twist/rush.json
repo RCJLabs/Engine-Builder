@@ -1,0 +1,9 @@
+{
+  "name": "Rush job",
+  "text": "Done by the end of round 6, or nobody gets paid.",
+  "pay": 30,
+  "missions": [
+    "grab",
+    "hack"
+  ]
+}

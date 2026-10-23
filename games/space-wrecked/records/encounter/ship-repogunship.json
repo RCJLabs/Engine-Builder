@@ -1,0 +1,30 @@
+{
+  "name": "Con-Reg gunship",
+  "description": "Her boarding party: recovery task force.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "agent"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "agent"
+    },
+    {
+      "actor": "guard"
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-repogunship"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "conreg",
+      "by": -3
+    }
+  ]
+}

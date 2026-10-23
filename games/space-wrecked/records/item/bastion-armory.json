@@ -1,0 +1,26 @@
+{
+  "name": "Bastion armory",
+  "description": "Bastion Arms",
+  "value": 100,
+  "tags": [
+    "part",
+    "armory"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 23
+    }
+  ],
+  "category": "utility",
+  "maker": "bastion",
+  "base": "armory",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

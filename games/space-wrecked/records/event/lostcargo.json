@@ -1,0 +1,28 @@
+{
+  "name": "Lost cargo",
+  "text": "Twenty-nine crates still roped together, tumbling slow where you cut them loose, the Hallorans' seal on every one.",
+  "choices": [
+    {
+      "id": "haul",
+      "label": "Haul it in for them",
+      "result": "Twenty-nine crates, left at the family's next drop with your compliments. Old Halloran is almost pleased.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -15
+        },
+        {
+          "effect": "change-standing",
+          "faction": "hallorans",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it drifting",
+      "result": "They've waited this long."
+    }
+  ]
+}

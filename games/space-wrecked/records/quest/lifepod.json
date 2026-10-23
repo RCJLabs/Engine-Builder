@@ -1,0 +1,18 @@
+{
+  "name": "The surveyor's lifepod",
+  "stages": [
+    {
+      "id": "lifepod",
+      "log": "The surveyor who logged your tow honestly was let go for it. Con-Reg put her out at the lanes in a lifepod. The surveyor's lifepod: marked on the chart, from the next sector on. She would sign on, given a berth.",
+      "objectives": [
+        {
+          "id": "done",
+          "text": "Sign Ama on, or Drop her at the lanes",
+          "done-when": "events.chose(event: lifepod, choice: signon) or events.chose(event: lifepod, choice: drop)"
+        }
+      ],
+      "fail-when": "events.chose(event: lifepod, choice: report) or run.past-charts",
+      "why": "It went cold: hand her to recovery."
+    }
+  ]
+}

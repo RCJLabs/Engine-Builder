@@ -1,0 +1,154 @@
+{
+  "title": "Pursuer",
+  "description": "Who comes after the crew: data/backgrounds.json’s pursuers.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "side": {
+      "kind": "ref",
+      "to": "faction",
+      "label": "Side"
+    },
+    "description": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Description"
+    },
+    "levels": {
+      "kind": "group",
+      "fields": {
+        "calm": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Calm"
+        },
+        "rumors": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Rumors"
+        },
+        "hunters": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Hunters"
+        },
+        "raid": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Raid"
+        }
+      },
+      "label": "In act 1"
+    },
+    "hunters": {
+      "kind": "list",
+      "of": {
+        "kind": "ref",
+        "to": "actor"
+      },
+      "min": 1,
+      "label": "Hunters",
+      "description": "Who joins every job from heat 50"
+    },
+    "raid": {
+      "kind": "ref",
+      "to": "event",
+      "label": "Raid"
+    },
+    "payment": {
+      "kind": "group",
+      "fields": {
+        "name": {
+          "kind": "text",
+          "min": 1,
+          "label": "Name"
+        },
+        "text": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Text"
+        },
+        "credits": {
+          "kind": "int",
+          "min": 1,
+          "label": "Credits"
+        },
+        "heat": {
+          "kind": "int",
+          "min": 1,
+          "label": "Heat off"
+        }
+      },
+      "optional": true,
+      "label": "Payment"
+    },
+    "run": {
+      "kind": "group",
+      "fields": {
+        "levels": {
+          "kind": "group",
+          "fields": {
+            "calm": {
+              "kind": "text",
+              "min": 1,
+              "multiline": true,
+              "label": "Calm"
+            },
+            "rumors": {
+              "kind": "text",
+              "min": 1,
+              "multiline": true,
+              "label": "Rumors"
+            },
+            "hunters": {
+              "kind": "text",
+              "min": 1,
+              "multiline": true,
+              "label": "Hunters"
+            },
+            "task-force": {
+              "kind": "text",
+              "min": 1,
+              "multiline": true,
+              "label": "Task force"
+            },
+            "cornered": {
+              "kind": "text",
+              "min": 1,
+              "multiline": true,
+              "label": "Cornered"
+            }
+          },
+          "label": "Levels"
+        },
+        "hunters": {
+          "kind": "ref",
+          "to": "event",
+          "label": "Hunters"
+        },
+        "task-force": {
+          "kind": "ref",
+          "to": "event",
+          "label": "Task force"
+        },
+        "faced": {
+          "kind": "text",
+          "min": 1,
+          "multiline": true,
+          "label": "Faced"
+        }
+      },
+      "label": "On the run"
+    }
+  }
+}

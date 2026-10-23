@@ -1,0 +1,30 @@
+{
+  "name": "Hostile ship",
+  "description": "A ship running dark, guns warm. It has seen you, and it isn't here to trade.",
+  "names": [
+    "Drift Four",
+    "Dust Bank",
+    "The Gap",
+    "Marker Twelve",
+    "Slag Field",
+    "Quiet Water",
+    "Nobody's Rock",
+    "The Long Dark",
+    "Mile Forty",
+    "The Flats",
+    "Old Beacon",
+    "Static",
+    "Cinder Belt",
+    "Low Orbit",
+    "Washout",
+    "The Hollow",
+    "Tin Can Alley",
+    "Scrap Heap"
+  ],
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "hostile"
+    }
+  ]
+}

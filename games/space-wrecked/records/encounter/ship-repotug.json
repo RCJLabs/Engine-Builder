@@ -1,0 +1,27 @@
+{
+  "name": "Con-Reg repo tug",
+  "description": "Her boarding party: con-reg recovery.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "agent"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "agent"
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-repotug"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "conreg",
+      "by": -3
+    }
+  ]
+}

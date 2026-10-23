@@ -1,0 +1,28 @@
+{
+  "name": "Halloran yacht",
+  "description": "Her boarding party: old halloran's crew.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "collector"
+    },
+    {
+      "actor": "enforcer"
+    },
+    {
+      "actor": "collector",
+      "count": 3
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-yacht"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "hallorans",
+      "by": -3
+    }
+  ]
+}

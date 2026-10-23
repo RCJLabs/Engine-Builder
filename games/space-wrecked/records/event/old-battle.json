@@ -1,0 +1,64 @@
+{
+  "name": "Old battle",
+  "text": "Wreckage from a fight nobody won, spread thin across a thousand kilometers of nothing.",
+  "choices": [
+    {
+      "id": "sift",
+      "label": "Sift the wreckage",
+      "outcomes": [
+        {
+          "chance": 80,
+          "result": "Plating, beams and cable: a hold's worth, slowly.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 7
+            }
+          ]
+        },
+        {
+          "chance": 20,
+          "result": "A tumbling beam catches someone on the way back in, but the hold is full.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 7
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "whole",
+      "label": "Look for a whole part",
+      "outcomes": [
+        {
+          "chance": 50,
+          "result": "One part came through the fight in one piece, and it comes home.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "colony"
+            }
+          ]
+        },
+        {
+          "chance": 50,
+          "result": "Everything worth having burned or broke. Nothing comes home.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "The dead can keep their field."
+    }
+  ]
+}

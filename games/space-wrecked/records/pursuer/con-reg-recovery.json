@@ -1,0 +1,33 @@
+{
+  "name": "Con-Reg Recovery",
+  "side": "conreg",
+  "description": "The Company's repo crews. They find a ship by its registration, and they bill you for the trip.",
+  "levels": {
+    "calm": "Con-Reg has other debtors to worry about. For now.",
+    "rumors": "Word in the Tailings is that Con-Reg is asking after your ship's registration.",
+    "hunters": "A Recovery agent tails the crew to every job.",
+    "raid": "Con-Reg Recovery is at the hangar door with a court order and a lot of friends."
+  },
+  "hunters": [
+    "agent"
+  ],
+  "raid": "raid-miner",
+  "payment": {
+    "name": "Make a payment",
+    "text": "Put something toward the debt. Con-Reg calls off the dogs while the money comes in.",
+    "credits": 50,
+    "heat": 15
+  },
+  "run": {
+    "levels": {
+      "calm": "Out here Con-Reg is a logo on old crates. Keep it that way.",
+      "rumors": "Station talk has your registration on Con-Reg's wanted board, with a finder's fee.",
+      "hunters": "A Con-Reg repo tug is working the lanes, asking after you by name.",
+      "task-force": "Con-Reg has sent a task force: a gunship, a court order and nobody who wants to hear about it.",
+      "cornered": "Con-Reg knows where you'll come out. The next jump meets them."
+    },
+    "hunters": "ship-repotug",
+    "task-force": "ship-repogunship",
+    "faced": "Con-Reg will have to send for another crew. That buys some quiet."
+  }
+}

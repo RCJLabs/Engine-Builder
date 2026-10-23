@@ -1,0 +1,39 @@
+{
+  "name": "Scrapline bunks",
+  "description": "Scrapline",
+  "value": 65,
+  "tags": [
+    "part",
+    "quarters",
+    "lifesupport"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "berths",
+      "add": 2
+    },
+    {
+      "stat": "life-support",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 9
+    }
+  ],
+  "category": "crew",
+  "maker": "scrapline",
+  "base": "bunks",
+  "size": {
+    "w": 2,
+    "h": 2
+  }
+}

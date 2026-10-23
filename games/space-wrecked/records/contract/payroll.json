@@ -1,0 +1,18 @@
+{
+  "title": "Short pay",
+  "mission": "hack",
+  "pitch": "The night shift's been shorted three weeks running. {client} wants the payroll records off the terminal at {site}.",
+  "clients": [
+    "marta"
+  ],
+  "sites": [
+    "pit9"
+  ],
+  "encounter": "guards",
+  "against": "conreg",
+  "pay": {
+    "min": 110,
+    "max": 150
+  },
+  "turns": 2
+}

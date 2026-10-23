@@ -1,0 +1,17 @@
+{
+  "name": "The Halloran family at the door",
+  "text": "The Hallorans are at the lock-up's door with a ledger and a lot of friends.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "face",
+      "label": "Face them",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "raid-smuggler"
+        }
+      ]
+    }
+  ]
+}

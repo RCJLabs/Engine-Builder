@@ -1,0 +1,25 @@
+{
+  "title": "Pawn tickets",
+  "mission": "clear",
+  "pitch": "Some of {client}'s customers pawned the same pistol to her three times. They're drinking the proceeds at {site}. She'd like a word, and you're the word.",
+  "clients": [
+    "linnet"
+  ],
+  "sites": [
+    "brig",
+    "pits"
+  ],
+  "encounter": "regulars",
+  "pay": {
+    "min": 60,
+    "max": 90
+  },
+  "drops": {
+    "chance": 40,
+    "parts": {
+      "quarters": 1,
+      "lifesupport": 1,
+      "bunks": 1
+    }
+  }
+}

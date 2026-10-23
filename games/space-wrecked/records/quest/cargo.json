@@ -1,0 +1,58 @@
+{
+  "name": "The smuggler's cargo",
+  "starts-when": "campaign.background == smuggler",
+  "stages": [
+    {
+      "id": "crates",
+      "log": "Forty crates of the Hallorans' went out your airlock. Bring them back, crate by crate, and square it with the family. Ferris's job, on the board: eleven of the crates, out of the customs pound.",
+      "objectives": [
+        {
+          "id": "job",
+          "text": "Win Eleven crates on the board",
+          "count": {
+            "event": "board/won",
+            "args": {
+              "job": "crates"
+            },
+            "to": 1
+          }
+        }
+      ],
+      "next": "lostcargo",
+      "fail-when": "campaign.act >= 2",
+      "why": "The ship launched: the job went to someone else."
+    },
+    {
+      "id": "lostcargo",
+      "log": "Eleven crates back in Halloran hands. Old Halloran sends word that it's a start. The other twenty-nine crates, adrift where you dumped them: marked on the chart.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -20
+        }
+      ],
+      "objectives": [
+        {
+          "id": "done",
+          "text": "Haul it in for them",
+          "done-when": "events.chose(event: lostcargo, choice: haul)"
+        }
+      ],
+      "next": "colony",
+      "fail-when": "run.past-charts",
+      "why": "The run left the charts behind."
+    },
+    {
+      "id": "colony",
+      "log": "The Hallorans' runner at their drop, within reach of the colony: their collectors hold her.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Halloran runner: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

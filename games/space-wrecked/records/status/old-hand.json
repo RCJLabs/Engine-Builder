@@ -1,0 +1,17 @@
+{
+  "name": "Old hand",
+  "description": "You've been shot at by better than this lot.",
+  "modifiers": [
+    {
+      "stat": "aim",
+      "add": 3
+    },
+    {
+      "stat": "defense",
+      "add": 2
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

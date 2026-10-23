@@ -1,0 +1,78 @@
+{
+  "name": "Debt-bound miner, the captain",
+  "actor": "marine",
+  "names": [
+    "Dell Okafor",
+    "Rosa Vint",
+    "Hollis Marr",
+    "Bea Tanaka",
+    "Tomas Ruiz",
+    "Wren Castell",
+    "June Abara",
+    "Ike Malloy"
+  ],
+  "traits": [
+    {
+      "status": "steady"
+    },
+    {
+      "status": "thick-skull"
+    },
+    {
+      "status": "quick"
+    },
+    {
+      "status": "low-profile"
+    },
+    {
+      "status": "patched"
+    },
+    {
+      "status": "hothead"
+    },
+    {
+      "status": "old-hand"
+    },
+    {
+      "status": "cool-head"
+    },
+    {
+      "status": "bar-fighter"
+    },
+    {
+      "status": "light-sleeper"
+    },
+    {
+      "status": "shift-fit"
+    },
+    {
+      "status": "bruiser"
+    },
+    {
+      "status": "brawler"
+    },
+    {
+      "status": "crack-shot"
+    },
+    {
+      "status": "patient"
+    },
+    {
+      "status": "jumpy"
+    },
+    {
+      "status": "careful"
+    },
+    {
+      "status": "wiry"
+    },
+    {
+      "status": "reckless"
+    },
+    {
+      "status": "long-legs"
+    }
+  ],
+  "most": 2,
+  "draw": "shuffle"
+}

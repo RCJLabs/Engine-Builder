@@ -1,0 +1,10 @@
+{
+  "name": "Company guards",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "guard",
+      "count": 3
+    }
+  ]
+}

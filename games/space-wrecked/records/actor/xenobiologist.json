@@ -1,0 +1,15 @@
+{
+  "name": "Xenobiologist",
+  "description": "Rank 1, Steady dart: Has darted worse things than this. Rank 2, Green thumb: Gets something to grow in any dirt.",
+  "stats": {
+    "hp": 7,
+    "aim": 60,
+    "defense": 5,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 3,
+    "fights": 0
+  },
+  "job": "xenobiologist",
+  "weapon": "Dart gun"
+}

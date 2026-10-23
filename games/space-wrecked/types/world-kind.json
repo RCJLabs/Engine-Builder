@@ -1,0 +1,24 @@
+{
+  "title": "World",
+  "description": "A kind of world past the charts: data/worlds.json.",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text",
+      "min": 1,
+      "label": "Name"
+    },
+    "text": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Text"
+    },
+    "landing": {
+      "kind": "text",
+      "min": 1,
+      "multiline": true,
+      "label": "Landing"
+    }
+  }
+}

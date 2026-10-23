@@ -1,0 +1,13 @@
+{
+  "name": "Quick feet",
+  "description": "First one out when the roof creaks.",
+  "modifiers": [
+    {
+      "stat": "mobility",
+      "add": 1
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Breaking day",
+  "mission": "grab",
+  "pitch": "A hulk came in for breaking this morning, and the scavvers got to it first. {client} has tagged what's his at {site}. Walk it out before they do.",
+  "clients": [
+    "voss"
+  ],
+  "sites": [
+    "breakers"
+  ],
+  "encounter": "scavvers",
+  "pay": {
+    "min": 40,
+    "max": 60
+  },
+  "drops": {
+    "chance": 80,
+    "parts": {
+      "cargo": 1,
+      "shield": 1,
+      "corridor": 1,
+      "engine": 1,
+      "lightengine": 1,
+      "heavyengine": 1,
+      "smallreactor": 1,
+      "largehold": 1,
+      "scrapline-engine": 1,
+      "scrapline-smallreactor": 1
+    }
+  },
+  "crates": 3
+}

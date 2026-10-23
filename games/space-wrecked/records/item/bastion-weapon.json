@@ -1,0 +1,34 @@
+{
+  "name": "Bastion weapon mount",
+  "description": "Bastion Arms",
+  "value": 145,
+  "tags": [
+    "part",
+    "weapon"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -1
+    },
+    {
+      "stat": "mass",
+      "add": 3
+    },
+    {
+      "stat": "hull",
+      "add": 23
+    },
+    {
+      "stat": "guns",
+      "add": 15
+    }
+  ],
+  "category": "weapons",
+  "maker": "bastion",
+  "base": "weapon",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

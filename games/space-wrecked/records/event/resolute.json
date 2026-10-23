@@ -1,0 +1,31 @@
+{
+  "name": "The Resolute",
+  "text": "A Fleet tender at anchor, running lights low: the Resolute, your old ship. Her chief is on the open band, asking anyone for spares. The crate you walked off with would have seen her right.",
+  "choices": [
+    {
+      "id": "pay",
+      "label": "Pay for her spares",
+      "cost": {
+        "credits": 20
+      },
+      "result": "The chief knows your voice and doesn't say so. He logs the money as a gift from a friend of the Fleet, which the Provost will have to read.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -15
+        },
+        {
+          "effect": "change-standing",
+          "faction": "fleet",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "fly",
+      "label": "Keep flying",
+      "result": "Someone else will see her right. Probably."
+    }
+  ]
+}

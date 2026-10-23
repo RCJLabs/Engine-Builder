@@ -1,0 +1,34 @@
+{
+  "name": "Scrapline shield generator",
+  "description": "Scrapline",
+  "value": 90,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -3
+    },
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 9
+    },
+    {
+      "stat": "shield",
+      "add": 10
+    }
+  ],
+  "category": "defense",
+  "maker": "scrapline",
+  "base": "shield",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

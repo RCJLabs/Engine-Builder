@@ -1,0 +1,36 @@
+{
+  "name": "Ion storm",
+  "text": "The instruments go white. An ion storm is rolling through, and the ship is in the middle of it.",
+  "choices": [
+    {
+      "id": "ride",
+      "label": "Ride it out",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "Lights flicker, coffee spills, nothing breaks.",
+          "effects": []
+        },
+        {
+          "chance": 40,
+          "result": "A panel blows in the corridor. Everyone has a scorch mark to show for it.",
+          "effects": [
+            {
+              "effect": "wound",
+              "hp": 2,
+              "all": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "burn",
+      "label": "Burn hard out of it",
+      "cost": {
+        "supplies": 3
+      },
+      "result": "Burning hard eats into the stores, but nobody gets cooked."
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Kestrel shield generator",
+  "description": "Kestrel Dynamics",
+  "value": 170,
+  "tags": [
+    "part",
+    "shield"
+  ],
+  "modifiers": [
+    {
+      "stat": "power",
+      "add": -2
+    },
+    {
+      "stat": "mass",
+      "add": 1
+    },
+    {
+      "stat": "hull",
+      "add": 6
+    },
+    {
+      "stat": "shield",
+      "add": 10
+    }
+  ],
+  "category": "defense",
+  "maker": "kestrel",
+  "base": "shield",
+  "size": {
+    "w": 2,
+    "h": 1
+  }
+}

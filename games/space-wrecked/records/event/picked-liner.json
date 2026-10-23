@@ -1,0 +1,54 @@
+{
+  "name": "Picked-over liner",
+  "text": "A passenger liner, stripped long ago by someone in a hurry. They never got as far as the engine room.",
+  "choices": [
+    {
+      "id": "engines",
+      "label": "Try the engine room",
+      "outcomes": [
+        {
+          "chance": 60,
+          "result": "Behind a jammed hatch: a part still in its mounts, and nobody else's name on it.",
+          "effects": [
+            {
+              "effect": "roll-loot",
+              "table": "colony"
+            }
+          ]
+        },
+        {
+          "chance": 40,
+          "result": "The hatch was jammed for a reason. The squad gets out with some scrap and a burn or two.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 3
+            },
+            {
+              "effect": "wound",
+              "hp": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "galley",
+      "label": "Search the galley",
+      "result": "Sealed rations by the case, still good, or good enough.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "supplies",
+          "by": 8
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave her",
+      "result": "The squad looks once round her dark decks and turns for home."
+    }
+  ]
+}

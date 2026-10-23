@@ -1,0 +1,41 @@
+{
+  "name": "The colony’s finds",
+  "entries": [
+    {
+      "item": "lifesupport",
+      "weight": 3
+    },
+    {
+      "item": "bunks",
+      "weight": 3
+    },
+    {
+      "item": "quarters",
+      "weight": 2
+    },
+    {
+      "item": "smallreactor",
+      "weight": 2
+    },
+    {
+      "item": "cargo",
+      "weight": 2
+    },
+    {
+      "item": "medbay",
+      "weight": 1
+    },
+    {
+      "item": "weapon",
+      "weight": 1
+    },
+    {
+      "item": "shield",
+      "weight": 1
+    },
+    {
+      "item": "armory",
+      "weight": 1
+    }
+  ]
+}

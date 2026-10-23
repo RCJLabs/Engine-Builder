@@ -1,0 +1,44 @@
+{
+  "name": "Halloran yacht",
+  "text": "The Hallorans have sent the yacht. Old Halloran doesn't usually come himself.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "fight",
+      "label": "Fight them off",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "ship-yacht"
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Run for it",
+      "outcomes": [
+        {
+          "chance": 35,
+          "result": "The engines hold, and the ship outruns them. Every band heard the chase.",
+          "effects": [
+            {
+              "effect": "add-to-flag",
+              "flag": "heat",
+              "by": 4
+            }
+          ]
+        },
+        {
+          "chance": 65,
+          "result": "They close before the engines can open the gap.",
+          "effects": [
+            {
+              "effect": "fight",
+              "encounter": "ship-yacht"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "name": "Rich seam",
+  "text": "A seam of ore shows bright on the rock's sunlit face, wider than the scans said.",
+  "choices": [
+    {
+      "id": "deep",
+      "label": "Dig deep",
+      "outcomes": [
+        {
+          "chance": 75,
+          "result": "The seam holds all the way down. The ship comes home heavy.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 12
+            }
+          ]
+        },
+        {
+          "chance": 25,
+          "result": "The face slumps halfway down. The squad gets out with half the ore and some bruises.",
+          "effects": [
+            {
+              "effect": "add-resource",
+              "resource": "materials",
+              "by": 6
+            },
+            {
+              "effect": "wound",
+              "hp": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "skim",
+      "label": "Skim the face",
+      "result": "What comes away easily, and nobody under it.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "materials",
+          "by": 5
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave it",
+      "result": "The ore will keep."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Provost MP",
+  "stats": {
+    "hp": 11,
+    "aim": 75,
+    "defense": 5,
+    "mobility": 4,
+    "armor": 1,
+    "damage": 4
+  },
+  "weapon": "Rifle"
+}

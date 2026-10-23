@@ -1,0 +1,127 @@
+{
+  "name": "Station bar",
+  "description": "Crew looking for a berth, at every station’s bar.",
+  "offers": 2,
+  "recruits": [
+    {
+      "recruit": "green-hand-marine",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-engineer",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-medic",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-pilot",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-scout",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-xenobiologist",
+      "weight": 12
+    },
+    {
+      "recruit": "green-hand-quartermaster",
+      "weight": 12
+    },
+    {
+      "recruit": "station-kid-pilot",
+      "weight": 28
+    },
+    {
+      "recruit": "station-kid-engineer",
+      "weight": 28
+    },
+    {
+      "recruit": "station-kid-quartermaster",
+      "weight": 28
+    },
+    {
+      "recruit": "laid-off-miner-engineer",
+      "weight": 28
+    },
+    {
+      "recruit": "laid-off-miner-marine",
+      "weight": 28
+    },
+    {
+      "recruit": "laid-off-miner-quartermaster",
+      "weight": 28
+    },
+    {
+      "recruit": "survey-hand-xenobiologist",
+      "weight": 28
+    },
+    {
+      "recruit": "survey-hand-scout",
+      "weight": 28
+    },
+    {
+      "recruit": "survey-hand-medic",
+      "weight": 28
+    },
+    {
+      "recruit": "long-hauler-pilot",
+      "weight": 21
+    },
+    {
+      "recruit": "long-hauler-quartermaster",
+      "weight": 21
+    },
+    {
+      "recruit": "long-hauler-engineer",
+      "weight": 21
+    },
+    {
+      "recruit": "long-hauler-scout",
+      "weight": 21
+    },
+    {
+      "recruit": "company-guard-marine",
+      "weight": 28
+    },
+    {
+      "recruit": "company-guard-scout",
+      "weight": 28
+    },
+    {
+      "recruit": "company-guard-medic",
+      "weight": 28
+    },
+    {
+      "recruit": "hired-gun-marine",
+      "weight": 28
+    },
+    {
+      "recruit": "hired-gun-scout",
+      "weight": 28
+    },
+    {
+      "recruit": "hired-gun-pilot",
+      "weight": 28
+    },
+    {
+      "recruit": "fleet-veteran-marine",
+      "weight": 21
+    },
+    {
+      "recruit": "fleet-veteran-pilot",
+      "weight": 21
+    },
+    {
+      "recruit": "fleet-veteran-medic",
+      "weight": 21
+    },
+    {
+      "recruit": "fleet-veteran-scout",
+      "weight": 21
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Low profile",
+  "description": "You learned to keep your head down before you learned to read.",
+  "modifiers": [
+    {
+      "stat": "defense",
+      "add": 5
+    }
+  ],
+  "tags": [
+    "trait"
+  ]
+}

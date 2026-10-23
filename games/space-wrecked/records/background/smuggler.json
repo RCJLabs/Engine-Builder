@@ -1,0 +1,31 @@
+{
+  "name": "Burned smuggler",
+  "description": "Five years running the Hallorans' cargo past customs without a scratch. Then a customs cutter got lucky, and forty crates of their merchandise went out the airlock so you could outrun it. The half-built ship in Kit Marlowe's lock-up is what's left of your share. The Hallorans would like the rest, with interest.",
+  "district": "narrows",
+  "credits": 75,
+  "parts": {
+    "lifesupport": 1,
+    "corridor": 2
+  },
+  "crew": [
+    "engineer",
+    "quartermaster",
+    "medic"
+  ],
+  "ship": [
+    "bridge",
+    "reactor",
+    "corridor",
+    "corridor",
+    "corridor",
+    "airlock",
+    "weapon",
+    "lightengine",
+    "cargo"
+  ],
+  "captain": "captain-smuggler",
+  "pursuer": "the-halloran-family",
+  "thread": "cargo",
+  "launch": "The lock-up drops away, then the Narrows, then the whole grey rock. Five years of the Hallorans' cargo, and the one load you kept is the ship under you. They'll want it back, with interest.",
+  "escaped": "The Hallorans kick in the lock-up's door with their ledger and find an empty cradle. They'll add it to what you owe."
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Docker",
+  "stats": {
+    "hp": 9,
+    "aim": 55,
+    "defense": 0,
+    "mobility": 4,
+    "armor": 0,
+    "damage": 5
+  },
+  "weapon": "Shotgun"
+}

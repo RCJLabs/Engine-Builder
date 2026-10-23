@@ -1,0 +1,58 @@
+{
+  "name": "The miner's debt",
+  "starts-when": "campaign.background == miner",
+  "stages": [
+    {
+      "id": "losepaper",
+      "log": "Con-Reg holds the paper on eleven years of your boots. Lose the paper, and the Company has to find you the hard way. Rook's job, on the board: lose your file from Depot 4's terminal.",
+      "objectives": [
+        {
+          "id": "job",
+          "text": "Win Losing the paper on the board",
+          "count": {
+            "event": "board/won",
+            "args": {
+              "job": "losepaper"
+            },
+            "to": 1
+          }
+        }
+      ],
+      "next": "refiled",
+      "fail-when": "campaign.act >= 2",
+      "why": "The ship launched: the job went to someone else."
+    },
+    {
+      "id": "refiled",
+      "log": "Your file is gone from Depot 4. Con-Reg will find the paper again, but not this month. Con-Reg's courier, with your paper filed again: marked on the chart.",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": -20
+        }
+      ],
+      "objectives": [
+        {
+          "id": "done",
+          "text": "Find your file",
+          "done-when": "events.chose(event: refiled, choice: board)"
+        }
+      ],
+      "next": "colony",
+      "fail-when": "run.past-charts",
+      "why": "The run left the charts behind."
+    },
+    {
+      "id": "colony",
+      "log": "Con-Reg's claims tender, within reach of the colony: Recovery holds her.",
+      "objectives": [
+        {
+          "id": "colony",
+          "text": "Con-Reg claims tender: act 3",
+          "done-when": "campaign.act >= 3"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Patrol corvette",
+  "description": "Her boarding party: patrol crew.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "guard"
+    },
+    {
+      "actor": "heavy"
+    },
+    {
+      "actor": "guard"
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-corvette"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "fleet",
+      "by": -3
+    }
+  ]
+}

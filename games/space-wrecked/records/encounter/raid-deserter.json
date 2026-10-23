@@ -1,0 +1,31 @@
+{
+  "name": "Provost snatch squad",
+  "description": "The Fleet Provost at the hangar door.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp"
+    },
+    {
+      "actor": "cadet",
+      "count": 2
+    }
+  ],
+  "win": [
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
+    }
+  ],
+  "lose": [
+    {
+      "effect": "set-flag",
+      "flag": "heat",
+      "to": 40
+    },
+    {
+      "effect": "raid-loss"
+    }
+  ]
+}

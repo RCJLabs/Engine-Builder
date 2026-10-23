@@ -1,0 +1,26 @@
+{
+  "name": "Bastion corridor",
+  "description": "Bastion Arms",
+  "value": 10,
+  "tags": [
+    "part",
+    "corridor"
+  ],
+  "modifiers": [
+    {
+      "stat": "mass",
+      "add": 2
+    },
+    {
+      "stat": "hull",
+      "add": 15
+    }
+  ],
+  "category": "utility",
+  "maker": "bastion",
+  "base": "corridor",
+  "size": {
+    "w": 1,
+    "h": 1
+  }
+}

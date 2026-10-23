@@ -1,0 +1,27 @@
+{
+  "title": "Signed for",
+  "mission": "hack",
+  "pitch": "{client} signed for more stores than the Fleet ever sent. The manifest on the terminal at {site} needs to agree with him before the auditors land.",
+  "clients": [
+    "dunne"
+  ],
+  "sites": [
+    "bonded"
+  ],
+  "encounter": "customs",
+  "against": "fleet",
+  "pay": {
+    "min": 80,
+    "max": 120
+  },
+  "drops": {
+    "chance": 50,
+    "parts": {
+      "medbay": 1,
+      "lifesupport": 1,
+      "surgery": 1,
+      "largehold": 1
+    }
+  },
+  "turns": 2
+}

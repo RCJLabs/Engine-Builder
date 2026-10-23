@@ -1,0 +1,9 @@
+{
+  "name": "Heat",
+  "description": "How close the pursuer is: hunters from 50, a raid from 75",
+  "number": {
+    "start": 0,
+    "min": 0,
+    "max": 100
+  }
+}

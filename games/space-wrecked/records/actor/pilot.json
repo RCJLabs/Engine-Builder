@@ -1,0 +1,15 @@
+{
+  "name": "Pilot",
+  "description": "Rank 1, Second wind: Always has another move or two in them. Rank 2, Ace: Flies the ship like part of themselves.",
+  "stats": {
+    "hp": 8,
+    "aim": 65,
+    "defense": 10,
+    "mobility": 5,
+    "armor": 0,
+    "damage": 3,
+    "fights": 0
+  },
+  "job": "pilot",
+  "weapon": "Pistol"
+}

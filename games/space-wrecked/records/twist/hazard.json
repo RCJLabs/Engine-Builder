@@ -1,0 +1,6 @@
+{
+  "name": "Hazard pay",
+  "text": "Something on site is on fire. The pay's better for it, and so's the noise.",
+  "pay": 50,
+  "loud": true
+}

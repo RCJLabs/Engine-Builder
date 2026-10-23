@@ -1,0 +1,30 @@
+{
+  "title": "Turf",
+  "mission": "clear",
+  "pitch": "The Hallorans are collecting at {site} tonight. {client} would like them not to. So would you, as it happens.",
+  "clients": [
+    "pike"
+  ],
+  "sites": [
+    "velvet",
+    "quarry"
+  ],
+  "encounter": "collectors",
+  "against": "hallorans",
+  "pay": {
+    "min": 100,
+    "max": 140
+  },
+  "drops": {
+    "chance": 30,
+    "parts": {
+      "shield": 1,
+      "weapon": 1,
+      "cannon": 1,
+      "pointdefense": 1,
+      "shieldarray": 1,
+      "bastion-weapon": 1,
+      "bastion-shield": 1
+    }
+  }
+}

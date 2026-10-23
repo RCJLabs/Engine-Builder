@@ -1,0 +1,22 @@
+{
+  "name": "Fleet frigate",
+  "description": "Her boarding party: provost squad.",
+  "combat": "boarding",
+  "foes": [
+    {
+      "actor": "mp",
+      "count": 3
+    }
+  ],
+  "win": [
+    {
+      "effect": "roll-loot",
+      "table": "ship-frigate"
+    },
+    {
+      "effect": "change-standing",
+      "faction": "fleet",
+      "by": -3
+    }
+  ]
+}
