@@ -1,0 +1,67 @@
+/* The previews above a sound's, an ambience's and a music's forms (M4.8): buttons in a row that
+   wraps, every control at least 44 px tall, the samples drawn in the accent, nothing wider than a
+   290 px inspector. */
+
+.sound-preview,
+.loop-preview {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0 0 12px;
+}
+
+.sound-preview h4,
+.loop-preview h4 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.sound-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sound-wave {
+  width: 100%;
+  max-width: 290px;
+  height: 48px;
+  color: var(--accent);
+}
+
+.sound-note {
+  margin: 0;
+}
+
+.sound-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sound-field select,
+.sound-field input {
+  min-height: var(--tap);
+}
+
+.loop-parts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.loop-part {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  overflow-wrap: anywhere;
+}
+
+.loop-part input {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}

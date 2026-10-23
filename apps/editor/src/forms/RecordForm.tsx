@@ -1,7 +1,10 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
 import { type DataType, type Diagnostic, slotScope } from '@eb/schema';
+import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { LoopPreview } from '../audio/LoopPreview.tsx';
+import { SoundPreview } from '../audio/SoundPreview.tsx';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { FightPreview } from '../encounters/FightPreview.tsx';
@@ -216,6 +219,11 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         ) : null}
         {type === ENCOUNTER && catalog.kits.includes(ENCOUNTERS) ? (
           <FightPreview id={id} value={value} kits={catalog.kits} project={project} />
+        ) : null}
+        {/* The engine's audio types hear themselves above their fields (M4.8). */}
+        {type === SOUND ? <SoundPreview id={id} value={value} /> : null}
+        {type === AMBIENCE || type === MUSIC ? (
+          <LoopPreview type={type} id={id} value={value} project={project} />
         ) : null}
         {fields.map(([name, def]) => {
           const held =
