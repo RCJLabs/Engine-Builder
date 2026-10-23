@@ -73,6 +73,14 @@ test('the theme designed by its colours, each pair’s contrast shown as it is p
   await expect
     .poll(async () => JSON.parse((await storedText(page, FOLDER, 'ui/theme.json')) ?? '{}').colors?.muted)
     .toBe('#2a3038');
+  // The interface's sounds (M4.8), picked by name: Back gets the door.
+  const sounds = theme.getByRole('group', { name: /^Interface sounds/ });
+  await expect(sounds.getByRole('button', { name: /^Back .*Click/ })).toBeVisible();
+  await sounds.getByRole('button', { name: /^Back / }).click();
+  await page.getByRole('dialog', { name: 'Choose a sound' }).getByRole('option', { name: 'Door (door)' }).click();
+  await expect
+    .poll(async () => JSON.parse((await storedText(page, FOLDER, 'ui/theme.json')) ?? '{}').sounds)
+    .toEqual({ press: 'click', open: 'click', back: 'door' });
   expect(errors).toEqual([]);
 });
 

@@ -104,7 +104,12 @@ export async function type(region: Locator, label: string | RegExp, text: string
 /** The screen's file as the editor stores it, parsed and written again: its values in their key order. */
 export async function storedScreen(page: Page, id: string): Promise<string> {
   const text = await storedText(page, FOLDER, `ui/${id}.json`);
-  return text === null ? '' : JSON.stringify(JSON.parse(text));
+  // A file caught mid-write reads as not there yet, as storedText's own failures do.
+  try {
+    return text === null ? '' : JSON.stringify(JSON.parse(text));
+  } catch {
+    return '';
+  }
 }
 
 /** The fixture's screen, its values in their key order. */

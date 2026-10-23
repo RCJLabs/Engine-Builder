@@ -4,7 +4,7 @@ How a game sounds and buzzes: sound effects as layered ZzFX voices, ambience syn
 
 ## Records
 
-Three engine types, which every project has, as it has flags and sheets: `sound`, `ambience` and `music`. They have forms, the Records table, pickers, used-by and renames as any type does.
+Three engine types, which every project has, as it has flags and sheets: `sound`, `ambience` and `music`. They have forms, pickers, used-by and renames as any type does, and their tables in Records come after a project's own types (flags and sheets stay in the Logic panel). A new record's id comes from its name, as any record's does.
 
 ### Sound
 
@@ -104,10 +104,10 @@ A feedback line ([input.md](input.md#feedback)) gains `sound` and `buzz`, and `s
 
 ## The player
 
-- **Starts on the first gesture:** a press, a key or a pad's button makes the audio context, or resumes it.
+- **Starts on the first gesture:** a press, a key or a pad's button makes the audio context, or resumes it. Opening a game is not one; raising Sound from 0 in the settings is, since it is a press.
 - **A hidden tab** suspends it; a shown one resumes it.
-- **Buzzes** wait for the page's first activation and need `navigator.vibrate`; with Vibration off, none.
-- **The hook:** `window.__ebAudio` holds what the player is doing: `{ context, ambience, music, levels, volumes, played }`, `played` the last 50 sounds and buzzes, each `{ kind, id, at }`. The e2e reads it; nothing else does.
+- **Buzzes** wait for the page's first activation and need `navigator.vibrate`; with Vibration off, none. They don't need the context: with Sound at 0 a step still buzzes.
+- **The hook:** `window.__ebAudio` holds what the player is doing: `{ context, ambience, music, levels, buses, played }`, `context` one of `none`, `running` and `suspended`, `buses` each bus's gain as set (empty with no context), `played` the last 50 sounds and buzzes, each `{ kind, id, at }`. The editor's previews note what they play there too. The e2e reads it; nothing else does.
 
 ## Checks
 
@@ -121,27 +121,30 @@ A feedback line ([input.md](input.md#feedback)) gains `sound` and `buzz`, and `s
 
 ## The editor
 
-- **Above a sound's form:** Play; the samples drawn; its length and peak; Start from, which fills its voices from a preset (Blip, Pickup, Jump, Hit, Laser, Explosion, Power-up, Step); Vary, which nudges each set field a little; and Paste ZzFX, which takes `zzfx(...[…])` or a bare array into a voice.
-- **Above an ambience's or a music's form:** Play and Stop, and a box for each layer, each sound now and then, or each stem with a condition, to hear it as if the condition held.
-- **The screen designer** gains Ambience and Music pickers in the screen's own form; **the theme designer** gains Press, Open and Back.
+- **Above a sound's form:** Play; the samples drawn; its length and peak as played; Start from, which fills its voices from a preset (Blip, Pickup, Jump, Hit, Laser, Explosion, Power-up, Step), each drawn from its own ranges; Vary, which moves each number a voice sets by up to a tenth either way, in bounds, keeping its shape and start; and Paste as a new voice, which takes what ZzFX's designer copies (`zzfx(...[…])`, `zzfx(…)`, a bare array or bare numbers), holes as ZzFX's defaults, and adds it as a voice, up to three. Each is one step of undo; Vary and Paste work on the voices as the file holds them, so nothing half typed is lost. A sound plays in the editor through a context of its own, at ZzFX's level.
+- **Above an ambience's or a music's form:** Play and Stop, through the game's own player, and a box for each layer, sound now and then or stem with a condition, to hear it as if the condition held. A music's files are read from the project as Play is pressed.
+- **The screen designer** gains Ambience and Music pickers in the screen's own form, written after the screen's parts; **the theme designer** gains Interface sounds: A press, A screen opening and Back. The designer's pickers name records as the record form's do, "Hut (hut)".
 - **Feedback** stays JSON, its new fields checked at their lines.
 
 ## Where it lives
 
-- `packages/ui/src/audio/`: `zzfx.ts` (the port), `render.ts` (a sound, a layer), `mix.ts` (`mixOf`, pure), `buzz.ts`, `player.ts` (Web Audio), `useAudio.ts`.
+- `packages/ui/src/format/audio.ts`: the records' shapes, the buzzes, `zzfxArgs` and `voiceFromZzfx`.
+- `packages/ui/src/audio/`: `zzfx.ts` (the port), `render.ts` (a sound, a layer), `mix.ts` (`mixOf`, `audioConditions` and `heaviest`, pure), `player.ts` (Web Audio, and the buzzes), `hook.ts` (`window.__ebAudio`), `useAudio.ts`.
+- `packages/ui/src/session/`: `audioPack.ts` (the records as the page plays them), the cues in `say.ts`, `play.ts` and the `stepped` reply.
 - `packages/schema/src/audioTypes.ts`: the three type files; `uiCheck.ts` and `feedbackCheck.ts` gain the references.
-- `packages/core/src/pack.ts`: format 8. `packages/compiler/src/ui.ts`: the files packed.
-- `apps/editor/src/audio/`: the previews above the forms, the presets, Paste ZzFX.
+- `packages/core/src/pack.ts`: format 8. `packages/compiler/src/audioFiles.ts`: the files packed.
+- `apps/editor/src/audio/`: the previews above the forms (`SoundPreview.tsx`, `LoopPreview.tsx`) and what they do as plain functions (`soundEdits.ts`: the presets, Vary, Paste; `loopParts.ts`: the parts and the mix a preview plays).
 
 ## The gate
 
-- **The hut** gains sounds, two ambiences (the hut's wind, with rain while the storm is on, and the storm's), a music of one stem (a loop the engine's own synth rendered, logged as the project's own), buzzes on its feedback, and the theme's sounds. The Phase 3 spec builds them in the editor with forms, and the export is still the fixture file for file.
-- **Desktop** (`audio.spec.ts`): the hut played in the Play panel and at `/play/`; the hook shows no context until the first press, the hut's ambience and music at the start, the storm's ambience while the storm screen is up, each feedback line's sound as its beat comes and its buzz caught from `navigator.vibrate`; Sound at 0 makes no context; Music at 0 sets its bus to 0; a hidden tab suspends. Above a sound's form Play plays it (the hook shows it), Paste ZzFX fills a voice, and Start from fills a sound.
-- **Phones** (`audioPhone.spec.ts`), at 360×740, 390×844 and 844×390: the settings' volumes by touch, each in reach with no target under 44 px and nothing axe finds; a sound's preview by touch in the inspector's sheet.
-- **Node** (`audio.test.ts`): our port matches the `zzfx` package's `buildSamples` sample for sample over random parameters; every hut sound and ambience layer renders to its golden hash, peaks under 1, loops without a seam.
+- **The hut** gains five sounds (a load, a coin, a chime, a door and a click), two ambiences (the hut's wind, with rain from day 4 and the door now and then, and the storm's), a music of one stem (an arpeggio the engine's own synth rendered, `tools/cli/test/fixtures/hut-theme.ts`, logged as the project's own), sounds and buzzes on four feedback lines, and the theme's click. The Phase 3 spec builds them in the editor: the stem imported in Assets with its provenance, each sound pasted in voice by voice as ZzFX's designer copies it, the ambiences and the music made with their forms, each landing as the fixture holds it; the export is still the fixture file for file, the stem byte for byte.
+- **Desktop** (`audio.spec.ts`): the hut played in the Play panel and at `/play/`; the hook shows no context until the first press, the hut's ambience and music at the start, the storm's ambience while the storm screen is up, the rain once day 4 comes, quiet once the hut is shut, each feedback line's sound as its beat comes and its buzz caught from `navigator.vibrate`; Sound at 0 makes no context, though a step still buzzes; Music at 0 sets its bus to 0; a hidden page suspends. Above a sound's form Play plays it (the hook shows it), Start from fills it, Paste ZzFX refuses what isn't ZzFX and adds a voice, one undo taking it back; above an ambience's, Play and a condition ticked; above a music's, Play.
+- **Phones** (`audioPhone.spec.ts`), at 360×740, 390×844 and 844×390: the settings' volumes by touch, each in reach with no target under 44 px and nothing axe finds, the buses following; a sound's preview played and varied by touch in the inspector's sheet.
+- **Node:** `zzfx.test.ts`, our port against the `zzfx` package's `buildSamples`, byte for byte over 200 random sounds; `mix.test.ts`, the mix, the heaviest buzz, voices at their starts, layers that meet themselves; `hutAudio.test.ts`, the hut's pack at format 8 with its stem byte for byte, every hut sound and layer rendering to its pinned hash under full scale as played, and a carried load's cues and the mix through the worker's host.
 
 ## Open questions
 
 1. Ducking music and ambience under a talk, as Dirtbag and Chooser do.
 2. A lint for a sound a phone's speaker can't play: most of its energy below 500 Hz (Rule or Drool's model).
 3. Whether stems should be Ogg or WAV: Ogg is a tenth of the size, but Safari before 18.4 can't play Ogg Opus.
+4. The provenance form offers Tool only for generated art, so the hut's stem, the project's own work made with the engine's synth, names its tool in its source line. Whether own work should have a Tool box too.
