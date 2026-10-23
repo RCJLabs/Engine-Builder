@@ -3,7 +3,7 @@
  * past the charts and its kinds of world, and the balance numbers the scripts read.
  */
 import { defined, idOf, type RecordSet } from './records.ts';
-import type { Source } from './source.ts';
+import { balanceOf, type Source } from './source.ts';
 
 /** What arriving at a node of each kind does: the deck it draws from, or the script's own. */
 const ARRIVE: Readonly<Record<string, readonly Record<string, unknown>[]>> = {
@@ -145,11 +145,7 @@ export function importRun(source: Source, set: RecordSet): void {
   }
 
   const rules: Record<string, number> = {};
-  for (const key of RULE_KEYS) {
-    const value = b[key];
-    if (value === undefined) throw new Error(`No balance number ${key}`);
-    rules[idOf(key.replace(/([A-Z])/g, ' $1'))] = value;
-  }
+  for (const key of RULE_KEYS) rules[idOf(key.replace(/([A-Z])/g, ' $1'))] = balanceOf(source, key);
   const liftOff = source.campaign.acts.find((act) => act.act === 1)?.liftOff;
   if (typeof liftOff !== 'number') throw new Error('No lift-off in act 1');
   set.add('rules', 'balance', {

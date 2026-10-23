@@ -13,6 +13,7 @@
       "actor": "agent"
     }
   ],
+  "breaks": 62,
   "win": [
     {
       "effect": "roll-loot",

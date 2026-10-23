@@ -1,0 +1,108 @@
+{
+  "title": "Refit",
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Refit the ship",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Parts in the hold fit any free hull space; fitted parts come off into the hold. {refit.free} hull space free."
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "The flight checklist",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "Power {stats.value(actor: ship, stat: power)}: enough",
+            "shows-when": "campaign.check(line: power)"
+          },
+          {
+            "widget": "text",
+            "text": "Power {stats.value(actor: ship, stat: power)}: short. Fit a reactor, or take off a part that uses power.",
+            "shows-when": "not campaign.check(line: power)"
+          },
+          {
+            "widget": "text",
+            "text": "Thrust {stats.value(actor: ship, stat: thrust)} for mass {stats.value(actor: ship, stat: mass)}: it flies",
+            "shows-when": "campaign.check(line: thrust)"
+          },
+          {
+            "widget": "text",
+            "text": "Thrust {stats.value(actor: ship, stat: thrust)} for mass {stats.value(actor: ship, stat: mass)}: not enough. Fit an engine.",
+            "shows-when": "not campaign.check(line: thrust)"
+          },
+          {
+            "widget": "text",
+            "text": "Berths {stats.value(actor: ship, stat: berths)} for {roster.count} crew",
+            "shows-when": "campaign.check(line: berths)"
+          },
+          {
+            "widget": "text",
+            "text": "Berths {stats.value(actor: ship, stat: berths)} for {roster.count} crew: fit crew quarters or bunks",
+            "shows-when": "not campaign.check(line: berths)"
+          },
+          {
+            "widget": "text",
+            "text": "Life support {stats.value(actor: ship, stat: life-support)} for {roster.count} crew",
+            "shows-when": "campaign.check(line: air)"
+          },
+          {
+            "widget": "text",
+            "text": "Life support {stats.value(actor: ship, stat: life-support)} for {roster.count} crew: fit life support or bunks",
+            "shows-when": "not campaign.check(line: air)"
+          },
+          {
+            "widget": "text",
+            "text": "A bridge, reactor, engine and airlock aboard",
+            "shows-when": "campaign.check(line: parts)"
+          },
+          {
+            "widget": "text",
+            "text": "Aboard: {stats.value(actor: ship, stat: bridges)} bridge, {stats.value(actor: ship, stat: reactors)} reactor, {stats.value(actor: ship, stat: engines)} engine, {stats.value(actor: ship, stat: airlocks)} airlock. Each needs one.",
+            "shows-when": "not campaign.check(line: parts)"
+          }
+        ]
+      },
+      {
+        "widget": "list",
+        "of": "offered",
+        "takes": ["refit/*"],
+        "empty": "Nothing to fit or take off.",
+        "item": {
+          "widget": "button",
+          "label": "{.label}",
+          "action": {
+            "take": "entry"
+          }
+        }
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Done",
+        "action": {
+          "close": true
+        },
+        "style": "primary"
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

@@ -47,6 +47,38 @@ describe('a hall', () => {
   });
 });
 
+describe('a hall’s offers as facts', () => {
+  it('say who stands in each slot, rolled from what, with which traits and for what fee', () => {
+    const state = visit(start(), 'dock');
+    for (const slot of [0, 1]) {
+      const offer = offerAt(content(state), slice(state), 'dock', slot);
+      expect(fact(state, 'roster.offer', { hall: 'dock', slot })).toBe(offer.name);
+      expect(fact(state, 'roster.offer-recruit', { hall: 'dock', slot })).toBe(offer.recruit);
+      expect(fact(state, 'roster.offer-fee', { hall: 'dock', slot, resource: 'credits' })).toBe(offer.fee.credits ?? 0);
+      // A resource the fee doesn't name costs nothing, whatever the fee in credits.
+      expect(offer.fee.credits).toBeGreaterThan(0);
+      expect(fact(state, 'roster.offer-fee', { hall: 'dock', slot, resource: 'rations' })).toBe(0);
+      const names = (offer.traits ?? []).map(
+        (trait) => (RECORDS.status as Record<string, { name?: string }>)[trait]?.name ?? trait,
+      );
+      expect(fact(state, 'roster.offer-traits', { hall: 'dock', slot })).toBe(
+        names.length > 0 ? names.join(', ') : undefined,
+      );
+    }
+  });
+
+  it('have no value for a slot the hall doesn’t have, or one hired this round', () => {
+    const state = visit(start(), 'dock');
+    expect(fact(state, 'roster.offer', { hall: 'dock', slot: 2 })).toBeUndefined();
+    const hired = (hire(state, 1) as { state: GameState }).state;
+    expect(fact(hired, 'roster.offer', { hall: 'dock', slot: 1 })).toBeUndefined();
+    expect(fact(hired, 'roster.offer-fee', { hall: 'dock', slot: 1, resource: 'credits' })).toBeUndefined();
+    expect(fact(hired, 'roster.offer', { hall: 'dock', slot: 0 })).toBe(
+      fact(state, 'roster.offer', { hall: 'dock', slot: 0 }),
+    );
+  });
+});
+
 describe('hiring', () => {
   it('pays the fee, makes the offer a member and marks its slot hired for the round', () => {
     const before = visit(start(), 'dock');

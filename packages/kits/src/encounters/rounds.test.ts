@@ -175,3 +175,28 @@ describe('worked out exactly', () => {
     }
   });
 });
+
+describe('the tables kept', () => {
+  // endsOf keeps the last tables it worked out (M4.12): a number left out of their key would hand
+  // one fight another's table.
+  it('gives the same numbers the same table, and works a fight out again when any number changes', () => {
+    const party = [fighter(3, { hit: 60, damage: 2 }), fighter(2)];
+    const foes = [fighter(3), fighter(2, { hit: 20, damage: 2 })];
+    const base = match(party, foes, { hitMin: 5, hitMax: 95, rounds: 6, breaks: 60 });
+    const first = endsOf(base);
+    expect(endsOf({ ...base, party: party.map((f) => ({ ...f })) })).toBe(first);
+    const changed = (line: Fighter[], key: keyof Omit<Fighter, 'actor'>, by: number) =>
+      line.map((f, i) => (i === 0 ? { ...f, [key]: f[key] + by } : f));
+    const others: [string, Match][] = [
+      ['hitMin', { ...base, hitMin: 30 }],
+      ['hitMax', { ...base, hitMax: 50 }],
+      ['rounds', { ...base, rounds: 2 }],
+      ['breaks', { ...base, breaks: 100 }],
+      ...(['health', 'hit', 'dodge', 'damage', 'armour'] as const).flatMap((key): [string, Match][] => [
+        [`the party's ${key}`, { ...base, party: changed(party, key, key === 'hit' ? -30 : 1) }],
+        [`the foes' ${key}`, { ...base, foes: changed(foes, key, key === 'hit' ? 30 : 1) }],
+      ]),
+    ];
+    for (const [what, other] of others) expect(endsOf(other), what).not.toEqual(first);
+  });
+});

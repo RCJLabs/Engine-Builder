@@ -29,6 +29,7 @@ import {
   rosterRecord,
   settleRank,
 } from './members.ts';
+import { offerFacts } from './offerFacts.ts';
 import { MADE, nextRecruit, recruitId } from './offers.ts';
 import { HALL, HIRING, ROSTER, type RosterSlice } from './types.ts';
 
@@ -52,6 +53,7 @@ const holds = (words: (test: FactTest) => string) => (test: FactTest) =>
 const bondWords = (test: FactTest) => `the bond of ${arg(test, 'actor')} and ${arg(test, 'with')}`;
 
 const facts: Def['facts'] = {
+  ...offerFacts,
   count: { domain: COUNT, label: 'the roster’s size', read: ({ state }) => state.members.length },
   room: { domain: COUNT, label: 'room on the roster', read: (view) => roomOf(view, view.state) },
   member: {

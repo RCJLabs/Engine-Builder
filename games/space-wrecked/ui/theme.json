@@ -1,0 +1,14 @@
+{
+  "colors": {
+    "background": "#0b0f17",
+    "surface": "#172033",
+    "text": "#e8edf5",
+    "muted": "#a7b2c6",
+    "accent": "#f2a65a",
+    "on-accent": "#1a0e02"
+  },
+  "font": "system-ui, sans-serif",
+  "size": 16,
+  "space": 8,
+  "radius": 8
+}

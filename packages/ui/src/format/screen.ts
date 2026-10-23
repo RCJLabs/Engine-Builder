@@ -144,6 +144,11 @@ export type Widget =
       readonly known?: string;
       /** What a `records` list draws for an entry held back, showing nothing of its record. */
       readonly unknown?: Widget;
+      /**
+       * An `offered` list's action types, or a module's as `module/*`: only those are listed, so a
+       * refit screen lists refits and not everything on offer (M4.12). Every one when left out.
+       */
+      readonly takes?: readonly string[];
     })
   | (Base & {
       readonly widget: 'tabs';
@@ -216,6 +221,19 @@ export type ListWidget = Extract<Widget, { widget: 'list' }>;
  */
 export const listKey = (list: Pick<ListWidget, 'of' | 'type' | 'known'>): string =>
   list.of === 'records' ? `records:${list.type ?? ''}:${list.known ?? ''}` : list.of;
+
+/** Whether a `takes` entry names an action type: the type itself, or its module's `module/*`. */
+export const takesType = (takes: string, type: string): boolean =>
+  takes.endsWith('/*') ? type.startsWith(takes.slice(0, -1)) : takes === type;
+
+/** Whether a list shows an entry with this action: an `offered` list only those its `takes` names. */
+export const listTakes = (
+  list: Pick<ListWidget, 'of' | 'takes'>,
+  action: { readonly type: string } | undefined,
+): boolean =>
+  list.of !== 'offered' ||
+  list.takes === undefined ||
+  list.takes.some((t) => action !== undefined && takesType(t, action.type));
 
 /** Whether a fact or condition as written names `@entry`, so it is read for each entry of its list. */
 export const namesEntry = (text: string): boolean => /@entry(?![a-z0-9-])/.test(text);

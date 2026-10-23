@@ -1,0 +1,54 @@
+{
+  "title": "Credits",
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Space-Wrecked",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "Copyright RCJLabs. All rights reserved. Acts 1 and 2, rebuilt from the original’s data with Engine-Builder."
+      },
+      {
+        "widget": "list",
+        "of": "credits",
+        "empty": "No assets to credit: everything here is text.",
+        "item": {
+          "widget": "panel",
+          "children": [
+            {
+              "widget": "text",
+              "text": "{.asset}",
+              "style": "heading"
+            },
+            {
+              "widget": "text",
+              "text": "{.author} · {.licence}"
+            }
+          ]
+        }
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        },
+        "style": "primary"
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

@@ -7,7 +7,16 @@
  */
 import { fighterStats } from './crew.ts';
 import { defined, idOf, type RecordSet } from './records.ts';
-import type { Source } from './source.ts';
+import { balanceOf, type Source } from './source.ts';
+
+/**
+ * The rebuild's own tuning, as the board's BREAKS: the share of their health a hangar raid's and
+ * a boarding party's foes lose before they give up. The original fights both on a ship's map, the
+ * crew in cover, which this fight has no stand-in for. Set against its measured rates with the
+ * start crew (a raid 51 to 61%, a cutter boarding about 52%): these give 56% and 53%.
+ */
+export const RAID_BREAKS = 40;
+export const BOARDING_BREAKS = 62;
 
 /** Enemies in a line, the front first: a run of the same kind is one entry with its count. */
 export function foesOf(enemies: readonly string[]): { actor: string; count?: number }[] {
@@ -57,7 +66,8 @@ export function importFights(source: Source, set: RecordSet): void {
 function importShips(source: Source, set: RecordSet): void {
   const hostile = source.sectors.nodes.find((n) => n.id === 'hostile');
   const sides = new Map(source.factions.sides.map((s) => [s.id, s]));
-  const { fleeChance, approachHeat, shipStanding } = source.balance;
+  const { approachHeat } = source.balance;
+  const [fleeChance, shipStanding] = [balanceOf(source, 'fleeChance'), balanceOf(source, 'shipStanding')];
   const pursuers = new Set(
     source.backgrounds.backgrounds.flatMap((b) => [b.pursuer.run.hunters, b.pursuer.run.taskForce]),
   );
@@ -86,6 +96,7 @@ function importShips(source: Source, set: RecordSet): void {
         description: `Her boarding party: ${encounterOf(source, ship.party).name}.`,
         combat: 'boarding',
         foes: foesOf(encounterOf(source, ship.party).enemies),
+        breaks: BOARDING_BREAKS,
         // Boarding a side's ship costs standing with it (shipStanding).
         win: [
           ...(pays ? [{ effect: 'roll-loot', table: id }] : []),
@@ -174,6 +185,7 @@ function importRaids(source: Source, set: RecordSet): void {
       description: `${pursuer.name} at the hangar door.`,
       combat: 'boarding',
       foes: foesOf(raiders.enemies),
+      breaks: RAID_BREAKS,
       win: [after],
       lose: [after, { effect: 'raid-loss' }],
     });

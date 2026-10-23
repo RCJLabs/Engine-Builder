@@ -1,0 +1,47 @@
+{
+  "title": "Who were you?",
+  "shows": ["choose"],
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Who were you, before the ship?",
+        "style": "title"
+      },
+      {
+        "widget": "list",
+        "of": "records",
+        "type": "background",
+        "empty": "No backgrounds.",
+        "item": {
+          "widget": "panel",
+          "children": [
+            {
+              "widget": "text",
+              "text": "{.name}",
+              "style": "heading"
+            },
+            {
+              "widget": "text",
+              "text": "{.description}"
+            }
+          ]
+        }
+      },
+      {
+        "widget": "list",
+        "of": "offered",
+        "item": {
+          "widget": "button",
+          "label": "{.label}",
+          "action": {
+            "take": "entry"
+          },
+          "style": "primary"
+        }
+      }
+    ],
+    "gap": 2
+  }
+}

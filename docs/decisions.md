@@ -1570,6 +1570,7 @@ Evan chose on 2026-10-23, from these options:
 - **Two games to keep in step with the content:** the import is a one-way copy, and later changes to the original don't follow.
 - **The rebuild's fight odds won't match the original's exactly.** The reading says by how much.
 - **The ship's layout, which the builder decides, has no stand-in:** a part's place on the hull doesn't matter here.
+- **As built (2026-10-23):** the original's fights end sooner than the encounters kit's do by default, so each fight's `breaks` is set, a stand-in tuned to the start crew's measured rates ([specs/space-wrecked.md](specs/space-wrecked.md#the-tuning)).
 
 ---
 

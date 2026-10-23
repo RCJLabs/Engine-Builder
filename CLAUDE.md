@@ -41,7 +41,8 @@ pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
 pnpm build        # an exported game's runtime into apps/editor/dist-game, then apps/editor/dist (the player page at play/
-                  # and the runtime at runtime/ with it), then the 3D spike into apps/editor/dist/spikes/3d
+                  # and the runtime at runtime/ with it), then the 3D spike into apps/editor/dist/spikes/3d, then
+                  # pnpm build:games: Space-Wrecked's web export into apps/editor/dist/games/space-wrecked (M4.12)
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
@@ -51,6 +52,7 @@ pnpm eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--golde
 pnpm eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]
 pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the repository, committed with your git
 pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
+pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -207,7 +209,9 @@ apps/editor/           the editor PWA
                        target and played: the file from file://, the web build served, offline and updated, the
                        itch.io zip, a taster's E055 and leak check, and Publish's repository; templateHelpers.ts,
                        templates.spec.ts and templatesPhone.spec.ts are M4.11's, a project from each template, its
-                       guide followed, played to an ending and exported as one file, on desktop and by touch
+                       guide followed, played to an ending and exported as one file, on desktop and by touch;
+                       spaceWrecked.spec.ts is M4.12's, Space-Wrecked's web export played by touch sideways and
+                       upright (a captain, a job from the board, a part fitted), and its size budget
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -258,7 +262,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        M4.7: encounterTypes.ts (combat, encounter), encounterEffects.ts (fight, with its stance, as
                        fields), encounterCheck.ts (E035, E054, W137); a button's detail checked as its label;
                        M4.8: audioTypes.ts (sound, ambience, music: the engine's audio types, in ENGINE_DATA); a
-                       screen's ambience and music, a theme's sounds and a feedback line's sound as E049; not pure
+                       screen's ambience and music, a theme's sounds and a feedback line's sound as E049; M4.12:
+                       listCheck.ts (a list's checks: its source's kit, a codex's fields, an offered list's takes,
+                       E049); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -286,7 +292,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        gear/ (worn.ts, module.ts: equip and unequip); M3.5 (D43): factions/ (standing.ts: bounds,
                        bands, prices, drift; module.ts) and time/ (the time module with project.json's calendar);
                        M3.6 (D44): roster/ (offers.ts: recruits rolled and made; members.ts: cap, join, leave, ranks;
-                       bonds.ts; hall.ts: hiring; module.ts, built knowing whether economy is on); bands.ts (the band
+                       bonds.ts; hall.ts: hiring; offerFacts.ts: a hall's offers as facts, M4.12; module.ts, built
+                       knowing whether economy is on); bands.ts (the band
                        rule factions and the roster share); own.ts (a slice's map read by id); M3.7 (D45): events/
                        (choices.ts: the verdict, the view and the options in one; choose.ts; open.ts: opening and
                        waiting; decks.ts: draws; laters.ts: consequences; module.ts, built knowing whether economy
@@ -303,8 +310,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        the action, its options and the widget; arrive.ts; sweep.ts: rules over 300 seeds; view.ts:
                        enter-map's preview, the map as the party sees it; facts.ts; module.ts, built knowing
                        economy and the calendar); M4.7 (D57): encounters/ (lines.ts: the two lines, each fighter's
-                       stats through the stats kit's facts; rounds.ts: every pair of hurts round by round, exactly;
-                       table.ts: the ends made whole out of 10,000, which the roll and the preview read; fight.ts;
+                       stats through the stats kit's facts; rounds.ts: every pair of hurts round by round, exactly,
+                       the last 64 kept (M4.12); table.ts: the ends made whole out of 10,000, which the roll and the preview read; fight.ts;
                        module.ts, built knowing whether the roster is on, whose roster.place orders the party);
                        kits.ts (KITS,
                        kitsOn: what project.json's kits
@@ -360,7 +367,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        and simReport.ts are eb sim; exportCmd.ts is eb export and eb publish (M4.10); newCmd.ts is
                        eb new (M4.11); test/templates.test.ts holds each template to no problems, its golden file
                        (fixtures/salvage-coast-skipper.golden.json, last-ferry-ferryman.golden.json) and every stage
-                       and ending reached
+                       and ending reached; test/spaceWrecked.test.ts is M4.12's gate (its two warnings, 500 seeds to
+                       fixtures/space-wrecked-captain.golden.json with every act 1–2 stage reached, and every
+                       action on offer as the captain plays a button its screens draw)
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
@@ -389,6 +398,18 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
+games/space-wrecked/   Proof #1 (M4.12, D62): Space-Wrecked's acts 1–2 as a project folder, deployed at
+                       /games/space-wrecked/; its text is all rights reserved, RCJLabs (NOTICE). source/, the
+                       original's data files the import reads; records/, written only by the import; types/, the
+                       project's own; scripts/: campaign.ts (backgrounds, acts, the hangar, Launch, the raid, Settle),
+                       refit.ts (parts fitted to the hull, room aboard), crew.ts (wound, sell-part, after a fight,
+                       the crew screen's facts), board.ts (act 1's job board as made records), run.ts and voyage.ts
+                       (act 2: jumps, supplies, hunters, quest events, docking), shared.ts, captain.ts (the bot),
+                       game.ts; ui/, its screens, theme, feedback and shell; export.json
+tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/records/ from source/, one file per
+                       family (ship.ts: parts, the hull and shops; crew.ts; fights.ts; events.ts; quests.ts; board.ts;
+                       run.ts), importAll.ts and records.ts (the files as written); test/import.test.ts holds the
+                       output to the committed records, byte for byte
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

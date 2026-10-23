@@ -1,0 +1,64 @@
+{
+  "title": "Settled",
+  "shows": ["settled"],
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Settled",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The ship sets down past the charts, on {run.world-name}. Whatever the colony becomes is act 3, which this rebuild of Space-Wrecked doesn’t reach."
+      },
+      {
+        "widget": "text",
+        "text": "{roster.count} crew · {economy.amount(resource: credits)} credits · heat {flag.number(flag: heat)} · {time.day} days"
+      },
+      {
+        "widget": "text",
+        "text": "Quests done: {quests.tally(state: done)}"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "action": {
+          "shell": "title"
+        },
+        "style": "primary"
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

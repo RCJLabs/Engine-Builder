@@ -1,0 +1,138 @@
+{
+  "title": "Docked",
+  "shows": ["docked"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: credits)} credits"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: supplies)}/{run.capacity} supplies"
+      },
+      {
+        "widget": "text",
+        "text": "Heat {flag.number(flag: heat)}"
+      }
+    ],
+    "direction": "row",
+    "justify": "between",
+    "wrap": true
+  },
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Docked at {maps.name}",
+        "style": "heading"
+      },
+      {
+        "widget": "stack",
+        "children": [
+          {
+            "widget": "button",
+            "label": "Buy 10 supplies",
+            "action": {
+              "take": "run/buy",
+              "args": {
+                "crates": 10
+              }
+            },
+            "detail": "{run.price(crates: 10)} credits"
+          },
+          {
+            "widget": "button",
+            "label": "Buy 20 supplies",
+            "action": {
+              "take": "run/buy",
+              "args": {
+                "crates": 20
+              }
+            },
+            "detail": "{run.price(crates: 20)} credits"
+          },
+          {
+            "widget": "button",
+            "label": "Patch the crew up",
+            "action": {
+              "take": "run/patch"
+            },
+            "detail": "{run.patch-price} credits"
+          },
+          {
+            "widget": "button",
+            "label": "The bar",
+            "action": {
+              "take": "run/hire"
+            },
+            "detail": "Crew looking for a berth"
+          },
+          {
+            "widget": "button",
+            "label": "Swap the transponder",
+            "action": {
+              "take": "run/swap"
+            },
+            "detail": "Heat down by 30, once a sector"
+          },
+          {
+            "widget": "button",
+            "label": "Refit the ship",
+            "action": {
+              "open": "refit"
+            },
+            "detail": "{refit.free} hull space free"
+          },
+          {
+            "widget": "button",
+            "label": "Undock",
+            "action": {
+              "take": "run/undock"
+            },
+            "style": "primary"
+          }
+        ],
+        "gap": 1
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Crew",
+        "action": {
+          "open": "crew"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

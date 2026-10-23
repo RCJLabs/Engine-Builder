@@ -1,0 +1,53 @@
+{
+  "lines": [
+    {
+      "on": "campaign/launched",
+      "say": "Lift-off. The hangar drops away.",
+      "to": "log",
+      "buzz": "double"
+    },
+    {
+      "on": "board/won",
+      "say": "Job done.",
+      "to": "log"
+    },
+    {
+      "on": "encounters/fought",
+      "say": "The fight is over: {.result}.",
+      "to": "log",
+      "buzz": "thud"
+    },
+    {
+      "on": "roster/joined",
+      "say": "{.actor} comes aboard.",
+      "to": "log"
+    },
+    {
+      "on": "inventory/gained",
+      "say": "Into the hold: {.item} ×{.count}"
+    },
+    {
+      "on": "run/past-charts",
+      "say": "Past the last charted jump point.",
+      "to": "log",
+      "buzz": "double"
+    },
+    {
+      "on": "quests/done",
+      "say": "Done: {.quest}",
+      "to": "log",
+      "buzz": "double"
+    },
+    {
+      "on": "quests/failed",
+      "say": "Gone cold: {.quest}",
+      "to": "log"
+    },
+    {
+      "on": "campaign/settled",
+      "say": "The crew settles a world.",
+      "to": "log",
+      "buzz": "double"
+    }
+  ]
+}

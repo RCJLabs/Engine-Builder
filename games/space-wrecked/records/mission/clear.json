@@ -2,5 +2,5 @@
   "name": "Clear out",
   "brief": "Put down everyone who isn't crew.",
   "loud": true,
-  "breaks": 100
+  "breaks": 95
 }

@@ -68,6 +68,7 @@ export function drawableWidget(value: unknown): Widget {
         of: SOURCES.includes(value.of as never) ? value.of : 'offered',
         item: value.item === undefined ? { widget: 'text', text: sample('item') } : drawableWidget(value.item),
         ...(value.unknown !== undefined ? { unknown: drawableWidget(value.unknown) } : {}),
+        ...(Array.isArray(value.takes) ? { takes: value.takes.filter((t) => typeof t === 'string') } : {}),
       } as Widget;
     case 'tabs': {
       const tabs = Array.isArray(value.tabs) ? value.tabs : [];

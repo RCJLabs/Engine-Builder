@@ -16,6 +16,7 @@
       "actor": "guard"
     }
   ],
+  "breaks": 40,
   "win": [
     {
       "effect": "set-flag",

@@ -137,6 +137,14 @@ export const campaign: Module = defineModule<Campaign>({
       label: 'the captain’s background',
       read: ({ state }) => state.background,
     },
+    who: {
+      domain: { type: 'text' },
+      label: 'who the captain was, in words',
+      read: ({ state, content }) =>
+        state.background === undefined
+          ? undefined
+          : content.getOrThrow<Background>('background', state.background).name,
+    },
     act: { domain: { type: 'int', min: 1, max: 3 }, label: 'the act', read: ({ state }) => state.act },
     ending: { domain: { type: 'enum', values: ENDINGS }, label: 'how it ended', read: ({ state }) => state.ending },
     world: { domain: { type: 'text' }, label: 'the world settled', read: ({ state }) => state.world },

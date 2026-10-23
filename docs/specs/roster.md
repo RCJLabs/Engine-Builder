@@ -160,6 +160,10 @@ The options and the action share one check, so what is offered is what a hire ac
 | `roster.ranked(rank)` | int from 0: members who have reached the rank | "the number of members at least veteran is at least 2" |
 | `roster.bond(actor, with)` | int. An actor's bond with itself throws | "the bond of ana and bo is at least 4" |
 | `roster.bond-band(actor, with)` | text: the band's id; no value with no bands | "the bond of ana and bo is mates" |
+| `roster.offer(hall, slot)` | text: the name of who stands in a hall's slot this round; no value for a slot the hall lacks or one hired (M4.12) | "who stands in a hall’s slot" |
+| `roster.offer-recruit(hall, slot)` | ref to a recruit: the template the offer was rolled from | |
+| `roster.offer-traits(hall, slot)` | text: its traits' names, joined; no value with none | |
+| `roster.offer-fee(hall, slot, resource)` | int from 0: what hiring it costs in the resource | |
 
 A rank or a band the roster doesn't have throws, and validation stops it in content (E040).
 

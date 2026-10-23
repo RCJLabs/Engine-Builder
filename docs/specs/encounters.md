@@ -78,6 +78,8 @@ What is left after `rounds` rounds is a draw. A party with no one standing loses
 
 An **end** is a result and the party's hurt. Its chance is the sum of every way to it.
 
+The ends of the last 64 fights worked out are kept, keyed by every number above: both lines' health, hit, dodge, damage and armour in order, `hitMin`, `hitMax`, `rounds` and `breaks` (M4.12). A choice's odds, a bot's look at them and the fight itself ask for the same ends, so each is worked out once. The same numbers always give the same ends, so keeping them changes no result.
+
 ### The table
 
 The ends are made whole so the roll and the screen read the same numbers:

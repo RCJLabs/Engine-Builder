@@ -1,0 +1,5 @@
+{
+  "title": "Space-Wrecked",
+  "tagline": "Build the ship, run the sectors, settle a world",
+  "slot-line": "Act {campaign.act} · {economy.amount(resource: credits)} credits · heat {flag.number(flag: heat)}"
+}

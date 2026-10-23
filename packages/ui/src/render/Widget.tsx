@@ -2,7 +2,7 @@
  * One widget drawn (docs/specs/screens.md#widgets). Buttons are real buttons, at least 44 px each
  * way, disabled while the action they name isn't on offer; text wraps; nothing hovers.
  */
-import { type ListWidget, listKey, type Widget } from '../format/screen.ts';
+import { type ListWidget, listKey, listTakes, type Widget } from '../format/screen.ts';
 import type { Entry } from '../session/types.ts';
 import { type Drawing, tabHolding } from './context.ts';
 import { actionFor, amount, fill, fillSome, holds } from './fill.ts';
@@ -94,7 +94,9 @@ function ListView({ widget, drawing, entry, at }: Props & { readonly widget: Lis
   const { view } = drawing;
   const { unknown } = widget;
   const under = (path: string) => (at === undefined ? undefined : `${at}${path}`);
-  const entries = (view.lists[listKey(widget)] ?? []).filter((each) => each.known !== false || unknown !== undefined);
+  const entries = (view.lists[listKey(widget)] ?? []).filter(
+    (each) => (each.known !== false || unknown !== undefined) && listTakes(widget, each.action),
+  );
   if (entries.length === 0) {
     return widget.empty === undefined ? null : <p class="eb-text eb-empty">{fill(widget.empty, view, entry)}</p>;
   }

@@ -11,6 +11,7 @@
       "count": 2
     }
   ],
+  "breaks": 40,
   "win": [
     {
       "effect": "set-flag",

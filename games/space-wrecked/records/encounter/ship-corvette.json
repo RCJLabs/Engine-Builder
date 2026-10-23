@@ -13,6 +13,7 @@
       "actor": "guard"
     }
   ],
+  "breaks": 62,
   "win": [
     {
       "effect": "roll-loot",

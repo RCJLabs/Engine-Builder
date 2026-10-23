@@ -116,3 +116,9 @@ jobs:
         env:
           SITE: ${{ needs.deploy.outputs.page_url }}
         run: node tools/site-check/src/cli.ts "$SITE"
+
+      # Space-Wrecked's web export, deployed beside the editor (D62): its page, files and worker.
+      - name: Space-Wrecked loads its files
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+        run: node tools/site-check/src/cli.ts "${SITE}games/space-wrecked/"

@@ -10,9 +10,10 @@ import type { Source } from './source.ts';
  * The rebuild's own tuning, not the original's data: the share of their health the foes lose
  * before a job is done. A clear fights to the last; a grab or a hack is over once the crew holds
  * the ground long enough, which the original's tactical fight decides and this one can't. Set
- * against the original's measured win rates (docs/specs/space-wrecked.md, Readings).
+ * against the original's measured win rates with the start crew (clear 39%, grab 69%, hack 76%):
+ * these give 38%, 69% and 78% (ROADMAP.md, Readings).
  */
-export const BREAKS: Readonly<Record<string, number>> = { clear: 100, grab: 60, hack: 50 };
+export const BREAKS: Readonly<Record<string, number>> = { clear: 95, grab: 60, hack: 58 };
 
 /** A text's {words} filled from a twist's own numbers: "Nobody sees past {sight} tiles." */
 const filled = (text: string, values: Readonly<Record<string, unknown>>) =>

@@ -12,13 +12,11 @@ import {
   AMBIENCE,
   CONTRAST_PAIRS,
   contrast,
-  type ListWidget,
   MUSIC,
   NO_ACTION,
   REGIONS,
   type Screen,
   SOUND,
-  SOURCE_KITS,
   type Source,
   type Theme,
   WIDGET_KITS,
@@ -27,6 +25,7 @@ import {
 import { compareDiagnostics, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { checkFeedback } from './feedbackCheck.ts';
 import { schemaIssues } from './issues.ts';
+import { checkList } from './listCheck.ts';
 import { missingRecord } from './missingRecord.ts';
 import { checkShell } from './shellCheck.ts';
 import { checkTemplate, checkWhen, type Scope } from './templateCheck.ts';
@@ -214,44 +213,12 @@ function checkWidget(
   if (widget.widget === 'image' && options.assets !== undefined && !options.assets.has(widget.asset)) {
     here('E018', '/asset', `No asset "${widget.asset}" in assets/`);
   }
-  if (widget.widget === 'list') {
-    const kit = SOURCE_KITS[widget.of];
-    if (kit !== undefined && !options.kits.includes(kit)) {
-      here('E049', '/of', `A list of ${widget.of} needs the ${kit} kit: turn it on in project.json`);
-    }
-    checkCodex(widget, options, here);
-  }
+  if (widget.widget === 'list') checkList(widget, options, here);
   const needs = WIDGET_KITS[widget.widget];
   if (needs !== undefined && !options.kits.includes(needs)) {
     here('E049', '/widget', `A ${widget.widget} widget needs the ${needs} kit: turn it on in project.json`);
   }
   if (widget.widget === 'button') checkAction(widget.action, at.list, screens, options, (p, m) => here('E049', p, m));
-}
-
-/** A codex's type and known (M4.4); no other list has them. */
-function checkCodex(
-  list: ListWidget,
-  options: UiCheckOptions,
-  here: (code: DiagnosticCode, path: string, message: string) => void,
-): void {
-  if (list.of !== 'records') {
-    for (const key of ['type', 'known', 'unknown'] as const) {
-      if (list[key] !== undefined)
-        here('E049', `/${key}`, `Only a records list has ${key}: this is a list of ${list.of}`);
-    }
-    return;
-  }
-  if (list.type === undefined) {
-    here('E049', '/of', 'A records list names the record type it lists, as type');
-    return;
-  }
-  if (options.recordFields !== undefined && !Object.hasOwn(options.recordFields, list.type)) {
-    here('E049', '/type', `The project has no record type "${list.type}"`);
-    return;
-  }
-  if (list.known !== undefined) {
-    checkWhen(list.known, options, (message) => here('E048', '/known', message), { codex: list.type });
-  }
 }
 
 function checkAction(

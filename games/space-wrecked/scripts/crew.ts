@@ -54,6 +54,25 @@ function afterFight(ctx: Ctx) {
   }
 }
 
+type View = { content: Ctx['content']; fact: Read };
+
+/** Who stands at a place on the roster, from 1 in the order they joined. */
+const at = (view: View, place: unknown) => crewOf(view.content, view.fact)[(place as number) - 1];
+
+/** A member as the crew screen says them: their job, their traits, their rank. */
+function about(view: View, actor: string): string {
+  const record = view.content.get<{ job?: string; statuses?: string[] }>('actor', actor);
+  const named = (type: string, id: string) => view.content.get<{ name?: string }>(type, id)?.name ?? id;
+  const job = record?.job ? named('actor', record.job) : 'Crew';
+  const traits = (record?.statuses ?? []).filter((status) => (view.fact('stats.has', { actor, status }) as number) > 0);
+  const rank = view.fact('roster.rank', { actor }) as string | undefined;
+  return [job, ...traits.map((trait) => named('status', trait)), rank && rank !== 'green' ? rank.replace('-', ' ') : '']
+    .filter((part) => part !== '')
+    .join(' · ');
+}
+
+const PLACE = { place: { type: 'int', min: 1 } } as const;
+
 /** The crew's own rules: wounds, parts sold off, and what a fight leaves behind. */
 export const crew: Module = defineModule<Record<string, never>>({
   id: 'crew',
@@ -64,5 +83,45 @@ export const crew: Module = defineModule<Record<string, never>>({
   },
   on: {
     'encounters/fought': (ctx) => afterFight(ctx),
+  },
+  // The crew screen's rows, by place on the roster: the roster kit lists no members.
+  facts: {
+    member: {
+      args: PLACE,
+      domain: { type: 'text' },
+      label: 'who stands at a place on the roster',
+      read: (view, { place }) => {
+        const actor = at(view, place);
+        return actor && view.content.get<{ name?: string }>('actor', actor)?.name;
+      },
+    },
+    hp: {
+      args: PLACE,
+      domain: { type: 'text' },
+      label: 'their hit points, now and at most',
+      read: (view, { place }) => {
+        const actor = at(view, place);
+        if (!actor) return undefined;
+        return `${view.fact('stats.current', { actor, stat: 'hp' })}/${view.fact('stats.value', { actor, stat: 'hp' })}`;
+      },
+    },
+    about: {
+      args: PLACE,
+      domain: { type: 'text' },
+      label: 'their job, traits and rank',
+      read: (view, { place }) => {
+        const actor = at(view, place);
+        return actor && about(view, actor);
+      },
+    },
+    'offer-kind': {
+      args: { slot: { type: 'int', min: 0 } },
+      domain: { type: 'text' },
+      label: 'what kind of recruit stands in a station bar’s slot',
+      read: ({ content, fact }, { slot }) => {
+        const recruit = fact('roster.offer-recruit', { hall: 'station', slot }) as string | undefined;
+        return recruit && content.get<{ name?: string }>('recruit', recruit)?.name;
+      },
+    },
   },
 });

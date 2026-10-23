@@ -9,6 +9,13 @@ export type Stats = Record<string, number>;
 export type Range = readonly [number, number];
 export type Text = Readonly<Record<string, string>>;
 
+/** A number from balance.json that the import works out with: a missing one stops the import. */
+export function balanceOf(source: Source, key: string): number {
+  const value = source.balance[key];
+  if (value === undefined) throw new Error(`No balance number ${key}`);
+  return value;
+}
+
 export interface Module {
   readonly id: string;
   readonly name: string;

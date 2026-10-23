@@ -79,9 +79,6 @@ function inShop(turn: Turn, offers: readonly Offer[]): Offer | undefined {
   return cheapest ?? offers.find((o) => o.type === 'economy/leave');
 }
 
-// The day the captain last looked in the shop: one look a day, as the shelf changes once a day.
-let shopped = -1;
-
 /** At the hangar: fit what mends the checklist, launch when it passes, then pay, raid, shop or work. */
 function atHangar(turn: Turn, offers: readonly Offer[]): Offer | undefined {
   const by = (type: string) => offers.find((o) => o.type === type);
@@ -94,12 +91,10 @@ function atHangar(turn: Turn, offers: readonly Offer[]): Offer | undefined {
   if (payment && heatOf(turn.fact) >= 60 && credits(turn.fact) >= 150) return payment;
   const raid = by('campaign/raid');
   if (raid) return raid;
-  // The shop once a day, when the purse would buy a part the ship needs; otherwise the board.
-  const day = turn.fact('time.day') as number;
-  if (tags.length > 0 && credits(turn.fact) >= 80 && shopped !== day) {
-    shopped = day;
+  // The shop now and then, when the purse would buy a part the ship needs; otherwise the board. A
+  // bot keeps nothing between turns, so it looks in by chance, not once a day.
+  if (tags.length > 0 && credits(turn.fact) >= 80 && turn.rng.chance(1, 3))
     return by('campaign/shop') ?? by('campaign/jobs');
-  }
   return by('campaign/jobs') ?? payment;
 }
 

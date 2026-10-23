@@ -13,6 +13,7 @@
       "actor": "collector"
     }
   ],
+  "breaks": 62,
   "win": [
     {
       "effect": "roll-loot",

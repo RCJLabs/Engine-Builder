@@ -1,0 +1,156 @@
+{
+  "title": "The crew",
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "The crew",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{roster.count} aboard, room for {flag.number(flag: room)}",
+        "style": "caption"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 1)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 1)} HP · {crew.about(place: 1)}"
+          }
+        ],
+        "shows-when": "roster.count >= 1"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 2)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 2)} HP · {crew.about(place: 2)}"
+          }
+        ],
+        "shows-when": "roster.count >= 2"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 3)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 3)} HP · {crew.about(place: 3)}"
+          }
+        ],
+        "shows-when": "roster.count >= 3"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 4)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 4)} HP · {crew.about(place: 4)}"
+          }
+        ],
+        "shows-when": "roster.count >= 4"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 5)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 5)} HP · {crew.about(place: 5)}"
+          }
+        ],
+        "shows-when": "roster.count >= 5"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 6)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 6)} HP · {crew.about(place: 6)}"
+          }
+        ],
+        "shows-when": "roster.count >= 6"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 7)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 7)} HP · {crew.about(place: 7)}"
+          }
+        ],
+        "shows-when": "roster.count >= 7"
+      },
+      {
+        "widget": "panel",
+        "children": [
+          {
+            "widget": "text",
+            "text": "{crew.member(place: 8)}",
+            "style": "heading"
+          },
+          {
+            "widget": "text",
+            "text": "{crew.hp(place: 8)} HP · {crew.about(place: 8)}"
+          }
+        ],
+        "shows-when": "roster.count >= 8"
+      }
+    ],
+    "gap": 1
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        },
+        "style": "primary"
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}

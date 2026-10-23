@@ -1,0 +1,142 @@
+{
+  "title": "The run",
+  "shows": ["run"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: credits)} credits"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: supplies)}/{run.capacity} supplies"
+      },
+      {
+        "widget": "text",
+        "text": "Heat {flag.number(flag: heat)}"
+      }
+    ],
+    "direction": "row",
+    "justify": "between",
+    "wrap": true
+  },
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Sector {run.sector} of 5: {run.sector-name}",
+        "style": "heading",
+        "shows-when": "not run.past-charts"
+      },
+      {
+        "widget": "text",
+        "text": "Past the charts: {run.world-name}",
+        "style": "heading",
+        "shows-when": "run.past-charts"
+      },
+      {
+        "widget": "map",
+        "empty": "No map yet."
+      },
+      {
+        "widget": "stack",
+        "children": [
+          {
+            "widget": "button",
+            "label": "Settle here",
+            "action": {
+              "take": "run/settle"
+            },
+            "style": "primary",
+            "detail": "This world: the end of the run"
+          },
+          {
+            "widget": "button",
+            "label": "Survey the world",
+            "action": {
+              "take": "run/survey"
+            },
+            "detail": "Heat up by 2"
+          },
+          {
+            "widget": "button",
+            "label": "Jump to the next sector",
+            "action": {
+              "take": "run/onward"
+            },
+            "style": "primary"
+          },
+          {
+            "widget": "button",
+            "label": "Hide in the nebula",
+            "action": {
+              "take": "run/hide"
+            },
+            "detail": "Heat down by 10"
+          },
+          {
+            "widget": "button",
+            "label": "Scan",
+            "action": {
+              "take": "run/scan"
+            },
+            "detail": "Heat up by 2: everything within 2 jumps"
+          },
+          {
+            "widget": "button",
+            "label": "Regroup",
+            "action": {
+              "take": "run/regroup"
+            },
+            "detail": "Everyone heals 3; heat up by 5, and the hunters may find you"
+          }
+        ],
+        "gap": 1
+      },
+      {
+        "widget": "text",
+        "text": "Settled on a {run.world-kind}.",
+        "style": "caption",
+        "shows-when": "run.past-charts"
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
+      }
+    ],
+    "gap": 2
+  },
+  "bottom": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Crew",
+        "action": {
+          "open": "crew"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ],
+    "direction": "row",
+    "justify": "end",
+    "wrap": true
+  }
+}
