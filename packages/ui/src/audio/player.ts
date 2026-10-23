@@ -68,6 +68,11 @@ export class AudioPlayer {
     this.#note();
   }
 
+  /** The records and files it plays from. */
+  get audio(): AudioPack {
+    return this.#audio;
+  }
+
   /** A gesture: makes the context the first time Sound is above 0, and wakes it after. */
   unlock(): void {
     if (this.#volumes.sound === 0 || !hasAudio()) return;

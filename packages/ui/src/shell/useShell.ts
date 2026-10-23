@@ -6,6 +6,7 @@
 import type { Action, LoadReport, SaveFile } from '@eb/core';
 import { createSaves, requestPersistence } from '@eb/platform';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import type { Cue } from '../format/audio.ts';
 import type { Said } from '../format/feedback.ts';
 import type { View } from '../session/types.ts';
 import { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, type SlotInfo, slotInfo, slotName } from './slots.ts';
@@ -18,6 +19,8 @@ export interface InPlay {
   readonly daily: number | undefined;
   readonly view: View;
   readonly said: readonly Said[];
+  /** The last step's sounds and buzzes (M4.8): a new array each step. */
+  readonly cues: readonly Cue[];
 }
 
 type Read =
@@ -80,7 +83,7 @@ export function useShell(props: ShellProps) {
       const reply = await send({ kind: 'start', seed, saving: { edition, daily }, at: now().getTime() });
       if (reply.kind !== 'started') return stop(reply.kind === 'failed' ? reply.message : 'The game didn’t start');
       await keep(slot, reply.save);
-      setPlay({ slot, daily, view: reply.view, said: [] });
+      setPlay({ slot, daily, view: reply.view, said: [], cues: [] });
       setScreen(undefined);
     });
 
@@ -96,7 +99,7 @@ export function useShell(props: ShellProps) {
         setNotice(`${slotName(slot)} couldn’t be loaded: ${loaded.message} It is kept as it was.`);
         return refresh();
       }
-      setPlay({ slot, daily, view: loaded.view, said: [] });
+      setPlay({ slot, daily, view: loaded.view, said: [], cues: [] });
       setNotice(loadNotice(loaded));
       setScreen(undefined);
     });
@@ -109,7 +112,7 @@ export function useShell(props: ShellProps) {
       if (reply.save) await keep(play.slot, reply.save);
       // In the one render with the view, so the buttons it draws are enabled as focus comes back to one.
       setBusy(false);
-      setPlay({ ...play, view: reply.view, said: reply.said });
+      setPlay({ ...play, view: reply.view, said: reply.said, cues: reply.cues });
     });
   };
 

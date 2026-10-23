@@ -134,5 +134,7 @@
         }
       }
     ]
-  }
+  },
+  "ambience": "hut",
+  "music": "hut"
 }

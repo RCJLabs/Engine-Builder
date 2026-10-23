@@ -1,0 +1,10 @@
+{
+  "files": {
+    "audio/hut-theme.wav": {
+      "licence": "own",
+      "source": "Rendered for the hut by the engine's own synth (tools/cli/test/fixtures/hut-theme.ts)",
+      "date": "2026-10-23",
+      "tool": "Engine-Builder's ZzFX port"
+    }
+  }
+}

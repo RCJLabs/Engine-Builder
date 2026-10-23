@@ -1,0 +1,14 @@
+{
+  "name": "Coins",
+  "voices": [
+    {
+      "volume": 0.6,
+      "frequency": 1200,
+      "sustain": 0.04,
+      "release": 0.15,
+      "shape": "square",
+      "pitch-jump": 400,
+      "pitch-jump-time": 0.05
+    }
+  ]
+}

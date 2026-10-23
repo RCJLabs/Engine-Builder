@@ -1,0 +1,10 @@
+{
+  "name": "At the hut",
+  "stems": [
+    {
+      "asset": "audio/hut-theme.wav",
+      "gain": 0.7
+    }
+  ],
+  "fade": 2
+}

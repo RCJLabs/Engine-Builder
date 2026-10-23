@@ -236,3 +236,15 @@
   outline: 3px solid #7cc4ff;
   outline-offset: 2px;
 }
+
+/* A volume between its Quieter and Louder (M4.8): the value keeps its width as it changes. */
+.eb-shell-volume .eb-shell-row {
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.eb-shell-volume-value {
+  min-width: 3.5em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

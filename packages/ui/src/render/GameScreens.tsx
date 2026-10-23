@@ -5,8 +5,11 @@
  * sends back actions. M4.2 adds what the step said, as toasts, the log and the announcer, and the
  * keys, gamepad and swipes that drive it (useInput.ts).
  */
-import type { Action } from '@eb/core';
+import { type Action, canonicalJson } from '@eb/core';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { mixOf } from '../audio/mix.ts';
+import type { AudioPlayer } from '../audio/player.ts';
+import type { Cue } from '../format/audio.ts';
 import type { Said } from '../format/feedback.ts';
 import type { Breakpoint, Screen, ShellGo } from '../format/screen.ts';
 import type { Theme } from '../format/theme.ts';
@@ -17,7 +20,7 @@ import type { Drawing } from './context.ts';
 import { Announcer, ToastView, useFeedback } from './Feedback.tsx';
 import { breakpointOf, themeVars } from './layout.ts';
 import { ScreenView } from './Screen.tsx';
-import { drawn, type Opened, screenStack, stillOpen } from './stack.ts';
+import { drawn, type Opened, type Shown, screenStack, stillOpen } from './stack.ts';
 import './screens.css';
 import './map.css';
 
@@ -38,9 +41,14 @@ export interface GameScreensProps {
   readonly paused?: boolean;
   /** Where a button's `{"shell": …}` goes (M4.4): without it, such buttons are disabled. */
   readonly onShell?: (go: ShellGo) => void;
+  /** The page's audio (M4.8): it follows the stack's mix, plays each step's cues and the interface's sounds. */
+  readonly audio?: AudioPlayer;
+  /** The last step's sounds and buzzes: a new array each step. */
+  readonly cues?: readonly Cue[];
 }
 
 const NOTHING: readonly Said[] = [];
+const NO_CUES: readonly Cue[] = [];
 
 /** The game's box, measured as it changes: its breakpoint. */
 function useBreakpoint(box: { readonly current: HTMLElement | null }): Breakpoint {
@@ -57,6 +65,20 @@ function useBreakpoint(box: { readonly current: HTMLElement | null }): Breakpoin
   return breakpoint;
 }
 
+/** The audio follows the stack's mix as it changes, and plays each step's cues once (M4.8). */
+function useScreenAudio(audio: AudioPlayer | undefined, stack: readonly Shown[], view: View, cues: readonly Cue[]) {
+  const onStack = stack.flatMap((each) => (each.kind === 'screen' ? [each.screen] : []));
+  const mix = audio ? mixOf(onStack, view.conditions, audio.audio) : undefined;
+  const key = mix ? canonicalJson(mix as never) : '';
+  // The mix is followed when what it holds changes, not each render.
+  useEffect(() => {
+    if (audio && mix) audio.setMix(mix);
+  }, [audio, key]);
+  useEffect(() => {
+    if (audio && cues.length > 0) audio.cue(cues);
+  }, [audio, cues]);
+}
+
 export function GameScreens(props: GameScreensProps) {
   const { screens, theme, view, busy = false, act, assetUrl, said = NOTHING, history = false, paused = false } = props;
   const box = useRef<HTMLDivElement>(null);
@@ -65,8 +87,17 @@ export function GameScreens(props: GameScreensProps) {
   const { modes } = view;
   const [opened, setOpened] = useState<Opened>({ modes, ids: [] });
   const ids = stillOpen(opened, modes);
-  const shown = drawn(screenStack(screens, view.modes, ids));
-  const close = ids.length === 0 ? undefined : () => setOpened({ modes, ids: ids.slice(0, -1) });
+  const stack = screenStack(screens, view.modes, ids);
+  const shown = drawn(stack);
+  const { audio, cues = NO_CUES } = props;
+  useScreenAudio(audio, stack, view, cues);
+  const close =
+    ids.length === 0
+      ? undefined
+      : () => {
+          audio?.ui('back');
+          setOpened({ modes, ids: ids.slice(0, -1) });
+        };
   useBackHistory(
     ids.length,
     (depth) => setOpened((was) => ({ modes: was.modes, ids: was.ids.slice(0, depth) })),
@@ -78,8 +109,14 @@ export function GameScreens(props: GameScreensProps) {
     view,
     breakpoint,
     busy,
-    act,
-    open: (id) => setOpened({ modes, ids: [...ids, id] }),
+    act: (action) => {
+      audio?.ui('press');
+      act(action);
+    },
+    open: (id) => {
+      audio?.ui('open');
+      setOpened({ modes, ids: [...ids, id] });
+    },
     close,
     assetUrl: (path) => assetUrl?.(path),
     log: fed.log,

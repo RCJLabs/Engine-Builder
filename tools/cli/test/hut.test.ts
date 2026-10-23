@@ -27,7 +27,7 @@ describe('eb and the hut', () => {
   it('validates the hut clean', () => {
     const checked = eb(['validate', HUT]);
     expect(checked.code, checked.out + checked.err).toBe(0);
-    expect(checked.out).toMatch(/^17 records: no problems, hash [0-9a-f]{16}\.$/m);
+    expect(checked.out).toMatch(/^25 records: no problems, hash [0-9a-f]{16}\.$/m);
   });
 
   it('plays the hut to its golden runs, with no offer refused', () => {

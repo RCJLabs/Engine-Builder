@@ -10,5 +10,6 @@
   "font": "system-ui, sans-serif",
   "size": 16,
   "space": 8,
-  "radius": 10
+  "radius": 10,
+  "sounds": { "press": "click", "open": "click", "back": "click" }
 }

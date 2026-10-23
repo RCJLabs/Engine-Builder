@@ -1,0 +1,22 @@
+{
+  "name": "A load set down",
+  "voices": [
+    {
+      "volume": 0.8,
+      "randomness": 0.1,
+      "frequency": 70,
+      "attack": 0.01,
+      "release": 0.18,
+      "slide": -2
+    },
+    {
+      "at": 0.05,
+      "volume": 0.4,
+      "frequency": 600,
+      "release": 0.12,
+      "shape": "noise",
+      "noise": 0.8,
+      "filter": -1200
+    }
+  ]
+}

@@ -56,7 +56,8 @@ describe('the hut through its screens', () => {
       format: number;
       ui: { screens: object; theme: object; feedback: object; shell: object };
     };
-    expect(pack.format).toBe(6);
+    // Format 8 since M4.8: the hut's music's file travels with it.
+    expect(pack.format).toBe(8);
     expect(pack.ui.shell).toMatchObject({ title: 'The hut', daily: true });
     expect(Object.keys(pack.ui.screens)).toEqual(['closed', 'hut', 'journal', 'store', 'storm', 'talk']);
     expect(pack.ui.theme).toBeDefined();

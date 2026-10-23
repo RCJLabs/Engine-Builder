@@ -134,7 +134,7 @@ describe('the Play worker’s jobs', () => {
   it('pack the hut as Export game writes it, open it from its files, and start, step and load a game of it', async () => {
     const jobs = playJobs();
     const packed = await jobs({ id: 1, kind: 'pack', files: sent(hut()) });
-    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 6 } });
+    expect(packed).toMatchObject({ kind: 'packed', name: 'the-hut', pack: { format: 8 } });
     const opened = await jobs({ id: 2, kind: 'open-files', files: sent(hut()) });
     if (opened.kind !== 'opened') throw new Error(JSON.stringify(opened));
     expect(opened).toMatchObject({ name: 'The hut', game: 'the-hut', shell: { title: 'The hut', daily: true } });

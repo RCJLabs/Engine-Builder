@@ -1,14 +1,36 @@
 /**
  * Settings (M4.3, docs/specs/shell.md#settings): text size and motion, each a row of buttons, one
  * pressed, which a pad and arrows move through as they do any controls; and the controls, to read.
- * Volumes come with M4.8's audio.
+ * M4.8 adds the volumes, each a value between Quieter and Louder rather than a slider, whose arrow
+ * keys would fight the arrows' move between controls (Spliceworld chose steps for its own reasons),
+ * and Vibration where the device can vibrate.
  */
 
 import { type ScreenMemory, ShellScreen } from './ShellScreen.tsx';
-import { MOTIONS, type Motion, type Settings, TEXT_SIZES, type TextSize } from './settings.ts';
+import {
+  MOTIONS,
+  type Motion,
+  type Settings,
+  TEXT_SIZES,
+  type TextSize,
+  VOLUME_STEP,
+  VOLUMES,
+  type VolumeName,
+} from './settings.ts';
 
 const TEXT_WORDS: Readonly<Record<TextSize, string>> = { normal: 'Normal', large: 'Large', larger: 'Larger' };
 const MOTION_WORDS: Readonly<Record<Motion, string>> = { device: 'As the device says', less: 'Less', full: 'Full' };
+const VOLUME_WORDS: Readonly<Record<VolumeName, string>> = {
+  sound: 'Sound',
+  music: 'Music',
+  ambience: 'Ambience',
+  effects: 'Effects',
+};
+const VIBRATION = ['on', 'off'] as const;
+const VIBRATION_WORDS = { on: 'On', off: 'Off' } as const;
+
+/** Whether this device can vibrate at all: iPhones can't, so the setting isn't offered there. */
+const canVibrate = () => typeof navigator !== 'undefined' && 'vibrate' in navigator;
 
 const CONTROLS: readonly (readonly [string, string])[] = [
   ['Move between controls', 'Arrow keys, a pad’s d-pad or left stick, or Tab'],
@@ -55,6 +77,42 @@ function Choices<T extends string>(props: {
   );
 }
 
+/** One volume: its value, and Quieter and Louder a step either way, each disabled at its end. */
+function Volume(props: { readonly name: VolumeName; readonly value: number; readonly set: (value: number) => void }) {
+  const { name, value, set } = props;
+  const words = VOLUME_WORDS[name];
+  return (
+    <fieldset class="eb-shell-choices eb-shell-volume">
+      <legend class="eb-text eb-heading">{words}</legend>
+      <div class="eb-shell-row">
+        <button
+          type="button"
+          class="eb-button"
+          data-key={`${name}-down`}
+          aria-label={`${words} quieter`}
+          disabled={value <= 0}
+          onClick={() => set(Math.max(0, value - VOLUME_STEP))}
+        >
+          Quieter
+        </button>
+        <output class="eb-text eb-shell-volume-value" aria-live="polite">
+          {value === 0 ? 'Off' : String(value)}
+        </output>
+        <button
+          type="button"
+          class="eb-button"
+          data-key={`${name}-up`}
+          aria-label={`${words} louder`}
+          disabled={value >= 100}
+          onClick={() => set(Math.min(100, value + VOLUME_STEP))}
+        >
+          Louder
+        </button>
+      </div>
+    </fieldset>
+  );
+}
+
 export function SettingsScreen({ settings, change, memory, back }: SettingsProps) {
   return (
     <ShellScreen
@@ -83,6 +141,19 @@ export function SettingsScreen({ settings, change, memory, back }: SettingsProps
         chosen={settings.motion}
         choose={(motion) => change({ ...settings, motion })}
       />
+      {VOLUMES.map((name) => (
+        <Volume key={name} name={name} value={settings[name]} set={(value) => change({ ...settings, [name]: value })} />
+      ))}
+      {canVibrate() ? (
+        <Choices
+          legend="Vibration"
+          name="vibration"
+          values={VIBRATION}
+          words={VIBRATION_WORDS}
+          chosen={settings.vibration ? 'on' : 'off'}
+          choose={(on) => change({ ...settings, vibration: on === 'on' })}
+        />
+      ) : null}
       <h3 class="eb-text eb-heading">Controls</h3>
       <dl class="eb-shell-controls">
         {CONTROLS.map(([what, how]) => (

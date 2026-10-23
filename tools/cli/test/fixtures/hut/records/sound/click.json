@@ -1,0 +1,12 @@
+{
+  "name": "A press",
+  "bus": "interface",
+  "voices": [
+    {
+      "volume": 0.5,
+      "frequency": 1800,
+      "release": 0.03,
+      "shape": "triangle"
+    }
+  ]
+}
