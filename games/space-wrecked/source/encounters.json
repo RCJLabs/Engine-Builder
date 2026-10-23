@@ -1,0 +1,29 @@
+{
+  "squad": ["marine", "engineer", "medic"],
+  "encounters": [
+    { "id": "boarders", "name": "Boarding party", "enemies": ["pirate", "pirate", "brute", "pirate"] },
+    { "id": "jumpers", "name": "Claim jumpers", "enemies": ["jumper", "jumper", "jumper", "jumper"] },
+    { "id": "scavvers", "name": "Scavvers", "enemies": ["scavver", "scavver", "scavver", "heavy"] },
+    { "id": "guards", "name": "Company guards", "enemies": ["guard", "guard", "guard"] },
+    { "id": "strikebreakers", "name": "Strikebreakers", "enemies": ["heavy", "guard", "guard", "heavy"] },
+    { "id": "regulars", "name": "Last Whistle regulars", "enemies": ["scavver", "jumper", "heavy", "jumper"] },
+    { "id": "recovery", "name": "Con-Reg Recovery", "enemies": ["agent", "heavy", "agent"] },
+    { "id": "raid", "name": "Recovery task force", "enemies": ["agent", "heavy", "agent", "guard"] },
+    { "id": "patrol", "name": "Patrol crew", "enemies": ["guard", "heavy", "guard"] },
+    { "id": "squatters", "name": "Squatters", "enemies": ["scavver", "heavy", "scavver"] },
+    { "id": "provostpatrol", "name": "Provost patrol", "enemies": ["mp", "mp"] },
+    { "id": "provost", "name": "Provost squad", "enemies": ["mp", "mp", "mp"] },
+    { "id": "customs", "name": "Customs men", "enemies": ["customs", "customs", "customs"] },
+    { "id": "dockers", "name": "Dockers", "enemies": ["docker", "docker", "heavy", "docker"] },
+    { "id": "provostboarders", "name": "Provost boarding party", "enemies": ["mp", "rating", "mp"] },
+    { "id": "provostraid", "name": "Provost raiding squad", "enemies": ["mp", "cadet", "mp"] },
+    { "id": "provosthangar", "name": "Provost snatch squad", "enemies": ["mp", "cadet", "cadet"] },
+    { "id": "collectors", "name": "Halloran collectors", "enemies": ["collector", "enforcer", "collector"] },
+    { "id": "hallorans", "name": "The Hallorans", "enemies": ["collector", "enforcer", "collector", "collector", "collector", "collector"] },
+    { "id": "halloranparty", "name": "Old Halloran's crew", "enemies": ["collector", "enforcer", "collector", "collector", "collector"] },
+    { "id": "halloranraid", "name": "Old Halloran's raiders", "enemies": ["collector", "enforcer", "collector", "enforcer", "collector"] },
+    { "id": "pikes", "name": "Pike crew", "enemies": ["pike", "heavy", "pike"] },
+    { "id": "podthieves", "name": "Pirate crew", "enemies": ["pirate", "brute", "pirate"] },
+    { "id": "breakers", "name": "Strikebreakers", "enemies": ["heavy", "guard", "heavy"] }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "text": "People with a story, met on the run. Each comes aboard at the end of their side's chain, given a free berth, and their loyalty quest waits within reach of the colony.",
+  "companions": [
+    {
+      "id": "varga",
+      "name": "Ines Varga",
+      "side": "fleet",
+      "job": "engineer",
+      "traits": ["old-hand", "thick-skull"],
+      "fights": 3,
+      "look": { "face": 7, "skin": "olive", "hair": "bun", "hairColor": "grey", "eyes": "dark", "beard": "none", "mark": "scar" },
+      "past": "Twenty years in the Fleet's engine rooms, the last six on a supply tender nobody remembered to resupply. She got the reactor back on your spares and decided she liked civilians better.",
+      "chain": "tender",
+      "loyalty": "varga-loyal",
+      "talent": { "name": "Bosun's weld", "order": { "uses": 3, "rounds": 8 } }
+    },
+    {
+      "id": "brandt",
+      "name": "Teo Brandt",
+      "side": "union",
+      "job": "quartermaster",
+      "traits": ["bruiser", "cool-head"],
+      "fights": 3,
+      "look": { "face": 2, "skin": "brown", "hair": "buzz", "hairColor": "black", "eyes": "brown", "beard": "full", "mark": "tattoo" },
+      "past": "Thirty years loading other people's ships at Pier Nine, the last ten as shop steward. When the Company broke the strike, the local put him on the food run, and he has ridden it since.",
+      "chain": "foodrun",
+      "loyalty": "brandt-loyal",
+      "talent": { "name": "Steward's kit", "order": { "uses": 3, "armor": 2 } }
+    },
+    {
+      "id": "osei",
+      "name": "Ama Osei",
+      "side": "conreg",
+      "job": "scout",
+      "traits": ["quick", "steady"],
+      "fights": 3,
+      "look": { "face": 10, "skin": "deep", "hair": "locs", "hairColor": "teal", "eyes": "amber", "beard": "none", "mark": "freckles" },
+      "past": "Two years out of the Company's survey school. She logged your tow honestly, in triplicate, and was let go for the fuel it cost. She knows where Con-Reg's survey lines run, and where they don't.",
+      "chain": "lifepod",
+      "loyalty": "osei-loyal",
+      "talent": { "name": "Surveyor's eye", "order": { "uses": 3, "aim": 30 } }
+    },
+    {
+      "id": "halloran",
+      "name": "Dez Halloran",
+      "side": "hallorans",
+      "job": "medic",
+      "traits": ["light-sleeper", "careful"],
+      "fights": 3,
+      "look": { "face": 5, "skin": "fair", "hair": "quiff", "hairColor": "copper", "eyes": "green", "beard": "stubble", "mark": "earring" },
+      "past": "Old Halloran's nephew, who patched up the family's runners for ten years and asked one question too many about what they ran. The family calls it a sabbatical.",
+      "chain": "runner",
+      "loyalty": "halloran-loyal",
+      "talent": { "name": "Family medicine", "order": { "uses": 3, "hp": 8 } }
+    }
+  ]
+}

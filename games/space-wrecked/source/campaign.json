@@ -1,0 +1,21 @@
+{
+  "acts": [
+    { "act": 1, "name": "Homeworld", "hub": "hangar", "home": "The hangar", "heals": true, "liftOff": 1 },
+    {
+      "act": 2,
+      "name": "The run",
+      "hub": "ship",
+      "home": "Your ship",
+      "heals": false,
+      "sectors": 5
+    },
+    {
+      "act": 3,
+      "name": "The colony",
+      "hub": "colony",
+      "home": "The colony",
+      "heals": false,
+      "ahead": "Three backgrounds are here, each with its own pursuer. Still to come in v0.4: a third maker; every job, trait and talent; factions, quests and companions; pictures and sound."
+    }
+  ]
+}

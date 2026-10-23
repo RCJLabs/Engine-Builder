@@ -1,0 +1,80 @@
+{
+  "columns": 7,
+  "rows": [2, 3],
+  "extraLinkChance": 35,
+  "counts": { "station": [2, 2], "nebula": [1, 1] },
+  "mix": { "empty": 2, "derelict": 2, "distress": 2, "trader": 1, "hazard": 2, "hostile": 2 },
+  "nodes": [
+    { "id": "start", "name": "Way in", "text": "Where the ship came into the sector." },
+    { "id": "exit", "name": "Jump point", "text": "The way on to the next sector. Jump from here and this one is behind you." },
+    { "id": "station", "name": "Station", "names": "stations", "charted": true, "safe": true, "text": "A tired station selling supplies by the crate. Cash only, and the coffee is extra." },
+    { "id": "nebula", "name": "Nebula", "names": "nebulae", "charted": true, "hides": true, "text": "A cloud of charged dust where sensors see nothing, theirs included. A good place to sit tight." },
+    { "id": "world", "name": "World", "charted": true, "text": "A world past the charts, where a colony could take root." },
+    { "id": "empty", "name": "Empty space", "names": "places", "text": "Rock, dust and nobody. Nothing to stop for." },
+    { "id": "derelict", "name": "Derelict", "names": "places", "events": true, "text": "Something dead and drifting, with whatever it carried still aboard." },
+    { "id": "distress", "name": "Distress call", "names": "places", "events": true, "text": "Someone on the emergency band, asking for help. Or saying they are." },
+    { "id": "trader", "name": "Trader", "names": "places", "events": true, "text": "A ship that sells, buys and asks no questions." },
+    { "id": "hazard", "name": "Hazard", "names": "places", "events": true, "text": "Weather, rock or worse. Getting through costs something." },
+    {
+      "id": "hostile",
+      "name": "Hostile ship",
+      "names": "places",
+      "ships": [
+        { "ship": "cutter", "weight": 3 },
+        { "ship": "corvette", "weight": 1, "from": 3 }
+      ],
+      "text": "A ship running dark, guns warm. It has seen you, and it isn't here to trade."
+    }
+  ],
+  "names": {
+    "sectors": [
+      "The Shoals",
+      "Tollway Nine",
+      "The Long Haul",
+      "Breaker's Yard",
+      "Saltmarsh Drift",
+      "The Narrows",
+      "Cold Storage",
+      "Overtime Reach",
+      "The Back Forty",
+      "Graveyard Shift",
+      "Pay Dirt",
+      "Last Call"
+    ],
+    "stations": [
+      "Mac's Pumps",
+      "Halfway House",
+      "Rest Stop Nine",
+      "The Depot",
+      "Ruth's Canteen",
+      "Union Hall Twelve",
+      "Fuel and Grub",
+      "Station Okay",
+      "The Truck Stop",
+      "Big Rita's",
+      "Last Chance Supply",
+      "Dock Seven"
+    ],
+    "nebulae": ["The Smudge", "Grey Veil", "Static Bloom", "The Murk", "Soot Cloud", "Ghost Water", "The Haze", "Ash Drift", "Blind Spot", "Fogbank", "Pea Soup", "The Shroud"],
+    "places": [
+      "Drift Four",
+      "Dust Bank",
+      "The Gap",
+      "Marker Twelve",
+      "Slag Field",
+      "Quiet Water",
+      "Nobody's Rock",
+      "The Long Dark",
+      "Mile Forty",
+      "The Flats",
+      "Old Beacon",
+      "Static",
+      "Cinder Belt",
+      "Low Orbit",
+      "Washout",
+      "The Hollow",
+      "Tin Can Alley",
+      "Scrap Heap"
+    ]
+  }
+}

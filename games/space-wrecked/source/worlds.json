@@ -1,0 +1,72 @@
+{
+  "system": {
+    "worlds": 3,
+    "text": "Past the last charted jump point: a star no survey lists, and worlds around it where a colony could take root."
+  },
+  "lanes": [
+    "Near the shipping lanes: easy to reach, and easy to find.",
+    "Off the lanes: a long way round to find.",
+    "Far from any lane: hard to reach, and harder to find."
+  ],
+  "kinds": [
+    {
+      "id": "ocean",
+      "name": "Ocean world",
+      "weight": 1,
+      "soil": [0, 1],
+      "water": [3, 3],
+      "ore": [0, 1],
+      "danger": [1, 2],
+      "text": "Water from pole to pole, with island chains where a colony could stand. Fish and storms, and little rock.",
+      "landing": "The ship sets down on an island's back, spray across the viewports. The sea runs on to the edge of the world."
+    },
+    {
+      "id": "desert",
+      "name": "Desert world",
+      "weight": 1,
+      "soil": [0, 1],
+      "water": [0, 1],
+      "ore": [2, 3],
+      "danger": [1, 2],
+      "text": "Sand seas and salt flats over deep seams of ore. Water will be the dear thing, and the storms the dangerous one.",
+      "landing": "The ship sets down on a salt flat in a storm of its own dust. When the dust clears, the heat comes in."
+    },
+    {
+      "id": "ice",
+      "name": "Ice world",
+      "weight": 1,
+      "soil": [0, 0],
+      "water": [2, 3],
+      "ore": [1, 2],
+      "danger": [0, 1],
+      "text": "A frozen crust over old seas. Cold and quiet, and hard to farm.",
+      "landing": "The ship settles onto the ice with a long crack, then nothing: wind, and the engines ticking as they cool."
+    },
+    {
+      "id": "jungle",
+      "name": "Jungle world",
+      "weight": 1,
+      "soil": [2, 3],
+      "water": [2, 3],
+      "ore": [0, 1],
+      "danger": [2, 3],
+      "text": "Green to the horizon on rich soil, and most of what lives in it bites.",
+      "landing": "The ship burns a clearing to set down in. By morning the green is creeping back."
+    },
+    {
+      "id": "rock",
+      "name": "Barren rock",
+      "weight": 1,
+      "soil": [0, 0],
+      "water": [0, 1],
+      "ore": [2, 3],
+      "danger": [0, 1],
+      "text": "Airless stone, rich and empty. Whatever the colony needs, it brings or digs.",
+      "landing": "The ship sets down on bare stone under a black sky. No air and no weather: the ground, and what is in it."
+    }
+  ],
+  "names": {
+    "systems": ["The Quiet Star", "Unlisted Seven", "The Far Lantern", "Blackwater Reach", "The Cold Shore", "Nobody's Star", "The Outer Hold", "Ember Reach", "The Last Harbor", "Tallow's Star", "The Hush", "Wayback"],
+    "worlds": ["Kestrel's Rest", "New Tailings", "Harrow", "Saltmarch", "Glasswater", "Ninefold", "Copperhill", "Driftmoor", "Whitehold", "Long Winter", "Greenhaven", "Ashfall", "Stillwater", "Ironbark", "Farrow", "Tarn", "Hollowmere", "Brightstone", "Cairn", "Reed's Landing", "Emberfall", "Sable", "Wren", "Second Chance"]
+  }
+}

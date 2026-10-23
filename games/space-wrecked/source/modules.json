@@ -1,0 +1,773 @@
+{
+  "tilesPerCell": 1,
+  "tiles": {
+    ".": "floor",
+    "h": "half cover",
+    "H": "full cover",
+    "#": "machinery",
+    "c": "console",
+    "a": "airlock"
+  },
+  "categories": [
+    { "id": "command", "name": "Command" },
+    { "id": "power", "name": "Power" },
+    { "id": "engines", "name": "Engines" },
+    { "id": "weapons", "name": "Weapons" },
+    { "id": "defense", "name": "Defense" },
+    { "id": "crew", "name": "Crew" },
+    { "id": "cargo", "name": "Cargo" },
+    { "id": "utility", "name": "Utility" }
+  ],
+  "modules": [
+    {
+      "id": "bridge",
+      "name": "Bridge",
+      "glyph": "B",
+      "category": "command",
+      "manufacturer": "yard",
+      "size": [3, 2],
+      "rotates": true,
+      "stats": { "power": -1, "mass": 4, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 20 },
+      "tags": ["bridge"],
+      "interior": ["c.c", "..."],
+      "cost": 120
+    },
+    {
+      "id": "reactor",
+      "name": "Reactor",
+      "glyph": "R",
+      "category": "power",
+      "manufacturer": "yard",
+      "size": [3, 3],
+      "rotates": true,
+      "stats": { "power": 8, "mass": 6, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 30 },
+      "tags": ["reactor"],
+      "interior": ["...", ".#.", "..."],
+      "cost": 200
+    },
+    {
+      "id": "engine",
+      "name": "Engine",
+      "glyph": "E",
+      "category": "engines",
+      "manufacturer": "yard",
+      "size": [2, 2],
+      "rotates": false,
+      "facesSpace": { "side": "w", "what": "exhaust" },
+      "stats": { "power": -1, "mass": 3, "thrust": 12, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["engine"],
+      "interior": ["#.", "#."],
+      "cost": 200
+    },
+    {
+      "id": "corridor",
+      "name": "Corridor",
+      "glyph": "+",
+      "category": "utility",
+      "manufacturer": "yard",
+      "size": [1, 1],
+      "rotates": true,
+      "stats": { "power": 0, "mass": 1, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 10 },
+      "tags": ["corridor"],
+      "interior": ["."],
+      "cost": 10
+    },
+    {
+      "id": "airlock",
+      "name": "Airlock",
+      "glyph": "A",
+      "category": "utility",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": true,
+      "stats": { "power": 0, "mass": 1, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 12 },
+      "tags": ["airlock"],
+      "interior": ["aa"],
+      "cost": 40
+    },
+    {
+      "id": "quarters",
+      "name": "Crew quarters",
+      "glyph": "Q",
+      "category": "crew",
+      "manufacturer": "yard",
+      "size": [3, 2],
+      "rotates": true,
+      "stats": { "power": -1, "mass": 3, "thrust": 0, "berths": 4, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["quarters"],
+      "interior": ["hh.", "..."],
+      "cost": 80
+    },
+    {
+      "id": "lifesupport",
+      "name": "Life support",
+      "glyph": "L",
+      "category": "crew",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": true,
+      "stats": { "power": -1, "mass": 2, "thrust": 0, "berths": 0, "lifeSupport": 4, "cargo": 0, "hp": 12 },
+      "tags": ["lifesupport"],
+      "interior": ["H."],
+      "cost": 90
+    },
+    {
+      "id": "cargo",
+      "name": "Cargo hold",
+      "glyph": "C",
+      "category": "cargo",
+      "manufacturer": "yard",
+      "size": [3, 3],
+      "rotates": true,
+      "stats": { "power": 0, "mass": 3, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 20, "hp": 25 },
+      "tags": ["cargo"],
+      "interior": ["h.h", "...", "h.h"],
+      "cost": 60
+    },
+    {
+      "id": "medbay",
+      "name": "Med bay",
+      "glyph": "M",
+      "category": "crew",
+      "manufacturer": "yard",
+      "size": [3, 2],
+      "rotates": true,
+      "stats": { "power": -1, "mass": 3, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["medbay"],
+      "heal": 1,
+      "interior": ["h.c", "..."],
+      "cost": 110
+    },
+    {
+      "id": "armory",
+      "name": "Armory",
+      "glyph": "X",
+      "category": "utility",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": true,
+      "stats": { "power": 0, "mass": 2, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["armory"],
+      "interior": ["H."],
+      "cost": 90
+    },
+    {
+      "id": "weapon",
+      "name": "Weapon mount",
+      "glyph": "W",
+      "category": "weapons",
+      "manufacturer": "yard",
+      "size": [1, 1],
+      "rotates": true,
+      "facesSpace": { "side": "n", "what": "barrel" },
+      "stats": { "power": -1, "mass": 2, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["weapon"],
+      "damage": 15,
+      "interior": ["c"],
+      "cost": 130
+    },
+    {
+      "id": "shield",
+      "name": "Shield generator",
+      "glyph": "S",
+      "category": "defense",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": true,
+      "stats": { "power": -2, "mass": 2, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 12 },
+      "tags": ["shield"],
+      "shield": 10,
+      "interior": [".#"],
+      "cost": 140
+    },
+    {
+      "id": "lightengine",
+      "name": "Light engine",
+      "glyph": "e",
+      "category": "engines",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": false,
+      "facesSpace": { "side": "w", "what": "exhaust" },
+      "stats": { "power": -1, "mass": 1, "thrust": 6, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 8 },
+      "tags": ["engine"],
+      "interior": ["#."],
+      "cost": 90
+    },
+    {
+      "id": "heavyengine",
+      "name": "Heavy engine",
+      "glyph": "D",
+      "category": "engines",
+      "manufacturer": "yard",
+      "size": [3, 2],
+      "rotates": false,
+      "facesSpace": { "side": "w", "what": "exhaust" },
+      "stats": { "power": -2, "mass": 6, "thrust": 26, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 30 },
+      "tags": ["engine"],
+      "interior": ["##.", "##."],
+      "cost": 420
+    },
+    {
+      "id": "smallreactor",
+      "name": "Small reactor",
+      "glyph": "r",
+      "category": "power",
+      "manufacturer": "yard",
+      "size": [2, 2],
+      "rotates": true,
+      "stats": { "power": 4, "mass": 2, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["reactor"],
+      "interior": ["..", ".#"],
+      "cost": 130
+    },
+    {
+      "id": "pointdefense",
+      "name": "Point defense",
+      "glyph": "P",
+      "category": "weapons",
+      "manufacturer": "yard",
+      "size": [1, 1],
+      "rotates": true,
+      "facesSpace": { "side": "n", "what": "turret" },
+      "stats": { "power": -1, "mass": 1, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 10 },
+      "tags": ["pointdefense"],
+      "intercept": 10,
+      "interior": ["#"],
+      "cost": 120
+    },
+    {
+      "id": "cannon",
+      "name": "Cannon",
+      "glyph": "K",
+      "category": "weapons",
+      "manufacturer": "yard",
+      "size": [2, 1],
+      "rotates": true,
+      "facesSpace": { "side": "n", "what": "barrel" },
+      "stats": { "power": -2, "mass": 4, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 20 },
+      "tags": ["weapon"],
+      "damage": 30,
+      "interior": ["#c"],
+      "cost": 240
+    },
+    {
+      "id": "shieldarray",
+      "name": "Shield array",
+      "glyph": "Z",
+      "category": "defense",
+      "manufacturer": "yard",
+      "size": [2, 2],
+      "rotates": true,
+      "stats": { "power": -4, "mass": 4, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 20 },
+      "tags": ["shield"],
+      "shield": 25,
+      "interior": [".#", "##"],
+      "cost": 300
+    },
+    {
+      "id": "bunks",
+      "name": "Bunks",
+      "glyph": "U",
+      "category": "crew",
+      "manufacturer": "yard",
+      "size": [2, 2],
+      "rotates": true,
+      "stats": { "power": -1, "mass": 2, "thrust": 0, "berths": 2, "lifeSupport": 2, "cargo": 0, "hp": 12 },
+      "tags": ["quarters", "lifesupport"],
+      "interior": [".h", ".h"],
+      "cost": 100
+    },
+    {
+      "id": "surgery",
+      "name": "Surgery",
+      "glyph": "Y",
+      "category": "crew",
+      "manufacturer": "yard",
+      "size": [2, 2],
+      "rotates": true,
+      "stats": { "power": -2, "mass": 3, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 0, "hp": 15 },
+      "tags": ["medbay"],
+      "heal": 2,
+      "interior": [".h", ".c"],
+      "cost": 220
+    },
+    {
+      "id": "largehold",
+      "name": "Large hold",
+      "glyph": "O",
+      "category": "cargo",
+      "manufacturer": "yard",
+      "size": [4, 3],
+      "rotates": true,
+      "stats": { "power": 0, "mass": 5, "thrust": 0, "berths": 0, "lifeSupport": 0, "cargo": 40, "hp": 30 },
+      "tags": ["cargo"],
+      "interior": ["h..h", "....", "h..h"],
+      "cost": 140
+    },
+    {
+      "id": "bastion-bridge",
+      "base": "bridge",
+      "manufacturer": "bastion",
+      "name": "Bastion bridge",
+      "stats": { "mass": 5, "hp": 30 },
+      "cost": 130
+    },
+    {
+      "id": "bastion-reactor",
+      "base": "reactor",
+      "manufacturer": "bastion",
+      "name": "Bastion reactor",
+      "stats": { "mass": 8, "hp": 45 },
+      "cost": 220
+    },
+    {
+      "id": "bastion-engine",
+      "base": "engine",
+      "manufacturer": "bastion",
+      "name": "Bastion engine",
+      "stats": { "mass": 4, "hp": 23 },
+      "cost": 220
+    },
+    {
+      "id": "bastion-corridor",
+      "base": "corridor",
+      "manufacturer": "bastion",
+      "name": "Bastion corridor",
+      "stats": { "mass": 2, "hp": 15 },
+      "cost": 10
+    },
+    {
+      "id": "bastion-airlock",
+      "base": "airlock",
+      "manufacturer": "bastion",
+      "name": "Bastion airlock",
+      "stats": { "mass": 2, "hp": 18 },
+      "cost": 45
+    },
+    {
+      "id": "bastion-quarters",
+      "base": "quarters",
+      "manufacturer": "bastion",
+      "name": "Bastion crew quarters",
+      "stats": { "mass": 4, "hp": 23 },
+      "cost": 90
+    },
+    {
+      "id": "bastion-lifesupport",
+      "base": "lifesupport",
+      "manufacturer": "bastion",
+      "name": "Bastion life support",
+      "stats": { "mass": 3, "hp": 18 },
+      "cost": 100
+    },
+    {
+      "id": "bastion-cargo",
+      "base": "cargo",
+      "manufacturer": "bastion",
+      "name": "Bastion cargo hold",
+      "stats": { "mass": 4, "hp": 38 },
+      "cost": 65
+    },
+    {
+      "id": "bastion-medbay",
+      "base": "medbay",
+      "manufacturer": "bastion",
+      "name": "Bastion med bay",
+      "stats": { "mass": 4, "hp": 23 },
+      "cost": 120
+    },
+    {
+      "id": "bastion-armory",
+      "base": "armory",
+      "manufacturer": "bastion",
+      "name": "Bastion armory",
+      "stats": { "mass": 3, "hp": 23 },
+      "cost": 100
+    },
+    {
+      "id": "bastion-weapon",
+      "base": "weapon",
+      "manufacturer": "bastion",
+      "name": "Bastion weapon mount",
+      "stats": { "mass": 3, "hp": 23 },
+      "cost": 145
+    },
+    {
+      "id": "bastion-shield",
+      "base": "shield",
+      "manufacturer": "bastion",
+      "name": "Bastion shield generator",
+      "stats": { "mass": 3, "hp": 18 },
+      "cost": 155
+    },
+    {
+      "id": "bastion-lightengine",
+      "base": "lightengine",
+      "manufacturer": "bastion",
+      "name": "Bastion light engine",
+      "stats": { "mass": 2, "hp": 12 },
+      "cost": 100
+    },
+    {
+      "id": "bastion-heavyengine",
+      "base": "heavyengine",
+      "manufacturer": "bastion",
+      "name": "Bastion heavy engine",
+      "stats": { "mass": 8, "hp": 45 },
+      "cost": 460
+    },
+    {
+      "id": "bastion-smallreactor",
+      "base": "smallreactor",
+      "manufacturer": "bastion",
+      "name": "Bastion small reactor",
+      "stats": { "mass": 3, "hp": 23 },
+      "cost": 145
+    },
+    {
+      "id": "bastion-pointdefense",
+      "base": "pointdefense",
+      "manufacturer": "bastion",
+      "name": "Bastion point defense",
+      "stats": { "mass": 2, "hp": 15 },
+      "cost": 130
+    },
+    {
+      "id": "bastion-cannon",
+      "base": "cannon",
+      "manufacturer": "bastion",
+      "name": "Bastion cannon",
+      "stats": { "mass": 5, "hp": 30 },
+      "cost": 265
+    },
+    {
+      "id": "bastion-shieldarray",
+      "base": "shieldarray",
+      "manufacturer": "bastion",
+      "name": "Bastion shield array",
+      "stats": { "mass": 5, "hp": 30 },
+      "cost": 330
+    },
+    {
+      "id": "bastion-bunks",
+      "base": "bunks",
+      "manufacturer": "bastion",
+      "name": "Bastion bunks",
+      "stats": { "mass": 3, "hp": 18 },
+      "cost": 110
+    },
+    {
+      "id": "bastion-surgery",
+      "base": "surgery",
+      "manufacturer": "bastion",
+      "name": "Bastion surgery",
+      "stats": { "mass": 4, "hp": 23 },
+      "cost": 240
+    },
+    {
+      "id": "bastion-largehold",
+      "base": "largehold",
+      "manufacturer": "bastion",
+      "name": "Bastion large hold",
+      "stats": { "mass": 6, "hp": 45 },
+      "cost": 155
+    },
+    {
+      "id": "kestrel-bridge",
+      "base": "bridge",
+      "manufacturer": "kestrel",
+      "name": "Kestrel bridge",
+      "stats": { "mass": 3, "hp": 10 },
+      "cost": 145
+    },
+    {
+      "id": "kestrel-engine",
+      "base": "engine",
+      "manufacturer": "kestrel",
+      "name": "Kestrel engine",
+      "stats": { "mass": 2, "hp": 8 },
+      "cost": 240
+    },
+    {
+      "id": "kestrel-quarters",
+      "base": "quarters",
+      "manufacturer": "kestrel",
+      "name": "Kestrel crew quarters",
+      "stats": { "mass": 2, "hp": 8 },
+      "cost": 95
+    },
+    {
+      "id": "kestrel-lifesupport",
+      "base": "lifesupport",
+      "manufacturer": "kestrel",
+      "name": "Kestrel life support",
+      "stats": { "mass": 1, "hp": 6 },
+      "cost": 110
+    },
+    {
+      "id": "kestrel-cargo",
+      "base": "cargo",
+      "manufacturer": "kestrel",
+      "name": "Kestrel cargo hold",
+      "stats": { "mass": 2, "hp": 13 },
+      "cost": 70
+    },
+    {
+      "id": "kestrel-medbay",
+      "base": "medbay",
+      "manufacturer": "kestrel",
+      "name": "Kestrel med bay",
+      "stats": { "mass": 2, "hp": 8 },
+      "cost": 130
+    },
+    {
+      "id": "kestrel-armory",
+      "base": "armory",
+      "manufacturer": "kestrel",
+      "name": "Kestrel armory",
+      "stats": { "mass": 1, "hp": 8 },
+      "cost": 110
+    },
+    {
+      "id": "kestrel-weapon",
+      "base": "weapon",
+      "manufacturer": "kestrel",
+      "name": "Kestrel weapon mount",
+      "stats": { "mass": 1, "hp": 8 },
+      "cost": 155
+    },
+    {
+      "id": "kestrel-shield",
+      "base": "shield",
+      "manufacturer": "kestrel",
+      "name": "Kestrel shield generator",
+      "stats": { "mass": 1, "hp": 6 },
+      "cost": 170
+    },
+    {
+      "id": "kestrel-heavyengine",
+      "base": "heavyengine",
+      "manufacturer": "kestrel",
+      "name": "Kestrel heavy engine",
+      "stats": { "mass": 4, "hp": 15 },
+      "cost": 505
+    },
+    {
+      "id": "kestrel-smallreactor",
+      "base": "smallreactor",
+      "manufacturer": "kestrel",
+      "name": "Kestrel small reactor",
+      "stats": { "mass": 1, "hp": 8 },
+      "cost": 155
+    },
+    {
+      "id": "kestrel-cannon",
+      "base": "cannon",
+      "manufacturer": "kestrel",
+      "name": "Kestrel cannon",
+      "stats": { "mass": 3, "hp": 10 },
+      "cost": 290
+    },
+    {
+      "id": "kestrel-shieldarray",
+      "base": "shieldarray",
+      "manufacturer": "kestrel",
+      "name": "Kestrel shield array",
+      "stats": { "mass": 3, "hp": 10 },
+      "cost": 360
+    },
+    {
+      "id": "kestrel-bunks",
+      "base": "bunks",
+      "manufacturer": "kestrel",
+      "name": "Kestrel bunks",
+      "stats": { "mass": 1, "hp": 6 },
+      "cost": 120
+    },
+    {
+      "id": "kestrel-surgery",
+      "base": "surgery",
+      "manufacturer": "kestrel",
+      "name": "Kestrel surgery",
+      "stats": { "mass": 2, "hp": 8 },
+      "cost": 265
+    },
+    {
+      "id": "kestrel-largehold",
+      "base": "largehold",
+      "manufacturer": "kestrel",
+      "name": "Kestrel large hold",
+      "stats": { "mass": 4, "hp": 15 },
+      "cost": 170
+    },
+    {
+      "id": "scrapline-bridge",
+      "base": "bridge",
+      "manufacturer": "scrapline",
+      "name": "Scrapline bridge",
+      "stats": { "hp": 15, "power": -2 },
+      "cost": 80
+    },
+    {
+      "id": "scrapline-reactor",
+      "base": "reactor",
+      "manufacturer": "scrapline",
+      "name": "Scrapline reactor",
+      "stats": { "hp": 23, "power": 7 },
+      "cost": 130
+    },
+    {
+      "id": "scrapline-engine",
+      "base": "engine",
+      "manufacturer": "scrapline",
+      "name": "Scrapline engine",
+      "stats": { "hp": 11, "power": -2 },
+      "cost": 130
+    },
+    {
+      "id": "scrapline-corridor",
+      "base": "corridor",
+      "manufacturer": "scrapline",
+      "name": "Scrapline corridor",
+      "stats": { "hp": 8 },
+      "cost": 5
+    },
+    {
+      "id": "scrapline-airlock",
+      "base": "airlock",
+      "manufacturer": "scrapline",
+      "name": "Scrapline airlock",
+      "stats": { "hp": 9 },
+      "cost": 25
+    },
+    {
+      "id": "scrapline-quarters",
+      "base": "quarters",
+      "manufacturer": "scrapline",
+      "name": "Scrapline crew quarters",
+      "stats": { "hp": 11, "power": -2 },
+      "cost": 50
+    },
+    {
+      "id": "scrapline-lifesupport",
+      "base": "lifesupport",
+      "manufacturer": "scrapline",
+      "name": "Scrapline life support",
+      "stats": { "hp": 9, "power": -2 },
+      "cost": 60
+    },
+    {
+      "id": "scrapline-cargo",
+      "base": "cargo",
+      "manufacturer": "scrapline",
+      "name": "Scrapline cargo hold",
+      "stats": { "hp": 19 },
+      "cost": 40
+    },
+    {
+      "id": "scrapline-medbay",
+      "base": "medbay",
+      "manufacturer": "scrapline",
+      "name": "Scrapline med bay",
+      "stats": { "hp": 11, "power": -2 },
+      "cost": 70
+    },
+    {
+      "id": "scrapline-armory",
+      "base": "armory",
+      "manufacturer": "scrapline",
+      "name": "Scrapline armory",
+      "stats": { "hp": 11 },
+      "cost": 60
+    },
+    {
+      "id": "scrapline-weapon",
+      "base": "weapon",
+      "manufacturer": "scrapline",
+      "name": "Scrapline weapon mount",
+      "stats": { "hp": 11, "power": -2 },
+      "cost": 85
+    },
+    {
+      "id": "scrapline-shield",
+      "base": "shield",
+      "manufacturer": "scrapline",
+      "name": "Scrapline shield generator",
+      "stats": { "hp": 9, "power": -3 },
+      "cost": 90
+    },
+    {
+      "id": "scrapline-lightengine",
+      "base": "lightengine",
+      "manufacturer": "scrapline",
+      "name": "Scrapline light engine",
+      "stats": { "hp": 6, "power": -2 },
+      "cost": 60
+    },
+    {
+      "id": "scrapline-heavyengine",
+      "base": "heavyengine",
+      "manufacturer": "scrapline",
+      "name": "Scrapline heavy engine",
+      "stats": { "hp": 23, "power": -3 },
+      "cost": 275
+    },
+    {
+      "id": "scrapline-smallreactor",
+      "base": "smallreactor",
+      "manufacturer": "scrapline",
+      "name": "Scrapline small reactor",
+      "stats": { "hp": 11, "power": 3 },
+      "cost": 85
+    },
+    {
+      "id": "scrapline-pointdefense",
+      "base": "pointdefense",
+      "manufacturer": "scrapline",
+      "name": "Scrapline point defense",
+      "stats": { "hp": 8, "power": -2 },
+      "cost": 80
+    },
+    {
+      "id": "scrapline-cannon",
+      "base": "cannon",
+      "manufacturer": "scrapline",
+      "name": "Scrapline cannon",
+      "stats": { "hp": 15, "power": -3 },
+      "cost": 155
+    },
+    {
+      "id": "scrapline-shieldarray",
+      "base": "shieldarray",
+      "manufacturer": "scrapline",
+      "name": "Scrapline shield array",
+      "stats": { "hp": 15, "power": -5 },
+      "cost": 195
+    },
+    {
+      "id": "scrapline-bunks",
+      "base": "bunks",
+      "manufacturer": "scrapline",
+      "name": "Scrapline bunks",
+      "stats": { "hp": 9, "power": -2 },
+      "cost": 65
+    },
+    {
+      "id": "scrapline-surgery",
+      "base": "surgery",
+      "manufacturer": "scrapline",
+      "name": "Scrapline surgery",
+      "stats": { "hp": 11, "power": -3 },
+      "cost": 145
+    },
+    {
+      "id": "scrapline-largehold",
+      "base": "largehold",
+      "manufacturer": "scrapline",
+      "name": "Scrapline large hold",
+      "stats": { "hp": 23 },
+      "cost": 90
+    }
+  ]
+}

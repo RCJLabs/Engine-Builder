@@ -1,0 +1,43 @@
+{
+  "sides": [
+    {
+      "id": "conreg",
+      "name": "Con-Reg",
+      "blurb": "Consolidated Regolith: the Company. It owns the mines, the miners' debts and the lawyers who collect them.",
+      "color": "yellow"
+    },
+    {
+      "id": "fleet",
+      "name": "the Fleet",
+      "blurb": "The Navy: its ships and stores, its customs men in every port, and the Provost who keeps its sailors from leaving.",
+      "color": "blue",
+      "patrol": {
+        "waved": "The corvette checks your transponder against the Fleet's lists, finds a friend of the Fleet, and waves you on without a search.",
+        "fired": "The corvette checks your transponder against the Fleet's lists and doesn't bother hailing. Her guns are firing before you clear the beacon."
+      }
+    },
+    {
+      "id": "hallorans",
+      "name": "the Hallorans",
+      "blurb": "Old Halloran's family: the Narrows' loans, rackets and rents, collected with a smile.",
+      "color": "magenta"
+    },
+    {
+      "id": "union",
+      "name": "the union",
+      "blurb": "The miners' locals, the dockers and the union halls on the run. They look after their own, and remember who helped.",
+      "color": "brick"
+    }
+  ],
+  "stations": {
+    "Union Hall Twelve": "union",
+    "Dock Seven": "union",
+    "Ruth's Canteen": "union",
+    "The Depot": "conreg",
+    "Last Chance Supply": "conreg",
+    "Rest Stop Nine": "fleet",
+    "Station Okay": "fleet",
+    "Big Rita's": "hallorans",
+    "Halfway House": "hallorans"
+  }
+}

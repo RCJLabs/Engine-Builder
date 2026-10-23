@@ -1,0 +1,78 @@
+{
+  "first": ["Ada", "Bram", "Cass", "Dov", "Edda", "Fen", "Gus", "Hana", "Ivo", "Jessa", "Kit", "Lark", "Moss", "Nell", "Otto", "Pim", "Quill", "Rhea", "Sully", "Tam", "Ula", "Vik", "Wes", "Yara"],
+  "last": ["Abara", "Brask", "Corrigan", "Dahl", "Esposito", "Faraday", "Grieve", "Hoskins", "Ibarra", "Juarez", "Kettle", "Lindqvist", "Mbeki", "Nakamura", "Oduya", "Petrov", "Quaye", "Reyes", "Sato", "Thorne", "Ueda", "Varga", "Whitlock", "Zeller"],
+  "backgrounds": [
+    {
+      "id": "green-hand",
+      "name": "Green hand",
+      "text": "First time off the rock, keen to learn, and cheap with it.",
+      "jobs": ["marine", "engineer", "medic", "pilot", "scout", "xenobiologist", "quartermaster"],
+      "traits": [],
+      "traitCount": 0,
+      "fights": [0, 0]
+    },
+    {
+      "id": "station-kid",
+      "name": "Station kid",
+      "text": "Grew up behind a fuel counter on the lanes, and wants to see what's past the next jump.",
+      "jobs": ["pilot", "engineer", "quartermaster"],
+      "traits": ["quick", "light-sleeper", "long-legs", "jumpy", "reckless"],
+      "traitCount": 1,
+      "fights": [0, 1]
+    },
+    {
+      "id": "laid-off-miner",
+      "name": "Laid-off miner",
+      "text": "Twenty years on Con-Reg's ore line, until a machine did it cheaper.",
+      "jobs": ["engineer", "marine", "quartermaster"],
+      "traits": ["thick-skull", "shift-fit", "bruiser", "brawler", "patched", "steady"],
+      "traitCount": 1,
+      "fights": [0, 2]
+    },
+    {
+      "id": "survey-hand",
+      "name": "Survey hand",
+      "text": "Signed on to chart worlds past the edge. The money ran out before the worlds did.",
+      "jobs": ["xenobiologist", "scout", "medic"],
+      "traits": ["patient", "cool-head", "careful", "wiry", "light-sleeper"],
+      "traitCount": 1,
+      "fights": [0, 2]
+    },
+    {
+      "id": "long-hauler",
+      "name": "Long-hauler",
+      "text": "Drove freight on the long lanes, and stood off the odd pirate doing it.",
+      "jobs": ["pilot", "quartermaster", "engineer", "scout"],
+      "traits": ["old-hand", "light-sleeper", "careful", "patient", "cool-head"],
+      "traitCount": 1,
+      "fights": [2, 4]
+    },
+    {
+      "id": "company-guard",
+      "name": "Company guard",
+      "text": "Guarded Con-Reg's payrolls, until the Company started paying in scrip.",
+      "jobs": ["marine", "scout", "medic"],
+      "traits": ["steady", "low-profile", "old-hand", "hothead", "careful", "bar-fighter"],
+      "traitCount": 1,
+      "fights": [3, 6]
+    },
+    {
+      "id": "hired-gun",
+      "name": "Hired gun",
+      "text": "Fought for whoever paid, until nobody did.",
+      "jobs": ["marine", "scout", "pilot"],
+      "traits": ["hothead", "crack-shot", "reckless", "bar-fighter", "wiry", "jumpy"],
+      "traitCount": 2,
+      "fights": [4, 9]
+    },
+    {
+      "id": "fleet-veteran",
+      "name": "Fleet veteran",
+      "text": "Twenty years of Fleet service, and a pension that's still in the post.",
+      "jobs": ["marine", "pilot", "medic", "scout"],
+      "traits": ["old-hand", "cool-head", "steady", "crack-shot", "patched", "careful"],
+      "traitCount": 2,
+      "fights": [8, 12]
+    }
+  ]
+}
