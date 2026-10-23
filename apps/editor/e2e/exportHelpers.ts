@@ -27,7 +27,8 @@ export async function importHut(page: Page): Promise<void> {
   await expect(openProject(page).getByRole('heading', { name: 'The hut' })).toBeVisible();
   const play = await showPlay(page);
   await play.getByRole('button', { name: 'Run its scripts' }).click();
-  await expect(play.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+  // Enabled, not visible: Play is always drawn, and enabled only once the game has loaded.
+  await expect(play.getByRole('button', { name: 'Play', exact: true })).toBeEnabled();
   await showProject(page);
 }
 
