@@ -7,7 +7,7 @@
  * Each is a plain function of one record's JSON, given the type file of its type, that gives the
  * record back as it was when there is nothing to change. typeEdits.ts makes them steps.
  */
-import { formatRef, isRecordId, parseRef } from '@eb/core';
+import { formatRef, isRecordId, parseRef, pointerKeys } from '@eb/core';
 import { renameKey, withKey } from '../forms/values.ts';
 import { type DefPath, eachDef, fieldNames, isKeysPath, isObject, mapAt, valuesAt } from './defPaths.ts';
 
@@ -113,6 +113,39 @@ export function renameRecordRefs(file: unknown, type: string, from: string, to: 
         atValues(file, site.path, site.key, site.single ? (v) => (v === from ? to : v) : (v) => (v === was ? now : v)),
       ),
   );
+}
+
+/**
+ * The record `type:from` renamed `to` at each of `pointers` in one record, where the record index
+ * found a reference to it (M4.11): a value naming it, bare or "type:id", or a map's key that does.
+ * These reach what the type files can't say: the kits' and the engine's records, effects, keys. A
+ * condition that mentions it stays, as in renameRecordRefs: the value there isn't the id alone.
+ */
+export function renameAtPointers(pointers: readonly string[], type: string, from: string, to: string): Rewrite {
+  const was = formatRef(type, from);
+  const now = formatRef(type, to);
+  const swap = (value: unknown) => (value === from ? to : value === was ? now : value);
+  return (record) => pointers.reduce((value, pointer) => renamedAt(value, pointerKeys(pointer), swap), record);
+}
+
+function renamedAt(node: unknown, keys: readonly string[], swap: (value: unknown) => unknown): unknown {
+  const [key, ...rest] = keys;
+  if (key === undefined) return node;
+  if (Array.isArray(node)) {
+    const i = Number(key);
+    if (!Number.isInteger(i) || i < 0 || i >= node.length) return node;
+    const child = rest.length === 0 ? swap(node[i]) : renamedAt(node[i], rest, swap);
+    return child === node[i] ? node : node.map((item, at) => (at === i ? child : item));
+  }
+  if (!isObject(node) || !Object.hasOwn(node, key)) return node;
+  if (rest.length > 0) {
+    const child = renamedAt(node[key], rest, swap);
+    return child === node[key] ? node : { ...node, [key]: child };
+  }
+  const value = swap(node[key]);
+  if (value !== node[key]) return { ...node, [key]: value };
+  const named = swap(key);
+  return typeof named === 'string' && named !== key ? (renameKey(node, key, named) ?? node) : node;
 }
 
 /** Every "from:id" a field of several types holds made "to:id". A field of one type holds bare ids, which stay. */

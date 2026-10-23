@@ -1,0 +1,84 @@
+{
+  "title": "The shop",
+  "shows": ["shopping"],
+  "modal": true,
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "{shop.name}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: coin)} Coin"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: debt)} Debt"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: stores)} Stores"
+      }
+    ]
+  },
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Buy",
+        "children": [
+          {
+            "widget": "list",
+            "of": "shelf",
+            "empty": "The shelves are bare.",
+            "item": {
+              "widget": "button",
+              "label": "{.name}: {.price}, {.count} left",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "label": "Sell",
+        "children": [
+          {
+            "widget": "list",
+            "of": "bag",
+            "empty": "Nothing to sell.",
+            "item": {
+              "widget": "button",
+              "label": "Sell {.name} for {.price}",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Leave",
+        "action": {
+          "take": "economy/leave"
+        }
+      }
+    ]
+  }
+}

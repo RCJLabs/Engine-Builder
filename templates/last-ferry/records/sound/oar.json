@@ -1,0 +1,13 @@
+{
+  "name": "Oar",
+  "voices": [
+    {
+      "volume": 0.5,
+      "frequency": 180,
+      "sustain": 0.05,
+      "release": 0.3,
+      "shape": "noise",
+      "noise": 0.5
+    }
+  ]
+}

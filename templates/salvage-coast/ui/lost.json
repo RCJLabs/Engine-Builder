@@ -1,0 +1,72 @@
+{
+  "title": "Lost at sea",
+  "shows": ["lost"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "Lost at sea",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The Kittiwake goes down off the point. The crew row home in the boat’s tender."
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: coin)} Coin"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: debt)} Debt"
+      },
+      {
+        "widget": "text",
+        "text": "{economy.amount(resource: stores)} Stores"
+      },
+      {
+        "widget": "text",
+        "text": "Quests done: {quests.tally(state: done)}"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  }
+}

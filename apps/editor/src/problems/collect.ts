@@ -16,7 +16,7 @@ export function projectProblems(catalog: Catalog, index: RecordIndex | null, gam
   // A record that isn't JSON has its E007 among its problems (the index's own).
   const found: Diagnostic[] = [...catalog.problems, ...(game?.problems ?? [])];
   for (const record of index?.records.values() ?? []) found.push(...record.problems);
-  found.push(...(index?.screens ?? []), ...(index?.exports ?? []));
+  found.push(...(index?.screens ?? []), ...(index?.exports ?? []), ...(index?.guide ?? []));
   return found.sort(compareDiagnostics);
 }
 
@@ -43,6 +43,7 @@ export function tally(catalog: Catalog, index: RecordIndex | null, game?: GameSt
   for (const record of index?.records.values() ?? []) record.problems.forEach(add);
   index?.screens?.forEach(add);
   index?.exports?.forEach(add);
+  index?.guide?.forEach(add);
   return { errors, warnings };
 }
 

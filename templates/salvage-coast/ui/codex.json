@@ -1,0 +1,124 @@
+{
+  "title": "Codex",
+  "modal": true,
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Items",
+        "children": [
+          {
+            "widget": "list",
+            "of": "records",
+            "type": "item",
+            "known": "inventory.count(item: @entry) > 0",
+            "unknown": {
+              "widget": "text",
+              "text": "Not yet found",
+              "style": "caption"
+            },
+            "empty": "No items yet.",
+            "item": {
+              "widget": "panel",
+              "children": [
+                {
+                  "widget": "text",
+                  "text": "{.name}",
+                  "style": "heading"
+                },
+                {
+                  "widget": "text",
+                  "text": "Carried: {inventory.count(item: @entry)}",
+                  "style": "caption"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "label": "Events",
+        "children": [
+          {
+            "widget": "list",
+            "of": "records",
+            "type": "event",
+            "known": "events.seen(event: @entry) > 0",
+            "unknown": {
+              "widget": "text",
+              "text": "Not yet found",
+              "style": "caption"
+            },
+            "empty": "No events yet.",
+            "item": {
+              "widget": "panel",
+              "children": [
+                {
+                  "widget": "text",
+                  "text": "{.name}",
+                  "style": "heading"
+                },
+                {
+                  "widget": "text",
+                  "text": "Seen {events.seen(event: @entry)} times",
+                  "style": "caption"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "label": "People",
+        "children": [
+          {
+            "widget": "list",
+            "of": "records",
+            "type": "actor",
+            "empty": "No people yet.",
+            "item": {
+              "widget": "panel",
+              "children": [
+                {
+                  "widget": "text",
+                  "text": "{.name}",
+                  "style": "heading"
+                },
+                {
+                  "widget": "text",
+                  "text": "Aim {stats.current(actor: @entry, stat: aim)} of {stats.value(actor: @entry, stat: aim)}",
+                  "style": "caption"
+                },
+                {
+                  "widget": "text",
+                  "text": "Guns {stats.current(actor: @entry, stat: guns)} of {stats.value(actor: @entry, stat: guns)}",
+                  "style": "caption"
+                },
+                {
+                  "widget": "text",
+                  "text": "Hull {stats.current(actor: @entry, stat: hull)} of {stats.value(actor: @entry, stat: hull)}",
+                  "style": "caption"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

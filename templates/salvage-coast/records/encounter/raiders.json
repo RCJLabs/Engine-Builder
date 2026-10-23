@@ -1,0 +1,26 @@
+{
+  "name": "Raiders",
+  "description": "One sloop. It sheers off once it is half holed; lose, and you limp away with what the guns left you.",
+  "combat": "broadside",
+  "foes": [
+    {
+      "actor": "raider"
+    }
+  ],
+  "fighters": ["boat"],
+  "breaks": 50,
+  "win": [
+    {
+      "effect": "add-resource",
+      "resource": "coin",
+      "by": 15
+    }
+  ],
+  "draw": [
+    {
+      "effect": "add-resource",
+      "resource": "stores",
+      "by": 1
+    }
+  ]
+}

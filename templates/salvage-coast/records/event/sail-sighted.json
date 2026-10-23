@@ -1,0 +1,33 @@
+{
+  "name": "Sail sighted",
+  "text": "A sloop comes off the headland with its guns run out.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "fight",
+      "label": "Fight",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "raiders"
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Run for it",
+      "cost": {
+        "stores": 2
+      },
+      "result": "You crowd on sail and lose them by dusk."
+    },
+    {
+      "id": "pay",
+      "label": "Pay them off",
+      "cost": {
+        "coin": 15
+      },
+      "result": "They take the coin and laugh."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Squall",
+  "text": "The squall comes down like a wall.",
+  "choices": [
+    {
+      "id": "ride",
+      "label": "Ride it out",
+      "result": "A plank sprung, and the crew soaked.",
+      "effects": [
+        {
+          "effect": "damage-stat",
+          "actor": "boat",
+          "stat": "hull",
+          "by": 1
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Run before it",
+      "cost": {
+        "stores": 1
+      },
+      "result": "You run wide of it, a day’s stores the poorer."
+    }
+  ]
+}

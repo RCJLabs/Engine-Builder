@@ -1488,6 +1488,46 @@ Evan chose on 2026-10-23, from these options:
 
 ---
 
+### D61. Two templates, a salvage run on a stormy coast and one night on the last ferry, each a short game that plays as it stands; New project starts from either; each carries steps for making it your own, which the gate follows; checked by machine. LOCKED, 2026-10-23 (Evan's calls, M4.11)
+
+**Decision.**
+- **Two original games** (Evan's call):
+  - **Salvage coast,** the Expedition run: a salvage skipper on a stormy coast. The harbour is the hub, with a chandlery and a contract board. The coast is a map made from a seed: wrecks, storms, coves and raiders. Back in harbour you sell, repair and pay down the boat's debt. It ends when the debt is paid, or the boat is lost. It is Space-Wrecked's sector loop in other clothes, so M4.12 can start from it.
+  - **The last ferry,** the Story/choice: one night's crossing, four passengers, choices that set flags, three endings, written as ink scenes.
+  - Each plays as it stands in about ten minutes, and every part is named for what it is, so it can be swapped.
+- **"Make it yours" steps in the Project panel** (Evan's call): a template carries about eight steps as data, in `guide.json`. Each is a sentence with an Open button to the record, scene, screen or panel it changes. The gate's e2e follows every step, so the list can't drift from the editor.
+- **New project offers them** (Evan's call): "Start from" Empty, Expedition run, or Story and choices. The templates ship inside the editor, so they work offline, and `eb new <folder> --template <id>` writes the same files.
+- **Checked by machine** (Evan's call): each template has no problems; bots finish 500 seeded runs to an ending with every quest stage reached, held to a golden file; in the editor, a new project made from it is played to its ending in the Play panel on desktop and by touch at 360, 390 and landscape; and it exports as a single file that plays from `file://`. Merges on green.
+- **Not asked, and following from the calls:**
+  - A template is a project folder in `templates/<id>/`, listed in `templates/templates.json`. The CLI reads it from disk; the editor bundles each as one chunk, loaded only when chosen.
+  - `guide.json` is a project file the compiler checks (E057 for its shape, W140 for a step that opens what the project lacks). Zips carry it; a game's pack never does.
+  - A project made from a template is its author's own: it takes their name and id, and nothing ties it to the template afterwards.
+  - The templates' sounds are ZzFX records and their screens are the stock ones, so nothing in them came from outside the editor.
+
+Evan chose on 2026-10-23, from these options:
+- setting: a salvage coast and the last ferry; a mountain guiding season and the last ferry; or labelled skeletons with no setting;
+- guide: steps in the Project panel; a README in the project; or nothing yet;
+- offer: in New project; or a template gallery panel;
+- gate: all by machine; or that, plus Evan playing each on a phone before it merges.
+
+**Why.**
+- **A newcomer learns more from a small whole game than from an empty project.** Unity's microgames and GDevelop's starters both begin there, then guide changes to it (docs/research/templates.md).
+- **The salvage loop is the one M4.12's proof fills,** and the ferry is the shape of Chooser's nights and the hut's evening, without either's text.
+- **Steps the e2e follows can't name a button that has moved.**
+- **New project is where a project starts;** a gallery earns its place once there are more than two templates.
+
+**Cost.**
+- **Two more games to keep working as the engine changes.** Each is a fixture with a golden file, so a change that breaks one is seen.
+- **The steps open places; they don't check that the step was done.**
+- **Untested for feel** until someone new to the editor plays them.
+
+**Settled while building it** (2026-10-23, an engineering call under D33's renames carry the data, not a product one):
+- **A record renamed follows every reference the record index finds to it.** Since M3.3 a rename followed only what the project's own type files describe, so a kit's or the engine's record renamed left an encounter's foe, an effect or a choice's cost naming the old id. The index's pointers are read from the working copy as the step runs, never from the open project's index, which may be a step behind.
+- **guide.json's steps follow too.**
+- **Conditions, screens' text, scenes and scripts that name the id as a word still don't follow.** They show as problems to fix by hand (specs/templates.md, open question 4).
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

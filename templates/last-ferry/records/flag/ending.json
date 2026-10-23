@@ -1,0 +1,8 @@
+{
+  "name": "How the night ended",
+  "description": "1 every light ashore, 2 the patrol's lantern, 3 the far bank: the landing sets it.",
+  "number": {
+    "min": 0,
+    "max": 3
+  }
+}

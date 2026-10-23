@@ -1,0 +1,28 @@
+{
+  "title": "Inventory",
+  "modal": true,
+  "main": {
+    "widget": "list",
+    "of": "bag",
+    "empty": "The bag is empty.",
+    "item": {
+      "widget": "text",
+      "text": "{.name} ×{.count}"
+    }
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

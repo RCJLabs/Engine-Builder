@@ -1,0 +1,42 @@
+{
+  "name": "The yard",
+  "text": "The shipwright looks the Kittiwake over and sucks her teeth.",
+  "choices": [
+    {
+      "id": "patch",
+      "label": "Patch the hull",
+      "cost": {
+        "coin": 10
+      },
+      "result": "Three new planks, tarred.",
+      "effects": [
+        {
+          "effect": "heal-stat",
+          "actor": "boat",
+          "stat": "hull",
+          "by": 4
+        }
+      ]
+    },
+    {
+      "id": "provision",
+      "label": "Take on six stores",
+      "cost": {
+        "coin": 10
+      },
+      "result": "Barrels of water and salt pork.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "stores",
+          "by": 6
+        }
+      ]
+    },
+    {
+      "id": "leave",
+      "label": "Leave the yard",
+      "result": "Another day."
+    }
+  ]
+}

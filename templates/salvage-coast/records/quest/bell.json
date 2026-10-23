@@ -1,0 +1,44 @@
+{
+  "name": "The Gannet’s bell",
+  "stages": [
+    {
+      "id": "find",
+      "log": "A widow wants her husband’s bell back from the wreck of the Gannet.",
+      "objectives": [
+        {
+          "id": "raise",
+          "text": "Raise the bell from the Gannet",
+          "done-when": "inventory.count(item: bell) >= 1"
+        }
+      ],
+      "next": "home"
+    },
+    {
+      "id": "home",
+      "log": "The bell is aboard. She is waiting on the quay.",
+      "objectives": [
+        {
+          "id": "deliver",
+          "text": "Bring it into harbour",
+          "done-when": "harbour.in-port"
+        }
+      ],
+      "next": "paid"
+    },
+    {
+      "id": "paid",
+      "log": "She paid 40 coin, and rang it once.",
+      "effects": [
+        {
+          "effect": "take-item",
+          "item": "bell"
+        },
+        {
+          "effect": "add-resource",
+          "resource": "coin",
+          "by": 40
+        }
+      ]
+    }
+  ]
+}

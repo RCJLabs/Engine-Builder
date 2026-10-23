@@ -1,0 +1,15 @@
+{
+  "name": "The last ferry",
+  "short-name": "Last ferry",
+  "description": "One night, four passengers, and then the bridge.",
+  "orientation": "any",
+  "colors": {
+    "background": "#12121c",
+    "theme": "#1f2030"
+  },
+  "targets": {
+    "web": {},
+    "file": {},
+    "itch": {}
+  }
+}

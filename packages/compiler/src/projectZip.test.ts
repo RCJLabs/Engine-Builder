@@ -9,6 +9,8 @@ const text = (bytes: Uint8Array | undefined) => (bytes === undefined ? undefined
 // A project at the root of a game's repo, with the repo's own files around it.
 const inRepo = memorySource({
   ...fixture,
+  'export.json': '{}',
+  'guide.json': '{}',
   'README.md': '# my game',
   'package.json': '{}',
   'node_modules/fflate/index.js': 'x',
@@ -19,9 +21,9 @@ const inRepo = memorySource({
 });
 
 describe('projectFiles', () => {
-  it('takes project.json and the project’s folders, sorted, and nothing else', async () => {
+  it('takes project.json, export.json, guide.json and the project’s folders, sorted, and nothing else', async () => {
     expect(await projectFiles(inRepo)).toEqual(
-      [...Object.keys(fixture), 'assets/icon.svg', 'records/item/notes.md'].sort(),
+      [...Object.keys(fixture), 'assets/icon.svg', 'export.json', 'guide.json', 'records/item/notes.md'].sort(),
     );
   });
 

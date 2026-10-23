@@ -60,6 +60,7 @@ export const DIAGNOSTIC_CODES = {
   E054: 'A fight names nobody to fight for the player, in a game without the roster kit',
   E055: 'A record an edition keeps names one the edition leaves out',
   E056: "export.json is malformed, or names something that isn't there",
+  E057: 'guide.json is malformed: a missing or unknown field, too many steps, or a step id used twice',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -99,6 +100,7 @@ export const DIAGNOSTIC_CODES = {
   W137: "An encounter's fallen leave the roster, in a game without the roster kit",
   W138: "The export's short name is over 12 characters, which launchers cut",
   W139: 'The Android app names no signing key fingerprints, so it opens with a browser bar',
+  W140: "A guide step opens a file the project doesn't have, or one the editor has no place for",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

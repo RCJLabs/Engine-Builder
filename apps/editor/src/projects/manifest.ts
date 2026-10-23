@@ -1,5 +1,7 @@
 /** project.json as the editor meets it: read from a project's bytes, or written for a new one. */
-import { checkManifest, PROJECT_FORMAT, parseJsonFile } from '@eb/compiler';
+import { checkManifest, idFromName, PROJECT_FORMAT, parseJsonFile } from '@eb/compiler';
+
+export { idFromName };
 
 export type ManifestProject = NonNullable<ReturnType<typeof checkManifest>['project']>;
 
@@ -11,18 +13,6 @@ export function readManifest(bytes: Uint8Array): { project: ManifestProject | nu
   if (project) return { project, trouble: null };
   const said = problems.map((p) => (p.path === '' ? p.message : `${p.path.slice(1)}: ${p.message}`));
   return { project: null, trouble: `project.json: ${said.join('; ')}.` };
-}
-
-/** "Salvage Run!" becomes salvage-run: lowercase letters and digits joined by hyphens, at most 64. */
-export function idFromName(name: string): string {
-  const id = name
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .slice(0, 64)
-    .replace(/^-+|-+$/g, '');
-  return id === '' ? 'project' : id;
 }
 
 /** project.json's bytes for a new project, laid out as a person would write it. */

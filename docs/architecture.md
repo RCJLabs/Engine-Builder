@@ -33,7 +33,7 @@ How Engine-Builder fits together. This is design intent: each section is settled
 | Runtime | `packages/*` | Ships inside every exported game. Modular: a UI-only game stays small, and 3D, physics and navigation load only when a game uses them. |
 | Editor | `apps/editor` | An installable PWA. Play-in-Editor runs the same runtime the export ships. |
 | CLI | `tools/cli` (Phase 1) | `eb validate`, `eb build`, `eb schemas`, `eb export`, `eb sim`, for CI and for agents working in the repo. |
-| Templates | `templates/*` (Phase 4+) | Starter projects with stock screens, kits, sample content and bot tests. |
+| Templates | `templates/*` (M4.11) | Starter projects with stock screens, kits, sample content and bot tests, each with a guide.json of steps for making it one's own. |
 
 ## The sim decides; the stage renders
 
@@ -238,6 +238,7 @@ Screens are data: a widget tree with layout, a theme, bindings and actions. A sm
 - **Stock screens** (M4.4, D54) ship as templates you restyle, written into `ui/` from the project: HUD, dialogue, event, shop, hall, inventory, journal, codex (records shown once known, with live numbers), credits (packed from the provenance log) and ending ([specs/stock-screens.md](specs/stock-screens.md)). M4.6 adds the map, shown for each mode that travels, which is the HUD of a game that starts on its map.
 - **The UI designer** (M4.5, D55, [specs/designer.md](specs/designer.md)) edits a screen as it looks: an outline of its widgets, a form for the one selected, and a frame drawing it at a device's size and breakpoint. The frame reads a game of the designer's own, compiled without `ui/` and loaded to the Play panel's last save, by a `look` request that takes no step; samples fill what the moment lacks. Each change is a JSON edit with the editor's undo, so the file stays the format, and its JSON view stays.
 - **Play-in-Editor** (M4.9, D59, [specs/play-in-editor.md](specs/play-in-editor.md)): under the game in the Play panel, debug tools that change it only by its own effects, as debug steps through the sim. The engine's `debug` module, allowed in every mode and offered in none, is built only into the games the editor opens and counts its steps, so a player's game refuses a debugged save. The Play worker records the run with each step's state hash: Step back plays it again from the start, Replay plays it on the edited project and names the first step and place where the two part (`replayRecording`, `placeOf`, from M1.2's facets). Time moves by the calendar's own `wait`; quests say why they haven't moved on; named states are saves of their own.
+- **Templates** (M4.11, D61, [specs/templates.md](specs/templates.md)) are project folders under `templates/`: the salvage coast, an Expedition run, and the last ferry, a Story/choice. New project's Start from copies one in under the author's name through the compiler's `fromTemplate`, as `eb new` does; the editor bundles each as a lazy chunk, so it works offline. A project's `guide.json` lists steps for making it one's own, shown in the Project panel, each opening a place in the editor. Each template is held to no problems, to its golden runs and to every quest stage and ending reached.
 
 ## Saves
 
@@ -342,10 +343,10 @@ packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
 apps/editor         the editor PWA; the player page at /play/ (M4.1) and an exported game's runtime (src/game, M4.10) are built with it
-tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8), export | publish (M4.10); test later
+tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8), export | publish (M4.10), new (M4.11); test later
 tools/lint-boundaries
 tools/site-check    the deploy check: the live page and every file it loads (M2.2)
-templates/*                                                               Phase 4+
+templates/          salvage-coast, last-ferry (M4.11): what New project and eb new start from
 ```
 
 **Dependency direction.**

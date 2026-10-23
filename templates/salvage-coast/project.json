@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "id": "salvage-coast",
+  "name": "Salvage coast",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "stats", "events", "maps", "encounters", "quests"]
+}

@@ -16,6 +16,7 @@ import {
   storage,
 } from '../projects/session.ts';
 import { sizeText } from '../projects/storage.ts';
+import { TEMPLATES } from '../projects/templates.ts';
 import { naming } from './projectUi.ts';
 
 /** What is stored in this browser and the folders opened lately, with the ways to add more. */
@@ -107,15 +108,17 @@ function StorageLine() {
 
 function NewProjectForm({ done }: { done: () => void }) {
   const [name, setName] = useState('');
+  const [from, setFrom] = useState('');
   const field = useRef<HTMLInputElement>(null);
   // Whether it came from the button or the palette, the next thing to do is type a name.
   useEffect(() => field.current?.focus(), []);
+  const template = TEMPLATES.find((t) => t.id === from);
   return (
     <form
       class="new-project"
       onSubmit={(event) => {
         event.preventDefault();
-        void newProject(name).then(done);
+        void newProject(name, template?.id).then(done);
       }}
     >
       <label for="new-project-name">Name</label>
@@ -129,6 +132,24 @@ function NewProjectForm({ done }: { done: () => void }) {
         autoComplete="off"
         onInput={(event) => setName(event.currentTarget.value)}
       />
+      <label for="new-project-from">Start from</label>
+      <select
+        id="new-project-from"
+        class="field"
+        value={from}
+        aria-describedby="new-project-blurb"
+        onChange={(event) => setFrom(event.currentTarget.value)}
+      >
+        <option value="">Empty</option>
+        {TEMPLATES.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.title}
+          </option>
+        ))}
+      </select>
+      <p id="new-project-blurb" class="muted new-project-blurb">
+        {template ? template.blurb : 'Nothing but project.json: build it up yourself.'}
+      </p>
       <span class="row-actions">
         <button type="submit" class="button primary" disabled={name.trim() === '' || busy.value !== null}>
           Create

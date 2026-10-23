@@ -13,6 +13,7 @@ import { type GameState, gameChecks } from '../scripts/gameState.ts';
 
 // export.json's checks (M4.10) load with these: both run once the record index is read.
 export { exportProblems } from '../export/exportChecks.ts';
+export { guideProblems } from '../guide/guideChecks.ts';
 
 /** The index's records, as a fact's arguments look them up. */
 function lookup(index: RecordIndex): RecordLookup {

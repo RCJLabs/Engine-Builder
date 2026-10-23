@@ -1,0 +1,10 @@
+{
+  "name": "Raider sloop",
+  "description": "Fast, low and crewed by people who stopped asking.",
+  "stats": {
+    "hull": 8,
+    "aim": 55,
+    "guns": 2,
+    "planking": 0
+  }
+}

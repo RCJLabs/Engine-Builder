@@ -1,0 +1,18 @@
+{
+  "name": "Sheltered cove",
+  "charted": true,
+  "names": ["Gull Cove", "Brannock’s Hole", "Saint Ide’s"],
+  "description": "Still water, a spring and a fisher who trades.",
+  "arrive": [
+    {
+      "effect": "heal-stat",
+      "actor": "boat",
+      "stat": "hull",
+      "by": 3
+    },
+    {
+      "effect": "open-event",
+      "event": "cove"
+    }
+  ]
+}

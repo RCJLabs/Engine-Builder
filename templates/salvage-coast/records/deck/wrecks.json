@@ -1,0 +1,19 @@
+{
+  "name": "Wrecks",
+  "description": "What a wreck holds.",
+  "events": [
+    {
+      "event": "cargo-hold",
+      "weight": 3
+    },
+    {
+      "event": "flooded-hold",
+      "weight": 2
+    },
+    {
+      "event": "gannet",
+      "weight": 3,
+      "if": "quests.stage(quest: bell) == \"find\""
+    }
+  ]
+}

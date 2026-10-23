@@ -214,6 +214,24 @@ test.describe('dock, desktop 1280×800', () => {
     await expect(page.getByRole('dialog', { name: 'Commands' })).toBeVisible();
     expect(errors).toEqual([]);
   });
+
+  test('opens the palette again at once after Escape shuts it', async ({ page }) => {
+    // The dialog's close event comes a task after Escape shuts it; Ctrl+K pressed in between
+    // once left the palette shut (CI, M4.11's PR). It lands in between about one round in ten,
+    // so the test presses them back to back thirty times.
+    await page.goto('./');
+    await docked(page);
+    const palette = page.getByRole('dialog', { name: 'Commands' });
+    for (let round = 0; round < 30; round++) {
+      await page.keyboard.press('Control+k');
+      await expect(palette).toBeVisible();
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Control+k');
+      await expect(palette, `round ${round}`).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(palette).toBeHidden();
+    }
+  });
 });
 
 for (const [width, height] of [

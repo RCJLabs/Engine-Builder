@@ -1,0 +1,43 @@
+{
+  "name": "The last crossing",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "crossing",
+      "log": "The ferry’s last night on the river. Tomorrow the bridge opens.",
+      "objectives": [
+        {
+          "id": "lights",
+          "text": "Bring every light ashore",
+          "done-when": "flag.number(ending) == 1",
+          "next": "lights"
+        },
+        {
+          "id": "patrol",
+          "text": "Or meet the patrol",
+          "done-when": "flag.number(ending) == 2",
+          "next": "patrol"
+        },
+        {
+          "id": "far-bank",
+          "text": "Or reach the far bank",
+          "done-when": "flag.number(ending) == 3",
+          "next": "far-bank"
+        }
+      ]
+    },
+    {
+      "id": "lights",
+      "log": "Every light ashore was one you brought."
+    },
+    {
+      "id": "patrol",
+      "log": "The patrol took Tomas up the hill.",
+      "fails": true
+    },
+    {
+      "id": "far-bank",
+      "log": "Your passengers went up the bank, and none of them looked back."
+    }
+  ]
+}

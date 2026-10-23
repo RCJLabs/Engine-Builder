@@ -1,0 +1,21 @@
+{
+  "name": "Ship’s bell",
+  "voices": [
+    {
+      "volume": 0.7,
+      "frequency": 660,
+      "attack": 0.002,
+      "sustain": 0.05,
+      "release": 1.2,
+      "shape": "sine"
+    },
+    {
+      "volume": 0.35,
+      "frequency": 1650,
+      "attack": 0.002,
+      "sustain": 0.02,
+      "release": 0.8,
+      "shape": "sine"
+    }
+  ]
+}

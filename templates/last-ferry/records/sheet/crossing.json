@@ -1,0 +1,95 @@
+{
+  "name": "The crossing",
+  "rows": [
+    {
+      "id": "boarding",
+      "note": "Dusk at the jetty: the passengers come aboard.",
+      "when": {
+        "event": "ferry/cast-off"
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "boarding"
+        }
+      ]
+    },
+    {
+      "id": "ines",
+      "note": "The first leg: Ines and the weir.",
+      "when": {
+        "event": "ferry/rowed",
+        "args": {
+          "leg": 1
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "ines"
+        }
+      ]
+    },
+    {
+      "id": "tomas",
+      "note": "The second: the lantern on the jetty.",
+      "when": {
+        "event": "ferry/rowed",
+        "args": {
+          "leg": 2
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "tomas"
+        }
+      ]
+    },
+    {
+      "id": "marta",
+      "note": "The third: the middle of the river.",
+      "when": {
+        "event": "ferry/rowed",
+        "args": {
+          "leg": 3
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "marta"
+        }
+      ]
+    },
+    {
+      "id": "stranger",
+      "note": "The fourth: the stranger speaks.",
+      "when": {
+        "event": "ferry/rowed",
+        "args": {
+          "leg": 4
+        }
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "stranger"
+        }
+      ]
+    },
+    {
+      "id": "landing",
+      "note": "Ashore: the landing picks the ending.",
+      "when": {
+        "event": "ferry/ashore"
+      },
+      "do": [
+        {
+          "effect": "open-talk",
+          "talk": "landing"
+        }
+      ]
+    }
+  ]
+}

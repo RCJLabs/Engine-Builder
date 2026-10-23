@@ -1,0 +1,10 @@
+{
+  "name": "Squall line",
+  "description": "Black cloud on the water. Through it is quicker.",
+  "arrive": [
+    {
+      "effect": "draw-event",
+      "deck": "weather"
+    }
+  ]
+}

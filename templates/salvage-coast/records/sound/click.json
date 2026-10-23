@@ -1,0 +1,12 @@
+{
+  "name": "Click",
+  "voices": [
+    {
+      "volume": 0.4,
+      "frequency": 900,
+      "sustain": 0.01,
+      "release": 0.04,
+      "shape": "square"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Timber crack",
+  "voices": [
+    {
+      "volume": 0.7,
+      "frequency": 120,
+      "sustain": 0.03,
+      "release": 0.25,
+      "shape": "noise",
+      "noise": 0.8
+    }
+  ]
+}

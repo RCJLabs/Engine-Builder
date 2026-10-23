@@ -1,0 +1,22 @@
+{
+  "name": "The stranger",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "aboard",
+      "log": "Someone in a grey coat paid with a coin you have never seen.",
+      "objectives": [
+        {
+          "id": "named",
+          "text": "Learn their name",
+          "done-when": "flag.on(stranger-named)",
+          "next": "named"
+        }
+      ]
+    },
+    {
+      "id": "named",
+      "log": "Some nights it’s a river’s name, and some nights it’s yours."
+    }
+  ]
+}

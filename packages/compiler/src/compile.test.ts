@@ -575,6 +575,15 @@ describe('the code table', () => {
         targets: { android: { package: 'com.rcjlabs.kits' } },
       }),
     });
+    // M4.11: guide.json with a step id twice, and a step opening a record the project lacks.
+    const guided = await kitted([], {
+      'guide.json': JSON.stringify({
+        steps: [
+          { id: 'play', title: 'Play it', text: 'Press Play.', open: { panel: 'play' } },
+          { id: 'play', title: 'Again', text: 'Press Play again.', open: { file: 'records/item/gone.json' } },
+        ],
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -589,6 +598,7 @@ describe('the code table', () => {
       mapped,
       fought,
       exported,
+      guided,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

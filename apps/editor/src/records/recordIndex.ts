@@ -78,6 +78,8 @@ export interface RecordIndex {
   readonly screens?: readonly Diagnostic[];
   /** export.json's problems (M4.10), checked once the records are, since editions read their used-by (exportChecks.ts). */
   readonly exports?: readonly Diagnostic[];
+  /** guide.json's problems (M4.11), checked against the project's files (guideChecks.ts). */
+  readonly guide?: readonly Diagnostic[];
 }
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };

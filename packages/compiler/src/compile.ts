@@ -18,7 +18,9 @@ import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
 import { checkExport } from './exportCheck.ts';
 import { EXPORT_FILE } from './exportFile.ts';
+import { checkGuide, GUIDE_FILE } from './guide.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
+import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
@@ -82,7 +84,7 @@ export async function compileProject(
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
-  const exported = await readExportFile(source, (d) => diagnostics.push(d));
+  const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {
     types: new Set(known.types.map((t) => t.type)),
     records: new Set(records.map((r) => `${r.type}:${r.id}`)),
@@ -92,6 +94,11 @@ export async function compileProject(
     assetsUsedBy: validation.assetsUsedBy,
   });
   diagnostics.push(...checked.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
+  const guide = await readJsonFile(source, GUIDE_FILE, (d) => diagnostics.push(d));
+  if (guide !== undefined) {
+    const present = new Set(await projectFiles(source));
+    diagnostics.push(...checkGuide(guide, (file) => present.has(file)).diagnostics);
+  }
   diagnostics.push(
     ...checkProjectUi(ui, {
       facts: grounds.facts,
@@ -129,13 +136,13 @@ export async function compileProject(
   };
 }
 
-/** export.json's value (M4.10), or undefined when there is none or it isn't JSON (E007). */
-async function readExportFile(source: ProjectSource, report: (d: Diagnostic) => void): Promise<unknown> {
-  const bytes = await source.read(EXPORT_FILE);
+/** export.json's (M4.10) or guide.json's (M4.11) value, or undefined when there is none or it isn't JSON (E007). */
+async function readJsonFile(source: ProjectSource, file: string, report: (d: Diagnostic) => void): Promise<unknown> {
+  const bytes = await source.read(file);
   if (bytes === undefined) return undefined;
   const parsed = parseJsonFile(bytes);
   if (parsed.ok) return parsed.value;
-  report({ code: 'E007', severity: 'error', message: parsed.message, file: EXPORT_FILE, path: '' });
+  report({ code: 'E007', severity: 'error', message: parsed.message, file, path: '' });
   return undefined;
 }
 

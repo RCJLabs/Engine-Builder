@@ -1,0 +1,21 @@
+{
+  "name": "Open sea",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "brown",
+      "filter": "lowpass",
+      "frequency": 520,
+      "gain": 0.55,
+      "sway": 0.7
+    },
+    {
+      "kind": "noise",
+      "colour": "pink",
+      "filter": "bandpass",
+      "frequency": 1800,
+      "gain": 0.2,
+      "sway": 0.6
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "title": "The river",
+  "shows": ["crossing"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "list",
+        "of": "offered",
+        "empty": "Nothing to do now.",
+        "item": {
+          "widget": "button",
+          "label": "{.label}",
+          "action": {
+            "take": "entry"
+          }
+        }
+      },
+      {
+        "widget": "log",
+        "lines": 3,
+        "label": "Lately",
+        "empty": "Nothing has happened yet."
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ]
+  },
+  "top": {
+    "widget": "text",
+    "text": "Leg {ferry.leg} of 4",
+    "style": "heading"
+  },
+  "ambience": "river"
+}

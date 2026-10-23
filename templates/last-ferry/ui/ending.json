@@ -1,0 +1,74 @@
+{
+  "title": "Ashore",
+  "shows": ["ashore"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "The last ferry",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "Every light ashore",
+        "style": "heading",
+        "shows-when": "flag.number(ending) == 1"
+      },
+      {
+        "widget": "text",
+        "text": "The patrol’s lantern",
+        "style": "heading",
+        "shows-when": "flag.number(ending) == 2"
+      },
+      {
+        "widget": "text",
+        "text": "The far bank",
+        "style": "heading",
+        "shows-when": "flag.number(ending) == 3"
+      },
+      {
+        "widget": "text",
+        "text": "Quests done: {quests.tally(state: done)}"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Credits",
+        "action": {
+          "open": "credits"
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  }
+}

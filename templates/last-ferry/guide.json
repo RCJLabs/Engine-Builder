@@ -1,0 +1,79 @@
+{
+  "title": "Make it yours",
+  "steps": [
+    {
+      "id": "name",
+      "title": "Name your story",
+      "text": "Your story’s name is in the project’s settings. The title screen and an exported game show it.",
+      "open": {
+        "file": "project.json"
+      }
+    },
+    {
+      "id": "boarding",
+      "title": "Rewrite the opening",
+      "text": "Each scene is ink. Change who comes aboard, and how they’re described.",
+      "open": {
+        "file": "scenes/boarding.ink"
+      }
+    },
+    {
+      "id": "choice",
+      "title": "Change a choice",
+      "text": "Ines’s scene sets a flag for each answer. Add a third answer, and set a flag of its own.",
+      "open": {
+        "file": "scenes/ines.ink"
+      }
+    },
+    {
+      "id": "passenger",
+      "title": "Add a passenger",
+      "text": "The crossing sheet opens a scene at each leg. Write a scene, then give it a row here, and raise LEGS in the ferry script.",
+      "open": {
+        "file": "records/sheet/crossing.json",
+        "at": "/rows"
+      }
+    },
+    {
+      "id": "ending",
+      "title": "Change what an ending needs",
+      "text": "The landing picks the ending from the flags the night set.",
+      "open": {
+        "file": "scenes/landing.ink"
+      }
+    },
+    {
+      "id": "journal",
+      "title": "Change what the journal says",
+      "text": "Each passenger is a quest: its stages are what the journal shows.",
+      "open": {
+        "file": "records/quest/marta.json",
+        "at": "/stages"
+      }
+    },
+    {
+      "id": "colours",
+      "title": "Recolour it",
+      "text": "Six colours, a typeface and a size are the whole theme.",
+      "open": {
+        "file": "ui/theme.json"
+      }
+    },
+    {
+      "id": "play",
+      "title": "Play it",
+      "text": "Play your changes here, and keep a state to come back to a scene.",
+      "open": {
+        "panel": "play"
+      }
+    },
+    {
+      "id": "export",
+      "title": "Export it",
+      "text": "Export a web build, a single file or an itch.io zip from the Project panel.",
+      "open": {
+        "panel": "project"
+      }
+    }
+  ]
+}

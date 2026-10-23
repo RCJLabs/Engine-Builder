@@ -8,6 +8,7 @@ import {
   refSites,
   removeField,
   renameAssetRefs,
+  renameAtPointers,
   renameChoice,
   renameClashes,
   renameField,
@@ -127,6 +128,29 @@ describe('references in records', () => {
     const self = renameRecordRefs(FIGHTER, 'fighter', 'spartacus', 'spartacus-thrax')(CRIXUS) as Fighter;
     expect(self.rival).toBe('fighter:spartacus-thrax');
     expect(self.bouts[0]?.foe).toBe('fighter:spartacus-thrax');
+  });
+
+  it('renames at the index’s pointers: values bare or qualified, map keys in place, conditions left', () => {
+    const event = {
+      choices: [
+        {
+          needs: 'resource.at(coin) >= 5',
+          cost: { stores: 1, coin: 5 },
+          effects: [{ effect: 'fight', encounter: 'raiders' }],
+        },
+        { effects: [{ effect: 'give', item: 'resource:coin' }] },
+      ],
+    };
+    const pointers = ['/choices/0/needs', '/choices/0/cost/coin', '/choices/1/effects/0/item', '/choices/9/gone'];
+    const renamed = renameAtPointers(pointers, 'resource', 'coin', 'shilling')(event) as typeof event;
+    expect(renamed.choices[0]?.needs).toBe('resource.at(coin) >= 5');
+    expect(Object.keys(renamed.choices[0]?.cost ?? {})).toEqual(['stores', 'shilling']);
+    expect(renamed.choices[1]?.effects[0]).toEqual({ effect: 'give', item: 'resource:shilling' });
+    expect(renameAtPointers(['/choices/0/effects/0/encounter'], 'encounter', 'raiders', 'sloop')(event)).toMatchObject({
+      choices: [{ effects: [{ encounter: 'sloop' }] }, {}],
+    });
+    // Nothing to change gives the record back as it was, so its file isn't touched.
+    expect(renameAtPointers(['/choices/0/cost/coin'], 'resource', 'pearls', 'gems')(event)).toBe(event);
   });
 
   it('reads a list of one type as a list: its refs are qualified', () => {

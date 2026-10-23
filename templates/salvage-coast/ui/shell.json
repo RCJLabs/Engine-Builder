@@ -1,0 +1,5 @@
+{
+  "title": "Salvage coast",
+  "tagline": "Five voyages to pay off the Kittiwake",
+  "slot-line": "Voyage {harbour.voyages} · {economy.amount(resource: debt)} owed"
+}
