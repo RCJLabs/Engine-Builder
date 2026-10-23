@@ -66,6 +66,7 @@ const facts: Def['facts'] = {
     args: ACTOR_ARG,
     domain: COUNT,
     label: 'the place on the roster',
+    describe: compared((test) => `${arg(test, 'actor')}’s place on the roster`),
     read: ({ state }, { actor }) => state.members.indexOf(actor as string) + 1,
   },
   left: {

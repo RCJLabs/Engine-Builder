@@ -33,8 +33,9 @@ export interface FightTable {
 
 /**
  * Whole numbers adding up to `total`, in proportion to `values`: each share rounded down, then
- * those still short go one each to the largest remainders, ties to the earlier. Only a value above
- * 0 gets one, so what can't happen stays at 0.
+ * those still short go one each to the largest remainders, ties to the earlier. What can't happen
+ * stays at 0: a value of 0 has no remainder, and the units short never outnumber the remainders
+ * above 0, since each is under 1 and together they make up the units short.
  */
 export function shares(values: readonly number[], total: number): number[] {
   const sum = values.reduce((a, b) => a + b, 0);
@@ -42,8 +43,7 @@ export function shares(values: readonly number[], total: number): number[] {
   const exact = values.map((value) => (value / sum) * total);
   const whole = exact.map((share) => Math.floor(share));
   const order = exact
-    .map((share, index) => ({ index, left: share - (whole[index] as number), live: (values[index] as number) > 0 }))
-    .filter((each) => each.live)
+    .map((share, index) => ({ index, left: share - (whole[index] as number) }))
     .sort((a, b) => b.left - a.left || a.index - b.index);
   let short = total - whole.reduce((a, b) => a + b, 0);
   for (let i = 0; short > 0; i = (i + 1) % order.length, short--) {

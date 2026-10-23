@@ -191,6 +191,16 @@ The journal is `start-quest`'s preview: what the sim holds, never a second copy.
   - the talk checks find what nothing reaches.
 - Both are played by one module in the sim, so bots, saves and previews cover them, and both use the same dialogue screen.
 
+## Encounters
+
+Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md](specs/encounters.md)); the games' own are surveyed in [research/encounters.md](research/encounters.md).
+
+- **Records:** a `combat` names the stats a fight reads (health, the chance to hit, dodge, damage, armour); an `encounter` lists its foes, who fights for the player, and what a win, a draw and a loss do.
+- **Worked out exactly:** a fight's chances are worked out round by round over every pair of hurts, made whole numbers out of 10,000, each result a whole percent, and rolled once. The `fight` effect's preview is that same table, so the odds on a choice's button are the odds rolled, not an estimate.
+- **Inside events:** a fight is an effect an event's choice or a talk's option holds; a stance is a choice with modifiers, and a way out is another choice with its cost.
+- **Who fights:** named actors, or the roster's members front first in the order they joined.
+- **Later:** who targets whom within a fight waits for Phase 6's combat and Phase 7's boarding tactics.
+
 ## Worlds
 
 | World model | Phase | For |

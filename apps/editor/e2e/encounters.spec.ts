@@ -240,7 +240,8 @@ test('the pit’s thraex bout made with forms, Spartacus sent from the roster, i
   const table = bout.getByRole('region', { name: 'How the fight goes' });
   await expect(table.getByText('Crixus, Spartacus, at full health, as the game works it out.')).toBeVisible();
   await table.getByLabel('Who fights').selectOption({ label: 'Spartacus alone' });
-  await expect(table.getByText('Spartacus, at full health, as the game works it out.')).toBeVisible();
+  // Exact: by default the text matches inside the line as written, "Crixus, Spartacus, …".
+  await expect(table.getByText('Spartacus, at full health, as the game works it out.', { exact: true })).toBeVisible();
   await expect(table.locator('.fight-head')).toHaveText([/^Win \d+%$/, /^Draw \d+%$/, /^Lose \d+%$/]);
 
   const offer = await openRecord(page, 'event', 'thraex');

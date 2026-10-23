@@ -146,7 +146,7 @@ The slice, version 1: `{ fought: {}, won: {}, lost: {} }`, each a count by encou
 
 ## Where it lives
 
-- `packages/kits/src/encounters/`: `types.ts`; `lines.ts` (the two lines); `table.ts` (`fightTable`: rounds, ends and rows); `fight.ts` (fighting it); `module.ts`.
+- `packages/kits/src/encounters/`: `types.ts`; `records.ts`; `lines.ts` (the two lines); `rounds.ts` (every pair of hurts, round by round: `endsOf`); `table.ts` (`fightTable`: the ends made whole as rows); `fight.ts` (fighting it, and its preview); `module.ts`.
 - `packages/schema/src/`: `encounterTypes.ts`, `encounterEffects.ts`, `encounterCheck.ts`.
 - `packages/ui/src/`: the choice's odds in `session/words.ts`; a button's `detail` in `format/screen.ts`, `render/Widget.tsx`.
 - `apps/editor/src/encounters/`: `fightPreview.ts` (a plain function), `FightPreview.tsx`.
@@ -160,6 +160,7 @@ The slice, version 1: `{ fought: {}, won: {}, lost: {} }`, each a count by encou
 
 ## Open questions
 
-1. A Space-Wrecked boarding of 3 crew and 4 boarders is about a thousand pairs of hurt a round; a fight of hundreds of health a side is a million. Whether to warn of a fight too big to work out quickly waits for the reading.
+1. A Space-Wrecked boarding of 3 crew and 4 boarders is 960 pairs of hurt, and its table takes about 1.1 ms in Node; six of 30 health a side is 32,400 pairs and 45 ms, which the editor's preview would pay at every keystroke (ROADMAP.md, Readings). Whether to warn of a fight that big, and where the line is, is open; no game here writes one.
 2. Ludus's crux orders change a bout midway; a stance is chosen once, before.
 3. Should a draw be split, as landnam and Spliceworld give the field to the side with more left?
+4. A choice's effects before its fight aren't in the fight's preview: Run in close adds 5 heat, then fights, and its odds show a draw's heat as 15 → 20 where it will be 20 → 25. The chances and the hurt are right, since the stance is the fight's own. Previewing each effect against the state the one before it leaves would need the kernel to preview a list as it runs one.

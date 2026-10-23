@@ -79,6 +79,29 @@ describe('the stock screens, written into a project and compiled against its gam
     }, 30_000);
   }
 
+  it('puts a talk’s and an event’s odds under each choice, and nothing under a hall’s offers (M4.7)', async () => {
+    const lists = async (name: string) => {
+      const files = filesOf(name);
+      const { added } = withStock(await contextOf(name, files), files);
+      const found: Record<string, unknown> = {};
+      const walk = (node: unknown): void => {
+        if (Array.isArray(node)) node.forEach(walk);
+        else if (node !== null && typeof node === 'object') {
+          const widget = node as { widget?: string; of?: string; item?: { detail?: string } };
+          if (widget.widget === 'list' && widget.of !== undefined) found[widget.of] = widget.item?.detail;
+          Object.values(node).forEach(walk);
+        }
+      };
+      for (const id of ['dialogue', 'event', 'hall']) {
+        const file = added[`ui/${id}.json`];
+        if (file) walk(JSON.parse(new TextDecoder().decode(file)));
+      }
+      return found;
+    };
+    expect(await lists('hut')).toEqual({ talk: '{.odds}', event: '{.odds}' });
+    expect(await lists('crew')).toEqual({ offered: undefined });
+  }, 30_000);
+
   it('shows each mode once: the HUD the game’s start, the ending its modes with no action', async () => {
     const files = filesOf('hut');
     const ctx = await contextOf('hut', files);

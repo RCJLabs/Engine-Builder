@@ -6,7 +6,7 @@
 import type { GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
 import { brawled, brawlWith, RECORDS } from '../../test/brawl.ts';
-import type { FightRow } from './index.ts';
+import { type Fighter, type FightRow, volley } from './index.ts';
 import { fightTable } from './table.ts';
 
 const { start, apply, reduce, fact, preview, game, sim } = brawled;
@@ -157,5 +157,20 @@ describe('a stance', () => {
       ).find((o) => o.result === 'win')?.chance ?? 0;
     expect(win({ hit: 20 })).toBeGreaterThan(win({}));
     expect(win({ hit: -30 })).toBeLessThan(win({}));
+  });
+
+  it('can’t push a hit’s chance past the combat’s bounds, 5 and 95% when it leaves them unset', () => {
+    const state = start();
+    const reader = {
+      content: game.content(state, sim),
+      fact: (id: string, args?: Record<string, unknown>) => game.fact(state, id, args, sim),
+    };
+    const match = (hit: number) =>
+      fightTable(reader, { roster: true }, { effect: 'fight', encounter: 'raiders', hit }).match;
+    expect(match(0)).toMatchObject({ hitMin: 5, hitMax: 95 });
+    // Three of the crew, each striking the front raider: at -100 each still hits 5% of the time.
+    const missed = (m: ReturnType<typeof match>) => volley(m.party, 0, m.foes[0] as Fighter, m)[0];
+    expect(missed(match(-100))).toBeCloseTo(0.95 * 0.95 * 0.95, 12);
+    expect(missed(match(100))).toBeCloseTo(0.05 * 0.05 * 0.05, 12);
   });
 });
