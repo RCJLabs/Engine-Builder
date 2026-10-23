@@ -12,7 +12,7 @@ import { watchErrors } from './checks.ts';
 import { exportFile, exportReport, exportSection, importHut, serveSite, unzipTo } from './exportHelpers.ts';
 import { fixtureText } from './hutHelpers.ts';
 import { replaceText } from './hutLogic.ts';
-import { game, newGame, press, shellScreens, topScreen } from './hutScreens.ts';
+import { expectFits, game, newGame, press, shellScreens, topScreen } from './hutScreens.ts';
 import { newRecord, showLogic, storedText } from './kitHelpers.ts';
 import { scratch, showProject } from './ludus.ts';
 
@@ -39,6 +39,7 @@ test('the hut exported as one file plays from the device’s files, and keeps it
   await played.goto(`file://${file}`);
   await expect(played).toHaveTitle('The hut');
   await playALoad(played);
+  await expectFits(played);
   await played.reload();
   await shellScreens(played).getByRole('button', { name: 'Continue' }).click();
   await expect(game(played).getByText(/^Day \d+ of 10$/)).toBeVisible();

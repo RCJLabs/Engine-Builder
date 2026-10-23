@@ -42,15 +42,19 @@ export function Game({ boot }: { readonly boot: Boot }) {
   }
   if (shown.kind === 'opening' || !store) return <p class="game-note">Opening…</p>;
   return (
-    <Shell
-      opened={shown.opened}
-      send={shown.worker.send}
-      edition={boot.edition}
-      store={store}
-      seed={freshSeed}
-      history
-      crashes
-      {...(boot.sw ? { update: { ready: updateReady.value, apply: applyGameUpdate } } : {})}
-    />
+    <>
+      {/* The page's name for a screen reader's headings, as the player page's bar gives it. */}
+      <h1 class="game-name">{shown.opened.name}</h1>
+      <Shell
+        opened={shown.opened}
+        send={shown.worker.send}
+        edition={boot.edition}
+        store={store}
+        seed={freshSeed}
+        history
+        crashes
+        {...(boot.sw ? { update: { ready: updateReady.value, apply: applyGameUpdate } } : {})}
+      />
+    </>
   );
 }

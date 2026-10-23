@@ -18,6 +18,7 @@ import {
   zipSource,
 } from '@eb/compiler';
 import { canonicalJson } from '@eb/core';
+import { runExport, runPublish } from './exportCmd.ts';
 import { folderSource } from './folderSource.ts';
 import { type GameModule, loadGame, loadTypes, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
@@ -30,6 +31,8 @@ const USAGE = `Usage:
   eb schemas <folder> [--types <module>] [--json]
   eb sim <project> [--game <module>] [--policy <name>] [--seeds <n>] [--prefix <text>]
          [--max-turns <n>] [--golden <file> [--update]] [--json]
+  eb export <project> --target web|file|itch|repo [--out <path>] [--edition <id>] [--runtime <folder>]
+  eb publish <project> --repo <folder> [--message <text>] [--push] [--runtime <folder>]
 
 <project> is a project folder or a .zip of one. --types names a JS or TS module whose
 recordTypes export lists the record types to check against; whose facts and events exports (or
@@ -46,9 +49,16 @@ hand. Run it again after changing a type.
 sim plays the project with a bot, one run per seed (100 seeds, seed-0 on, by default), and
 reports how the runs went. --game names a module exporting recordTypes, modules and start, and
 optionally policies and metrics; without it, sim plays the project's scripts/game.ts. --golden checks the runs against a golden file, playing its own
-seeds, policy and cap; with --update it writes the file instead.`;
+seeds, policy and cap; with --update it writes the file instead.
+
+export makes the game for one target (docs/specs/export.md): web, a folder to serve; file, one
+HTML file; itch, a zip for itch.io; repo, the repository Publish writes, as a zip. Each ships the
+edition export.json gives it, or --edition's, after the leak check. The runtime is the one
+apps/editor builds into dist-game/, or --runtime's. publish writes the repository into --repo, a
+git working tree, and commits it with your git; --push pushes it.`;
 
 const SIM_ONLY = ['game', 'policy', 'seeds', 'prefix', 'max-turns', 'golden', 'update'] as const;
+const EXPORT_ONLY = ['target', 'edition', 'runtime', 'repo', 'message', 'push'] as const;
 
 async function main(argv: readonly string[]): Promise<number> {
   const { values, positionals } = parseArgs({
@@ -65,12 +75,26 @@ async function main(argv: readonly string[]): Promise<number> {
       'max-turns': { type: 'string' },
       golden: { type: 'string' },
       update: { type: 'boolean' },
+      target: { type: 'string' },
+      edition: { type: 'string' },
+      runtime: { type: 'string' },
+      repo: { type: 'string' },
+      message: { type: 'string' },
+      push: { type: 'boolean' },
     },
   });
   const [command, project, ...extra] = positionals;
-  if (!['validate', 'build', 'schemas', 'sim'].includes(command ?? '') || project === undefined || extra.length > 0) {
+  const commands = ['validate', 'build', 'schemas', 'sim', 'export', 'publish'];
+  if (!commands.includes(command ?? '') || project === undefined || extra.length > 0) {
     throw new UsageError(USAGE);
   }
+  if (command === 'export' || command === 'publish') {
+    if (values.types !== undefined) throw new UsageError(`eb ${command} plays the project's own game: no --types`);
+    const source = await openProject(project);
+    return command === 'export' ? runExport(source, values) : runPublish(source, values);
+  }
+  const exportFlag = EXPORT_ONLY.find((flag) => values[flag] !== undefined);
+  if (exportFlag) throw new UsageError(`--${exportFlag} only applies to eb export and eb publish`);
   if (command === 'sim') {
     if (values.types !== undefined || values.out !== undefined)
       throw new UsageError('eb sim takes --game, not --types or --out');

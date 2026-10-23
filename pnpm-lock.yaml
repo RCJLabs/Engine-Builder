@@ -265,6 +265,9 @@ importers:
       '@eb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@eb/export':
+        specifier: workspace:*
+        version: link:../../packages/export
       '@eb/kits':
         specifier: workspace:*
         version: link:../../packages/kits

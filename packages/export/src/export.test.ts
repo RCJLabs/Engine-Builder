@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { hutPacks, hutSource, RUNTIME, SUMMIT_MAP, settingsOf } from '../test/hut.ts';
-import { checkLeaks, engineTexts, exportGame, leakWords, scriptJson } from './index.ts';
+import { checkLeaks, engineTexts, exportGame, leakTokens, leakWords, scan, scriptJson } from './index.ts';
 import { decodePng } from './png.ts';
 
 const text = (bytes: Uint8Array | undefined) => new TextDecoder().decode(bytes);
@@ -207,6 +207,21 @@ describe('the leak check (M4.10)', async () => {
     expect(leakWords('taster', report)).toEqual([
       'The leak check can’t find A line no record of the hut holds (item:nowhere) in the full build, so it can’t vouch that the taster build lacks it.',
     ]);
+  });
+
+  it('drops what a kept record holds too, and takes the engine’s own text out before it reads', () => {
+    const shared = 'Words that both records hold';
+    const full = {
+      records: {
+        item: { 'summit-map': { name: 'A map of the summit', note: shared }, rope: { name: 'Rope', note: shared } },
+      },
+    };
+    const tokens = leakTokens(full, { types: [], records: ['item:summit-map'], scenes: [], assets: [] });
+    expect(tokens.map((t) => `${t.kind} ${t.value}`)).toEqual(['id summit-map', 'text A map of the summit']);
+    const engine = 'const words = "summit-map";';
+    const files = new Map([['game.js', new TextEncoder().encode(engine)]]);
+    expect(scan(files, [engine], tokens)).toEqual([]);
+    expect(scan(files, [], tokens).map((f) => f.token.value)).toEqual(['summit-map']);
   });
 
   it('won’t check an edition without the full game’s pack', async () => {

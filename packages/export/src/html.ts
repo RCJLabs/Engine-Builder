@@ -85,7 +85,7 @@ export function gamePage(parts: PageParts): string {
     ...head,
     '</head>',
     '<body>',
-    '<div id="game"></div>',
+    '<main id="game"></main>',
     `<noscript>${text(parts.title)} needs JavaScript.</noscript>`,
     // After the page's script, which as a module runs only once the page is read, this included.
     `<script type="application/json" id="eb-game">${scriptJson(parts.boot)}</script>`,
