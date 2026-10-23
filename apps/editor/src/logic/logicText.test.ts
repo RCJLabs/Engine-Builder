@@ -111,12 +111,13 @@ describe('sheet edits', () => {
         { effect: 'add-status', actor: 'bo', status: 'bleeding', stacks: 2 },
         { effect: 'remove-status', actor: 'bo', status: 'bleeding' },
         { effect: 'equip', actor: 'bo', item: 'rifle' },
+        { effect: 'equip', actor: 'cutter', item: 'drive', slot: 'bay-2' },
         { effect: 'unequip', actor: 'bo', slot: 'hand' },
       ]),
     ).toBe(
       'Do: add 2 to ana’s aim, then take 1 from ana’s aim, then damage ana’s health by 3, then heal all of ' +
         'ana’s health, then heal ana’s health by 5, then add 2 × bleeding to bo, then remove bleeding from bo, ' +
-        'then equip bo with rifle, then unequip bo’s hand',
+        'then equip bo with rifle, then equip cutter with drive in bay-2, then unequip bo’s hand',
     );
     expect(effectText({ effect: 'damage-stat', stat: 'health', by: 2 })).toBe(
       'damage health of an actor not yet chosen by 2',

@@ -28,6 +28,8 @@ export const RECORDS = {
   actor: {
     ana: { name: 'Ana', stats: { health: 10, aim: 70 }, statuses: ['steady'], slots: ['hand', 'body'] },
     bo: { name: 'Bo', stats: { health: 12 }, wears: { hand: 'pistol' } },
+    // A ship with two bays that take any engine (M4.12).
+    cutter: { name: 'Cutter', stats: { speed: 2 }, slots: ['bay-1', 'bay-2'] },
   },
   status: {
     steady: { name: 'Steady', modifiers: [{ stat: 'aim', add: 5 }] },
@@ -44,7 +46,13 @@ export const RECORDS = {
     dazed: { name: 'Dazed', modifiers: [{ stat: 'aim', percent: -50 }], lasts: { ticks: 1 }, tags: ['injury'] },
     hale: { name: 'Hale', modifiers: [{ stat: 'health', add: 5 }], tags: ['boon'] },
   },
-  slot: { hand: { name: 'Hand' }, body: { name: 'Body' }, head: { name: 'Head' } },
+  slot: {
+    hand: { name: 'Hand' },
+    body: { name: 'Body' },
+    head: { name: 'Head' },
+    'bay-1': { name: 'Bay 1', takes: ['engine'] },
+    'bay-2': { name: 'Bay 2', takes: ['engine'] },
+  },
   item: {
     rifle: { name: 'Rifle', value: 120, slot: 'hand', modifiers: [{ stat: 'aim', add: 10 }] },
     pistol: { name: 'Pistol', value: 60, slot: 'hand', max: 1, modifiers: [{ stat: 'aim', add: 4 }] },
@@ -67,6 +75,7 @@ export const RECORDS = {
       ],
     },
     medkit: { name: 'Medkit', value: 30 },
+    drive: { name: 'Drive', value: 200, tags: ['engine'], modifiers: [{ stat: 'speed', add: 3 }] },
   },
 };
 

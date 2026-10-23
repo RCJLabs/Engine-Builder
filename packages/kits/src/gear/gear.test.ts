@@ -50,6 +50,28 @@ describe('wearing gear', () => {
     expect(swap.beats[0]).toMatchObject({ reason: 'no-room', item: 'pistol' });
   });
 
+  it('wears an item with no slot in a free slot that takes one of its tags, then the next (M4.12)', () => {
+    const one = apply(stocked('drive', 'drive', 'drive'), { effect: 'equip', actor: 'cutter', item: 'drive' });
+    expect(worn(one)).toEqual({ cutter: { 'bay-1': 'drive' } });
+    const two = apply(one, { effect: 'equip', actor: 'cutter', item: 'drive' });
+    expect(worn(two)).toEqual({ cutter: { 'bay-1': 'drive', 'bay-2': 'drive' } });
+    expect(bag(two)).toEqual({ drive: 1 });
+    expect(fact(two, 'gear.wearing', { actor: 'cutter', item: 'drive' })).toBe(2);
+    expect(fact(two, 'stats.value', { actor: 'cutter', stat: 'speed' })).toBe(8);
+    // Both bays full: the first wears it already, so a third changes nothing.
+    expect(worn(apply(two, { effect: 'equip', actor: 'cutter', item: 'drive' }))).toEqual(worn(two));
+  });
+
+  it('puts it in the slot named, refusing one that doesn’t take it', () => {
+    const named = apply(stocked('drive'), { effect: 'equip', actor: 'cutter', item: 'drive', slot: 'bay-2' });
+    expect(worn(named)).toEqual({ cutter: { 'bay-2': 'drive' } });
+    const wrong = attempt(stocked('drive'), { effect: 'equip', actor: 'cutter', item: 'drive', slot: 'hand' });
+    expect(wrong.beats[0]).toMatchObject({ reason: 'wrong-slot', actor: 'cutter', item: 'drive', slot: 'hand' });
+    // Ana has no bay that takes it.
+    const none = attempt(stocked('drive'), { effect: 'equip', actor: 'ana', item: 'drive' });
+    expect(none.beats[0]).toMatchObject({ reason: 'no-such-slot', actor: 'ana', slot: 'bay-1' });
+  });
+
   it('refuses an item with no slot, a slot the actor lacks, one the bag doesn’t hold, and an empty slot', () => {
     const reason = (state: GameState, effect: Record<string, unknown>) =>
       (attempt(state, { effect: effect.effect as string, ...effect }).beats[0] as { reason?: string }).reason;

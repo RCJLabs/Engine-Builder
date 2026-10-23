@@ -120,11 +120,25 @@ export const SLOT_TYPE_FILE: TypeFile = {
   title: 'Slot',
   description: 'Where an actor wears an item: a hand, a body, a head.',
   nameField: 'name',
-  fields: { name: NAME, description: DESCRIPTION },
+  fields: {
+    name: NAME,
+    description: DESCRIPTION,
+    takes: {
+      ...TAGS,
+      label: 'Takes',
+      description: 'Item tags it can wear: an item worn in no slot of its own fits any slot taking one of its tags',
+    },
+  },
 };
 
 /** The fields the gear kit adds to the inventory kit's items. */
 export const WORN_ITEM_FIELDS: Fields = {
-  slot: { kind: 'ref', to: SLOT, optional: true, label: 'Worn in', description: 'Left out, it can’t be worn' },
+  slot: {
+    kind: 'ref',
+    to: SLOT,
+    optional: true,
+    label: 'Worn in',
+    description: 'Left out, any slot that takes one of its tags; with none, it can’t be worn',
+  },
   modifiers: { ...MODIFIERS, description: 'What it does while worn' },
 };
