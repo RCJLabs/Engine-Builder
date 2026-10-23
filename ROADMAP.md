@@ -756,6 +756,7 @@ How to read this file:
     - W108 calls a flag that only a screen reads never read. The ferry's crossing quest reads its ending flag as well (templates.md, open question 3; logged below).
     - On a phone held sideways the inspector is a side zone's tab panel, not a region: the specs find it by its panel.
     - The zip test didn't cover guide.json or export.json at the root; it does now.
+    - **CI found a race in the command palette, older than this milestone.** Escape shuts the dialog, but its close event comes a task later. Ctrl+K pressed in between set a flag that was already true, then the close event shut it. In a page's own log that happens about one round in ten. The palette now follows the dialog's `cancel`, which comes as it shuts, and ignores a close that arrives once it's open again. A layout test presses Escape and Ctrl+K back to back thirty times; with either half taken out, it fails.
   - **Logged for later:** W108 should count screens' conditions and text as reading a flag. Rename should offer to change conditions, screens' text, scenes and scripts it can parse.
   - **Untested for feel:** both games' writing and balance, the guide's wording, and the coast's odds. With its own bot it ends free in 23.8% of runs, seized in 50.8% and lost in 25.4%. No real phone has made or played either template.
   - **35 planted bugs:** 31 at the unit level, each command first seen passing on the clean tree.

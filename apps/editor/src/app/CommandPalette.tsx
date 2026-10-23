@@ -56,8 +56,14 @@ export function CommandPalette() {
       ref={dialog}
       class="palette"
       aria-label="Commands"
-      onClose={() => {
+      // Escape's cancel comes as it shuts, but its close a task later: Ctrl+K pressed in between
+      // must open it again, so the state follows the cancel, and a close that comes after the
+      // palette opened again is an old one.
+      onCancel={() => {
         paletteOpen.value = false;
+      }}
+      onClose={() => {
+        if (!dialog.current?.open) paletteOpen.value = false;
       }}
       // A tap on the backdrop lands on the dialog itself, outside its content: it closes.
       onClick={(event) => {
