@@ -9,8 +9,14 @@ import { bar, button, column, resources, row, text } from './parts.ts';
 /** The kit's mode, which the game has while the kit is on, unless a screen shows it already. */
 export const showing = (ctx: StockContext, mode: string): readonly string[] => (ctx.shown.has(mode) ? [] : [mode]);
 
+// A talk's options and an event's choices show their odds, a fight's among them, under the label
+// whenever the sim shows them (M4.7); a hall's offers have none.
 const choices = (of: 'talk' | 'event' | 'offered') =>
-  ({ widget: 'list', of, item: button('{.label}', { take: 'entry' }) }) as const;
+  ({
+    widget: 'list',
+    of,
+    item: button('{.label}', { take: 'entry' }, false, of === 'offered' ? undefined : '{.odds}'),
+  }) as const;
 
 export const dialogueScreen = (ctx: StockContext): Screen => ({
   title: 'A talk',

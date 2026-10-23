@@ -152,6 +152,7 @@ The options and the action share one check, so what is offered is what a hire ac
 | `roster.count` | int from 0: members now | "the roster's size" |
 | `roster.room` | int from 0: places left; no value with no cap | "room on the roster" |
 | `roster.member(actor)` | bool | "ana is on the roster" |
+| `roster.place(actor)` | int from 0: where it stands on the roster, from 1 in the order members joined; 0 off it (M4.7, the order a fight's party stands in) | "ana’s place on the roster is 1" |
 | `roster.left(actor)` | text: why it left; no value for an actor that hasn't | "why ana left is dead" |
 | `roster.rank(actor)` | text: its rank's id; no value with no ladder | "ana’s rank is veteran" |
 | `roster.reached(actor, rank)` | bool: its ladder stat is at or past where the rank begins | "ana is at least veteran" |

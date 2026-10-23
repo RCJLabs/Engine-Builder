@@ -1,0 +1,10 @@
+{
+  "name": "Crixus",
+  "description": "A Gaul, all shoulders.",
+  "stats": {
+    "vigour": 14,
+    "skill": 55,
+    "guard": 5,
+    "strength": 3
+  }
+}

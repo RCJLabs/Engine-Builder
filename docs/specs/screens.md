@@ -51,7 +51,7 @@ Every widget has `widget`, its kind, and may have:
 | `grid` | `children`, `columns`, `gap` | Columns of equal width. |
 | `text` | `text`, `style` (`title`, `heading`, `body` or `caption`) | `text` is a template (see Bindings). |
 | `image` | `asset`, `alt` | An asset of the project's. |
-| `button` | `label`, `action`, `style` (`primary` or `plain`) | At least 44 px high and wide. Disabled while its action isn't on offer. |
+| `button` | `label`, `action`, `style` (`primary` or `plain`), `detail` | At least 44 px high and wide. Disabled while its action isn't on offer. `detail` (M4.7) is a second, smaller line under the label, a template like it, left out while every binding in it is empty, so a choice with no odds shows none. |
 | `progress` | `value`, `max`, `label` | `value` and `max` are numbers or bindings. |
 | `list` | `of`, `item`, `empty`; for `records`, `type`, `known` and `unknown` | One `item` per entry of the source `of` (see Lists); `empty` is the text shown when there are none. |
 | `tabs` | `tabs`: each `{label, children}` | One tab's children shown at a time. A pad's LB and RB and a swipe turn them too (M4.2). |

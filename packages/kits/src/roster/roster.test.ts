@@ -39,6 +39,12 @@ describe('members', () => {
     expect(fact(state, 'roster.left', { actor: 'ana' })).toBeUndefined();
   });
 
+  it('have a place from 1 in the order they joined, and anyone not on the roster has 0 (M4.7)', () => {
+    let state = apply(start(), { effect: 'leave', actor: 'ana', why: 'dismissed' });
+    state = apply(state, { effect: 'join', actor: 'ana' });
+    expect(['bo', 'ana', 'cy'].map((actor) => fact(state, 'roster.place', { actor }))).toEqual([1, 2, 0]);
+  });
+
   it('are refused past the cap, from a number or from a flag, which wins', () => {
     let state = apply(start(), { effect: 'join', actor: 'cy' }, { effect: 'recruit', recruit: 'medic' });
     expect(fact(state, 'roster.room')).toBe(0);
@@ -300,6 +306,9 @@ describe('the roster’s facts in words', () => {
     expect(words({ fact: 'roster.count', op: '>=', value: 3 })).toBe('The roster’s size is at least 3');
     expect(words({ fact: 'roster.room', op: '>', value: 0 })).toBe('Room on the roster is more than 0');
     expect(words({ fact: 'roster.member', args: { actor: 'ana' } })).toBe('Ana is on the roster');
+    expect(words({ fact: 'roster.place', args: { actor: 'ana' }, op: '==', value: 1 })).toBe(
+      'Ana’s place on the roster is 1',
+    );
     expect(words({ fact: 'roster.left', args: { actor: 'ana' }, op: '==', value: 'dead' })).toBe(
       'Why ana left is dead',
     );

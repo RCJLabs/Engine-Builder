@@ -36,7 +36,7 @@ async function load(folder: string) {
 describe('eb with the maps kit', () => {
   it('validates the drift and the valley with no problems, the sector’s rules kept in all 300 seeds', () => {
     for (const [folder, records] of [
-      [DRIFT, 28],
+      [DRIFT, 36],
       [VALLEY, 6],
     ] as const) {
       const checked = eb(['validate', folder]);
@@ -48,8 +48,10 @@ describe('eb with the maps kit', () => {
     expect(readPack(JSON.parse(readFileSync(out, 'utf8'))).project.kits).toEqual([
       'inventory',
       'economy',
+      'stats',
       'events',
       'maps',
+      'encounters',
     ]);
     // eb validate checks the sector's rules over 300 seeds, in a process of its own.
   }, 30_000);

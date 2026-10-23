@@ -1,0 +1,9 @@
+{
+  "name": "Your ship",
+  "stats": {
+    "hull": 12,
+    "gunnery": 60,
+    "guns": 2,
+    "plating": 1
+  }
+}

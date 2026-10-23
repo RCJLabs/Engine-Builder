@@ -122,6 +122,8 @@ export type Widget =
   | (Base & {
       readonly widget: 'button';
       readonly label: string;
+      /** A second, smaller line under the label, left out while every binding in it is empty (M4.7): a choice's odds. */
+      readonly detail?: string;
       readonly action: Action;
       readonly style?: (typeof BUTTON_STYLES)[number];
     })

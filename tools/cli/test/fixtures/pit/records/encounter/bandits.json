@@ -1,0 +1,21 @@
+{
+  "name": "Bandits",
+  "description": "Three from the mines, against the whole ludus.",
+  "combat": "bout",
+  "foes": [
+    {
+      "actor": "bandit",
+      "count": 3
+    }
+  ],
+  "win": [
+    {
+      "effect": "add-resource",
+      "resource": "denarii",
+      "by": 50
+    }
+  ],
+  "falls": {
+    "status": "injured"
+  }
+}

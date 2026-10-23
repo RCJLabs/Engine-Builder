@@ -1,0 +1,9 @@
+{
+  "name": "A thraex",
+  "description": "Curved blade, small shield.",
+  "stats": {
+    "vigour": 10,
+    "skill": 55,
+    "guard": 10
+  }
+}

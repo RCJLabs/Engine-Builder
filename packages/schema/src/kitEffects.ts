@@ -28,6 +28,7 @@ import {
 import { z } from 'zod';
 import { DIALOGUE_EFFECT_FILES } from './dialogueEffects.ts';
 import { named } from './effect.ts';
+import { ENCOUNTER_EFFECT_FILES } from './encounterEffects.ts';
 import { EVENT_EFFECT_FILES } from './eventEffects.ts';
 import { MAP_EFFECT_FILES } from './mapEffects.ts';
 import { QUEST_EFFECT_FILES } from './questEffects.ts';
@@ -248,6 +249,7 @@ const FILES: EffectFile[] = [
   ...DIALOGUE_EFFECT_FILES,
   ...QUEST_EFFECT_FILES,
   ...MAP_EFFECT_FILES,
+  ...ENCOUNTER_EFFECT_FILES,
 ];
 
 export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);

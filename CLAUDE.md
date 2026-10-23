@@ -117,6 +117,9 @@ apps/editor/           the editor PWA
                        (a seed's map, a drawn map, the check over seeds in words) as plain functions; WorldPanel
                        and its lazy WorldBrowser; MapPreview above a map's form, MapBoard (laid out as the map
                        widget is, a drawn map's places dragged); the Map stock template is screens/stock/play.ts's
+  src/encounters/      the fight above an encounter's form (M4.7, D57): fightPreview.ts (the kit's own table from
+                       the records at full health, against its fighters, the roster's start or one actor picked;
+                       a result in words) and FightPreview.tsx; its styles, styles/encounters.css
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -162,7 +165,9 @@ apps/editor/           the editor PWA
                        designerScreens.ts, designer.spec.ts and designerPhone.spec.ts are M4.5's, the hut's own
                        screen and journal made again in the designer alone, as the fixture's JSON; mapHelpers.ts,
                        maps.spec.ts and mapsPhone.spec.ts are M4.6's, the drift's sector and the valley made in
-                       the World panel and the drift flown to its exit through its map widget
+                       the World panel and the drift flown to its exit through its map widget; encounterHelpers.ts,
+                       encounters.spec.ts and encountersPhone.spec.ts are M4.7's, the drift's fight and the pit's
+                       thraex bout made with forms, and the drift's first hostile ship fought, its odds the table's
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 7)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -209,6 +214,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        M4.4: codexCheck.test.ts, recordFieldsOf (each type's fields, for a codex's items); M4.6:
                        mapTypes.ts (node-kind, map), mapEffects.ts (enter-map, reveal-map as fields), mapCheck.ts
                        (E035, E053, W119, W120, W135 over 300 seeds, W136); a map widget without the kit is E049;
+                       M4.7: encounterTypes.ts (combat, encounter), encounterEffects.ts (fight, with its stance, as
+                       fields), encounterCheck.ts (E035, E054, W137); a button's detail checked as its label;
                        not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
@@ -249,11 +256,16 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        a seed by rules; roads.ts: reach and the quickest road; travel.ts: travelOf, one price for
                        the action, its options and the widget; arrive.ts; sweep.ts: rules over 300 seeds; view.ts:
                        enter-map's preview, the map as the party sees it; facts.ts; module.ts, built knowing
-                       economy and the calendar); kits.ts (KITS,
+                       economy and the calendar); M4.7 (D57): encounters/ (lines.ts: the two lines, each fighter's
+                       stats through the stats kit's facts; rounds.ts: every pair of hurts round by round, exactly;
+                       table.ts: the ends made whole out of 10,000, which the roll and the preview read; fight.ts;
+                       module.ts, built knowing whether the roster is on, whose roster.place orders the party);
+                       kits.ts (KITS,
                        kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
-                       dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6): the records
+                       dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
+                       a ship, raiders and a brute, M4.7): the records
                        and games the kit tests share;
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
@@ -266,7 +278,7 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        session/ (play.ts: a game played and its view after each step, or resumed from a state, and
                        looked at for other wants, taking no step (M4.5); views.ts, the kits' views as lists;
                        mapView.ts, the map in words from enter-map's preview (M4.6);
-                       words.ts; say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
+                       words.ts (fightText: a fight choice's odds from its preview, M4.7); say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
                        after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
                        fromPack.ts and host.ts, a pack opened in a worker, its games started or loaded from a save's
                        text; protocol.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
@@ -308,7 +320,10 @@ tools/cli/             eb validate | build | schemas | sim; folderSource.ts is t
                        feedback (M4.2) and its shell (M4.3), whose saves the same test loads back; drift/, a slice
                        of Space-Wrecked's sector run made with the maps kit, its stock screens, which
                        driftScreens.test.ts plays through, and drift-pilot.golden.json; valley/, a map drawn by
-                       hand in Dirtbag's style, and valley-random.golden.json (M4.6)
+                       hand in Dirtbag's style, and valley-random.golden.json (M4.6); the drift's hostile ships
+                       fought with the encounters kit, and pit/, a slice of Ludus whose bouts the roster fights,
+                       and pit-lanista.golden.json; fights.test.ts, every fight of 300 seeds of each rolled
+                       against the table it showed (M4.7)
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

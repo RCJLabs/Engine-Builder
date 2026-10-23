@@ -1,9 +1,10 @@
 import { pointerSegment, SHEET } from '@eb/core';
-import { DIALOGUE, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
+import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
 import { type DataType, type Diagnostic, slotScope } from '@eb/schema';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
+import { FightPreview } from '../encounters/FightPreview.tsx';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import { MapPreview } from '../maps/MapPreview.tsx';
 import type { OpenProject } from '../projects/opened.ts';
@@ -212,6 +213,9 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {type === QUEST && catalog.kits.includes(QUESTS) ? <QuestMap id={id} value={value} file={file} /> : null}
         {type === MAP && catalog.kits.includes(MAPS) ? (
           <MapPreview id={id} value={value} file={file} project={project} />
+        ) : null}
+        {type === ENCOUNTER && catalog.kits.includes(ENCOUNTERS) ? (
+          <FightPreview id={id} value={value} kits={catalog.kits} project={project} />
         ) : null}
         {fields.map(([name, def]) => {
           const held =

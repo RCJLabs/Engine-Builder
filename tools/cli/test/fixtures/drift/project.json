@@ -3,5 +3,5 @@
   "id": "drift",
   "name": "The drift",
   "version": "0.1.0",
-  "kits": ["inventory", "economy", "events", "maps"]
+  "kits": ["inventory", "economy", "stats", "events", "maps", "encounters"]
 }

@@ -29,6 +29,21 @@ export function fill(template: string, view: View, entry?: Entry): string {
     .join('');
 }
 
+/** A template filled, or undefined while it has bindings and every one is empty: a button's detail (M4.7). */
+export function fillSome(template: string, view: View, entry?: Entry): string | undefined {
+  const split = splitTemplate(template);
+  if (!split.ok) return template;
+  const bound = split.segments.filter((segment) => segment.kind !== 'text');
+  const empty = (value: Shown | undefined) => value === null || value === undefined || value === '';
+  const boundValue = (segment: (typeof bound)[number]) => {
+    if (segment.kind === 'fact') return ownOr(entry?.facts, view.facts, segment.text);
+    if (segment.kind === 'view') return view.fields[segment.name];
+    return segment.kind === 'field' ? entry?.fields[segment.name] : undefined;
+  };
+  if (bound.length > 0 && bound.every((segment) => empty(boundValue(segment)))) return undefined;
+  return fill(template, view, entry);
+}
+
 /** A number field: a number as written, or a binding's value when it is a number. */
 export function amount(value: number | string, view: View, entry?: Entry): number | null {
   if (typeof value === 'number') return value;

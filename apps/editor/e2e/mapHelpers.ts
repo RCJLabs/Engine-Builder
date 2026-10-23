@@ -57,9 +57,12 @@ export async function startDrift(page: Page, touch = false): Promise<void> {
   const panel = await showPlay(page);
   const run = panel.getByRole('button', { name: 'Run its scripts' });
   const play = panel.getByRole('button', { name: 'Play', exact: true });
-  // Play shows, disabled, beside Run its scripts until they have run: wait for it before asking which.
-  await expect(play).toBeVisible();
-  if (await run.isVisible()) await run.click();
+  // Play shows, disabled, until the scripts have run. Run its scripts is drawn once trust is read,
+  // which under a full run's load can come after Play: so look for it again until Play is enabled.
+  await expect(async () => {
+    if (await run.isVisible()) await run.click();
+    await expect(play).toBeEnabled({ timeout: 5_000 });
+  }).toPass({ timeout: 90_000 });
   await play.click();
   await newGame(page, touch ? (b) => b.tap() : (b) => b.click());
   await expect(topScreen(page).getByRole('region', { name: 'The sector' })).toBeVisible();
@@ -107,7 +110,7 @@ const layerOf = (id: string | null) => Number(/^n(\d+)-/.exec(id ?? '')?.[1] ?? 
  * The next press: an event's first open choice; else, in the map's order, the first node a jump
  * takes on a layer, picked and jumped to; else the first move open at all. Undefined at the end.
  */
-async function nextPress(page: Page, touch: boolean): Promise<Locator | undefined> {
+export async function nextPress(page: Page, touch: boolean): Promise<Locator | undefined> {
   const top = topScreen(page);
   if (await top.getByText('The game is over.').isVisible()) return undefined;
   const dialog = game(page).getByRole('dialog');

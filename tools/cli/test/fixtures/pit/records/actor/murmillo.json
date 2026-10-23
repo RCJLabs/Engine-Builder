@@ -1,0 +1,9 @@
+{
+  "name": "A murmillo",
+  "description": "A fish on his helm and a wall of a shield.",
+  "stats": {
+    "vigour": 14,
+    "guard": 5,
+    "strength": 3
+  }
+}

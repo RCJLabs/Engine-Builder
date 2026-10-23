@@ -5,7 +5,7 @@
 import { type ListWidget, listKey, type Widget } from '../format/screen.ts';
 import type { Entry } from '../session/types.ts';
 import { type Drawing, tabHolding } from './context.ts';
-import { actionFor, amount, fill, holds } from './fill.ts';
+import { actionFor, amount, fill, fillSome, holds } from './fill.ts';
 import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
 import { MapWidgetView } from './MapWidget.tsx';
@@ -115,7 +115,16 @@ function ListView({ widget, drawing, entry, at }: Props & { readonly widget: Lis
 
 function ButtonView({ widget, drawing, entry }: Props & { readonly widget: Extract<Widget, { widget: 'button' }> }) {
   const { action } = widget;
-  const label = fill(widget.label, drawing.view, entry);
+  const detail = widget.detail === undefined ? undefined : fillSome(widget.detail, drawing.view, entry);
+  const label =
+    detail === undefined ? (
+      fill(widget.label, drawing.view, entry)
+    ) : (
+      <>
+        <span class="eb-button-label">{fill(widget.label, drawing.view, entry)}</span>
+        <span class="eb-button-detail">{detail}</span>
+      </>
+    );
   const style = `eb-button eb-${widget.style ?? 'plain'}`;
   if ('open' in action) {
     return (

@@ -24,7 +24,7 @@ Templates that New screen offers: screens written into a project's `ui/` as JSON
 | Map | maps | the modes that allow `maps/travel` | no | Top: the day (time) and each resource, as the HUD's. Main: the map's name, the map widget, the feedback's last three lines. Bottom: the HUD's buttons. A game that starts on its map has this for its HUD (M4.6). |
 | Ending | — | the modes that allow no action | no | The game's name; the day, each resource and the quests done; Journal and Credits when screens of those ids exist; Back to title and New game. |
 
-A screen opened only by a button has a Close (W134). The HUD stays below the modal ones, so its numbers show behind a talk or the shop. An option's reason, cost and odds are entry fields (`{.why}`, `{.cost}`, `{.odds}`) for the author to place: shown everywhere, they read as a dash where there are none. The HUD's buttons use the engine's words for each action ("Carry", "Visit greta"); a game that wants its own puts buttons of its own in their place, as the hut's hand-made screen does.
+A screen opened only by a button has a Close (W134). The HUD stays below the modal ones, so its numbers show behind a talk or the shop. An option's reason, cost and odds are entry fields (`{.why}`, `{.cost}`, `{.odds}`) for the author to place: shown everywhere, they read as a dash where there are none. Since M4.7 the event and talk templates place `{.odds}` as each choice's `detail`, which is left out while it is empty, so a fight's odds show under its choice and other choices show no line. The HUD's buttons use the engine's words for each action ("Carry", "Visit greta"); a game that wants its own puts buttons of its own in their place, as the hut's hand-made screen does.
 
 ## The codex's tabs
 

@@ -1,0 +1,10 @@
+{
+  "name": "Raider",
+  "description": "A cutter running dark, guns warm.",
+  "stats": {
+    "hull": 10,
+    "gunnery": 55,
+    "guns": 3,
+    "plating": 1
+  }
+}

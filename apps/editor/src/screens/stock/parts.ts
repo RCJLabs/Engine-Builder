@@ -10,9 +10,10 @@ export const text = (words: string, style?: TextStyle): Widget => ({
   ...(style ? { style } : {}),
 });
 
-export const button = (label: string, action: Action, primary = false): Widget => ({
+export const button = (label: string, action: Action, primary = false, detail?: string): Widget => ({
   widget: 'button',
   label,
+  ...(detail === undefined ? {} : { detail }),
   ...(primary ? { style: 'primary' as const } : {}),
   action,
 });

@@ -100,7 +100,12 @@ describe('the drift through its screens', () => {
     if (started.kind !== 'started') throw new Error(JSON.stringify(started));
     let view = started.view;
     let turn = 0;
+    // The first hostile ship met, as the gate's e2e meets it (M4.7): its fights' odds as the event shows them.
+    let hailed: { turn: number; odds: readonly unknown[] } | undefined;
     while (!view.ended && turn < 200) {
+      if (!hailed && view.fields['event.name'] === 'Hostile ship') {
+        hailed = { turn, odds: (view.lists.event ?? []).map((entry) => entry.fields.odds) };
+      }
       const action = firstOnward(opened.screens, view);
       if (!action) throw new Error(`nothing to press in ${view.modes.join(', ')}`);
       const step = host({ id: ++turn, kind: 'act', action, at: turn });
@@ -109,6 +114,13 @@ describe('the drift through its screens', () => {
     }
     expect(view.modes.at(-1)).toBe('home');
     expect(turn).toBeLessThan(60);
+    // At full hull, the Fight reads as the table above the raiders' form; Run in close, its stance.
+    expect(hailed?.turn).toBeLessThan(20);
+    expect(hailed?.odds.slice(0, 2)).toEqual([
+      'Win 67%, 0–10 Hull lost, Credits 12 → 24 · Draw 16%, 0–12 Hull lost, 0–1 fall, heat 15 → 20 · Lose 17%, 12 Hull lost, 1 falls, Supplies 36 → 33, heat 15 → 25',
+      'Win 88%, 0–9 Hull lost, Credits 12 → 24 · Draw 7%, 12 Hull lost, 1 falls, heat 15 → 20 · Lose 5%, 12 Hull lost, 1 falls, Supplies 36 → 33, heat 15 → 25',
+    ]);
+    expect(hailed?.odds.slice(2)).toEqual([null, null, null]);
   });
 
   it('flies to the exit pressing only what its screens draw, the map’s moves the travels on offer', async () => {

@@ -61,6 +61,14 @@ const facts: Def['facts'] = {
     describe: holds((test) => `${arg(test, 'actor')} is on the roster`),
     read: ({ state }, { actor }) => state.members.includes(actor as string),
   },
+  // Where a member stands, from 1 in the order they joined: the front of a fight's line (M4.7).
+  place: {
+    args: ACTOR_ARG,
+    domain: COUNT,
+    label: 'the place on the roster',
+    describe: compared((test) => `${arg(test, 'actor')}’s place on the roster`),
+    read: ({ state }, { actor }) => state.members.indexOf(actor as string) + 1,
+  },
   left: {
     args: ACTOR_ARG,
     domain: TEXT,

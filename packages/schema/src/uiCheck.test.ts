@@ -169,6 +169,18 @@ describe('checkUi', () => {
     ]);
   });
 
+  it('checks a button’s second line as it checks its label (M4.7)', () => {
+    const item = { widget: 'button', label: '{.name}', detail: '{.odds}', action: { take: 'entry' } };
+    expect(only({ widget: 'list', of: 'shelf', item })).toEqual([
+      {
+        code: 'E048',
+        file: 'ui/hud.json',
+        path: '/main/item/detail',
+        message: 'A shelf entry has no field "odds": item, name, price, count',
+      },
+    ]);
+  });
+
   it('gives an action, a screen or a source the game lacks as E049', () => {
     const main = {
       widget: 'stack',

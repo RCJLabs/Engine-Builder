@@ -1,0 +1,10 @@
+{
+  "name": "A bout",
+  "health": "vigour",
+  "hit": "skill",
+  "dodge": "guard",
+  "damage": "strength",
+  "hit-min": 10,
+  "hit-max": 90,
+  "rounds": 12
+}

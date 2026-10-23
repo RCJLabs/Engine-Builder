@@ -39,6 +39,10 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     name: 'Maps',
     brings: 'Maps made from a seed by layered rules, or drawn by hand with roads, and the moves that travel them.',
   },
+  encounters: {
+    name: 'Encounters',
+    brings: 'Foes to fight, worked out round by round with the odds shown exactly as they are rolled. Needs Stats.',
+  },
 };
 
 export function ProjectKits({ on }: { on: readonly string[] }) {

@@ -1353,6 +1353,38 @@ Evan chose on 2026-10-20, from these options:
 
 ---
 
+### D57. Encounters are a kit whose fights are worked out round by round, exactly, and rolled once; a fight is a choice of an event or a talk; the roster fights, or named actors; the drift's ships and a Ludus pit prove it. LOCKED, 2026-10-23 (Evan's calls, M4.7)
+
+**Decision.**
+- **Rounds worked out exactly** (Evan's call, against the recommendation of strength against strength). Fighters have health, a chance to hit and damage, read from stats the author names. The kit works out the exact chance of every way a fight can end, round by round up to a cap, and rolls once against that table. What a fight leaves (health lost, who falls) comes out of the fight itself, shown as ranges.
+- **Fights live inside events** (Evan's call). An event's choice, or a talk's option, fights an encounter: its outcomes are worked out, not written. Flee, pay and parley stay ordinary choices beside it. A stance (Charge, Hold the line) is a choice too, fighting with its own modifiers. Encounters are records: the foes, who fights for the player, and what a win, a draw and a loss do.
+- **The roster fights, or named actors** (Evan's call). By default the roster's members fight, front first in the order they joined. A fight or its encounter can name actors instead: the ship in the drift, one gladiator in Ludus. Named actors work without the Roster kit.
+- **The gate: the drift's ships and a Ludus pit** (Evan's call). The drift's hostile ship becomes a real fight, its hull and guns against the raiders'. In a new pit, a slice of Ludus, a gladiator from the roster fights. Both are made in the editor with forms, and the bots check over 300 seeds that every fight's table shown is the table rolled. The drift is flown with fights by touch on phones.
+- **Not asked, and following from the calls:**
+  - **A fight is an effect,** `fight`, which a choice's effects hold. So a fight can also sit in a node's arrival, a quest's stage or a sheet's row, where nothing offers a way out.
+  - **One roll out of 10,000.** Each result's chance is a whole percent, exactly what is shown; the wounds within it are shared out in hundredths of a percent. One draw picks the row.
+  - **A fight's odds show where an event shows odds** (D45's `show-odds`). With them hidden, the player sees only the choice.
+  - **A button gets an optional second line,** `detail`, which the stock event and talk screens use for a choice's odds. Until now no stock screen showed odds at all.
+
+Evan chose on 2026-10-23, from these options:
+- how a fight is worked out: strength against strength, with one roll; rounds worked out exactly; or odds bands written by hand;
+- where fights live: inside events; an encounter screen of their own; or a fight effect only;
+- who fights for the player: the roster or named actors; always the roster; or always one actor;
+- the gate: the drift's ships and an arena; the drift alone; or a fight added to the hut.
+
+**Why.**
+- **No game we have does this honestly.** Ludus's auto-resolve quotes a separate model, measured 2.5 points off at the extremes. Spliceworld's forecast is 32 fights sampled on another stream. Working out the exact table and rolling it once makes the odds shown the odds rolled by construction, not on average.
+- **Rounds give fights texture:** a near thing costs more than a rout, and the wounds a player sees beforehand are the wounds the fight can leave.
+- **Inside events** reuses what the event already does: costs, locks, odds, decks, consequences, map nodes, and every way out a game already writes as a choice.
+- **Named actors** cover a ship-to-ship fight and a single gladiator without a roster of one.
+
+**Cost.**
+- **The work grows with health.** A fight's table is worked out over every pair of health lost by each side, every round. Small numbers keep it quick; the reading is in ROADMAP.md.
+- **A fight is fought by lines, not by targets.** Each side strikes the other's front fighter, and what is left over falls on the next. Who targets whom, and tactics within a fight, wait for Phase 6's combat.
+- **Floats.** The chances are worked out with `+ − × ÷` on numbers, which every engine rounds alike; the table is then made whole numbers before it is shown or rolled.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

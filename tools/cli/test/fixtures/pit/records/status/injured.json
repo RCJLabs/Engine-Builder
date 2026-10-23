@@ -1,0 +1,10 @@
+{
+  "name": "Injured",
+  "description": "Fell in the sand; slower until he mends.",
+  "modifiers": [
+    {
+      "stat": "skill",
+      "add": -10
+    }
+  ]
+}

@@ -165,7 +165,12 @@ function templateFields(widget: Widget): readonly (readonly [string, string])[] 
     case 'text':
       return [['/text', widget.text]];
     case 'button':
-      return [['/label', widget.label]];
+      return widget.detail === undefined
+        ? [['/label', widget.label]]
+        : [
+            ['/label', widget.label],
+            ['/detail', widget.detail],
+          ];
     case 'progress': {
       const bound = (['value', 'max'] as const).filter((key) => typeof widget[key] === 'string');
       return [['/label', widget.label], ...bound.map((key) => [`/${key}`, widget[key] as string] as const)];
