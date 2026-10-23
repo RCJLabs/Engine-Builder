@@ -1,0 +1,20 @@
+{
+  "name": "A thraex",
+  "combat": "bout",
+  "foes": [
+    {
+      "actor": "thraex"
+    }
+  ],
+  "breaks": 80,
+  "win": [
+    {
+      "effect": "add-resource",
+      "resource": "denarii",
+      "by": 30
+    }
+  ],
+  "falls": {
+    "status": "injured"
+  }
+}

@@ -1,40 +1,38 @@
 {
   "name": "Hostile ship",
   "text": "It drops out of the dark, guns warm, and hails you once.",
+  "show-odds": true,
   "choices": [
     {
       "id": "fight",
       "label": "Fight",
-      "outcomes": [
+      "needs": "economy.amount(resource: supplies) >= 3",
+      "effects": [
         {
-          "chance": 60,
-          "result": "It breaks off, venting, and you pick through what it dropped.",
-          "effects": [
-            {
-              "effect": "add-resource",
-              "resource": "credits",
-              "by": 12
-            }
-          ]
+          "effect": "fight",
+          "encounter": "raiders"
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "label": "Run in close",
+      "needs": "economy.amount(resource: supplies) >= 3",
+      "effects": [
+        {
+          "effect": "add-to-flag",
+          "flag": "heat",
+          "by": 5
         },
         {
-          "chance": 40,
-          "result": "A hit to the hold before it runs. Every gun on the band heard it.",
-          "effects": [
-            {
-              "effect": "add-resource",
-              "resource": "supplies",
-              "by": -3
-            },
-            {
-              "effect": "add-to-flag",
-              "flag": "heat",
-              "by": 10
-            }
-          ]
+          "effect": "fight",
+          "encounter": "raiders",
+          "hit": 15,
+          "damage": 1,
+          "armour": -1
         }
       ],
-      "needs": "economy.amount(resource: supplies) >= 3"
+      "result": "You burn straight at it, every gun on the band hearing the run."
     },
     {
       "id": "flee",

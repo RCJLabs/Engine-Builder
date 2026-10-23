@@ -1,0 +1,7 @@
+{
+  "name": "Skill",
+  "description": "The chance, in percent, that a blow lands.",
+  "min": 0,
+  "max": 100,
+  "start": 45
+}

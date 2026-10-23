@@ -1,0 +1,53 @@
+{
+  "name": "A murmillo is offered",
+  "text": "A heavy man, slow to tire. Forty denarii, and the crowd likes him.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "crixus",
+      "label": "Send Crixus",
+      "if": "roster.member(actor: crixus)",
+      "needs": "stats.current(actor: crixus, stat: vigour) >= 6",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "murmillo",
+          "fighters": ["crixus"]
+        }
+      ]
+    },
+    {
+      "id": "spartacus",
+      "label": "Send Spartacus",
+      "if": "roster.member(actor: spartacus)",
+      "needs": "stats.current(actor: spartacus, stat: vigour) >= 6",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "murmillo",
+          "fighters": ["spartacus"]
+        }
+      ]
+    },
+    {
+      "id": "all-in",
+      "label": "Spartacus, all in",
+      "if": "roster.member(actor: spartacus)",
+      "needs": "stats.current(actor: spartacus, stat: vigour) >= 6",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "murmillo",
+          "fighters": ["spartacus"],
+          "hit": 15,
+          "dodge": -15
+        }
+      ]
+    },
+    {
+      "id": "decline",
+      "label": "Decline",
+      "result": "The editor shrugs and finds another house."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "A retiarius",
+  "description": "Net and trident, and no armour at all.",
+  "stats": {
+    "vigour": 9,
+    "skill": 65,
+    "guard": 20
+  }
+}

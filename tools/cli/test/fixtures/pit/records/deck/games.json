@@ -1,0 +1,21 @@
+{
+  "name": "The games",
+  "description": "What the editor offers each day.",
+  "events": [
+    {
+      "event": "thraex",
+      "weight": 3
+    },
+    {
+      "event": "murmillo",
+      "weight": 2
+    },
+    {
+      "event": "retiarius"
+    },
+    {
+      "event": "melee"
+    }
+  ],
+  "recent": 1
+}

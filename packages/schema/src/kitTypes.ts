@@ -6,9 +6,12 @@
 import { pointerSegment } from '@eb/core';
 import {
   ACTOR,
+  COMBAT,
   DECK,
   DIALOGUE,
   ECONOMY,
+  ENCOUNTER,
+  ENCOUNTERS,
   EVENT,
   EVENTS,
   FACTION,
@@ -36,6 +39,7 @@ import {
   TALK,
 } from '@eb/kits';
 import { SPEAKER_TYPE_FILE, talkTypeFile } from './dialogueTypes.ts';
+import { COMBAT_TYPE_FILE, ENCOUNTER_TYPE_FILE } from './encounterTypes.ts';
 import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
@@ -256,6 +260,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   [DIALOGUE]: (on) => ({ [SPEAKER]: SPEAKER_TYPE_FILE, [TALK]: talkTypeFile(on.includes(ECONOMY)) }),
   [QUESTS]: () => ({ [QUEST]: QUEST_TYPE_FILE }),
   [MAPS]: (on) => ({ [NODE_KIND]: NODE_KIND_TYPE_FILE, [MAP]: mapTypeFile(on.includes(ECONOMY)) }),
+  [ENCOUNTERS]: () => ({ [COMBAT]: COMBAT_TYPE_FILE, [ENCOUNTER]: ENCOUNTER_TYPE_FILE }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

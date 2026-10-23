@@ -1,0 +1,22 @@
+{
+  "name": "A melee",
+  "text": "Three bandits from the mines, and the whole ludus sent against them.",
+  "show-odds": true,
+  "choices": [
+    {
+      "id": "all",
+      "label": "Send the ludus",
+      "effects": [
+        {
+          "effect": "fight",
+          "encounter": "bandits"
+        }
+      ]
+    },
+    {
+      "id": "decline",
+      "label": "Decline",
+      "result": "Not today."
+    }
+  ]
+}

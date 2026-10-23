@@ -1,0 +1,38 @@
+{
+  "name": "Raiders",
+  "description": "One cutter, running dark. It breaks off once it is half holed.",
+  "combat": "broadside",
+  "foes": [
+    {
+      "actor": "raider"
+    }
+  ],
+  "fighters": ["ship"],
+  "breaks": 50,
+  "win": [
+    {
+      "effect": "add-resource",
+      "resource": "credits",
+      "by": 12
+    }
+  ],
+  "draw": [
+    {
+      "effect": "add-to-flag",
+      "flag": "heat",
+      "by": 5
+    }
+  ],
+  "lose": [
+    {
+      "effect": "add-resource",
+      "resource": "supplies",
+      "by": -3
+    },
+    {
+      "effect": "add-to-flag",
+      "flag": "heat",
+      "by": 10
+    }
+  ]
+}

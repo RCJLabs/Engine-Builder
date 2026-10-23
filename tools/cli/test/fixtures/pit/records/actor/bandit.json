@@ -1,0 +1,8 @@
+{
+  "name": "A bandit",
+  "description": "Bought cheap from the mines.",
+  "stats": {
+    "vigour": 6,
+    "skill": 40
+  }
+}

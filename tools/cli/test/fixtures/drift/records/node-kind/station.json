@@ -2,8 +2,13 @@
   "name": "Station",
   "charted": true,
   "names": ["Mac’s Pumps", "Halfway House", "Rest Stop Nine", "The Depot", "Ruth’s Canteen", "Big Rita’s"],
-  "description": "A tired station selling supplies by the crate. Cash only, and the coffee is extra.",
+  "description": "A tired station selling supplies by the crate, and patching hulls for nothing. Cash only, and the coffee is extra.",
   "arrive": [
+    {
+      "effect": "heal-stat",
+      "actor": "ship",
+      "stat": "hull"
+    },
     {
       "effect": "open-event",
       "event": "station"

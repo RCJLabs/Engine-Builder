@@ -547,8 +547,20 @@ describe('the code table', () => {
         moves: [{ id: 'drive', label: 'Drive' }],
       }),
     });
+    // M4.7: without the roster kit, a fight that names no fighters, and fallen who leave the roster.
+    const fought = await kitted(['stats', 'encounters'], {
+      'records/stat/hp.json': '{ "name": "Hit points", "start": 3 }',
+      'records/actor/raider.json': '{ "name": "Raider" }',
+      'records/combat/melee.json': '{ "health": "hp", "hit": "hp", "damage": "hp" }',
+      'records/encounter/raid.json': JSON.stringify({
+        combat: 'melee',
+        foes: [{ actor: 'raider' }],
+        falls: { leave: 'dead' },
+        win: [{ effect: 'fight', encounter: 'raid' }],
+      }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
-    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened, mapped];
+    const late = [timed, drifting, rostered, evented, talked, quested, slotted, scened, screened, mapped, fought];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
     // tests fire them (load.test.ts).

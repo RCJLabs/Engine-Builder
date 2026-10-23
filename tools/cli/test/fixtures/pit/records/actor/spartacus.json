@@ -1,0 +1,9 @@
+{
+  "name": "Spartacus",
+  "description": "A Thracian with patience.",
+  "stats": {
+    "vigour": 12,
+    "skill": 65,
+    "guard": 15
+  }
+}
