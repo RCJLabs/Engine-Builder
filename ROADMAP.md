@@ -715,7 +715,8 @@ How to read this file:
     - Replay first named the first changed slice by its key alone, so editing the loads quest reported economy's coins and said nothing of quests: it names every other slice that changed now;
     - a test helper read the log's lines with their parts run together ("1Carry"): it reads each part apart;
     - a state kept after a step back holds only the steps after it, since the save then starts where the game stood: the recording in the worker keeps the run, the save doesn't (in the spec);
-    - the bench's first season stopped at three steps, carrying when only the storm's choices were offered: it takes what the game offers now.
+    - the bench's first season stopped at three steps, carrying when only the storm's choices were offered: it takes what the game offers now;
+    - CI failed M4.8's audio spec once: its wait for the title's quiet matched `{ levels: {}, gains: {} }`, which any levels match, so it read the ambience before the quiet landed, and this milestone's shell changes moved the timing. The wait matches exactly now (`expectQuiet`), passed 9 of 9, and fails when the title stays loud.
   - **Untested for feel:** the panel's wording, one section open at a time, the log's 200 lines, and the state as JSON on a phone. No real phone has run the debug tools.
   - **22 planted bugs:** 19 at the unit level, 3 through the built page, each command first seen passing on the clean tree; all 22 caught. Four checks were added first, so that a bug in each would fail one: step back's hash check (a tampered recording), Step forward keeping the steps further ahead, a condition's truth in a quest's why, and the kernel's slice named only when nothing else changed.
 - **M4.10 Export.**

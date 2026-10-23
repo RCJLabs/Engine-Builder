@@ -9,7 +9,7 @@
  * the game's own player, a condition ticked to hear it as if it held.
  */
 import { expect, test } from '@playwright/test';
-import { buzzes, catchBuzzes, gather, heard, setHidden, setVolume } from './audioHelpers.ts';
+import { buzzes, catchBuzzes, expectQuiet, gather, heard, setHidden, setVolume } from './audioHelpers.ts';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 import { HUT } from './hutHelpers.ts';
 import { game, newGame, nextPress, press, shellScreens, showPlay, topScreen } from './hutScreens.ts';
@@ -85,8 +85,8 @@ test('the hut heard in the Play panel: nothing before a press, its beds, the sto
   expect(rainHeard).toBe(true);
   await expect(topScreen(page).getByText('The hut is closed for the winter.')).toBeVisible();
   // The closed hut's screen names no ambience or music: the season ends in quiet.
-  await expect.poll(() => heard(page)).toMatchObject({ context: 'running', levels: {} });
-  expect((await heard(page))?.ambience).toBeUndefined();
+  await expectQuiet(page);
+  expect((await heard(page))?.context).toBe('running');
   await gather(page, all);
   expect([...all]).toEqual(
     expect.arrayContaining(['sound:coin', 'sound:chime', 'buzz:double', 'sound:door', 'buzz:thud']),
@@ -139,8 +139,7 @@ test('at /play/: Sound at 0 makes no context, Music at 0 its bus, and a hidden p
   // Back at the title nothing plays: no ambience, no music.
   await page.getByRole('button', { name: 'Pause' }).click();
   await pauseDialog(page).getByRole('button', { name: 'Quit to title' }).click();
-  await expect.poll(() => heard(page)).toMatchObject({ levels: {}, gains: {} });
-  expect((await heard(page))?.ambience).toBeUndefined();
+  await expectQuiet(page);
   expect(errors).toEqual([]);
 });
 
