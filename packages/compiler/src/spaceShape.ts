@@ -68,6 +68,9 @@ export const CHUNK = 32;
 
 const colour = z.string().regex(/^#[0-9a-f]{6}$/i, { error: 'Expected a colour like "#7a8b5c"' });
 
+/** At most four foliage types a terrain (M5.6, D68), as four paint layers: one channel each of the foliage PNG. */
+export const FOLIAGE_MOST = 4;
+
 /** A space's terrain (M5.3, D65): its heights and paint are PNGs beside the space, docs/specs/terrain.md. */
 export const terrainSchema = z
   .strictObject({
@@ -81,6 +84,12 @@ export const terrainSchema = z
       .array(z.strictObject({ name: z.string().min(1).max(40), color: colour }))
       .min(1, { error: 'A terrain has a layer at least' })
       .max(4, { error: 'A terrain has 4 layers at most' }),
+    /** The foliage records it paints (M5.6, D68, docs/specs/foliage.md): channel k of its foliage PNG is the k-th's. */
+    foliage: z
+      .array(id)
+      .max(FOLIAGE_MOST, { error: `A terrain has ${FOLIAGE_MOST} foliage types at most` })
+      .refine((ids) => new Set(ids).size === ids.length, { error: 'A foliage type is listed once' })
+      .optional(),
   })
   .refine((t) => t.low < t.high, { error: 'High is above low', path: ['high'] });
 

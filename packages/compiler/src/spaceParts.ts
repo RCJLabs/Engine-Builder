@@ -3,8 +3,8 @@
  * docs/specs/components.md): each component against its kind (E062, E063), each placed record
  * against the records there are and its overrides against its type (E064, E065), each prefab
  * override against the prefab's objects (E066, and E058 for a field it can't change), a space's
- * environment against the records (E069, M5.4), and its starts (W142). Every reference found is a
- * use, for the editor's "used by".
+ * environment against the records (E069, M5.4), its terrain's foliage (E073, M5.6), and its starts
+ * (W142). Every reference found is a use, for the editor's "used by".
  */
 import { formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import {
@@ -13,6 +13,7 @@ import {
   type Diagnostic,
   type DiagnosticCode,
   ENVIRONMENT,
+  FOLIAGE,
   type Known,
   type PartContext,
   type RecordType,
@@ -43,7 +44,7 @@ export interface SpacePartsContext {
 export interface SpaceUse {
   readonly key: string;
   readonly file: string;
-  /** The id of the file's object it is in: the placement, for a ref inside its overrides; '' for the space's environment. */
+  /** The id of the file's object it is in: the placement, for a ref inside its overrides; '' for the space's own (its environment, its foliage). */
   readonly object: string;
   readonly path: string;
 }
@@ -78,6 +79,7 @@ export function checkSpaceParts(
     }
     if (read.kind === 'space') {
       environmentOf({ ctx, file: read.file, object: '', prefabs, diagnostics, uses }, space);
+      foliageOf({ ctx, file: read.file, object: '', prefabs, diagnostics, uses }, space);
       diagnostics.push(...starts(read.file, space, prefabs));
     }
     diagnostics.push(...waters(read.file, space, prefabs));
@@ -91,6 +93,15 @@ function environmentOf(walk: Walk, space: SpaceJson): void {
   if (id === undefined) return;
   walk.uses.push({ key: formatRef(ENVIRONMENT, id), file: walk.file, object: '', path: '/environment' });
   if (!walk.ctx.records.has(ENVIRONMENT, id)) report(walk, 'E069', '/environment', `No environment record "${id}"`);
+}
+
+/** The terrain's foliage (M5.6): each a use of its record, which is E073 when there is none. */
+function foliageOf(walk: Walk, space: SpaceJson): void {
+  for (const [k, id] of (space.terrain?.foliage ?? []).entries()) {
+    const path = `/terrain/foliage/${k}`;
+    walk.uses.push({ key: formatRef(FOLIAGE, id), file: walk.file, object: '', path });
+    if (!walk.ctx.records.has(FOLIAGE, id)) report(walk, 'E073', path, `No foliage record "${id}"`);
+  }
 }
 
 const report = (walk: Walk, code: DiagnosticCode, path: string, message: string) =>

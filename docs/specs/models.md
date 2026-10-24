@@ -148,7 +148,8 @@ Above a model record's form:
 
 - `tools/starter-kit/` builds about 20 pieces from boxes, cylinders and cones in code: floor, wall,
   doorway, window wall, stairs, ramp, pillar, crate, barrel, fence, gate, rocks (two), pine, oak,
-  bush, lamp post, table, bench and chest. Each part is named by its material: `wood`, `stone`,
+  bush, lamp post, table, bench and chest; and, since M5.6, a tuft of grass for foliage's grass
+  preset (foliage.md). Each part is named by its material: `wood`, `stone`,
   `metal`, `painted`, `leaves`, `glow`.
 - It writes `starter-kit/` at the repo's root as a project folder that `eb validate` holds to no
   problems: `assets/starter-kit/<piece>.glb` packed as import packs, `records/model/kit-<piece>.json`

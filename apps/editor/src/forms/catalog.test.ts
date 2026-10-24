@@ -65,6 +65,7 @@ describe('readCatalog', () => {
       'environment',
       'material',
       'model',
+      'foliage',
       'gladiator',
       'school',
       'weapon',
@@ -80,6 +81,7 @@ describe('readCatalog', () => {
       'environment',
       'material',
       'model',
+      'foliage',
     ]);
     expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
     expect(catalog.assets).toEqual(['portraits/spiculus.svg']);
@@ -122,6 +124,7 @@ describe('readCatalog', () => {
       'environment',
       'material',
       'model',
+      'foliage',
       'gladiator',
       'school',
     ]);
@@ -138,6 +141,7 @@ describe('readCatalog', () => {
       'environment',
       'material',
       'model',
+      'foliage',
     ]);
   });
 

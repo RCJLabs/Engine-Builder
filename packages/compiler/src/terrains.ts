@@ -1,8 +1,9 @@
 /**
  * A space's terrain files (M5.3, D65, docs/specs/terrain.md): its heights and paint PNGs beside it,
- * read only as far as their headers. E067 for one that is missing, isn't a PNG, or isn't of its kind
- * and size; W144 for one whose space has no terrain. The compiler never decodes the images: the
- * editor draws them, and M5.8 will pack them.
+ * and its foliage's density while it lists foliage (M5.6, D68), read only as far as their headers.
+ * E067 for one that is missing, isn't a PNG, or isn't of its kind and size; W144 for one whose space
+ * has no terrain, or a foliage file whose terrain lists none. The compiler never decodes the images:
+ * the editor draws them, and M5.8 will pack them.
  */
 import { type Diagnostic, type DiagnosticCode, severityOf } from '@eb/schema';
 import { type TerrainPart, terrainPath } from './spaceFiles.ts';
@@ -40,11 +41,16 @@ export interface TerrainFileRead {
   readonly header: PngHeader | null;
 }
 
-/** What each part must be: the heights 16-bit greyscale, the paint 8-bit RGBA. */
+/** What each part must be: the heights 16-bit greyscale, the paint and the foliage 8-bit RGBA. */
 const KINDS: Readonly<Record<TerrainPart, { bitDepth: number; colorType: number; words: string }>> = {
   heights: { bitDepth: 16, colorType: 0, words: '16-bit greyscale' },
   paint: { bitDepth: 8, colorType: 6, words: '8-bit RGBA' },
+  foliage: { bitDepth: 8, colorType: 6, words: '8-bit RGBA' },
 };
+
+/** The parts a terrain needs beside it: the foliage's density only while it lists foliage. */
+const partsOf = (foliage: readonly string[] | undefined): readonly TerrainPart[] =>
+  foliage && foliage.length > 0 ? ['heights', 'paint', 'foliage'] : ['heights', 'paint'];
 
 const at = (file: string, code: DiagnosticCode, path: string, message: string): Diagnostic => ({
   code,
@@ -68,16 +74,24 @@ export function checkTerrains(
   for (const [id, { file, space }] of spaces) {
     const terrain = space.terrain;
     if (!terrain) continue;
-    for (const part of ['heights', 'paint'] as const) {
+    for (const part of partsOf(terrain.foliage)) {
       const path = terrainPath(id, part);
       const read = byFile.get(path);
       const kind = KINDS[part];
       if (!read) {
-        found.push(at(file, 'E067', '/terrain', `No ${path}: a terrain’s ${part} sit beside its space`));
+        const what = part === 'foliage' ? 'foliage’s density sits' : `${part} sit`;
+        found.push(at(file, 'E067', '/terrain', `No ${path}: a terrain’s ${what} beside its space`));
       } else if (!read.header) {
         found.push(at(path, 'E067', '', 'It isn’t a PNG'));
       } else if (read.header.bitDepth !== kind.bitDepth || read.header.colorType !== kind.colorType) {
-        found.push(at(path, 'E067', '', `The ${part} are a ${kind.words} PNG`));
+        found.push(
+          at(
+            path,
+            'E067',
+            '',
+            `The ${part === 'foliage' ? 'foliage’s density is' : `${part} are`} a ${kind.words} PNG`,
+          ),
+        );
       } else if (read.header.width !== terrain.size || read.header.height !== terrain.size) {
         const { width, height } = read.header;
         found.push(at(path, 'E067', '', `It is ${width}×${height}; the terrain is ${terrain.size}×${terrain.size}`));
@@ -85,8 +99,14 @@ export function checkTerrains(
     }
   }
   for (const read of terrains) {
-    if (spaces.get(read.id)?.space.terrain || (present.has(read.id) && !spaces.has(read.id))) continue;
-    const whose = spaces.has(read.id) ? `spaces/${read.id}.json has no terrain` : `there is no spaces/${read.id}.json`;
+    const terrain = spaces.get(read.id)?.space.terrain;
+    if (present.has(read.id) && !spaces.has(read.id)) continue;
+    if (terrain && partsOf(terrain.foliage).includes(read.part)) continue;
+    const whose = terrain
+      ? `spaces/${read.id}.json’s terrain lists no foliage`
+      : spaces.has(read.id)
+        ? `spaces/${read.id}.json has no terrain`
+        : `there is no spaces/${read.id}.json`;
     found.push(at(read.file, 'W144', '', `Ignored: ${whose}`));
   }
   return found;

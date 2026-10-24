@@ -659,6 +659,11 @@ describe('the code table', () => {
       }),
       [],
     );
+    // M5.6: a foliage whose size range is backwards, and a terrain listing one there isn't.
+    const foliaged = await kitted([], {
+      'records/foliage/odd.json': JSON.stringify({ model: 'none', smallest: 2, largest: 1 }),
+      'spaces/glade.json': JSON.stringify({ name: 'Glade', terrain: { ...terrain, foliage: ['ferns'] }, objects: [] }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -679,6 +684,7 @@ describe('the code table', () => {
       terrained,
       environed,
       modelled,
+      foliaged,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

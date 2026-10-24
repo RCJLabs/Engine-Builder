@@ -35,6 +35,7 @@ describe('a project made only of data', () => {
       'environment',
       'material',
       'model',
+      'foliage',
       'gladiator',
       'school',
       'weapon',
@@ -88,6 +89,7 @@ describe('type file problems', () => {
       'environment',
       'material',
       'model',
+      'foliage',
       'gladiator',
       'school',
     ]);

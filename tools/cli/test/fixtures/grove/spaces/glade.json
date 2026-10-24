@@ -1,0 +1,21 @@
+{
+  "name": "Glade",
+  "terrain": {
+    "size": 65,
+    "spacing": 1,
+    "low": -4,
+    "high": 16,
+    "layers": [
+      {
+        "name": "Grass",
+        "color": "#5f8f3e"
+      },
+      {
+        "name": "Rock",
+        "color": "#8a8580"
+      }
+    ],
+    "foliage": ["pines", "scrub"]
+  },
+  "objects": []
+}
