@@ -37,6 +37,18 @@ export const PANELS: Record<PanelId, PanelInfo> = {
     summary: 'Where worlds get built: route maps first, then 3D terrain and interiors, then 2D tiles.',
     coming: ['3D terrain, props, NPCs, interiors (Phases 5–6)', '2D tilemaps and side-view rooms (Phase 7)'],
   },
+  scene: {
+    label: 'Scene',
+    phase: 'Phase 5',
+    summary: 'Build a 3D space from shapes and prefabs: place, move, turn and scale them in the view.',
+    coming: ['Components and overrides (M5.2)', 'Terrain (M5.3)', 'Assets in the view (M5.4)'],
+  },
+  outliner: {
+    label: 'Outliner',
+    phase: 'Phase 5',
+    summary: 'Every object in the space open in the Scene panel, to choose and rename.',
+    coming: [],
+  },
   inspector: {
     label: 'Inspector',
     phase: 'Phase 2',

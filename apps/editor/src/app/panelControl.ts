@@ -3,8 +3,9 @@
  * and the bottom sheet for the inspector on a phone. The palette's commands go through here.
  */
 import { signal } from '@preact/signals';
+import { sheetTab } from '../spaces/state.ts';
 import type { DockHandle } from './dock/desktopDock.tsx';
-import { type DockPanelId, SHEET, tabOf, zoneOf, zonePanelId } from './layout.ts';
+import { type DockPanelId, SHEET, SHEET_TABS, tabOf, zoneOf, zonePanelId } from './layout.ts';
 import { activeTabs, layout } from './state.ts';
 
 /** Whether the phone's inspector sheet is open. */
@@ -31,7 +32,9 @@ export function showPanel(id: DockPanelId): void {
     dock.show(id);
     return;
   }
-  if (SHEET[current] === id) {
+  if (SHEET[current] === id || SHEET_TABS[current].includes(id)) {
+    // The outliner, a tab of a phone's sheet, shows there; the inspector, in front of it (D63).
+    sheetTab.value = id === 'outliner' ? 'outliner' : 'inspector';
     sheetOpen.value = true;
     focusSoon(SHEET_BODY_ID);
     return;

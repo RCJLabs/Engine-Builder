@@ -5,12 +5,15 @@
  * change, beside the Project panel's summary (projects/opened.ts).
  */
 import {
+  checkProjectSpaces,
   classifyScene,
   classifyUi,
   type ProjectSource,
   RECORDS_DIR,
   readProjectFiles,
+  readSpaces,
   SCENES_DIR,
+  type SpaceKind,
   type TypeReport,
   UI_DIR,
 } from '@eb/compiler';
@@ -41,6 +44,9 @@ export interface Catalog {
   readonly feedback: boolean;
   /** Whether there is a ui/shell.json (M4.3, D53). */
   readonly shell: boolean;
+  /** The spaces under spaces/ and the prefabs under prefabs/ (M5.1, D63), each sorted by id. */
+  readonly spaces: readonly SpaceEntry[];
+  readonly prefabs: readonly SpaceEntry[];
   /** Paths inside assets/, sorted: every file there but the provenance log. */
   readonly assets: readonly string[];
   /**
@@ -58,10 +64,19 @@ export interface Catalog {
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log; files under scenes/ that aren't
-   * scenes, and scenes the index can't compile (M3.11); files under ui/ that are no screen (M4.1).
+   * scenes, and scenes the index can't compile (M3.11); files under ui/ that are no screen (M4.1);
+   * the spaces' and prefabs' problems, E058 to E061 and W141 (M5.1).
    * The record index has the rest, and the screens' own checks follow the game (screenChecks.ts).
    */
   readonly problems: readonly Diagnostic[];
+}
+
+/** A space or a prefab as its list shows it: its name, when its file is sound, and how many objects it holds. */
+export interface SpaceEntry {
+  readonly kind: SpaceKind;
+  readonly id: string;
+  readonly name?: string;
+  readonly objects?: number;
 }
 
 export const EMPTY_CATALOG: Catalog = {
@@ -74,6 +89,8 @@ export const EMPTY_CATALOG: Catalog = {
   theme: false,
   feedback: false,
   shell: false,
+  spaces: [],
+  prefabs: [],
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
@@ -101,6 +118,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   }
   const scenes = await readScenes(source, records, read.kits);
   const ui = await readUiFiles(source);
+  const spaces = await readSpaceFiles(source);
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
@@ -120,19 +138,36 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     theme: ui.theme,
     feedback: ui.feedback,
     shell: ui.shell,
+    spaces: spaces.entries.filter((entry) => entry.kind === 'space'),
+    prefabs: spaces.entries.filter((entry) => entry.kind === 'prefab'),
     assets,
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
     kits: read.kits,
     ...(read.calendar ? { calendar: read.calendar } : {}),
-    problems: [...read.diagnostics, ...scenes.problems, ...ui.problems],
+    problems: [...read.diagnostics, ...scenes.problems, ...ui.problems, ...spaces.problems],
   };
 }
 
 /** The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music are tables like a project's own (M4.8). */
 const AUDIO_ORDER = [SOUND, AMBIENCE, MUSIC];
 const AUDIO_TYPES: ReadonlySet<string> = new Set(AUDIO_ORDER);
+
+/** The spaces and prefabs, read and checked as the compiler reads and checks them for eb validate (compiler/spaces.ts). */
+async function readSpaceFiles(source: ProjectSource) {
+  const read = await readSpaces(source);
+  const entries = read.files.map((file): SpaceEntry => {
+    const value = file.value as { name?: unknown; objects?: unknown } | undefined;
+    return {
+      kind: file.kind,
+      id: file.id,
+      ...(typeof value?.name === 'string' ? { name: value.name } : {}),
+      ...(Array.isArray(value?.objects) ? { objects: value.objects.length } : {}),
+    };
+  });
+  return { entries, problems: [...read.diagnostics, ...checkProjectSpaces(read.files)] };
+}
 
 /** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, the feedback, the shell, and W132 for the rest. */
 async function readUiFiles(source: ProjectSource) {

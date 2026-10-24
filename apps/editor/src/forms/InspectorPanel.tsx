@@ -2,6 +2,7 @@ import { type Signal, signal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 import { noteError } from '../app/state.ts';
 import { current } from '../projects/opened.ts';
+import { loadSpaces, spacesModule } from '../spaces/load.ts';
 import { chosen } from './selection.ts';
 
 /**
@@ -48,6 +49,7 @@ export function InspectorPanel() {
     else if (pick?.kind === 'script') scripts.load();
     else if (pick?.kind === 'scene') scenes.load();
     else if (pick?.kind === 'ui') screens.load();
+    else if (pick?.kind === 'space') loadSpaces();
     else if (pick) designer.load();
   }, [pick]);
   return (
@@ -102,6 +104,10 @@ function Chosen() {
     ) : (
       <p class="muted">Opening scenes/{pick.id}.ink…</p>
     );
+  }
+  if (pick.kind === 'space') {
+    const ObjectForm = spacesModule.value?.ObjectForm;
+    return ObjectForm ? <ObjectForm key={pick.path} project={project} /> : <p class="muted">Opening {pick.path}…</p>;
   }
   if (pick.kind === 'ui') {
     const ScreenEditor = screens.module.value?.ScreenEditor;

@@ -30,15 +30,29 @@ describe('zones', () => {
       const all = panelsOf(layout);
       expect(new Set(all).size, layout).toBe(all.length);
     }
-    const every = ['assets', 'console', 'inspector', 'logic', 'play', 'problems', 'project', 'records', 'world'];
+    const every = [
+      'assets',
+      'console',
+      'inspector',
+      'logic',
+      'outliner',
+      'play',
+      'problems',
+      'project',
+      'records',
+      'scene',
+      'world',
+    ];
     expect(panelsOf('desktop').sort()).toEqual(every);
     expect(panelsOf('tablet').sort()).toEqual(every);
     // D37: a phone too, five panels on its bar and the rest behind More, which ends it.
     expect(panelsOf('phone').sort()).toEqual(every);
     expect(tabsOf('phone', 'only')).toEqual(['project', 'records', 'assets', 'logic', 'problems', 'more']);
-    expect(MORE.phone).toEqual(['console', 'world', 'play']);
-    expect(tabsOf('tablet', 'main')).toEqual(['records', 'assets', 'world', 'play']);
-    expect(tabsOf('tablet', 'side')).toEqual(['inspector', 'project', 'problems', 'logic']);
+    expect(MORE.phone).toEqual(['console', 'world', 'scene', 'play']);
+    expect(tabsOf('tablet', 'main')).toEqual(['records', 'assets', 'world', 'scene', 'play']);
+    expect(tabsOf('tablet', 'side')).toEqual(['inspector', 'outliner', 'project', 'problems', 'logic']);
+    // D63: a phone's outliner is a tab of the inspector sheet, in no zone.
+    expect(zoneOf('phone', 'outliner')).toBeUndefined();
   });
 
   it('show More’s list, or one of its panels with More’s tab chosen', () => {
@@ -63,8 +77,10 @@ describe('zones', () => {
       'records',
       'assets',
       'world',
+      'scene',
       'play',
       'inspector',
+      'outliner',
       'console',
       'problems',
     ]);
@@ -93,6 +109,8 @@ describe('zones', () => {
     expect(neighbourTab('phone', 'only', 'logic', 1)).toBe('problems');
     expect(neighbourTab('phone', 'only', 'problems', 1)).toBe('more');
     expect(neighbourTab('phone', 'only', 'more', 1)).toBe('project');
-    expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('inspector');
+    // The Inspector and the Outliner share desktop's right zone when the dock can't load (M5.1).
+    expect(neighbourTab('desktop', 'right', 'inspector', 1)).toBe('outliner');
+    expect(neighbourTab('desktop', 'right', 'outliner', 1)).toBe('inspector');
   });
 });

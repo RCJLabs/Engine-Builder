@@ -9,6 +9,11 @@ const PATHS: Record<PanelId, string> = {
   assets:
     'M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5zM4 16l4.5-4.5 4 4 2.5-2.5L20 18M15.5 8a1.5 1.5 0 1 0 0 .01',
   world: 'M12 3 20 7.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
+  // A frame with a box standing in it: the view of a space.
+  scene:
+    'M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5zM8.5 10 12 8l3.5 2v4.5L12 16.5l-3.5-2zM8.5 10 12 12l3.5-2M12 12v4.5',
+  // A list with its rows hung off one line: objects in order.
+  outliner: 'M4 5h4M11 5h9M6 5v12M6 11h3M12 11h8M6 17h3M12 17h8',
   inspector: 'M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4',
   logic: 'M6 4v6a3 3 0 0 0 3 3h6M6 4a2 2 0 1 0 0 .01M18 13a2 2 0 1 0 0 .01M6 20a2 2 0 1 0 0 .01M6 10v8',
   play: 'M8 5.5v13a.5.5 0 0 0 .76.43l10.4-6.5a.5.5 0 0 0 0-.86L8.76 5.07A.5.5 0 0 0 8 5.5z',

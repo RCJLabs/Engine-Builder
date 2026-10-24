@@ -101,6 +101,9 @@ importers:
       preact:
         specifier: 11.0.1
         version: 11.0.1
+      three:
+        specifier: 0.186.1
+        version: 0.186.1
     devDependencies:
       '@babel/core':
         specifier: 7.29.7
@@ -108,6 +111,9 @@ importers:
       '@preact/preset-vite':
         specifier: 2.10.6
         version: 2.10.6(@babel/core@7.29.7)(preact@11.0.1)(rollup@4.64.7)(vite@8.3.4(@types/node@22.20.5)(terser@5.51.2)(yaml@2.9.1))
+      '@types/three':
+        specifier: 0.186.0
+        version: 0.186.0
       fake-indexeddb:
         specifier: 6.2.5
         version: 6.2.5

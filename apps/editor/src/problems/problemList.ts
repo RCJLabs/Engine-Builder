@@ -7,6 +7,7 @@ import {
   ASSETS_LOG,
   classifyRecordFile,
   classifyScene,
+  classifySpaceFile,
   classifyTypeFile,
   classifyUi,
   EXPORT_FILE,
@@ -26,7 +27,10 @@ import { nameIn } from '../records/names.ts';
 import { describePath } from '../records/paths.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 
-/** Where the editor fixes a problem: a record's field, a type, an asset, a script's or a scene's line (M3.2, M3.11), or a panel. */
+/**
+ * Where the editor fixes a problem: a record's field, a type, an asset, a script's or a scene's line
+ * (M3.2, M3.11), a space's or a prefab's object (M5.1), or a panel.
+ */
 export type Place =
   | { readonly kind: 'record'; readonly type: string; readonly id: string; readonly at: string }
   | { readonly kind: 'type'; readonly type: string }
@@ -34,6 +38,7 @@ export type Place =
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'ui'; readonly path: string; readonly line?: number; readonly column?: number }
+  | { readonly kind: 'space'; readonly path: string; readonly object?: number }
   | { readonly kind: 'panel'; readonly panel: 'project' | 'assets' | GuidePanel };
 
 /** The script a file under scripts/ is, or undefined for one the compiler ignores or that is misplaced. */
@@ -48,6 +53,12 @@ const uiOf = (file: string) => {
   if (!file.startsWith(`${UI_DIR}/`)) return undefined;
   const role = classifyUi(file);
   return role.kind === 'ignored' ? undefined : role;
+};
+
+/** What a file under spaces/ or prefabs/ is, when it is a space or a prefab (M5.1). */
+const spaceOf = (file: string) => {
+  const role = classifySpaceFile(file);
+  return role.kind === 'space' || role.kind === 'prefab' ? role : undefined;
 };
 
 /** Where `problem` is fixed, or null for a file the editor has no place for (a misplaced file). */
@@ -78,6 +89,11 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   if (scene?.kind === 'scene') return { kind: 'scene', id: scene.id, ...at };
   const ui = uiOf(file);
   if (ui !== undefined) return { kind: 'ui', path: file, ...at };
+  if (spaceOf(file)) {
+    const [objects, index] = pointerKeys(problem.path);
+    const object = objects === 'objects' && index !== undefined ? Number(index) : Number.NaN;
+    return { kind: 'space', path: file, ...(Number.isInteger(object) ? { object } : {}) };
+  }
   return null;
 }
 
@@ -103,6 +119,8 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
     if (ui.kind === 'shell') return 'Shell (ui/shell.json)';
     return ui.kind === 'feedback' ? 'Feedback (ui/feedback.json)' : `Screen ${ui.id}`;
   }
+  const space = spaceOf(file);
+  if (space) return `${space.kind === 'space' ? 'Space' : 'Prefab'} ${space.id}`;
   if (file === '') return 'The game';
   return file;
 }
