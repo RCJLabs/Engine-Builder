@@ -139,8 +139,8 @@ function Kinds({ project }: { project: OpenProject }) {
       ) : null}
       {componentFiles.length === 0 ? (
         <p class="muted">
-          None of the project’s own yet: the engine’s light, collider, trigger zone, spawn point and sound are there to
-          add. A kind of your own is a set of fields, as a record type is: a loot spot, a climbing hold.
+          None of the project’s own yet: the engine’s light, collider, trigger zone, spawn point, sound and water are
+          there to add. A kind of your own is a set of fields, as a record type is: a loot spot, a climbing hold.
         </p>
       ) : (
         <ul class="logic-list">

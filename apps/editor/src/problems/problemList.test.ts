@@ -2,6 +2,7 @@ import { compileProject, memorySource } from '@eb/compiler';
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
+import { pngOf } from '../../../../packages/compiler/test/png.ts';
 import { readCatalog } from '../forms/catalog.ts';
 import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
 import { NO_SCRIPTS } from '../scripts/gameState.ts';
@@ -15,7 +16,7 @@ const spiculus = () => JSON.parse(ludus()['records/gladiator/spiculus.json'] as 
 const own = { licence: 'own', source: 'Drawn', date: '2026-10-18' };
 
 /** The ludus fixture broken every way the compiler can tell, each file once. */
-function broken(): Record<string, string> {
+function broken(): Record<string, string | Uint8Array> {
   return {
     ...ludus(),
     'project.json': json({ ...JSON.parse(ludus()['project.json'] as string), version: 'one' }),
@@ -61,6 +62,15 @@ function broken(): Record<string, string> {
     'components/light.json': json({ title: 'Light', fields: {} }),
     'components/hold.json': json({ title: 'Hold', fields: { grade: { kind: 'grade' } } }),
     'components/notes.md': 'notes',
+    // M5.3: a terrain whose heights are 8-bit and whose paint is missing, water on a box, and heights
+    // with no space.
+    'spaces/fell.json': json({
+      name: 'Fell',
+      terrain: { size: 65, spacing: 1, low: 0, high: 10, layers: [{ name: 'Grass', color: '#5f8f3e' }] },
+      objects: [{ id: 'tank', shape: 'box', components: { water: {} } }],
+    }),
+    'spaces/fell.heights.png': pngOf(65, 65, 8, 0),
+    'spaces/moor.heights.png': pngOf(65, 65, 16, 0),
     'assets/assets.json': json({
       files: {
         'portraits/spiculus.svg': { ...own, licence: 'CC-BY-NC-4.0' },
@@ -72,7 +82,7 @@ function broken(): Record<string, string> {
   };
 }
 
-async function both(files: Record<string, string>) {
+async function both(files: Record<string, string | Uint8Array>) {
   const source = memorySource(files);
   const catalog = await readCatalog(source);
   const read = await updateIndex(EMPTY_INDEX, source, catalog, null);
@@ -114,6 +124,7 @@ describe('the project’s problems', () => {
       'E064',
       'E065',
       'E066',
+      'E067',
       'W101',
       'W105',
       'W106',
@@ -121,6 +132,8 @@ describe('the project’s problems', () => {
       'W141',
       'W142',
       'W143',
+      'W144',
+      'W145',
     ]);
   });
 
@@ -163,6 +176,9 @@ describe('where each problem is fixed', () => {
       at: '',
     });
     expect(placed('E015', 'types/beast.json')).toEqual({ kind: 'type', type: 'beast' });
+    // A terrain's PNG opens its space (M5.3), and is listed under it.
+    expect(placed('E067', 'spaces/fell.heights.png')).toEqual({ kind: 'space', path: 'spaces/fell.json' });
+    expect(fileTitle('spaces/fell.heights.png', catalog, null)).toBe("Space fell: the terrain's heights");
     // A component kind's opens it in the designer (M5.2); one named as an engine kind is, nowhere else.
     expect(placed('E015', 'components/hold.json')).toEqual({ kind: 'component', id: 'hold' });
     expect(placed('E063')).toEqual({ kind: 'space', path: 'spaces/court.json', object: 0 });
@@ -210,7 +226,17 @@ describe('the panel’s view', () => {
     expect(groups.flatMap((g) => g.problems)).toEqual(editor);
     const shown = (view: Partial<typeof ALL_PROBLEMS>) =>
       shownGroups(groups, { ...ALL_PROBLEMS, ...view }, catalog).flatMap((g) => g.problems.map((p) => p.code));
-    expect(shown({ severity: 'warning' }).sort()).toEqual(['W101', 'W105', 'W106', 'W107', 'W141', 'W142', 'W143']);
+    expect(shown({ severity: 'warning' }).sort()).toEqual([
+      'W101',
+      'W105',
+      'W106',
+      'W107',
+      'W141',
+      'W142',
+      'W143',
+      'W144',
+      'W145',
+    ]);
     expect(shown({ search: 'spiculus might' })).toEqual(['E001']);
     expect(shown({ search: 'E020' })).toEqual(['E020']);
     expect(shown({ search: 'nothing like this' })).toEqual([]);
@@ -223,12 +249,12 @@ describe('the panel’s view', () => {
     const { catalog, index, editor } = await both(broken());
     const counts = countProblems(editor);
     expect(tally(catalog, index)).toEqual(counts);
-    expect(counts.warnings).toBe(7);
-    expect(countsText(counts)).toBe(`${counts.errors} errors and 7 warnings`);
+    expect(counts.warnings).toBe(9);
+    expect(countsText(counts)).toBe(`${counts.errors} errors and 9 warnings`);
     expect(countsText({ errors: 1, warnings: 0 })).toBe('1 error');
     expect(countsText({ errors: 0, warnings: 0 })).toBe('No problems');
     expect(countsText({ errors: 0, warnings: 1 })).toBe('1 warning');
-    expect(badgeText(counts)).toBe(String(counts.errors + 7));
+    expect(badgeText(counts)).toBe(String(counts.errors + 9));
     expect(badgeText({ errors: 0, warnings: 0 })).toBeNull();
     expect(badgeText(null)).toBeNull();
   });

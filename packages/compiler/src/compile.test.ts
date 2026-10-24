@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { eventTypes, facts } from '../../schema/test/events.ts';
 import { sampleTypes } from '../../schema/test/samples.ts';
 import { FIXTURE_V1, readFixture } from '../test/fixture.ts';
+import { pngOf } from '../test/png.ts';
 import { compileProject, memorySource } from './index.ts';
 
 // The v1 fixture's pack hash, which docs/specs/state_hash_oracle.py also computes from the
@@ -618,6 +619,20 @@ describe('the code table', () => {
       }),
       'components/notes.md': '',
     });
+    // M5.3: a terrain without its paint, heights whose space has none, and water on a box.
+    const terrain = { size: 65, spacing: 1, low: 0, high: 10, layers: [{ name: 'Grass', color: '#5f8f3e' }] };
+    const terrained = await compile(
+      changed({
+        'spaces/fell.json': JSON.stringify({
+          name: 'Fell',
+          terrain,
+          objects: [{ id: 'tank', shape: 'box', components: { water: {} } }],
+        }),
+        'spaces/moor.json': JSON.stringify({ name: 'Moor', objects: [] }),
+        'spaces/fell.heights.png': pngOf(65, 65, 16, 0),
+        'spaces/moor.heights.png': pngOf(65, 65, 16, 0),
+      }),
+    );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -635,6 +650,7 @@ describe('the code table', () => {
       guided,
       placed,
       parts,
+      terrained,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

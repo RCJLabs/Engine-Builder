@@ -91,10 +91,12 @@ export function spaceText(space: SpaceJson, layout: JsonLayout = FRESH): string 
       ? '[]'
       : `[${eol}${space.objects.map((o) => `${indent}${indent}${objectLine(o)}`).join(`,${eol}`)}${eol}${indent}]`;
   const others = Object.entries(space)
-    .filter(([key]) => key !== 'name' && key !== 'objects')
+    .filter(([key]) => key !== 'name' && key !== 'terrain' && key !== 'objects')
     .map(([key, value]) => `,${eol}${indent}${JSON.stringify(key)}: ${JSON.stringify(value)}`)
     .join('');
-  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${eol}${indent}"objects": ${objects}${others}${eol}}`;
+  // The terrain's settings (M5.3) on a line of their own, between the name and the objects.
+  const terrain = space.terrain ? `${eol}${indent}"terrain": ${JSON.stringify(space.terrain)},` : '';
+  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${terrain}${eol}${indent}"objects": ${objects}${others}${eol}}`;
   return `${layout.bom ? BOM : ''}${body}${layout.finalNewline ? eol : ''}`;
 }
 

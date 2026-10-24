@@ -3,7 +3,7 @@
  * carry, each a type file as a project's own kinds in components/ are, so a kind's form is drawn
  * and its fields checked as a record's are. Nothing runs them until M5.8, which fills in what a
  * file leaves out: a light is white, of intensity 1 and range 10 m; a collider a still box; a sound
- * plays at volume 1 to 10 m.
+ * plays at volume 1 to 10 m; water is #3a6d8c, of clarity 0.6 (M5.3).
  */
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -56,6 +56,22 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
     description: 'A place the player can arrive at, facing the way the object is turned.',
     fields: {
       start: { kind: 'bool', optional: true, label: 'Start', description: 'Where the space is entered first' },
+    },
+  },
+  // M5.3 (D65): water at a plane's height, as many as a space needs.
+  water: {
+    title: 'Water',
+    description: 'Water at the object, which must be a plane: its top is the surface.',
+    fields: {
+      color: { kind: 'colour', optional: true, label: 'Colour', description: '#3a6d8c when left out' },
+      clarity: {
+        kind: 'number',
+        optional: true,
+        min: 0,
+        max: 1,
+        label: 'Clarity',
+        description: 'How far the eye sees into it, 0 to 1: 0.6 when left out',
+      },
     },
   },
   sound: {

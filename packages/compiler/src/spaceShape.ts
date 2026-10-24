@@ -61,10 +61,35 @@ const objectSchema = z
     }
   });
 
+/** A terrain's vertices a side (M5.3, D65): each a whole number of chunks of CHUNK squares. */
+export const TERRAIN_SIZES = [65, 129, 257, 513] as const;
+/** Squares a side of one chunk, the unit the view's detail is chosen by. */
+export const CHUNK = 32;
+
+const colour = z.string().regex(/^#[0-9a-f]{6}$/i, { error: 'Expected a colour like "#7a8b5c"' });
+
+/** A space's terrain (M5.3, D65): its heights and paint are PNGs beside the space, docs/specs/terrain.md. */
+export const terrainSchema = z
+  .strictObject({
+    size: z
+      .number()
+      .refine((n) => (TERRAIN_SIZES as readonly number[]).includes(n), { error: 'A size is 65, 129, 257 or 513' }),
+    spacing: z.number().min(0.25, { error: 'At least 0.25 m' }).max(16, { error: 'At most 16 m' }),
+    low: z.number(),
+    high: z.number(),
+    layers: z
+      .array(z.strictObject({ name: z.string().min(1).max(40), color: colour }))
+      .min(1, { error: 'A terrain has a layer at least' })
+      .max(4, { error: 'A terrain has 4 layers at most' }),
+  })
+  .refine((t) => t.low < t.high, { error: 'High is above low', path: ['high'] });
+
 export const spaceSchema = z.strictObject({
   name: z.string().min(1).max(80),
+  terrain: terrainSchema.optional(),
   objects: z.array(objectSchema).max(5000),
 });
 
 export type SpaceJson = z.infer<typeof spaceSchema>;
+export type TerrainJson = z.infer<typeof terrainSchema>;
 export type SpaceObject = SpaceJson['objects'][number];

@@ -182,7 +182,7 @@ async function readSpaceFiles(source: ProjectSource) {
       ...(Array.isArray(value?.objects) ? { objects: value.objects.length } : {}),
     };
   });
-  return { entries, problems: [...read.diagnostics, ...checkProjectSpaces(read.files)] };
+  return { entries, problems: [...read.diagnostics, ...checkProjectSpaces(read.files, read.terrains)] };
 }
 
 /** The files under ui/, as the compiler places them (compiler/ui.ts): screens, the theme, the feedback, the shell, and W132 for the rest. */
