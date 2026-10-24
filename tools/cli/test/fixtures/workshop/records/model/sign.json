@@ -1,0 +1,11 @@
+{
+  "name": "Sign",
+  "file": "models/sign.glb",
+  "scale": 2,
+  "collider": {
+    "shape": "capsule",
+    "center": [0, 0.5, 0],
+    "radius": 0.5,
+    "height": 1.2
+  }
+}

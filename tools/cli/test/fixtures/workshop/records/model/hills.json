@@ -1,0 +1,18 @@
+{
+  "name": "Hills",
+  "file": "models/hills.glb",
+  "lod": [
+    {
+      "ratio": 0.5,
+      "from": 15
+    },
+    {
+      "ratio": 0.25,
+      "from": 30
+    }
+  ],
+  "collider": {
+    "shape": "hull",
+    "points": [[5, 0, -2], [11.4, 0, -2], [5, 0, -8.4], [8, 1, -5]]
+  }
+}

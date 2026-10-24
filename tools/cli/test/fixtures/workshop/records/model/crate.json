@@ -1,0 +1,15 @@
+{
+  "name": "Crate",
+  "file": "models/crate.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "oak"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [0, 0.4, 0],
+    "size": [0.84, 0.8, 0.84]
+  }
+}

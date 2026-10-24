@@ -2,23 +2,27 @@
  * The Scene panel's view (M5.1, D8, D63, docs/specs/viewport.md#the-scene-panel): three's
  * WebGPURenderer, on WebGPU where the browser has it and WebGL2 where it doesn't; the editor's
  * light and grid; the camera; picking; the gizmo where the chosen objects are; a space's terrain
- * (M5.3), in terrainView.ts; its environment (M5.4), in environmentView.ts. It draws only when
- * something changes, so a still editor spends nothing on it, unless rain or snow is falling.
+ * (M5.3), in terrainView.ts; its environment (M5.4), in environmentView.ts; its models (M5.5), in
+ * viewModels.ts. It draws only when something changes, so a still editor spends nothing on it,
+ * unless rain or snow is falling.
  */
 
 import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
 import type { Look } from '../environment/look.ts';
+import type { LiveModels } from '../models/liveModels.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView, type EnvironmentSummary } from './environmentView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
+import type { ModelSummary } from './modelsView.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
 import { createTerrainView, type TerrainFiles, type TerrainSummary, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
+import { createViewModels } from './viewModels.ts';
 
 /** How long the gizmo's arms are on screen: a fifth of the view's short side, within these. */
 const GIZMO_PX = { least: 72, most: 120, share: 0.22 } as const;
@@ -42,7 +46,7 @@ export interface View {
   /** Shows the chosen objects where a drag has them, or back where their file has them (null). */
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
-  show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf): void;
+  show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf, models?: LiveModels): void;
   /** A space's environment as the view draws it, or none for the editor's own light (M5.4). */
   showEnvironment(look: Look | null): void;
   /** A space's terrain, or none: a problem in words when its files can't be read. */
@@ -77,6 +81,8 @@ export interface ViewportHook {
   readonly waterAt: (id: string) => number | null;
   /** The sky, light, fog and weather drawn (M5.4), or null for the editor's own. */
   readonly environment: () => EnvironmentSummary | null;
+  /** Each placed object drawn as a model (M5.5): its LOD level, triangles, collider and slots' colours. */
+  readonly models: () => (ModelSummary & { readonly object: string })[];
 }
 
 type Hooked = { __ebViewport?: ViewportHook };
@@ -168,7 +174,14 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     return hit ? builder.idOf(hit.object) : null;
   };
 
+  // show is hoisted: a model whose file finishes decoding builds the view again.
+  const models = createViewModels(renderer, () => {
+    if (shown) show(...shown);
+  });
+  let shown: Parameters<View['show']> | null = null;
+
   const outline = () => {
+    models.wire(chosen.flatMap((id) => built?.byId.get(id) ?? []));
     for (const helper of outlines.children) (helper as THREE.Box3Helper).geometry.dispose();
     outlines.clear();
     for (const id of chosen) {
@@ -197,6 +210,29 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       // Falling weather is drawn every frame; everything else waits to be asked.
       if (environment.animating()) draw();
     });
+  }
+
+  function show(...args: Parameters<View['show']>) {
+    const [space, prefabs, names, live] = args;
+    shown = args;
+    if (built) {
+      scene.remove(built.root);
+      built.dispose();
+    }
+    built = builder.build(space, prefabs, names, models.use(live));
+    scene.add(built.root);
+    labelLayer.replaceChildren();
+    labels = built.labels.map(({ text, at }) => {
+      const box = document.createElement('span');
+      box.className = 'scene-label';
+      box.textContent = text;
+      labelLayer.append(box);
+      return { at, box };
+    });
+    filed = new Map(space.objects.map((o) => [o.id, placedOf(o)]));
+    draft = null;
+    outline();
+    draw();
   }
 
   const placeLabels = () => {
@@ -300,6 +336,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       return opacity;
     },
     environment: () => environment.summary(),
+    models: () => models.summaries(built?.root),
   };
 
   return {
@@ -333,26 +370,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     light(handle) {
       if (gizmo.light(handle)) draw();
     },
-    show(space, prefabs, names) {
-      if (built) {
-        scene.remove(built.root);
-        built.dispose();
-      }
-      built = builder.build(space, prefabs, names);
-      scene.add(built.root);
-      labelLayer.replaceChildren();
-      labels = built.labels.map(({ text, at }) => {
-        const box = document.createElement('span');
-        box.className = 'scene-label';
-        box.textContent = text;
-        labelLayer.append(box);
-        return { at, box };
-      });
-      filed = new Map(space.objects.map((o) => [o.id, placedOf(o)]));
-      draft = null;
-      outline();
-      draw();
-    },
+    show,
     showEnvironment(look) {
       environment.show(look);
       draw();
@@ -404,6 +422,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       gizmo.dispose();
       terrain.dispose();
       environment.dispose();
+      models.dispose();
       grid.dispose();
       renderer.dispose();
     },

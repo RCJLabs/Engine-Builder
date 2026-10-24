@@ -1,8 +1,8 @@
 /**
  * The 3D view of the open space or prefab (M5.1, D63), with three in its chunk: the view made once
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
- * the objects chosen, its terrain the brush chosen (M5.3), its environment drawn (M5.4). Keyed by
- * the file, so another file starts its own view.
+ * the objects chosen, its terrain the brush chosen (M5.3), its environment drawn (M5.4), its placed
+ * records drawn as their models (M5.5). Keyed by the file, so another file starts its own view.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
@@ -12,6 +12,7 @@ import { brushKind, brushNow } from '../terrain/state.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
 import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
+import { lastShown } from './lastShown.ts';
 import type { LiveSpace } from './live.ts';
 import type { SpaceJson } from './spaceFile.ts';
 import {
@@ -40,38 +41,33 @@ export function SceneView(props: {
   terrain?: TerrainFiles;
   /** A space's environment, when it names one. */
   environment?: LiveSpace['environment'];
+  /** What its placed records need to draw as models, when it places any. */
+  models?: LiveSpace['models'];
 }) {
-  const { space, prefabs, names, terrain, environment } = props;
+  const { space, prefabs, names, terrain, environment, models } = props;
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
   const latest = useRef(props);
   latest.current = props;
-  const shown = useRef('');
-  const lit = useRef<string | null>(null);
+  const shown = useRef(lastShown());
+  const lit = useRef(lastShown());
   const [backend, setBackend] = useState<Backend | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [unread, setUnread] = useState<string | null>(null);
 
   const showLatest = () => {
-    const { space: s, prefabs: p, names } = latest.current;
-    // Read again after any change to the project, it is drawn again only when it, a prefab or a
-    // placed record's name changed.
-    const named = s.objects.flatMap((o) => (o.record !== undefined ? [names?.(o.record) ?? ''] : []));
-    const text = JSON.stringify([s, [...p], named]);
-    if (text !== shown.current) {
-      shown.current = text;
-      view.current?.show(s, p, names);
-    }
-    // The terrain's files are compared by the view, which decodes them only when they changed.
     const shownView = view.current;
+    const { space: s, prefabs: p, names, models: m } = latest.current;
+    // Read again after any change to the project, it is drawn again only when it, a prefab, a
+    // placed record's name or what its models are drawn from changed.
+    const named = s.objects.flatMap((o) => (o.record !== undefined ? [names?.(o.record) ?? ''] : []));
+    const text = JSON.stringify([s, [...p], named, m?.key ?? null]);
+    if (shown.current.due(text, shownView !== null)) shownView?.show(s, p, names, m);
+    // The terrain's files are compared by the view, which decodes them only when they changed.
     if (!shownView) return;
     const record = latest.current.environment?.record ?? null;
-    const looks = JSON.stringify(record);
-    if (looks !== lit.current) {
-      lit.current = looks;
-      shownView.showEnvironment(record ? lookOf(record) : null);
-    }
+    if (lit.current.due(JSON.stringify(record), true)) shownView.showEnvironment(record ? lookOf(record) : null);
     setUnread(shownView.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
     groundHeight.value = shownView.terrain.grid() ? shownView.terrain.height : null;
     aim.value = shownView.aim();
@@ -124,7 +120,7 @@ export function SceneView(props: {
     };
   }, []);
 
-  useEffect(showLatest, [space, prefabs, names, terrain, environment]);
+  useEffect(showLatest, [space, prefabs, names, terrain, environment, models]);
   const brush = brushKind.value;
   useEffect(() => {
     if (brush === null) view.current?.terrain.ring(null, 0);

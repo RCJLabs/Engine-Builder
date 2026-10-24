@@ -73,6 +73,9 @@ export const DIAGNOSTIC_CODES = {
   E067: "A terrain's heights or paint file is missing, isn't a PNG, or isn't of its kind and size",
   E068: "An environment's fog starts no nearer than where it is whole: its near isn't below its far",
   E069: "A space names an environment that isn't one of the project's environment records",
+  E070: "A model's file isn't glTF 2.0 the engine can draw: unreadable, an extension it needs that the engine doesn't read, or a file it names that isn't beside it",
+  E071: "A model's LOD levels don't each keep fewer triangles from farther away",
+  E072: "A model's collider lacks the numbers its shape needs, has ones it doesn't use, or has a size that isn't above 0",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -118,6 +121,7 @@ export const DIAGNOSTIC_CODES = {
   W143: 'A file under components/ that the compiler ignores',
   W144: "A terrain's heights or paint file whose space has no terrain",
   W145: "A water component on an object that isn't a plane",
+  W146: "A model's material slot names a material its file doesn't have",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

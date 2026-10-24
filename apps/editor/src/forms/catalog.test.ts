@@ -63,12 +63,24 @@ describe('readCatalog', () => {
       'ambience',
       'music',
       'environment',
+      'material',
+      'model',
       'gladiator',
       'school',
       'weapon',
     ]);
     // The engine's audio types are tables too, after the project's own (M4.8); its flag and sheet live in Logic.
-    expect(catalog.names).toEqual(['gladiator', 'school', 'weapon', 'sound', 'ambience', 'music', 'environment']);
+    expect(catalog.names).toEqual([
+      'gladiator',
+      'school',
+      'weapon',
+      'sound',
+      'ambience',
+      'music',
+      'environment',
+      'material',
+      'model',
+    ]);
     expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
     expect(catalog.assets).toEqual(['portraits/spiculus.svg']);
     expect(catalog.broken.size).toBe(0);
@@ -108,6 +120,8 @@ describe('readCatalog', () => {
       'ambience',
       'music',
       'environment',
+      'material',
+      'model',
       'gladiator',
       'school',
     ]);
@@ -122,6 +136,8 @@ describe('readCatalog', () => {
       'ambience',
       'music',
       'environment',
+      'material',
+      'model',
     ]);
   });
 

@@ -1,23 +1,48 @@
 /**
- * What a 3D model holds, read from its glTF JSON without drawing it (M2.7): the Assets panel
- * shows counts and the files a .gltf needs beside it, since rendering waits for the 3D viewport
- * (Phase 5). A .glb carries its JSON in its first chunk (glTF 2.0, section 4.4).
+ * What a glTF model holds, read from its JSON without decoding a byte of geometry (M2.7, moved here
+ * for M5.5's checks): counts, its materials' names, the extensions it uses and needs, and the files
+ * it names beside itself. A .glb carries its JSON in its first chunk (glTF 2.0, section 4.4).
  */
-import { folderOf } from './assetPaths.ts';
 
-export interface ModelSummary {
+export interface GltfSummary {
   readonly format: 'glb' | 'gltf';
   readonly version: string | undefined;
   readonly meshes: number;
   /** Triangles drawn, over every primitive that draws them: what a phone's budget counts. */
   readonly triangles: number;
   readonly materials: number;
+  /** Each material's slot name, in order: its name, or "#0", "#1"… for one without (docs/specs/models.md). */
+  readonly slots: readonly string[];
   readonly textures: number;
   readonly animations: number;
   readonly nodes: number;
+  readonly extensionsUsed: readonly string[];
+  readonly extensionsRequired: readonly string[];
   /** Files it names beside itself (buffers and images), by path inside assets/, and whether each is there. */
   readonly external: readonly { readonly path: string; readonly found: boolean }[];
 }
+
+/**
+ * The extensions the engine draws, as three's GLTFLoader reads them and the import's reader does
+ * (docs/specs/models.md#the-checks). One a file requires that isn't here is E070.
+ */
+export const READ_EXTENSIONS: readonly string[] = Object.freeze([
+  'KHR_draco_mesh_compression',
+  'EXT_meshopt_compression',
+  'KHR_mesh_quantization',
+  'KHR_texture_basisu',
+  'KHR_texture_transform',
+  'EXT_texture_webp',
+  'KHR_materials_emissive_strength',
+  'KHR_materials_unlit',
+  'KHR_materials_ior',
+  'KHR_materials_specular',
+  'KHR_materials_transmission',
+  'KHR_materials_clearcoat',
+  'KHR_materials_sheen',
+  'KHR_materials_volume',
+  'KHR_lights_punctual',
+]);
 
 const GLB_MAGIC = 0x46546c67; // "glTF"
 const JSON_CHUNK = 0x4e4f534a; // "JSON"
@@ -26,9 +51,10 @@ type Json = Record<string, unknown>;
 const isObject = (value: unknown): value is Json =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+const texts = (value: unknown): string[] => list(value).filter((v): v is string => typeof v === 'string');
 
 /** The JSON a model holds, or why it can't be read. */
-function modelJson(format: 'glb' | 'gltf', bytes: Uint8Array): Json | string {
+export function gltfJson(format: 'glb' | 'gltf', bytes: Uint8Array): Json | string {
   let text: string;
   if (format === 'glb') {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -76,10 +102,14 @@ function resolve(folder: string, uri: string): string | null {
   return parts.join('/');
 }
 
+/** A material's slot name: its name when it has one, else "#" and its index. */
+export const slotName = (material: unknown, index: number): string =>
+  isObject(material) && typeof material.name === 'string' && material.name !== '' ? material.name : `#${index}`;
+
 /** The summary of the model at `path` (inside assets/), or why it can't be read. */
-export function modelSummary(path: string, bytes: Uint8Array, assets: ReadonlySet<string>): ModelSummary | string {
+export function gltfSummary(path: string, bytes: Uint8Array, assets: ReadonlySet<string>): GltfSummary | string {
   const format = path.toLowerCase().endsWith('.glb') ? 'glb' : 'gltf';
-  const json = modelJson(format, bytes);
+  const json = gltfJson(format, bytes);
   if (typeof json === 'string') return json;
   const accessors = list(json.accessors);
   const meshes = list(json.meshes);
@@ -91,20 +121,40 @@ export function modelSummary(path: string, bytes: Uint8Array, assets: ReadonlySe
   const uris = [...list(json.buffers), ...list(json.images)]
     .map((item) => (isObject(item) && typeof item.uri === 'string' ? item.uri : null))
     .filter((uri): uri is string => uri !== null && !uri.startsWith('data:'));
+  const folder = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '';
   const external = uris.map((uri) => {
-    const resolved = resolve(folderOf(path), uri);
+    const resolved = resolve(folder, uri);
     return { path: resolved ?? uri, found: resolved !== null && assets.has(resolved) };
   });
   const asset = isObject(json.asset) ? json.asset : {};
+  const materials = list(json.materials);
   return {
     format,
     version: typeof asset.version === 'string' ? asset.version : undefined,
     meshes: meshes.length,
     triangles,
-    materials: list(json.materials).length,
+    materials: materials.length,
+    slots: materials.map(slotName),
     textures: list(json.textures).length,
     animations: list(json.animations).length,
     nodes: list(json.nodes).length,
+    extensionsUsed: texts(json.extensionsUsed),
+    extensionsRequired: texts(json.extensionsRequired),
     external,
   };
+}
+
+/** Why the engine can't draw a model, from its summary: nothing when it can (E070's messages). */
+export function gltfProblems(summary: GltfSummary | string): string[] {
+  if (typeof summary === 'string') return [summary];
+  const problems: string[] = [];
+  if (summary.version === undefined || !/^2\.\d+$/.test(summary.version))
+    problems.push(`It is glTF ${summary.version ?? 'of no version'}: the engine reads glTF 2.0`);
+  for (const name of summary.extensionsRequired) {
+    if (!READ_EXTENSIONS.includes(name)) problems.push(`It needs ${name}, which the engine doesn’t read`);
+  }
+  for (const file of summary.external) {
+    if (!file.found) problems.push(`It names assets/${file.path}, which isn’t there`);
+  }
+  return problems;
 }

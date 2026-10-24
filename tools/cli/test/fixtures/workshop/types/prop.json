@@ -1,0 +1,14 @@
+{
+  "title": "Prop",
+  "nameField": "name",
+  "fields": {
+    "name": {
+      "kind": "text"
+    },
+    "look": {
+      "kind": "ref",
+      "to": "model",
+      "label": "Drawn as"
+    }
+  }
+}

@@ -13,7 +13,8 @@
       "!**/node_modules",
       "!tools/lint-boundaries/fixtures",
       "!games/*/source",
-      "!games/*/records"
+      "!games/*/records",
+      "!starter-kit"
     ]
   },
   "formatter": {

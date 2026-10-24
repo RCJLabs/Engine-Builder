@@ -1,0 +1,24 @@
+{
+  "name": "Pine",
+  "file": "starter-kit/pine.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    },
+    {
+      "slot": "leaves",
+      "material": "kit-leaves"
+    }
+  ],
+  "collider": {
+    "shape": "capsule",
+    "center": [
+      0,
+      1.65,
+      0
+    ],
+    "radius": 0.9,
+    "height": 3.5
+  }
+}

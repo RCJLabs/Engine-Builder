@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { eventTypes, facts } from '../../schema/test/events.ts';
 import { sampleTypes } from '../../schema/test/samples.ts';
 import { FIXTURE_V1, readFixture } from '../test/fixture.ts';
+import { glb } from '../test/glb.ts';
 import { pngOf } from '../test/png.ts';
 import { compileProject, memorySource } from './index.ts';
 
@@ -638,6 +639,26 @@ describe('the code table', () => {
       'records/environment/murk.json': JSON.stringify({ fog: { color: '#808080', near: 50, far: 50 } }),
       'spaces/cave.json': JSON.stringify({ name: 'Cave', environment: 'gloom', objects: [] }),
     });
+    // M5.5: a model whose file is glTF 1, LOD levels out of order, a box with no size, and a slot its file lacks.
+    const modelled = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'yard', name: 'Yard', version: '0.1.0' }),
+        'assets/crate.glb': glb({ asset: { version: '2.0' }, materials: [{ name: 'wood' }] }),
+        'assets/old.glb': glb({ asset: { version: '1.0' } }),
+        'records/material/oak.json': '{}',
+        'records/model/old.json': JSON.stringify({ file: 'old.glb' }),
+        'records/model/crate.json': JSON.stringify({
+          file: 'crate.glb',
+          materials: [{ slot: 'iron', material: 'oak' }],
+          lod: [
+            { ratio: 0.5, from: 20 },
+            { ratio: 0.6, from: 30 },
+          ],
+          collider: { shape: 'box', center: [0, 0, 0] },
+        }),
+      }),
+      [],
+    );
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -657,6 +678,7 @@ describe('the code table', () => {
       parts,
       terrained,
       environed,
+      modelled,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

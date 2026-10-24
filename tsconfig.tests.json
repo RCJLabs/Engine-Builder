@@ -13,6 +13,8 @@
     "apps/editor/e2e/**/*.ts",
     "apps/editor/test/styles.d.ts",
     "apps/editor/test/vite.d.ts",
+    "packages/models/test/draco3d.d.ts",
+    "packages/models/test/ktx-parse.d.ts",
     "packages/ui/src/audio/zzfx-package.d.ts",
     "playwright.config.ts",
     "vitest.config.ts"

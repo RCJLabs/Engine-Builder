@@ -118,7 +118,7 @@ function refresher(copy: WorkingCopy): Refresh {
       const { EMPTY_INDEX, updateIndex } = await loadIndex();
       const checks = gameChecks(game);
       const updated = await updateIndex(open.index ?? EMPTY_INDEX, copy, catalog, open.index ? paths : null, checks);
-      const { screenProblems, exportProblems, guideProblems, spaceProblems } = await loadScreenChecks();
+      const { screenProblems, exportProblems, guideProblems, spaceProblems, modelProblems } = await loadScreenChecks();
       const spaced = await spaceProblems(copy, catalog, updated, game);
       const index = {
         ...updated,
@@ -127,6 +127,7 @@ function refresher(copy: WorkingCopy): Refresh {
         guide: await guideProblems(copy),
         spaces: spaced.problems,
         spaceUsers: spaced.users,
+        models: await modelProblems(copy, catalog, updated),
       };
       open = current.value;
       if (open?.source !== copy) return false;

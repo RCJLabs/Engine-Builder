@@ -1,6 +1,7 @@
 /**
- * What an import will do before it does it (M2.7): where each file goes, which are refused, and
- * whether the import as a whole can go, by the limits a save can carry (media.ts).
+ * What an import will do before it does it (M2.7): where each file goes and which are refused, by
+ * the limits a save can carry (media.ts). Whether the import as a whole can go is pickBlocked's,
+ * with the models in it (models/modelImport.ts, M5.5).
  */
 import { kindOfAsset } from '@eb/schema';
 import { freePath, KIND_FOLDERS } from './assetPaths.ts';
@@ -38,14 +39,4 @@ export function planImport<F extends Chosen>(
       file.size > LIMITS.file ? `Too big: ${sizeText(file.size)}, and the most is ${sizeText(LIMITS.file)}` : null;
     return { file, path, refused };
   });
-}
-
-/** Why the import as a whole can't go, or null when it can: nothing left to import, or too much at once. */
-export function importBlocked(planned: readonly Planned[]): string | null {
-  const taken = planned.filter((p) => p.refused === null);
-  const total = taken.reduce((sum, p) => sum + p.file.size, 0);
-  if (taken.length === 0) return 'None of these files can be imported.';
-  return total > LIMITS.batch
-    ? `These come to ${sizeText(total)}, and the most at once is ${sizeText(LIMITS.batch)}: import fewer.`
-    : null;
 }

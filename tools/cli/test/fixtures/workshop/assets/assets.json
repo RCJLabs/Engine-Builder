@@ -1,0 +1,21 @@
+{
+  "files": {
+    "models/crate.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "The starter kit's crate, in this repo",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "models/hills.glb": {
+      "licence": "own",
+      "source": "Made in code for the workshop fixture, its geometry in Draco",
+      "date": "2026-10-24"
+    },
+    "models/sign.glb": {
+      "licence": "own",
+      "source": "Made in code for the workshop fixture, its texture a KTX2",
+      "date": "2026-10-24"
+    }
+  }
+}

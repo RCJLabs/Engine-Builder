@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { pickBlocked } from '../models/modelImport.ts';
 import { entryProblems, entryWith } from './entries.ts';
-import { importBlocked, planImport } from './importPlan.ts';
+import { type Planned, planImport } from './importPlan.ts';
 import { LIMITS } from './media.ts';
 import { keptEntry, replacementPath, replaceProblem } from './replacing.ts';
 
 const MB = 1024 * 1024;
+const importBlocked = (others: readonly Planned[]) => pickBlocked({ models: [], others });
 const said = (entry: unknown, paths: string[], tried: boolean) =>
   entryProblems(entry, paths, tried).map((p) => `${p.code} ${p.path}: ${p.message}`);
 

@@ -89,6 +89,32 @@ export {
   SHOP_TYPE_FILE,
 } from './kitTypes.ts';
 export { ENGINE_EVENTS, ENGINE_FACTS, type Known, type KnownOptions, knownFrom } from './known.ts';
+export {
+  MATERIAL,
+  MATERIAL_DATA,
+  MATERIAL_DEFAULTS,
+  MATERIAL_PRESETS,
+  MATERIAL_TYPE_FILE,
+  type MaterialPreset,
+  type MaterialRecord,
+} from './materialTypes.ts';
+export {
+  COLLIDER_NEEDS,
+  COLLIDER_SHAPES,
+  type ColliderShape,
+  checkModel,
+  HULL_LEAST,
+  HULL_MOST,
+  LOD_MOST,
+  type LodLevel,
+  MODEL,
+  MODEL_DATA,
+  MODEL_TYPE_FILE,
+  type ModelCollider,
+  type ModelRecord,
+  type ModelSlot,
+  type Vec3,
+} from './modelTypes.ts';
 export { packValue } from './packValue.ts';
 export {
   checkProvenance,

@@ -1,6 +1,6 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
-import { type DataType, type Diagnostic, ENVIRONMENT, slotScope } from '@eb/schema';
+import { type DataType, type Diagnostic, ENVIRONMENT, MATERIAL, MODEL, slotScope } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
@@ -11,6 +11,9 @@ import { FightPreview } from '../encounters/FightPreview.tsx';
 import { EnvironmentStart } from '../environment/EnvironmentStart.tsx';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import { MapPreview } from '../maps/MapPreview.tsx';
+import { modelFileProblems } from '../models/fileProblems.ts';
+import { MaterialStart } from '../models/MaterialStart.tsx';
+import { ModelHead } from '../models/ModelHead.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { QuestMap } from '../quests/QuestMap.tsx';
 import { duplicateRecord } from '../records/actions.ts';
@@ -163,7 +166,11 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   }, [focusing, file]);
   const canEdit = editing.access.value.kind === 'editing';
   const index = project.index ?? undefined;
-  const diagnostics = useMemo(() => checkRecord(catalog, type, id, value, index), [catalog, type, id, value, index]);
+  // A model's file is read once the index is (M5.5): its problems join the form's own.
+  const diagnostics = useMemo(
+    () => [...checkRecord(catalog, type, id, value, index), ...modelFileProblems(index, type, id)],
+    [catalog, type, id, value, index],
+  );
   const routed = useMemo(
     () => routeProblems(diagnostics, fieldPointers(typeFile, value)),
     [diagnostics, typeFile, value],
@@ -228,6 +235,9 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         ) : null}
         {/* An environment starts from a preset (M5.4). */}
         {type === ENVIRONMENT ? <EnvironmentStart /> : null}
+        {/* A material starts from a preset; a model shows its file's facts, slots and Fit collider (M5.5). */}
+        {type === MATERIAL ? <MaterialStart /> : null}
+        {type === MODEL ? <ModelHead project={project} value={value} /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

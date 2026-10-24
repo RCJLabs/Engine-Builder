@@ -19,6 +19,7 @@ import { FlagChecks } from './flagCheck.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
 import { knownFrom } from './known.ts';
+import { checkModel, MODEL, type ModelRecord } from './modelTypes.ts';
 import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
@@ -164,6 +165,7 @@ export function validateRecords(
       checkCounts(record.value as QuestRecord, { ...ctx, heard }, slotsAt);
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
+    if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);

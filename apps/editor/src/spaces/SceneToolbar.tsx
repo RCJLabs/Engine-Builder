@@ -4,6 +4,7 @@
  * terrain tools (M5.3). Every button is 44 px; on a phone the bar wraps rather than scrolls.
  */
 import { SHAPES, spacePath } from '@eb/compiler';
+import { MODEL } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { Picker } from '../forms/Picker.tsx';
@@ -132,9 +133,12 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
   );
 }
 
-/** What Add puts down: a shape, a placement of a prefab that doesn't place the file open (E061), or a record (M5.2). */
+/**
+ * What Add puts down: a shape, a placement of a prefab that doesn't place the file open (E061), a
+ * record (M5.2), or a model record, the records that draw as themselves (M5.5).
+ */
 function AddRow({ project, done }: { project: OpenProject; done: () => void }) {
-  const [choosing, setChoosing] = useState(false);
+  const [choosing, setChoosing] = useState<'record' | 'model' | null>(null);
   const open = openSpace.value;
   const now = liveOf(open);
   const prefabs = [...(now?.prefabs ?? new Map())].filter(
@@ -157,24 +161,31 @@ function AddRow({ project, done }: { project: OpenProject; done: () => void }) {
           {nameOf({ id, name: prefab.name, prefab: id })}
         </button>
       ))}
-      <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing(true)}>
+      <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing('model')}>
+        Model…
+      </button>
+      <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing('record')}>
         Record…
       </button>
       {choosing ? (
         <Picker
-          title="Place a record"
+          title={choosing === 'model' ? 'Place a model' : 'Place a record'}
           choices={refChoices(
-            { kind: 'ref', to: [...project.catalog.records.keys()].sort() },
+            { kind: 'ref', to: choosing === 'model' ? [MODEL] : [...project.catalog.records.keys()].sort() },
             project.catalog.records,
             namesOf(project.index, project.catalog),
           )}
           current=""
-          empty="The project has no records yet: make one in the Records panel, then place it here."
+          empty={
+            choosing === 'model'
+              ? 'The project has no models yet: import a .glb or .gltf in the Assets panel, then place it here.'
+              : 'The project has no records yet: make one in the Records panel, then place it here.'
+          }
           choose={(record) => {
-            setChoosing(false);
+            setChoosing(null);
             add({ record });
           }}
-          close={() => setChoosing(false)}
+          close={() => setChoosing(null)}
         />
       ) : null}
     </fieldset>

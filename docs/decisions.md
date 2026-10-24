@@ -1756,6 +1756,55 @@ Evan chose on 2026-10-24, from these options:
 - **The physical sky's real cost is `three/tsl`:** 105 kB of the view's chunk (29 kB gzip), against SkyMesh's own 3.6 kB, and no chunk of its own avoids it, since the namespace stays in three's module (Readings). In software its shader costs about 25 to 30 ms a frame over a flat colour. If a phone finds either dear, M5.7 can work Preetham's sky out per vertex on the gradient's sphere, with neither.
 - **Untested for feel** until a phone draws a sky.
 
+### D67. M5.5 reads Draco, Meshopt and KTX2 and packs geometry with Meshopt on import; a model and a material are records; the starter kit is made by a script here and dedicated to CC0; M5.5 is proved by machine. LOCKED, 2026-10-24 (Evan's calls, M5.5)
+
+Evan chose on 2026-10-24, from these options:
+- **Scope:**
+  - read all three: Draco and Meshopt geometry and KTX2 textures, decoded by three's own decoders offline; a model's geometry compressed with Meshopt as it is imported; KTX2 textures come in ready-made, with no texture encoder in the editor; LOD by meshoptimizer's simplifier, three levels; colliders fitted as a box, a sphere, a capsule or a convex hull;
+  - read all three but keep models as imported, compressed outside with gltf-transform;
+  - read all three and encode both, KTX2 textures from PNG and JPG in the editor too, a lazy download of roughly 1.5 to 3 MB.
+- **Storage:**
+  - engine record types, as `environment` is: a `model` record names its file and holds its scale, material slots, LOD and collider; a `material` record with Start from presets; a space places a model record and draws its mesh, and a record of another type can name a model to be drawn as it;
+  - a settings file beside the model, a new kind of object that places an asset, and presets as a fixed list;
+  - the settings in the provenance log's entry.
+- **Starter kit:**
+  - about 20 low-poly pieces made by a script in this repo, flat-coloured with the material presets, dedicated by RCJLabs to CC0;
+  - a Kenney or Quaternius pack Evan downloads (their sites are blocked from Claude's container);
+  - the scripted kit now and a pack later.
+- **The gate:**
+  - by machine: an e2e on desktop and by touch at 360, 390 and sideways imports a Draco GLB, a Meshopt GLB and one with KTX2 textures, sets a material preset, makes LOD and a collider, places the model in a space, reads it back through the view's hook (triangles drawn near and far, the collider's shape), adds the starter kit, then reloads; a fixture held to `eb validate`; decode times and sizes readings only;
+  - the same, plus a screenshot of each starter-kit piece;
+  - the same, then Evan's phone before M5.6.
+
+**Decision.**
+- **The editor reads every compression a glTF file is likely to carry.** Draco and Meshopt geometry and KTX2 (Basis Universal) textures are decoded by the decoders three ships, kept in the editor's own files and its offline cache, never fetched.
+- **Import packs geometry with Meshopt.** A `.glb` or `.gltf` and the files beside it come in as one `.glb`, its geometry quantised and compressed by meshoptimizer, its textures as they came. A KTX2 texture is kept; a PNG or JPG is not turned into one.
+- **A model and a material are records.** The engine's `model` type names its file and holds its scale, which material record each of the file's materials is drawn with, its LOD levels and its collider. The engine's `material` type is a colour, roughness, metalness, glow and opacity, with presets Start from writes, as environments have. A space places a model record and draws its mesh; a record of another type whose type has a field naming a model is drawn as that model.
+- **LOD is worked out, not stored.** A model's levels are ratios of its triangles and the distances they start at; the view makes each level with meshoptimizer's simplifier, which gives the same mesh for the same file and ratio.
+- **A collider is fitted, then kept as numbers.** Fit collider in the model's form measures the mesh for a box, a sphere, a capsule or a convex hull of at most 64 points, written into the record, so M5.8's physics reads numbers and not meshes.
+- **The starter kit is the engine's own.** A script in this repo writes about 20 low-poly pieces and their model and material records, each piece's provenance naming the script and the CC0 dedication. The editor bundles the kit offline; Add starter kit copies it into a project.
+- **The gate is by machine.** As the options above say.
+
+**Why.**
+- **Scope:** files from Blender, Sketchfab or a kit come compressed every way; reading them all costs no code of ours, only three's decoders. Meshopt packs geometry about as well as Draco and decodes far faster on a phone. A texture encoder in the browser would be the largest thing the editor carries, and slow on the phones it is for.
+- **Storage:** records reuse M2's forms, checks, renames and used-by, as environments did; one crate model drawn in fifty places is one record. A file beside the asset would need its own editor; the provenance log is where a file came from, not how it is drawn.
+- **Starter kit:** it can be made here, offline, and rebuilt byte for byte, and its provenance is exact. A professional pack looks better and can follow, held to the same checks.
+- **Gate:** as for M5.1 to M5.4, the editor is the product, so the gate builds in it.
+
+**Cost.**
+- **The decoders are large:** about 0.85 MB of wasm and glue on disk (Draco's 286 kB, Basis's 527 kB, Meshopt's 29 kB), loaded only when a model is drawn but kept in the offline cache.
+- **LOD is worked out each time a model is drawn,** in the editor now and in a game from M5.8. If that is dear on a phone, M5.7 can bake the levels into the export.
+- **The kit is plain:** flat colours on simple shapes.
+
+**As built** (2026-10-24, M5.5):
+- **Meshopt doesn't pack as small as Draco until both are gzipped.** On the test's hills (2,048 triangles) Draco is 6.3 KB and the packed GLB 12.6 KB; gzipped, 4.9 KB and 5.7 KB. On a grid of 8,192 triangles, 16.7 KB and 37.9 KB; gzipped, 14.1 KB and 15.6 KB. A file that came in as Draco packs worse than one that came in plain (7.2 KB gzipped for the hills), since Draco's own rounding and order go into it. The Why above holds over a gzipped download, not on disk (Readings; models.md question 7).
+- **Packing reorders for the vertex cache** with meshoptimizer's `reorderMesh`, as gltfpack does, which also helps Meshopt's coder; positions are quantised inside each mesh's bounds, carried by a node of its own beneath each node that draws it, as gltfpack does.
+- **The starter kit is a project folder,** its log `assets/assets.json` rather than the spec's first `provenance.json`, so `eb validate` holds it to no problems and Add starter kit merges a log the compiler already reads. Twenty pieces, about 60 kB of GLBs, a 97 kB chunk of the editor's (18 kB gzip) that loads only when Add starter kit is pressed.
+- **No test reads a Basis-compressed KTX2:** the repo has no Basis encoder, so the gate's KTX2 is the uncompressed RGBA8 form, which three's KTX2Loader reads without the transcoder. The transcoder is bundled and precached but untested (models.md question 6).
+- **The view's models are drawn as they are decoded:** a placement draws M5.2's marker until its file is ready, and the view is built again when it is. Writing that found a race from M5.1: what the view was shown before it existed never reached it, so a space whose props all arrived while three's view was being made stayed blank until something changed. No e2e loses the race, so the rule is a plain function with a unit test (`spaces/lastShown.ts`).
+- **three's DRACOLoader names its own decoders,** so the build shipped and the service worker precached an asm.js fallback and the glTF build's wasm, 948 KiB the editor never fetches. A build plugin blanks those names, since the view always gives the loader its files, and fails the build if three names others.
+- **Untested for feel and on a phone:** no phone has decoded a model, cut a LOD level or drawn the kit.
+
 ---
 
 ## Open

@@ -66,10 +66,33 @@ function gameRuntime(): Plugin {
   };
 }
 
+/**
+ * three's DRACOLoader names its own decoder files with `new URL`, so Vite would ship them all and
+ * the service worker precache them: the asm.js fallback (719 kB) and the glTF build's wrapper and
+ * wasm (250 kB), none of them ever fetched. The view always gives the loader its decoder's files
+ * (src/spaces/modelsView.ts), so the loader's own names are blanked (M5.5). Five names are
+ * expected: a three that names others fails the build here rather than shipping them unseen.
+ */
+function dracoDefaultsOff(): Plugin {
+  const named = /new URL\( '\.\.\/libs\/draco\/[^']+', import\.meta\.url \)\.toString\(\)/g;
+  return {
+    name: 'eb-draco-defaults-off',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!id.endsWith('/three/examples/jsm/loaders/DRACOLoader.js')) return null;
+      const found = code.match(named)?.length ?? 0;
+      if (found !== 5) this.error(`three's DRACOLoader names ${found} decoder files, not 5`);
+      return { code: code.replace(named, "''"), map: null };
+    },
+  };
+}
+
 export default defineConfig(({ command, isPreview }) => ({
   // Dev serves from `/`; the build and `vite preview` (which serves the build) use BASE.
   base: command === 'build' || isPreview ? BASE : '/',
   define: { __EB_BUILD__: JSON.stringify(build) },
+  // The starter kit's models (M5.5), inlined into its own chunk: Vite knows no .glb by itself.
+  assetsInclude: ['**/*.glb'],
   // The player page (M4.1) is a page of the editor's own build, so the service worker precaches
   // it with the rest and an exported game plays offline at /play/.
   build: {
@@ -82,6 +105,7 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   plugins: [
     preact(),
+    dracoDefaultsOff(),
     versionFile(),
     gameRuntime(),
     VitePWA({
@@ -108,8 +132,9 @@ export default defineConfig(({ command, isPreview }) => ({
         ],
       },
       workbox: {
-        // runtime/files.json too: Export reads it to find the game runtime's files (M4.10).
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'runtime/files.json'],
+        // runtime/files.json too: Export reads it to find the game runtime's files (M4.10). The wasm
+        // is three's Draco and Basis decoders, for models offline (M5.5, D67).
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,wasm}', 'runtime/files.json'],
         // The editor had rcjlabs.github.io's origin, shared with the games, before it moved to
         // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',

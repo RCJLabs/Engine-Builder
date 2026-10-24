@@ -67,20 +67,30 @@ export interface Incoming {
   readonly bytes: Uint8Array;
 }
 
-/** Files imported, each with the same provenance: one step. */
-export async function importAssets(
+/** Files imported, each with its own provenance: one step. A packed model's says it was (M5.5). */
+export async function importEntered(
   source: ProjectSource,
-  files: readonly Incoming[],
-  entry: Provenance,
+  files: readonly (Incoming & { readonly entry: Provenance })[],
 ): Promise<FileChange[]> {
   await mustBeFree(
     source,
     files.map((file) => file.path),
   );
   const made = files.map((file) => ({ path: assetFile(file.path), before: null, after: file.bytes }));
-  const log = await logChange(source, (now) => files.reduce((acc, file) => withEntry(acc, file.path, entry), now));
+  const log = await logChange(source, (now) => files.reduce((acc, file) => withEntry(acc, file.path, file.entry), now));
   return [...made, ...log];
 }
+
+/** Files imported, each with the same provenance: one step. */
+export const importAssets = (
+  source: ProjectSource,
+  files: readonly Incoming[],
+  entry: Provenance,
+): Promise<FileChange[]> =>
+  importEntered(
+    source,
+    files.map((file) => ({ ...file, entry })),
+  );
 
 /** Entries for files already in assets/, each with the same provenance: for files added by hand or by zip. */
 export const logProvenance = (source: ProjectSource, paths: readonly string[], entry: Provenance) =>

@@ -53,6 +53,7 @@ pnpm eb export <project> --target web|file|itch|repo [--out <path>] [--edition <
 pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the repository, committed with your git
 pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
+pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -116,6 +117,15 @@ apps/editor/           the editor PWA
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
                        check), standIn.ts, modelSummary.ts, the panel (AssetsPanel, AssetBrowser, AssetTile) and the
                        inspector's view (AssetInspector, AssetHead, AssetPreview, ProvenanceFields)
+  src/models/          models in the editor (M5.5, D67): modelImport.ts (a pick's models, the files a .gltf names,
+                       their GLBs' paths, a model's first record) and modelEdits.ts (the import's file changes) as
+                       plain functions; the model worker (model.worker.ts, protocol.ts, modelWorker.ts: packing with
+                       @eb/models and Fit collider off the page, Draco from three's own copy); actions.ts (the import,
+                       Add starter kit); placedModels.ts (which placements draw as models, through prefabs and
+                       overrides) and liveModels.ts (what they need, read and hashed for the space's live copy);
+                       modelForm.ts, ModelHead and FitCollider above a model's form, MaterialStart above a
+                       material's; kitEdits.ts and starterKit.ts (the kit, bundled as a lazy chunk);
+                       fileProblems.ts and modelChecks.ts (E070 and W146 in the editor)
   src/play/            the Play panel (M4.1, D51): PlayPanel, and the lazy PlayView (the game played inside @eb/ui's
                        play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, its
                        template chosen in NewScreen.tsx (M4.4), New theme, New feedback, New shell); jobs.ts (a
@@ -155,7 +165,13 @@ apps/editor/           the editor PWA
                        reads a space's terrain files, build.ts draws water; M5.4 (D66): environmentView.ts (with
                        three: the lights and fog, the hook's environment(), read back from three), skyView.ts (three's
                        SkyMesh, a gradient sphere with the sun's disc, or a colour) and weatherView.ts (rain as
-                       lines, snow as one mesh drawn many times); live.ts reads a space's environment record
+                       lines, snow as one mesh drawn many times); live.ts reads a space's environment record; M5.5
+                       (D67): modelsView.ts (with three, a chunk of its own loaded with the first model: GLTFLoader and
+                       its Draco, Meshopt and KTX2 decoders, a placement drawn as its model, the hook's summary),
+                       modelParts.ts (materials, slots, LOD levels cut by the simplifier, the collider's wire) and
+                       viewModels.ts (the view's side: the lazy load, a rebuild when a file is decoded, wires on the
+                       chosen, window.__ebViewport.models()); live.ts reads what its models need; Add → Model…;
+                       lastShown.ts (what the view was last shown, kept only once there is a view)
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -257,7 +273,10 @@ apps/editor/           the editor PWA
                        kept, by mouse and keys and by touch, through window.__ebViewport;
                        environmentHelpers.ts, environments.spec.ts and environmentsPhone.spec.ts are M5.4's, an
                        environment from each preset, its hour, fog and weather, read through window.__ebViewport
-                       and the canvas's own pixels, and kept, by mouse and keys and by touch
+                       and the canvas's own pixels, and kept, by mouse and keys and by touch; modelHelpers.ts,
+                       models.spec.ts and modelsPhone.spec.ts are M5.5's, a Draco, a Meshopt and a KTX2-textured
+                       model imported, a material on a slot, LOD and a collider made, placed and read back through
+                       window.__ebViewport near and far, the starter kit added, and kept, by mouse and keys and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -312,7 +331,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        listCheck.ts (a list's checks: its source's kit, a codex's fields, an offered list's takes,
                        E049); M5.2: componentTypes.ts (the engine's component kinds as type files: five, and water
                        since M5.3); M5.4: environmentTypes.ts (environment, an engine
-                       type, in ENGINE_DATA: E068); not pure
+                       type, in ENGINE_DATA: E068); M5.5: materialTypes.ts (material, its presets) and
+                       modelTypes.ts (model: its file, scale, slots, LOD and collider; E071, E072), engine types in
+                       ENGINE_DATA; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -336,7 +357,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        E066, W142, and the uses "used by" lists); M5.3: a space's terrain in spaceShape.ts (E058),
                        its PNGs in spaceFiles.ts and terrains.ts (headers only: E067, W144), water off a plane in
                        spaceLints.ts (W145, beside W142); M5.4: a space's environment in spaceShape.ts (E058 in a
-                       prefab) and spaceParts.ts (E069, and a use for "used by"); not pure
+                       prefab) and spaceParts.ts (E069, and a use for "used by"); M5.5: gltf.ts (a glTF's JSON read
+                       for its counts, materials, extensions and files beside it, moved from the editor) and
+                       models.ts (each model record's file: E070, W146); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -401,6 +424,12 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
                        ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css)
+packages/models/       3D models (M5.5, D67), not pure, in the browser and in Node: io.ts (gltf-transform's reader and
+                       writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
+                       (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
+                       quantize.ts, Meshopt), colliders.ts (box, sphere, capsule as arithmetic), hull.ts (three's
+                       ConvexHull, at most 64 points), lod.ts (meshoptimizer's simplifier); test/shapes.ts (models
+                       made in code, Draco, Meshopt and a KTX2 sign), models-bench.ts
 packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the web build, the single file, the
                        itch.io zip, the repository), html.ts (the page, its boot JSON escaped), sw.ts (the service
                        worker, written for each build), site.ts (manifest, version.json, assetlinks), png.ts and
@@ -456,7 +485,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        a tarn and a lochan, which terrain.test.ts validates clean and breaks once for each of
                        M5.3's checks; dale/, the seven preset environments and a dusk of its own named by a farm, a
                        cave and a station, which environment.test.ts validates clean and breaks once for each of
-                       M5.4's checks
+                       M5.4's checks; workshop/, a starter kit crate, Draco hills, a KTX2 sign, a material on a
+                       slot, LOD, three colliders and a type drawn as a model, placed in a yard, which
+                       models.test.ts validates clean and breaks once for each of M5.5's checks
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
@@ -468,6 +499,12 @@ games/space-wrecked/   Proof #1 (M4.12, D62): Space-Wrecked's acts 1–2 as a pr
                        the crew screen's facts), board.ts (act 1's job board as made records), run.ts and voyage.ts
                        (act 2: jumps, supplies, hunters, quest events, docking), shared.ts, captain.ts (the bot),
                        game.ts; ui/, its screens, theme, feedback and shell; export.json
+tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes, cylinders, cones, a wedge, flat faces),
+                       pieces.ts (the twenty pieces, their parts by material and their colliders' shapes), kit.ts (the
+                       files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
+                       starter-kit/ to it byte for byte and to eb validate
+starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: twenty pieces dedicated
+                       by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
 tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/records/ from source/, one file per
                        family (ship.ts: parts, the hull and shops; crew.ts; fights.ts; events.ts; quests.ts; board.ts;
                        run.ts), importAll.ts and records.ts (the files as written); test/import.test.ts holds the

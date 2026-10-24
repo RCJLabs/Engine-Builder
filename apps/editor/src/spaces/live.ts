@@ -1,13 +1,15 @@
 /**
  * The open space or prefab as it is now (M5.1): read again after every change to the project,
- * with every prefab beside it, so placements draw what they place. The view, the outliner and
- * the object form all read this one copy.
+ * with every prefab beside it, so placements draw what they place, and what its placed records
+ * draw as models need (M5.5). The view, the outliner and the object form all read this one copy.
  */
 import { classifySpaceFile, PREFABS_DIR, type ProjectSource, parseJsonFile, terrainPath } from '@eb/compiler';
 import { ENVIRONMENT, ENVIRONMENT_DATA, type EnvironmentRecord, schemaIssues } from '@eb/schema';
 import { effect, signal } from '@preact/signals';
 import { editing } from '../editing/current.ts';
-import { current, revision } from '../projects/opened.ts';
+import { type LiveModels, readLiveModels } from '../models/liveModels.ts';
+import { modelFieldOf } from '../models/placedModels.ts';
+import { current, type OpenProject, revision } from '../projects/opened.ts';
 import { readSpace, type SpaceJson } from './spaceFile.ts';
 import { type OpenSpace, openSpace, picked } from './state.ts';
 
@@ -25,6 +27,8 @@ export interface LiveSpace {
    * id, or it isn't of its type, so the view keeps the editor's own light.
    */
   readonly environment?: { readonly id: string; readonly record: EnvironmentRecord | null };
+  /** What its placed records need to draw as models (M5.5), when it places any. */
+  readonly models?: LiveModels;
 }
 
 export const live = signal<LiveSpace | null>(null);
@@ -35,7 +39,19 @@ export const liveOf = (open: OpenSpace | null): LiveSpace | null =>
 
 const decode = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
 
-async function readLive(source: ProjectSource, open: OpenSpace): Promise<LiveSpace> {
+async function readLive(project: OpenProject, open: OpenSpace): Promise<LiveSpace> {
+  const { source } = project;
+  const read = await readSpaceAndPrefabs(source, open);
+  if (!read.space) return read;
+  const fieldOf = (type: string) => {
+    const file = project.catalog.types.get(type)?.file;
+    return file ? modelFieldOf(file) : null;
+  };
+  const models = await readLiveModels(source, read.space, read.prefabs, fieldOf);
+  return models ? { ...read, models } : read;
+}
+
+async function readSpaceAndPrefabs(source: ProjectSource, open: OpenSpace): Promise<LiveSpace> {
   const files = (await source.files(PREFABS_DIR)).filter((file) => classifySpaceFile(file).kind === 'prefab');
   const [bytes, ...prefabBytes] = await Promise.all([open.path, ...files].map((file) => source.read(file)));
   const prefabs = new Map<string, SpaceJson>();
@@ -75,7 +91,7 @@ effect(() => {
   const ticket = ++asked;
   if (live.peek()?.open.path !== open?.path) live.value = null;
   if (!open || !project) return;
-  void readLive(project.source, open).then((read) => {
+  void readLive(project, open).then((read) => {
     if (ticket !== asked) return;
     live.value = read;
     // Objects an undo or another tab took away are chosen no more.
