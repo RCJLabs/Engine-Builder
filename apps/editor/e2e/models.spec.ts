@@ -70,7 +70,10 @@ test('models imported, shaped, placed and read back, the starter kit added, and 
   await panel.getByRole('button', { name: /^Yard/ }).click();
   await viewStarted(page);
   await expectDrawn(page);
-  await expect.poll(async () => Object.keys(await models(page)).sort()).toEqual(Object.keys(kept).sort());
+  // As long as expectDrawn's wait: the last file decoded can come a batch later, slower beside another worker's frames.
+  await expect
+    .poll(async () => Object.keys(await models(page)).sort(), { timeout: 20_000 })
+    .toEqual(Object.keys(kept).sort());
   const again = await models(page);
   for (const id of Object.keys(kept)) {
     expect(again[id], id).toMatchObject({ collider: kept[id]?.collider, materials: kept[id]?.materials });

@@ -1,6 +1,7 @@
 /**
  * The terrain tools' settings (M5.3, D65): the brush chosen, or none for Camera, and its radius,
- * strength and layer. The toolbar sets them; the view's gestures read them as a stroke starts.
+ * strength, layer and foliage type (M5.6). The toolbar sets them; the view's gestures read them as
+ * a stroke starts.
  */
 import { signal } from '@preact/signals';
 import type { Brush, BrushKind } from './brushes.ts';
@@ -14,10 +15,18 @@ export const brushRadius = signal(4);
 export const brushStrength = signal(0.5);
 /** The layer Paint paints, from 0. */
 export const brushLayer = signal(0);
+/** The foliage type Plant and Clear act on, from 0: its place in the terrain's list. */
+export const brushFoliage = signal(0);
 
 /** The brush as a stroke starting now uses it, or null with Camera chosen. */
 export function brushNow(): Brush | null {
   const kind = brushKind.peek();
   if (kind === null) return null;
-  return { kind, radius: brushRadius.peek(), strength: brushStrength.peek(), layer: brushLayer.peek() };
+  return {
+    kind,
+    radius: brushRadius.peek(),
+    strength: brushStrength.peek(),
+    layer: brushLayer.peek(),
+    foliage: brushFoliage.peek(),
+  };
 }

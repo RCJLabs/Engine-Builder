@@ -2,13 +2,15 @@
  * The terrain tools in the Scene panel's toolbar (M5.3, D65, docs/specs/terrain.md#the-editor):
  * without a terrain, a size and Add terrain; with one, Camera and the five brushes, the layer to
  * paint, Radius and Strength, and Terrain settings, which opens the terrain's form in the inspector.
- * Closing the row puts the pointer back to moving the camera.
+ * With foliage listed (M5.6), Plant and Clear too, and the type they paint with Fill, in
+ * FoliageTools. Closing the row puts the pointer back to moving the camera.
  */
 import { TERRAIN_SIZES, type TerrainJson } from '@eb/compiler';
 import { useEffect, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { showPanel } from '../app/panelControl.ts';
 import { editing } from '../editing/current.ts';
+import { FoliageTools } from '../foliage/FoliageTools.tsx';
 import { pick } from '../spaces/state.ts';
 import { addTerrainHere } from './actions.ts';
 import type { BrushKind } from './brushes.ts';
@@ -21,6 +23,12 @@ const BRUSHES: readonly { kind: BrushKind | null; label: string }[] = [
   { kind: 'smooth', label: 'Smooth' },
   { kind: 'flatten', label: 'Flatten' },
   { kind: 'paint', label: 'Paint' },
+];
+
+/** After Paint, once the terrain lists a foliage type. */
+const FOLIAGE_BRUSHES: readonly { kind: BrushKind; label: string }[] = [
+  { kind: 'plant', label: 'Plant' },
+  { kind: 'clear', label: 'Clear' },
 ];
 
 export function TerrainTools({ terrain }: { terrain: TerrainJson | undefined }) {
@@ -71,9 +79,10 @@ function Brushes({ terrain }: { terrain: TerrainJson }) {
   useEffect(() => {
     if (brushLayer.value >= layers.length) brushLayer.value = layers.length - 1;
   }, [layers.length]);
+  const brushes = (terrain.foliage ?? []).length > 0 ? [...BRUSHES, ...FOLIAGE_BRUSHES] : BRUSHES;
   return (
     <>
-      {BRUSHES.map((brush) => (
+      {brushes.map((brush) => (
         <button
           key={brush.label}
           type="button"
@@ -106,6 +115,7 @@ function Brushes({ terrain }: { terrain: TerrainJson }) {
           </select>
         </span>
       ) : null}
+      {kind === 'plant' || kind === 'clear' ? <FoliageTools terrain={terrain} /> : null}
       <Slider
         label="Radius"
         unit="m"

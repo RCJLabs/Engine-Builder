@@ -67,7 +67,7 @@ describe('a terrain’s edits', () => {
       decodePng(files['spaces/fell.paint.png'] as Uint8Array),
     );
     expect(await writeStroke(source, 'fell', 'heights', fileOf(grid, 'heights'))).toEqual([]);
-    dab(grid, 0, 0, { kind: 'raise', radius: 4, strength: 1, layer: 0 });
+    dab(grid, 0, 0, { kind: 'raise', radius: 4, strength: 1, layer: 0, foliage: 0 });
     const changes = await writeStroke(source, 'fell', 'heights', fileOf(grid, 'heights'));
     expect(changes.map((c) => c.path)).toEqual(['spaces/fell.heights.png']);
     expect(changes[0]?.before).toEqual(files['spaces/fell.heights.png']);
@@ -76,7 +76,7 @@ describe('a terrain’s edits', () => {
   it('change the range keeping each height in metres, clamped, and leave the size as it was', async () => {
     const start = applied(project(), await addTerrain(memorySource(project()), 'fell', newTerrain(65)));
     const grid = newGrid(newTerrain(65));
-    dab(grid, 0, 0, { kind: 'raise', radius: 4, strength: 1, layer: 0 });
+    dab(grid, 0, 0, { kind: 'raise', radius: 4, strength: 1, layer: 0, foliage: 0 });
     const raised = applied(start, await writeStroke(memorySource(start), 'fell', 'heights', fileOf(grid, 'heights')));
     const next = { ...newTerrain(65), size: 129, low: 0, high: 0.1, spacing: 2 };
     const after = applied(raised, await changeTerrain(memorySource(raised), 'fell', next));
@@ -95,8 +95,8 @@ describe('a terrain’s edits', () => {
   it('take a layer away with its weights, the later layers’ moving down one', async () => {
     const start = applied(project(), await addTerrain(memorySource(project()), 'fell', newTerrain(65)));
     const grid = newGrid(newTerrain(65));
-    dab(grid, 0, 0, { kind: 'paint', radius: 4, strength: 1, layer: 2 });
-    dab(grid, 10, 0, { kind: 'paint', radius: 4, strength: 1, layer: 3 });
+    dab(grid, 0, 0, { kind: 'paint', radius: 4, strength: 1, layer: 2, foliage: 0 });
+    dab(grid, 10, 0, { kind: 'paint', radius: 4, strength: 1, layer: 3, foliage: 0 });
     const painted = applied(start, await writeStroke(memorySource(start), 'fell', 'paint', fileOf(grid, 'paint')));
     const after = applied(painted, await removeLayer(memorySource(painted), 'fell', 1));
     expect(settingsOf(after).layers.map((l: { name: string }) => l.name)).toEqual(['Grass', 'Sand', 'Snow']);

@@ -16,6 +16,7 @@ import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, 
 import { withEngineTypes } from './engineTypes.ts';
 import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
 import { FlagChecks } from './flagCheck.ts';
+import { checkFoliage, FOLIAGE, type FoliageRecord } from './foliageTypes.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
 import { knownFrom } from './known.ts';
@@ -166,6 +167,7 @@ export function validateRecords(
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
+    if (record.type === FOLIAGE && sound) checkFoliage(record.value as FoliageRecord, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);

@@ -280,6 +280,7 @@ describe('the engine’s types', () => {
       'environment',
       'material',
       'model',
+      'foliage',
       'item',
     ]);
   });

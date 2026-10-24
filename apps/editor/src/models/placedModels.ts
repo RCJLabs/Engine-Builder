@@ -83,20 +83,26 @@ export function placedKeys(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJ
   return [...keys].sort();
 }
 
-/** What drawing a space's models needs: the files they name and the material records their slots name. */
+/**
+ * What drawing a space's models needs: the files they name and the material records their slots
+ * name. `also` are records drawn as models though nothing places them: the foliage's (M5.6).
+ */
 export function modelNeeds(
   space: SpaceJson,
   prefabs: ReadonlyMap<string, SpaceJson>,
   sources: ModelSources,
+  also: readonly string[] = [],
 ): { readonly files: string[]; readonly materials: string[] } {
   const files = new Set<string>();
   const materials = new Set<string>();
-  eachPlacedRecord(space, prefabs, (key, passed) => {
+  const visit = (key: string, passed: readonly Fields[]) => {
     const model = modelHere(key, passed, sources);
     if (!model) return;
     if (typeof model.value.file === 'string') files.add(model.value.file);
     const slots = Array.isArray(model.value.materials) ? model.value.materials : [];
     for (const slot of slots) if (isFields(slot) && typeof slot.material === 'string') materials.add(slot.material);
-  });
+  };
+  eachPlacedRecord(space, prefabs, visit);
+  for (const key of also) visit(key, []);
   return { files: [...files].sort(), materials: [...materials].sort() };
 }

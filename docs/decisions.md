@@ -1805,6 +1805,51 @@ Evan chose on 2026-10-24, from these options:
 - **three's DRACOLoader names its own decoders,** so the build shipped and the service worker precached an asm.js fallback and the glTF build's wasm, 948 KiB the editor never fetches. A build plugin blanks those names, since the view always gives the loader its files, and fails the build if three names others.
 - **Untested for feel and on a phone:** no phone has decoded a model, cut a LOD level or drawn the kit.
 
+### D68. M5.6 paints foliage as density maps scattered by a fixed seed; a foliage type is a record; paint, erase and fill now, wind later; M5.6 is proved by machine. LOCKED, 2026-10-24 (Evan's calls, M5.6)
+
+Evan chose on 2026-10-24, from these options:
+- **Storage:**
+  - density maps: each foliage type an 8-bit channel of a PNG beside the space, painted as the terrain's layers are, the plants scattered from it by a fixed seed whenever the space is drawn (Unity's grass);
+  - every plant listed, its spot, turn and size in a file beside the space, about 16 bytes a plant (Unreal's foliage);
+  - both: trees listed one by one, grass and flowers as density (Unity's split).
+- **Records:**
+  - a `foliage` record of the engine's own type: the model to scatter, plants per 100 m², a size range, a random turn, lean with the slope, slope and height limits and how far it is drawn, with presets, reused across spaces;
+  - the same fields in the space's terrain settings, as its paint layers are.
+- **Scope:**
+  - brushes that plant and clear by mouse or finger, and Fill, which sets a type's density from a paint layer, within its slope and height limits; drawn instanced in the terrain's chunks, coarser with distance; no wind;
+  - all of that, with grass and leaves swaying in a wind the environment sets;
+  - plant and clear only.
+- **The gate:**
+  - by machine: an e2e on desktop and by touch at 360, 390 and sideways makes a foliage type from a starter-kit model, plants, clears and fills it, reads the counts near and far through the view's hook, and finds it all after a reload; a fixture held to `eb validate`; frame times readings only;
+  - the same, then Evan's phone painting a hillside.
+
+**Decision.**
+- **Foliage is density, not plants.** A terrain's foliage types are channels of `spaces/<id>.foliage.png`, as its paint layers are channels of `paint.png`. Where a plant stands is worked out from the density, the terrain and a seed each time the space is drawn, so painting more adds plants and never moves the ones already there. One tree in a chosen spot is a placed model, as before.
+- **A foliage type is a record** of the engine's `foliage` type: the model it scatters, how many plants per 100 m² where it is painted fully, their size range, whether each is turned at random, how far it leans with the ground, the steepest and the lowest and highest ground it grows on, and how far away it is drawn. Start from writes presets: trees, bushes, grass and rocks. A terrain lists up to four.
+- **Plant, Clear and Fill.** Two brushes add and take density for the foliage type chosen; Fill sets it everywhere, nowhere, or from a paint layer's weight. Each stroke and each Fill is one step of undo.
+- **Drawn instanced in the terrain's chunks.** Each chunk draws each type as instanced meshes, at the model's LOD level for its distance, and not at all beyond the type's distance.
+- **Wind waits,** and so does a plant's collider: M5.8 brings physics.
+- **The gate is by machine.** As the options above say.
+
+**Why.**
+- **Storage:** a density map costs the same at ten plants or a million, paints with the brushes terrain already has, and its file diffs as one image. Listing every plant gives exact control the gate doesn't need, and placed models already give it where it matters.
+- **Records:** a forest's settings are worth reusing across spaces, and records bring forms, checks, renames and used-by, as environments and materials did.
+- **Scope:** plant, clear and fill are what make a hillside; wind is a shader and an environment field, a milestone's polish rather than its substance.
+- **Gate:** as for M5.1 to M5.5.
+
+**Cost.**
+- **No single plant can be nudged.** A stroke that moves density moves which plants stand, near it only.
+- **The scatter is worked out each time a space is drawn.** Its time is a reading; M5.7 can bake it into an export if a phone finds it dear.
+- **Four types a terrain,** as four paint layers; a second file can come if a world needs more.
+
+**As built** (2026-10-24, M5.6):
+- **The scatter waits for the next frame** when the terrain's list, its settings or a record change, so a terrain read and its list read in one change scatter once. A stroke scatters again only the chunks its dabs reach, as they land; an undo or a Fill, the chunks whose density or heights differ.
+- **The foliage's models are read as placed ones are,** through the same reader with their keys added, so a foliage type's model is decoded once, cut into its levels and drawn with its slots exactly as a placed one. Until it is decoded the plants stand scattered but undrawn, and a change to how the model is drawn (its LOD, slots or scale) draws its plants again.
+- **The kit's pine has no LOD levels** (under 1,000 triangles), so the gate gives it one in its form after the trees are planted: half its triangles from 40 m. That holds two things at once: each chunk draws the level its distance gives, and a change to the model reaches plants already drawn. The first gate, without it, missed a planted bug that never refreshed a type's model, since the models happened to be decoded before the scatter ran.
+- **The grass preset is dense:** 150 per 100 m² fills a 129-vertex terrain with 24,552 plants, about 9,200 drawn within 60 m of a camera 53 m off; one frame of that took 273 ms in the container's software WebGL (Readings). A phone's figure is M5.7's to measure.
+- **The viewport's hook moved to `viewportHook.ts`,** its shape and its setting apart from the view, to keep `viewport.ts` from growing past 430 lines.
+- **Untested for feel and on a phone:** no phone has painted foliage, filled a hillside or drawn a meadow; the presets' densities and distances are first guesses.
+
 ---
 
 ## Open

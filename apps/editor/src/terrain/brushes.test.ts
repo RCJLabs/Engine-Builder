@@ -19,6 +19,7 @@ const brush = (kind: Brush['kind'], more: Partial<Brush> = {}): Brush => ({
   radius: 4,
   strength: 1,
   layer: 0,
+  foliage: 0,
   ...more,
 });
 // The terrain's middle vertex, (32, 32), is at the origin.
@@ -91,6 +92,28 @@ describe('Paint', () => {
     const at = (MID * 65 + MID) * 4;
     expect([...g.paint.subarray(at, at + 4)]).toEqual([0, 255, 0, 0]);
     expect(g.paint[(MID * 65 + MID + 4) * 4]).toBe(255);
+  });
+});
+
+describe('Plant and Clear (M5.6)', () => {
+  it('add and take the chosen foliage type’s density alone, held to 0 and 255', () => {
+    const g = newGrid(SETTINGS);
+    const at = (MID * 65 + MID) * 4;
+    dab(g, 0, 0, brush('plant', { foliage: 2, strength: 0.4 }));
+    expect([...g.foliage.subarray(at, at + 4)]).toEqual([0, 0, 102, 0]);
+    // Two steps out, the falloff (1 − (2/4)²)² = 0.5625 of it.
+    expect(g.foliage[(MID * 65 + MID + 2) * 4 + 2]).toBe(57);
+    dab(g, 0, 0, brush('plant', { foliage: 2 }));
+    dab(g, 0, 0, brush('plant', { foliage: 2 }));
+    expect(g.foliage[at + 2]).toBe(255);
+    dab(g, 0, 0, brush('clear', { foliage: 2, strength: 0.2 }));
+    expect(g.foliage[at + 2]).toBe(204);
+    dab(g, 0, 0, brush('clear', { foliage: 2 }));
+    expect(g.foliage[at + 2]).toBe(0);
+    // Neither the other types, the paint nor the heights move.
+    expect(g.foliage.reduce((n, v, k) => (k % 4 === 2 ? n : n + v), 0)).toBe(0);
+    expect(g.paint[at]).toBe(255);
+    expect(heightOf(g, MID, MID)).toBe(0);
   });
 });
 

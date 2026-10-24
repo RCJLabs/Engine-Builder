@@ -21,11 +21,16 @@ export interface Stroke {
   undo(): Area | null;
 }
 
-export const partOf = (brush: Brush): TerrainPart => (brush.kind === 'paint' ? 'paint' : 'heights');
+export const partOf = (brush: Brush): TerrainPart =>
+  brush.kind === 'paint' ? 'paint' : brush.kind === 'plant' || brush.kind === 'clear' ? 'foliage' : 'heights';
+
+/** The array a stroke of `part` changes. */
+const changesOf = (g: TerrainGrid, part: TerrainPart): Float32Array | Uint8Array =>
+  part === 'paint' ? g.paint : part === 'foliage' ? g.foliage : g.heights;
 
 export function startStroke(g: TerrainGrid, brush: Brush, x: number, z: number): Stroke {
   const part = partOf(brush);
-  const before = part === 'paint' ? g.paint.slice() : g.heights.slice();
+  const before = changesOf(g, part).slice();
   const target = heightAt(g, x, z);
   const step = g.spacing / 2;
   let last: [number, number] | null = null;
@@ -53,8 +58,8 @@ export function startStroke(g: TerrainGrid, brush: Brush, x: number, z: number):
       last = null;
     },
     undo() {
-      if (part === 'paint') g.paint.set(before);
-      else g.heights.set(before);
+      if (part === 'heights') g.heights.set(before as Float32Array);
+      else changesOf(g, part).set(before);
       const back = changed;
       changed = null;
       return back;

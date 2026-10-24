@@ -112,6 +112,13 @@
       "date": "2026-10-24",
       "tool": "tools/starter-kit"
     },
+    "starter-kit/grass.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
     "starter-kit/lamp-post.glb": {
       "licence": "CC0-1.0",
       "author": "RCJLabs",

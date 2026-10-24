@@ -97,6 +97,7 @@ export {
 export { checkProjectSpaceParts, checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
 export {
   CHUNK,
+  FOLIAGE_MOST,
   SHAPES,
   type Shape,
   type SpaceJson,

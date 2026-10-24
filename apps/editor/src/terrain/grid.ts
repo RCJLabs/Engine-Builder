@@ -1,7 +1,7 @@
 /**
- * A terrain in memory (M5.3, D65, docs/specs/terrain.md): its heights in metres and its paint
- * weights, read from and written to the two PNGs beside its space. Plain functions, so the brushes,
- * the chunks and the view all read the same numbers.
+ * A terrain in memory (M5.3, D65, docs/specs/terrain.md): its heights in metres, its paint weights
+ * and its foliage's density (M5.6, D68), read from and written to the PNGs beside its space. Plain
+ * functions, so the brushes, the chunks, the scatter and the view all read the same numbers.
  */
 import type { TerrainJson } from '@eb/compiler';
 import type { Gray16, Rgba } from '@eb/export';
@@ -17,6 +17,8 @@ export interface TerrainGrid {
   readonly heights: Float32Array;
   /** Four weights a vertex, one a layer, 0 to 255: paint[(j * size + i) * 4 + k]. */
   readonly paint: Uint8Array;
+  /** Four densities a vertex, one a foliage type, 0 to 255, each its own: foliage[(j * size + i) * 4 + k]. */
+  readonly foliage: Uint8Array;
 }
 
 /** Half the terrain's width: it runs from −extent to extent along x and z. */
@@ -30,14 +32,19 @@ export function newGrid(t: TerrainJson): TerrainGrid {
   const paint = new Uint8Array(count * 4);
   for (let v = 0; v < count; v++) paint[v * 4] = 255;
   const heights = new Float32Array(count).fill(clamp(0, t.low, t.high));
-  return { size: t.size, spacing: t.spacing, low: t.low, high: t.high, heights, paint };
+  const foliage = new Uint8Array(count * 4);
+  return { size: t.size, spacing: t.spacing, low: t.low, high: t.high, heights, paint, foliage };
 }
 
-/** The terrain its settings and files describe; a file of the wrong size is refused, as E067 says. */
-export function gridFromFiles(t: TerrainJson, heights: Gray16, paint: Rgba): TerrainGrid {
+/**
+ * The terrain its settings and files describe; a file of the wrong size is refused, as E067 says.
+ * Without a foliage file, no foliage grows anywhere.
+ */
+export function gridFromFiles(t: TerrainJson, heights: Gray16, paint: Rgba, foliage?: Rgba): TerrainGrid {
   for (const [what, file] of [
     ['heights', heights],
     ['paint', paint],
+    ['foliage', foliage ?? { width: t.size, height: t.size }],
   ] as const) {
     if (file.width !== t.size || file.height !== t.size) {
       throw new Error(`The ${what} are ${file.width}×${file.height}; the terrain is ${t.size}×${t.size}`);
@@ -46,7 +53,16 @@ export function gridFromFiles(t: TerrainJson, heights: Gray16, paint: Rgba): Ter
   const range = t.high - t.low;
   const metres = new Float32Array(heights.data.length);
   for (let v = 0; v < metres.length; v++) metres[v] = t.low + ((heights.data[v] as number) / 65535) * range;
-  return { size: t.size, spacing: t.spacing, low: t.low, high: t.high, heights: metres, paint: paint.data.slice() };
+  const density = foliage ? foliage.data.slice() : new Uint8Array(t.size * t.size * 4);
+  return {
+    size: t.size,
+    spacing: t.spacing,
+    low: t.low,
+    high: t.high,
+    heights: metres,
+    paint: paint.data.slice(),
+    foliage: density,
+  };
 }
 
 /** The heights file's samples: each height's place in the range, to the nearest 65535th. */
@@ -60,6 +76,8 @@ export function heightsFile(g: TerrainGrid): Gray16 {
 }
 
 export const paintFile = (g: TerrainGrid): Rgba => ({ width: g.size, height: g.size, data: g.paint });
+
+export const foliageFile = (g: TerrainGrid): Rgba => ({ width: g.size, height: g.size, data: g.foliage });
 
 /** The grid with a new range: each height kept in metres, clamped to it. */
 export function rerange(g: TerrainGrid, low: number, high: number): TerrainGrid {
@@ -81,7 +99,13 @@ export const cellOf = (g: TerrainGrid, x: number, z: number): [number, number] =
  * from its (i + 1, j) corner to its (i, j + 1) one, as chunks.ts splits it. Outside, the nearest
  * edge's (as the spike's heightAt, M1.10).
  */
-export function heightAt(g: TerrainGrid, x: number, z: number): number {
+export const heightAt = (g: TerrainGrid, x: number, z: number): number => groundAt(g, x, z).height;
+
+/**
+ * The ground at a world point: its height, as heightAt reads it, and the slope of the triangle it
+ * is on, as rise over run along x (`gx`) and z (`gz`). The foliage's scatter reads both (M5.6).
+ */
+export function groundAt(g: TerrainGrid, x: number, z: number): { height: number; gx: number; gz: number } {
   const [fi, fz] = cellOf(g, x, z);
   const i = clamp(fi, 0, g.size - 1);
   const j = clamp(fz, 0, g.size - 1);
@@ -93,5 +117,11 @@ export function heightAt(g: TerrainGrid, x: number, z: number): number {
   const b = heightOf(g, i0 + 1, j0);
   const c = heightOf(g, i0, j0 + 1);
   const d = heightOf(g, i0 + 1, j0 + 1);
-  return ti + tj <= 1 ? a + (b - a) * ti + (c - a) * tj : d + (c - d) * (1 - ti) + (b - d) * (1 - tj);
+  if (ti + tj <= 1)
+    return { height: a + (b - a) * ti + (c - a) * tj, gx: (b - a) / g.spacing, gz: (c - a) / g.spacing };
+  return {
+    height: d + (c - d) * (1 - ti) + (b - d) * (1 - tj),
+    gx: (d - c) / g.spacing,
+    gz: (d - b) / g.spacing,
+  };
 }

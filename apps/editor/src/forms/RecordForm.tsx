@@ -1,6 +1,6 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
-import { type DataType, type Diagnostic, ENVIRONMENT, MATERIAL, MODEL, slotScope } from '@eb/schema';
+import { type DataType, type Diagnostic, ENVIRONMENT, FOLIAGE, MATERIAL, MODEL, slotScope } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
@@ -9,6 +9,7 @@ import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { FightPreview } from '../encounters/FightPreview.tsx';
 import { EnvironmentStart } from '../environment/EnvironmentStart.tsx';
+import { FoliageStart } from '../foliage/FoliageStart.tsx';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import { MapPreview } from '../maps/MapPreview.tsx';
 import { modelFileProblems } from '../models/fileProblems.ts';
@@ -238,6 +239,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {/* A material starts from a preset; a model shows its file's facts, slots and Fit collider (M5.5). */}
         {type === MATERIAL ? <MaterialStart /> : null}
         {type === MODEL ? <ModelHead project={project} value={value} /> : null}
+        {/* A foliage type starts from a preset (M5.6). */}
+        {type === FOLIAGE ? <FoliageStart /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

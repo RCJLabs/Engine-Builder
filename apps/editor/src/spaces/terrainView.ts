@@ -2,7 +2,8 @@
  * The terrain in the Scene panel's view (M5.3, D65): its chunks as three meshes, each at the detail
  * its distance from the camera gives it, its edges laid on coarser neighbours' so no seam cracks; a
  * stroke's dabs drawn as they land; the brush's ring under the pointer. The grid it draws is decoded
- * from the space's two files, and again only when they change.
+ * from the space's files, and again only when they change. What changed is told to `changed` too,
+ * for the foliage to scatter again (M5.6): an area of vertices, or null for all of them.
  */
 import { CHUNK, type TerrainJson } from '@eb/compiler';
 import { decodeGray16, decodePng } from '@eb/export';
@@ -18,6 +19,8 @@ import type { Vec3 } from './vec.ts';
 export interface TerrainFiles {
   readonly heights: Uint8Array | null;
   readonly paint: Uint8Array | null;
+  /** The foliage's density (M5.6), when the terrain lists foliage. */
+  readonly foliage?: Uint8Array | null;
 }
 
 /** What the e2e reads of it: each chunk's level and triangles, and the widest gap at any seam, from the buffers. */
@@ -37,11 +40,11 @@ const same = (a: Uint8Array | null, b: Uint8Array | null) => {
   return true;
 };
 
-/** The vertices whose heights or paint differ, or null for none. */
+/** The vertices whose heights, paint or foliage differ, or null for none. */
 function differing(a: TerrainGrid, b: TerrainGrid): Area | null {
   let area: { i0: number; i1: number; j0: number; j1: number } | null = null;
   const repainted = (v: number) => {
-    for (let c = v * 4; c < v * 4 + 4; c++) if (a.paint[c] !== b.paint[c]) return true;
+    for (let c = v * 4; c < v * 4 + 4; c++) if (a.paint[c] !== b.paint[c] || a.foliage[c] !== b.foliage[c]) return true;
     return false;
   };
   for (let v = 0; v < a.heights.length; v++) {
@@ -59,7 +62,11 @@ function differing(a: TerrainGrid, b: TerrainGrid): Area | null {
   return area;
 }
 
-export function createTerrainView(ringColor: string, draw: () => void) {
+export function createTerrainView(
+  ringColor: string,
+  draw: () => void,
+  changed: (area: Area | null) => void = () => {},
+) {
   const root = new THREE.Group();
   const chunks = new THREE.Group();
   root.add(chunks);
@@ -78,7 +85,12 @@ export function createTerrainView(ringColor: string, draw: () => void) {
   root.add(ring);
 
   let grid: TerrainGrid | null = null;
-  let shown: { settings: string; heights: Uint8Array | null; paint: Uint8Array | null } | null = null;
+  let shown: {
+    settings: string;
+    heights: Uint8Array | null;
+    paint: Uint8Array | null;
+    foliage: Uint8Array | null;
+  } | null = null;
   let colours: [number, number, number][] = [];
   let meshes: THREE.Mesh[] = [];
   let lods: number[] = [];
@@ -149,6 +161,7 @@ export function createTerrainView(ringColor: string, draw: () => void) {
     };
     const n = chunksPerSide(grid);
     for (const [cx, cz] of chunksOf(grid, wider)) build(cz * n + cx);
+    changed(area);
     draw();
   };
 
@@ -176,33 +189,47 @@ export function createTerrainView(ringColor: string, draw: () => void) {
         if (grid) clear();
         grid = null;
         shown = null;
+        changed(null);
         return null;
       }
       const text = JSON.stringify(settings);
-      if (shown && shown.settings === text && same(shown.heights, files.heights) && same(shown.paint, files.paint)) {
+      const foliage = (settings.foliage ?? []).length > 0 ? (files.foliage ?? null) : null;
+      if (
+        shown &&
+        shown.settings === text &&
+        same(shown.heights, files.heights) &&
+        same(shown.paint, files.paint) &&
+        same(shown.foliage, foliage)
+      ) {
         return null;
       }
       if (stroke) stroke = null;
       try {
         if (!files.heights || !files.paint) throw new Error('its heights or paint file is missing');
-        const next = gridFromFiles(settings, decodeGray16(files.heights), decodePng(files.paint));
+        const density = foliage ? decodePng(foliage) : undefined;
+        const next = gridFromFiles(settings, decodeGray16(files.heights), decodePng(files.paint), density);
         colours = settings.layers.map((l) => rgbOf(l.color));
         const before = grid;
         const kept = before && shown?.settings === text;
-        shown = { settings: text, heights: files.heights, paint: files.paint };
+        shown = { settings: text, heights: files.heights, paint: files.paint, foliage };
         if (kept && before) {
           // The same settings, other bytes (a stroke written, an undo): only what changed is drawn again.
           const area = differing(before, next);
           before.heights.set(next.heights);
           before.paint.set(next.paint);
+          before.foliage.set(next.foliage);
           rebuild(area);
-        } else lay(next);
+        } else {
+          lay(next);
+          changed(null);
+        }
         draw();
         return null;
       } catch (error) {
         clear();
         grid = null;
         shown = null;
+        changed(null);
         draw();
         return error instanceof Error ? error.message : String(error);
       }

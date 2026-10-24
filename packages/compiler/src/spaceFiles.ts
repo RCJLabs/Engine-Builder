@@ -14,8 +14,8 @@ export type SpaceKind = 'space' | 'prefab';
 
 export const spacePath = (kind: SpaceKind, id: string) => `${kind === 'space' ? SPACES_DIR : PREFABS_DIR}/${id}.json`;
 
-/** A terrain's two files beside its space (M5.3, D65): 16-bit heights and RGBA paint. */
-export type TerrainPart = 'heights' | 'paint';
+/** A terrain's files beside its space (M5.3, D65): 16-bit heights, RGBA paint, and RGBA foliage density (M5.6, D68). */
+export type TerrainPart = 'heights' | 'paint' | 'foliage';
 
 export const terrainPath = (id: string, part: TerrainPart) => `${SPACES_DIR}/${id}.${part}.png`;
 
@@ -48,7 +48,7 @@ export function classifyComponentFile(path: string): ComponentFile {
   return { kind: 'component', id };
 }
 
-const TERRAIN_FILE = /^(.+)\.(heights|paint)\.png$/;
+const TERRAIN_FILE = /^(.+)\.(heights|paint|foliage)\.png$/;
 
 /** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs carry their space's. */
 export function classifySpaceFile(path: string): SpaceFile {

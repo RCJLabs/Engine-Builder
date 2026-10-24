@@ -1,0 +1,23 @@
+{
+  "name": "Grass",
+  "file": "starter-kit/grass.glb",
+  "materials": [
+    {
+      "slot": "leaves",
+      "material": "kit-leaves"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0.0024,
+      0.225,
+      -0.015
+    ],
+    "size": [
+      0.2012,
+      0.45,
+      0.189
+    ]
+  }
+}

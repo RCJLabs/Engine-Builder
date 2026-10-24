@@ -1,0 +1,15 @@
+{
+  "name": "Bush",
+  "file": "starter-kit/bush.glb",
+  "materials": [
+    {
+      "slot": "leaves",
+      "material": "kit-leaves"
+    }
+  ],
+  "collider": {
+    "shape": "sphere",
+    "center": [0, 0.4, 0],
+    "radius": 0.6083
+  }
+}

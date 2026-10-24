@@ -17,6 +17,7 @@ import { AUDIO_DATA } from './audioTypes.ts';
 import { condition, valueSchema } from './condition.ts';
 import { effect } from './effect.ts';
 import { ENVIRONMENT_DATA } from './environmentTypes.ts';
+import { FOLIAGE_DATA } from './foliageTypes.ts';
 import { MATERIAL_DATA } from './materialTypes.ts';
 import { MODEL_DATA } from './modelTypes.ts';
 import { defineRecordType, type RecordType } from './recordType.ts';
@@ -128,7 +129,7 @@ export const SHEET_DATA: DataType = Object.freeze({
 
 /**
  * The engine's own types' forms and checks: flags and sheets (M3.1), sound, ambience and music
- * (M4.8), and environments (M5.4).
+ * (M4.8), environments (M5.4), materials and models (M5.5), and foliage (M5.6).
  */
 export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   FLAG_TYPE,
@@ -137,6 +138,7 @@ export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   ENVIRONMENT_DATA,
   MATERIAL_DATA,
   MODEL_DATA,
+  FOLIAGE_DATA,
 ]);
 
 export const ENGINE_TYPES: readonly RecordType[] = Object.freeze(ENGINE_DATA.map((d) => d.recordType));

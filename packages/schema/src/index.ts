@@ -73,6 +73,16 @@ export {
   WEATHERS,
   type Weather,
 } from './environmentTypes.ts';
+export {
+  checkFoliage,
+  FOLIAGE,
+  FOLIAGE_DATA,
+  FOLIAGE_DEFAULTS,
+  FOLIAGE_PRESETS,
+  FOLIAGE_TYPE_FILE,
+  type FoliagePreset,
+  type FoliageRecord,
+} from './foliageTypes.ts';
 export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema, typeFileJsonSchema } from './jsonSchema.ts';
 export { KitChecks } from './kitCheck.ts';

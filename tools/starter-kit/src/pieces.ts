@@ -1,5 +1,5 @@
 /**
- * The starter kit's pieces (M5.5, D67, docs/specs/models.md#the-starter-kit): twenty low-poly
+ * The starter kit's pieces (M5.5, D67, docs/specs/models.md#the-starter-kit): twenty-one low-poly
  * things to block out a place with, each standing on its origin, a metre being a metre. Each part
  * is named by its material, which the kit's material records draw it with, and each piece names
  * the collider shape that fits it best: a box unless it is round or rough.
@@ -138,6 +138,22 @@ export const PIECES: readonly Piece[] = [
     name: 'Bush',
     parts: { leaves: [cylinder(0.4, 0.6, 0.3, 8), cylinder(0.6, 0.2, 0.5, 8, [0, 0.3, 0], 22.5)] },
     collider: 'sphere',
+  },
+  {
+    // A tuft for foliage's grass preset (M5.6, D68): five thin three-sided blades, few triangles
+    // since a meadow draws thousands.
+    id: 'grass',
+    name: 'Grass',
+    parts: {
+      leaves: [
+        cylinder(0.035, 0, 0.45, 3),
+        cylinder(0.03, 0, 0.35, 3, [0.08, 0, 0.03], 40),
+        cylinder(0.03, 0, 0.4, 3, [-0.07, 0, 0.05], 80),
+        cylinder(0.03, 0, 0.3, 3, [0.02, 0, -0.08], 20),
+        cylinder(0.025, 0, 0.32, 3, [-0.04, 0, -0.05], 60),
+      ],
+    },
+    collider: 'box',
   },
   {
     id: 'lamp-post',

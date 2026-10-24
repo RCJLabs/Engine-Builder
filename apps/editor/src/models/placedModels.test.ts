@@ -98,4 +98,13 @@ describe('walking a space’s placements', () => {
   it('lists the files and materials the models drawn need, once each', () => {
     expect(modelNeeds(yard, prefabs, sources)).toEqual({ files: ['models/crate.glb'], materials: ['oak'] });
   });
+
+  it('lists the files of models nothing places when asked for them, as the foliage asks', () => {
+    const empty = space([]);
+    expect(modelNeeds(empty, prefabs, sources)).toEqual({ files: [], materials: [] });
+    expect(modelNeeds(empty, prefabs, sources, ['model:crate'])).toEqual({
+      files: ['models/crate.glb'],
+      materials: ['oak'],
+    });
+  });
 });

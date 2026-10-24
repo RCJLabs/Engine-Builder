@@ -85,7 +85,8 @@ my-game/
   spaces/<id>.json         3D places: objects that are shapes, placed prefabs or placed records,
                            with components and overrides (M5.1, M5.2), a terrain's settings (M5.3),
                            and the id of the environment record it is drawn under (M5.4)
-  spaces/<id>.heights.png  a space's terrain: 16-bit greyscale heights; .paint.png, RGBA layer weights (M5.3)
+  spaces/<id>.heights.png  a space's terrain: 16-bit greyscale heights; .paint.png, RGBA layer weights (M5.3);
+                           .foliage.png, RGBA density, a channel for each foliage type it lists (M5.6)
   prefabs/<id>.json        reusable groups of objects, placed by id (M5.1)
   components/<kind>.json   the project's own component kinds, as type files (M5.2)
   ui/<screen>.json         screens: widget trees, bindings, actions
@@ -220,6 +221,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 - three.js `WebGPURenderer`, falling back to WebGL2 automatically.
 - Rapier for physics and the character controller; recast-navigation-js for navmeshes.
 - glTF/GLB with Draco or Meshopt, and KTX2 textures, read by three's own decoders and packed with Meshopt as they are imported. A model and a material are records of the engine's own types; a space places a model, or any record whose type names one ([specs/models.md](specs/models.md), M5.5, D67).
+- Foliage is density painted over a terrain, a channel of a PNG for each of up to four `foliage` records; where each plant stands is worked out from it by a fixed seed whenever the space is drawn, and drawn as instanced meshes a chunk at the model's level for its distance ([specs/foliage.md](specs/foliage.md), M5.6, D68).
 - All of it is lazy-loaded: a game without a 3D scene never downloads it.
 - What the M1.10 spike found (Rapier's heightfield layout, rays on triangle edges, what Rapier weighs) is in [apps/spike-3d](../apps/spike-3d/README.md#findings-for-phase-5).
 - **Quality tiers:**

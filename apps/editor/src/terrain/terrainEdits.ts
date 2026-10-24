@@ -7,7 +7,7 @@ import { type ProjectSource, spacePath, type TerrainJson, type TerrainPart, terr
 import { decodeGray16, decodePng, encodeGray16, encodePng } from '@eb/export';
 import type { FileChange } from '../editing/history.ts';
 import { changeSpaceFile } from '../spaces/spaceEdits.ts';
-import { gridFromFiles, heightsFile, newGrid, paintFile, rerange, type TerrainGrid } from './grid.ts';
+import { foliageFile, gridFromFiles, heightsFile, newGrid, paintFile, rerange, type TerrainGrid } from './grid.ts';
 
 /** The four layers a new terrain starts with: what a fell, a crag, a shore and a summit need. */
 export const DEFAULT_LAYERS: TerrainJson['layers'] = [
@@ -27,9 +27,12 @@ export const newTerrain = (size: number): TerrainJson => ({
 
 /** The file `part` written from `grid`. */
 export const fileOf = (grid: TerrainGrid, part: TerrainPart): Uint8Array =>
-  part === 'heights' ? encodeGray16(heightsFile(grid)) : encodePng(paintFile(grid));
+  part === 'heights'
+    ? encodeGray16(heightsFile(grid))
+    : encodePng(part === 'paint' ? paintFile(grid) : foliageFile(grid));
 
-async function written(source: ProjectSource, path: string, after: Uint8Array | null): Promise<FileChange[]> {
+/** The file at `path` made `after`, or taken away with null: no change when it already is. */
+export async function written(source: ProjectSource, path: string, after: Uint8Array | null): Promise<FileChange[]> {
   const before = (await source.read(path)) ?? null;
   if (before === null && after === null) return [];
   if (before && after && before.length === after.length && before.every((b, i) => b === after[i])) return [];
@@ -51,13 +54,14 @@ export async function addTerrain(source: ProjectSource, id: string, terrain: Ter
   ];
 }
 
-/** The terrain taken away with its two files. */
+/** The terrain taken away with its files, its foliage's density too (M5.6). */
 export async function removeTerrain(source: ProjectSource, id: string): Promise<FileChange[]> {
   const settings = await changeSpaceFile(source, spacePath('space', id), ({ terrain: _, ...rest }) => rest);
   return [
     ...settings,
     ...(await written(source, terrainPath(id, 'heights'), null)),
     ...(await written(source, terrainPath(id, 'paint'), null)),
+    ...(await written(source, terrainPath(id, 'foliage'), null)),
   ];
 }
 

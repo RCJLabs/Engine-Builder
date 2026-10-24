@@ -34,9 +34,9 @@ describe('the starter kit', () => {
     expect(diagnostics).toEqual([]);
   });
 
-  it('has twenty pieces and six materials, each piece packed by Meshopt and under the LOD line', async () => {
+  it('has twenty-one pieces and six materials, each piece packed by Meshopt and under the LOD line', async () => {
     const made = new Map((await makeKit()).map((file) => [file.path, file.bytes]));
-    expect(PIECES).toHaveLength(20);
+    expect(PIECES).toHaveLength(21);
     expect(KIT_MATERIALS.filter((name) => made.has(`records/material/kit-${name}.json`))).toHaveLength(6);
     for (const piece of PIECES) {
       const bytes = made.get(`assets/starter-kit/${piece.id}.glb`);

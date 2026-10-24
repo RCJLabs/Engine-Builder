@@ -18,16 +18,8 @@ import * as THREE from 'three/webgpu';
 import { noteError } from '../app/state.ts';
 import { type LiveModels, type ModelFileRead, sourcesOf } from '../models/liveModels.ts';
 import { modelHere } from '../models/placedModels.ts';
-import {
-  colliderWire,
-  laySlots,
-  materialOf,
-  materialsOf,
-  meshesOf,
-  simplified,
-  trianglesOf,
-  withLevels,
-} from './modelParts.ts';
+import { meshesOf } from './meshes.ts';
+import { colliderWire, laySlots, materialOf, materialsOf, simplified, trianglesOf, withLevels } from './modelParts.ts';
 
 /** What the view's hook says of each placed object drawn as a model. */
 export interface ModelSummary {

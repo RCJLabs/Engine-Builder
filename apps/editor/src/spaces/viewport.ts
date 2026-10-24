@@ -3,8 +3,8 @@
  * WebGPURenderer, on WebGPU where the browser has it and WebGL2 where it doesn't; the editor's
  * light and grid; the camera; picking; the gizmo where the chosen objects are; a space's terrain
  * (M5.3), in terrainView.ts; its environment (M5.4), in environmentView.ts; its models (M5.5), in
- * viewModels.ts. It draws only when something changes, so a still editor spends nothing on it,
- * unless rain or snow is falling.
+ * viewModels.ts; its foliage (M5.6), in foliageView.ts. It draws only when something changes, so a
+ * still editor spends nothing on it, unless rain or snow is falling.
  */
 
 import type { TerrainJson } from '@eb/compiler';
@@ -13,16 +13,17 @@ import type { Look } from '../environment/look.ts';
 import type { LiveModels } from '../models/liveModels.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
-import { createEnvironmentView, type EnvironmentSummary } from './environmentView.ts';
+import { createEnvironmentView } from './environmentView.ts';
+import { createFoliageView, type FoliageShown } from './foliageView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
-import type { ModelSummary } from './modelsView.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
-import { createTerrainView, type TerrainFiles, type TerrainSummary, type TerrainView } from './terrainView.ts';
+import { createTerrainView, type TerrainFiles, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
 import { createViewModels } from './viewModels.ts';
+import { clearHook, setHook, type ViewportHook, waterOpacity } from './viewportHook.ts';
 
 /** How long the gizmo's arms are on screen: a fifth of the view's short side, within these. */
 const GIZMO_PX = { least: 72, most: 120, share: 0.22 } as const;
@@ -51,6 +52,8 @@ export interface View {
   showEnvironment(look: Look | null): void;
   /** A space's terrain, or none: a problem in words when its files can't be read. */
   showTerrain(settings: TerrainJson | null, files: TerrainFiles | null): string | null;
+  /** The foliage types the terrain lists (M5.6), in its order: its channels. */
+  showFoliage(list: readonly FoliageShown[]): void;
   /** The terrain's brushes and strokes (M5.3), over rays from the view's points. */
   readonly terrain: Pick<TerrainView, 'start' | 'to' | 'end' | 'ring' | 'grid' | 'height'>;
   select(ids: readonly string[]): void;
@@ -62,31 +65,6 @@ export interface View {
   draw(): void;
   dispose(): void;
 }
-
-/** What the e2e reads (window.__ebViewport): where to take hold of each handle and each object, in page pixels. */
-export interface ViewportHook {
-  readonly backend: Backend;
-  readonly frames: number;
-  readonly grips: () => { name: string; x: number; y: number; along: Screen }[];
-  readonly objectAt: (id: string, underHandles?: boolean) => { x: number; y: number } | null;
-  readonly camera: () => Orbit;
-  /** The terrain's chunks, their levels and the widest seam (M5.3), or null with none. */
-  readonly terrain: () => TerrainSummary | null;
-  /** The ground at (x, z) in page pixels, when it is in sight: where to stroke. */
-  readonly groundAt: (x: number, z: number) => { x: number; y: number } | null;
-  /** The terrain's height and its four paint weights at the vertex nearest (x, z). */
-  readonly heightAt: (x: number, z: number) => number | null;
-  readonly paintAt: (x: number, z: number) => number[] | null;
-  /** The opacity of the water an object draws, or null for none. */
-  readonly waterAt: (id: string) => number | null;
-  /** The sky, light, fog and weather drawn (M5.4), or null for the editor's own. */
-  readonly environment: () => EnvironmentSummary | null;
-  /** Each placed object drawn as a model (M5.5): its LOD level, triangles, collider and slots' colours. */
-  readonly models: () => (ModelSummary & { readonly object: string })[];
-}
-
-type Hooked = { __ebViewport?: ViewportHook };
-const hooked = () => window as unknown as Hooked;
 
 const cssColor = (host: HTMLElement, name: string, fallback: string) =>
   getComputedStyle(host).getPropertyValue(name).trim() || fallback;
@@ -112,9 +90,14 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   scene.add(outlines);
   const gizmo = createGizmo();
   scene.add(gizmo.group);
-  // draw is hoisted: the terrain asks for a frame as a stroke lands.
-  const terrain = createTerrainView(cssColor(host, '--accent', '#6cb4ff'), () => draw());
-  scene.add(terrain.root);
+  // draw is hoisted: the terrain asks for a frame as a stroke lands, and tells the foliage what changed.
+  const terrain = createTerrainView(
+    cssColor(host, '--accent', '#6cb4ff'),
+    () => draw(),
+    (area) => foliage.changed(area),
+  );
+  const foliage = createFoliageView(() => draw(), terrain.grid);
+  scene.add(terrain.root, foliage.root);
   // Placed records' names (M5.2), drawn by the page over the canvas: sharp at any size, and words a
   // screen reader skips, as the outliner names the same objects.
   const labelLayer = document.createElement('div');
@@ -202,7 +185,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       const at = footing();
       gizmo.group.visible = at !== null;
       if (at) gizmo.place(at.pivot, at.metres, at.own);
-      terrain.levels([camera.position.x, camera.position.y, camera.position.z]);
+      const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
+      terrain.levels(eye);
+      foliage.levels(eye);
       environment.frame(camera, orbit.target, performance.now());
       renderer.render(scene, camera);
       placeLabels();
@@ -219,7 +204,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       scene.remove(built.root);
       built.dispose();
     }
-    built = builder.build(space, prefabs, names, models.use(live));
+    const drawModel = models.use(live);
+    built = builder.build(space, prefabs, names, drawModel);
+    foliage.models(drawModel);
     scene.add(built.root);
     labelLayer.replaceChildren();
     labels = built.labels.map(({ text, at }) => {
@@ -306,7 +293,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     return spot ? page(spot) : null;
   };
 
-  hooked().__ebViewport = {
+  const hook: ViewportHook = {
     backend,
     get frames() {
       return frames;
@@ -327,17 +314,13 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     },
     heightAt: terrain.height,
     paintAt: terrain.paint,
-    waterAt(id) {
-      let opacity: number | null = null;
-      built?.byId.get(id)?.traverse((part) => {
-        const material = (part as THREE.Mesh).material;
-        if (material && !Array.isArray(material) && material.userData.water) opacity = material.opacity;
-      });
-      return opacity;
-    },
+    waterAt: (id) => waterOpacity(built?.byId.get(id)),
     environment: () => environment.summary(),
     models: () => models.summaries(built?.root),
+    foliage: () => foliage.summary(),
+    plantsNear: foliage.near,
   };
+  setHook(hook);
 
   return {
     backend,
@@ -382,6 +365,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       draw();
       return problem;
     },
+    showFoliage(list) {
+      foliage.show(list);
+    },
     terrain,
     select(ids) {
       chosen = ids;
@@ -414,13 +400,14 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       gone = true;
       watcher.disconnect();
       labelLayer.remove();
-      if (hooked().__ebViewport?.objectAt === objectAt) delete hooked().__ebViewport;
+      clearHook(hook);
       built?.dispose();
       chosen = [];
       outline();
       builder.dispose();
       gizmo.dispose();
       terrain.dispose();
+      foliage.dispose();
       environment.dispose();
       models.dispose();
       grid.dispose();

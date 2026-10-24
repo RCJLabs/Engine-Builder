@@ -10,6 +10,7 @@ const brush = (kind: Brush['kind'], more: Partial<Brush> = {}): Brush => ({
   radius: 3,
   strength: 0.5,
   layer: 0,
+  foliage: 0,
   ...more,
 });
 
@@ -58,5 +59,14 @@ describe('a stroke', () => {
     expect(daub.part).toBe('paint');
     daub.undo();
     expect(g.paint).toEqual(paint);
+  });
+  it('of Plant or Clear changes the foliage, which its undo puts back (M5.6)', () => {
+    const g = newGrid(SETTINGS);
+    const stroke = startStroke(g, brush('plant', { foliage: 1, strength: 1 }), -5, 0);
+    stroke.to(5, 0);
+    expect(stroke.part).toBe('foliage');
+    expect(g.foliage[(32 * 65 + 32) * 4 + 1]).toBe(255);
+    expect(stroke.undo()).toEqual({ i0: 24, i1: 40, j0: 29, j1: 35 });
+    expect(g.foliage.every((v) => v === 0)).toBe(true);
   });
 });

@@ -1,15 +1,26 @@
 /**
  * The open space or prefab as it is now (M5.1): read again after every change to the project,
  * with every prefab beside it, so placements draw what they place, and what its placed records
- * draw as models need (M5.5). The view, the outliner and the object form all read this one copy.
+ * draw as models need (M5.5), and its terrain's foliage and their models (M5.6). The view, the
+ * outliner and the object form all read this one copy.
  */
 import { classifySpaceFile, PREFABS_DIR, type ProjectSource, parseJsonFile, terrainPath } from '@eb/compiler';
-import { ENVIRONMENT, ENVIRONMENT_DATA, type EnvironmentRecord, schemaIssues } from '@eb/schema';
+import {
+  type DataType,
+  ENVIRONMENT,
+  ENVIRONMENT_DATA,
+  type EnvironmentRecord,
+  FOLIAGE_DATA,
+  type FoliageRecord,
+  MODEL,
+  schemaIssues,
+} from '@eb/schema';
 import { effect, signal } from '@preact/signals';
 import { editing } from '../editing/current.ts';
 import { type LiveModels, readLiveModels } from '../models/liveModels.ts';
 import { modelFieldOf } from '../models/placedModels.ts';
 import { current, type OpenProject, revision } from '../projects/opened.ts';
+import type { FoliageShown } from './foliageView.ts';
 import { readSpace, type SpaceJson } from './spaceFile.ts';
 import { type OpenSpace, openSpace, picked } from './state.ts';
 
@@ -21,12 +32,19 @@ export interface LiveSpace {
   /** Every prefab whose file is sound, by id. */
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   /** A space's terrain files (M5.3) as they are, null for one that is missing, when it has a terrain. */
-  readonly terrain?: { readonly heights: Uint8Array | null; readonly paint: Uint8Array | null };
+  readonly terrain?: {
+    readonly heights: Uint8Array | null;
+    readonly paint: Uint8Array | null;
+    /** Its foliage's density (M5.6), when it lists foliage. */
+    readonly foliage?: Uint8Array | null;
+  };
   /**
    * A space's environment (M5.4) when it names one: its record, or null when there is none of that
    * id, or it isn't of its type, so the view keeps the editor's own light.
    */
   readonly environment?: { readonly id: string; readonly record: EnvironmentRecord | null };
+  /** The foliage its terrain lists (M5.6), in order: each record, or null when it isn't one, so nothing grows. */
+  readonly foliage?: readonly FoliageShown[];
   /** What its placed records need to draw as models (M5.5), when it places any. */
   readonly models?: LiveModels;
 }
@@ -47,7 +65,9 @@ async function readLive(project: OpenProject, open: OpenSpace): Promise<LiveSpac
     const file = project.catalog.types.get(type)?.file;
     return file ? modelFieldOf(file) : null;
   };
-  const models = await readLiveModels(source, read.space, read.prefabs, fieldOf);
+  // The foliage's models are read as placed ones are, so the view draws them the same way.
+  const grown = (read.foliage ?? []).flatMap((f) => (f.record ? [`${MODEL}:${f.record.model}`] : []));
+  const models = await readLiveModels(source, read.space, read.prefabs, fieldOf, grown);
   return models ? { ...read, models } : read;
 }
 
@@ -65,21 +85,33 @@ async function readSpaceAndPrefabs(source: ProjectSource, open: OpenSpace): Prom
   if (!read.ok) return { open, space: null, problem: read.problem, prefabs };
   if (open.kind !== 'space') return { open, space: read.space, prefabs };
   const id = read.space.environment;
-  const environment = id === undefined ? {} : { environment: { id, record: await environmentOf(source, id) } };
-  if (!read.space.terrain) return { open, space: read.space, prefabs, ...environment };
-  const [heights, paint] = await Promise.all(
-    (['heights', 'paint'] as const).map((part) => source.read(terrainPath(open.id, part))),
+  const environment =
+    id === undefined
+      ? {}
+      : { environment: { id, record: await recordOf<EnvironmentRecord>(source, ENVIRONMENT_DATA, id) } };
+  const settings = read.space.terrain;
+  if (!settings) return { open, space: read.space, prefabs, ...environment };
+  const listed = settings.foliage ?? [];
+  const parts = listed.length > 0 ? (['heights', 'paint', 'foliage'] as const) : (['heights', 'paint'] as const);
+  const [heights, paint, density] = await Promise.all(parts.map((part) => source.read(terrainPath(open.id, part))));
+  const terrain = {
+    heights: heights ?? null,
+    paint: paint ?? null,
+    ...(listed.length > 0 ? { foliage: density ?? null } : {}),
+  };
+  if (listed.length === 0) return { open, space: read.space, prefabs, terrain, ...environment };
+  const foliage = await Promise.all(
+    listed.map(async (f) => ({ id: f, record: await recordOf<FoliageRecord>(source, FOLIAGE_DATA, f) })),
   );
-  const terrain = { heights: heights ?? null, paint: paint ?? null };
-  return { open, space: read.space, prefabs, terrain, ...environment };
+  return { open, space: read.space, prefabs, terrain, foliage, ...environment };
 }
 
-async function environmentOf(source: ProjectSource, id: string): Promise<EnvironmentRecord | null> {
-  const bytes = await source.read(`records/${ENVIRONMENT}/${id}.json`);
+/** The record of an engine type by id, or null when there is none or it doesn't pass its schema. */
+async function recordOf<T>(source: ProjectSource, data: DataType, id: string): Promise<T | null> {
+  const bytes = await source.read(`records/${data.type}/${id}.json`);
   const parsed = bytes ? parseJsonFile(bytes) : null;
   if (!parsed?.ok) return null;
-  const sound = schemaIssues(ENVIRONMENT_DATA.recordType.schema, parsed.value).length === 0;
-  return sound ? (parsed.value as EnvironmentRecord) : null;
+  return schemaIssues(data.recordType.schema, parsed.value).length === 0 ? (parsed.value as T) : null;
 }
 
 let asked = 0;
