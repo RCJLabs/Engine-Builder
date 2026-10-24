@@ -39,10 +39,8 @@ export function FitCollider(props: { project: OpenProject; path: string; bytes: 
     }
   };
   return (
-    <div class="fit-collider" role="group" aria-labelledby={head}>
-      <p id={head} class="form-label">
-        Fit collider
-      </p>
+    <fieldset class="fit-collider" aria-labelledby={head}>
+      <legend id={head}>Fit collider</legend>
       <div class="form-actions">
         {FITS.map((shape) => (
           <button
@@ -61,6 +59,6 @@ export function FitCollider(props: { project: OpenProject; path: string; bytes: 
           {problem}
         </p>
       ) : null}
-    </div>
+    </fieldset>
   );
 }
