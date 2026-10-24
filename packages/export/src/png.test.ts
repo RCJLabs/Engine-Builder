@@ -1,7 +1,8 @@
+import { readFileSync } from 'node:fs';
 import { zlibSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import { iconFiles, onGround, readIcon, scaled } from './icons.ts';
-import { decodePng, encodePng, type Rgba } from './png.ts';
+import { decodeGray16, decodePng, encodeGray16, encodePng, type Rgba } from './png.ts';
 
 /** A test's own PNG writer: any colour type and depth, each row with the filter named, as other tools write them. */
 function png(
@@ -117,6 +118,32 @@ describe('PNG (M4.10)', () => {
   it('refuses 16-bit, and what isn’t a PNG, saying what to save instead', () => {
     expect(() => decodePng(png(1, 1, 6, [[0, 0, 0, 0, 0, 0, 0, 0]], [0], 16))).toThrow('Save it as an 8-bit PNG');
     expect(() => decodePng(new Uint8Array([1, 2, 3]))).toThrow('It isn’t a PNG file');
+  });
+});
+
+describe('16-bit greyscale PNG, a terrain’s heights (M5.3)', () => {
+  // The values Pillow 12.3 wrote into test/fixtures/gray16-pillow.png: (x × 7919 + y × 104729) mod 65536.
+  const pillow = (x: number, y: number) => (x * 7919 + y * 104729) % 65536;
+
+  it('reads what Pillow writes, every sample', () => {
+    const read = decodeGray16(readFileSync(new URL('../test/fixtures/gray16-pillow.png', import.meta.url)));
+    expect([read.width, read.height]).toEqual([9, 5]);
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 9; x++) expect(read.data[y * 9 + x]).toBe(pillow(x, y));
+  });
+
+  it('reads back what it writes, high bytes and low, and deflates a smooth slope far smaller than its samples', () => {
+    const width = 129;
+    const data = new Uint16Array(width * width);
+    for (let i = 0; i < data.length; i++) data[i] = (i * 97 + (i >> 3) * 251) % 65536;
+    const out = decodeGray16(encodeGray16({ width, height: width, data }));
+    expect(out.data).toEqual(data);
+    const slope = new Uint16Array(width * width).map((_, i) => (i % width) * 300 + Math.floor(i / width) * 200);
+    expect(encodeGray16({ width, height: width, data: slope }).length).toBeLessThan((width * width * 2) / 10);
+  });
+
+  it('refuses 8-bit, and what isn’t a PNG, saying what it should be', () => {
+    expect(() => decodeGray16(png(1, 1, 0, [[0]], [0]))).toThrow('Heights are a 16-bit greyscale PNG');
+    expect(() => decodeGray16(new Uint8Array([1, 2, 3]))).toThrow('It isn’t a PNG file');
   });
 });
 

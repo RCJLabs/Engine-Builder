@@ -26,7 +26,7 @@ export {
   type PackContent,
   scan,
 } from './leaks.ts';
-export { decodePng, encodePng, type Rgba } from './png.ts';
+export { decodeGray16, decodePng, encodeGray16, encodePng, type Gray16, type Rgba } from './png.ts';
 export { readme } from './readme.ts';
 export { assetLinks, type GameInfo, versionJson, webManifest } from './site.ts';
 export { cachedFiles, serviceWorker } from './sw.ts';

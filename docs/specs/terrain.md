@@ -34,7 +34,7 @@ A space's JSON gains one field, `terrain`, written after `name` and before `obje
 
 - **A space has at most one terrain; a prefab has none.** A prefab with `terrain` is E058.
 - **Where it lies:** centred on the space's origin, its vertices `spacing` apart along x and z. Vertex `(i, j)` is at `x = (i − (size − 1) / 2) × spacing`, `z = (j − (size − 1) / 2) × spacing`.
-- **Between vertices**, a height is read bilinearly, as the spike's `heightAt` reads it (M1.10). Outside the terrain, the nearest edge holds.
+- **Between vertices**, a height is read on the triangles drawn at full detail, each square split from its `(i + 1, j)` corner to its `(i, j + 1)` one, as the spike's `heightAt` reads its own (M1.10). Outside the terrain, the nearest edge holds.
 
 ## Its two files
 
