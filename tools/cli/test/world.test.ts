@@ -79,4 +79,26 @@ describe('eb with the trail', () => {
     expect(clash.code).toBe(1);
     expect(clash.out).toMatch(/error E031: Its module "world" has the id of the engine's world module/);
   });
+
+  it('exports it with walk.js beside the page, and refuses a runtime without one', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'eb-trail-runtime-'));
+    writeFileSync(join(dir, 'game.js'), 'console.log("the engine");\n');
+    writeFileSync(join(dir, 'game.css'), 'body { margin: 0 }\n');
+    writeFileSync(join(dir, 'files.json'), JSON.stringify({ version: '0.0.1', files: ['game.js', 'game.css'] }));
+    const without = eb(['export', TRAIL, '--target', 'web', '--out', join(dir, 'none'), '--runtime', dir]);
+    expect(without.code).not.toBe(0);
+    expect(without.err).toContain('has no walk.js');
+    writeFileSync(join(dir, 'walk.js'), 'window.__ebWalkStage = {};\n');
+    writeFileSync(
+      join(dir, 'files.json'),
+      JSON.stringify({ version: '0.0.1', files: ['game.js', 'game.css'], walk: 'walk.js' }),
+    );
+    const out = join(dir, 'web');
+    const run = eb(['export', TRAIL, '--target', 'web', '--out', out, '--runtime', dir]);
+    expect(run.code, run.out + run.err).toBe(0);
+    const page = readFileSync(join(out, 'index.html'), 'utf8');
+    const walk = /"walk":"(walk\.[0-9a-f]{8}\.js)"/.exec(page)?.[1];
+    expect(walk).toBeDefined();
+    expect(readFileSync(join(out, walk as string), 'utf8')).toBe('window.__ebWalkStage = {};\n');
+  });
 });

@@ -5,7 +5,7 @@
  */
 import { type ExportJson, FULL } from '@eb/compiler';
 import { buildHash, sha256, utf8 } from './hash.ts';
-import { type Boot, gamePage, inlineScript, inlineStyle } from './html.ts';
+import { type Boot, gamePage, inlineScript, inlineStyle, WALK_ELEMENT } from './html.ts';
 import { iconFiles, readIcon } from './icons.ts';
 import type { PackContent } from './leaks.ts';
 import { readme } from './readme.ts';
@@ -13,17 +13,22 @@ import { assetLinks, type GameInfo, versionJson, webManifest } from './site.ts';
 import { cachedFiles, serviceWorker } from './sw.ts';
 import { androidWorkflow, pagesWorkflow, twaManifest, twaPackageJson } from './workflows.ts';
 
-/** The engine's player for an exported game: apps/editor's game page, built (vite.game.config.ts). */
+/**
+ * The engine's player for an exported game: apps/editor's game page, built (vite.game.config.ts),
+ * and walk.js, the stage of a game with spaces (vite.walk.config.ts, M5.8).
+ */
 export interface Runtime {
   readonly version: string;
   readonly js: string;
   readonly css: string;
+  readonly walk?: string;
 }
 
-/** A pack as the build reads it: its project, records and theme. */
+/** A pack as the build reads it: its project, records and theme, and its world when it has spaces. */
 export interface BuildPack extends PackContent {
   readonly project: { readonly id: string; readonly name: string; readonly version: string };
   readonly ui?: { readonly theme?: unknown };
+  readonly world?: unknown;
 }
 
 export interface BuildInput {
@@ -68,13 +73,35 @@ const isDark = (colour: string): boolean => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5;
 };
 
-const boot = (input: BuildInput, sw: boolean): Boot => ({ edition: input.edition, pack: input.pack, sw });
+const boot = (input: BuildInput, sw: boolean, walk?: string): Boot => ({
+  edition: input.edition,
+  pack: input.pack,
+  sw,
+  ...(walk === undefined ? {} : { walk }),
+});
+
+/** walk.js for a game with spaces, none for one without; a runtime built without it can't export one. */
+function walkOf(input: BuildInput): string | undefined {
+  if (input.pack.world === undefined) return undefined;
+  if (input.runtime.walk === undefined) {
+    throw new Error(
+      'This game has spaces, and the runtime it is exported with has no walk.js: build it with the editor',
+    );
+  }
+  return input.runtime.walk;
+}
 
 /** The runtime's files, named by their content so a browser never pairs an old script with a new page. */
-async function runtimeNames(runtime: Runtime): Promise<{ js: string; css: string }> {
+async function runtimeNames(
+  runtime: Runtime,
+  walk: string | undefined,
+): Promise<{ js: string; css: string; walk?: string }> {
+  const named = async (text: string, name: string, ext: string) =>
+    `${name}.${(await sha256(utf8.encode(text))).slice(0, 8)}.${ext}`;
   return {
-    js: `game.${(await sha256(utf8.encode(runtime.js))).slice(0, 8)}.js`,
-    css: `game.${(await sha256(utf8.encode(runtime.css))).slice(0, 8)}.css`,
+    js: await named(runtime.js, 'game', 'js'),
+    css: await named(runtime.css, 'game', 'css'),
+    ...(walk === undefined ? {} : { walk: await named(walk, 'walk', 'js') }),
   };
 }
 
@@ -84,6 +111,7 @@ export const engineTexts = (runtime: Runtime): string[] => [
   runtime.css,
   inlineScript(runtime.js),
   inlineStyle(runtime.css),
+  ...(runtime.walk === undefined ? [] : [runtime.walk, inlineScript(runtime.walk)]),
 ];
 
 function icons(input: BuildInput) {
@@ -94,14 +122,15 @@ function icons(input: BuildInput) {
 /** The web build: installable, offline after its first visit, with its service worker and version.json. */
 export async function webFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
-  const names = await runtimeNames(input.runtime);
+  const walk = walkOf(input);
+  const names = await runtimeNames(input.runtime, walk);
   const files: Files = new Map();
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, true),
+    boot: boot(input, true, names.walk),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: true,
@@ -109,6 +138,7 @@ export async function webFiles(input: BuildInput): Promise<Files> {
   files.set('index.html', utf8.encode(page));
   files.set(names.js, utf8.encode(input.runtime.js));
   files.set(names.css, utf8.encode(input.runtime.css));
+  if (walk !== undefined && names.walk) files.set(names.walk, utf8.encode(walk));
   files.set('manifest.webmanifest', utf8.encode(webManifest(info)));
   for (const [path, bytes] of icons(input)) files.set(path, bytes);
   const android = input.settings?.targets?.android;
@@ -124,13 +154,14 @@ export async function webFiles(input: BuildInput): Promise<Files> {
 /** The itch.io build: relative paths, no service worker or manifest, since itch serves every game from one origin. */
 export async function itchFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
-  const names = await runtimeNames(input.runtime);
+  const walk = walkOf(input);
+  const names = await runtimeNames(input.runtime, walk);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, false),
+    boot: boot(input, false, names.walk),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: false,
@@ -139,6 +170,7 @@ export async function itchFiles(input: BuildInput): Promise<Files> {
     ['index.html', utf8.encode(page)],
     [names.js, utf8.encode(input.runtime.js)],
     [names.css, utf8.encode(input.runtime.css)],
+    ...(walk !== undefined && names.walk ? [[names.walk, utf8.encode(walk)] as [string, Uint8Array]] : []),
     ['icons/favicon.png', icons(input).get('icons/favicon.png') as Uint8Array],
   ]);
 }
@@ -149,17 +181,19 @@ const base64 = (bytes: Uint8Array): string => {
   return btoa(text);
 };
 
-/** One HTML file that plays from the device's files: the runtime, the pack and the favicon inside it. */
+/** One HTML file that plays from the device's files: the runtime, walk.js, the pack and the favicon inside it. */
 export function singleFile(input: BuildInput): { readonly name: string; readonly bytes: Uint8Array } {
   const info = gameInfo(input);
   const favicon = icons(input).get('icons/favicon.png') as Uint8Array;
+  const walk = walkOf(input);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, false),
+    boot: boot(input, false, walk === undefined ? undefined : `#${WALK_ELEMENT}`),
     runtime: { inline: { js: input.runtime.js, css: input.runtime.css } },
+    ...(walk === undefined ? {} : { walk }),
     favicon: `data:image/png;base64,${base64(favicon)}`,
     installable: false,
   });

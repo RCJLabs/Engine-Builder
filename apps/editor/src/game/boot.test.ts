@@ -15,4 +15,14 @@ describe('an exported game’s boot JSON (M4.10)', () => {
     expect(readBoot('{ nope')).toMatchObject({ ok: false, message: 'This page’s game isn’t JSON: export it again.' });
     expect(readBoot('{"edition":"full"}')).toMatchObject({ ok: false });
   });
+
+  it('names walk.js only as Export writes it (M5.8)', () => {
+    for (const walk of ['walk.0a1b2c3d.js', '#eb-walk']) {
+      const boot = { edition: 'full', pack: {}, sw: false, walk };
+      expect(readBoot(JSON.stringify(boot))).toEqual({ ok: true, boot });
+    }
+    for (const walk of ['https://example.com/walk.js', 'walk.js', '#other', 3]) {
+      expect(readBoot(JSON.stringify({ edition: 'full', pack: {}, sw: false, walk }))).toMatchObject({ ok: false });
+    }
+  });
 });

@@ -10,7 +10,12 @@ export interface Boot {
   readonly pack: unknown;
   /** Register ./sw.js: the web build's page, served over HTTP(S). */
   readonly sw: boolean;
+  /** walk.js (M5.8): its file beside the page, or "#eb-walk", the element of a single page that holds it. */
+  readonly walk?: string;
 }
+
+/** The single page's element that holds walk.js as text, run only once a Space widget draws. */
+export const WALK_ELEMENT = 'eb-walk';
 
 /**
  * JSON safe inside a script tag: `<`, `>` and `&` as \u escapes, so no "</script>" or "<!--" can
@@ -50,6 +55,8 @@ export interface PageParts {
   readonly favicon: string;
   /** The web build's: the manifest and the Apple icon. */
   readonly installable: boolean;
+  /** walk.js inside a single page, as text the runtime runs when a space is first drawn. */
+  readonly walk?: string;
 }
 
 /** The page. Parts are joined, never put in with String.replace, whose "$&" would read a pattern. */
@@ -87,6 +94,10 @@ export function gamePage(parts: PageParts): string {
     '<body>',
     '<main id="game"></main>',
     `<noscript>${text(parts.title)} needs JavaScript.</noscript>`,
+    // Not run as the page loads: three and Rapier are parsed only for a game that draws a space.
+    ...(parts.walk === undefined
+      ? []
+      : [`<script type="text/plain" id="${WALK_ELEMENT}">${inlineScript(parts.walk)}</script>`]),
     // After the page's script, which as a module runs only once the page is read, this included.
     `<script type="application/json" id="eb-game">${scriptJson(parts.boot)}</script>`,
     '</body>',

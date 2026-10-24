@@ -37,9 +37,15 @@ async function readRuntime(dir = DEFAULT_RUNTIME): Promise<Runtime> {
       `No game runtime in ${dir}: build it with "pnpm -C apps/editor exec vite build -c vite.game.config.ts", or name one with --runtime`,
     );
   }
-  const { version, files } = JSON.parse(await readFile(list, 'utf8')) as { version: string; files: string[] };
+  const { version, files, walk } = JSON.parse(await readFile(list, 'utf8')) as {
+    version: string;
+    files: string[];
+    walk?: string;
+  };
   const [js, css] = await Promise.all(files.map((file) => readFile(join(dir, file), 'utf8')));
-  return { version, js: js as string, css: css as string };
+  // walk.js, for a game with spaces (M5.8): apps/editor builds it beside the runtime.
+  const walked = walk === undefined ? undefined : await readFile(join(dir, walk), 'utf8');
+  return { version, js: js as string, css: css as string, ...(walked === undefined ? {} : { walk: walked }) };
 }
 
 async function readSettings(source: ProjectSource): Promise<ExportJson | undefined> {

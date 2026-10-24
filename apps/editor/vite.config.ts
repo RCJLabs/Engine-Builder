@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { dracoDefaultsOff } from './vite.draco.ts';
 
 /**
  * Where the built editor is served from: the root of engine.rcjlabs.com, its own origin, so its
@@ -45,8 +46,9 @@ function versionFile(): Plugin {
 }
 
 /**
- * The runtime of an exported game (M4.10), built first by vite.game.config.ts into dist-game/, is
- * served at runtime/ beside the editor, so the service worker keeps it and Export works offline.
+ * The runtime of an exported game (M4.10), built first by vite.game.config.ts into dist-game/, and
+ * walk.js beside it (M5.8), are served at runtime/ beside the editor, so the service worker keeps
+ * them and Export, and walking a space in play, work offline.
  * A dev server has none until it is built; Export then says so.
  */
 function gameRuntime(): Plugin {
@@ -58,31 +60,13 @@ function gameRuntime(): Plugin {
       const list = resolve(dir, 'files.json');
       if (!existsSync(list))
         this.error('No game runtime in dist-game/: build it first (vite build -c vite.game.config.ts)');
-      const { files } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[] };
-      for (const file of ['files.json', ...files]) {
+      const { files, walk } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[]; walk?: string };
+      // walk.js too (M5.8): the Play panel and the player page walk spaces with it.
+      if (walk === undefined)
+        this.error('No walk.js in dist-game/: build it first (vite build -c vite.walk.config.ts)');
+      for (const file of ['files.json', ...files, walk]) {
         this.emitFile({ type: 'asset', fileName: `runtime/${file}`, source: readFileSync(resolve(dir, file)) });
       }
-    },
-  };
-}
-
-/**
- * three's DRACOLoader names its own decoder files with `new URL`, so Vite would ship them all and
- * the service worker precache them: the asm.js fallback (719 kB) and the glTF build's wrapper and
- * wasm (250 kB), none of them ever fetched. The view always gives the loader its decoder's files
- * (src/spaces/modelsView.ts), so the loader's own names are blanked (M5.5). Five names are
- * expected: a three that names others fails the build here rather than shipping them unseen.
- */
-function dracoDefaultsOff(): Plugin {
-  const named = /new URL\( '\.\.\/libs\/draco\/[^']+', import\.meta\.url \)\.toString\(\)/g;
-  return {
-    name: 'eb-draco-defaults-off',
-    enforce: 'pre',
-    transform(code, id) {
-      if (!id.endsWith('/three/examples/jsm/loaders/DRACOLoader.js')) return null;
-      const found = code.match(named)?.length ?? 0;
-      if (found !== 5) this.error(`three's DRACOLoader names ${found} decoder files, not 5`);
-      return { code: code.replace(named, "''"), map: null };
     },
   };
 }
@@ -135,6 +119,9 @@ export default defineConfig(({ command, isPreview }) => ({
         // runtime/files.json too: Export reads it to find the game runtime's files (M4.10). The wasm
         // is three's Draco and Basis decoders, for models offline (M5.5, D67).
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,wasm}', 'runtime/files.json'],
+        // walk.js is about 7 MB, Rapier's wasm inside it (M5.8): Workbox would leave out anything
+        // over 2 MB, and a space would then walk only online.
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         // The editor had rcjlabs.github.io's origin, shared with the games, before it moved to
         // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',

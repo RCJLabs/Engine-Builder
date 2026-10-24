@@ -36,12 +36,19 @@ async function readRuntime(): Promise<Runtime> {
   const list = await fetch(new URL('files.json', base))
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
-  const listed = list as { version?: string; files?: string[] } | null;
+  const listed = list as { version?: string; files?: string[]; walk?: string } | null;
   if (listed?.files?.length !== 2) {
     throw new Error('This editor has no game runtime to export with: it was built without one.');
   }
-  const [js, css] = await Promise.all(listed.files.map((file) => fetch(new URL(file, base)).then((r) => r.text())));
-  return { version: String(listed.version), js: js as string, css: css as string };
+  const read = (file: string) => fetch(new URL(file, base)).then((r) => r.text());
+  const [js, css] = await Promise.all(listed.files.map(read));
+  const walk = listed.walk === undefined ? undefined : await read(listed.walk);
+  return {
+    version: String(listed.version),
+    js: js as string,
+    css: css as string,
+    ...(walk === undefined ? {} : { walk }),
+  };
 }
 
 /** export.json as written, or undefined when there is none; a broken one stops the export. */

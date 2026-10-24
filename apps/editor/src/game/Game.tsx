@@ -10,6 +10,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { type GameWorker, gameWorker } from '../player/gameWorker.ts';
 import PlayerWorker from '../player/player.worker.ts?worker&inline';
 import { freshSeed } from '../player/seed.ts';
+import { exportedWalk } from '../walk/hosts.ts';
 import type { Boot } from './boot.ts';
 import { applyGameUpdate, updateReady } from './pwa.ts';
 
@@ -53,6 +54,7 @@ export function Game({ boot }: { readonly boot: Boot }) {
         seed={freshSeed}
         history
         crashes
+        spaces={exportedWalk(shown.opened.world, boot.walk)}
         {...(boot.sw ? { update: { ready: updateReady.value, apply: applyGameUpdate } } : {})}
       />
     </>

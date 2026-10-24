@@ -7,6 +7,7 @@ import { openStore, type Store } from '@eb/platform';
 import type { OpenedGame } from '@eb/ui/shell';
 import { Shell } from '@eb/ui/shell';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { editorWalk } from '../walk/editorWalk.ts';
 import type { GameWorker } from './gameWorker.ts';
 import { playerWorker } from './playerWorker.ts';
 import { applyPlayerUpdate, updateReady } from './pwa.ts';
@@ -92,6 +93,7 @@ export function Player() {
               history
               crashes
               update={{ ready: updateReady.value, apply: applyPlayerUpdate }}
+              spaces={editorWalk(shown.opened.world)}
             />
           </div>
         ) : null}
