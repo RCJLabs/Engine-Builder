@@ -37,16 +37,18 @@ export async function createSpace(kind: SpaceKind, id: string, typed: string): P
   openSpaceFile(kind, id);
 }
 
-/** A shape or a prefab put on the ground in the middle of the view, or beside what is there, chosen. */
+/** A shape, a prefab or a record (M5.2) put on the ground in the middle of the view, or beside what is there, chosen. */
 export async function addHere(
-  object: { readonly shape: SpaceObject['shape'] } | { readonly prefab: string },
+  object: { readonly shape: SpaceObject['shape'] } | { readonly prefab: string } | { readonly record: string },
 ): Promise<void> {
   const [x, , z] = aim.value;
   const snap = (v: number) => (snapOn.value ? snapTo(v, STEPS.move) : v);
   const base: SpaceObject =
     'prefab' in object
       ? { id: object.prefab, prefab: object.prefab }
-      : { id: object.shape ?? 'box', shape: object.shape };
+      : 'record' in object
+        ? { id: object.record.slice(object.record.indexOf(':') + 1), record: object.record }
+        : { id: object.shape ?? 'box', shape: object.shape };
   let made = '';
   await editOpen(`Add ${base.id}`, (space) => {
     const at = freeSpot(space, snap(x), snap(z));

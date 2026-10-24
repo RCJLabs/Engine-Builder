@@ -1,8 +1,11 @@
 /**
  * A space or prefab as three objects (M5.1): one per object of the file, each standing where its
- * file puts it, a placed prefab a group of the prefab's own objects. Geometry is shared by shape
- * and materials by colour, so building a space again after an edit costs little.
+ * file puts it, a placed prefab a group of the prefab's own objects, as its placement's overrides
+ * change them (M5.2). A placed record is a marker with its name above it; each component a small
+ * mark of its kind, a light a light as well. Geometry is shared by shape and materials by colour,
+ * so building a space again after an edit costs little.
  */
+import { type Fields, isFields, overridden, passedOn, placedObjects } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
 import type { Transform } from './gizmoMath.ts';
 import { GREY, type SpaceJson, type SpaceObject, transformOf } from './spaceFile.ts';
@@ -18,8 +21,23 @@ export interface Built {
   /** The file's objects, in order, each with its id in userData.objectId. */
   readonly root: THREE.Group;
   readonly byId: ReadonlyMap<string, THREE.Object3D>;
+  /** Each placed record's name, and the marker it stands over. */
+  readonly labels: readonly { readonly text: string; readonly at: THREE.Object3D }[];
   dispose(): void;
 }
+
+/** What a record's name is, by "type:id": the record's name field, when its type has one. */
+export type NameOf = (key: string) => string | undefined;
+
+/** The marks' colours: one a kind, each light enough to read on the view's dark ground. */
+const MARKS: Readonly<Record<string, string>> = {
+  record: '#e0a030',
+  light: '#ffd166',
+  collider: '#3ecf8e',
+  trigger: '#b07cff',
+  spawn: '#4cc9f0',
+  sound: '#ff8fab',
+};
 
 function shapes(): Record<'box' | 'sphere' | 'cylinder' | 'plane', THREE.BufferGeometry> {
   return {
@@ -55,32 +73,93 @@ export function createBuilder() {
     return made;
   };
   const wire = new THREE.MeshBasicMaterial({ color: MISSING, wireframe: true });
+  const marks = markGeometry();
+  const markMaterials = new Map(
+    Object.entries(MARKS).map(([kind, color]) => [
+      kind,
+      new THREE.MeshBasicMaterial({ color, wireframe: kind !== 'record' }),
+    ]),
+  );
+  const markOf = (kind: string, geometry: THREE.BufferGeometry) =>
+    new THREE.Mesh(geometry, markMaterials.get(kind) as THREE.Material);
 
-  const objectOf = (object: SpaceObject, prefabs: ReadonlyMap<string, SpaceJson>, depth: number): THREE.Object3D => {
-    if (object.shape !== undefined) {
-      const mesh = new THREE.Mesh(geometry[object.shape], material(object.color ?? GREY, object.shape === 'plane'));
-      setTransform(mesh, transformOf(object));
-      return mesh;
+  /** The marks of an object's components, as children of its own node. */
+  const withComponents = (node: THREE.Object3D, object: SpaceObject) => {
+    const components = object.components ?? {};
+    const centre = object.shape !== undefined && object.shape !== 'plane' ? 0.5 : 0;
+    for (const [kind, fields] of Object.entries(components)) {
+      const f: Fields = isFields(fields) ? fields : {};
+      if (kind === 'light') {
+        const light = new THREE.PointLight(
+          typeof f.color === 'string' ? f.color : '#ffffff',
+          typeof f.intensity === 'number' ? f.intensity * 4 : 4,
+          typeof f.range === 'number' ? f.range : 10,
+        );
+        light.position.y = centre;
+        node.add(light);
+        const bulb = markOf('light', marks.bulb);
+        bulb.position.y = centre;
+        node.add(bulb);
+      } else if (kind === 'collider') {
+        node.add(
+          markOf('collider', f.shape === 'sphere' ? marks.sphere : f.shape === 'capsule' ? marks.capsule : marks.box),
+        );
+      } else if (kind === 'trigger') node.add(markOf('trigger', marks.box));
+      else if (kind === 'spawn') node.add(markOf('spawn', marks.arrow));
+      else if (kind === 'sound') {
+        const ring = markOf('sound', marks.ring);
+        ring.position.y = centre;
+        node.add(ring);
+      }
+    }
+    return node;
+  };
+
+  const objectOf = (
+    object: SpaceObject,
+    prefabs: ReadonlyMap<string, SpaceJson>,
+    depth: number,
+    layers: readonly unknown[],
+    names: NameOf,
+    labels: { text: string; at: THREE.Object3D }[],
+  ): THREE.Object3D => {
+    const seen = overridden(object, layers);
+    if (seen.shape !== undefined) {
+      const mesh = new THREE.Mesh(geometry[seen.shape], material(seen.color ?? GREY, seen.shape === 'plane'));
+      setTransform(mesh, transformOf(seen));
+      return withComponents(mesh, seen);
     }
     const group = new THREE.Group();
-    setTransform(group, transformOf(object));
-    const prefab = object.prefab === undefined ? undefined : prefabs.get(object.prefab);
+    setTransform(group, transformOf(seen));
+    if (seen.record !== undefined) {
+      const marker = markOf('record', marks.record);
+      group.add(marker);
+      labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: marker });
+      return withComponents(group, seen);
+    }
+    const prefab = seen.prefab === undefined ? undefined : prefabs.get(seen.prefab);
     if (!prefab) group.add(new THREE.Mesh(missing, wire));
-    else if (depth < DEEPEST) for (const inner of prefab.objects) group.add(objectOf(inner, prefabs, depth + 1));
-    return group;
+    else if (depth < DEEPEST) {
+      for (const inner of placedObjects(prefab, passedOn(object, layers))) {
+        group.add(objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels));
+      }
+    }
+    return withComponents(group, seen);
   };
 
   return {
-    build(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>): Built {
+    build(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names: NameOf = () => undefined): Built {
       const root = new THREE.Group();
       const byId = new Map<string, THREE.Object3D>();
+      const labels: { text: string; at: THREE.Object3D }[] = [];
       for (const object of space.objects) {
-        const made = objectOf(object, prefabs, 0);
+        const made = objectOf(object, prefabs, 0, [], names, labels);
         made.userData.objectId = object.id;
         root.add(made);
         if (!byId.has(object.id)) byId.set(object.id, made);
       }
-      return { root, byId, dispose: () => root.clear() };
+      // Lights are made a build at a time: three keeps none of them once they leave the scene.
+      return { root, byId, labels, dispose: () => root.clear() };
     },
     /** The id of the file's object a picked mesh belongs to. */
     idOf(hit: THREE.Object3D | null): string | null {
@@ -91,9 +170,25 @@ export function createBuilder() {
     },
     dispose() {
       for (const each of Object.values(geometry)) each.dispose();
+      for (const each of Object.values(marks)) each.dispose();
       missing.dispose();
       for (const each of materials.values()) each.dispose();
+      for (const each of markMaterials.values()) each.dispose();
       wire.dispose();
     },
+  };
+}
+
+/** The marks' shapes, each standing on its object's origin as the shapes do: a record's diamond, a bulb, a zone's box, an arrow, a ring. */
+function markGeometry() {
+  return {
+    record: new THREE.OctahedronGeometry(0.35).translate(0, 0.6, 0),
+    bulb: new THREE.SphereGeometry(0.12, 12, 8),
+    box: new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0),
+    sphere: new THREE.SphereGeometry(0.5, 16, 8).translate(0, 0.5, 0),
+    capsule: new THREE.CapsuleGeometry(0.3, 0.4, 4, 12).translate(0, 0.5, 0),
+    // Pointing the way the object faces, along -z, as three's camera and its objects look.
+    arrow: new THREE.ConeGeometry(0.18, 0.5, 12).rotateX(-Math.PI / 2).translate(0, 0.05, -0.25),
+    ring: new THREE.TorusGeometry(0.3, 0.03, 8, 24).rotateX(Math.PI / 2),
   };
 }

@@ -40,6 +40,8 @@ export interface SpacePartsContext {
 export interface SpaceUse {
   readonly key: string;
   readonly file: string;
+  /** The id of the file's object it is in: the placement, for a ref inside its overrides. */
+  readonly object: string;
   readonly path: string;
 }
 
@@ -51,6 +53,8 @@ const DEEPEST = 8;
 interface Walk {
   readonly ctx: SpacePartsContext;
   readonly file: string;
+  /** The file's object being checked. */
+  readonly object: string;
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   readonly diagnostics: Diagnostic[];
   readonly uses: SpaceUse[];
@@ -65,9 +69,10 @@ export function checkSpaceParts(
   const diagnostics: Diagnostic[] = [];
   const uses: SpaceUse[] = [];
   for (const read of sound) {
-    const walk: Walk = { ctx, file: read.file, prefabs, diagnostics, uses };
     const space = read.value as SpaceJson;
-    for (const [i, object] of space.objects.entries()) checkObject(walk, object, `/objects/${i}`);
+    for (const [i, object] of space.objects.entries()) {
+      checkObject({ ctx, file: read.file, object: object.id, prefabs, diagnostics, uses }, object, `/objects/${i}`);
+    }
     if (read.kind === 'space') diagnostics.push(...starts(read.file, space, prefabs));
   }
   return { diagnostics, uses };
@@ -86,7 +91,7 @@ function checkObject(walk: Walk, object: SpaceObject, at: string): void {
       report(walk, 'E064', `${at}/record`, `No record type "${key?.type ?? object.record}" in this project`);
       return;
     }
-    walk.uses.push({ key: object.record, file: walk.file, path: `${at}/record` });
+    walk.uses.push({ key: object.record, file: walk.file, object: walk.object, path: `${at}/record` });
     if (!walk.ctx.records.has(key.type, key.id)) {
       report(walk, 'E064', `${at}/record`, `No record ${object.record}`);
       return;
@@ -208,7 +213,7 @@ function partContext(
       if (kept(path)) report(walk, found === 'E001' ? code : found, path, message);
     },
     use: (key, path) => {
-      if (kept(path)) walk.uses.push({ key, file: walk.file, path });
+      if (kept(path)) walk.uses.push({ key, file: walk.file, object: walk.object, path });
     },
     asset: (path, value) => {
       if (kept(path) && walk.ctx.assets && !walk.ctx.assets.has(value)) {

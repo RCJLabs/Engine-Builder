@@ -5,7 +5,7 @@
  * something changes, so a still editor spends nothing on it.
  */
 import * as THREE from 'three/webgpu';
-import { type Built, createBuilder, setTransform } from './build.ts';
+import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
@@ -36,7 +36,7 @@ export interface View {
   /** Shows the chosen objects where a drag has them, or back where their file has them (null). */
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
-  show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>): void;
+  show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf): void;
   select(ids: readonly string[]): void;
   setMode(mode: Mode): void;
   /** The chosen objects in view, or the whole space when none are. */
@@ -82,6 +82,13 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   scene.add(outlines);
   const gizmo = createGizmo();
   scene.add(gizmo.group);
+  // Placed records' names (M5.2), drawn by the page over the canvas: sharp at any size, and words a
+  // screen reader skips, as the outliner names the same objects.
+  const labelLayer = document.createElement('div');
+  labelLayer.className = 'scene-labels';
+  labelLayer.setAttribute('aria-hidden', 'true');
+  host.append(labelLayer);
+  let labels: { readonly at: THREE.Object3D; readonly box: HTMLSpanElement }[] = [];
 
   let orbit = START;
   let built: Built | null = null;
@@ -153,8 +160,20 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       gizmo.group.visible = at !== null;
       if (at) gizmo.place(at.pivot, at.metres, at.own);
       renderer.render(scene, camera);
+      placeLabels();
       frames++;
     });
+  };
+
+  const placeLabels = () => {
+    const world = new THREE.Vector3();
+    for (const { at, box } of labels) {
+      at.getWorldPosition(world);
+      const spot = project([world.x, world.y + 0.5, world.z]);
+      box.hidden = spot === null;
+      if (spot)
+        box.style.transform = `translate(${spot[0].toFixed(1)}px, ${spot[1].toFixed(1)}px) translate(-50%, -100%)`;
+    }
   };
 
   const setOrbit = (next: Orbit) => {
@@ -261,13 +280,21 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     light(handle) {
       if (gizmo.light(handle)) draw();
     },
-    show(space, prefabs) {
+    show(space, prefabs, names) {
       if (built) {
         scene.remove(built.root);
         built.dispose();
       }
-      built = builder.build(space, prefabs);
+      built = builder.build(space, prefabs, names);
       scene.add(built.root);
+      labelLayer.replaceChildren();
+      labels = built.labels.map(({ text, at }) => {
+        const box = document.createElement('span');
+        box.className = 'scene-label';
+        box.textContent = text;
+        labelLayer.append(box);
+        return { at, box };
+      });
       filed = new Map(space.objects.map((o) => [o.id, placedOf(o)]));
       draft = null;
       outline();
@@ -300,6 +327,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     draw,
     dispose() {
       watcher.disconnect();
+      labelLayer.remove();
       if (hooked().__ebViewport?.objectAt === objectAt) delete hooked().__ebViewport;
       built?.dispose();
       chosen = [];

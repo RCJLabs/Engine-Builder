@@ -16,10 +16,18 @@ import {
 import { formatRef, isRecordId } from '@eb/core';
 import type { FileChange } from '../editing/history.ts';
 import { editJson, readJson } from '../editing/jsonText.ts';
-import { readCatalog, recordFile } from '../forms/catalog.ts';
+import { type Catalog, readCatalog, recordFile } from '../forms/catalog.ts';
 import { newFileText } from '../forms/recordEdits.ts';
 import { guideMoved } from '../guide/guideSteps.ts';
-import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
+import { EMPTY_INDEX, type RecordIndex, updateIndex } from '../records/recordIndex.ts';
+import { NO_SCRIPTS } from '../scripts/gameState.ts';
+import {
+  placedOverrides,
+  renameRecordInSpaces,
+  renameTypeInSpaces,
+  rewritePlacedRecords,
+} from '../spaces/recordRenames.ts';
+import { spaceProblems } from '../spaces/spaceChecks.ts';
 import { compose, type Rewrite, refSites, renameAtPointers, renameRecordRefs, renameTypeRefs } from './rewrites.ts';
 import { refersTo, renameTypeInFile } from './typeFileChanges.ts';
 
@@ -152,8 +160,14 @@ export async function changeType(
   // Read once for both: a rename both checks and rewrites every record.
   const files = await recordFilesOf(source, type);
   const read = await readFiles(source, files);
-  if (made.check) made.check([...read.values()].map(jsonOf));
-  return made.rewrite ? [...own, ...rewriteRead(read, files, made.rewrite)] : own;
+  // A placed record's overrides hold its fields too (M5.2): a rename onto one they set would lose it.
+  if (made.check) made.check([...[...read.values()].map(jsonOf), ...(await placedOverrides(source, type))]);
+  if (!made.rewrite) return own;
+  return [
+    ...own,
+    ...rewriteRead(read, files, made.rewrite),
+    ...(await rewritePlacedRecords(source, type, made.rewrite)),
+  ];
 }
 
 /** A file moved: gone from `from`, at `to` with its bytes after `rewrite`. */
@@ -199,7 +213,10 @@ export async function renameType(source: ProjectSource, from: string, to: string
         changes.push(...move(path, recordFile(to, role.id), bytes, rewrite));
     }
   }
-  return changes;
+  // Every "from:id" in spaces and prefabs follows (M5.2): placements and refs in components and overrides.
+  const { catalog, index } = await indexNow(source);
+  const placed = await spaceReferences(source, catalog, index, (key) => key.startsWith(`${from}:`));
+  return [...changes, ...(await renameTypeInSpaces(source, placed, from, to))];
 }
 
 /** The types whose files refer to `type`, other than its own: while there are any, it can't be deleted. */
@@ -267,7 +284,31 @@ export async function renameRecord(
   const guide = await source.read(GUIDE_FILE);
   const guided = guide && rewritten(guide, (value) => guideMoved(value, was, now));
   if (guide && guided && guided !== guide) changes.push({ path: GUIDE_FILE, before: guide, after: guided });
-  return changes;
+  // Spaces and prefabs place it, or name it in a component or an override (M5.2).
+  const { catalog, index } = await indexNow(source);
+  const placed = await spaceReferences(source, catalog, index, (key) => key === formatRef(type, from));
+  return [...changes, ...(await renameRecordInSpaces(source, placed, type, from, to))];
+}
+
+/** The copy's catalog and record index as they are now: never the open project's, which may be a step behind. */
+async function indexNow(source: ProjectSource) {
+  const catalog = await readCatalog(source);
+  return { catalog, index: await updateIndex(EMPTY_INDEX, source, catalog, null) };
+}
+
+/** The pointers in spaces and prefabs at which a "type:id" `matches` names is named, by file (M5.2). */
+async function spaceReferences(
+  source: ProjectSource,
+  catalog: Catalog,
+  index: RecordIndex,
+  matches: (key: string) => boolean,
+): Promise<Map<string, string[]>> {
+  const { users } = await spaceProblems(source, catalog, index, NO_SCRIPTS);
+  const found = new Map<string, string[]>();
+  for (const [key, uses] of users) {
+    if (matches(key)) for (const use of uses) found.set(use.file, [...(found.get(use.file) ?? []), use.path]);
+  }
+  return found;
 }
 
 /**

@@ -63,7 +63,7 @@ export function mapComponents(
 }
 
 /** A part of a component rewritten as its whole would be, without the keys a rewrite only adds: a field filled in. */
-function partOf(rewrite: (value: unknown) => unknown, part: unknown): unknown {
+export function partOf(rewrite: (value: unknown) => unknown, part: unknown): unknown {
   const after = rewrite(part);
   if (!isFields(part) || !isFields(after)) return after;
   const before = Object.keys(part);

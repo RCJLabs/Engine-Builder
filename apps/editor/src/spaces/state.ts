@@ -20,6 +20,11 @@ export interface OpenSpace {
 export const openSpace = signal<OpenSpace | null>(null);
 /** The ids of the objects chosen in it, in the order they were chosen. */
 export const picked = signal<readonly string[]>([]);
+/**
+ * With one placement of a prefab chosen, the object inside it its form shows (M5.2): a path of ids
+ * down through the prefabs, empty for the placement itself. Any new choice clears it.
+ */
+export const inside = signal<readonly string[]>([]);
 export const gizmoMode = signal<Mode>('move');
 export const snapOn = signal(true);
 /** Touch's way to choose many: each tap adds or takes away until it is turned off. */
@@ -42,6 +47,7 @@ export function openSpaceFile(kind: SpaceKind, id: string, objects: readonly str
 export function pick(objects: readonly string[]): void {
   const open = openSpace.value;
   picked.value = objects;
+  inside.value = [];
   if (open) chosen.value = { kind: 'space', path: open.path };
 }
 

@@ -1,23 +1,25 @@
 /**
  * The inspector's form for the objects chosen in the Scene panel (M5.1,
  * docs/specs/viewport.md#the-inspector): one object's name, place, turn and scale, and its shape
- * and colour or its prefab; several, how many, with Group into prefab and Delete in the toolbar.
- * Typing into a field joins into one step of undo, as the record form's fields do.
+ * and colour, its prefab or its record; several, how many, with Group into prefab and Delete in the
+ * toolbar. Typing into a field joins into one step of undo, as the record form's fields do. Its
+ * components follow, and a placement's parts (M5.2): a record's fields here, a prefab's objects,
+ * each object inside one opening its own form, every change an override.
  */
 import { SHAPES } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
-import { useDraft } from '../editing/draft.ts';
-import { parseNumber } from '../forms/values.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { deleteChosen, placeChosen, setObject } from './actions.ts';
+import { ComponentsSection } from './ComponentsSection.tsx';
 import type { Transform } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
+import { TextBox, Triple } from './ObjectFields.tsx';
+import { InsideList, InsideObject, RecordHere } from './PlacedParts.tsx';
 import { GREY, nameOf, type SpaceJson, type SpaceObject, transformOf } from './spaceFile.ts';
-import { openSpace, openSpaceFile, picked } from './state.ts';
-import type { Vec3 } from './vec.ts';
+import { inside, openSpace, openSpaceFile, picked } from './state.ts';
 
-export function ObjectForm(_props: { project: OpenProject }) {
+export function ObjectForm({ project }: { project: OpenProject }) {
   const open = openSpace.value;
   const now = liveOf(open);
   const ids = picked.value;
@@ -43,7 +45,17 @@ export function ObjectForm(_props: { project: OpenProject }) {
     );
   }
   const [object] = objects as [SpaceObject];
-  return <OneObject key={`${open.path}#${object.id}`} object={object} prefabs={now.prefabs} />;
+  const index = now.space.objects.indexOf(object);
+  const place = { project, file: open.path, index, placement: object, prefabs: now.prefabs, inside: inside.value };
+  if (place.inside.length > 0) return <InsideObject key={`${open.path}#${place.inside.join('/')}`} {...place} />;
+  return (
+    <>
+      <OneObject key={`${open.path}#${object.id}`} object={object} prefabs={now.prefabs} />
+      <ComponentsSection project={project} file={open.path} index={index} object={object} />
+      {object.record !== undefined ? <RecordHere {...place} record={object.record} /> : null}
+      {object.prefab !== undefined ? <InsideList {...place} /> : null}
+    </>
+  );
 }
 
 function OneObject({ object, prefabs }: { object: SpaceObject; prefabs: ReadonlyMap<string, SpaceJson> }) {
@@ -131,7 +143,7 @@ function OneObject({ object, prefabs }: { object: SpaceObject; prefabs: Readonly
             />
           </div>
         </>
-      ) : (
+      ) : object.prefab !== undefined ? (
         <div class="form-field">
           <p>
             Places the prefab <strong>{prefabs.get(object.prefab ?? '')?.name ?? object.prefab}</strong>
@@ -143,94 +155,7 @@ function OneObject({ object, prefabs }: { object: SpaceObject; prefabs: Readonly
             </button>
           ) : null}
         </div>
-      )}
+      ) : null}
     </form>
-  );
-}
-
-function TextBox(props: { id: string; value: string; canEdit: boolean; write: (text: string) => void }) {
-  const draft = useDraft(props.value);
-  return (
-    <input
-      id={props.id}
-      class="field form-input"
-      value={draft.shown}
-      maxLength={80}
-      autoComplete="off"
-      readOnly={!props.canEdit}
-      data-project-field
-      onInput={(event) => {
-        draft.setDraft(event.currentTarget.value);
-        props.write(event.currentTarget.value);
-      }}
-      onBlur={draft.clear}
-    />
-  );
-}
-
-const AXES = ['x', 'y', 'z'] as const;
-
-/** Three numbers: a place, a turn or a scale. What isn't a number yet stays in its box until it is. */
-function Triple(props: {
-  legend: string;
-  value: Vec3;
-  canEdit: boolean;
-  above?: number;
-  write: (value: Vec3) => void;
-}) {
-  const { legend, value, canEdit, above, write } = props;
-  return (
-    <fieldset class="object-triple">
-      <legend>{legend}</legend>
-      {AXES.map((axis, i) => (
-        <NumberBox
-          key={axis}
-          label={axis}
-          value={value[i] as number}
-          canEdit={canEdit}
-          above={above}
-          write={(n) => write(value.map((v, j) => (j === i ? n : v)) as unknown as Vec3)}
-        />
-      ))}
-    </fieldset>
-  );
-}
-
-function NumberBox(props: {
-  label: string;
-  value: number;
-  canEdit: boolean;
-  above?: number;
-  write: (n: number) => void;
-}) {
-  const { label, value, canEdit, above, write } = props;
-  const draft = useDraft(String(value));
-  const id = useUniqueId();
-  const n = parseNumber(draft.shown);
-  const fits = n !== null && (above === undefined || n > above);
-  return (
-    <span class="object-number">
-      <label for={id}>{label}</label>
-      <input
-        id={id}
-        class="field form-input"
-        type="text"
-        inputMode="text"
-        autoComplete="off"
-        value={draft.shown}
-        readOnly={!canEdit}
-        aria-invalid={draft.draft !== null && !fits ? 'true' : undefined}
-        data-project-field
-        onInput={(event) => {
-          const text = event.currentTarget.value;
-          draft.setDraft(text);
-          const typed = parseNumber(text);
-          if (typed !== null && (above === undefined || typed > above)) write(typed);
-        }}
-        onBlur={() => {
-          if (fits) draft.clear();
-        }}
-      />
-    </span>
   );
 }

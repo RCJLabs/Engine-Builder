@@ -1,25 +1,26 @@
 /**
  * The Outliner (M5.1, docs/specs/viewport.md#the-outliner): every object of the open file, in
- * order, a placed prefab with its prefab's name. A row chooses its object, with Shift, Ctrl or
+ * order, a placed prefab with its prefab's name and a placed record with its record's (M5.2). A row chooses its object, with Shift, Ctrl or
  * Select more for many, as the view does; Rename edits its name in place, the id staying.
  */
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { namesOf } from '../records/names.ts';
 import { renameChosen } from './actions.ts';
 import { liveOf } from './live.ts';
 import { nameOf, type SpaceJson, type SpaceObject } from './spaceFile.ts';
 import { choose, openSpace, picked, selectMore } from './state.ts';
 
-export function Outliner(_props: { project: OpenProject }) {
+export function Outliner({ project }: { project: OpenProject }) {
   const open = openSpace.value;
   const now = liveOf(open);
   const [renaming, setRenaming] = useState<string | null>(null);
   if (!open || !now) return <p class="muted">Opening {open?.path}…</p>;
   if (!now.space) return <p class="muted">{now.problem}</p>;
   if (now.space.objects.length === 0)
-    return <p class="muted">Nothing here yet: Add puts a shape or a prefab in the view.</p>;
+    return <p class="muted">Nothing here yet: Add puts a shape, a prefab or a record in the view.</p>;
   const canEdit = editing.access.value.kind === 'editing';
   return (
     <ul class="outliner" aria-label={`Objects in ${now.space.name}`}>
@@ -33,6 +34,7 @@ export function Outliner(_props: { project: OpenProject }) {
             key={object.id}
             object={object}
             prefabs={now.prefabs}
+            names={namesOf(project.index, project.catalog)}
             canEdit={canEdit}
             rename={() => setRenaming(object.id)}
           />
@@ -45,12 +47,18 @@ export function Outliner(_props: { project: OpenProject }) {
 function Row(props: {
   object: SpaceObject;
   prefabs: ReadonlyMap<string, SpaceJson>;
+  names: (key: string) => string | undefined;
   canEdit: boolean;
   rename: () => void;
 }) {
-  const { object, prefabs, canEdit, rename } = props;
+  const { object, prefabs, names, canEdit, rename } = props;
   const chosen = picked.value.includes(object.id);
-  const kind = object.prefab !== undefined ? (prefabs.get(object.prefab)?.name ?? object.prefab) : object.shape;
+  const kind =
+    object.prefab !== undefined
+      ? (prefabs.get(object.prefab)?.name ?? object.prefab)
+      : object.record !== undefined
+        ? (names(object.record) ?? object.record)
+        : object.shape;
   return (
     <li class="outliner-item">
       <button

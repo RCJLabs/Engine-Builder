@@ -6,6 +6,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
+import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
 import type { SpaceJson } from './spaceFile.ts';
 import { aim, choose, frameAsked, gizmoMode, type OpenSpace, picked, selectMore, snapOn } from './state.ts';
@@ -13,8 +14,14 @@ import { type Backend, createView, type View } from './viewport.ts';
 
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
 
-export function SceneView(props: { space: SpaceJson; prefabs: ReadonlyMap<string, SpaceJson>; open: OpenSpace }) {
-  const { space, prefabs } = props;
+export function SceneView(props: {
+  space: SpaceJson;
+  prefabs: ReadonlyMap<string, SpaceJson>;
+  open: OpenSpace;
+  /** A placed record's name, for its label. */
+  names?: NameOf;
+}) {
+  const { space, prefabs, names } = props;
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
@@ -25,12 +32,14 @@ export function SceneView(props: { space: SpaceJson; prefabs: ReadonlyMap<string
   const [failed, setFailed] = useState<string | null>(null);
 
   const showLatest = () => {
-    const { space: s, prefabs: p } = latest.current;
-    // Read again after any change to the project, it is drawn again only when it or a prefab changed.
-    const text = JSON.stringify([s, [...p]]);
+    const { space: s, prefabs: p, names } = latest.current;
+    // Read again after any change to the project, it is drawn again only when it, a prefab or a
+    // placed record's name changed.
+    const named = s.objects.flatMap((o) => (o.record !== undefined ? [names?.(o.record) ?? ''] : []));
+    const text = JSON.stringify([s, [...p], named]);
     if (text === shown.current) return;
     shown.current = text;
-    view.current?.show(s, p);
+    view.current?.show(s, p, names);
   };
 
   useEffect(() => {
@@ -73,7 +82,7 @@ export function SceneView(props: { space: SpaceJson; prefabs: ReadonlyMap<string
     };
   }, []);
 
-  useEffect(showLatest, [space, prefabs]);
+  useEffect(showLatest, [space, prefabs, names]);
   const mode = gizmoMode.value;
   const ids = picked.value;
   const framing = frameAsked.value;
