@@ -1,10 +1,10 @@
+import { gltfSummary } from '@eb/compiler';
 import type { AssetKind } from '@eb/schema';
 import { useMemo, useState } from 'preact/hooks';
 import type { OpenProject } from '../projects/opened.ts';
 import { FontSample, Glyph } from './AssetTile.tsx';
 import { fileName } from './assetPaths.ts';
 import { mimeOf, sizeText } from './media.ts';
-import { modelSummary } from './modelSummary.ts';
 import type { AssetFile } from './useAssetFile.ts';
 
 const NOUNS: Record<AssetKind, string> = { image: 'Image', audio: 'Sound', model: '3D model', font: 'Font' };
@@ -65,7 +65,7 @@ function TextStart({ bytes }: { bytes: Uint8Array }) {
 /** What a model holds, read without drawing it: rendering waits for the 3D viewport (Phase 5). */
 function ModelFacts({ project, path, bytes }: { project: OpenProject; path: string; bytes: Uint8Array }) {
   const assets = project.catalog.assets;
-  const summary = useMemo(() => modelSummary(path, bytes, new Set(assets)), [path, bytes, assets]);
+  const summary = useMemo(() => gltfSummary(path, bytes, new Set(assets)), [path, bytes, assets]);
   if (typeof summary === 'string') return <p class="field-problem">{summary}</p>;
   const facts: [string, number][] = [
     ['Meshes', summary.meshes],

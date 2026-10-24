@@ -14,6 +14,8 @@ import { type GameState, gameChecks } from '../scripts/gameState.ts';
 // export.json's checks (M4.10) load with these: both run once the record index is read.
 export { exportProblems } from '../export/exportChecks.ts';
 export { guideProblems } from '../guide/guideChecks.ts';
+// And the model records' files' (M5.5).
+export { modelProblems } from '../models/modelChecks.ts';
 // The spaces' checks that read records (M5.2) load with these too.
 export { spaceProblems } from '../spaces/spaceChecks.ts';
 

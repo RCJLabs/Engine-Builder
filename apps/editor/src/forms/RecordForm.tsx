@@ -11,6 +11,7 @@ import { FightPreview } from '../encounters/FightPreview.tsx';
 import { EnvironmentStart } from '../environment/EnvironmentStart.tsx';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import { MapPreview } from '../maps/MapPreview.tsx';
+import { modelFileProblems } from '../models/fileProblems.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { QuestMap } from '../quests/QuestMap.tsx';
 import { duplicateRecord } from '../records/actions.ts';
@@ -163,7 +164,11 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
   }, [focusing, file]);
   const canEdit = editing.access.value.kind === 'editing';
   const index = project.index ?? undefined;
-  const diagnostics = useMemo(() => checkRecord(catalog, type, id, value, index), [catalog, type, id, value, index]);
+  // A model's file is read once the index is (M5.5): its problems join the form's own.
+  const diagnostics = useMemo(
+    () => [...checkRecord(catalog, type, id, value, index), ...modelFileProblems(index, type, id)],
+    [catalog, type, id, value, index],
+  );
   const routed = useMemo(
     () => routeProblems(diagnostics, fieldPointers(typeFile, value)),
     [diagnostics, typeFile, value],

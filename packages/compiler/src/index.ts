@@ -23,6 +23,14 @@ export {
   type TargetName,
 } from './exportFile.ts';
 export {
+  type GltfSummary,
+  gltfJson,
+  gltfProblems,
+  gltfSummary,
+  READ_EXTENSIONS,
+  slotName,
+} from './gltf.ts';
+export {
   checkGuide,
   GUIDE_FILE,
   GUIDE_PANELS,
@@ -48,6 +56,7 @@ export {
   type TypeFileRole,
 } from './layout.ts';
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
+export { checkModels, modelDiagnostics, modelFileOf } from './models.ts';
 export {
   eachPlaced,
   type Fields,

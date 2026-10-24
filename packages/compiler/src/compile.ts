@@ -20,6 +20,7 @@ import { parseJsonFile } from './decode.ts';
 import { checkExport } from './exportCheck.ts';
 import { EXPORT_FILE } from './exportFile.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
+import { checkModels } from './models.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
@@ -105,6 +106,8 @@ export async function compileProject(
       assets: files.assets,
     }).diagnostics,
   );
+  // A model record's file, as far as its glTF JSON (M5.5).
+  diagnostics.push(...(await checkModels(source, records, files.assets)));
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {
     types: new Set(known.types.map((t) => t.type)),
