@@ -64,8 +64,11 @@ export async function chooseBrush(page: Page, name: string, touch: boolean): Pro
 }
 
 /** A slider in the tools set by its label, as a hand dragging it would leave it. */
-export const setSlider = (page: Page, label: string, value: number) =>
-  terrainTools(page).getByLabel(label).fill(String(value));
+export async function setSlider(page: Page, label: string, value: number): Promise<void> {
+  await terrainTools(page).getByLabel(label).fill(String(value));
+  const shown = terrainTools(page).locator('.terrain-slider').filter({ hasText: label }).locator('output');
+  await expect(shown).toHaveText(new RegExp(`^${value}( m)?$`));
+}
 
 /** Where the ground at (x, z) is on the page, once the view has it in sight. */
 async function groundAt(page: Page, x: number, z: number): Promise<Point> {

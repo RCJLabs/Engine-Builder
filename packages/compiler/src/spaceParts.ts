@@ -269,7 +269,7 @@ function waters(file: string, space: SpaceJson, prefabs: ReadonlyMap<string, Spa
       found.push({
         code: 'W145',
         severity: 'warning',
-        message: `Water sits on a plane${where}: only a plane's top is a water surface`,
+        message: `Water off a plane${where}: only a plane's top is a water surface`,
         file,
         path: `/objects/${i}`,
       });

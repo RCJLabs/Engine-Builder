@@ -94,7 +94,8 @@ export function createTerrainView(ringColor: string, draw: () => void) {
   };
 
   const build = (k: number) => {
-    if (!grid) return;
+    // A chunk not given its level yet waits for the next frame's, so opening builds each chunk once.
+    if (!grid || (lods[k] ?? -1) < 0) return;
     const n = chunksPerSide(grid);
     const [cx, cz] = [k % n, Math.floor(k / n)];
     const made = chunkMesh(
@@ -155,13 +156,12 @@ export function createTerrainView(ringColor: string, draw: () => void) {
     clear();
     grid = next;
     const n = chunksPerSide(next);
-    lods = new Array(n * n).fill(0);
+    lods = new Array(n * n).fill(-1);
     for (let k = 0; k < n * n; k++) {
       const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
       meshes.push(mesh);
       chunks.add(mesh);
     }
-    for (let k = 0; k < n * n; k++) build(k);
   };
 
   const hitOf = (ray: Ray) => (grid ? groundHit(grid, ray.origin, ray.dir) : null);
@@ -282,7 +282,7 @@ export function createTerrainView(ringColor: string, draw: () => void) {
       if (was || ring.visible) draw();
     },
     summary(): TerrainSummary | null {
-      if (!grid) return null;
+      if (!grid || lods.some((lod) => lod < 0)) return null;
       const n = chunksPerSide(grid);
       const lines = (k: number, side: 'east' | 'west' | 'north' | 'south') =>
         edgeLine((meshes[k] as THREE.Mesh).geometry.getAttribute('position').array as Float32Array, side);

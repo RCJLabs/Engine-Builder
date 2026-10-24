@@ -73,7 +73,7 @@ export function checkTerrains(
       const read = byFile.get(path);
       const kind = KINDS[part];
       if (!read) {
-        found.push(at(file, 'E067', '/terrain', `No ${path}: a terrain's ${part} sit beside its space`));
+        found.push(at(file, 'E067', '/terrain', `No ${path}: a terrain’s ${part} sit beside its space`));
       } else if (!read.header) {
         found.push(at(path, 'E067', '', 'It isn’t a PNG'));
       } else if (read.header.bitDepth !== kind.bitDepth || read.header.colorType !== kind.colorType) {

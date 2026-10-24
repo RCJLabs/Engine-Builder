@@ -87,6 +87,40 @@ describe('a seam', () => {
     }
   });
 
+  it('draws at full detail the triangles heightAt reads, each square split the same way', () => {
+    // No square's corners in a plane, as rough()'s nearly are, so the two ways to split one differ.
+    const g = newGrid(SETTINGS);
+    for (let v = 0; v < g.heights.length; v++) g.heights[v] = ((Math.imul(v, 2654435761) >>> 0) % 4001) / 100 - 20;
+    const { positions, indices } = chunkMesh(g, 1, 1, 0, {}, GREEN);
+    const corner = (v: number): [number, number, number] => [
+      positions[v * 3] as number,
+      positions[v * 3 + 1] as number,
+      positions[v * 3 + 2] as number,
+    ];
+    /** The mesh's height at (x, z): the triangle holding it, read by its corners' weights. */
+    const drawnAt = (x: number, z: number) => {
+      for (let t = 0; t < indices.length; t += 3) {
+        type Corner = ReturnType<typeof corner>;
+        const three = [0, 1, 2].map((k) => corner(indices[t + k] as number)) as [Corner, Corner, Corner];
+        const [[ax, ay, az], [bx, by, bz], [cx, cy, cz]] = three;
+        const d = (bz - cz) * (ax - cx) + (cx - bx) * (az - cz);
+        const wa = ((bz - cz) * (x - cx) + (cx - bx) * (z - cz)) / d;
+        const wb = ((cz - az) * (x - cx) + (ax - cx) * (z - cz)) / d;
+        const wc = 1 - wa - wb;
+        if (wa >= -1e-9 && wb >= -1e-9 && wc >= -1e-9) return wa * ay + wb * by + wc * cy;
+      }
+      throw new Error(`No triangle at ${x}, ${z}`);
+    };
+    for (const [x, z] of [
+      [-31.8, -31.3],
+      [-20.25, -10.7],
+      [-0.3, -0.9],
+      [-15.6, -25.1],
+    ] as [number, number][]) {
+      expect(drawnAt(x, z)).toBeCloseTo(heightAt(g, x, z), 4);
+    }
+  });
+
   it('keeps a level’s own heights where no neighbour is coarser', () => {
     const g = rough();
     const mesh = chunkMesh(g, 1, 1, 0, { east: 0, west: 0, north: 0, south: 0 }, GREEN);
@@ -132,5 +166,7 @@ describe('the ray onto the ground', () => {
     expect(y).toBeCloseTo(heightAt(g, x, z), 2);
     expect(groundHit(g, [200, 50, 0], [0, -1, 0])).toBeNull();
     expect(groundHit(g, [0, 50, 0], [0, 1, 0])).toBeNull();
+    // Under the terrain's box all the way across: it never meets the ground.
+    expect(groundHit(g, [-200, -50, 0], [1, 0.01, 0])).toBeNull();
   });
 });

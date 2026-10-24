@@ -41,6 +41,10 @@ describe('its files', () => {
     expect(() =>
       gridFromFiles(SETTINGS, decodeGray16(encodeGray16(heightsFile(small))), decodePng(encodePng(paintFile(small)))),
     ).toThrow('The heights are 129×129; the terrain is 65×65');
+    const tall = { width: 65, height: 129, data: new Uint16Array(65 * 129) };
+    expect(() => gridFromFiles(SETTINGS, tall, decodePng(encodePng(paintFile(newGrid(SETTINGS)))))).toThrow(
+      'The heights are 65×129; the terrain is 65×65',
+    );
   });
 });
 

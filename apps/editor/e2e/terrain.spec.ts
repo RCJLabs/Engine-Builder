@@ -54,14 +54,19 @@ test('a terrain sculpted, painted and watered by mouse, and kept', async ({ page
   await paint(page, false);
   await inReach(page);
 
-  // The form: a higher top keeps every height in metres; Rock recoloured.
+  // The form: a lower top keeps every height below it in metres. Typed a key at a time, the 0 of 0.9
+  // is never written, which would clamp the smoothed ridge to 0 for good; Rock recoloured.
   const ridge = (await heightAt(page, 0, -2)) as number;
+  expect(ridge).toBeGreaterThan(0.05);
+  expect(ridge).toBeLessThan(0.9);
   await terrainTools(page).getByRole('button', { name: 'Terrain settings' }).click();
   const form = await showInspector(page, false);
   await expect(form.getByRole('heading', { name: 'Terrain' })).toBeVisible();
-  await form.getByLabel('High, in metres').fill('60');
-  await form.getByLabel('High, in metres').press('Enter');
-  await expect.poll(async () => (await fell(page))?.terrain).toMatchObject({ high: 60 });
+  const high = form.getByLabel('High, in metres');
+  await high.fill('');
+  await high.pressSequentially('0.9', { delay: 150 });
+  await high.press('Enter');
+  await expect.poll(async () => (await fell(page))?.terrain).toMatchObject({ high: 0.9 });
   await expect.poll(() => heightAt(page, 0, -2)).toBeCloseTo(ridge, 2);
   await form.getByLabel('Colour').nth(1).fill('#7a6f66');
   await expect

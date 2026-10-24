@@ -66,10 +66,16 @@ describe('a terrain', () => {
       'spaces/moor.json': fell(TERRAIN),
       'spaces/moor.heights.png': pngOf(129, 129, 16, 0),
       'spaces/moor.paint.png': new TextEncoder().encode('{ "not": "a png", "but": "long enough to be read" }'),
+      // Of the right size one way only, and of the right depth in the wrong colours.
+      'spaces/bog.json': fell(TERRAIN),
+      'spaces/bog.heights.png': pngOf(65, 129, 16, 0),
+      'spaces/bog.paint.png': pngOf(65, 65, 8, 0),
     });
     expect(found).toEqual([
+      'E067 spaces/bog.heights.png  It is 65×129; the terrain is 65×65',
+      'E067 spaces/bog.paint.png  The paint are a 8-bit RGBA PNG',
       'E067 spaces/fell.heights.png  The heights are a 16-bit greyscale PNG',
-      "E067 spaces/fell.json /terrain No spaces/fell.paint.png: a terrain's paint sit beside its space",
+      'E067 spaces/fell.json /terrain No spaces/fell.paint.png: a terrain’s paint sit beside its space',
       'E067 spaces/moor.heights.png  It is 129×129; the terrain is 65×65',
       'E067 spaces/moor.paint.png  It isn’t a PNG',
     ]);
@@ -81,6 +87,8 @@ describe('a terrain', () => {
       'spaces/fell.heights.png': HEIGHTS,
       'spaces/gone.paint.png': PAINT,
       'spaces/Fell.heights.png': HEIGHTS,
+      // A part misspelt is no terrain's file: ignored as any other file there is, and a terrain missing it is E067.
+      'spaces/fell.height.png': HEIGHTS,
     });
     expect(found).toEqual([
       'W141 spaces/Fell.heights.png  "Fell" isn’t a space\'s id: its terrain\'s files carry it',
@@ -111,9 +119,9 @@ describe('water', () => {
       },
     });
     expect(found).toEqual([
-      "W145 prefabs/pond.json /objects/1 Water sits on a plane: only a plane's top is a water surface",
-      "W145 spaces/fell.json /objects/1 Water sits on a plane: only a plane's top is a water surface",
-      "W145 spaces/fell.json /objects/2 Water sits on a plane (pond › surface): only a plane's top is a water surface",
+      "W145 prefabs/pond.json /objects/1 Water off a plane: only a plane's top is a water surface",
+      "W145 spaces/fell.json /objects/1 Water off a plane: only a plane's top is a water surface",
+      "W145 spaces/fell.json /objects/2 Water off a plane (pond › surface): only a plane's top is a water surface",
     ]);
   });
 
