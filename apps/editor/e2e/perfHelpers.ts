@@ -5,7 +5,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { REPO } from './ludus.ts';
 import { importFolder } from './mapHelpers.ts';
 import { scenePanel, showScene, viewStarted } from './spaceHelpers.ts';
@@ -20,7 +20,10 @@ export interface Perf {
   pixelRatio: number;
   antialias: boolean;
   shadowMap: number;
+  objectShadows: boolean;
+  groundShadows: boolean;
   foliageShadows: boolean;
+  shadowReach: number;
   sky: string | null;
   foliageReach: number;
   foliageShare: number;
@@ -52,6 +55,7 @@ export function settingsOf(tier: Tier, dpr: number) {
     pixelRatio: Math.min(dpr, most),
     antialias: tier === 'high',
     shadowMap: { low: 0, medium: 1024, high: 2048 }[tier],
+    groundShadows: tier !== 'low',
     foliageShadows: tier === 'high',
     sky: tier === 'low' ? 'gradient' : 'physical',
     weatherShare: { low: 0.25, medium: 0.5, high: 1 }[tier],
@@ -91,15 +95,41 @@ export async function drawnAt(page: Page, tier: Tier): Promise<Perf> {
   return (await perf(page)) as Perf;
 }
 
-/** Quality picked from the toolbar's list. A phone's list opens the system's picker, which the test can't tap. */
-export async function chooseQuality(page: Page, words: 'Auto' | 'Low' | 'Medium' | 'High'): Promise<void> {
-  await scenePanel(page).getByLabel('Quality').selectOption({ label: words });
+/** Quality's row under the toolbar, opened by its button when it isn't. */
+export async function qualityRow(page: Page, touch: boolean): Promise<Locator> {
+  const panel = scenePanel(page);
+  const row = panel.getByRole('group', { name: 'Quality and stats' });
+  if (!(await row.isVisible())) {
+    const open = panel.getByRole('button', { name: 'Quality', exact: true });
+    await (touch ? open.tap() : open.click());
+  }
+  await expect(row).toBeVisible();
+  return row;
+}
+
+/** Quality picked from its row's list. A phone's list opens the system's picker, which the test can't tap. */
+export async function chooseQuality(
+  page: Page,
+  words: 'Auto' | 'Low' | 'Medium' | 'High',
+  touch = false,
+): Promise<void> {
+  await (await qualityRow(page, touch)).getByLabel('Quality').selectOption({ label: words });
+}
+
+/** Stats shown or hidden from Quality's row. */
+export async function pressStats(page: Page, touch: boolean): Promise<Locator> {
+  const stats = (await qualityRow(page, touch)).getByRole('button', { name: 'Stats' });
+  await (touch ? stats.tap() : stats.click());
+  return stats;
 }
 
 /** Three's settings, the drops, and the glade's two foliage types' plants at the tier now drawn. */
 export async function expectTier(page: Page, tier: Tier, dpr: number): Promise<Perf> {
   const now = await drawnAt(page, tier);
   expect(now).toMatchObject(settingsOf(tier, dpr));
+  // The sun's shadow camera covers the glade's corners and heights: 32 m each way, 16 m high.
+  if (tier === 'low') expect(now.shadowReach).toBe(0);
+  else expect(now.shadowReach).toBeGreaterThanOrEqual(Math.hypot(32, 32, 16) - 0.01);
   const drops = await page.evaluate(() => (window as unknown as Hooked).__ebViewport?.environment()?.particles);
   expect(drops).toBe(Math.floor(DROPS * settingsOf(tier, dpr).weatherShare));
   return now;

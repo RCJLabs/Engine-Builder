@@ -36,13 +36,14 @@ A browser game engine and editor. The plan is [ROADMAP.md](ROADMAP.md), the desi
 ```sh
 pnpm install
 pnpm dev          # editor dev server
-pnpm check        # typecheck → lint → unit tests → build → e2e (what CI runs)
+pnpm check        # typecheck → lint → unit tests → build → budgets → e2e (what CI runs)
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
 pnpm build        # an exported game's runtime into apps/editor/dist-game, then apps/editor/dist (the player page at play/
                   # and the runtime at runtime/ with it), then the 3D spike into apps/editor/dist/spikes/3d, then
                   # pnpm build:games: Space-Wrecked's web export into apps/editor/dist/games/space-wrecked (M4.12)
+pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, the precache, the export
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
@@ -176,7 +177,10 @@ apps/editor/           the editor PWA
                        meshes a chunk, at the model's level for its distance, scattered again where the terrain
                        changed, the hook's foliage() and plantsNear()), terrainView.ts reads the density file and
                        says what changed, live.ts reads the terrain's foliage records and their models;
-                       viewportHook.ts (window.__ebViewport's shape, set and taken away)
+                       viewportHook.ts (window.__ebViewport's shape, set and taken away); M5.7 (D69): the view
+                       made at a quality tier (viewport.ts, SceneView.tsx: a new tier, a new view on a new canvas, the
+                       camera kept), shadows.ts (the sun's shadows at a tier, fitted round what is drawn), meshes.ts's
+                       lodsOf (models' levels picked for the view's camera alone), the hook's perf()
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -191,6 +195,13 @@ apps/editor/           the editor PWA
                        made new from a preset, Start from, as file changes); actions.ts (the edits as steps of undo),
                        FoliageSection (the inspector's, under the terrain's form), FoliageTools (Plant and Clear's
                        type and Fill in the terrain's row), FoliageStart (Start from, above a foliage record's form)
+  src/perf/            the 3D view's quality (M5.7, D69): plain functions with tests: tiers.ts (Low, Medium and High:
+                       pixel ratio, antialiasing, shadows, the sky, foliage's reach and share, weather's share),
+                       hints.ts (Auto's first tier from the GPU's name, memory, cores and pointer), frames.ts (frame
+                       times' median and 95th percentile), stepDown.ts (Auto a tier down when frames drawn back to
+                       back run long, past a 2 s warm-up); state.ts (Quality and Stats, kept per device, Auto's pick
+                       and its step, the words for why), readHints.ts (the hints read in the browser), QualityTools
+                       (the Scene toolbar's Quality and Stats), PerfOverlay (over the view's corner)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -290,7 +301,11 @@ apps/editor/           the editor PWA
                        window.__ebViewport near and far, the starter kit added, and kept, by mouse and keys and by touch;
                        foliageHelpers.ts, foliage.spec.ts and foliagePhone.spec.ts are M5.6's, the kit's pines and
                        grass made foliage of a glade, planted, cleared, filled from a layer and seen past the grass's
-                       reach through window.__ebViewport, and kept, by mouse and keys and by touch
+                       reach through window.__ebViewport, and kept, by mouse and keys and by touch;
+                       perfHelpers.ts, perf.spec.ts and perfPhone.spec.ts are M5.7's, the grove's glade at Auto and
+                       each tier read back from three through window.__ebViewport.perf(), its plants a subset at each
+                       lower tier, its counts within budgets.json's, Auto stepping down on a computer it reads as
+                       fast, and the tier and Stats kept, by mouse and keys and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -506,7 +521,8 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        slot, LOD, three colliders and a type drawn as a model, placed in a yard, which
                        models.test.ts validates clean and breaks once for each of M5.5's checks; grove/, a glade
                        whose terrain grows the kit's pines and scrub from its density PNG, which foliage.test.ts
-                       validates clean and breaks once for each of M5.6's checks
+                       validates clean and breaks once for each of M5.6's checks, under a shower since M5.7 (a
+                       physical sky and rain for the perf specs)
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
@@ -531,6 +547,10 @@ tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/
                        output to the committed records, byte for byte
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
+tools/budgets/         pnpm budgets (M5.7, D69): measure.ts (a chunk's static imports, the start, the precache, gzip
+                       -9 a file), budgets.ts (budgets.json read, the five sizes measured and held to it), cli.ts;
+                       test/budgets.test.ts on a made-up build, and budgets.json to its readings' margins
+budgets.json           each size and count budget with its reading, date and what it measures (M5.7)
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)
 ```
 

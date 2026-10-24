@@ -1889,6 +1889,19 @@ Evan chose on 2026-10-24, from these options:
 - **Changing antialiasing restarts the view,** since three's renderer takes it only as it is made.
 - **Budgets need raising by hand** when a milestone adds weight on purpose, in the same change, with its reading.
 
+**As built** (2026-10-24, M5.7):
+- **A new tier makes a new view on a new canvas,** not only for antialiasing: a canvas keeps the context it was first given, and three's renderer takes its antialiasing and the sun's shadow setup as it is made. The camera and the objects chosen carry over; the overlay and the hook read the new view.
+- **The screen isn't read:** the pointer stands for it among the hints, since a big phone's screen says nothing about its GPU that a small one's doesn't.
+- **Frames drawn back to back** are those asked for within 20 ms of the one before ending: the view draws only when something changes, so the gaps between an orbit's frames are drawing and the gaps between clicks are not.
+- **A view's first 2 seconds are let by.** three compiles each material's shaders as it first draws it, and a new view's first frames took 350 to 480 ms in software WebGL at any tier (Readings): without the warm-up, those alone could step a tier down. They still show in the overlay.
+- **Low draws more triangles than Medium** on the glade, 12,043 against 10,443: its gradient sky is a sphere of 2,208 triangles where the physical sky is a box. Low is for fragments, not triangles; the sphere's segments are an open question (performance.md question 8).
+- **High's shadows aren't soft:** three's WebGPURenderer has no soft shadow map and falls back to PCF, so High's 2,048 map is sharper than Medium's 1,024, not softer.
+- **The count budgets are desktop's alone:** a phone's view is framed to its own shape and draws other levels of the same plants, so the phone spec reads its counts and holds them to nothing.
+- **Quality is a row of its own** under the Scene toolbar, opened by its button as Terrain's is: with the list and Stats in the toolbar, a phone at 360 px gave the view a fifth row less, and the components spec's placed record sank under the inspector's sheet.
+- **Models pick their LOD level for the view's camera alone:** three updates an LOD for every camera it renders with, so with shadows on, the sun's camera, 50 m off, left each model's far level as the one read back and the one casting its shadow. The view now updates each model's LOD itself before a frame.
+- **Space-Wrecked's export budget** moved into budgets.json at M4.12's 540,000, its e2e reading the same entry, so there is one number.
+- **Untested for feel and on a phone:** no phone has drawn a tier, stepped down or shown the overlay; every tier's settings are first guesses until the M1.10 reading.
+
 ---
 
 ## Open

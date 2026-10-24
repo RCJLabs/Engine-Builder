@@ -1,6 +1,7 @@
 /**
- * Quality and Stats in the Scene panel's toolbar (M5.7, D69, docs/specs/performance.md): Auto or a
- * tier picked by hand, and the perf overlay shown or not, both kept per device.
+ * Quality's row under the Scene panel's toolbar (M5.7, D69, docs/specs/performance.md): Auto or a
+ * tier picked by hand, and Stats, the perf overlay shown or not, both kept per device. A row of its
+ * own, opened by the toolbar's Quality, since the toolbar already fills four rows at 360 px.
  */
 import { useUniqueId } from '../app/ids.ts';
 import { chooseQuality, type Quality, quality, showStats, statsShown } from './state.ts';
@@ -12,7 +13,8 @@ const isQuality = (value: string): value is Quality => (QUALITIES as readonly st
 export function QualityTools() {
   const id = useUniqueId();
   return (
-    <>
+    <fieldset class="scene-add">
+      <legend class="visually-hidden">Quality and stats</legend>
       <span class="terrain-field">
         <label for={id}>Quality</label>
         <select
@@ -34,6 +36,6 @@ export function QualityTools() {
       <button type="button" class="button" aria-pressed={statsShown.value} onClick={() => showStats(!statsShown.value)}>
         Stats
       </button>
-    </>
+    </fieldset>
   );
 }

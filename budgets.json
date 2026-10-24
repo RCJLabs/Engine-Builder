@@ -1,27 +1,27 @@
 {
-  "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts.",
+  "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts: the grove's glade with a box, framed on a 1280 x 900 desktop, orbited 50 degrees, every plant's model drawn.",
   "sizes": {
     "editor-start": {
-      "budget": 120273,
-      "reading": 114545,
+      "budget": 120271,
+      "reading": 114543,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own"
     },
     "scene-view": {
-      "budget": 366530,
-      "reading": 349076,
+      "budget": 366694,
+      "reading": 349232,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts"
     },
     "models-view": {
-      "budget": 73290,
-      "reading": 69800,
+      "budget": 73300,
+      "reading": 69809,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders"
     },
     "precache": {
-      "budget": 6180750,
-      "reading": 5886428,
+      "budget": 6181472,
+      "reading": 5887116,
       "read": "2026-10-24",
       "of": "bytes of every file the service worker precaches, as a device keeps them"
     },
@@ -43,20 +43,20 @@
       "read": "2026-10-24"
     },
     "glade-medium": {
-      "drawCalls": 15,
-      "triangles": 11488,
+      "drawCalls": 16,
+      "triangles": 11501,
       "reading": {
-        "drawCalls": 13,
-        "triangles": 10443
+        "drawCalls": 14,
+        "triangles": 10455
       },
       "read": "2026-10-24"
     },
     "glade-high": {
-      "drawCalls": 24,
-      "triangles": 16367,
+      "drawCalls": 25,
+      "triangles": 16381,
       "reading": {
-        "drawCalls": 21,
-        "triangles": 14879
+        "drawCalls": 22,
+        "triangles": 14891
       },
       "read": "2026-10-24"
     }

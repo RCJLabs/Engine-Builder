@@ -22,6 +22,7 @@ import { createFoliageView, type FoliageShown } from './foliageView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
+import { lodsOf } from './meshes.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { castShadows, fitSunShadow, sunShadows } from './shadows.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
@@ -136,6 +137,8 @@ export async function createView(
 
   let orbit = START;
   let built: Built | null = null;
+  // The models' LODs, their levels picked for this camera alone (modelParts.ts's withLevels).
+  let lods: THREE.LOD[] = [];
   let filed = new Map<string, Placed>();
   let draft: ReadonlyMap<string, Placed> | null = null;
   let chosen: readonly string[] = [];
@@ -220,6 +223,11 @@ export async function createView(
       const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
       terrain.levels(eye);
       foliage.levels(eye);
+      // Where each stands now, not where render() last left it: the view draws only when asked.
+      for (const lod of lods) {
+        lod.updateWorldMatrix(true, false);
+        lod.update(camera);
+      }
       environment.frame(camera, orbit.target, performance.now());
       renderer.render(scene, camera);
       placeLabels();
@@ -242,6 +250,7 @@ export async function createView(
     const drawModel = models.use(live);
     built = builder.build(space, prefabs, names, drawModel);
     if (tier.shadowMap > 0) castShadows(built.root);
+    lods = lodsOf(built.root);
     foliage.models(drawModel);
     scene.add(built.root);
     labelLayer.replaceChildren();
@@ -374,13 +383,24 @@ export async function createView(
   setHook(hook);
 
   function perf(): PerfSummary {
+    const shadows = renderer.shadowMap.enabled && sun.castShadow;
+    const meshes = (root: THREE.Object3D | undefined, has: (mesh: THREE.Mesh) => boolean) => {
+      let found = false;
+      root?.traverse((part) => {
+        found ||= (part as THREE.Mesh).isMesh === true && has(part as THREE.Mesh);
+      });
+      return found;
+    };
     return {
       tier: tier.name,
       backend,
       pixelRatio: renderer.getPixelRatio(),
       antialias: renderer.samples > 0,
-      shadowMap: renderer.shadowMap.enabled && sun.castShadow ? sun.shadow.mapSize.x : 0,
-      foliageShadows: foliage.summary().some((f) => f.shadows),
+      shadowMap: shadows ? sun.shadow.mapSize.x : 0,
+      objectShadows: shadows && meshes(built?.root, (mesh) => mesh.castShadow),
+      groundShadows: shadows && meshes(terrain.chunks, (mesh) => mesh.receiveShadow),
+      foliageShadows: shadows && foliage.summary().some((f) => f.shadows),
+      shadowReach: shadows ? sun.shadow.camera.right : 0,
       sky: environment.summary()?.sky ?? null,
       foliageReach: tier.foliageReach,
       foliageShare: tier.foliageShare,

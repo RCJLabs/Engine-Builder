@@ -1,29 +1,33 @@
 /**
  * M5.7's gate on desktop (D69, docs/specs/performance.md#the-gate), by mouse and keys: the grove
- * imported, its glade opened with Stats shown; Auto at Low on CI's software renderer, and why;
- * Low, Medium and High picked in turn, each read back from three (pixel ratio, antialiasing,
- * shadows, the sky, the drops), each lower tier's plants a subset of the higher's, the camera
- * kept as the view is made again, and the draw calls and triangles within budgets.json's; after a
+ * imported, its glade opened with Stats shown and a box added; Auto at Low on CI's software
+ * renderer, and why; Low, Medium and High picked in turn, each read back from three (pixel ratio,
+ * antialiasing, shadows, the sky, the drops), each lower tier's plants a subset of the higher's,
+ * the camera kept as the view is made again, and the draw calls and triangles within budgets.json's; after a
  * reload, the tier picked and Stats as they were. Then Auto on a computer it reads as High,
  * stepping down as the software renderer's frames run long, and not once High is picked by hand.
  */
 import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
+import { importFolder } from './mapHelpers.ts';
 import {
   chooseQuality,
   countBudget,
   expectSubset,
   expectTier,
   FAST_COMPUTER,
+  GROVE,
   openGlade,
   overlay,
   perf,
   plantGrid,
+  pressStats,
+  qualityRow,
   reopenGlade,
   TIER_WORDS,
   type Tier,
 } from './perfHelpers.ts';
-import { camera, scenePanel } from './spaceHelpers.ts';
+import { add, camera, scenePanel } from './spaceHelpers.ts';
 
 // Auto, as a first visit has it: the config's High is for the specs before M5.7.
 test.use({ viewport: { width: 1280, height: 900 }, storageState: { cookies: [], origins: [] } });
@@ -39,20 +43,28 @@ test('the glade at each tier, Auto by the device, within its count budgets, and 
   const errors = watchErrors(page);
   await openGlade(page, false);
   const panel = scenePanel(page);
-  await panel.getByRole('button', { name: 'Stats' }).click();
-  await expect(panel.getByRole('button', { name: 'Stats' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(panel.getByLabel('Quality')).toHaveValue('auto');
+  await expect(await pressStats(page, false)).toHaveAttribute('aria-pressed', 'true');
+  const row = await qualityRow(page, false);
+  await expect(row.getByLabel('Quality')).toHaveValue('auto');
   await expect(overlay(page)).toContainText('Auto: Low (a software renderer)');
   await expect(overlay(page)).toContainText('WebGL2, pixel ratio 1');
-  await expectTier(page, 'low', 1);
+  // A box on the glade, which casts the sun's shadow wherever the tier draws one.
+  await add(page, 'Box');
+  expect((await expectTier(page, 'low', 1)).objectShadows).toBe(false);
   await inReach(page);
 
+  // Orbited off its framing by a key, so a view made again that framed itself afresh would show.
   const framed = await camera(page);
+  await panel.locator('.scene-view').focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => camera(page)).not.toEqual(framed);
+  const orbited = await camera(page);
   const grids: Partial<Record<Tier, number[]>> = {};
   for (const tier of ['low', 'medium', 'high'] as const) {
     await chooseQuality(page, TIER_WORDS[tier]);
     const now = await expectTier(page, tier, 1);
-    expect(await camera(page)).toEqual(framed);
+    expect(await camera(page)).toEqual(orbited);
+    expect(now.objectShadows).toBe(tier !== 'low');
     await expect(overlay(page)).toContainText(`Chosen: ${TIER_WORDS[tier]}`);
     await expect(overlay(page)).toContainText(/\d+ draw calls, [\d,]+ triangles/);
     const budget = countBudget(`glade-${tier}`);
@@ -69,8 +81,9 @@ test('the glade at each tier, Auto by the device, within its count budgets, and 
   const rows = page.getByRole('list', { name: 'Projects in this browser' }).getByRole('listitem');
   await rows.first().getByRole('button', { name: 'Open' }).click();
   await reopenGlade(page, false);
-  await expect(panel.getByLabel('Quality')).toHaveValue('high');
-  await expect(panel.getByRole('button', { name: 'Stats' })).toHaveAttribute('aria-pressed', 'true');
+  const again = await qualityRow(page, false);
+  await expect(again.getByLabel('Quality')).toHaveValue('high');
+  await expect(again.getByRole('button', { name: 'Stats' })).toHaveAttribute('aria-pressed', 'true');
   await expect(overlay(page)).toContainText('Chosen: High');
   await expectTier(page, 'high', 1);
   expect(errors).toEqual([]);
@@ -80,12 +93,17 @@ test('Auto steps down as frames run long, never while a tier is picked', async (
   test.setTimeout(180_000);
   const errors = watchErrors(page);
   await page.addInitScript(FAST_COMPUTER);
-  await openGlade(page, false);
-  const panel = scenePanel(page);
-  await panel.getByRole('button', { name: 'Stats' }).click();
-  // The hints say High; the warm-up and a window of frames come before any step. Under load the
-  // step can come before the overlay's first reading, so the overlay is read once it has.
-  await expect.poll(async () => (await perf(page))?.tier).toBe('high');
+  await importFolder(page, GROVE, 'grove', 'Grove');
+  // The hints say High: watched for on every frame from before the glade opens, since under load
+  // the warm-up and a window of long frames can pass before a poll from the test first looks.
+  const sawHigh = page.waitForFunction(
+    () => (window as unknown as { __ebViewport?: { perf(): { tier: string } } }).__ebViewport?.perf().tier === 'high',
+    undefined,
+    { polling: 'raf', timeout: 30_000 },
+  );
+  await reopenGlade(page, false);
+  await sawHigh;
+  await pressStats(page, false);
   // The glade at High in software WebGL draws a frame in 80 to 100 ms (Readings): a step down.
   await expect.poll(async () => (await perf(page))?.tier, { timeout: 30_000 }).not.toBe('high');
   await expect(overlay(page)).toContainText(/Auto: (Medium, stepped down from High|Low, stepped down from Medium)/);

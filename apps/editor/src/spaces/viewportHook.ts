@@ -22,7 +22,12 @@ export interface PerfSummary {
   readonly antialias: boolean;
   /** The sun's shadow map a side, or 0 for no shadows. */
   readonly shadowMap: number;
+  /** Whether placed objects cast the sun's shadows, the ground takes them, and foliage casts them. */
+  readonly objectShadows: boolean;
+  readonly groundShadows: boolean;
   readonly foliageShadows: boolean;
+  /** Half the sun's shadow camera's width in metres, or 0 for no shadows: what it covers round the origin. */
+  readonly shadowReach: number;
   /** The sky drawn, or null for the editor's own colour. */
   readonly sky: SkyKind | null;
   readonly foliageReach: number;

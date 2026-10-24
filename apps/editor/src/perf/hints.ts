@@ -18,7 +18,7 @@ export interface Hints {
 
 export interface TierPick {
   readonly tier: TierName;
-  /** Why, in words the overlay shows: "a phone's GPU", "a software renderer". */
+  /** Why, in words the overlay shows: "a phone or a tablet", "a software renderer". */
   readonly reason: string;
 }
 

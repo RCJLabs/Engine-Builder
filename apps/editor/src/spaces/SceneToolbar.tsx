@@ -1,8 +1,8 @@
 /**
  * The Scene panel's toolbar (M5.1, docs/specs/viewport.md#the-toolbar): the gizmo's mode, snapping,
  * Add, Select more, Group into prefab, Delete and Frame, and in a space Terrain, whose row holds the
- * terrain tools (M5.3); then Quality and Stats (M5.7). Every button is 44 px; on a phone the bar
- * wraps rather than scrolls.
+ * terrain tools (M5.3); then Quality, whose row holds the tier and Stats (M5.7). Every button is
+ * 44 px; on a phone the bar wraps rather than scrolls.
  */
 import { SHAPES, spacePath } from '@eb/compiler';
 import { MODEL } from '@eb/schema';
@@ -36,10 +36,10 @@ const SHAPE_NAMES: Record<(typeof SHAPES)[number], string> = {
 };
 
 export function SceneToolbar({ project }: { project: OpenProject }) {
-  const [shown, setShown] = useState<'add' | 'group' | 'terrain' | null>(null);
+  const [shown, setShown] = useState<'add' | 'group' | 'terrain' | 'quality' | null>(null);
   const canEdit = editing.access.value.kind === 'editing';
   const chosen = picked.value.length;
-  const toggle = (what: 'add' | 'group' | 'terrain') => setShown(shown === what ? null : what);
+  const toggle = (what: 'add' | 'group' | 'terrain' | 'quality') => setShown(shown === what ? null : what);
   const open = openSpace.value;
   const space = liveOf(open)?.space;
   return (
@@ -114,8 +114,11 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
             Terrain
           </button>
         ) : null}
-        <QualityTools />
+        <button type="button" class="button" aria-expanded={shown === 'quality'} onClick={() => toggle('quality')}>
+          Quality
+        </button>
       </fieldset>
+      {shown === 'quality' ? <QualityTools /> : null}
       {shown === 'terrain' && open?.kind === 'space' && space ? <TerrainTools terrain={space.terrain} /> : null}
       {shown === 'add' && canEdit ? <AddRow project={project} done={() => setShown(null)} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (

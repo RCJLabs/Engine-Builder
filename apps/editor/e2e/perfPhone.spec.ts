@@ -9,8 +9,7 @@
 import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 import { showProject } from './ludus.ts';
-import { chooseQuality, expectTier, openGlade, overlay, reopenGlade } from './perfHelpers.ts';
-import { scenePanel } from './spaceHelpers.ts';
+import { chooseQuality, expectTier, openGlade, overlay, pressStats, qualityRow, reopenGlade } from './perfHelpers.ts';
 
 const DPR = 3;
 
@@ -39,16 +38,15 @@ for (const viewport of [
       test.setTimeout(240_000);
       const errors = watchErrors(page);
       await openGlade(page, true);
-      const panel = scenePanel(page);
-      await panel.getByRole('button', { name: 'Stats' }).tap();
+      await pressStats(page, true);
       await expect(overlay(page)).toContainText('Auto: Low (a software renderer)');
       await expectTier(page, 'low', DPR);
       await expectInReach(page);
 
-      await chooseQuality(page, 'Medium');
+      await chooseQuality(page, 'Medium', true);
       await expectTier(page, 'medium', DPR);
       await expect(overlay(page)).toContainText('pixel ratio 1.5');
-      await chooseQuality(page, 'High');
+      await chooseQuality(page, 'High', true);
       await expectTier(page, 'high', DPR);
       await expect(overlay(page)).toContainText('Chosen: High');
       await expect(overlay(page)).toContainText('pixel ratio 2');
@@ -59,8 +57,9 @@ for (const viewport of [
       const rows = page.getByRole('list', { name: 'Projects in this browser' }).getByRole('listitem');
       await rows.first().getByRole('button', { name: 'Open' }).tap();
       await reopenGlade(page, true);
-      await expect(panel.getByLabel('Quality')).toHaveValue('high');
-      await expect(panel.getByRole('button', { name: 'Stats' })).toHaveAttribute('aria-pressed', 'true');
+      const row = await qualityRow(page, true);
+      await expect(row.getByLabel('Quality')).toHaveValue('high');
+      await expect(row.getByRole('button', { name: 'Stats' })).toHaveAttribute('aria-pressed', 'true');
       await expectTier(page, 'high', DPR);
       expect(errors).toEqual([]);
     });
