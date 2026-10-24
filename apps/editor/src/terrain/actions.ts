@@ -19,16 +19,20 @@ import {
   writeStroke,
 } from './terrainEdits.ts';
 
-const VERBS: Record<Exclude<Brush['kind'], 'paint'>, string> = {
+const VERBS: Record<Exclude<Brush['kind'], 'paint' | 'plant' | 'clear'>, string> = {
   raise: 'Raise',
   lower: 'Lower',
   smooth: 'Smooth',
   flatten: 'Flatten',
 };
 
-/** A stroke's step in the undo list: "Raise the terrain", "Paint Rock". */
-export const strokeLabel = (brush: Brush, layers: TerrainJson['layers']) =>
-  brush.kind === 'paint' ? `Paint ${layers[brush.layer]?.name ?? 'the terrain'}` : `${VERBS[brush.kind]} the terrain`;
+/** A stroke's step in the undo list: "Raise the terrain", "Paint Rock", "Plant Glade, trees" (M5.6). */
+export function strokeLabel(brush: Brush, layers: TerrainJson['layers'], foliage: readonly string[] = []): string {
+  if (brush.kind === 'paint') return `Paint ${layers[brush.layer]?.name ?? 'the terrain'}`;
+  if (brush.kind === 'plant') return `Plant ${foliage[brush.foliage] ?? 'foliage'}`;
+  if (brush.kind === 'clear') return `Clear ${foliage[brush.foliage] ?? 'foliage'}`;
+  return `${VERBS[brush.kind]} the terrain`;
+}
 
 const spaceOpen = () => {
   const open = openSpace.value;
@@ -62,9 +66,15 @@ export function removeLayerHere(k: number, name: string): Promise<void> {
 }
 
 /** A stroke written as one step, its file encoded now, from the grid as the stroke left it. */
-export function writeStrokeHere(stroke: Stroke, grid: TerrainGrid, layers: TerrainJson['layers']): Promise<void> {
+export function writeStrokeHere(
+  stroke: Stroke,
+  grid: TerrainGrid,
+  layers: TerrainJson['layers'],
+  foliage: readonly string[] = [],
+): Promise<void> {
   const open = spaceOpen();
   if (!open) return Promise.resolve();
   const bytes = fileOf(grid, stroke.part);
-  return editing.edit(strokeLabel(stroke.brush, layers), (copy) => writeStroke(copy, open.id, stroke.part, bytes));
+  const label = strokeLabel(stroke.brush, layers, foliage);
+  return editing.edit(label, (copy) => writeStroke(copy, open.id, stroke.part, bytes));
 }

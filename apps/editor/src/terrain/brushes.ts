@@ -2,11 +2,12 @@
  * The terrain's brushes (M5.3, D65, docs/specs/terrain.md#brushes): each dab acts in a circle around
  * a point, its effect falling off as (1 − (d / r)²)², and dabs fall every half spacing the pointer
  * moves over the ground, so a stroke's result is its path's, not its speed's. Each changes the grid
- * in place and says which vertices it touched, for the chunks to redraw.
+ * in place and says which vertices it touched, for the chunks to redraw. Plant and Clear (M5.6,
+ * D68) add and take a foliage type's density, which no other channel shares.
  */
 import { cellOf, type TerrainGrid } from './grid.ts';
 
-export type BrushKind = 'raise' | 'lower' | 'smooth' | 'flatten' | 'paint';
+export type BrushKind = 'raise' | 'lower' | 'smooth' | 'flatten' | 'paint' | 'plant' | 'clear';
 
 export interface Brush {
   readonly kind: BrushKind;
@@ -16,6 +17,8 @@ export interface Brush {
   readonly strength: number;
   /** The layer Paint adds to, 0 to 3. */
   readonly layer: number;
+  /** The foliage type Plant and Clear act on, 0 to 3. */
+  readonly foliage: number;
 }
 
 /** Vertices a dab touched, inclusive. */
@@ -59,6 +62,12 @@ export function dab(g: TerrainGrid, x: number, z: number, brush: Brush, target =
       const v = j * g.size + i;
       if (brush.kind === 'paint') {
         paintVertex(g.paint, v * 4, brush.layer, f * 255);
+        continue;
+      }
+      if (brush.kind === 'plant' || brush.kind === 'clear') {
+        const at = v * 4 + brush.foliage;
+        const next = (g.foliage[at] as number) + (brush.kind === 'plant' ? f : -f) * 255;
+        g.foliage[at] = Math.min(255, Math.max(0, Math.round(next)));
         continue;
       }
       const h = g.heights[v] as number;
