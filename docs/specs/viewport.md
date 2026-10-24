@@ -1,6 +1,6 @@
 # Spaces, prefabs and the Scene panel (M5.1, D63)
 
-M5.1 is Phase 5's first milestone: the 3D viewport in the editor, and the two files it edits. A space is one place in a 3D world, an exterior or an interior. A prefab is a group of objects that spaces and other prefabs place by reference. M5.2 adds components to objects and overrides to placements; M5.3 terrain; M5.8 joins spaces with load doors. Nothing here runs in a game yet: the runtime draws spaces from M5.7.
+M5.1 is Phase 5's first milestone: the 3D viewport in the editor, and the two files it edits. A space is one place in a 3D world, an exterior or an interior. A prefab is a group of objects that spaces and other prefabs place by reference. M5.2 adds components to objects and overrides to placements; M5.3 terrain; M5.9 joins spaces with load doors. Nothing here runs in a game yet: the runtime draws spaces from M5.8.
 
 ## The files
 
@@ -117,7 +117,7 @@ Move, Turn, Scale, Snap, Add (box, sphere, cylinder, plane, or a prefab), Select
 
 ## Where it lives
 
-- `packages/compiler/src/spaces.ts`: the shape (strict zod) and E058 to E061, the files read for `eb validate`; `spaceFiles.ts`: where spaces and prefabs sit and W141, apart so the editor places them without the checks. Not packed yet: the runtime needs them from M5.7.
+- `packages/compiler/src/spaces.ts`: the shape (strict zod) and E058 to E061, the files read for `eb validate`; `spaceFiles.ts`: where spaces and prefabs sit and W141, apart so the editor places them without the checks. Not packed yet: the runtime needs them from M5.8.
 - `apps/editor/src/spaces/` (the ink scenes have `scenes/`):
   - in the editor's start, a few lines: `state.ts` (the file open, the objects chosen, the toolbar's settings), `load.ts`, `open.ts` (from a problem), and the two panels' shells, `ScenePanel` and `OutlinerPanel`;
   - loaded with a project, without three: `SceneBrowser` (the list, or the file open), `SpaceList`, `SceneToolbar`, `Outliner`, `ObjectForm` (the inspector's), `live.ts` (the open file and every prefab, read again after each change), `actions.ts` (the edits as steps of undo);
@@ -144,6 +144,6 @@ Move, Turn, Scale, Snap, Add (box, sphere, cylinder, plane, or a prefab), Select
 
 1. Should a placed prefab be openable in place, edited inside the space, as well as in its own file?
 2. Is 0.5 m the right default move step for both interiors and exteriors, or should a space set its own?
-3. Does fly mode need a touch form, such as a stick, before M5.7's movement controls?
+3. Does fly mode need a touch form, such as a stick, before M5.8's movement controls?
 4. A phone held sideways leaves the view about 200 px tall, under the toolbar's two rows. Should the toolbar sit beside the view there, as a column?
 5. The grid is 60 m across whatever the space. Should it follow the space's size, or the camera?

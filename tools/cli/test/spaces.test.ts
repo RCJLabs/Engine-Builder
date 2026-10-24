@@ -50,7 +50,7 @@ describe('eb with spaces’ components, placed records and overrides', () => {
   it('validates the lodge clean, but for the flag only its trigger zone sets and reads', () => {
     const run = eb(['validate', LODGE]);
     expect(run.code, run.out + run.err).toBe(0);
-    // The flag lint reads records alone: a trigger zone's sets and reads count once M5.7 runs them.
+    // The flag lint reads records alone: a trigger zone's sets and reads count once M5.8 runs them.
     expect(run.out.trim().split('\n')).toEqual([
       'records/flag/met-greta.json: warning W110: Nothing sets or reads this flag',
       expect.stringMatching(/^4 records: 1 warning, hash [0-9a-f]{16}\.$/),

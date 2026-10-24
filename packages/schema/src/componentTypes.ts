@@ -1,7 +1,7 @@
 /**
  * The engine's component kinds (M5.2, D64, docs/specs/components.md): what an object in a space can
  * carry, each a type file as a project's own kinds in components/ are, so a kind's form is drawn
- * and its fields checked as a record's are. Nothing runs them until M5.7, which fills in what a
+ * and its fields checked as a record's are. Nothing runs them until M5.8, which fills in what a
  * file leaves out: a light is white, of intensity 1 and range 10 m; a collider a still box; a sound
  * plays at volume 1 to 10 m.
  */

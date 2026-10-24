@@ -249,7 +249,7 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
 
 - **Contents.** A snapshot of the sim state plus the actions since it, with a checksum.
   - The state holds ids into content, not copies of it, so a content update reaches existing saves.
-  - Worlds will save placed references as changes against the authored content (M5.8), as Bethesda's change forms do.
+  - Worlds will save placed references as changes against the authored content (M5.9), as Bethesda's change forms do.
 - **Loading.** On the same build the log must replay to exactly the saved state. After an update it replays under the new rules, and what changed is reported rather than refused.
 - **Versioning.**
   - `SAVE_VERSION` covers the file and the kernel's state.

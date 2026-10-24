@@ -2,7 +2,7 @@
  * Spaces and prefabs (M5.1, D63): spaces/<id>.json is one place in a 3D world, and
  * prefabs/<id>.json a group of objects placed by reference. Their shape is E058; two objects of one
  * id in a file E059; a placement of a prefab prefabs/ lacks E060; a prefab that places itself, by
- * any road, E061. Nothing packs them yet: a game draws spaces from M5.7. The spec is
+ * any road, E061. Nothing packs them yet: a game draws spaces from M5.8. The spec is
  * docs/specs/viewport.md.
  */
 import { type Diagnostic, type DiagnosticCode, schemaIssues, severityOf } from '@eb/schema';
