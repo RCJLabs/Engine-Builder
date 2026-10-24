@@ -7,79 +7,103 @@
       "shape": "box",
       "scale": [0.6, 0.1, 0.6],
       "at": [0, 0, 2],
-      "components": { "spawn": { "start": true, "view": "first" } }
+      "components": {
+        "spawn": {
+          "start": true,
+          "view": "first"
+        }
+      }
     },
     {
       "id": "floor",
       "name": "Floor",
       "shape": "box",
-      "at": [0, -0.1, 0],
+      "at": [0, -0.2, 0],
       "scale": [8, 0.2, 6],
       "color": "#8b6a45",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "north-wall",
       "name": "North wall",
       "shape": "box",
-      "at": [0, 1.25, -3.1],
+      "at": [0, 0, -3.1],
       "scale": [8, 2.5, 0.2],
       "color": "#b8b0a2",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "south-wall",
       "name": "South wall",
       "shape": "box",
-      "at": [0, 1.25, 3.1],
+      "at": [0, 0, 3.1],
       "scale": [8, 2.5, 0.2],
       "color": "#b8b0a2",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "west-wall",
       "name": "West wall",
       "shape": "box",
-      "at": [-4.1, 1.25, 0],
+      "at": [-4.1, 0, 0],
       "scale": [0.2, 2.5, 6.4],
       "color": "#b8b0a2",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "east-wall",
       "name": "East wall",
       "shape": "box",
-      "at": [4.1, 1.25, 0],
+      "at": [4.1, 0, 0],
       "scale": [0.2, 2.5, 6.4],
       "color": "#b8b0a2",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "roof",
       "name": "Roof",
       "shape": "box",
-      "at": [0, 2.6, 0],
+      "at": [0, 2.5, 0],
       "scale": [8.4, 0.2, 6.4],
       "color": "#5a5550",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "table",
       "name": "Table",
       "shape": "box",
-      "at": [2, 0.4, -1.5],
+      "at": [2, 0, -1.5],
       "scale": [1.2, 0.8, 0.8],
       "color": "#7a5a38",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "lamp",
       "name": "Lamp",
       "shape": "sphere",
-      "at": [2, 1, -1.5],
+      "at": [2, 0.8, -1.5],
       "scale": [0.2, 0.2, 0.2],
       "color": "#f2d48a",
-      "components": { "light": { "color": "#ffd9a0", "intensity": 2 } }
+      "components": {
+        "light": {
+          "color": "#ffd9a0",
+          "intensity": 2
+        }
+      }
     }
   ]
 }

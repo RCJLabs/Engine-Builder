@@ -5,12 +5,12 @@
  * without errors, so every file here is sound.
  */
 import type { PackWorld, TriggerZone } from '@eb/core';
-import { type DataType, FOLIAGE, type KnownOptions, MODEL, packValue } from '@eb/schema';
+import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL, packValue } from '@eb/schema';
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
-import { eachPlaced, isFields } from './overrides.ts';
-import { type ModelSources, modelFieldOf, modelNeeds } from './placedModels.ts';
+import { eachPlaced, type Fields, isFields } from './overrides.ts';
+import { eachPlacedRecord, type ModelSources, modelFieldOf, modelHere, modelNeeds } from './placedModels.ts';
 import type { ProjectSource } from './source.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
@@ -71,7 +71,8 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     const bytes = await source.read(terrain.file);
     if (bytes) files[terrain.file] = base64Of(bytes);
   }
-  for (const path of modelFiles(spaces, prefabs, sources)) {
+  const drawn = drawnFrom(spaces, prefabs, sources);
+  for (const path of drawn.files) {
     const bytes = await source.read(`${ASSETS_DIR}/${path}`);
     if (!bytes) continue;
     files[`${ASSETS_DIR}/${path}`] = base64Of(bytes);
@@ -87,29 +88,55 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     prefabs: Object.fromEntries(prefabs),
     triggers,
     files,
+    records: drawn.records,
+    fields: drawn.fields,
   };
 }
 
-/** Every model file a space draws, placed or grown as its terrain's foliage, by its path inside assets/, sorted. */
-function modelFiles(
+/**
+ * What the spaces draw from: every model file, placed or grown as a terrain's foliage, by its path
+ * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
+ */
+function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
   prefabs: ReadonlyMap<string, SpaceJson>,
   sources: WorldSources,
-): string[] {
+): { files: string[]; records: Record<string, unknown>; fields: Record<string, string> } {
+  const fields: Record<string, string> = {};
   const models: ModelSources = {
     record: sources.record,
     field: (type) => {
       const data = sources.types.get(type);
-      return data ? modelFieldOf(data.file) : null;
+      const field = data ? modelFieldOf(data.file) : null;
+      if (field !== null && type !== MODEL) fields[type] = field;
+      return field;
     },
   };
+  const keys = new Set<string>();
   const found = new Set<string>();
   for (const space of spaces.values()) {
     const grown = (space.terrain?.foliage ?? []).flatMap((id) => {
+      keys.add(`${FOLIAGE}:${id}`);
       const foliage = sources.record(`${FOLIAGE}:${id}`);
       return isFields(foliage) && typeof foliage.model === 'string' ? [`${MODEL}:${foliage.model}`] : [];
     });
-    for (const file of modelNeeds(space, prefabs, models, grown).files) found.add(file);
+    if (space.environment !== undefined) keys.add(`${ENVIRONMENT}:${space.environment}`);
+    const needs = modelNeeds(space, prefabs, models, grown);
+    // Each placement with what it passes on: an override may name another model.
+    const visit = (key: string, passed: readonly Fields[]) => {
+      keys.add(key);
+      const model = modelHere(key, passed, models);
+      if (model) keys.add(`${MODEL}:${model.id}`);
+    };
+    eachPlacedRecord(space, prefabs, visit);
+    for (const key of grown) visit(key, []);
+    for (const material of needs.materials) keys.add(`${MATERIAL}:${material}`);
+    for (const file of needs.files) found.add(file);
   }
-  return [...found].sort();
+  const records: Record<string, unknown> = {};
+  for (const key of [...keys].sort()) {
+    const value = sources.record(key);
+    if (value !== undefined) records[key] = value;
+  }
+  return { files: [...found].sort(), records, fields };
 }

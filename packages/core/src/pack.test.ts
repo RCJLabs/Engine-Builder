@@ -167,6 +167,8 @@ describe('createPack', () => {
       prefabs: { cairn: { name: 'Cairn', objects: [] } },
       triggers: { trailhead: { 'cairn/zone': zone } },
       files: { 'spaces/trailhead.heights.png': 'iVBORw0K' },
+      records: { 'model:crate': { file: 'crate.glb' } },
+      fields: { prop: 'model' },
     };
     const walked = createPack(project, records, undefined, undefined, undefined, undefined, world);
     expect(walked.format).toBe(PACK_FORMAT);
@@ -204,6 +206,8 @@ describe('createPack', () => {
     );
     expect(broken({ files: { 'a.png': 'not base64!' } })).toThrow("The pack's world files are not base64");
     expect(broken({ sky: {} })).toThrow('Unknown pack world fields: sky');
+    expect(broken({ records: { crate: {} } })).toThrow('"crate" is not a record\'s type and id');
+    expect(broken({ fields: { prop: 3 } })).toThrow("The pack's model fields are not text");
     // Before format 9 there is no world to carry.
     expect(() => readPack({ ...reloaded(createPack(project, records)), world })).toThrow('Unknown pack fields: world');
   });

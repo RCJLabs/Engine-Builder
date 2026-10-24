@@ -5,7 +5,16 @@
     "spacing": 1,
     "low": 0,
     "high": 20,
-    "layers": [{ "name": "Grass", "color": "#5f8f3e" }, { "name": "Rock", "color": "#8a8580" }]
+    "layers": [
+      {
+        "name": "Grass",
+        "color": "#5f8f3e"
+      },
+      {
+        "name": "Rock",
+        "color": "#8a8580"
+      }
+    ]
   },
   "objects": [
     {
@@ -14,45 +23,69 @@
       "shape": "box",
       "scale": [0.6, 0.1, 0.6],
       "at": [0, 1, 20],
-      "components": { "spawn": { "start": true } }
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
     },
     {
       "id": "wall",
       "name": "Wall",
       "shape": "box",
-      "at": [-8, 3, 20],
+      "at": [-8, 1, 20],
       "scale": [0.5, 4, 6],
       "color": "#7d776f",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "boulder",
       "name": "Boulder",
       "shape": "box",
-      "at": [-4, 1.92, 12],
+      "at": [-4, 1.32, 12],
       "scale": [1.2, 1.2, 1.2],
       "color": "#8a8580",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "step",
       "name": "Step",
       "shape": "box",
-      "at": [4, 1.62, 12],
+      "at": [4, 1.22, 12],
       "scale": [2, 0.8, 2],
       "color": "#9a948c",
-      "components": { "collider": {} }
+      "components": {
+        "collider": {}
+      }
     },
     {
       "id": "loose-crate",
       "name": "Loose crate",
       "shape": "box",
-      "at": [-4, 2.4, 4],
+      "at": [-4, 1.97, 4],
       "scale": [0.8, 0.8, 0.8],
       "color": "#a0703f",
-      "components": { "collider": { "moves": true } }
+      "components": {
+        "collider": {
+          "moves": true
+        }
+      }
     },
-    { "id": "crate", "name": "Crate", "record": "model:kit-crate", "at": [4, 1.96, 4] },
-    { "id": "cairn", "name": "Cairn", "prefab": "cairn", "at": [0, 3.08, -10] }
+    {
+      "id": "crate",
+      "name": "Crate",
+      "record": "model:kit-crate",
+      "at": [4, 1.96, 4]
+    },
+    {
+      "id": "cairn",
+      "name": "Cairn",
+      "prefab": "cairn",
+      "at": [0, 3.08, -10]
+    }
   ]
 }

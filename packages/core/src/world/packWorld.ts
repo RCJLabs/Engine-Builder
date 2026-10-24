@@ -14,6 +14,14 @@ export interface PackWorld {
   readonly triggers: Triggers;
   /** The terrain PNGs and model files the spaces draw from, base64 by their path in the project. */
   readonly files: Readonly<Record<string, string>>;
+  /**
+   * The records the spaces draw from, by "type:id": each placed record, the models and materials
+   * they draw as, the spaces' environments and their terrains' foliage. The sim has them all; these
+   * go to the page, which has none.
+   */
+  readonly records: Readonly<Record<string, unknown>>;
+  /** Each placed record type's model field (M5.5's modelFieldOf), for the types whose records draw as models. */
+  readonly fields: Readonly<Record<string, string>>;
 }
 
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -36,9 +44,9 @@ const extra = (value: Readonly<Record<string, unknown>>, allowed: readonly strin
  */
 export function worldProblem(world: unknown): string | undefined {
   if (!isObject(world)) return 'A format 9 pack has no world';
-  const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files']);
+  const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields']);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
-  const { spaces, prefabs, triggers, files } = world;
+  const { spaces, prefabs, triggers, files, records, fields } = world;
   if (!allOf(spaces, isObject) || Object.keys(spaces).length === 0) return 'A format 9 pack has no spaces';
   if (!allOf(prefabs, isObject)) return "The pack's prefabs are not objects";
   const named = [...Object.keys(spaces), ...Object.keys(prefabs)].find((id) => !isRecordId(id));
@@ -54,6 +62,10 @@ export function worldProblem(world: unknown): string | undefined {
   if (!allOf(files, (data) => typeof data === 'string' && BASE64.test(data))) {
     return "The pack's world files are not base64";
   }
+  if (!isObject(records)) return "The pack's world records are not an object";
+  const key = Object.keys(records).find((k) => !/^[a-z0-9-]+:[a-z0-9-]+$/.test(k));
+  if (key !== undefined) return `"${key}" is not a record's type and id`;
+  if (!allOf(fields, (field) => typeof field === 'string')) return "The pack's model fields are not text";
   return undefined;
 }
 

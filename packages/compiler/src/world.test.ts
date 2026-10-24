@@ -67,7 +67,10 @@ describe('the pack’s world', () => {
         'pairs/inner/zone': { effects: SET, once: true },
       },
     });
+    // Nothing placed, no environment, no terrain: nothing more to draw from.
     expect(pack?.world?.files).toEqual({});
+    expect(pack?.world?.records).toEqual({});
+    expect(pack?.world?.fields).toEqual({});
   });
 
   it('leaves a space without zones out of the triggers', async () => {
