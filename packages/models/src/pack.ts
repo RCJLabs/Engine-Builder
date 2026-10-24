@@ -1,13 +1,14 @@
 /**
  * A model as import brings it in (M5.5, D67, docs/specs/models.md#import): a .glb, or a .gltf with
  * the files it names, read with its Draco, Meshopt and KTX2, and written as one .glb with its
- * geometry quantised and packed by Meshopt. Draco is gone from what it writes. Textures go through
+ * geometry reordered for the vertex cache, quantised and packed by Meshopt. Draco is gone from what it writes. Textures go through
  * as they came: a KTX2 stays one, and a PNG or JPG isn't turned into one.
  */
 import type { Document, JSONDocument } from '@gltf-transform/core';
 import { EXTMeshoptCompression, KHRMeshQuantization } from '@gltf-transform/extensions';
 import { type Decoders, modelIO } from './io.ts';
 import { quantize } from './quantize.ts';
+import { reorder } from './reorder.ts';
 
 export interface ModelFile {
   /** Its name as picked: `ship.gltf`, `ship.bin`, `textures/hull.png`. */
@@ -40,7 +41,7 @@ export async function readModel(main: ModelFile, beside: readonly ModelFile[], d
   return io.readJSON({ json, resources: resources as JSONDocument['resources'] });
 }
 
-/** The model packed: quantised, compressed with Meshopt, one .glb. */
+/** The model packed: reordered, quantised, compressed with Meshopt, one .glb. */
 export async function packModel(
   main: ModelFile,
   beside: readonly ModelFile[],
@@ -50,6 +51,7 @@ export async function packModel(
   for (const extension of doc.getRoot().listExtensionsUsed()) {
     if (extension.extensionName === DRACO) extension.dispose();
   }
+  await reorder(doc);
   quantize(doc);
   doc.createExtension(KHRMeshQuantization).setRequired(true);
   doc

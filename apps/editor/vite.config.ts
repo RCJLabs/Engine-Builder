@@ -108,8 +108,9 @@ export default defineConfig(({ command, isPreview }) => ({
         ],
       },
       workbox: {
-        // runtime/files.json too: Export reads it to find the game runtime's files (M4.10).
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'runtime/files.json'],
+        // runtime/files.json too: Export reads it to find the game runtime's files (M4.10). The wasm
+        // is three's Draco and Basis decoders, for models offline (M5.5, D67).
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,wasm}', 'runtime/files.json'],
         // The editor had rcjlabs.github.io's origin, shared with the games, before it moved to
         // engine.rcjlabs.com (D28). The prefixed cache id stays, so no cache is ever renamed.
         cacheId: 'eb-editor',

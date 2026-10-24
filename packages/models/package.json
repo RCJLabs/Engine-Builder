@@ -6,7 +6,12 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./colliders": "./src/colliders.ts",
+    "./hull": "./src/hull.ts",
+    "./io": "./src/io.ts",
+    "./lod": "./src/lod.ts",
+    "./pack": "./src/pack.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

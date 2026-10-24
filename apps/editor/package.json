@@ -24,6 +24,7 @@
     "@eb/export": "workspace:*",
     "@eb/ink": "workspace:*",
     "@eb/kits": "workspace:*",
+    "@eb/models": "workspace:*",
     "@eb/platform": "workspace:*",
     "@eb/schema": "workspace:*",
     "@eb/script": "workspace:*",

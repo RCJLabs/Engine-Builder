@@ -1,22 +1,13 @@
 /**
  * What the Assets panel and the asset inspector do (M2.7), each as one step undo takes back:
- * files imported, entries logged, an asset renamed, replaced or deleted, a stand-in made. What
- * shows an asset follows a rename, so the inspector stays on it.
+ * entries logged, an asset renamed, replaced or deleted, a stand-in made. What shows an asset
+ * follows a rename, so the inspector stays on it. An import is models/actions.ts's (M5.5).
  */
 import type { Provenance } from '@eb/schema';
-import { note } from '../app/state.ts';
 import { step } from '../editing/step.ts';
 import { chosen } from '../forms/selection.ts';
 import { current } from '../projects/opened.ts';
-import {
-  createStandIn,
-  deleteAssets,
-  type Incoming,
-  importAssets,
-  logProvenance,
-  renameAsset,
-  replaceAsset,
-} from './assetEdits.ts';
+import { createStandIn, deleteAssets, logProvenance, renameAsset, replaceAsset } from './assetEdits.ts';
 import { fileName, folderOf, freePath } from './assetPaths.ts';
 import { openAsset } from './open.ts';
 import { standInPath } from './standIn.ts';
@@ -24,16 +15,6 @@ import { standInPath } from './standIn.ts';
 const files = (count: number) => (count === 1 ? '1 file' : `${count} files`);
 
 const showing = (path: string) => chosen.value?.kind === 'asset' && chosen.value.path === path;
-
-/** Files imported with one provenance; one file opens in the inspector. Resolves to whether they were. */
-export async function importAction(incoming: readonly Incoming[], entry: Provenance): Promise<boolean> {
-  const [first] = incoming;
-  const label = incoming.length === 1 && first ? `Import ${first.path}` : `Import ${files(incoming.length)}`;
-  if (!(await step(label, (copy) => importAssets(copy, incoming, entry)))) return false;
-  note(incoming.length === 1 && first ? `Imported assets/${first.path}.` : `Imported ${files(incoming.length)}.`);
-  if (incoming.length === 1 && first) openAsset(first.path);
-  return true;
-}
 
 /** Entries for files already there, each with the same provenance. */
 export const logAction = (paths: readonly string[], entry: Provenance): Promise<boolean> =>

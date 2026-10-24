@@ -1,10 +1,10 @@
 /**
  * Models made in code for @eb/models' tests (M5.5): a grid with hills, its material named, under a
- * node moved off the origin; a crate of two parts; and the same written plain, with Draco, or as a
- * .gltf with its .bin beside it.
+ * node moved off the origin; a crate of two parts; and the same written plain, with Draco or Meshopt,
+ * or as a .gltf with its .bin beside it.
  */
 import { Document, type Node, NodeIO } from '@gltf-transform/core';
-import { ALL_EXTENSIONS, KHRDracoMeshCompression } from '@gltf-transform/extensions';
+import { ALL_EXTENSIONS, EXTMeshoptCompression, KHRDracoMeshCompression } from '@gltf-transform/extensions';
 import draco3d from 'draco3d';
 import { MeshoptDecoder } from 'meshoptimizer/decoder';
 import { MeshoptEncoder } from 'meshoptimizer/encoder';
@@ -106,9 +106,10 @@ export async function nodeIO(): Promise<NodeIO> {
 /** The Draco decoder module, as the editor's worker makes from three's copy. */
 export const dracoDecoder = (): Promise<unknown> => draco3d.createDecoderModule();
 
-/** A model written as a .glb, plain or with its geometry in Draco. */
-export async function glbOf(doc: Document, draco = false): Promise<Uint8Array> {
-  if (draco) doc.createExtension(KHRDracoMeshCompression).setRequired(true);
+/** A model written as a .glb, plain or with its geometry in Draco or Meshopt, as other tools write them. */
+export async function glbOf(doc: Document, coding: 'plain' | 'draco' | 'meshopt' = 'plain'): Promise<Uint8Array> {
+  if (coding === 'draco') doc.createExtension(KHRDracoMeshCompression).setRequired(true);
+  if (coding === 'meshopt') doc.createExtension(EXTMeshoptCompression).setRequired(true);
   return (await nodeIO()).writeBinary(doc);
 }
 
