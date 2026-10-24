@@ -117,6 +117,12 @@ export async function serveSite(dir: string, base: string): Promise<Site> {
       root = next;
     },
     asked,
-    close: () => new Promise((done) => server.close(() => done())),
+    close: () =>
+      new Promise((done) => {
+        // close() alone waits for every socket to end, and a socket the browser opened ahead and
+        // never asked on keeps it waiting: on CI the itch.io test hung here to its 120 s timeout.
+        server.closeAllConnections();
+        server.close(() => done());
+      }),
   };
 }
