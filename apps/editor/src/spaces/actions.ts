@@ -18,7 +18,7 @@ import {
   renameObject,
 } from './spaceEdits.ts';
 import { type SpaceJson, type SpaceObject, withTransform } from './spaceFile.ts';
-import { aim, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
+import { aim, groundHeight, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
 
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
 
@@ -37,7 +37,7 @@ export async function createSpace(kind: SpaceKind, id: string, typed: string): P
   openSpaceFile(kind, id);
 }
 
-/** A shape, a prefab or a record (M5.2) put on the ground in the middle of the view, or beside what is there, chosen. */
+/** A shape, a prefab or a record (M5.2) put on the ground in the middle of the view, or beside what is there, chosen; on a terrain's ground (M5.3). */
 export async function addHere(
   object: { readonly shape: SpaceObject['shape'] } | { readonly prefab: string } | { readonly record: string },
 ): Promise<void> {
@@ -52,6 +52,8 @@ export async function addHere(
   let made = '';
   await editOpen(`Add ${base.id}`, (space) => {
     const at = freeSpot(space, snap(x), snap(z));
+    // On a terrain, on the ground where it lands, to the centimetre.
+    at[1] = Math.round((groundHeight.value?.(at[0], at[2]) ?? 0) * 100) / 100;
     const added = addObject(space, withTransform(base, { at, turn: [0, 0, 0], scale: [1, 1, 1] }));
     made = added.id;
     return added.space;

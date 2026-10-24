@@ -1698,6 +1698,14 @@ Evan chose on 2026-10-24, from these options:
 - **Binary files in git:** a stroke changes the whole PNG, so diffs say only that it changed.
 - **Undo holds bytes:** a stroke keeps the file before and after, up to about a megabyte at 513×513.
 - **Nothing runs yet:** terrain and water are drawn in the editor only until M5.8 brings physics and a player.
+
+**As built** (2026-10-24, M5.3):
+- **The PNGs are the editor's own code,** a 16-bit greyscale encoder and decoder beside the RGBA ones in `@eb/export`, held to a file Pillow wrote and read back by Pillow. The compiler reads headers only.
+- **A height is read on the triangles drawn,** each square split from its (i + 1, j) corner to its (i, j + 1), so the brush lands, and the ray meets the ground, where the mesh is. The spec first said bilinear; the spike's `heightAt` and the mesh both split the square.
+- **A stroke is put back if a second finger lands,** rather than kept: two fingers landing a moment apart mean a pinch, and the first finger's dab is undone.
+- **Low and high are written as their field is left,** not on each key, so a range passed through while typing never clamps heights.
+- **The view builds each chunk once, at the level its distance gives it,** as a terrain opens: at 513 vertices, 18 to 29 ms against 138 to 168 ms for all at full detail, in Node (Readings).
+- **Undo holds a stroke's whole file,** before and after: up to 375 KiB of heights at 513 for a rough terrain, measured (Readings).
 - **Untested for feel** until a phone uses the brushes.
 
 ---

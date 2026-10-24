@@ -44,7 +44,7 @@ export interface View {
   /** A space's terrain, or none: a problem in words when its files can't be read. */
   showTerrain(settings: TerrainJson | null, files: TerrainFiles | null): string | null;
   /** The terrain's brushes and strokes (M5.3), over rays from the view's points. */
-  readonly terrain: Pick<TerrainView, 'start' | 'to' | 'end' | 'ring' | 'grid'>;
+  readonly terrain: Pick<TerrainView, 'start' | 'to' | 'end' | 'ring' | 'grid' | 'height'>;
   select(ids: readonly string[]): void;
   setMode(mode: Mode): void;
   /** The chosen objects in view, or the whole space when none are. */

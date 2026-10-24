@@ -199,6 +199,10 @@ export async function addWater(page: Page, touch: boolean): Promise<void> {
   await expect
     .poll(async () => (await fell(page))?.objects)
     .toMatchObject([{ id: 'plane', components: { water: {} } }]);
+  // Stood on the ground where it landed, not at 0 m under the sculpted ground.
+  const plane = (await fell(page))?.objects[0] as { at?: [number, number, number] };
+  const [x, y, z] = plane.at ?? [0, 0, 0];
+  expect(y).toBeCloseTo((await heightAt(page, x, z)) as number, 2);
   // Drawn see-through: its clarity left out, 0.6, its opacity the rest.
   await expect
     .poll(() => page.evaluate(() => (window as unknown as Hooked).__ebViewport?.waterAt('plane') ?? null))

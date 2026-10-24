@@ -12,7 +12,17 @@ import { deleteChosen, placeChosen } from './actions.ts';
 import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
 import type { SpaceJson } from './spaceFile.ts';
-import { aim, choose, frameAsked, gizmoMode, type OpenSpace, picked, selectMore, snapOn } from './state.ts';
+import {
+  aim,
+  choose,
+  frameAsked,
+  gizmoMode,
+  groundHeight,
+  type OpenSpace,
+  picked,
+  selectMore,
+  snapOn,
+} from './state.ts';
 import type { TerrainFiles } from './terrainView.ts';
 import { type Backend, createView, type View } from './viewport.ts';
 
@@ -49,7 +59,11 @@ export function SceneView(props: {
       view.current?.show(s, p, names);
     }
     // The terrain's files are compared by the view, which decodes them only when they changed.
-    if (view.current) setUnread(view.current.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
+    const shownView = view.current;
+    if (!shownView) return;
+    setUnread(shownView.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
+    groundHeight.value = shownView.terrain.grid() ? shownView.terrain.height : null;
+    aim.value = shownView.aim();
   };
 
   useEffect(() => {
@@ -92,6 +106,7 @@ export function SceneView(props: {
     );
     return () => {
       gone = true;
+      groundHeight.value = null;
       detach();
       view.current?.dispose();
       view.current = null;

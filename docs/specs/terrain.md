@@ -86,19 +86,56 @@ Each brush acts in a circle of its radius around the point under the pointer, it
 | E058 | (M5.1's) a terrain's settings don't fit: a size that isn't 65, 129, 257 or 513, spacing out of range, `low` not below `high`, no layers or more than four; or a prefab has a terrain |
 | E067 | a terrain's heights or paint file is missing, isn't a PNG, or isn't 16-bit greyscale or 8-bit RGBA of `size` × `size` |
 | W144 | a heights or paint file whose space has no terrain |
-| W145 | a water component on an object that isn't a plane |
+| W145 | a water component on an object that isn't a plane, its own or one a placement's overrides make so |
+| W141 | (M5.1's) a terrain's file whose name before `.heights.png` or `.paint.png` isn't an id |
 
-`eb validate` and the Problems panel both report them. The compiler reads a PNG's header only; it never decodes the image.
+`eb validate` and the Problems panel both report them. The compiler reads a PNG's header only; it never decodes the image. A PNG under `spaces/` whose part is neither `heights` nor `paint` (a misspelt `fell.height.png`) is no terrain's file and is ignored, as any other file there is; a terrain missing the file it meant is E067.
 
 ## The editor
 
-- **Terrain tools** sit in the Scene panel's toolbar while a space is open. Without a terrain: a size and Add terrain. With one: Raise, Lower, Smooth, Flatten and Paint, the layer to paint, Radius and Strength, and Camera, which puts the pointer back to moving the camera.
-- **While a brush is chosen,** one finger or the left button strokes; two fingers pan and pinch, and the right button orbits.
-- **The terrain's form** opens from the tools in the inspector: spacing, low, high, and the layers' names and colours, with Add layer, Remove layer and Remove terrain. Changing `low` or `high` keeps each height in metres, clamped to the new range.
-- **The view** draws the chunks with the layers' colours blended at each vertex, and water as a see-through plane of its colour.
+- **Terrain tools.** In a space (not a prefab), the toolbar's Terrain button opens a row of its own:
+  - Without a terrain, it holds a size and Add terrain. A new terrain is 1 m between vertices, from −10 to 40 m, with four layers: Grass, Rock, Sand and Snow.
+  - With one, it holds Camera, then Raise, Lower, Smooth, Flatten and Paint, then the layer to paint (with Paint chosen), Radius and Strength sliders, and Terrain settings.
+  - Camera puts the pointer back to moving the camera. Closing the row, or the space, chooses Camera too.
+- **While a brush is chosen:**
+  - One finger or the left button strokes. A ring shows the brush on the ground, under the mouse as it moves and under the finger as it strokes.
+  - A press that starts off the terrain orbits instead.
+  - A second finger puts the stroke back as it was and pinches; so does the browser taking the pointer away. Only a lifted pointer writes a stroke.
+  - The right button orbits, the middle button pans, and the wheel zooms. The gizmo's handles don't take a press.
+- **A stroke** is encoded as the pointer lifts, from the grid as the stroke left it, so a stroke drawn before the last one's step lands can't slip into it. Its step in the undo list names it: "Raise the terrain", "Paint Rock".
+- **The terrain's form** is in the inspector while nothing is chosen in a space with a terrain. Terrain settings in the row chooses nothing and shows the inspector. It holds:
+  - spacing, low and high, and each layer's name and colour, with its own Remove and an Add layer below;
+  - Remove terrain, which takes both files with the settings.
+  - Changing `low` or `high` keeps each height in metres, clamped to the new range. Both are written as the field is left or Enter pressed, not as each key lands: a range passed through on the way to the one typed would clamp heights for good.
+  - Removing a layer moves the later layers' channels down one, so each vertex keeps the colours of the layers it had.
+- **Add** stands a new object on the terrain's ground where it lands, to the centimetre, rather than at 0 m.
+- **The view:**
+  - It draws the chunks with the layers' colours blended at each vertex. Water is a see-through surface of its colour, its opacity clarity's complement. A placement's water, having no surface of its own, is a metre's plane.
+  - The editor's grid is hidden while a terrain is shown, as the ground would only flicker through it.
+  - A terrain is built a chunk at a time, once each, at the level the camera gives it. After that, a chunk is built again only when its level, or a neighbour's, changes.
+  - A stroke draws again only the chunks its dabs reached, with a vertex around them for the normals.
+  - The files are compared with what is shown after each change to the project, and decoded only when they differ. After an undo, only the chunks whose vertices changed are drawn again.
+- **The view's hook** (`window.__ebViewport`, for the e2e) adds these:
+  - `terrain()`: each chunk's level, triangles and distance, and the widest gap at any seam, read from the meshes' own buffers, with how many seams join two levels; and the widest gap between the drawn inner vertices and the grid;
+  - `groundAt(x, z)`, the ground's point on the page;
+  - `heightAt` and `paintAt`;
+  - `waterAt(id)`, the opacity of an object's water.
+
+## The gate
+
+- **`terrain.spec.ts`** on desktop, by mouse and keys, and **`terrainPhone.spec.ts`** by touch at 360×740, 390×844 and 844×390 start from an empty project. They:
+  - make a space, give it a 129-vertex terrain, and sculpt near the origin: Raise a ridge, Lower a trench, Smooth the ridge and Flatten across both, each brush's effect read back through the hook and each stroke a step of undo;
+  - paint Rock, Grass, Sand and Snow at spots of their own;
+  - use the terrain's form: on desktop, High typed a key at a time and Rock recoloured; by touch, a layer renamed;
+  - add a plane with water, drawn see-through;
+  - zoom out, by keys or a pinch, until the sculpted seams join chunks of two levels. Then the levels must rise with distance, finer near than far, with no gap at any seam and the drawn vertices on the grid's heights;
+  - reload, and find the space's file, both PNGs' bytes and the hook's readings as they were.
+- On desktop, an undo of Flatten puts the trench back and is drawn so; a redo fills it again.
+- **`tools/cli/test/terrain.test.ts`** holds the fell fixture to `eb validate`, clean, and finds each check in a copy broken once for each.
 
 ## Open questions
 
 1. Should a layer be a texture rather than a colour once M5.5 brings textures?
 2. Should a terrain grow beyond 513 vertices a side, as several terrains side by side, when M5.9 streams exteriors in chunks?
 3. Should Flatten take its height from a number the author types, as well as from the stroke's first dab?
+4. On a phone the brush's ring shows only once a finger is down, so Radius is first seen as a stroke lands. Should the ring show in the middle of the view while Radius is dragged?
