@@ -59,12 +59,14 @@ test.describe('phone landscape 844×390', () => {
 test.describe('desktop 1280×800', () => {
   test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'light' });
 
-  test('docks the panels in three groups over the console, with keyboard tabs', async ({ page }) => {
+  test('docks the panels in four groups, the Outliner over the Inspector, over the console, with keyboard tabs', async ({
+    page,
+  }) => {
     const errors = watchErrors(page);
     await page.goto('./');
     await expect(page.locator('.shell')).toHaveAttribute('data-layout', 'desktop');
     await expect(page.locator('.dock-host')).toHaveAttribute('data-dock', 'docked');
-    expect(await visiblePanels(page)).toEqual(['project', 'records', 'inspector']);
+    expect(await visiblePanels(page)).toEqual(['project', 'records', 'outliner', 'inspector']);
     await expect(page.locator('.console')).toContainText('Engine-Builder');
 
     // dockview's tabs activate by hand: the arrows move focus and Enter shows the panel.
@@ -73,7 +75,7 @@ test.describe('desktop 1280×800', () => {
     await page.keyboard.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Logic' })).toBeFocused();
     await page.keyboard.press('Enter');
-    expect(await visiblePanels(page)).toEqual(['logic', 'records', 'inspector']);
+    expect(await visiblePanels(page)).toEqual(['logic', 'records', 'outliner', 'inspector']);
 
     await expectNothingOffscreen(page);
     await expectNoAxeIssues(page);

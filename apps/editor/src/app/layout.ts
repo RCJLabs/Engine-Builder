@@ -9,6 +9,8 @@ export type PanelId =
   | 'records'
   | 'assets'
   | 'world'
+  | 'scene'
+  | 'outliner'
   | 'inspector'
   | 'logic'
   | 'play'
@@ -31,26 +33,33 @@ export const layoutFor = (width: number): Layout =>
  * Records panel (M2.5) leads the wide zones, since the World panel waits for Phase 4; the Assets
  * panel (M2.7) sits beside it. A phone's bar holds five panels, Logic fourth since M3.1 (D36),
  * then More for the rest (D37, Evan's call): every panel in reach, every label whole at 360 px.
+ * The Scene panel docks beside Play, and the Outliner is a panel of its own (M5.1, D63).
  */
 export const ZONES: Record<Layout, readonly { zone: ZoneId; panels: readonly PanelId[] }[]> = {
   desktop: [
     { zone: 'left', panels: ['project', 'logic'] },
-    { zone: 'center', panels: ['records', 'assets', 'world', 'play'] },
-    { zone: 'right', panels: ['inspector'] },
+    { zone: 'center', panels: ['records', 'assets', 'world', 'scene', 'play'] },
+    { zone: 'right', panels: ['inspector', 'outliner'] },
   ],
   tablet: [
-    { zone: 'main', panels: ['records', 'assets', 'world', 'play'] },
-    { zone: 'side', panels: ['inspector', 'project', 'problems', 'logic'] },
+    { zone: 'main', panels: ['records', 'assets', 'world', 'scene', 'play'] },
+    { zone: 'side', panels: ['inspector', 'outliner', 'project', 'problems', 'logic'] },
   ],
   phone: [{ zone: 'only', panels: ['project', 'records', 'assets', 'logic', 'problems'] }],
 };
 
-/** The panels behind a layout's More tab, in its first zone (D37): a phone's Console, World and Play. */
+/** The panels behind a layout's More tab, in its first zone (D37): a phone's Console, World, Scene and Play. */
 export const MORE: Record<Layout, readonly PanelId[]> = {
   desktop: [],
   tablet: [],
-  phone: ['console', 'world', 'play'],
+  phone: ['console', 'world', 'scene', 'play'],
 };
+
+/**
+ * Desktop's panels that start in a group of their own above their zone's first panel rather than
+ * as a tab behind it: the Outliner over the Inspector, both in view while a space is built.
+ */
+export const DOCK_ABOVE: Partial<Record<PanelId, PanelId>> = { outliner: 'inspector' };
 
 /**
  * Desktop's group along the bottom, below the zones' groups (M2.8): the console in front, as since
@@ -61,19 +70,22 @@ export const DOCK_BOTTOM: readonly PanelId[] = ['console', 'problems'];
 /** The panel each layout shows in a bottom sheet over its zones: on a phone, the inspector, so it sits over what it inspects. */
 export const SHEET: Record<Layout, PanelId | null> = { desktop: null, tablet: null, phone: 'inspector' };
 
+/** The panels a layout's sheet shows as tabs beside the inspector: a phone's Outliner (D63). */
+export const SHEET_TABS: Record<Layout, readonly PanelId[]> = { desktop: [], tablet: [], phone: ['outliner'] };
+
 /** Desktop's dock: the zones' groups side by side, then the bottom group (M2.2, M2.8). */
 export const DOCK_PANELS: readonly DockPanelId[] = [...ZONES.desktop.flatMap((zone) => zone.panels), ...DOCK_BOTTOM];
 
 /** Tablet's strip below its zones: the console, always in view. */
 export const STRIP: Record<Layout, PanelId | null> = { desktop: null, tablet: 'console', phone: null };
 
-/** The panels a layout can show: its zones' and More's, its sheet's and its strip's, or the dock's. */
+/** The panels a layout can show: its zones' and More's, its sheet's and its tabs, and its strip's, or the dock's. */
 export function panelsOf(layout: Layout): PanelId[] {
   if (layout === 'desktop') return [...DOCK_PANELS];
   const shown = ZONES[layout].flatMap((zone) => zone.panels);
   const sheet = SHEET[layout];
   const strip = STRIP[layout];
-  return [...shown, ...MORE[layout], ...(sheet ? [sheet] : []), ...(strip ? [strip] : [])];
+  return [...shown, ...MORE[layout], ...(sheet ? [sheet, ...SHEET_TABS[layout]] : []), ...(strip ? [strip] : [])];
 }
 
 /** What each zone shows: a panel, or More's list. */

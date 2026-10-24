@@ -11,7 +11,7 @@ import { render } from 'preact';
 import { badgeText } from '../../problems/collect.ts';
 import { problemCount } from '../../problems/count.ts';
 import { Console } from '../Console.tsx';
-import { DOCK_BOTTOM, DOCK_PANELS, type DockPanelId, type PanelId, ZONES } from '../layout.ts';
+import { DOCK_ABOVE, DOCK_BOTTOM, DOCK_PANELS, type DockPanelId, type PanelId, ZONES } from '../layout.ts';
 import { Panel } from '../Panel.tsx';
 import { PANELS } from '../panels.ts';
 import { noteError } from '../state.ts';
@@ -29,12 +29,20 @@ const THEME = { name: 'eb', className: 'dockview-theme-eb' };
 // Width of the side groups and height of the console when the layout is new, in CSS pixels.
 const SIDE_WIDTH = { left: 280, right: 320 } as const;
 const CONSOLE_HEIGHT = 150;
+// The height of a group laid above its zone's first panel (DOCK_ABOVE): the Outliner's.
+const ABOVE_HEIGHT = 260;
 const SAVE_AFTER_MS = 300;
 
 const titleOf = (id: DockPanelId) => PANELS[id].label;
 
 /** Where a panel added since a layout was saved goes: beside the panel it sits with by default. */
-const PEERS: Partial<Record<PanelId, PanelId>> = { assets: 'records', problems: 'console' };
+const PEERS: Partial<Record<PanelId, PanelId>> = { assets: 'records', problems: 'console', scene: 'world' };
+
+/** Where a panel goes beside another: in its group, or in a group of its own above it (DOCK_ABOVE). */
+const besides = (id: PanelId, peer: PanelId) => ({
+  referencePanel: peer,
+  direction: DOCK_ABOVE[id] === peer ? 'above' : 'within',
+});
 
 /**
  * A panel's content: the same Preact panel the zones show. dockview already makes each group a
@@ -95,7 +103,7 @@ function layDefault(dock: DockviewComponent): void {
   for (const { panels } of ZONES.desktop) {
     const [first, ...rest] = panels as [PanelId, ...PanelId[]];
     lay(dock, first, previous ? { referencePanel: previous, direction: 'right' } : undefined);
-    for (const id of rest) lay(dock, id, { referencePanel: first, direction: 'within' }, true);
+    for (const id of rest) lay(dock, id, besides(id, first), DOCK_ABOVE[id] !== first);
     previous = first;
   }
   const [bottom, ...below] = DOCK_BOTTOM as [PanelId, ...PanelId[]];
@@ -106,6 +114,7 @@ function layDefault(dock: DockviewComponent): void {
   size(ZONES.desktop[0]?.panels[0] as PanelId, { width: SIDE_WIDTH.left });
   size(ZONES.desktop[2]?.panels[0] as PanelId, { width: SIDE_WIDTH.right });
   size(bottom, { height: CONSOLE_HEIGHT });
+  for (const id of Object.keys(DOCK_ABOVE) as PanelId[]) size(id, { height: ABOVE_HEIGHT });
 }
 
 function restore(dock: DockviewComponent, storage: Storage | null): void {
@@ -122,13 +131,10 @@ function restore(dock: DockviewComponent, storage: Storage | null): void {
       // Panels added to the editor since the layout was saved, and any it names but places in no
       // group, which dockview drops, join their peer's group, or the active one.
       for (const id of DOCK_PANELS.filter((panel) => !dock.getGroupPanel(panel))) {
-        const peer = PEERS[id];
-        lay(
-          dock,
-          id,
-          peer && dock.getGroupPanel(peer) ? { referencePanel: peer, direction: 'within' } : undefined,
-          true,
-        );
+        const peer = PEERS[id] ?? DOCK_ABOVE[id];
+        const placed = peer !== undefined && dock.getGroupPanel(peer) !== undefined;
+        lay(dock, id, placed ? besides(id, peer) : undefined, !placed || DOCK_ABOVE[id] !== peer);
+        if (placed && DOCK_ABOVE[id] === peer) dock.getGroupPanel(id)?.group.api.setSize({ height: ABOVE_HEIGHT });
       }
       return;
     } catch (error) {

@@ -29,6 +29,18 @@ function broken(): Record<string, string> {
     'assets/ui/button.png': 'png',
     'assets/ui/badge.png': 'png',
     'assets/stand-ins/x.svg': '<svg/>',
+    // M5.1: a space whose second object takes the first's id, places a missing prefab and has a bad scale.
+    'spaces/yard.json': json({
+      name: 'Yard',
+      objects: [
+        { id: 'box', shape: 'box' },
+        { id: 'box', prefab: 'barrel' },
+      ],
+    }),
+    'spaces/shed.json': json({ name: 'Shed', objects: [{ id: 'roof', shape: 'box', scale: [1, 0, 1] }] }),
+    'spaces/broken.json': '{ "name": ',
+    'spaces/old/yard.json': '{}',
+    'prefabs/crate.json': json({ name: 'Crate', objects: [{ id: 'me', prefab: 'crate' }] }),
     'assets/assets.json': json({
       files: {
         'portraits/spiculus.svg': { ...own, licence: 'CC-BY-NC-4.0' },
@@ -70,10 +82,15 @@ describe('the project’s problems', () => {
       'E019',
       'E020',
       'E021',
+      'E058',
+      'E059',
+      'E060',
+      'E061',
       'W101',
       'W105',
       'W106',
       'W107',
+      'W141',
     ]);
   });
 
@@ -122,6 +139,14 @@ describe('where each problem is fixed', () => {
     expect(placed('W106')).toEqual({ kind: 'panel', panel: 'assets' });
     expect(placed('E010')).toBeNull();
     expect(placed('W105')).toBeNull();
+    // A space's problem opens it with its object chosen (M5.1); a misplaced one, nowhere.
+    expect(placed('E058')).toEqual({ kind: 'space', path: 'spaces/shed.json', object: 0 });
+    expect(placed('E059')).toEqual({ kind: 'space', path: 'spaces/yard.json', object: 1 });
+    expect(placed('E061')).toEqual({ kind: 'space', path: 'prefabs/crate.json', object: 0 });
+    expect(placed('E007', 'spaces/broken.json')).toEqual({ kind: 'space', path: 'spaces/broken.json' });
+    expect(placed('W141')).toBeNull();
+    expect(fileTitle('spaces/yard.json', catalog, null)).toBe('Space yard');
+    expect(fileTitle('prefabs/crate.json', catalog, null)).toBe('Prefab crate');
   });
 
   it('says where in words, and titles each file', async () => {
@@ -148,7 +173,7 @@ describe('the panel’s view', () => {
     expect(groups.flatMap((g) => g.problems)).toEqual(editor);
     const shown = (view: Partial<typeof ALL_PROBLEMS>) =>
       shownGroups(groups, { ...ALL_PROBLEMS, ...view }, catalog).flatMap((g) => g.problems.map((p) => p.code));
-    expect(shown({ severity: 'warning' }).sort()).toEqual(['W101', 'W105', 'W106', 'W107']);
+    expect(shown({ severity: 'warning' }).sort()).toEqual(['W101', 'W105', 'W106', 'W107', 'W141']);
     expect(shown({ search: 'spiculus might' })).toEqual(['E001']);
     expect(shown({ search: 'E020' })).toEqual(['E020']);
     expect(shown({ search: 'nothing like this' })).toEqual([]);
@@ -161,12 +186,12 @@ describe('the panel’s view', () => {
     const { catalog, index, editor } = await both(broken());
     const counts = countProblems(editor);
     expect(tally(catalog, index)).toEqual(counts);
-    expect(counts.warnings).toBe(4);
-    expect(countsText(counts)).toBe(`${counts.errors} errors and 4 warnings`);
+    expect(counts.warnings).toBe(5);
+    expect(countsText(counts)).toBe(`${counts.errors} errors and 5 warnings`);
     expect(countsText({ errors: 1, warnings: 0 })).toBe('1 error');
     expect(countsText({ errors: 0, warnings: 0 })).toBe('No problems');
     expect(countsText({ errors: 0, warnings: 1 })).toBe('1 warning');
-    expect(badgeText(counts)).toBe(String(counts.errors + 4));
+    expect(badgeText(counts)).toBe(String(counts.errors + 5));
     expect(badgeText({ errors: 0, warnings: 0 })).toBeNull();
     expect(badgeText(null)).toBeNull();
   });

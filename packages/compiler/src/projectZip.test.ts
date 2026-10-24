@@ -28,7 +28,18 @@ describe('projectFiles', () => {
   });
 
   it('names the folders the architecture gives a project', () => {
-    expect(PROJECT_FOLDERS).toEqual(['records', 'types', 'scenes', 'ui', 'scripts', 'dialogue', 'assets', 'locales']);
+    expect(PROJECT_FOLDERS).toEqual([
+      'records',
+      'types',
+      'scenes',
+      'ui',
+      'scripts',
+      'dialogue',
+      'assets',
+      'locales',
+      'spaces',
+      'prefabs',
+    ]);
   });
 });
 

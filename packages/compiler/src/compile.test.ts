@@ -584,6 +584,20 @@ describe('the code table', () => {
         ],
       }),
     });
+    // M5.1: a space of the wrong shape, one with an id twice and a prefab prefabs/ lacks, a prefab
+    // that places itself, and a space in a folder of its own.
+    const placed = await kitted([], {
+      'spaces/odd.json': JSON.stringify({ name: 'Odd', objects: [{ id: 'box', shape: 'cube' }] }),
+      'spaces/yard.json': JSON.stringify({
+        name: 'Yard',
+        objects: [
+          { id: 'crate', prefab: 'crate' },
+          { id: 'crate', prefab: 'barrel' },
+        ],
+      }),
+      'prefabs/crate.json': JSON.stringify({ name: 'Crate', objects: [{ id: 'inner', prefab: 'crate' }] }),
+      'spaces/old/yard.json': '{}',
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -599,6 +613,7 @@ describe('the code table', () => {
       fought,
       exported,
       guided,
+      placed,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

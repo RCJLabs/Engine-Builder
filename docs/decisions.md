@@ -1572,6 +1572,49 @@ Evan chose on 2026-10-23, from these options:
 - **The ship's layout, which the builder decides, has no stand-in:** a part's place on the hull doesn't matter here.
 - **As built (2026-10-23):** the original's fights end sooner than the encounters kit's do by default, so each fight's `breaks` is set, a stand-in tuned to the start crew's measured rates ([specs/space-wrecked.md](specs/space-wrecked.md#the-tuning)).
 
+### D63. Phase 5 starts on D8 before the phone reading; a 3D place is `spaces/<id>.json` and a reusable group `prefabs/<id>.json`, placed by reference; the viewport is a Scene panel; M5.1 is proved by an e2e that builds a space. LOCKED, 2026-10-23 (Evan's calls, M5.1)
+
+Evan chose on 2026-10-23, from these options:
+- **3D stack:**
+  - build on D8 now, the phone reading still setting the FPS targets before M5.6;
+  - take the reading first, Phase 5 waiting for it;
+  - WebGL2 only, through three's older WebGLRenderer, until the reading.
+- **Files:**
+  - `spaces/` and `prefabs/`, prefabs placed by reference;
+  - a space and a prefab as record types under `records/`;
+  - `levels/`, with prefabs copied when placed.
+- **The viewport:**
+  - a Scene panel, the Outliner its own panel on desktop and a tab of the inspector sheet on a phone;
+  - inside the World panel, beside the maps;
+  - its own tab on a phone's bar, Problems moving behind More.
+- **The gate:**
+  - an e2e that builds a space by mouse and keys on desktop and by touch on phones;
+  - the same and Evan's own build on a phone;
+  - the camera and gizmos by machine, prefabs and the outliner by unit tests.
+
+**Decision.**
+- **D8's stack, now.** The viewport draws with three.js's `WebGPURenderer`, which falls back to WebGL2 where the browser has no WebGPU. D8 stays PROPOSED until the M1.10 reading from Evan's phone is in Readings, and M5.6's frame-rate targets wait for it.
+- **Two folders.** A space, one exterior or one interior, is `spaces/<id>.json`: a name and its placed objects. A prefab is `prefabs/<id>.json`, the same shape. A placed prefab names its file, so editing the prefab changes every placement. M5.2's components and overrides build on both.
+- **A Scene panel.** On desktop it docks beside Play, and the Outliner is a panel of its own. On a tablet both are panels. On a phone the Scene panel sits behind More, as D37 says later panels do, and the outliner is a tab of the inspector sheet.
+- **The gate is an e2e** that builds a space in the editor by mouse and keys on desktop and by touch on phones: prefabs placed, moved, turned and scaled by gizmo with snapping, two grouped into a new prefab, renamed in the outliner, and everything still there after a reload.
+
+**Why.**
+- **Stack:** the viewport doesn't need frame-rate targets, only a renderer that works. The spike showed the stack works in Chromium. Waiting would stop Phase 5 on a reading.
+- **Files:** they keep `scenes/` for ink, and placing by reference is what lets M5.2's overrides and M5.8's persistent references say what changed.
+- **Panel:** a 3D view needs the biggest zone a layout has, and on a phone the whole screen.
+- **Gate:** the editor is the product, so the gate builds a space in it, as Phase 3's gate built the hut.
+
+**Cost.**
+- **If the phone reading misses Low's target,** D8 changes, and the viewport's renderer with it.
+- **CI has no WebGPU adapter,** so only the WebGL2 path is checked by machine. The WebGPU path is first seen on a phone.
+- **On a phone the viewport is two taps away** (More, then Scene).
+
+**As built** (2026-10-24, M5.1):
+- **On desktop the Outliner docks above the Inspector,** a group of its own, so both are in view while a space is built. On a tablet it is a tab beside the Inspector.
+- **The code is in `apps/editor/src/spaces/`;** `scenes/` is the ink scenes'.
+- **The camera's controls are the editor's own.** three's OrbitControls imports plain `three`, which would bring three's WebGL renderer into the chunk beside the WebGPU one.
+- **three loads with the first file opened,** as a chunk of 807 kB (223 kB gzip), never with the editor's start (Readings).
+
 ---
 
 ## Open
