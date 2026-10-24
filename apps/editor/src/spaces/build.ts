@@ -1,8 +1,9 @@
 /**
  * A space or prefab as three objects (M5.1): one per object of the file, each standing where its
  * file puts it, a placed prefab a group of the prefab's own objects, as its placement's overrides
- * change them (M5.2). A placed record is a marker with its name above it; each component a small
- * mark of its kind, a light a light as well, and water (M5.3) a see-through surface of its colour.
+ * change them (M5.2). A placed record is a marker with its name above it, or its model (M5.5); each
+ * component a small mark of its kind, a light a light as well, and water (M5.3) a see-through
+ * surface of its colour.
  * Geometry is shared by shape and materials by colour, so building a space again after an edit
  * costs little.
  */
@@ -29,6 +30,9 @@ export interface Built {
 
 /** What a record's name is, by "type:id": the record's name field, when its type has one. */
 export type NameOf = (key: string) => string | undefined;
+
+/** A placed record drawn as its model, with what its placement passes on, or null for the marker (M5.5). */
+export type DrawModel = (key: string, passed: readonly Fields[]) => THREE.Object3D | null;
 
 /** Water left without its fields (docs/specs/terrain.md#water). */
 const WATER = { color: '#3a6d8c', clarity: 0.6 } as const;
@@ -153,6 +157,7 @@ export function createBuilder() {
     layers: readonly unknown[],
     names: NameOf,
     labels: { text: string; at: THREE.Object3D }[],
+    models: DrawModel,
   ): THREE.Object3D => {
     const seen = overridden(object, layers);
     if (seen.shape !== undefined) {
@@ -167,6 +172,11 @@ export function createBuilder() {
     const group = new THREE.Group();
     setTransform(group, transformOf(seen));
     if (seen.record !== undefined) {
+      const model = models(seen.record, passedOn(object, layers));
+      if (model) {
+        group.add(model);
+        return withComponents(group, seen);
+      }
       const marker = markOf('record', marks.record);
       group.add(marker);
       labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: marker });
@@ -176,19 +186,24 @@ export function createBuilder() {
     if (!prefab) group.add(new THREE.Mesh(missing, wire));
     else if (depth < DEEPEST) {
       for (const inner of placedObjects(prefab, passedOn(object, layers))) {
-        group.add(objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels));
+        group.add(objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models));
       }
     }
     return withComponents(group, seen);
   };
 
   return {
-    build(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names: NameOf = () => undefined): Built {
+    build(
+      space: SpaceJson,
+      prefabs: ReadonlyMap<string, SpaceJson>,
+      names: NameOf = () => undefined,
+      models: DrawModel = () => null,
+    ): Built {
       const root = new THREE.Group();
       const byId = new Map<string, THREE.Object3D>();
       const labels: { text: string; at: THREE.Object3D }[] = [];
       for (const object of space.objects) {
-        const made = objectOf(object, prefabs, 0, [], names, labels);
+        const made = objectOf(object, prefabs, 0, [], names, labels, models);
         made.userData.objectId = object.id;
         root.add(made);
         if (!byId.has(object.id)) byId.set(object.id, made);
