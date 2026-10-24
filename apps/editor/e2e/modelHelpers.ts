@@ -22,6 +22,7 @@ export interface ModelSummary {
   readonly collider: { readonly shape: string } | null;
   readonly materials: Readonly<Record<string, string>>;
   readonly textures: number;
+  readonly wire: boolean;
 }
 
 /** The view's models, by the model each draws. */
@@ -177,4 +178,15 @@ export async function addKit(page: Page, touch: boolean): Promise<void> {
   const panel = await showAssets(page);
   await press(panel.getByRole('button', { name: 'Add starter kit' }), touch);
   await expect.poll(() => record(page, 'kit-pine')).toMatchObject({ name: 'Pine', file: 'starter-kit/pine.glb' });
+}
+
+/** The collider's wire drawn on the model chosen, and on no other. */
+export async function expectWireOn(page: Page, chosen: string): Promise<void> {
+  await expect
+    .poll(async () =>
+      Object.values(await models(page))
+        .filter((m) => m.wire)
+        .map((m) => m.model),
+    )
+    .toEqual([chosen]);
 }

@@ -40,6 +40,8 @@ export interface ModelSummary {
   readonly materials: Readonly<Record<string, string>>;
   /** Textures its materials draw with: a KTX2 three couldn't read leaves its material without one. */
   readonly textures: number;
+  /** Whether its collider is drawn as a wire: while its object is chosen. */
+  readonly wire: boolean;
 }
 
 interface Decoded {
@@ -219,6 +221,7 @@ export function createModelsView(renderer: THREE.WebGPURenderer) {
         collider: drawn.record.collider ?? null,
         materials: colours,
         textures: textures.size,
+        wire: holder.children.some((child) => child.userData.colliderWire === true),
       };
     },
 

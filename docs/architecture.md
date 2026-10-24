@@ -91,7 +91,7 @@ my-game/
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
   scenes/<id>.ink          ink scenes, compiled into talks (M3.11)
-  assets/…                 images, audio, models, fonts, plus assets.json (provenance)
+  assets/…                 images, audio, models (one packed GLB each, M5.5), fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
 ```
 
@@ -219,7 +219,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 
 - three.js `WebGPURenderer`, falling back to WebGL2 automatically.
 - Rapier for physics and the character controller; recast-navigation-js for navmeshes.
-- glTF/GLB with Draco or Meshopt, and KTX2 textures.
+- glTF/GLB with Draco or Meshopt, and KTX2 textures, read by three's own decoders and packed with Meshopt as they are imported. A model and a material are records of the engine's own types; a space places a model, or any record whose type names one ([specs/models.md](specs/models.md), M5.5, D67).
 - All of it is lazy-loaded: a game without a 3D scene never downloads it.
 - What the M1.10 spike found (Rapier's heightfield layout, rays on triangle edges, what Rapier weighs) is in [apps/spike-3d](../apps/spike-3d/README.md#findings-for-phase-5).
 - **Quality tiers:**

@@ -22,7 +22,8 @@ field may be left out.
 | `emissive-strength` | number 0–10 | 1 | How bright the glow is |
 | `opacity` | number 0–1 | 1 | Below 1, drawn see-through |
 
-The presets, which Start from writes and New material from offers, as environments' do:
+The presets, which Start from above a material's form writes, keeping its name, as environments'
+do:
 
 | Preset | Colour | Roughness | Metalness | Other |
 | --- | --- | --- | --- | --- |
@@ -84,11 +85,16 @@ The provenance checks (E019 to E021) hold for a model's file as for any asset.
 
 The Assets panel's import, given a `.glb`, or a `.gltf` with its `.bin` and images in the same pick:
 
-1. In a worker, gltf-transform reads the file, decoding Draco with the draco3d decoder and Meshopt
-   with meshoptimizer's. KTX2 images are kept as they are.
-2. It reorders each primitive for the vertex cache, quantises positions, normals and texture
-   coordinates (`KHR_mesh_quantization`), and compresses every buffer view with Meshopt
-   (`EXT_meshopt_compression`, required). Draco is gone from what it writes.
+1. In a worker, gltf-transform reads the file, decoding Draco with three's own copy of the Draco
+   decoder (its wrapper and wasm from the editor's files, made only when a file uses Draco) and
+   Meshopt with meshoptimizer's. KTX2 images are kept as they are.
+2. It reorders each primitive for the vertex cache with meshoptimizer's `reorderMesh`, dropping
+   vertices no triangle uses; quantises positions to 16 bits inside each mesh's bounds, which a node
+   of its own beneath each node that draws it carries (as gltfpack does), and texture coordinates
+   within 0 to 1 to 16 bits (`KHR_mesh_quantization`); and compresses every buffer view with Meshopt
+   (`EXT_meshopt_compression`, required), normals through its octahedral filter at 8 bits. A
+   primitive sharing its vertices with another isn't reordered, and a skinned or morphed mesh isn't
+   quantised. Draco is gone from what it writes. The same file gives the same bytes.
 3. It writes one `.glb` with everything inside it, to `assets/models/<name>.glb`, whatever the
    file was called (a `.gltf` and its files become one GLB, so nothing beside it can go missing).
 4. The provenance entry is the import form's, with the edit "Geometry packed with Meshopt on
@@ -97,7 +103,13 @@ The Assets panel's import, given a `.glb`, or a `.gltf` with its `.bin` and imag
    material slots (all drawn as imported), and a box collider fitted to the mesh. A model over
    1,000 triangles gets LOD levels: 0.5 from 15 m, 0.25 from 30 m, 0.1 from 60 m.
 
-The import's limits are M2.7's: 25 MB a file and 50 MB a pick.
+The import's limits are M2.7's: 25 MB a file (a model and the files its `.gltf` names together)
+and 50 MB a pick. A pick can mix models and other files: the files a `.gltf` names go inside its
+GLB, and the rest are imported as any file is. A `.gltf` whose files weren't picked with it, or
+that isn't JSON, is refused before anything is packed, saying why. Models are packed one after
+another; one that can't be packed stops the import before anything is written. Everything else,
+the GLBs, their log entries and the records, is one step of undo. One model imported opens its
+record. Each packing's sizes, triangles and time go to the console.
 
 ## Placing and drawing
 
@@ -114,8 +126,15 @@ The import's limits are M2.7's: 25 MB a file and 50 MB a pick.
   same mesh. three's `LOD` picks the level by the camera's distance.
 - **The collider** is drawn as a wire shape while the object is chosen, as M5.2's collider marks are.
 - **Loading:** the loaders (GLTFLoader, DRACOLoader, MeshoptDecoder, KTX2Loader) and their wasm load
-  with the first model drawn, from the editor's own files, never with the Scene panel. Each file is
-  decoded once and cloned for each placement.
+  with the first model drawn, from the editor's own files, never with the Scene panel. Only the
+  Draco files the view names are shipped: the ones three's DRACOLoader names itself, an asm.js
+  fallback and the glTF build, are blanked as the editor is built. Each file is
+  decoded once, again only when its bytes change (a hash of them), and cloned for each placement.
+  A placement whose file is still decoding draws M5.2's marker; one three can't decode says so in
+  the console and keeps the marker.
+- **Overrides:** placements are walked as the view walks them, through prefabs, so a placement's
+  overrides of a placed model's fields (its scale, say) are drawn, and so is an override of the
+  field that names the model.
 
 ## The model's form
 
@@ -131,10 +150,14 @@ Above a model record's form:
   doorway, window wall, stairs, ramp, pillar, crate, barrel, fence, gate, rocks (two), pine, oak,
   bush, lamp post, table, bench and chest. Each part is named by its material: `wood`, `stone`,
   `metal`, `painted`, `leaves`, `glow`.
-- It writes `starter-kit/` at the repo's root: `assets/starter-kit/<piece>.glb` packed as import
-  packs, `records/model/kit-<piece>.json` with a fitted collider, `records/material/kit-<name>.json`
-  from the presets, and `provenance.json`, entries for the kit's files to join a project's log:
-  licence `CC0-1.0`, author RCJLabs, tool the script, source this repo.
+- It writes `starter-kit/` at the repo's root as a project folder that `eb validate` holds to no
+  problems: `assets/starter-kit/<piece>.glb` packed as import packs, `records/model/kit-<piece>.json`
+  with each slot given its kit material and a fitted collider (a hull for the ramp and the rocks, a
+  capsule for the barrel and the trees, a sphere for the bush, a box for the rest),
+  `records/material/kit-<name>.json` from the presets of the same name and a green for `leaves`,
+  which no preset is, `assets/assets.json`, the log whose entries join a project's (licence
+  `CC0-1.0`, author RCJLabs, tool the script, source this repo), and its own `project.json`, which
+  stays behind. The ramp is a wedge, the one shape that isn't a box, cylinder or cone.
 - The script's output is held to the committed files byte for byte.
 - **Add starter kit** in the Assets panel copies the kit into the open project in one step of undo,
   skipping a file the project already has.
@@ -142,9 +165,11 @@ Above a model record's form:
 ## The hook
 
 `window.__ebViewport.models()` gives each placed object drawn as a model:
-`{ object, model, level, levels, triangles, collider, materials }`. `level` is the LOD level
-drawn now (0 the whole mesh), `triangles` the triangles it draws, `collider` the record's shape
-and its numbers, and `materials` each slot's colour as drawn, read back from three.
+`{ object, model, level, levels, triangles, collider, materials, textures, wire }`. `level` is the
+LOD level drawn now (0 the whole mesh), `triangles` the triangles it draws, `collider` the record's
+shape and its numbers, `materials` each slot's colour as drawn, read back from three, `textures`
+the textures its materials draw with (a KTX2 three couldn't read leaves none), and `wire` whether
+its collider's wire is drawn.
 
 ## Open questions
 
@@ -154,3 +179,12 @@ and its numbers, and `materials` each slot's colour as drawn, read back from thr
    (terrain.md question 1) use material records?
 4. Should models be drawn as thumbnails in the Assets panel?
 5. Animated models: glTF animations are read and kept, but nothing plays them until Phase 6.
+6. No test reads a Basis-compressed KTX2 (ETC1S or UASTC): the repo has no Basis encoder, so the
+   tests' KTX2 is the uncompressed RGBA8 form, which three reads without the transcoder. A fixture
+   made once with a Basis encoder, committed with its provenance, would cover the transcoder's path.
+7. A file that comes in as Draco is two to two and a half times the size once packed with Meshopt,
+   and a tenth to a sixth bigger once both are gzipped; one that came in as Draco packs worse than
+   one that came in plain (Readings). If a game's download matters more than a phone's decode time,
+   should import keep Draco geometry as it came?
+8. Should New material from (a picker of presets that makes a record, as New environment does)
+   join the slot pickers, so a material can be made where it is used?

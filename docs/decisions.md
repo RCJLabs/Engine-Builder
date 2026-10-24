@@ -1796,6 +1796,15 @@ Evan chose on 2026-10-24, from these options:
 - **LOD is worked out each time a model is drawn,** in the editor now and in a game from M5.8. If that is dear on a phone, M5.7 can bake the levels into the export.
 - **The kit is plain:** flat colours on simple shapes.
 
+**As built** (2026-10-24, M5.5):
+- **Meshopt doesn't pack as small as Draco until both are gzipped.** On the test's hills (2,048 triangles) Draco is 6.3 KB and the packed GLB 12.6 KB; gzipped, 4.9 KB and 5.7 KB. On a grid of 8,192 triangles, 16.7 KB and 37.9 KB; gzipped, 14.1 KB and 15.6 KB. A file that came in as Draco packs worse than one that came in plain (7.2 KB gzipped for the hills), since Draco's own rounding and order go into it. The Why above holds over a gzipped download, not on disk (Readings; models.md question 7).
+- **Packing reorders for the vertex cache** with meshoptimizer's `reorderMesh`, as gltfpack does, which also helps Meshopt's coder; positions are quantised inside each mesh's bounds, carried by a node of its own beneath each node that draws it, as gltfpack does.
+- **The starter kit is a project folder,** its log `assets/assets.json` rather than the spec's first `provenance.json`, so `eb validate` holds it to no problems and Add starter kit merges a log the compiler already reads. Twenty pieces, about 60 kB of GLBs, a 97 kB chunk of the editor's (18 kB gzip) that loads only when Add starter kit is pressed.
+- **No test reads a Basis-compressed KTX2:** the repo has no Basis encoder, so the gate's KTX2 is the uncompressed RGBA8 form, which three's KTX2Loader reads without the transcoder. The transcoder is bundled and precached but untested (models.md question 6).
+- **The view's models are drawn as they are decoded:** a placement draws M5.2's marker until its file is ready, and the view is built again when it is. Writing that found a race from M5.1: what the view was shown before it existed never reached it, so a space whose props all arrived while three's view was being made stayed blank until something changed. No e2e loses the race, so the rule is a plain function with a unit test (`spaces/lastShown.ts`).
+- **three's DRACOLoader names its own decoders,** so the build shipped and the service worker precached an asm.js fallback and the glTF build's wasm, 948 KiB the editor never fetches. A build plugin blanks those names, since the view always gives the loader its files, and fails the build if three names others.
+- **Untested for feel and on a phone:** no phone has decoded a model, cut a LOD level or drawn the kit.
+
 ---
 
 ## Open

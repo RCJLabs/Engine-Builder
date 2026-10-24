@@ -14,6 +14,7 @@ import { showProject } from './ludus.ts';
 import {
   addKit,
   expectDrawn,
+  expectWireOn,
   importModels,
   makeBark,
   models,
@@ -40,6 +41,7 @@ test('models imported, shaped, placed and read back, the starter kit added, and 
   for (const name of [/^hills/, /^crate/, /^sign/]) await placeModel(page, name, false);
   await expectDrawn(page);
   await choose(page, 'hills', false);
+  await expectWireOn(page, 'hills');
   const { near, far } = await nearAndFar(page, false);
   expect(near).toBe(2048);
   // A tenth of 2,048 is 204: the simplifier keeps within a fifth of it, or the sloppy one does.

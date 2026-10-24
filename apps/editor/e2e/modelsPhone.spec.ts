@@ -14,6 +14,7 @@ import { showProject } from './ludus.ts';
 import {
   addKit,
   expectDrawn,
+  expectWireOn,
   importModels,
   makeBark,
   models,
@@ -58,6 +59,7 @@ for (const viewport of [
       for (const name of [/^hills/, /^crate/, /^sign/]) await placeModel(page, name, true);
       await expectDrawn(page);
       await choose(page, 'hills', true);
+      await expectWireOn(page, 'hills');
       await seeScene(page);
       const { near, far } = await nearAndFar(page, true);
       expect(near).toBe(2048);
