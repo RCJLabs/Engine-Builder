@@ -62,8 +62,8 @@ function TextStart({ bytes }: { bytes: Uint8Array }) {
   );
 }
 
-/** What a model holds, read without drawing it: rendering waits for the 3D viewport (Phase 5). */
-function ModelFacts({ project, path, bytes }: { project: OpenProject; path: string; bytes: Uint8Array }) {
+/** What a model holds, read without drawing it: the asset's preview, and a model record's form (M5.5). */
+export function ModelFacts({ project, path, bytes }: { project: OpenProject; path: string; bytes: Uint8Array }) {
   const assets = project.catalog.assets;
   const summary = useMemo(() => gltfSummary(path, bytes, new Set(assets)), [path, bytes, assets]);
   if (typeof summary === 'string') return <p class="field-problem">{summary}</p>;
