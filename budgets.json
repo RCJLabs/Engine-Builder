@@ -1,0 +1,64 @@
+{
+  "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts.",
+  "sizes": {
+    "editor-start": {
+      "budget": 120273,
+      "reading": 114545,
+      "read": "2026-10-24",
+      "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own"
+    },
+    "scene-view": {
+      "budget": 366530,
+      "reading": 349076,
+      "read": "2026-10-24",
+      "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts"
+    },
+    "models-view": {
+      "budget": 73290,
+      "reading": 69800,
+      "read": "2026-10-24",
+      "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders"
+    },
+    "precache": {
+      "budget": 6180750,
+      "reading": 5886428,
+      "read": "2026-10-24",
+      "of": "bytes of every file the service worker precaches, as a device keeps them"
+    },
+    "space-wrecked-web": {
+      "budget": 540000,
+      "reading": 520046,
+      "read": "2026-10-23",
+      "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content"
+    }
+  },
+  "counts": {
+    "glade-low": {
+      "drawCalls": 16,
+      "triangles": 13248,
+      "reading": {
+        "drawCalls": 14,
+        "triangles": 12043
+      },
+      "read": "2026-10-24"
+    },
+    "glade-medium": {
+      "drawCalls": 15,
+      "triangles": 11488,
+      "reading": {
+        "drawCalls": 13,
+        "triangles": 10443
+      },
+      "read": "2026-10-24"
+    },
+    "glade-high": {
+      "drawCalls": 24,
+      "triangles": 16367,
+      "reading": {
+        "drawCalls": 21,
+        "triangles": 14879
+      },
+      "read": "2026-10-24"
+    }
+  }
+}

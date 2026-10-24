@@ -20,7 +20,8 @@
     "format": "biome check --write .",
     "test": "vitest run",
     "e2e": "playwright test",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm e2e"
+    "budgets": "node tools/budgets/src/cli.ts",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm budgets && pnpm e2e"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

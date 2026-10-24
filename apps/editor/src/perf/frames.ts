@@ -19,6 +19,9 @@ export function percentile(sorted: readonly number[], p: number): number {
   return sorted[Math.min(sorted.length, Math.max(1, rank)) - 1] as number;
 }
 
+// A frame's time is the gap between two of requestAnimationFrame's stamps, so 33.30000000000018 ms.
+const tenths = (ms: number) => Math.round(ms * 10) / 10;
+
 export function frameStats(intervals: readonly number[]): FrameStats {
   if (intervals.length === 0) return { count: 0, fps: 0, median: 0, p95: 0 };
   const sorted = [...intervals].sort((a, b) => a - b);
@@ -26,7 +29,7 @@ export function frameStats(intervals: readonly number[]): FrameStats {
   return {
     count: intervals.length,
     fps: total > 0 ? Math.round((intervals.length * 1000 * 10) / total) / 10 : 0,
-    median: percentile(sorted, 50),
-    p95: percentile(sorted, 95),
+    median: tenths(percentile(sorted, 50)),
+    p95: tenths(percentile(sorted, 95)),
   };
 }

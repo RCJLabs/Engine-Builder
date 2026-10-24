@@ -291,6 +291,8 @@ importers:
         specifier: 1.4.0
         version: 1.4.0
 
+  tools/budgets: {}
+
   tools/cli:
     dependencies:
       '@eb/compiler':

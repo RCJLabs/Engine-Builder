@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { frameStats, percentile } from './frames.ts';
 import { tierFromHints } from './hints.ts';
-import { createFrameClock, LONG_FRAME, WINDOW } from './stepDown.ts';
+import { createFrameClock, LONG_FRAME, WARM_UP, WINDOW } from './stepDown.ts';
 import { lowerTier, pixelRatioOf, TIER_NAMES, TIERS } from './tiers.ts';
 
 describe('the tiers', () => {
@@ -73,6 +73,8 @@ describe('frame times', () => {
     expect(percentile([...intervals], 95)).toBe(19);
     expect(frameStats(intervals)).toEqual({ count: 20, fps: 95.2, median: 10, p95: 19 });
     expect(frameStats([])).toEqual({ count: 0, fps: 0, median: 0, p95: 0 });
+    // To a tenth of a millisecond, as the overlay shows them.
+    expect(frameStats([33.30000000000018, 16.69999999999891])).toMatchObject({ median: 16.7, p95: 33.3 });
   });
 });
 
@@ -88,13 +90,29 @@ describe('Auto’s step down', () => {
     expect(run(createFrameClock(), 0, LONG_FRAME - 5, 400)).toEqual([]);
   });
 
-  it('steps once 3 seconds of long frames are drawn, then counts afresh', () => {
+  it('steps once 3 seconds of long frames are drawn past the warm-up, then counts afresh', () => {
     const clock = createFrameClock();
-    const steps = run(clock, 0, 80, 100);
-    // The first step once the window holds 3 s of drawing; the next after 3 s more.
-    const first = Math.ceil(WINDOW / 80);
+    const steps = run(clock, 0, 80, 150);
+    // Frames from 2 s on are judged: the first step once the window holds 3 s of them, the next
+    // after 3 s more.
+    const window = Math.ceil(WINDOW / 80);
+    const first = Math.ceil(WARM_UP / 80) + window - 1;
     expect(steps[0]).toBe(first);
-    expect(steps[1]).toBe(first * 2);
+    expect(steps[1]).toBe(first + window);
+  });
+
+  it('lets a new view’s first 2 seconds by, while three compiles its shaders', () => {
+    const clock = createFrameClock();
+    let at = 0;
+    const steps: number[] = [];
+    // Six 300 ms frames, as a view's first were in software WebGL, then 3.6 s of 30 ms ones: without
+    // the warm-up, a window of 3 s would hold six long frames in 46.
+    for (let k = 0; k < 6 + 120; k++) {
+      at += k < 6 ? 300 : 30;
+      if (clock.frame(at, true)) steps.push(k);
+    }
+    expect(steps).toEqual([]);
+    expect(clock.intervals()).toHaveLength(120);
   });
 
   it('never counts the time between frames drawn apart', () => {

@@ -2,7 +2,10 @@
  * Auto's step down (M5.7, D69, docs/specs/performance.md#choosing-a-tier): of the frames drawn back
  * to back, the last 3 seconds' 95th percentile longer than 50 ms says the tier is too much for the
  * device, and the view steps down one. It counts afresh after a step, never steps up, and a frame
- * drawn after a pause starts no interval. 50 ms waits on the phone's reading for its tier targets.
+ * drawn after a pause starts no interval. A view's first 2 seconds are let by: three compiles its
+ * shaders as it first draws each material, and a new view's first frames took 350 to 480 ms in
+ * software WebGL (Readings) however light its tier. 50 ms waits on the phone's reading for its
+ * tier targets.
  */
 import { percentile } from './frames.ts';
 
@@ -12,6 +15,8 @@ export const LONG_FRAME = 50;
 export const WINDOW = 3000;
 /** How many intervals the overlay's numbers are of. */
 export const SHOWN = 120;
+/** How long after a view's first frame its frames are only shown, never judged, in milliseconds. */
+export const WARM_UP = 2000;
 
 export interface FrameClock {
   /**
@@ -24,16 +29,19 @@ export interface FrameClock {
 }
 
 export function createFrameClock(): FrameClock {
+  let first: number | null = null;
   let last: number | null = null;
   let window: number[] = [];
   let shown: number[] = [];
   return {
     frame(at, backToBack) {
+      first ??= at;
       const before = last;
       last = at;
       if (!backToBack || before === null) return false;
       const interval = at - before;
       shown = [...shown.slice(-(SHOWN - 1)), interval];
+      if (at - first < WARM_UP) return false;
       window.push(interval);
       let span = window.reduce((sum, n) => sum + n, 0);
       while (window.length > 1 && span - (window[0] as number) >= WINDOW) span -= window.shift() as number;

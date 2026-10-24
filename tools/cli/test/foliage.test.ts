@@ -48,7 +48,7 @@ describe('eb with foliage', () => {
   it('validates the grove clean', () => {
     const run = eb(['validate', GROVE]);
     expect(run.code, run.out + run.err).toBe(0);
-    expect(run.out.trim()).toMatch(/^6 records: no problems, hash [0-9a-f]{16}\.$/);
+    expect(run.out.trim()).toMatch(/^7 records: no problems, hash [0-9a-f]{16}\.$/);
   });
 
   it('gives each of M5.6’s checks at its file and field', () => {
