@@ -150,7 +150,11 @@ describe('prefab overrides', () => {
       {
         id: 'house',
         prefab: 'house',
-        overrides: { door: { shape: 'box', overrides: { handle: {} } }, walls: { overrides: {} } },
+        overrides: {
+          door: { shape: 'box', overrides: { handle: {} } },
+          walls: { overrides: {} },
+          host: { color: '#ffffff' },
+        },
       },
     ];
     expect(await problems(yard(objects))).toEqual([
@@ -158,6 +162,7 @@ describe('prefab overrides', () => {
       'E058 spaces/yard.json /objects/0/overrides/bulb/id Unknown field "id"',
       'E066 spaces/yard.json /objects/0/overrides/shade The prefab "lamp" has no object "shade"',
       'E058 spaces/yard.json /objects/1/overrides/door/shape Only a shape can change its shape',
+      'E058 spaces/yard.json /objects/1/overrides/host/color Only a shape has a colour of its own',
       'E058 spaces/yard.json /objects/1/overrides/walls/overrides A shape places nothing to override',
     ]);
   });
