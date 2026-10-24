@@ -47,14 +47,10 @@ const problems = (out: string) =>
     });
 
 describe('eb with spaces’ components, placed records and overrides', () => {
-  it('validates the lodge clean, but for the flag only its trigger zone sets and reads', () => {
+  it('validates the lodge clean, its flag set and read only by a trigger zone (M5.8)', () => {
     const run = eb(['validate', LODGE]);
     expect(run.code, run.out + run.err).toBe(0);
-    // The flag lint reads records alone: a trigger zone's sets and reads count once M5.8 runs them.
-    expect(run.out.trim().split('\n')).toEqual([
-      'records/flag/met-greta.json: warning W110: Nothing sets or reads this flag',
-      expect.stringMatching(/^4 records: 1 warning, hash [0-9a-f]{16}\.$/),
-    ]);
+    expect(run.out.trim()).toMatch(/^4 records: no problems, hash [0-9a-f]{16}\.$/);
   });
 
   it('gives each of M5.2’s checks at its file and field', () => {
@@ -78,7 +74,6 @@ describe('eb with spaces’ components, placed records and overrides', () => {
     expect(run.code).toBe(1);
     expect(problems(run.out)).toEqual([
       'W143 components/notes.md',
-      'W110 records/flag/met-greta.json',
       'E065 spaces/yard.json#/objects/2/overrides/hat',
       'E066 spaces/yard.json#/objects/3/overrides/chimney',
       'E063 spaces/yard.json#/objects/4/components/sound/volume',

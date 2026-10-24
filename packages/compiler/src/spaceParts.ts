@@ -6,13 +6,14 @@
  * environment against the records (E069, M5.4), its terrain's foliage (E073, M5.6), and its starts
  * (W142). Every reference found is a use, for the editor's "used by".
  */
-import { formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
+import { conditionRefs, FLAG, formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import {
   checkPart,
   type DataType,
   type Diagnostic,
   type DiagnosticCode,
   ENVIRONMENT,
+  type FlagUses,
   FOLIAGE,
   type Known,
   type PartContext,
@@ -62,29 +63,33 @@ interface Walk {
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   readonly diagnostics: Diagnostic[];
   readonly uses: SpaceUse[];
+  readonly flags: { readonly set: Map<string, Set<string>>; readonly read: Map<string, Set<string>> };
 }
+
+const listFlag = (flags: Map<string, Set<string>>, flag: string, file: string) =>
+  flags.set(flag, (flags.get(flag) ?? new Set()).add(file));
 
 export function checkSpaceParts(
   files: readonly SpaceFileRead[],
   ctx: SpacePartsContext,
-): { diagnostics: Diagnostic[]; uses: SpaceUse[] } {
+): { diagnostics: Diagnostic[]; uses: SpaceUse[]; flags: FlagUses } {
   const sound = files.filter((f) => f.value !== undefined && schemaIssues(spaceSchema, f.value).length === 0);
   const prefabs = new Map(sound.filter((f) => f.kind === 'prefab').map((f) => [f.id, f.value as SpaceJson]));
   const diagnostics: Diagnostic[] = [];
   const uses: SpaceUse[] = [];
+  const flags = { set: new Map<string, Set<string>>(), read: new Map<string, Set<string>>() };
   for (const read of sound) {
     const space = read.value as SpaceJson;
-    for (const [i, object] of space.objects.entries()) {
-      checkObject({ ctx, file: read.file, object: object.id, prefabs, diagnostics, uses }, object, `/objects/${i}`);
-    }
+    const walk = (object: string): Walk => ({ ctx, file: read.file, object, prefabs, diagnostics, uses, flags });
+    for (const [i, object] of space.objects.entries()) checkObject(walk(object.id), object, `/objects/${i}`);
     if (read.kind === 'space') {
-      environmentOf({ ctx, file: read.file, object: '', prefabs, diagnostics, uses }, space);
-      foliageOf({ ctx, file: read.file, object: '', prefabs, diagnostics, uses }, space);
+      environmentOf(walk(''), space);
+      foliageOf(walk(''), space);
       diagnostics.push(...starts(read.file, space, prefabs));
     }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
-  return { diagnostics, uses };
+  return { diagnostics, uses, flags };
 }
 
 /** The space's environment (M5.4): a use of its record, which is E069 when there is none. */
@@ -246,8 +251,16 @@ function partContext(
         report(walk, 'E018', path, `No file assets/${value}`);
       }
     },
-    condition: () => {},
-    effect: () => {},
+    // A trigger zone's flags (M5.8): set and read in play, so the flags' lint counts them.
+    condition: (_path, sound) => {
+      for (const ref of conditionRefs(sound.tree, walk.ctx.known.facts)) {
+        if (ref.type === FLAG) listFlag(walk.flags.read, ref.id, walk.file);
+      }
+    },
+    effect: (_path, effect) => {
+      const sets = effect.effect === 'set-flag' || effect.effect === 'add-to-flag';
+      if (sets && typeof effect.flag === 'string') listFlag(walk.flags.set, effect.flag, walk.file);
+    },
   };
 }
 
@@ -255,7 +268,7 @@ function partContext(
 export function checkProjectSpaceParts(
   files: readonly SpaceFileRead[],
   parts: SpacePartsContext,
-): { diagnostics: Diagnostic[]; uses: SpaceUse[] } {
+): { diagnostics: Diagnostic[]; uses: SpaceUse[]; flags: FlagUses } {
   const found = checkSpaceParts(files, parts);
-  return { diagnostics: atLines(files, found.diagnostics), uses: found.uses };
+  return { diagnostics: atLines(files, found.diagnostics), uses: found.uses, flags: found.flags };
 }

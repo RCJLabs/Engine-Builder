@@ -6,6 +6,7 @@
  * records, its LOD levels cut, its collider a wire that the view shows while it is chosen.
  */
 import type { Fields } from '@eb/compiler';
+import { modelHere } from '@eb/compiler';
 import { lodReady } from '@eb/models/lod';
 import { type MaterialRecord, MODEL_DATA, type ModelCollider, type ModelRecord, schemaIssues } from '@eb/schema';
 import dracoWasm from 'three/examples/jsm/libs/draco/draco_decoder.wasm?url';
@@ -17,7 +18,6 @@ import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import * as THREE from 'three/webgpu';
 import { noteError } from '../app/state.ts';
 import { type LiveModels, type ModelFileRead, sourcesOf } from '../models/liveModels.ts';
-import { modelHere } from '../models/placedModels.ts';
 import { meshesOf } from './meshes.ts';
 import { colliderWire, laySlots, materialOf, materialsOf, simplified, trianglesOf, withLevels } from './modelParts.ts';
 

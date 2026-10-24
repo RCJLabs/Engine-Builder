@@ -3,7 +3,7 @@
  * an item whose model field names one, through a prefab and its overrides; and what drawing them
  * needs read.
  */
-import type { SpaceJson } from '@eb/compiler';
+
 import type { TypeFile } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import {
@@ -14,6 +14,7 @@ import {
   modelNeeds,
   placedKeys,
 } from './placedModels.ts';
+import type { SpaceJson } from './spaceShape.ts';
 
 const RECORDS: Record<string, unknown> = {
   'model:crate': { file: 'models/crate.glb', materials: [{ slot: 'wood', material: 'oak' }] },

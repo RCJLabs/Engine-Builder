@@ -21,6 +21,8 @@ import {
   readGolden,
   seedsOf,
   sweep,
+  WORLD,
+  worldModule,
 } from '@eb/core';
 import { kitMetrics, kitModules } from '@eb/kits';
 import { type GameModule, UsageError } from './modules.ts';
@@ -44,7 +46,9 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   // unless it names them; a project game's already have.
   const project = await readKitSettings(source);
   const kits = kitModules(project.kits, project.calendar).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
-  const modules = [...kits, ...loaded.modules];
+  // No bot walks (movement.md, open question 2), so the world module has no zones to run.
+  const world = project.spaces && !loaded.modules.some((m) => m.id === WORLD) ? [worldModule({})] : [];
+  const modules = [...kits, ...world, ...loaded.modules];
   // The game's modules are all it has, so content may name no other fact, event, action or mode.
   const compiled = await compileProject(source, loaded.recordTypes, {
     facts: factCatalog(modules),

@@ -1,20 +1,13 @@
 /**
  * Which placed objects draw as models (M5.5, D67, docs/specs/models.md#placing-and-drawing), as
- * plain functions the view and the space's live copy share: a placed model record, as its placement
+ * plain functions the view, the space's live copy and the pack's world (M5.8) share: a placed model record, as its placement
  * overrides it, or a placed record of a type whose first top-level field referring to `model` alone
  * names one. Placements are walked as the view walks them, through prefabs and their overrides.
  */
-import {
-  type Fields,
-  isFields,
-  overridden,
-  passedOn,
-  placedObjects,
-  recordHere,
-  type SpaceJson,
-  type SpaceObject,
-} from '@eb/compiler';
+
 import { MODEL, type TypeFile } from '@eb/schema';
+import { type Fields, isFields, overridden, passedOn, placedObjects, recordHere } from './overrides.ts';
+import type { SpaceJson, SpaceObject } from './spaceShape.ts';
 
 /** How deep placements inside placements are walked, as the view draws them. */
 const DEEPEST = 8;

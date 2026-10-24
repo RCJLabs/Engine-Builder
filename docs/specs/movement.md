@@ -24,17 +24,22 @@ A pack whose project has spaces is format 9 and carries `world`:
 - **`files`** are the files the spaces draw from, as base64 by their path in the project. That means each space's terrain PNGs, and the GLB of every model record a space places, directly, through a prefab or as a terrain's foliage.
 - **A pack without spaces keeps its format,** so every pack written before M5.8 keeps its hash.
 - **Compiler problems:** a Space widget naming a space there isn't is E049, as a widget naming any missing thing is.
+- **The flags' lint counts zones and screens** (W108 to W110): a flag a trigger zone sets or reads, or a screen's shows-when or binding reads, is used as a record's use is. Before M5.8 a flag set only by a zone and shown only on a screen was W110. The editor's Problems panel still lints flags from records alone (open question 7).
 
 ## The sim: `world/trigger`
 
-The `world` module is the engine's own, on whenever a pack has spaces.
+The `world` module is the engine's own, joined to a game whenever its project has spaces, after the kits and before the game's own modules. A game's module may not take its id then (E031). A project without spaces has no world module, so its state and its goldens are as they were.
 
-- **Action:** `{ "type": "world/trigger", "space": "trailhead", "object": "cairn-zone" }`.
-- **Check:**
-  - the zone exists in `world.triggers`;
-  - its `when` holds, if it has one;
-  - a `once` zone has not fired.
-- **Reduce:** the zone's effects run as a trigger sheet's row runs them. A `once` zone is remembered as fired.
+- **Action:** `{ "type": "world/trigger", "space": "trailhead", "object": "cairn/zone" }`.
+- **Modes:** it runs only in a mode that allows it, as any action: a game lists `world/*` in the modes where walking into a zone counts. In a mode that doesn't (a game over, a talk), the sim refuses it with `mode`.
+- **Check**, each a refusal's reason:
+  - `bad-trigger`: the action doesn't name its space and object as text;
+  - `no-zone`: the zone isn't in `world.triggers` (own keys only);
+  - `spent`: a `once` zone has fired;
+  - `unmet`: its `when` doesn't hold.
+- **Reduce:** `world/entered` is raised with the space and object, so a sheet's row can hear it; then the zone's effects run in order. An effect that refuses refuses the whole action: nothing it did stays and a `once` zone isn't spent. A `once` zone is remembered as fired.
+- **Never offered:** `options` is empty, so bots and Run's sweeps never send it (open question 2).
+- **Fact:** `world.fired(space, object)`, whether a once zone has run.
 - **State:** `{ fired: string[] }`, sorted `space/object` keys, slice version 1.
 - **Replay:** a trigger action replays like any other, so the game's state is replayable. The walk that reached the zone is not.
 
@@ -62,7 +67,8 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
   | Snap to ground | 0.4 m |
 
   - It steps at a fixed 60 Hz, at most 5 steps a frame.
-  - Below the terrain's low by 50 m, it is put back at its spawn.
+  - Below the terrain's low by 50 m, or 50 m below 0 in a space without a terrain, it is put back at its spawn.
+- **Not drawn in play:** an object with a trigger zone or a spawn point; the editor draws both.
 - **Spawn:** the space's spawn point with `start`, else its first spawn point, else the space's origin on the ground.
   - It faces the way the object is turned.
   - The spawn point's new `view` field is `third` (the default) or `first`.
@@ -155,3 +161,4 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
 4. **Look sensitivity and invert** in the shell's settings, if players ask.
 5. **A separate `.wasm`** for Rapier (the spike's question 1) for the web export, about 30% smaller; one-file exports need the compat build either way.
 6. **Plants that block** (foliage.md question 2) and colliders on foliage models.
+7. **The editor's flag lint:** its Problems panel lints flags from the records, as before; counting the open project's zones and screens there means the record index reading spaces and screens.

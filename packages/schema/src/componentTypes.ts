@@ -56,6 +56,14 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
     description: 'A place the player can arrive at, facing the way the object is turned.',
     fields: {
       start: { kind: 'bool', optional: true, label: 'Start', description: 'Where the space is entered first' },
+      // M5.8 (D70): the camera the walk starts with here.
+      view: {
+        kind: 'enum',
+        values: ['third', 'first'],
+        optional: true,
+        label: 'View',
+        description: 'Third person when left out',
+      },
     },
   },
   // M5.3 (D65): water at a plane's height, as many as a space needs.

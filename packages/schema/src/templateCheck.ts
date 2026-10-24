@@ -60,6 +60,7 @@ export function checkWhen(
     report(parsed.message);
     return;
   }
+  options.read?.(parsed.condition);
   for (const issue of checkCondition(parsed.condition, conditionOptions(options, scope))) report(issue.message);
 }
 
@@ -131,6 +132,7 @@ export function checkBinding(
     report(`{${text}} shows one fact’s value: a comparison goes in shows-when`);
     return;
   }
+  options.read?.(test);
   // E014 here is only "not a yes/no fact", which a value shown needn't be.
   for (const issue of checkCondition(test, conditionOptions(options, scope))) {
     if (issue.code !== 'E014') report(`{${text}}: ${issue.message}`);

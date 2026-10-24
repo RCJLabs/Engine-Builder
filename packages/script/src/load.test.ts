@@ -165,6 +165,28 @@ describe("a project's game", () => {
     ).toMatch(/^E031 .*hold/);
   });
 
+  it('joins the world module only for a project with spaces, so a mode can allow world/trigger (M5.8)', () => {
+    const walker = (modes: string) =>
+      `import { defineModule } from 'eb';\nconst walk = defineModule({ id: 'walk', init: () => ({}), actions: { rest() {} }, modes: { out: { actions: [${modes}] } } });\nexport const modules = [walk];\nexport const start = 'out';`;
+    const zones = { trailhead: { cairn: { effects: [] } } };
+    const loaded = loadProjectGame(compiled({ game: walker("'walk/*', 'world/*'") }), [], undefined, zones);
+    expect(loaded.ok && loaded.catalog.modules).toEqual(['logic', 'flag', 'sheet', 'world', 'walk']);
+    expect(loaded.ok && loaded.catalog.facts['world.fired']).toBeDefined();
+    // Without spaces there is no world, and a mode naming it names nothing.
+    const plain = loadProjectGame(compiled({ game: walker("'walk/*'") }));
+    expect(plain.ok && plain.catalog.modules).toEqual(['logic', 'flag', 'sheet', 'walk']);
+    const missing = loadProjectGame(compiled({ game: walker("'world/*'") }));
+    expect(missing.ok ? 'ok' : missing.problem.code).toBe('E031');
+    // A project's own module can't take the world's id once there are spaces.
+    const own =
+      "import { defineModule } from 'eb';\nexport const modules = [defineModule({ id: 'world', init: () => ({}), modes: { out: { actions: [] } } })];\nexport const start = 'out';";
+    const clash = loadProjectGame(compiled({ game: own }), [], undefined, zones);
+    expect(clash.ok ? 'ok' : `${clash.problem.code} ${clash.problem.message}`).toBe(
+      'E031 Its module "world" has the id of the engine\'s world module, which a project with spaces has: name it otherwise',
+    );
+    expect(loadProjectGame(compiled({ game: own })).ok).toBe(true);
+  });
+
   it('says where a script threw as the game loaded (E031)', () => {
     const out = loadProjectGame(compiled({ game: "export const modules = [];\n\nthrow new Error('no crew');" }));
     expect(out).toEqual({

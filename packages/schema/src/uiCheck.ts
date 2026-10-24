@@ -6,7 +6,7 @@
  * events are known only once its scripts have run: without them, take, shows, W133 and the
  * feedback's events go unchecked, as W120 does without the time module.
  */
-import { type EventCatalog, type FactCatalog, pointerSegment, type RecordIndex } from '@eb/core';
+import { type Condition, type EventCatalog, type FactCatalog, pointerSegment, type RecordIndex } from '@eb/core';
 import {
   AA_BODY,
   AMBIENCE,
@@ -62,6 +62,8 @@ export interface UiCheckOptions {
    * Without it, a codex's type and fields go unchecked.
    */
   readonly recordFields?: Readonly<Record<string, readonly string[] | null>>;
+  /** Each shows-when and binding that parses, as a condition (M5.8): what the screens read, for the flags' lint. */
+  readonly read?: (condition: Condition) => void;
 }
 
 /** Where a widget sits: its file, its path, and the list whose item it is, a codex's or its `unknown` (M4.4). */

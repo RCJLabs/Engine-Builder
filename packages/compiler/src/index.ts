@@ -68,6 +68,14 @@ export {
   recordHere,
 } from './overrides.ts';
 export {
+  eachPlacedRecord,
+  type ModelSources,
+  modelFieldOf,
+  modelHere,
+  modelNeeds,
+  placedKeys,
+} from './placedModels.ts';
+export {
   type KitSettings,
   type ListedRecord,
   type ProjectFilesRead,

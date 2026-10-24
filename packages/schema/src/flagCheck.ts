@@ -38,6 +38,15 @@ function listed(from: ReadonlySet<string>): string {
   return `${all.slice(0, 2).join(', ')} and ${all.length - 2} more`;
 }
 
+/**
+ * Flags set and read outside the records (M5.8): by a space's trigger zones and by the screens'
+ * conditions and bindings. Each flag's id to the files that set or read it.
+ */
+export interface FlagUses {
+  readonly set: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly read: ReadonlyMap<string, ReadonlySet<string>>;
+}
+
 export class FlagChecks {
   private readonly flags = new Map<string, { readonly record: FlagRecord; readonly report: Report }>();
   private readonly setters = new Map<string, Set<string>>();
@@ -85,6 +94,12 @@ export class FlagChecks {
   /** A row's When names the flag: the row hears it change, which reads it. */
   heard(flag: string, from: string): void {
     this.add(this.readers, flag, from);
+  }
+
+  /** Flags set and read outside the records: they count for the lint, as a record's would. */
+  elsewhere({ set, read }: FlagUses): void {
+    for (const [flag, from] of set) for (const where of from) this.add(this.setters, flag, where);
+    for (const [flag, from] of read) for (const where of from) this.add(this.readers, flag, where);
   }
 
   /** E026 for every use of a flag as the other kind; then the lint, for each flag. */

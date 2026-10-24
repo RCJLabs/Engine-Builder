@@ -4,12 +4,21 @@
  * and the material records their slots name. Each file carries a hash of its bytes, so the view
  * decodes a model again only when its file changed.
  */
-import { ASSETS_DIR, type ProjectSource, parseJsonFile, type SpaceJson } from '@eb/compiler';
+import {
+  ASSETS_DIR,
+  eachPlacedRecord,
+  type ModelSources,
+  modelHere,
+  modelNeeds,
+  type ProjectSource,
+  parseJsonFile,
+  placedKeys,
+  type SpaceJson,
+} from '@eb/compiler';
 import { MATERIAL, MATERIAL_DATA, type MaterialRecord, MODEL, schemaIssues } from '@eb/schema';
 import { folderOf } from '../assets/assetPaths.ts';
 import { recordFile } from '../forms/catalog.ts';
 import { gltfNames } from './modelImport.ts';
-import { eachPlacedRecord, type ModelSources, modelHere, modelNeeds, placedKeys } from './placedModels.ts';
 
 export interface ModelFileRead {
   readonly bytes: Uint8Array;
