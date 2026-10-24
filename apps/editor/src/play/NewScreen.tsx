@@ -30,11 +30,15 @@ async function contextOf(project: OpenProject): Promise<StockContext> {
       kits: catalog.kits,
       ...(modes ? { modes } : {}),
       screens: catalog.screens,
+      spaces: spacesOf(project),
       shown: await shownBy(catalog.screens.map(screenPath), (path) => project.source.read(path)),
     },
     held,
   );
 }
+
+const spacesOf = (project: OpenProject) =>
+  project.catalog.spaces.map((entry) => ({ id: entry.id, name: entry.name ?? entry.id }));
 
 const BLANK = 'blank';
 
@@ -54,6 +58,7 @@ export function NewScreen(props: {
     starting: [],
     screens: [],
     shown: new Set<string>(),
+    spaces: spacesOf(project),
   };
   const offered = STOCK.filter((stock) => stock.offered(kitsOnly));
   const stock: Stock | undefined = offered.find((each) => each.id === picked);

@@ -37,6 +37,7 @@ export async function screenProblems(
     records: recordLookup(index),
     assets: new Set(catalog.assets),
     recordFields: recordFieldsOf(catalog.recordTypes),
+    spaces: new Set(catalog.spaces.map((entry) => entry.id)),
   });
   // The catalog has W132 already, as it has W131 for scenes.
   return [...read.diagnostics.filter((d) => d.code !== 'W132'), ...found];

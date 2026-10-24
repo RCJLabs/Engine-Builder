@@ -239,6 +239,28 @@ describe('checkUi', () => {
     expect(only(map, { kits: ['maps'] })).toEqual([]);
   });
 
+  it('gives a Space widget naming a space there isn’t as E049, its label checked as text (M5.8)', () => {
+    const walk = {
+      widget: 'stack',
+      children: [
+        { widget: 'space', space: 'trailhead', label: 'Day {time.day}' },
+        { widget: 'space', space: 'summit' },
+      ],
+    };
+    const spaces = new Set(['trailhead', 'bothy']);
+    expect(only(walk, { spaces })).toEqual([
+      { code: 'E049', file: 'ui/hud.json', path: '/main/children/1/space', message: 'No space "summit" in spaces/' },
+    ]);
+    // Without the project's spaces, as the editor's designer's own game has them, it goes unchecked.
+    expect(only(walk)).toEqual([]);
+    expect(only({ widget: 'space', space: 'trailhead', size: 2 }, { spaces })).toEqual([
+      expect.objectContaining({ code: 'E047', path: '/main/size', message: 'Unknown field "size"' }),
+    ]);
+    expect(only({ widget: 'space', space: 'trailhead', label: '{time.nope}' }, { spaces })).toEqual([
+      expect.objectContaining({ code: 'E048', path: '/main/label' }),
+    ]);
+  });
+
   it('gives a screen’s ambience or music, or a theme’s sound, that names no record as E049 (M4.8)', () => {
     const heard: RecordIndex = {
       ids: () => [],

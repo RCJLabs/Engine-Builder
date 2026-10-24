@@ -62,6 +62,8 @@ export interface UiCheckOptions {
    * Without it, a codex's type and fields go unchecked.
    */
   readonly recordFields?: Readonly<Record<string, readonly string[] | null>>;
+  /** The project's spaces, by id, for a Space widget's (M5.8). Without them, its space goes unchecked. */
+  readonly spaces?: ReadonlySet<string>;
   /** Each shows-when and binding that parses, as a condition (M5.8): what the screens read, for the flags' lint. */
   readonly read?: (condition: Condition) => void;
 }
@@ -193,6 +195,8 @@ function templateFields(widget: Widget): readonly (readonly [string, string])[] 
       const fields = (['label', 'empty'] as const).filter((key) => widget[key] !== undefined);
       return fields.map((key) => [`/${key}`, widget[key] as string] as const);
     }
+    case 'space':
+      return widget.label === undefined ? [] : [['/label', widget.label]];
     default:
       return [];
   }
@@ -216,6 +220,9 @@ function checkWidget(
     here('E018', '/asset', `No asset "${widget.asset}" in assets/`);
   }
   if (widget.widget === 'list') checkList(widget, options, here);
+  if (widget.widget === 'space' && options.spaces !== undefined && !options.spaces.has(widget.space)) {
+    here('E049', '/space', `No space "${widget.space}" in spaces/`);
+  }
   const needs = WIDGET_KITS[widget.widget];
   if (needs !== undefined && !options.kits.includes(needs)) {
     here('E049', '/widget', `A ${widget.widget} widget needs the ${needs} kit: turn it on in project.json`);

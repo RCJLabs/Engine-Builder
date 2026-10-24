@@ -1,0 +1,23 @@
+{
+  "title": "The trailhead",
+  "shows": ["trailhead"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Walk up the path to the cairn.",
+        "style": "heading",
+        "shows-when": "not flag.on(cairn-seen)"
+      },
+      { "widget": "text", "text": "The cairn is reached.", "style": "heading", "shows-when": "flag.on(cairn-seen)" }
+    ]
+  },
+  "main": { "widget": "space", "space": "trailhead", "label": "The trailhead" },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [{ "widget": "button", "label": "Into the bothy", "action": { "take": "trail/go-in" } }]
+  }
+}

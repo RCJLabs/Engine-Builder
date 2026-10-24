@@ -8,7 +8,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { compileWithGame, memorySource, projectGame } from '@eb/compiler';
 import { describe, expect, it } from 'vitest';
-import { contextFrom, type Held, type StockContext, shownBy, showsOf } from './context.ts';
+import { contextFrom, type Held, nameOf, type StockContext, shownBy, showsOf } from './context.ts';
 import { allStock, STOCK } from './index.ts';
 
 const FIXTURES = join(import.meta.dirname, '../../../../../tools/cli/test/fixtures');
@@ -47,6 +47,11 @@ async function contextOf(name: string, files: Record<string, Uint8Array>): Promi
       modes: { start, all: modes, endings, travelling },
       screens: [],
       shown: new Set(),
+      // The spaces as New screen lists them (M5.8): by id, each with its name.
+      spaces: Object.entries(compiled.pack?.world?.spaces ?? {}).map(([id, value]) => ({
+        id,
+        name: nameOf(value, id),
+      })),
     },
     held,
   );
@@ -117,6 +122,23 @@ describe('the stock screens, written into a project and compiled against its gam
       expect(STOCK.find((s) => s.id === id)?.build({ ...ctx, shown }).shows).toEqual([]);
     }
   });
+
+  it('walks the first space for the start mode, before the HUD, and is offered only with spaces (M5.8)', async () => {
+    const files = filesOf('trail');
+    const ctx = await contextOf('trail', files);
+    const { added } = withStock(ctx, files);
+    const space = JSON.parse(new TextDecoder().decode(added['ui/space.json']));
+    expect(space.title).toBe('Bothy');
+    expect(space.shows).toEqual(['trailhead']);
+    expect(space.main).toEqual({ widget: 'space', space: 'bothy' });
+    expect(space.bottom.of).toBe('offered');
+    expect(showsOf(JSON.parse(new TextDecoder().decode(added['ui/hud.json'])))).toEqual([]);
+    expect(STOCK.find((s) => s.id === 'space')?.offered({ ...ctx, spaces: [] })).toBe(false);
+    // Clean against the trail's game. Its HUD and ending show no mode, as the trail has no other and no end (W134).
+    expect([...withStock(ctx, files).screens].sort()).toEqual(['credits', 'ending', 'hud', 'space']);
+    const compiled = await compileWithGame(memorySource(added));
+    expect(compiled.diagnostics.filter((d) => d.file === 'ui/space.json')).toEqual([]);
+  }, 30_000);
 
   it('shows the map for each mode that travels, with the live numbers over it (M4.6)', async () => {
     const files = filesOf('drift');

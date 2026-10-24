@@ -1,3 +1,5 @@
+import { WALK_QUALITIES, type WalkQuality } from '../render/spaceHost.ts';
+
 /**
  * The player's settings (M4.3, docs/specs/shell.md#settings): kept per game and edition, outside
  * the saves, so a new game keeps them; read field by field, so a bad one falls back alone (Dirtbag's
@@ -15,6 +17,10 @@ export type VolumeName = (typeof VOLUMES)[number];
 /** A volume moves in tens from 0 to 100. */
 export const VOLUME_STEP = 10;
 
+/** How a space is drawn (M5.8, the editor's tiers of D69): Auto starts from the device's hints. */
+export const QUALITIES = WALK_QUALITIES;
+export type Quality = WalkQuality;
+
 export interface Settings {
   readonly text: TextSize;
   readonly motion: Motion;
@@ -23,6 +29,7 @@ export interface Settings {
   readonly ambience: number;
   readonly effects: number;
   readonly vibration: boolean;
+  readonly quality: Quality;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -33,6 +40,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ambience: 100,
   effects: 100,
   vibration: true,
+  quality: 'auto',
 };
 
 const isVolume = (value: unknown): value is number =>
@@ -63,6 +71,7 @@ export function readSettings(text: string | undefined): Settings {
     ambience: volume('ambience'),
     effects: volume('effects'),
     vibration: typeof stored.vibration === 'boolean' ? stored.vibration : DEFAULT_SETTINGS.vibration,
+    quality: one(QUALITIES, stored.quality, DEFAULT_SETTINGS.quality),
   };
 }
 

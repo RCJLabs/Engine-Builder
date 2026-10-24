@@ -8,6 +8,7 @@ import { createSaves, requestPersistence } from '@eb/platform';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Cue } from '../format/audio.ts';
 import type { Said } from '../format/feedback.ts';
+import type { Sent } from '../render/spaceHost.ts';
 import type { View } from '../session/types.ts';
 import { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, type SlotInfo, slotInfo, slotName } from './slots.ts';
 import type { ShellProps } from './types.ts';
@@ -104,17 +105,21 @@ export function useShell(props: ShellProps) {
       setScreen(undefined);
     });
 
-  const act = (action: Action) => {
-    if (!play || busy) return;
-    void run(async () => {
+  /** One step of the game, and what the sim made of it: a step already on its way drops this one. */
+  const step = (action: Action): Promise<Sent> => {
+    if (!play || busy) return Promise.resolve('dropped');
+    let sent: Sent = 'dropped';
+    return run(async () => {
       const reply = await send({ kind: 'act', action, at: now().getTime() });
       if (reply.kind !== 'stepped') return stop(reply.kind === 'failed' ? reply.message : 'The game stopped');
       if (reply.save) await keep(play.slot, reply.save);
+      sent = reply.accepted ? 'accepted' : 'refused';
       // In the one render with the view, so the buttons it draws are enabled as focus comes back to one.
       setBusy(false);
       setPlay({ ...play, view: reply.view, said: reply.said, cues: reply.cues });
-    });
+    }).then(() => sent);
   };
+  const act = (action: Action) => void step(action);
 
   // The editor's debug tools moved the game (M4.9): shown, and kept in the slot, as a step is.
   const { moved, onPlay } = props;
@@ -161,6 +166,8 @@ export function useShell(props: ShellProps) {
     begin,
     resume,
     act,
+    // The stage's triggers (M5.8), which need to know whether the sim took them.
+    send: step,
     daily,
     dailyToday: () => dailyNumber(now()),
     quit,

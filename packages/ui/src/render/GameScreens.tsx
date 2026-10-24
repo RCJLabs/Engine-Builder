@@ -20,6 +20,7 @@ import type { Drawing } from './context.ts';
 import { Announcer, ToastView, useFeedback } from './Feedback.tsx';
 import { breakpointOf, themeVars } from './layout.ts';
 import { ScreenView } from './Screen.tsx';
+import type { Sent, SpaceHost, WalkQuality } from './spaceHost.ts';
 import { drawn, type Opened, type Shown, screenStack, stillOpen } from './stack.ts';
 import './screens.css';
 import './map.css';
@@ -45,6 +46,11 @@ export interface GameScreensProps {
   readonly audio?: AudioPlayer;
   /** The last step's sounds and buzzes: a new array each step. */
   readonly cues?: readonly Cue[];
+  /** Who draws Space widgets' spaces (M5.8): the page's stage, for a pack with spaces. */
+  readonly spaces?: SpaceHost | undefined;
+  /** Sends the stage's triggers, answering what the sim made of each (M5.8). */
+  readonly send?: (action: Action) => Promise<Sent>;
+  readonly quality?: WalkQuality;
 }
 
 const NOTHING: readonly Said[] = [];
@@ -122,6 +128,9 @@ export function GameScreens(props: GameScreensProps) {
     log: fed.log,
     paused,
     toShell: props.onShell,
+    spaces: props.spaces,
+    send: props.send,
+    ...(props.quality ? { quality: props.quality } : {}),
   };
   return (
     // The turn and whether a step is on its way, for a test or a stage to wait on.

@@ -97,6 +97,16 @@ const OWN: Readonly<Record<WidgetKind, Readonly<Record<string, FieldDef>>>> = {
     },
     empty: { kind: 'text', optional: true, label: 'When empty', description: 'Shown before a map is entered.' },
   },
+  // M5.8: the form offers the project's spaces for `space` (WidgetForm.tsx).
+  space: {
+    space: { kind: 'text', label: 'Space', description: 'The space walked here, from spaces/.' },
+    label: {
+      kind: 'text',
+      optional: true,
+      label: 'Label',
+      description: 'What a screen reader calls it: the space’s name unless set.',
+    },
+  },
 };
 
 /** A `records` list's own fields, which only it has (M4.4). */
@@ -178,6 +188,8 @@ export function newWidget(kind: WidgetKind): Record<string, unknown> {
     case 'log':
     case 'map':
       return { widget: kind };
+    case 'space':
+      return { widget: kind, space: '' };
   }
 }
 
@@ -203,4 +215,5 @@ export const KIND_NAMES: Readonly<Record<WidgetKind, string>> = {
   tabs: 'Tabs',
   log: 'Log',
   map: 'Map',
+  space: 'Space',
 };

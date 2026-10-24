@@ -114,6 +114,7 @@ export async function compileProject(
     records: index,
     assets: files.assets,
     recordFields: recordFieldsOf(known.types),
+    spaces: new Set(spaces.files.filter((f) => f.kind === 'space').map((f) => f.id)),
     read: screens.read,
   });
   const validation = validateRecords(known.types, records, {

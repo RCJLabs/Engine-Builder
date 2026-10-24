@@ -21,7 +21,8 @@ export interface PadInput {
 }
 
 export type PadCommand =
-  | { readonly kind: 'move'; readonly direction: Direction }
+  /** `stick` when the left stick gave it, not the d-pad: a space walked takes the stick (M5.8). */
+  | { readonly kind: 'move'; readonly direction: Direction; readonly stick?: true }
   | { readonly kind: 'press' }
   | { readonly kind: 'back' }
   /** Start: the shell's pause (M4.3). */
@@ -86,14 +87,16 @@ export function padStep(
   if (pressed(BUTTONS.rb)) commands.push({ kind: 'tab', step: 1 });
   if (pressed(BUTTONS.start)) commands.push({ kind: 'start' });
   const stick = stickOf(input.axes, memory.stick);
-  const direction = DPAD.find(([, button]) => input.buttons[button])?.[0] ?? stick;
+  const pad = DPAD.find(([, button]) => input.buttons[button])?.[0];
+  const direction = pad ?? stick;
+  const move = { kind: 'move', direction, ...(pad === undefined ? { stick: true } : {}) } as PadCommand;
   let held = memory.held;
   if (direction === undefined) held = undefined;
   else if (held === undefined || held.direction !== direction) {
-    commands.push({ kind: 'move', direction });
+    commands.push(move);
     held = { direction, next: now + REPEAT_AFTER };
   } else if (now >= held.next) {
-    commands.push({ kind: 'move', direction });
+    commands.push(move);
     held = { direction, next: now + REPEAT_EVERY };
   }
   return { memory: { down: input.buttons, stick, held }, commands };

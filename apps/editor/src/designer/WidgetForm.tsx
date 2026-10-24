@@ -33,13 +33,15 @@ export function WidgetForm(props: Props) {
   const { widget, at, breakpoint } = props;
   const kind = widget.widget;
   if (!isKind(kind)) {
-    return <p class="logic-problem">This isn’t one of the ten widgets the format has: change it in the JSON tab.</p>;
+    return <p class="logic-problem">This isn’t one of the widgets the format has: change it in the JSON tab.</p>;
   }
   const api = formApi({ ...props, typeFile: typeFileOf(kind) });
   const here = onlyHere.value;
   const own = Object.entries(fieldsOf(kind));
   const layout = own.some(([name]) => isLayout(name));
-  const field = ([name, def]: [string, FieldDef]) => {
+  const field = ([name, own]: [string, FieldDef]) => {
+    // A Space widget's space is one of the project's (M5.8): its picker lists them, the one set kept if it went.
+    const def = kind === 'space' && name === 'space' ? spaceChoices(own, props, widget.space) : own;
     if (!(here && isLayout(name)))
       return <FieldView key={name} label={def.label ?? name} def={def} info={def} path={[name]} value={widget[name]} />;
     const value = ((widget.at as Loose | undefined)?.[breakpoint] as Loose | undefined)?.[name];
@@ -104,6 +106,14 @@ export function WidgetForm(props: Props) {
       </div>
     </FormContext.Provider>
   );
+}
+
+function spaceChoices(own: FieldDef, props: Props, set: unknown): FieldDef {
+  const ids = props.project.catalog.spaces.map((entry) => entry.id);
+  const values = typeof set === 'string' && set !== '' && !ids.includes(set) ? [...ids, set] : ids;
+  return values.length === 0
+    ? own
+    : { kind: 'enum', values, label: own.label ?? 'Space', description: own.description ?? '' };
 }
 
 /** Every size, or the frame's breakpoint alone, for the layout fields; and where this widget changes. */
