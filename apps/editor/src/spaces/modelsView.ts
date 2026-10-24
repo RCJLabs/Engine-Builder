@@ -16,8 +16,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { type GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import * as THREE from 'three/webgpu';
-import { noteError } from '../app/state.ts';
-import { type LiveModels, type ModelFileRead, sourcesOf } from '../models/liveModels.ts';
+import { type LiveModels, type ModelFileRead, sourcesOf } from '../models/liveTypes.ts';
 import { meshesOf } from './meshes.ts';
 import { colliderWire, laySlots, materialOf, materialsOf, simplified, trianglesOf, withLevels } from './modelParts.ts';
 
@@ -87,7 +86,8 @@ function disposeGltf(gltf: GLTF): void {
   }
 }
 
-export function createModelsView(renderer: THREE.WebGPURenderer) {
+/** `onError` hears of a file that can't be drawn: the editor's error toast, the walk's console. */
+export function createModelsView(renderer: THREE.WebGPURenderer, onError: (message: string) => void) {
   const draco = new DRACOLoader().setDecoderPath({ js: dracoWrapper, wasm: dracoWasm });
   const ktx2 = new KTX2Loader().detectSupport(renderer);
   const decoded = new Map<string, Decoded>();
@@ -102,7 +102,7 @@ export function createModelsView(renderer: THREE.WebGPURenderer) {
       return { hash: file.hash, gltf, slots: slotsOf(gltf) };
     } catch (error) {
       // E070 reads only the file's JSON, so a body three can't decode is said here; it draws its marker.
-      noteError(`assets/${path} can’t be drawn: ${error instanceof Error ? error.message : String(error)}`);
+      onError(`assets/${path} can’t be drawn: ${error instanceof Error ? error.message : String(error)}`);
       return { hash: file.hash, gltf: null, slots: new Map() };
     } finally {
       for (const url of urls) URL.revokeObjectURL(url);

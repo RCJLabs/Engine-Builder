@@ -47,12 +47,6 @@ export const sourcesOf = (world: PackWorld): ModelSources => ({
   field: (type) => (Object.hasOwn(world.fields, type) ? (world.fields[type] as string) : null),
 });
 
-/** The space's name, as the Space widget names it for assistive tech when it has no label. */
-export function spaceName(world: PackWorld, id: string): string | undefined {
-  const space = Object.hasOwn(world.spaces, id) ? (world.spaces[id] as SpaceJson) : undefined;
-  return typeof space?.name === 'string' ? space.name : undefined;
-}
-
 /** The terrain's heights in metres, row by row along z, from its 16-bit PNG and its range. */
 function groundOf(space: SpaceJson, heights: Uint8Array | null): Ground | null {
   const t = space.terrain;

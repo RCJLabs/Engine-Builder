@@ -6,8 +6,7 @@
  * says so in the console and draws its marker.
  */
 import type * as THREE from 'three/webgpu';
-import { noteError } from '../app/state.ts';
-import type { LiveModels } from '../models/liveModels.ts';
+import type { LiveModels } from '../models/liveTypes.ts';
 import type { DrawModel } from './build.ts';
 import type { ModelSummary, ModelsView } from './modelsView.ts';
 
@@ -21,7 +20,11 @@ const holdersIn = (root: THREE.Object3D): THREE.Object3D[] => {
   return found;
 };
 
-export function createViewModels(renderer: THREE.WebGPURenderer, rebuild: () => void) {
+export function createViewModels(
+  renderer: THREE.WebGPURenderer,
+  rebuild: () => void,
+  onError: (message: string) => void,
+) {
   let view: ModelsView | null = null;
   let loading: Promise<ModelsView> | null = null;
   let queue: Promise<unknown> = Promise.resolve();
@@ -31,7 +34,7 @@ export function createViewModels(renderer: THREE.WebGPURenderer, rebuild: () => 
 
   const prepare = (models: LiveModels) => {
     loading ??= import('./modelsView.ts').then((made) => {
-      view = made.createModelsView(renderer);
+      view = made.createModelsView(renderer, onError);
       return view;
     });
     const next = queue.then(async () => {
@@ -41,7 +44,7 @@ export function createViewModels(renderer: THREE.WebGPURenderer, rebuild: () => 
         if (!gone && latest === models) rebuild();
       }
     });
-    queue = next.catch((error: unknown) => noteError(`The models couldn’t be drawn: ${message(error)}`));
+    queue = next.catch((error: unknown) => onError(`The models couldn’t be drawn: ${message(error)}`));
   };
 
   const unwire = () => {

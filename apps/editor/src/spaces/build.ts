@@ -115,12 +115,13 @@ export function createBuilder() {
   const markOf = (kind: string, geometry: THREE.BufferGeometry) =>
     new THREE.Mesh(geometry, markMaterials.get(kind) as THREE.Material);
 
-  /** The marks of an object's components, as children of its own node. */
-  const withComponents = (node: THREE.Object3D, object: SpaceObject) => {
+  /** The marks of an object's components, as children of its own node; in play (M5.8), only lights and water. */
+  const withComponents = (node: THREE.Object3D, object: SpaceObject, play: boolean) => {
     const components = object.components ?? {};
     const centre = object.shape !== undefined && object.shape !== 'plane' ? 0.5 : 0;
     for (const [kind, fields] of Object.entries(components)) {
       const f = fieldsOf(fields);
+      if (play && kind !== 'light' && kind !== 'water') continue;
       if (kind === 'light') {
         const light = new THREE.PointLight(
           typeof f.color === 'string' ? f.color : '#ffffff',
@@ -129,6 +130,7 @@ export function createBuilder() {
         );
         light.position.y = centre;
         node.add(light);
+        if (play) continue;
         const bulb = markOf('light', marks.bulb);
         bulb.position.y = centre;
         node.add(bulb);
@@ -158,8 +160,16 @@ export function createBuilder() {
     names: NameOf,
     labels: { text: string; at: THREE.Object3D }[],
     models: DrawModel,
+    play: boolean,
   ): THREE.Object3D => {
     const seen = overridden(object, layers);
+    // A trigger zone and a spawn point are the editor's to see, not a player's (M5.8).
+    const hidden = play && (seen.components?.trigger !== undefined || seen.components?.spawn !== undefined);
+    if (seen.shape !== undefined && hidden) {
+      const none = new THREE.Group();
+      setTransform(none, transformOf(seen));
+      return none;
+    }
     if (seen.shape !== undefined) {
       const wet = seen.components?.water;
       const mesh = new THREE.Mesh(
@@ -167,7 +177,7 @@ export function createBuilder() {
         wet !== undefined ? water(fieldsOf(wet)) : material(seen.color ?? GREY, seen.shape === 'plane'),
       );
       setTransform(mesh, transformOf(seen));
-      return withComponents(mesh, seen);
+      return withComponents(mesh, seen, play);
     }
     const group = new THREE.Group();
     setTransform(group, transformOf(seen));
@@ -175,21 +185,26 @@ export function createBuilder() {
       const model = models(seen.record, passedOn(object, layers));
       if (model) {
         group.add(model);
-        return withComponents(group, seen);
+        return withComponents(group, seen, play);
       }
+      // In play a record that draws as no model is nothing to see; in the editor, its marker and name.
+      if (play) return group;
       const marker = markOf('record', marks.record);
       group.add(marker);
       labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: marker });
-      return withComponents(group, seen);
+      return withComponents(group, seen, play);
     }
     const prefab = seen.prefab === undefined ? undefined : prefabs.get(seen.prefab);
     if (!prefab) group.add(new THREE.Mesh(missing, wire));
     else if (depth < DEEPEST) {
       for (const inner of placedObjects(prefab, passedOn(object, layers))) {
-        group.add(objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models));
+        const made = objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models, play);
+        // So the walk finds an object inside a placement by its path, as "placement/inner" (M5.8).
+        made.userData.innerId = inner.object.id;
+        group.add(made);
       }
     }
-    return withComponents(group, seen);
+    return withComponents(group, seen, play);
   };
 
   return {
@@ -198,12 +213,14 @@ export function createBuilder() {
       prefabs: ReadonlyMap<string, SpaceJson>,
       names: NameOf = () => undefined,
       models: DrawModel = () => null,
+      /** Drawn for a player (M5.8): no marks, no labels, no zones or spawn points. */
+      play = false,
     ): Built {
       const root = new THREE.Group();
       const byId = new Map<string, THREE.Object3D>();
       const labels: { text: string; at: THREE.Object3D }[] = [];
       for (const object of space.objects) {
-        const made = objectOf(object, prefabs, 0, [], names, labels, models);
+        const made = objectOf(object, prefabs, 0, [], names, labels, models, play);
         made.userData.objectId = object.id;
         root.add(made);
         if (!byId.has(object.id)) byId.set(object.id, made);
