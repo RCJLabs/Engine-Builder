@@ -1,0 +1,244 @@
+/**
+ * The checks of spaces and prefabs that need the project's types and records (M5.2, D64,
+ * docs/specs/components.md): each component against its kind (E062, E063), each placed record
+ * against the records there are and its overrides against its type (E064, E065), each prefab
+ * override against the prefab's objects (E066, and E058 for a field it can't change), and a
+ * space's starts (W142). Every reference found is a use, for the editor's "used by".
+ */
+import { parseRef, pointerSegment, type RecordIndex } from '@eb/core';
+import {
+  checkPart,
+  type DataType,
+  type Diagnostic,
+  type DiagnosticCode,
+  type Known,
+  type PartContext,
+  type RecordType,
+  schemaIssues,
+  severityOf,
+  z,
+} from '@eb/schema';
+import { eachPlaced, type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
+import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
+import type { SpaceFileRead } from './spaces.ts';
+
+export interface SpacePartsContext {
+  /** Every record type there is, by name. */
+  readonly types: ReadonlyMap<string, RecordType>;
+  readonly records: RecordIndex;
+  /** A record's value, or undefined when there is none or it can't be read. */
+  value(type: string, id: string): unknown;
+  readonly known: Known;
+  readonly kinds: ReadonlyMap<string, DataType>;
+  /** Kinds whose files have problems: their components wait unchecked. */
+  readonly uncheckedKinds: ReadonlySet<string>;
+  /** The files under assets/, for an asset field's E018. Without it, unchecked. */
+  readonly assets?: ReadonlySet<string>;
+}
+
+/** A reference a space or prefab holds: a placed record, or a ref inside a component or an override. */
+export interface SpaceUse {
+  readonly key: string;
+  readonly file: string;
+  readonly path: string;
+}
+
+/** What an override can change; `overrides` only on what places something, shape and colour only on a shape. */
+const overrideSchema = z.strictObject(placeFields);
+
+const DEEPEST = 8;
+
+interface Walk {
+  readonly ctx: SpacePartsContext;
+  readonly file: string;
+  readonly prefabs: ReadonlyMap<string, SpaceJson>;
+  readonly diagnostics: Diagnostic[];
+  readonly uses: SpaceUse[];
+}
+
+export function checkSpaceParts(
+  files: readonly SpaceFileRead[],
+  ctx: SpacePartsContext,
+): { diagnostics: Diagnostic[]; uses: SpaceUse[] } {
+  const sound = files.filter((f) => f.value !== undefined && schemaIssues(spaceSchema, f.value).length === 0);
+  const prefabs = new Map(sound.filter((f) => f.kind === 'prefab').map((f) => [f.id, f.value as SpaceJson]));
+  const diagnostics: Diagnostic[] = [];
+  const uses: SpaceUse[] = [];
+  for (const read of sound) {
+    const walk: Walk = { ctx, file: read.file, prefabs, diagnostics, uses };
+    const space = read.value as SpaceJson;
+    for (const [i, object] of space.objects.entries()) checkObject(walk, object, `/objects/${i}`);
+    if (read.kind === 'space') diagnostics.push(...starts(read.file, space, prefabs));
+  }
+  return { diagnostics, uses };
+}
+
+const report = (walk: Walk, code: DiagnosticCode, path: string, message: string) =>
+  walk.diagnostics.push({ code, severity: severityOf(code), message, file: walk.file, path });
+
+function checkObject(walk: Walk, object: SpaceObject, at: string): void {
+  for (const [kind, fields] of Object.entries(object.components ?? {})) {
+    checkComponent(walk, kind, fields, `${at}/components/${kind}`);
+  }
+  if (object.record !== undefined) {
+    const key = parseRef(object.record);
+    if (!key || !walk.ctx.types.has(key.type)) {
+      report(walk, 'E064', `${at}/record`, `No record type "${key?.type ?? object.record}" in this project`);
+      return;
+    }
+    walk.uses.push({ key: object.record, file: walk.file, path: `${at}/record` });
+    if (!walk.ctx.records.has(key.type, key.id)) {
+      report(walk, 'E064', `${at}/record`, `No record ${object.record}`);
+      return;
+    }
+    if (object.overrides) checkRecordOverrides(walk, object.record, [], object.overrides, `${at}/overrides`);
+  }
+  if (object.prefab !== undefined && object.overrides) {
+    checkPrefabOverrides(walk, object.prefab, [], object.overrides, `${at}/overrides`, 0);
+  }
+}
+
+/**
+ * A component's fields against its kind. `only`, when given, is the fields an override sets: the
+ * rest are the prefab's, checked there, so only problems in these (or in the whole) are reported.
+ */
+function checkComponent(walk: Walk, kind: string, fields: unknown, at: string, only?: ReadonlySet<string>): void {
+  const type = walk.ctx.kinds.get(kind);
+  if (!type) {
+    if (!walk.ctx.uncheckedKinds.has(kind)) {
+      report(walk, 'E062', at, `No component kind "${kind}": the engine has none, nor has components/`);
+    }
+    return;
+  }
+  checkPart(type.recordType.schema, fields, at, partContext(walk, at, only, 'E063'));
+}
+
+/** A placed record's overrides: its fields as they stand here, checked as the record, only the overridden ones reported. */
+function checkRecordOverrides(walk: Walk, ref: string, inner: readonly Fields[], over: Fields, at: string): void {
+  const key = parseRef(ref);
+  const type = key ? walk.ctx.types.get(key.type) : undefined;
+  const value = key ? walk.ctx.value(key.type, key.id) : undefined;
+  if (!key || !type || value === undefined) return;
+  const fields = recordHere(value, [...inner, over]);
+  // Checked from the record's root and reported at the override: a problem in a field it leaves
+  // alone, or in the record as a whole, is the record's own, reported there.
+  const ctx = partContext(walk, at, new Set(Object.keys(over)), 'E065', false);
+  checkPart(type.schema, fields, '', {
+    ...ctx,
+    report: (code, path, message) => ctx.report(code, at + path, message),
+    use: (found, path) => ctx.use(found, at + path),
+    asset: (path, found) => ctx.asset(at + path, found),
+  });
+}
+
+/** A prefab placement's overrides, each against the object of its id, seen through the layers inside it. */
+function checkPrefabOverrides(
+  walk: Walk,
+  prefabId: string,
+  inner: readonly Fields[],
+  over: Fields,
+  at: string,
+  depth: number,
+): void {
+  const prefab = walk.prefabs.get(prefabId);
+  if (!prefab || depth >= DEEPEST) return;
+  for (const [id, change] of Object.entries(over)) {
+    const object = prefab.objects.find((o) => o.id === id);
+    const here = `${at}/${pointerSegment(id)}`;
+    if (!object) {
+      report(walk, 'E066', here, `The prefab "${prefabId}" has no object "${id}"`);
+      continue;
+    }
+    const layers = inner.map((layer) => layer[id]);
+    if (!overrideFits(walk, object, change, here) || !isFields(change)) continue;
+    const base = overridden(object, layers);
+    for (const [kind, fields] of Object.entries(isFields(change.components) ? change.components : {})) {
+      const own = base.components?.[kind];
+      const merged = { ...(isFields(own) ? own : {}), ...(fields as Fields) };
+      // A kind the object lacks is added whole, so all of it is the override's.
+      const only = isFields(own) ? new Set(Object.keys(fields as Fields)) : undefined;
+      checkComponent(walk, kind, merged, `${here}/components/${kind}`, only);
+    }
+    if (!isFields(change.overrides)) continue;
+    const below = passedOn(object, layers);
+    if (object.record !== undefined)
+      checkRecordOverrides(walk, object.record, below, change.overrides, `${here}/overrides`);
+    if (object.prefab !== undefined) {
+      checkPrefabOverrides(walk, object.prefab, below, change.overrides, `${here}/overrides`, depth + 1);
+    }
+  }
+}
+
+/** E058 for an override's shape, and for a field the object it changes can't have. */
+function overrideFits(walk: Walk, object: SpaceObject, change: unknown, at: string): boolean {
+  const issues = schemaIssues(overrideSchema, change);
+  for (const issue of issues) report(walk, 'E058', at + issue.path, issue.message);
+  if (issues.length > 0 || !isFields(change)) return false;
+  let fits = true;
+  const refuse = (field: string, message: string) => {
+    report(walk, 'E058', `${at}/${field}`, message);
+    fits = false;
+  };
+  if (object.shape === undefined && change.shape !== undefined) refuse('shape', 'Only a shape can change its shape');
+  if (object.shape === undefined && change.color !== undefined) refuse('color', 'Only a shape has a colour of its own');
+  if (object.shape !== undefined && change.overrides !== undefined)
+    refuse('overrides', 'A shape places nothing to override');
+  return fits;
+}
+
+const inside = (path: string, at: string) => path === at || path.startsWith(`${at}/`);
+
+/**
+ * checkPart's callbacks for a part at `at`: E001 as `code`, and only what is inside `only`'s fields
+ * reported and used, with the part as a whole when `whole` is true.
+ */
+function partContext(
+  walk: Walk,
+  at: string,
+  only: ReadonlySet<string> | undefined,
+  code: DiagnosticCode,
+  whole = true,
+): PartContext {
+  const kept = (path: string) =>
+    !only || (whole && path === at) || [...only].some((field) => inside(path, `${at}/${pointerSegment(field)}`));
+  return {
+    known: walk.ctx.known,
+    records: walk.ctx.records,
+    report: (found, path, message) => {
+      if (kept(path)) report(walk, found === 'E001' ? code : found, path, message);
+    },
+    use: (key, path) => {
+      if (kept(path)) walk.uses.push({ key, file: walk.file, path });
+    },
+    asset: (path, value) => {
+      if (kept(path) && walk.ctx.assets && !walk.ctx.assets.has(value)) {
+        report(walk, 'E018', path, `No file assets/${value}`);
+      }
+    },
+    condition: () => {},
+    effect: () => {},
+  };
+}
+
+/** W142 at each object, past the first, whose spawn (its own or one it places) is the space's start. */
+function starts(file: string, space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>): Diagnostic[] {
+  const found: Diagnostic[] = [];
+  let seen = 0;
+  space.objects.forEach((object, i) => {
+    let here = 0;
+    eachPlaced(object, prefabs, (o) => {
+      if (isFields(o.components?.spawn) && o.components.spawn.start === true) here++;
+    });
+    if (here > 0 && seen + here > 1) {
+      found.push({
+        code: 'W142',
+        severity: 'warning',
+        message: `${seen + here} spawns are this space's start: a space is entered at one`,
+        file,
+        path: `/objects/${i}`,
+      });
+    }
+    seen += here;
+  });
+  return found;
+}

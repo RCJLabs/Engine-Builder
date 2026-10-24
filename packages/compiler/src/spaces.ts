@@ -5,52 +5,13 @@
  * any road, E061. Nothing packs them yet: a game draws spaces from M5.7. The spec is
  * docs/specs/viewport.md.
  */
-import { RECORD_ID_PATTERN } from '@eb/core';
-import { type Diagnostic, type DiagnosticCode, schemaIssues, severityOf, z } from '@eb/schema';
+import { type Diagnostic, type DiagnosticCode, schemaIssues, severityOf } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
 import { placeOfPointer } from './jsonLines.ts';
 import type { ProjectSource } from './source.ts';
 import { classifySpaceFile, PREFABS_DIR, SPACES_DIR, type SpaceKind } from './spaceFiles.ts';
-
-/** The shapes a space draws without an asset, each a metre across and standing on its origin. */
-export const SHAPES = ['box', 'sphere', 'cylinder', 'plane'] as const;
-export type Shape = (typeof SHAPES)[number];
-
-const id = z.string().regex(RECORD_ID_PATTERN, { error: 'Not an id: use lowercase words joined by hyphens' });
-const three = z.tuple([z.number(), z.number(), z.number()]);
-const above = z.number().gt(0, { error: 'A scale is above 0' });
-
-const objectSchema = z
-  .strictObject({
-    id,
-    name: z.string().min(1).max(80).optional(),
-    at: three.optional(),
-    turn: three.optional(),
-    scale: z.tuple([above, above, above]).optional(),
-    shape: z.enum(SHAPES).optional(),
-    color: z
-      .string()
-      .regex(/^#[0-9a-f]{6}$/i, { error: 'Expected a colour like "#7a8b5c"' })
-      .optional(),
-    prefab: id.optional(),
-  })
-  .superRefine((object, ctx) => {
-    if (object.shape === undefined && object.prefab === undefined) {
-      ctx.addIssue({ code: 'custom', message: 'An object is a shape or a placed prefab: give it one', path: [] });
-    } else if (object.shape !== undefined && object.prefab !== undefined) {
-      ctx.addIssue({ code: 'custom', message: 'An object is a shape or a placed prefab, not both', path: ['prefab'] });
-    } else if (object.prefab !== undefined && object.color !== undefined) {
-      ctx.addIssue({ code: 'custom', message: 'A placed prefab takes its colours from the prefab', path: ['color'] });
-    }
-  });
-
-export const spaceSchema = z.strictObject({
-  name: z.string().min(1).max(80),
-  objects: z.array(objectSchema).max(5000),
-});
-
-export type SpaceJson = z.infer<typeof spaceSchema>;
-export type SpaceObject = SpaceJson['objects'][number];
+import { checkSpaceParts, type SpacePartsContext } from './spaceParts.ts';
+import { type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 
 /** A file under spaces/ or prefabs/ as read: its value is undefined when it isn't JSON (E007). */
 export interface SpaceFileRead {
@@ -149,10 +110,14 @@ export async function readSpaces(
   return { files, diagnostics };
 }
 
-/** The checks, each problem at its line and column as well as its path, as the screens' are. */
-export function checkProjectSpaces(files: readonly SpaceFileRead[]): Diagnostic[] {
+/**
+ * The checks, each problem at its line and column as well as its path, as the screens' are. With
+ * the project's types and records, the components, placed records and overrides too (M5.2).
+ */
+export function checkProjectSpaces(files: readonly SpaceFileRead[], parts?: SpacePartsContext): Diagnostic[] {
   const texts = new Map(files.map((f) => [f.file, f.text]));
-  return checkSpaces(files).map((d) => {
+  const found = [...checkSpaces(files), ...(parts ? checkSpaceParts(files, parts).diagnostics : [])];
+  return found.map((d) => {
     const text = d.file === undefined ? undefined : texts.get(d.file);
     const place = text === undefined ? undefined : placeOfPointer(text, d.path);
     return place ? { ...d, ...place } : d;

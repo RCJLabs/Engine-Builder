@@ -4,6 +4,7 @@
  * @eb/schema. The runtime never imports it; it reads packs through @eb/core's readPack.
  */
 export { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
+export { type ComponentKinds, readComponentKinds } from './components.ts';
 export { type ParsedFile, parseJsonFile } from './decode.ts';
 export { type DirectoryHandleLike, directorySource, type FileHandleLike, type HandleLike } from './directorySource.ts';
 export { editionSource, hiddenByEdition, leavesOutAnything, leftOutRecords } from './edition.ts';
@@ -48,6 +49,16 @@ export {
 } from './layout.ts';
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
 export {
+  eachPlaced,
+  type Fields,
+  isFields,
+  mergeComponents,
+  overridden,
+  passedOn,
+  placedObjects,
+  recordHere,
+} from './overrides.ts';
+export {
   type KitSettings,
   type ListedRecord,
   type ProjectFilesRead,
@@ -61,24 +72,20 @@ export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
 export {
+  COMPONENTS_DIR,
+  type ComponentFile,
+  classifyComponentFile,
   classifySpaceFile,
+  componentPath,
   PREFABS_DIR,
   SPACES_DIR,
   type SpaceFile,
   type SpaceKind,
   spacePath,
 } from './spaceFiles.ts';
-export {
-  checkProjectSpaces,
-  checkSpaces,
-  readSpaces,
-  SHAPES,
-  type Shape,
-  type SpaceFileRead,
-  type SpaceJson,
-  type SpaceObject,
-  spaceSchema,
-} from './spaces.ts';
+export { checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
+export { SHAPES, type Shape, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
+export { checkProjectSpaces, checkSpaces, readSpaces, type SpaceFileRead } from './spaces.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';

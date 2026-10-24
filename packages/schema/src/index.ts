@@ -25,6 +25,8 @@ export {
   SOUND_DATA,
   SOUND_TYPE_FILE,
 } from './audioTypes.ts';
+export { checkPart, type PartContext, type Report as PartReport } from './checkValue.ts';
+export { ENGINE_COMPONENTS, isEngineComponent } from './componentTypes.ts';
 export { CONDITION_KEY, condition, isConditionSchema, valueSchema } from './condition.ts';
 export {
   compareDiagnostics,

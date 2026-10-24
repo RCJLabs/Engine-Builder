@@ -598,6 +598,26 @@ describe('the code table', () => {
       'prefabs/crate.json': JSON.stringify({ name: 'Crate', objects: [{ id: 'inner', prefab: 'crate' }] }),
       'spaces/old/yard.json': '{}',
     });
+    // M5.2: a component of no kind and one that doesn't fit, a record placed that isn't there and one
+    // whose override doesn't fit, an override of an object the prefab lacks, two starts, and a note
+    // under components/.
+    const start = { spawn: { start: true } };
+    const parts = await kitted([], {
+      'records/flag/met.json': '{}',
+      'prefabs/lamp.json': JSON.stringify({ name: 'Lamp', objects: [{ id: 'bulb', shape: 'sphere' }] }),
+      'spaces/yard.json': JSON.stringify({
+        name: 'Yard',
+        objects: [
+          { id: 'a', shape: 'box', components: { glow: {}, light: { range: 0 } } },
+          { id: 'b', record: 'flag:gone' },
+          { id: 'c', record: 'flag:met', overrides: { number: 'many' } },
+          { id: 'd', prefab: 'lamp', overrides: { shade: {} } },
+          { id: 'e', shape: 'box', components: start },
+          { id: 'f', shape: 'box', components: start },
+        ],
+      }),
+      'components/notes.md': '',
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -614,6 +634,7 @@ describe('the code table', () => {
       exported,
       guided,
       placed,
+      parts,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

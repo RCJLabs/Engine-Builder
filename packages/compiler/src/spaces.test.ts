@@ -29,13 +29,25 @@ describe('a space or a prefab', () => {
     expect(odd({ ...box, size: 2 })).toEqual(['E058 spaces/yard.json /objects/0/size Unknown field "size"']);
     expect(odd({ ...box, scale: [1, 0, 1] })).toEqual(['E058 spaces/yard.json /objects/0/scale/1 A scale is above 0']);
     expect(odd({ ...box, prefab: 'crate' })).toEqual([
-      'E058 spaces/yard.json /objects/0/prefab An object is a shape or a placed prefab, not both',
+      'E058 spaces/yard.json /objects/0/prefab An object is one of shape and prefab, not both',
+    ]);
+    expect(odd({ id: 'c', prefab: 'crate', record: 'actor:tom' })).toEqual([
+      'E058 spaces/yard.json /objects/0/record An object is one of prefab and record, not both',
     ]);
     expect(odd({ id: 'nothing' })).toEqual([
-      'E058 spaces/yard.json /objects/0 An object is a shape or a placed prefab: give it one',
+      'E058 spaces/yard.json /objects/0 An object is a shape, a placed prefab or a placed record: give it one',
     ]);
     expect(odd({ id: 'c', prefab: 'crate', color: '#ffffff' })).toEqual([
-      'E058 spaces/yard.json /objects/0/color A placed prefab takes its colours from the prefab',
+      'E058 spaces/yard.json /objects/0/color Only a shape has a colour of its own',
+    ]);
+    expect(odd({ ...box, overrides: {} })).toEqual([
+      'E058 spaces/yard.json /objects/0/overrides A shape places nothing to override',
+    ]);
+    expect(odd({ id: 'tom', record: 'tom' })).toEqual([
+      'E058 spaces/yard.json /objects/0/record Expected a record as "type:id"',
+    ]);
+    expect(odd({ ...box, components: { light: 'on' } })).toEqual([
+      'E058 spaces/yard.json /objects/0/components/light Expected a component’s fields',
     ]);
     expect(odd({ ...box, color: 'red' })[0]).toMatch(/^E058 spaces\/yard\.json \/objects\/0\/color Expected a colour/);
     expect(odd({ ...box, id: 'Box 1' })[0]).toMatch(/^E058 spaces\/yard\.json \/objects\/0\/id Not an id/);

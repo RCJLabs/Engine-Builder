@@ -14,6 +14,7 @@ import {
   validateRecords,
 } from '@eb/schema';
 import { audioFiles } from './audioFiles.ts';
+import { readComponentKinds } from './components.ts';
 import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
 import { checkExport } from './exportCheck.ts';
@@ -72,13 +73,14 @@ export async function compileProject(
   const scenes = await readScenes(source, grounds.facts, files.kits);
   const ui = await readUi(source);
   const spaces = await readSpaces(source);
+  const components = await readComponentKinds(source, new Set(known.types.map((t) => t.type)));
   const diagnostics: Diagnostic[] = [
     ...files.diagnostics,
     ...scripts.diagnostics,
     ...scenes.diagnostics,
     ...ui.diagnostics,
     ...spaces.diagnostics,
-    ...checkProjectSpaces(spaces.files),
+    ...components.diagnostics,
   ];
   // A scene beside a talk record of its id is E004 at both, and isn't checked: one problem, as the editor has it.
   const talks = new Set(files.recordFiles.filter((r) => r.type === TALK).map((r) => r.id));
@@ -88,6 +90,19 @@ export async function compileProject(
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
+  const index = indexOf(records);
+  // After the records: a placed record, and every reference in a component or an override, names one (M5.2).
+  diagnostics.push(
+    ...checkProjectSpaces(spaces.files, {
+      types: new Map(known.types.map((t) => [t.type, t])),
+      records: index,
+      value: recordValues(records),
+      known: grounds,
+      kinds: components.kinds,
+      uncheckedKinds: components.unchecked,
+      assets: files.assets,
+    }),
+  );
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {
     types: new Set(known.types.map((t) => t.type)),
@@ -111,7 +126,7 @@ export async function compileProject(
       ...(actions !== undefined ? { actions } : {}),
       ...(modes !== undefined ? { modes } : {}),
       ...(validate.events !== undefined ? { events: validate.events } : {}),
-      records: indexOf(records),
+      records: index,
       assets: files.assets,
       recordFields: recordFieldsOf(known.types),
     }),
@@ -166,6 +181,12 @@ async function readRecord(source: ProjectSource, { type, id, file }: ListedRecor
   report({ code: 'E007', message: parsed.message, type, id, file, path: '' });
   // Still a record, so references to it don't fail as well: one problem, one diagnostic.
   return { type, id, file, value: undefined, unreadable: true };
+}
+
+/** A record's value by type and id, undefined for one that can't be read. */
+function recordValues(records: readonly RecordInput[]): (type: string, id: string) => unknown {
+  const byKey = new Map(records.filter((r) => !r.unreadable).map((r) => [`${r.type}:${r.id}`, r.value]));
+  return (type, id) => byKey.get(`${type}:${id}`);
 }
 
 /** The records by type and id, for the facts screens read whose arguments name one. */

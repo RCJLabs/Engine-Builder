@@ -1615,6 +1615,45 @@ Evan chose on 2026-10-23, from these options:
 - **The camera's controls are the editor's own.** three's OrbitControls imports plain `three`, which would bring three's WebGL renderer into the chunk beside the WebGPU one.
 - **three loads with the first file opened,** as a chunk of 807 kB (223 kB gzip), never with the editor's start (Readings).
 
+### D64. A space's objects carry components, the engine's five kinds and a project's own as type files; an object can place any record and override its fields; a prefab's placement can override any field of any object inside it, by id; M5.2 is proved by machine. LOCKED, 2026-10-24 (Evan's calls, M5.2)
+
+Evan chose on 2026-10-24, from these options:
+- **Component kinds:**
+  - the engine's (light, collider, trigger zone, spawn point, sound emitter), each with a schema and a form, and a project's own as type files;
+  - the engine's alone;
+  - a project's alone.
+- **Placed records:**
+  - any record, its fields overridden where it is placed and checked against its type, drawn as a labelled marker;
+  - only records of types marked placeable;
+  - none, a spawn component naming a record instead.
+- **Prefab overrides:**
+  - any field of any object inside the prefab, by that object's id, with Revert;
+  - only place, turn, scale and components' fields;
+  - none in M5.2.
+- **The gate:**
+  - by machine: an e2e on desktop and by touch on phones, and a fixture held to `eb validate`;
+  - the same, then Evan's phone before M5.3.
+- **A project's own kinds** (asked once the type designer turned out to be tied to `types/`):
+  - made in the type designer, as record types are;
+  - written by hand for now, the editor only reading and drawing them.
+
+**Decision.**
+- **Two sources of component kinds.** The engine has five: light, collider, trigger zone, spawn point and sound emitter. A project adds its own as type files, in the format of `types/` (D31), made and edited in the type designer; renaming one's field rewrites the components that use it. Each kind's fields are a type file, so its form is drawn as a record's is. M5.2 makes components data, forms and markers in the view; nothing runs them until M5.7.
+- **Any record can be placed.** An object places a record, of any type, by `type:id`, and can override that record's fields there: a different inventory, another name, a quest's slot. The record with its overrides is checked against its type, and the record's "used by" lists the placement. Until M5.5 gives records models, a placed record draws as a marker with its name.
+- **Prefab placements override by id.** A placement can change any field of any object inside the prefab it places, the object named by its id, or by a path of ids through prefabs inside prefabs. Overridden fields show as overridden, with Revert. A change to the prefab reaches every field a placement hasn't overridden.
+- **The gate is by machine.** An e2e by mouse and keys on desktop and by touch at 360, 390 and sideways adds components and edits them with their forms, places a record and overrides one of its fields, overrides a field inside a placed prefab and reverts it, and finds it all after a reload. A fixture project holds every new check to `eb validate`.
+
+**Why.**
+- **Kinds:** the engine's five are what M5.7 and M5.8 run (a light, something solid, a zone that starts a quest step, where a door arrives, a sound). A project's own kinds keep "content is data": a loot spot or a climbing hold needs no engine edit.
+- **Placed records:** architecture.md promised placed references with overrides, as the Creation Kit's references are. Phase 5's gate puts pickups and a quest step in a walkable slice, which needs records placed in a space.
+- **Prefab overrides:** without them every variation of a prefab is a copy, and a copy no longer follows its prefab.
+- **Gate:** as for M5.1, the editor is the product, so the gate builds in it.
+
+**Cost.**
+- **Overrides must follow renames.** A record, a type or a field renamed has to rewrite the placements that name it, as it rewrites records (D33), or the space breaks.
+- **Nothing runs yet.** A trigger zone's effects are checked but don't fire until M5.7; a light shows in the editor's view only.
+- **Untested for feel** until a phone uses it.
+
 ---
 
 ## Open
