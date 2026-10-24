@@ -1609,6 +1609,12 @@ Evan chose on 2026-10-23, from these options:
 - **CI has no WebGPU adapter,** so only the WebGL2 path is checked by machine. The WebGPU path is first seen on a phone.
 - **On a phone the viewport is two taps away** (More, then Scene).
 
+**As built** (2026-10-24, M5.1):
+- **On desktop the Outliner docks above the Inspector,** a group of its own, so both are in view while a space is built. On a tablet it is a tab beside the Inspector.
+- **The code is in `apps/editor/src/spaces/`;** `scenes/` is the ink scenes'.
+- **The camera's controls are the editor's own.** three's OrbitControls imports plain `three`, which would bring three's WebGL renderer into the chunk beside the WebGPU one.
+- **three loads with the first file opened,** as a chunk of 807 kB (223 kB gzip), never with the editor's start (Readings).
+
 ---
 
 ## Open

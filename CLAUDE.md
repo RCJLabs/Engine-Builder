@@ -136,6 +136,15 @@ apps/editor/           the editor PWA
                        (Paste ZzFX, the presets, Vary, a half-made sound played, as plain functions), loopParts.ts
                        (the parts and the mix a loop's preview plays), SoundPreview.tsx and LoopPreview.tsx (through
                        the game's own player); Records lists sound, ambience and music after a project's own types
+  src/spaces/          the Scene panel and the Outliner (M5.1, D63): state.ts (the file open, the objects chosen,
+                       the toolbar's settings), load.ts and open.ts, and the panels' shells in the editor's start;
+                       SceneBrowser (the list, SpaceList, or the file open), SceneToolbar, Outliner, ObjectForm (the
+                       inspector's), live.ts (the open file and every prefab, read after each change) and actions.ts
+                       (the edits as steps of undo), loaded with a project; plain functions with tests: vec.ts (turns
+                       held to three's own), snap.ts, gizmoMath.ts, handles.ts (hits measured on screen, 44 px),
+                       drag.ts, orbit.ts (the camera), spaceFile.ts (the writer, one object a line) and spaceEdits.ts;
+                       and with three, loaded with the first file opened: SceneView, viewport.ts (WebGPURenderer,
+                       picking, drawing on demand, window.__ebViewport), build.ts, gizmoView.ts, gestures.ts
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -211,7 +220,9 @@ apps/editor/           the editor PWA
                        templates.spec.ts and templatesPhone.spec.ts are M4.11's, a project from each template, its
                        guide followed, played to an ending and exported as one file, on desktop and by touch;
                        spaceWrecked.spec.ts is M4.12's, Space-Wrecked's web export played by touch sideways and
-                       upright (a captain, a job from the board, a part fitted), and its size budget
+                       upright (a captain, a job from the board, a part fitted), and its size budget;
+                       spaceHelpers.ts, spaces.spec.ts and spacesPhone.spec.ts are M5.1's, a space built in the
+                       Scene panel by mouse and keys and by touch, through window.__ebViewport
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -281,7 +292,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        8); M4.10: exportFile.ts (export.json's shape, editions and targets), exportCheck.ts (E055,
                        E056, W138, W139) and edition.ts (editionSource: the files an edition keeps); M4.11: guide.ts
                        (guide.json: E057, W140, opensInEditor) and template.ts (fromTemplate, idFromName,
-                       shortNameOf: a template's files under the author's name); not pure
+                       shortNameOf: a template's files under the author's name); M5.1: spaces.ts (spaces/ and
+                       prefabs/ read and checked: E058 to E061, not packed yet) and spaceFiles.ts (where they sit,
+                       W141); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module

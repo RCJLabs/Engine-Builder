@@ -6,8 +6,10 @@ import {
   changeSpaceFile,
   createSpaceFile,
   deleteObjects,
+  freeSpot,
   groupObjects,
   placeObjects,
+  places,
   renameObject,
 } from './spaceEdits.ts';
 import { changeSpaceText, freeId, readSpace, type SpaceJson, spaceText, withTransform } from './spaceFile.ts';
@@ -53,6 +55,13 @@ describe('a space’s file', () => {
     const changed = lines(moved ?? '').filter((line, i) => line !== lines(windows)[i]);
     expect(changed).toHaveLength(1);
     expect(changeSpaceText('{ "name": "x" }', (s) => s)).toBeNull();
+    // Laid out by hand: left as it is until an edit changes the space, then written one object a line.
+    const byHand =
+      '{"name":"The yard","objects":[\n  {"id":"ground","shape":"plane","scale":[20,1,20],"color":"#7a8b5c"},\n  {"id":"crate-1","prefab":"crate","at":[2,0,-1],"turn":[0,30,0]}]}\n';
+    expect(changeSpaceText(byHand, (s) => s)).toBe(byHand);
+    expect(changeSpaceText(byHand, (s) => renameObject(s, 'ground', 'Field'))).toContain(
+      '{ "id": "ground", "name": "Field", "shape": "plane"',
+    );
   });
 
   it('leaves out fields at their defaults', () => {
@@ -126,6 +135,32 @@ describe('the Scene panel’s edits', () => {
         { id: 'b', prefab: 'crate', at: [1, 1, 0], turn: [0, 45, 0] },
       ],
     });
+  });
+
+  it('put a new object on a free spot, 1.5 m along x from the middle of the view', () => {
+    expect(freeSpot({ name: 'Empty', objects: [] }, 2, -1)).toEqual([2, 0, -1]);
+    const taken: SpaceJson = {
+      name: 'Row',
+      objects: [
+        { id: 'a', shape: 'box', at: [0, 0, 0] },
+        { id: 'b', shape: 'box', at: [1.5, 2, 0.2] },
+        { id: 'c', shape: 'box', at: [3, 0, 1] },
+      ],
+    };
+    expect(freeSpot(taken, 0, 0)).toEqual([3, 0, 0]);
+    expect(freeSpot(taken, 0.6, 0)).toEqual([0.6, 0, 0]);
+  });
+
+  it('know which prefabs place another, themselves or through others, so Add never offers a loop', () => {
+    const prefabs = new Map<string, SpaceJson>([
+      ['crate', { name: 'Crate', objects: [{ id: 'box', shape: 'box' }] }],
+      ['pair', { name: 'Pair', objects: [{ id: 'one', prefab: 'crate' }] }],
+      ['stack', { name: 'Stack', objects: [{ id: 'p', prefab: 'pair' }] }],
+    ]);
+    expect(places(prefabs, 'stack', 'crate')).toBe(true);
+    expect(places(prefabs, 'pair', 'pair')).toBe(true);
+    expect(places(prefabs, 'crate', 'stack')).toBe(false);
+    expect(places(prefabs, 'missing', 'crate')).toBe(false);
   });
 
   it('make file changes, none for a file that stays the same', async () => {

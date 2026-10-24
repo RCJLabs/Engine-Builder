@@ -110,15 +110,21 @@ const towards = (from: Screen | null, to: Screen | null): Screen => {
 
 /**
  * Where to take hold of each handle, for the e2e (window.__ebViewport): the spot along it farthest
- * from every other handle, so a press there is on that handle alone.
+ * from every other handle, so a press there is on that handle alone, among the spots `seen` says
+ * the view shows.
  */
-export function gripsOf(shapes: readonly HandleShape[], project: Project, pivot: Vec3): Grip[] {
+export function gripsOf(
+  shapes: readonly HandleShape[],
+  project: Project,
+  pivot: Vec3,
+  seen: (at: Screen) => boolean = () => true,
+): Grip[] {
   return shapes.flatMap((shape, index) => {
     const spots = candidates(shape);
     let best: { at: Screen; spot: number; room: number } | null = null;
     spots.forEach((point, spot) => {
       const at = project(point);
-      if (!at) return;
+      if (!at || !seen(at)) return;
       const room = Math.min(
         ...shapes.filter((_, i) => i !== index).map((other) => screenDistance(other, project, at)),
         Number.POSITIVE_INFINITY,

@@ -6,7 +6,8 @@ import { expect, type Page, test } from '@playwright/test';
 import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 
 const LAYOUT_KEY = 'eb-editor:dock-layout';
-const FIRST_LAYOUT = ['Project+Logic', 'Records+Assets+World+Play', 'Inspector', 'Console+Problems'];
+// The Outliner is a group of its own above the Inspector (M5.1, D63).
+const FIRST_LAYOUT = ['Project+Logic', 'Records+Assets+World+Scene+Play', 'Outliner', 'Inspector', 'Console+Problems'];
 /** Storage keeps panel ids, which are the tab titles in lower case. */
 const ids = (groups: string[]) => groups.map((group) => group.toLowerCase());
 
@@ -76,7 +77,7 @@ test.describe('dock, desktop 1280×800', () => {
     expect(await groups(page)).toEqual(FIRST_LAYOUT);
 
     await dragTab(page, 'Logic', 'World', 'bottom');
-    const moved = ['Project', 'Records+Assets+World+Play', 'Logic', 'Inspector', 'Console+Problems'];
+    const moved = ['Project', 'Records+Assets+World+Scene+Play', 'Logic', 'Outliner', 'Inspector', 'Console+Problems'];
     await expect.poll(() => groups(page)).toEqual(moved);
     const world = await groupOf(page, 'World').boundingBox();
     const logic = await groupOf(page, 'Logic').boundingBox();
@@ -103,8 +104,8 @@ test.describe('dock, desktop 1280×800', () => {
     await dragTab(page, 'Logic', 'World', 'centre');
     await expect
       .poll(() => groups(page))
-      .toEqual(['Project', 'Records+Assets+World+Play+Logic', 'Inspector', 'Console+Problems']);
-    expect(await visiblePanels(page)).toEqual(['project', 'logic', 'inspector']);
+      .toEqual(['Project', 'Records+Assets+World+Scene+Play+Logic', 'Outliner', 'Inspector', 'Console+Problems']);
+    expect(await visiblePanels(page)).toEqual(['project', 'logic', 'outliner', 'inspector']);
     expect(errors).toEqual([]);
   });
 
@@ -131,7 +132,19 @@ test.describe('dock, desktop 1280×800', () => {
     await page.reload();
     await docked(page);
     expect((await groups(page)).join('+').split('+').sort()).toEqual(
-      ['Assets', 'Console', 'Inspector', 'Logic', 'Play', 'Problems', 'Project', 'Records', 'World'].sort(),
+      [
+        'Assets',
+        'Console',
+        'Inspector',
+        'Logic',
+        'Outliner',
+        'Play',
+        'Problems',
+        'Project',
+        'Records',
+        'Scene',
+        'World',
+      ].sort(),
     );
 
     await page.evaluate((key) => {
@@ -151,22 +164,34 @@ test.describe('dock, desktop 1280×800', () => {
     await docked(page);
     await runCommand(page, 'logic panel');
     await expect.poll(() => savedGroups(page)).toEqual(ids(FIRST_LAYOUT));
-    // The layout as an editor before M2.7 and M2.8 would have saved it: no Assets, no Problems.
+    // The layout as an editor before M2.7, M2.8 and M5.1 would have saved it: no Assets, no Problems,
+    // no Scene and no Outliner, whose group goes with it.
     await page.evaluate((key) => {
       type Node = { type: 'leaf'; data: { views: string[] } } | { type: 'branch'; data: Node[] };
-      const gone = ['assets', 'problems'];
+      const gone = ['assets', 'problems', 'scene', 'outliner'];
       const saved = JSON.parse(localStorage.getItem(key) ?? '');
       for (const id of gone) delete saved.layout.panels[id];
-      const drop = (node: Node): void => {
-        if (node.type === 'leaf') node.data.views = node.data.views.filter((view) => !gone.includes(view));
-        else node.data.forEach(drop);
+      const drop = (node: Node): boolean => {
+        if (node.type === 'leaf') {
+          node.data.views = node.data.views.filter((view) => !gone.includes(view));
+          return node.data.views.length > 0;
+        }
+        node.data = node.data.filter(drop);
+        return node.data.length > 0;
       };
       drop(saved.layout.grid.root);
       localStorage.setItem(key, JSON.stringify(saved));
     }, LAYOUT_KEY);
     await page.reload();
     await docked(page);
-    expect(await groups(page)).toEqual(['Project+Logic', 'Records+World+Play+Assets', 'Inspector', 'Console+Problems']);
+    // Each joins its peer's group; the Outliner gets its own above the Inspector again.
+    expect(await groups(page)).toEqual([
+      'Project+Logic',
+      'Records+World+Play+Assets+Scene',
+      'Outliner',
+      'Inspector',
+      'Console+Problems',
+    ]);
     expect(errors).toEqual([]);
   });
 
@@ -201,7 +226,7 @@ test.describe('dock, desktop 1280×800', () => {
     await expect(options).toHaveText(['Show the Play panel']);
     await page.keyboard.press('Enter');
     await expect(page.getByRole('dialog', { name: 'Commands' })).toBeHidden();
-    expect(await visiblePanels(page)).toEqual(['project', 'play', 'inspector']);
+    expect(await visiblePanels(page)).toEqual(['project', 'play', 'outliner', 'inspector']);
     await expect(page.locator('.dock-panel:has([data-panel="play"])')).toBeFocused(); // focus goes with it
 
     await page.getByRole('button', { name: 'Commands' }).click();
@@ -284,7 +309,7 @@ for (const [width, height] of [
       await more.tap();
       await expect(more).toHaveAttribute('aria-selected', 'true');
       const list = page.locator('[data-panel="more"]');
-      await expect(list.getByRole('button')).toHaveCount(3);
+      await expect(list.getByRole('button')).toHaveCount(4);
       const item = (name: string) => list.getByRole('button', { name: new RegExp(`^${name} `) });
       await expect(item('Console')).toContainText('What the editor did');
       await expect(item('Console')).not.toContainText('Phase');
@@ -293,6 +318,8 @@ for (const [width, height] of [
       await expect(item('World')).not.toContainText('Phase');
       await expect(item('Play')).toContainText('Play the game inside the editor');
       await expect(item('Play')).not.toContainText('Phase');
+      await expect(item('Scene')).toContainText('Build a 3D space');
+      await expect(item('Scene')).not.toContainText('Phase');
       await expectNothingOffscreen(page);
       expect(await smallTargets(page, 'body')).toEqual([]);
       await expectNoAxeIssues(page);

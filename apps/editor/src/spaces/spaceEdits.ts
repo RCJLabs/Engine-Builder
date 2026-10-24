@@ -87,6 +87,30 @@ export function groupObjects(
   return { space: { ...space, objects }, prefab: { name: prefab.name, objects: inside }, placement };
 }
 
+/** How far apart Add puts objects when the middle of the view is taken. */
+const ADD_STEP = 1.5;
+
+/** The first spot on the ground from `x`, `z` along x that no object stands on. */
+export function freeSpot(space: SpaceJson, x: number, z: number): [number, number, number] {
+  const taken = space.objects.map((o) => transformOf(o).at);
+  for (let k = 0; ; k++) {
+    const spot: [number, number, number] = [x + k * ADD_STEP, 0, z];
+    if (!taken.some((at) => Math.abs(at[0] - spot[0]) < 0.5 && Math.abs(at[2] - spot[2]) < 0.5)) return spot;
+  }
+}
+
+/** Whether the prefab `from` places `target`, itself or through others: placing it in `target` would loop (E061). */
+export function places(prefabs: ReadonlyMap<string, SpaceJson>, from: string, target: string): boolean {
+  const seen = new Set<string>();
+  const walk = (id: string): boolean => {
+    if (id === target) return true;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return (prefabs.get(id)?.objects ?? []).some((o) => o.prefab !== undefined && walk(o.prefab));
+  };
+  return walk(from);
+}
+
 const encode = (text: string) => new TextEncoder().encode(text);
 const decode = (bytes: Uint8Array) => new TextDecoder().decode(bytes);
 

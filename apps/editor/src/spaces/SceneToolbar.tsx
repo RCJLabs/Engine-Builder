@@ -10,7 +10,8 @@ import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { addHere, deleteChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
-import { liveOf, places } from './live.ts';
+import { liveOf } from './live.ts';
+import { places } from './spaceEdits.ts';
 import { nameOf } from './spaceFile.ts';
 import { frameAsked, gizmoMode, openSpace, picked, selectMore, snapOn } from './state.ts';
 

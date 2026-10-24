@@ -59,15 +59,3 @@ effect(() => {
     if (kept.length !== picked.peek().length) picked.value = kept;
   });
 });
-
-/** Whether the prefab `from` places `target`, itself or through others: placing it in `target` would loop (E061). */
-export function places(prefabs: ReadonlyMap<string, SpaceJson>, from: string, target: string): boolean {
-  const seen = new Set<string>();
-  const walk = (id: string): boolean => {
-    if (id === target) return true;
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return (prefabs.get(id)?.objects ?? []).some((o) => o.prefab !== undefined && walk(o.prefab));
-  };
-  return walk(from);
-}

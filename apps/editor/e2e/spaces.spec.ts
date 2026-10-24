@@ -46,9 +46,19 @@ test('a space built with the gizmo, grouped, renamed and kept', async ({ page })
   const errors = watchErrors(page);
   await createProject(page, 'Yard works');
   await showScene(page);
+  // three loads with the first file opened, never with the editor's start or the panel's list.
+  const viewLoaded = () =>
+    page.evaluate(() =>
+      performance
+        .getEntriesByType('resource')
+        .map((entry) => entry.name)
+        .filter((name) => /\/SceneView-[^/]*\.js$/.test(name)),
+    );
+  expect(await viewLoaded()).toEqual([]);
 
   // A prefab with a box in it.
   await newSpaceFile(page, 'prefab', 'Crate');
+  expect(await viewLoaded()).toHaveLength(1);
   await add(page, 'Box');
   await expect
     .poll(() => stored(page, FOLDER, 'prefabs/crate.json'))

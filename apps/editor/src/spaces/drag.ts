@@ -1,8 +1,8 @@
 /**
  * One drag of the gizmo (M5.1, docs/specs/viewport.md#the-gizmo): from the press to each move of
  * the pointer, where the chosen objects would be. Along an axis it follows the point on the axis
- * nearest the pointer's ray; on a plane, where the ray meets it; on a ring, the angle around it,
- * added up so a drag can turn more than half way round; the centre block, how far the pointer rose.
+ * nearest the pointer's ray; on a plane, where the ray meets it; on a ring, the angle around it from
+ * where it was taken; the centre block, how far the pointer rose.
  */
 import {
   AXES,
@@ -67,17 +67,14 @@ export function startDrag(start: DragStart): Drag {
       },
     };
   }
-  // A ring: the angle added up move by move, so it goes past 180° without flipping back.
-  let last: Vec3 | null = from ? sub(from, pivot) : null;
-  let total = 0;
+  // A ring: the angle from where it was taken hold of. Past 180° it reads as the other way round,
+  // which is the same turn: a planted bug that added the angle up move by move changed nothing.
+  const grip: Vec3 | null = from ? sub(from, pivot) : null;
   return {
     update(ray, _screen, snap) {
       const at = onPlane(ray, pivot, axis);
-      if (!last || !at) return null;
-      const now = sub(at, pivot);
-      total += angleAround(last, now, axis);
-      last = now;
-      return turned(objects, pivot, handle.axis, total, snap);
+      if (!grip || !at) return null;
+      return turned(objects, pivot, handle.axis, angleAround(grip, sub(at, pivot), axis), snap);
     },
   };
 }

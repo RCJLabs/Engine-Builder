@@ -26,7 +26,7 @@ describe('a drag of the gizmo', () => {
     expect(drag.update({ origin: [0, 0, 10], dir: [0, 0, -1] }, [0, 0], true)).toBeNull();
   });
 
-  it('turns by the angle around the ring, past half way round', () => {
+  it('turns by the angle around the ring, past half way round as the same turn the other way', () => {
     const drag = start({ kind: 'turn', axis: 1 }, down(1, 0));
     expect(drag.update(down(0, -1), [0, 0], true)?.[0]?.turn).toEqual([0, 90, 0]);
     expect(drag.update(down(-1, 0), [0, 0], true)?.[0]?.turn).toEqual([0, 180, 0]);

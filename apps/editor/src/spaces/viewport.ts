@@ -185,7 +185,13 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     return { x: rect.left + at[0], y: rect.top + at[1] };
   };
 
-  /** A point on the object, clear of every handle: the middle of its box first. */
+  /** Whether a point of the view is on screen, not scrolled under a tab bar or past the page's edge. */
+  const shows = (at: Screen) => {
+    const { x, y } = page(at);
+    return document.elementFromPoint(x, y) === canvas;
+  };
+
+  /** A point on the object, clear of every handle and in sight: the middle of its box first. */
   const objectAt = (id: string) => {
     const object = built?.byId.get(id);
     if (!object) return null;
@@ -205,8 +211,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     spots.sort(
       (a, b) => Math.hypot(a[0] - middle[0], a[1] - middle[1]) - Math.hypot(b[0] - middle[0], b[1] - middle[1]),
     );
-    const inside = (s: Screen) => s[0] >= 0 && s[1] >= 0 && s[0] <= size.w && s[1] <= size.h;
-    const spot = spots.find((s) => inside(s) && pick(s) === id && hitHandle(handles, project, s) === null);
+    const spot = spots.find((s) => shows(s) && pick(s) === id && hitHandle(handles, project, s) === null);
     return spot ? page(spot) : null;
   };
 
@@ -218,7 +223,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     grips: () => {
       const at = footing();
       return at
-        ? gripsOf(shapes(), project, at.pivot).map((g) => ({ name: g.name, ...page(g.at), along: g.along }))
+        ? gripsOf(shapes(), project, at.pivot, shows).map((g) => ({ name: g.name, ...page(g.at), along: g.along }))
         : [];
     },
     objectAt,

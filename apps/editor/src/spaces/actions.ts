@@ -12,11 +12,12 @@ import {
   changeSpaceFile,
   createSpaceFile,
   deleteObjects,
+  freeSpot,
   groupObjects,
   placeObjects,
   renameObject,
 } from './spaceEdits.ts';
-import { type SpaceJson, type SpaceObject, transformOf, withTransform } from './spaceFile.ts';
+import { type SpaceJson, type SpaceObject, withTransform } from './spaceFile.ts';
 import { aim, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
 
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
@@ -34,18 +35,6 @@ export async function createSpace(kind: SpaceKind, id: string, typed: string): P
     createSpaceFile(copy, spacePath(kind, id), { name, objects: [] }),
   );
   openSpaceFile(kind, id);
-}
-
-/** How far apart Add puts objects when the middle of the view is taken. */
-const ADD_STEP = 1.5;
-
-/** The first spot on the ground from `x`, `z` along x that no object stands on. */
-export function freeSpot(space: SpaceJson, x: number, z: number): [number, number, number] {
-  const taken = space.objects.map((o) => transformOf(o).at);
-  for (let k = 0; ; k++) {
-    const spot: [number, number, number] = [x + k * ADD_STEP, 0, z];
-    if (!taken.some((at) => Math.abs(at[0] - spot[0]) < 0.5 && Math.abs(at[2] - spot[2]) < 0.5)) return spot;
-  }
 }
 
 /** A shape or a prefab put on the ground in the middle of the view, or beside what is there, chosen. */

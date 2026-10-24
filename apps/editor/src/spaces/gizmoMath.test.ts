@@ -12,6 +12,7 @@ import {
   turned,
 } from './gizmoMath.ts';
 import { snaps, snapTo, tidy } from './snap.ts';
+import { quatOfTurn, rotate } from './vec.ts';
 
 const box = (id: string, at: Placed['at'], more: Partial<Placed> = {}): Placed => ({
   id,
@@ -74,6 +75,11 @@ describe('a turn', () => {
   it('adds to a turn the object has, about the world’s axis', () => {
     const [one] = turned([box('a', [0, 0, 0], { turn: [0, 90, 0] })], [0, 0, 0], 1, -45, true);
     expect(one?.turn).toEqual([0, 45, 0]);
+    // About another axis, order counts: yawed 90°, its front faces +x, and a turn about the world's
+    // x leaves it there; about its own x, the front would tip down.
+    const [tipped] = turned([box('a', [0, 0, 0], { turn: [0, 90, 0] })], [0, 0, 0], 0, 90, true);
+    const front = rotate(quatOfTurn(tipped?.turn ?? [0, 0, 0]), [0, 0, 1]);
+    expect(front.map((v) => Math.round(v * 1e6) / 1e6 + 0)).toEqual([1, 0, 0]);
     const [free] = turned([box('a', [0, 0, 0])], [0, 0, 0], 0, 10.4, false);
     expect(free?.turn).toEqual([10.4, 0, 0]);
   });
