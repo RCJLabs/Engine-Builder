@@ -11,6 +11,7 @@ import { sizeText } from '../assets/media.ts';
 import { openAsset } from '../assets/open.ts';
 import { step } from '../editing/step.ts';
 import { openRecord } from '../records/actions.ts';
+import { addStarterKit } from './kitEdits.ts';
 import { importModels, type PackedModel } from './modelEdits.ts';
 import { type ModelPlan, modelRecordOf, modelSize, type PickPlan } from './modelImport.ts';
 import { packInWorker } from './modelWorker.ts';
@@ -74,4 +75,25 @@ export async function importPickAction(
   if (files === 1 && model?.record) openRecord('model', model.record.id);
   else if (files === 1) openAsset(model?.path ?? others[0]?.path ?? '');
   return true;
+}
+
+/**
+ * The starter kit added to the open project as one step, files it has already kept as they are.
+ * Resolves to whether anything was added.
+ */
+export async function addStarterKitAction(): Promise<boolean> {
+  const { kitFiles } = await import('./starterKit.ts');
+  const kit = kitFiles();
+  let said = '';
+  const made = await step('Add starter kit', async (copy) => {
+    const { changes, added, kept } = await addStarterKit(copy, kit);
+    said =
+      kept === 0
+        ? `Added the starter kit: ${count(added, 'file', 'files')}.`
+        : `Added ${count(added, 'file', 'files')} of the starter kit; the project had ${kept} of them already.`;
+    if (changes.length === 0) throw new Error('every file of it is in the project already');
+    return changes;
+  });
+  if (made) note(said);
+  return made;
 }

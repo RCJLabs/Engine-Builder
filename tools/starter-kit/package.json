@@ -1,0 +1,16 @@
+{
+  "name": "@eb/starter-kit",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Writes starter-kit/: about twenty low-poly pieces made in code, packed as import packs models, with their model and material records, dedicated by RCJLabs to CC0 (M5.5, D67).",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/compiler": "workspace:*",
+    "@eb/models": "workspace:*",
+    "@eb/schema": "workspace:*",
+    "@gltf-transform/core": "4.5.1"
+  }
+}

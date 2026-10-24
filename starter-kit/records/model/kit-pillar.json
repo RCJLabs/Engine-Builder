@@ -1,0 +1,23 @@
+{
+  "name": "Pillar",
+  "file": "starter-kit/pillar.glb",
+  "materials": [
+    {
+      "slot": "stone",
+      "material": "kit-stone"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      1.25,
+      0
+    ],
+    "size": [
+      0.7,
+      2.5,
+      0.7
+    ]
+  }
+}

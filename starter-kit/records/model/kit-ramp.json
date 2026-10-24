@@ -1,0 +1,45 @@
+{
+  "name": "Ramp",
+  "file": "starter-kit/ramp.glb",
+  "materials": [
+    {
+      "slot": "stone",
+      "material": "kit-stone"
+    }
+  ],
+  "collider": {
+    "shape": "hull",
+    "points": [
+      [
+        -0.6,
+        0,
+        -1
+      ],
+      [
+        -0.6,
+        0,
+        1
+      ],
+      [
+        -0.6,
+        1,
+        -1
+      ],
+      [
+        0.6,
+        0,
+        -1
+      ],
+      [
+        0.6,
+        0,
+        1
+      ],
+      [
+        0.6,
+        1,
+        -1
+      ]
+    ]
+  }
+}

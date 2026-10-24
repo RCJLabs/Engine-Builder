@@ -1,0 +1,23 @@
+{
+  "name": "Doorway",
+  "file": "starter-kit/doorway.glb",
+  "materials": [
+    {
+      "slot": "stone",
+      "material": "kit-stone"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      1.25,
+      0
+    ],
+    "size": [
+      2,
+      2.5,
+      0.2
+    ]
+  }
+}

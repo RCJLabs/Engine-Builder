@@ -335,6 +335,21 @@ importers:
 
   tools/site-check: {}
 
+  tools/starter-kit:
+    dependencies:
+      '@eb/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
+      '@eb/models':
+        specifier: workspace:*
+        version: link:../../packages/models
+      '@eb/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@gltf-transform/core':
+        specifier: 4.5.1
+        version: 4.5.1
+
 packages:
 
   '@apideck/better-ajv-errors@0.3.7':

@@ -1,0 +1,27 @@
+{
+  "name": "Window wall",
+  "file": "starter-kit/window-wall.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    },
+    {
+      "slot": "stone",
+      "material": "kit-stone"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      1.25,
+      0
+    ],
+    "size": [
+      2,
+      2.5,
+      0.24
+    ]
+  }
+}
