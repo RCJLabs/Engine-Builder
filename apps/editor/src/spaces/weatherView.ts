@@ -20,7 +20,8 @@ export interface WeatherView {
   dispose(): void;
 }
 
-export function createWeatherView(): WeatherView {
+/** `share` of an environment's drops fall: a quality tier's (M5.7, D69), the first of the same seeded list. */
+export function createWeatherView(share = 1): WeatherView {
   const root = new THREE.Group();
   const seeds = seedDrops(Math.max(MOST.rain, MOST.snow));
   const lines = new THREE.BufferGeometry();
@@ -44,7 +45,7 @@ export function createWeatherView(): WeatherView {
     root,
     show(look) {
       kind = look && look.weather !== 'none' ? look.weather : null;
-      count = kind ? (look?.particles ?? 0) : 0;
+      count = kind ? Math.floor((look?.particles ?? 0) * share) : 0;
       rain.visible = kind === 'rain' && count > 0;
       snow.visible = kind === 'snow' && count > 0;
       lines.setDrawRange(0, kind === 'rain' ? count * 2 : 0);

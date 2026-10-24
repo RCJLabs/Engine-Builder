@@ -43,14 +43,24 @@ interface Lights {
 const stillAsked = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 const round = (n: number) => Math.round(n * 1e4) / 1e4;
 
-export function createEnvironmentView(scene: THREE.Scene, lights: Lights): EnvironmentView {
+/** What a quality tier lets the environment draw (M5.7, D69). */
+export interface EnvironmentTier {
+  readonly physicalSky: boolean;
+  readonly weatherShare: number;
+}
+
+export function createEnvironmentView(
+  scene: THREE.Scene,
+  lights: Lights,
+  tier: EnvironmentTier = { physicalSky: true, weatherShare: 1 },
+): EnvironmentView {
   const editor = {
     background: (scene.background as THREE.Color).clone(),
     sky: { color: lights.sky.color.clone(), ground: lights.sky.groundColor.clone(), strength: lights.sky.intensity },
     sun: { color: lights.sun.color.clone(), strength: lights.sun.intensity, at: lights.sun.position.clone() },
   };
-  const sky = createSkyView(scene, editor.background);
-  const weather = createWeatherView();
+  const sky = createSkyView(scene, editor.background, tier.physicalSky);
+  const weather = createWeatherView(tier.weatherShare);
   scene.add(sky.root, weather.root);
   let look: Look | null = null;
   let still = false;

@@ -1850,6 +1850,58 @@ Evan chose on 2026-10-24, from these options:
 - **The viewport's hook moved to `viewportHook.ts`,** its shape and its setting apart from the view, to keep `viewport.ts` from growing past 430 lines.
 - **Untested for feel and on a phone:** no phone has painted foliage, filled a hillside or drawn a meadow; the presets' densities and distances are first guesses.
 
+### D69. M5.7 builds quality tiers, a perf overlay and CI budgets now, the frame-rate targets waiting for the phone's reading; a tier starts from the device's hints and steps down when frames run long; tiers change the renderer and the heavy extras; CI enforces sizes and counts. LOCKED, 2026-10-24 (Evan's calls, M5.7)
+
+Evan chose on 2026-10-24, from these options:
+- **Targets** (D63 left M5.7's frame-rate targets to the M1.10 reading from Evan's phone, not yet taken):
+  - build tiers, the overlay and the budgets now, gated by machine, the targets set from the reading when it comes;
+  - stop until the reading is in, and set the targets from it first;
+  - provisional targets now (30 fps on Low, 60 on High for a mid-range phone), revised with the reading.
+- **Detection:**
+  - the device's hints to start (the GPU's name, memory, cores, screen), then a tier down when frames run long for a few seconds; never up by itself; a tier picked by hand always wins;
+  - a short benchmark the first time a 3D view opens, kept per device;
+  - the hints alone, never adapting.
+- **What a tier changes:**
+  - the renderer (pixel ratio, shadows, antialiasing), the physical sky or a gradient, and how far and how thick foliage and weather are drawn; never what the sim sees or a player can reach;
+  - the renderer alone, as the M1.10 spike's tiers;
+  - the first, and SSAO and bloom on High.
+- **CI budgets:**
+  - sizes (the editor's start, the 3D view's chunk, the exports) and counts (draw calls and triangles for fixture scenes, read from the overlay in the e2e); frame times stay readings;
+  - sizes alone;
+  - sizes, counts and software-WebGL frame times past a margin.
+
+**Decision.**
+- **Tiers now, targets later.** Low, Medium and High are built and proved by machine. The frame rate each must hold on a phone is set from the M1.10 reading when Evan takes it; until then the overlay shows frame times and judges none. D8 stays PROPOSED until the same reading.
+- **A tier starts from the device's hints and steps down.** The hints are the GPU's name (WebGPU's adapter, or WebGL's renderer string), the device's memory and cores where the browser says, the screen's size and whether the pointer is coarse. While frames are drawn back to back, a few seconds of long frames step the tier down one; it never steps up by itself. Auto, Low, Medium or High picked by hand always wins, kept per device.
+- **What a tier changes:** the pixel ratio, antialiasing, the sun's shadows (none, or a map whose size rises with the tier), the physical sky or a gradient, and how far and how thick foliage and weather are drawn. A lower tier draws a subset of the same plants and drops, never others, so nothing moves as a tier changes. Never what the sim sees or what a player can reach.
+- **A perf overlay** in the Scene panel: frames per second, the median and 95th-percentile frame, draw calls, triangles, the tier and why it is that tier. The view's hook reads the same numbers.
+- **CI budgets:** sizes (the editor's start, the 3D view's chunks, the precache, the exports) and counts (draw calls and triangles for fixture scenes at each tier, read from the overlay in the e2e) fail CI past their budgets. Frame times stay readings: CI's software WebGL is not a phone.
+
+**Why.**
+- **Targets:** the tiers, overlay and budgets are the instruments the reading needs; waiting for the reading would hold Phase 5 for a number that only sets thresholds.
+- **Detection:** hints alone misjudge phones, and a benchmark costs every first open; stepping down on what the device actually draws catches what the hints miss, and never stepping up stops a tier flickering.
+- **Scope:** grass and weather are the heaviest things the view draws (273 ms a frame of grass in software WebGL, Readings), so a tier that left them alone would change little where it matters.
+- **Budgets:** sizes and counts are the same on every run, so a budget on them fails only on a real change; frame times in CI vary by machine.
+
+**Cost.**
+- **Until the reading, a tier's settings are guesses,** and no one knows whether Low holds a frame rate on a real phone.
+- **Hints are coarse:** a GPU's name maps to a tier by a table that will need entries as phones are tried.
+- **Changing antialiasing restarts the view,** since three's renderer takes it only as it is made.
+- **Budgets need raising by hand** when a milestone adds weight on purpose, in the same change, with its reading.
+
+**As built** (2026-10-24, M5.7):
+- **A new tier makes a new view on a new canvas,** not only for antialiasing: a canvas keeps the context it was first given, and three's renderer takes its antialiasing and the sun's shadow setup as it is made. The camera and the objects chosen carry over; the overlay and the hook read the new view.
+- **The screen isn't read:** the pointer stands for it among the hints, since a big phone's screen says nothing about its GPU that a small one's doesn't.
+- **Frames drawn back to back** are those asked for within 20 ms of the one before ending: the view draws only when something changes, so the gaps between an orbit's frames are drawing and the gaps between clicks are not.
+- **A view's first 2 seconds are let by.** three compiles each material's shaders as it first draws it, and a new view's first frames took 350 to 480 ms in software WebGL at any tier (Readings): without the warm-up, those alone could step a tier down. They still show in the overlay.
+- **Low draws more triangles than Medium** on the glade, 12,043 against 10,443: its gradient sky is a sphere of 2,208 triangles where the physical sky is a box. Low is for fragments, not triangles; the sphere's segments are an open question (performance.md question 8).
+- **High's shadows aren't soft:** three's WebGPURenderer has no soft shadow map and falls back to PCF, so High's 2,048 map is sharper than Medium's 1,024, not softer.
+- **The count budgets are desktop's alone:** a phone's view is framed to its own shape and draws other levels of the same plants, so the phone spec reads its counts and holds them to nothing.
+- **Quality is a row of its own** under the Scene toolbar, opened by its button as Terrain's is: with the list and Stats in the toolbar, a phone at 360 px gave the view a fifth row less, and the components spec's placed record sank under the inspector's sheet.
+- **Models pick their LOD level for the view's camera alone:** three updates an LOD for every camera it renders with, so with shadows on, the sun's camera, 50 m off, left each model's far level as the one read back and the one casting its shadow. The view now updates each model's LOD itself before a frame.
+- **Space-Wrecked's export budget** moved into budgets.json at M4.12's 540,000, its e2e reading the same entry, so there is one number.
+- **Untested for feel and on a phone:** no phone has drawn a tier, stepped down or shown the overlay; every tier's settings are first guesses until the M1.10 reading.
+
 ---
 
 ## Open

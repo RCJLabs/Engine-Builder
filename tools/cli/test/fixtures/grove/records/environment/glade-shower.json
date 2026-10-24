@@ -1,0 +1,17 @@
+{
+  "name": "Glade, shower",
+  "hour": 17,
+  "sky": "physical",
+  "turbidity": 5,
+  "sun": "#ffe2b8",
+  "sun-strength": 1.8,
+  "ambient": "#cfdccb",
+  "ambient-strength": 1.2,
+  "fog": {
+    "color": "#9aa79a",
+    "near": 40,
+    "far": 260
+  },
+  "weather": "rain",
+  "weather-amount": 0.5
+}

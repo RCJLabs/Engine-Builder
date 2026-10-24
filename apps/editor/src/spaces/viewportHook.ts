@@ -4,12 +4,41 @@
  * draw. Set by the view as it starts and taken away with it.
  */
 import type * as THREE from 'three/webgpu';
+import type { FrameStats } from '../perf/frames.ts';
+import type { TierName } from '../perf/tiers.ts';
 import type { EnvironmentSummary } from './environmentView.ts';
 import type { FoliageSummary } from './foliageView.ts';
 import type { Screen } from './handles.ts';
 import type { ModelSummary } from './modelsView.ts';
 import type { Orbit } from './orbit.ts';
+import type { SkyKind } from './skyView.ts';
 import type { TerrainSummary } from './terrainView.ts';
+
+/** The view's tier, its settings as three has them, and its frames (M5.7, D69): the overlay's too. */
+export interface PerfSummary {
+  readonly tier: TierName;
+  readonly backend: 'webgpu' | 'webgl';
+  readonly pixelRatio: number;
+  readonly antialias: boolean;
+  /** The sun's shadow map a side, or 0 for no shadows. */
+  readonly shadowMap: number;
+  /** Whether placed objects cast the sun's shadows, the ground takes them, and foliage casts them. */
+  readonly objectShadows: boolean;
+  readonly groundShadows: boolean;
+  readonly foliageShadows: boolean;
+  /** Half the sun's shadow camera's width in metres, or 0 for no shadows: what it covers round the origin. */
+  readonly shadowReach: number;
+  /** The sky drawn, or null for the editor's own colour. */
+  readonly sky: SkyKind | null;
+  readonly foliageReach: number;
+  readonly foliageShare: number;
+  readonly weatherShare: number;
+  /** Of the last frames drawn back to back. */
+  readonly frames: FrameStats;
+  /** Of the last frame drawn. */
+  readonly drawCalls: number;
+  readonly triangles: number;
+}
 
 export interface ViewportHook {
   readonly backend: 'webgpu' | 'webgl';
@@ -34,6 +63,8 @@ export interface ViewportHook {
   readonly foliage: () => FoliageSummary[];
   /** How many plants of a foliage type stand within `radius` metres of (x, z) across the ground. */
   readonly plantsNear: (foliage: string, x: number, z: number, radius: number) => number;
+  /** The tier drawn and its frames (M5.7). */
+  readonly perf: () => PerfSummary;
 }
 
 type Hooked = { __ebViewport?: ViewportHook };

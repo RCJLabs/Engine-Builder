@@ -57,6 +57,16 @@ describe('the scatter', () => {
     expect(spots(scatterAll(g, second).chunks)).toEqual(spots(scatterAll(grid(128), pines()).chunks));
   });
 
+  it('stands a subset of the same plants at a tier’s share, about that share of them (M5.7)', () => {
+    const g = grid();
+    const all = spots(scatterAll(g, pines()).chunks);
+    const half = spots(scatterAll(g, scatterOf('pines', 0, { model: 'kit-pine', density: 2 }, 1, 0.5)).chunks);
+    const whole = new Set(all);
+    for (const spot of half) expect(whole.has(spot)).toBe(true);
+    expect(half.length / all.length).toBeGreaterThan(0.4);
+    expect(half.length / all.length).toBeLessThan(0.6);
+  });
+
   it('scatters a chunk alone as the whole scatters it', () => {
     const g = grid();
     const all = scatterAll(g, pines({ density: 20 }));

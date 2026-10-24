@@ -102,6 +102,10 @@ export function withLevels(
   const whole = scene.clone(true);
   if (!lod || lod.length === 0) return whole;
   const levels = new THREE.LOD();
+  // The view picks the level for its own camera before each frame (M5.7): three updates an LOD
+  // for every camera it renders with, and the sun's shadow camera, 50 m off, would leave the far
+  // level as the one read back and the one casting the shadow.
+  levels.autoUpdate = false;
   levels.addLevel(whole, 0);
   for (const { ratio, from } of lod) {
     const level = scene.clone(true);

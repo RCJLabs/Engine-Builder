@@ -1,5 +1,6 @@
 {
   "name": "Glade",
+  "environment": "glade-shower",
   "terrain": {
     "size": 65,
     "spacing": 1,

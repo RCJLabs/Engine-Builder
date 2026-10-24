@@ -6,7 +6,7 @@
  * nothing axe finds. The export stays within its size budget. Evan's own check on a phone, from
  * the live site and installed, is the gate's last step.
  */
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { expect, type Page, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
@@ -15,10 +15,15 @@ import { expectFits, game, newGame, press, topScreen } from './hutScreens.ts';
 const EXPORT = resolve(import.meta.dirname, '../dist/games/space-wrecked');
 
 /**
- * The web export's bytes, every file counted: set from its reading of 520,046 bytes on
- * 2026-10-23 (ROADMAP.md, Readings), with about 4% room for the content to grow.
+ * The web export's bytes, every file counted: budgets.json's space-wrecked-web since M5.7, set
+ * from its reading of 520,046 bytes on 2026-10-23 (ROADMAP.md, Readings), with about 4% room for
+ * the content to grow. `pnpm budgets` holds the build to the same number.
  */
-const BUDGET = 540_000;
+const BUDGET = (
+  JSON.parse(readFileSync(resolve(import.meta.dirname, '../../../budgets.json'), 'utf8')) as {
+    sizes: { 'space-wrecked-web': { budget: number } };
+  }
+).sizes['space-wrecked-web'].budget;
 
 function bytesIn(folder: string): number {
   return readdirSync(folder, { withFileTypes: true }).reduce(
