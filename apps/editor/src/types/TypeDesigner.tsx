@@ -18,6 +18,7 @@ import { addOwnFields, changeTypeStep, createType } from './typeActions.ts';
 import { typeFilePath } from './typeEdits.ts';
 import '../styles/types.css';
 
+export { KindDesigner } from './KindDesigner.tsx';
 export { NewType } from './NewType.tsx';
 
 /** The inspector's designer for one type (M2.6): its file, its fields and its records, or what stands in the way. */

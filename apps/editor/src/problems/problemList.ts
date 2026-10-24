@@ -5,6 +5,8 @@
 import {
   ASSETS_DIR,
   ASSETS_LOG,
+  COMPONENTS_DIR,
+  classifyComponentFile,
   classifyRecordFile,
   classifyScene,
   classifySpaceFile,
@@ -34,6 +36,8 @@ import type { RecordIndex } from '../records/recordIndex.ts';
 export type Place =
   | { readonly kind: 'record'; readonly type: string; readonly id: string; readonly at: string }
   | { readonly kind: 'type'; readonly type: string }
+  /** A project's own component kind (M5.2), in the type designer. */
+  | { readonly kind: 'component'; readonly id: string }
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
@@ -73,6 +77,10 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
     const role = classifyTypeFile(file);
     return role.kind === 'type' ? { kind: 'type', type: role.type } : null;
   }
+  if (file.startsWith(`${COMPONENTS_DIR}/`)) {
+    const role = classifyComponentFile(file);
+    return role.kind === 'component' ? { kind: 'component', id: role.id } : null;
+  }
   if (file === ASSETS_LOG) {
     // An entry for a file that is there opens the file; the log's own problems, the panel.
     const [files, asset] = pointerKeys(problem.path);
@@ -109,6 +117,8 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   }
   const type = file.startsWith(`${TYPES_DIR}/`) ? classifyTypeFile(file) : null;
   if (type?.kind === 'type') return `Type ${catalog.types.get(type.type)?.file.title ?? type.type}`;
+  const kind = file.startsWith(`${COMPONENTS_DIR}/`) ? classifyComponentFile(file) : null;
+  if (kind?.kind === 'component') return `Component kind ${catalog.components.get(kind.id)?.file.title ?? kind.id}`;
   const script = scriptOf(file);
   if (script !== undefined) return `Script ${script}.ts`;
   const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : null;

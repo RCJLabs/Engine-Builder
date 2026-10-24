@@ -10,6 +10,12 @@ export function designType(type: string): void {
   showPanel('inspector');
 }
 
+/** A project's own component kind in the designer (M5.2). */
+export function designKind(id: string): void {
+  chosen.value = { kind: 'component', id };
+  showPanel('inspector');
+}
+
 /** The form that names a new type, which then opens in the designer. */
 export function startNewType(): void {
   chosen.value = { kind: 'new-type' };

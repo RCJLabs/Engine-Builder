@@ -85,7 +85,13 @@ export {
 } from './spaceFiles.ts';
 export { checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
 export { SHAPES, type Shape, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
-export { checkProjectSpaces, checkSpaces, readSpaces, type SpaceFileRead } from './spaces.ts';
+export {
+  checkProjectSpaceParts,
+  checkProjectSpaces,
+  checkSpaces,
+  readSpaces,
+  type SpaceFileRead,
+} from './spaces.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';

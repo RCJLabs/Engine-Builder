@@ -5,11 +5,14 @@
  * change, beside the Project panel's summary (projects/opened.ts).
  */
 import {
+  COMPONENTS_DIR,
   checkProjectSpaces,
+  classifyComponentFile,
   classifyScene,
   classifyUi,
   type ProjectSource,
   RECORDS_DIR,
+  readComponentKinds,
   readProjectFiles,
   readSpaces,
   SCENES_DIR,
@@ -47,6 +50,10 @@ export interface Catalog {
   /** The spaces under spaces/ and the prefabs under prefabs/ (M5.1, D63), each sorted by id. */
   readonly spaces: readonly SpaceEntry[];
   readonly prefabs: readonly SpaceEntry[];
+  /** The component kinds whose type files are sound (M5.2, D64), the engine's five first, then the project's by id. */
+  readonly components: ReadonlyMap<string, DataType>;
+  /** The project's own kinds, every file under components/ named by an id, sound or not, sorted. */
+  readonly componentFiles: readonly string[];
   /** Paths inside assets/, sorted: every file there but the provenance log. */
   readonly assets: readonly string[];
   /**
@@ -65,7 +72,7 @@ export interface Catalog {
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log; files under scenes/ that aren't
    * scenes, and scenes the index can't compile (M3.11); files under ui/ that are no screen (M4.1);
-   * the spaces' and prefabs' problems, E058 to E061 and W141 (M5.1).
+   * the spaces' and prefabs' problems, E058 to E061 and W141 (M5.1); the component kinds' (M5.2).
    * The record index has the rest, and the screens' own checks follow the game (screenChecks.ts).
    */
   readonly problems: readonly Diagnostic[];
@@ -91,6 +98,8 @@ export const EMPTY_CATALOG: Catalog = {
   shell: false,
   spaces: [],
   prefabs: [],
+  components: new Map(),
+  componentFiles: [],
   assets: [],
   assetsLog: undefined,
   recordTypes: [],
@@ -119,6 +128,11 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   const scenes = await readScenes(source, records, read.kits);
   const ui = await readUiFiles(source);
   const spaces = await readSpaceFiles(source);
+  const components = await readComponentKinds(source, new Set(known.types.map((t) => t.type)));
+  const componentFiles = [...(await source.files(COMPONENTS_DIR))]
+    .map((file) => classifyComponentFile(file))
+    .flatMap((role) => (role.kind === 'component' ? [role.id] : []))
+    .sort(byText);
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
@@ -140,13 +154,15 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     shell: ui.shell,
     spaces: spaces.entries.filter((entry) => entry.kind === 'space'),
     prefabs: spaces.entries.filter((entry) => entry.kind === 'prefab'),
+    components: components.kinds,
+    componentFiles,
     assets,
     assetsLog: log?.ok ? log.value : undefined,
     ...(log && !log.ok ? { logProblem: log.message } : {}),
     recordTypes: known.types,
     kits: read.kits,
     ...(read.calendar ? { calendar: read.calendar } : {}),
-    problems: [...read.diagnostics, ...scenes.problems, ...ui.problems, ...spaces.problems],
+    problems: [...read.diagnostics, ...scenes.problems, ...ui.problems, ...spaces.problems, ...components.diagnostics],
   };
 }
 
