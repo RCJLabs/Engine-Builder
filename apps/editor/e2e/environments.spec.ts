@@ -13,6 +13,7 @@ import {
   expectLook,
   expectPreset,
   expectSky,
+  expectStill,
   frames,
   levelCamera,
   look,
@@ -99,9 +100,7 @@ test('an environment from each preset, its hour, fog and weather set, and kept',
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await setSlider(inspector, 'Weather amount', 0.3, '0.3');
   await expectLook(page, { weather: 'snow', particles: 600, animating: false });
-  const still = await frames(page);
-  await page.waitForTimeout(600);
-  expect(await frames(page)).toBeLessThanOrEqual(still + 1);
+  await expectStill(page);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await inReach(page);
 

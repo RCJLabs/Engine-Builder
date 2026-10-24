@@ -39,6 +39,9 @@ describe('an environment’s look', () => {
       weather: 'none',
       particles: 0,
     });
+    // Noon: the sun at its highest, due south.
+    expect(look.sun.height).toBeCloseTo(60, 9);
+    expect(look.sun.bearing).toBe(180);
     expect(look.sun.color).toBe('#fff4e0');
     expect(look.sun.strength).toBeCloseTo(2.2, 9);
     expect(look.skyLight).toEqual({ color: '#ffffff', strength: 1.6 });

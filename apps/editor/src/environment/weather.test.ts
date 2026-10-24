@@ -35,6 +35,9 @@ describe('falling weather', () => {
   });
 
   it('falls 9 m a second as rain and 1 m as snow, back in at the top', () => {
+    // The spec's speeds, not the constant's, so a changed speed is seen.
+    const speed = { rain: 9, snow: 1 } as const;
+    expect(FALL).toEqual(speed);
     const seeds = seedDrops(200);
     const centre: Vec3 = [0, 0, 0];
     for (let i = 0; i < 200; i++) {
@@ -42,7 +45,7 @@ describe('falling weather', () => {
         const [, before] = dropAt(seeds, i, kind, 3, centre);
         const [, after] = dropAt(seeds, i, kind, 3.5, centre);
         const fallen = (((before - after) % BOX) + BOX) % BOX;
-        expect(fallen).toBeCloseTo(FALL[kind] / 2, 4);
+        expect(fallen).toBeCloseTo(speed[kind] / 2, 4);
       }
       // Rain falls straight; snow drifts, but no further than its drift.
       expect(dropAt(seeds, i, 'rain', 3, centre)[0]).toBeCloseTo(dropAt(seeds, i, 'rain', 9, centre)[0], 4);

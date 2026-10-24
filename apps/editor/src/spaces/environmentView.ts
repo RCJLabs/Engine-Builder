@@ -15,6 +15,8 @@ const SUN_AWAY = 50;
 
 export interface EnvironmentSummary {
   readonly sky: SkyKind;
+  /** A physical sky's haze, as its shader has it; null for any other sky. */
+  readonly turbidity: number | null;
   readonly sun: { readonly direction: Vec3; readonly strength: number; readonly color: string };
   readonly skyLight: { readonly strength: number; readonly color: string };
   readonly fog: { readonly color: string; readonly near: number; readonly far: number } | null;
@@ -88,6 +90,7 @@ export function createEnvironmentView(scene: THREE.Scene, lights: Lights): Envir
       const falling = weather.falling();
       return {
         sky: kind,
+        turbidity: sky.turbidity(),
         sun: {
           direction: [round(sunAt.x), round(sunAt.y), round(sunAt.z)],
           strength: lights.sun.visible ? round(lights.sun.intensity) : 0,

@@ -12,6 +12,7 @@ export type Rgb = readonly [number, number, number];
 
 export interface Look {
   readonly sky: 'physical' | 'gradient' | 'colour';
+  readonly turbidity: number | null;
   readonly sun: { readonly direction: [number, number, number]; readonly strength: number; readonly color: string };
   readonly skyLight: { readonly strength: number; readonly color: string };
   readonly fog: { readonly color: string; readonly near: number; readonly far: number } | null;
@@ -30,13 +31,55 @@ type Hooked = {
 
 /** What each preset gives the view, as docs/specs/environments.md#the-presets tables it. */
 export const PRESETS = {
-  Desert: { sky: 'physical', fog: { color: '#d9c3a0', near: 120, far: 600 }, weather: 'none', particles: 0, sun: true },
-  Coast: { sky: 'physical', fog: { color: '#b8c8d4', near: 80, far: 500 }, weather: 'none', particles: 0, sun: true },
-  Forest: { sky: 'physical', fog: { color: '#8fa38a', near: 30, far: 220 }, weather: 'none', particles: 0, sun: true },
-  Snow: { sky: 'gradient', fog: { color: '#e6edf3', near: 20, far: 160 }, weather: 'snow', particles: 1200, sun: true },
-  Cave: { sky: 'colour', fog: { color: '#0d0f12', near: 5, far: 60 }, weather: 'none', particles: 0, sun: false },
-  'Sci-fi interior': { sky: 'colour', fog: null, weather: 'none', particles: 0, sun: false },
-  Town: { sky: 'physical', fog: { color: '#c7a88a', near: 60, far: 400 }, weather: 'rain', particles: 1200, sun: true },
+  Desert: {
+    sky: 'physical',
+    turbidity: 6,
+    fog: { color: '#d9c3a0', near: 120, far: 600 },
+    weather: 'none',
+    particles: 0,
+    sun: true,
+  },
+  Coast: {
+    sky: 'physical',
+    turbidity: 3,
+    fog: { color: '#b8c8d4', near: 80, far: 500 },
+    weather: 'none',
+    particles: 0,
+    sun: true,
+  },
+  Forest: {
+    sky: 'physical',
+    turbidity: 4,
+    fog: { color: '#8fa38a', near: 30, far: 220 },
+    weather: 'none',
+    particles: 0,
+    sun: true,
+  },
+  Snow: {
+    sky: 'gradient',
+    turbidity: null,
+    fog: { color: '#e6edf3', near: 20, far: 160 },
+    weather: 'snow',
+    particles: 1200,
+    sun: true,
+  },
+  Cave: {
+    sky: 'colour',
+    turbidity: null,
+    fog: { color: '#0d0f12', near: 5, far: 60 },
+    weather: 'none',
+    particles: 0,
+    sun: false,
+  },
+  'Sci-fi interior': { sky: 'colour', turbidity: null, fog: null, weather: 'none', particles: 0, sun: false },
+  Town: {
+    sky: 'physical',
+    turbidity: 4,
+    fog: { color: '#c7a88a', near: 60, far: 400 },
+    weather: 'rain',
+    particles: 1200,
+    sun: true,
+  },
 } as const;
 export type PresetName = keyof typeof PRESETS;
 
@@ -155,3 +198,23 @@ export const luma = ([r, g, b]: Rgb): number => 0.2126 * r + 0.7152 * g + 0.0722
 /** How many frames the view has drawn. */
 export const frames = (page: Page): Promise<number> =>
   page.evaluate(() => (window as unknown as Hooked).__ebViewport?.frames ?? 0);
+
+/**
+ * The view drawing nothing by itself: once the frames an edit asked for are drawn, none more for a
+ * second. Falling weather that ignores reduced motion never settles.
+ */
+export async function expectStill(page: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const before = await frames(page);
+        await page.waitForTimeout(400);
+        return (await frames(page)) - before;
+      },
+      { message: 'the view settled', timeout: 10_000 },
+    )
+    .toBe(0);
+  const settled = await frames(page);
+  await page.waitForTimeout(1000);
+  expect(await frames(page)).toBe(settled);
+}

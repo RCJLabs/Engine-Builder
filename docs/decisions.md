@@ -1747,6 +1747,15 @@ Evan chose on 2026-10-24, from these options:
 - **Weather is drawn in the editor only** until M5.8 brings a camera that moves through it.
 - **Pixels read from a canvas** depend on the renderer; the gate reads them with a tolerance, and from both backends only as the e2e's Chromium has them.
 
+**As built** (2026-10-24, M5.4):
+- **New environment writes one record**, from the preset chosen, and gives it to the space in the same step. Start from writes a preset over an environment already made, keeping its name. The seven presets are data in the editor (`presets.ts`), as sound presets are, and the dale fixture holds all seven as records.
+- **The physical sky's light is tone-mapped inside its own material,** ACES at 0.5 as three's SkyMesh example sets its renderer, so the editor's shapes and terrain keep their look. Its clouds are off, so a frame is the same however long the view has been open.
+- **Rain is lines and snow is one mesh drawn many times,** not points: WebGPURenderer draws points a pixel wide. Each drop's place is a function of its number and the moment, so no frame keeps state and reduced motion is the moment 0.
+- **The hook reads the view back from three** (the lights, the fog, the meshes' counts), so a bug between the record and the drawing shows in the e2e, not only one in the arithmetic.
+- **Town's hour is 17.5:** at 18.5 the sun was 7.8° below the horizon.
+- **The physical sky's real cost is `three/tsl`:** 105 kB of the view's chunk (29 kB gzip), against SkyMesh's own 3.6 kB, and no chunk of its own avoids it, since the namespace stays in three's module (Readings). In software its shader costs about 25 to 30 ms a frame over a flat colour. If a phone finds either dear, M5.7 can work Preetham's sky out per vertex on the gradient's sphere, with neither.
+- **Untested for feel** until a phone draws a sky.
+
 ---
 
 ## Open

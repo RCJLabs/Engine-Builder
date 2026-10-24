@@ -25,6 +25,8 @@ export interface SkyView {
   follow(camera: THREE.Camera): void;
   /** The sky drawn, or null for the editor's own background. */
   kind(): SkyKind | null;
+  /** A physical sky's haze, as its shader has it; null for any other sky. */
+  turbidity(): number | null;
   dispose(): void;
 }
 
@@ -113,6 +115,7 @@ export function createSkyView(scene: THREE.Scene, editorBackground: THREE.Color)
       disc.lookAt(camera.position);
     },
     kind: () => shown,
+    turbidity: () => (shown === 'physical' && physical ? physical.turbidity.value : null),
     dispose() {
       physical?.geometry.dispose();
       physical?.material.dispose();
