@@ -14,7 +14,6 @@ import type { LiveModels } from '../models/liveModels.ts';
 import { frameStats } from '../perf/frames.ts';
 import { createFrameClock } from '../perf/stepDown.ts';
 import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
-import { extentOf } from '../terrain/grid.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView } from './environmentView.ts';
@@ -24,7 +23,8 @@ import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
 import { lodsOf } from './meshes.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
-import { castShadows, fitSunShadow, sunShadows } from './shadows.ts';
+import { perfSummary } from './perfSummary.ts';
+import { castShadows, fitShadowsTo, sunShadows } from './shadows.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
 import { createTerrainView, type TerrainFiles, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
@@ -268,18 +268,9 @@ export async function createView(
     draw();
   }
 
-  /** The sun's shadow camera round everything drawn: the terrain's corners and heights, and the objects. */
-  function fitShadows() {
-    if (tier.shadowMap === 0) return;
-    const g = terrain.grid();
-    let radius = g ? Math.hypot(extentOf(g), extentOf(g), Math.max(Math.abs(g.low), Math.abs(g.high))) : 0;
-    const box = built ? new THREE.Box3().setFromObject(built.root) : new THREE.Box3();
-    if (!box.isEmpty()) {
-      const sphere = box.getBoundingSphere(new THREE.Sphere());
-      radius = Math.max(radius, sphere.center.length() + sphere.radius);
-    }
-    fitSunShadow(sun, radius || 10);
-  }
+  const fitShadows = () => {
+    if (tier.shadowMap > 0) fitShadowsTo(sun, terrain.grid(), built?.root);
+  };
 
   const placeLabels = () => {
     const world = new THREE.Vector3();
@@ -383,32 +374,17 @@ export async function createView(
   setHook(hook);
 
   function perf(): PerfSummary {
-    const shadows = renderer.shadowMap.enabled && sun.castShadow;
-    const meshes = (root: THREE.Object3D | undefined, has: (mesh: THREE.Mesh) => boolean) => {
-      let found = false;
-      root?.traverse((part) => {
-        found ||= (part as THREE.Mesh).isMesh === true && has(part as THREE.Mesh);
-      });
-      return found;
-    };
-    return {
-      tier: tier.name,
+    return perfSummary({
+      tier,
       backend,
-      pixelRatio: renderer.getPixelRatio(),
-      antialias: renderer.samples > 0,
-      shadowMap: shadows ? sun.shadow.mapSize.x : 0,
-      objectShadows: shadows && meshes(built?.root, (mesh) => mesh.castShadow),
-      groundShadows: shadows && meshes(terrain.chunks, (mesh) => mesh.receiveShadow),
-      foliageShadows: shadows && foliage.summary().some((f) => f.shadows),
-      shadowReach: shadows ? sun.shadow.camera.right : 0,
+      renderer,
+      sun,
+      objects: built?.root,
+      ground: terrain.chunks,
+      foliageShadows: foliage.summary().some((f) => f.shadows),
       sky: environment.summary()?.sky ?? null,
-      foliageReach: tier.foliageReach,
-      foliageShare: tier.foliageShare,
-      weatherShare: tier.weatherShare,
       frames: frameStats(clock.intervals()),
-      drawCalls: renderer.info.render.drawCalls,
-      triangles: renderer.info.render.triangles,
-    };
+    });
   }
 
   return {

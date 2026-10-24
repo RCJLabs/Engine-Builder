@@ -224,9 +224,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 - Foliage is density painted over a terrain, a channel of a PNG for each of up to four `foliage` records; where each plant stands is worked out from it by a fixed seed whenever the space is drawn, and drawn as instanced meshes a chunk at the model's level for its distance ([specs/foliage.md](specs/foliage.md), M5.6, D68).
 - All of it is lazy-loaded: a game without a 3D scene never downloads it.
 - What the M1.10 spike found (Rapier's heightfield layout, rays on triangle edges, what Rapier weighs) is in [apps/spike-3d](../apps/spike-3d/README.md#findings-for-phase-5).
-- **Quality tiers:**
-  - *Low (phones):* one shadow cascade or none, short draw distance, no post-processing.
-  - *High:* cascaded shadows, SSAO, bloom.
+- **Quality tiers** (M5.7, D69, [specs/performance.md](specs/performance.md)): Low, Medium and High set the pixel ratio, antialiasing, the sun's shadow map, a physical sky or its gradient, and how far and how thick foliage and weather are drawn, a lower tier drawing a subset of the same plants and drops. Auto starts from the device's hints and steps down when frames drawn back to back run long; a tier picked by hand always wins. No post-processing yet (performance.md question 4).
 
 ## UI
 
@@ -309,7 +307,7 @@ Games built on the engine get these from the start; templates ship with them alr
 - Seed sweeps with 95% intervals on every number (M1.9), and A/B content overrides later (chooser-of-the-dead's `compare.ts`, Phase 8).
 - Canonical state hashes, per-facet readings and first-difference paths ([specs/state-hash.md](specs/state-hash.md)), and golden files of whole runs, per seed and per slice (M1.9).
 - Save fixtures for every version ([specs/saves.md](specs/saves.md)).
-- Size and performance budgets in CI.
+- Size budgets in CI (`pnpm budgets`, M5.7) and count budgets in the 3D gate, each set from a reading in `budgets.json`; frame times stay readings (D69).
 
 The CLI exposes these as `eb sim` (M1.9) and `eb test` (later). The editor's Balance Lab (Phase 8) charts them.
 
@@ -370,8 +368,9 @@ Packages are added in the phase that first needs them, not before.
 These are set from readings, not guesses (see ROADMAP Readings).
 
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
-- **UI-only game export:** a budget set at M4.12 from the first measured template. M4.10's reading: the runtime is 87.8 kB of gzipped JS.
-- **3D:** FPS targets per quality tier, set from the M1.10 spike on a real phone.
+- **UI-only game export:** a budget set at M4.12 from the first measured template, Space-Wrecked's web export: 540,000 bytes. M4.10's reading: the runtime is 87.8 kB of gzipped JS.
+- **The editor's build** (M5.7): its start, what the 3D view and its models add, and the precache, each a reading plus 5% in `budgets.json`, held by `pnpm budgets`; the glade's draw calls and triangles at each tier, a reading plus 10%, held by `perf.spec.ts`.
+- **3D:** FPS targets per quality tier, set from the M1.10 reading on a real phone, not yet taken (D69).
 
 ## Open questions
 

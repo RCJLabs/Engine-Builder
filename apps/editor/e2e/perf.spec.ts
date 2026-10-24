@@ -23,9 +23,11 @@ import {
   plantGrid,
   pressStats,
   qualityRow,
+  RECORD_TIERS,
   reopenGlade,
   TIER_WORDS,
   type Tier,
+  tiersSeen,
 } from './perfHelpers.ts';
 import { add, camera, scenePanel } from './spaceHelpers.ts';
 
@@ -41,6 +43,7 @@ const inReach = async (page: Page) => {
 test('the glade at each tier, Auto by the device, within its count budgets, and kept', async ({ page }) => {
   test.setTimeout(240_000);
   const errors = watchErrors(page);
+  await page.addInitScript(RECORD_TIERS);
   await openGlade(page, false);
   const panel = scenePanel(page);
   await expect(await pressStats(page, false)).toHaveAttribute('aria-pressed', 'true');
@@ -51,6 +54,8 @@ test('the glade at each tier, Auto by the device, within its count budgets, and 
   // A box on the glade, which casts the sun's shadow wherever the tier draws one.
   await add(page, 'Box');
   expect((await expectTier(page, 'low', 1)).objectShadows).toBe(false);
+  // The view waited for the hints: it never drew at Auto's guess before them.
+  expect(await tiersSeen(page)).toEqual(['low']);
   await inReach(page);
 
   // Orbited off its framing by a key, so a view made again that framed itself afresh would show.

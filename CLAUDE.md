@@ -179,8 +179,9 @@ apps/editor/           the editor PWA
                        says what changed, live.ts reads the terrain's foliage records and their models;
                        viewportHook.ts (window.__ebViewport's shape, set and taken away); M5.7 (D69): the view
                        made at a quality tier (viewport.ts, SceneView.tsx: a new tier, a new view on a new canvas, the
-                       camera kept), shadows.ts (the sun's shadows at a tier, fitted round what is drawn), meshes.ts's
-                       lodsOf (models' levels picked for the view's camera alone), the hook's perf()
+                       camera kept), shadows.ts (the sun's shadows at a tier, fitted round what is drawn, with tests),
+                       meshes.ts's lodsOf (models' levels picked for the view's camera alone), perfSummary.ts (the
+                       tier read back from three: the hook's perf() and the overlay's)
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's

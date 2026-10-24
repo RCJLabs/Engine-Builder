@@ -2,26 +2,26 @@
   "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts: the grove's glade with a box, framed on a 1280 x 900 desktop, orbited 50 degrees, every plant's model drawn.",
   "sizes": {
     "editor-start": {
-      "budget": 120271,
-      "reading": 114543,
+      "budget": 120269,
+      "reading": 114541,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own"
     },
     "scene-view": {
-      "budget": 366694,
-      "reading": 349232,
+      "budget": 366784,
+      "reading": 349318,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts"
     },
     "models-view": {
-      "budget": 73300,
-      "reading": 69809,
+      "budget": 73301,
+      "reading": 69810,
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders"
     },
     "precache": {
-      "budget": 6181472,
-      "reading": 5887116,
+      "budget": 6181672,
+      "reading": 5887306,
       "read": "2026-10-24",
       "of": "bytes of every file the service worker precaches, as a device keeps them"
     },

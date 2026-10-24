@@ -167,6 +167,23 @@ export function countBudget(id: string): { drawCalls: number; triangles: number 
   return budget;
 }
 
+/**
+ * Every tier the view draws at from the page's first frame, recorded on each frame: Auto never
+ * draws a tier it hasn't read the device for, a view made and made again on a phone.
+ */
+export const RECORD_TIERS = () => {
+  const seen: string[] = [];
+  (window as unknown as { __tiersSeen: string[] }).__tiersSeen = seen;
+  const tick = () => {
+    const tier = (window as unknown as Hooked).__ebViewport?.perf().tier;
+    if (tier && seen.at(-1) !== tier) seen.push(tier);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+};
+export const tiersSeen = (page: Page) =>
+  page.evaluate(() => (window as unknown as { __tiersSeen?: string[] }).__tiersSeen ?? []);
+
 /** The overlay's lines. */
 export const overlay = (page: Page) => scenePanel(page).locator('.perf-overlay');
 

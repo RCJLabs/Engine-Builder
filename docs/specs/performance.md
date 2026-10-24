@@ -18,7 +18,7 @@ Nothing here runs in a game yet: the editor's Scene panel is the only 3D view un
 
 - **Nothing a tier changes moves anything.** A plant stands at a lower tier only where its draw is below the density times the tier's share, so a lower tier's plants are a subset of a higher's. Drops are taken from the first of the same seeded list.
 - **Never the sim's:** a tier changes how the view draws, not the space's files, the records or what a game's sim reads.
-- **Shadows:** placed objects and models cast and receive; the terrain receives; foliage casts on High only. The sun's shadow camera covers the terrain, or the objects when there is none. three's WebGPURenderer has no soft shadow map (it falls back to PCF), so High's are sharper, not softer.
+- **Shadows:** placed objects and models cast and receive; the terrain receives; foliage casts on High only. The sun's shadow camera covers a sphere round the space's origin that holds the terrain's corners and heights and every object, fitted again as either changes or the sun moves. three's WebGPURenderer has no soft shadow map (it falls back to PCF), so High's are sharper, not softer.
 - **A new tier makes a new view,** on a new canvas, since three's renderer takes antialiasing only as it is made and a canvas keeps the context it was first given; the camera and the objects chosen are kept.
 - **Models' levels are picked for the view's camera alone,** before each frame. three updates an LOD for every camera it renders with, and the sun's shadow camera, 50 m off, left the far level as the one read back and the one casting the shadow: the models specs, at High, found the hills never at their nearest level.
 - **Low's gradient is a sphere** of 48 × 24 segments, 2,208 triangles, where the physical sky is a box: the glade at Low draws more triangles than at Medium (Readings). Its fragments are far cheaper than the physical sky's shader, which is the cost Low is for.
@@ -44,7 +44,7 @@ Nothing here runs in a game yet: the editor's Scene panel is the only 3D view un
 - frames per second, and the median and 95th-percentile frame of the last 120 drawn back to back, to a tenth of a millisecond;
 - draw calls and triangles of the last frame, from three's `renderer.info.render`.
 
-It reads twice a second, judges no frame rate, and lets every touch and click through to the view. The hook (`window.__ebViewport.perf()`) gives the same, with the settings as three holds them: the renderer's pixel ratio and samples, the sun's shadow map, whether foliage casts, the sky drawn, and foliage's reach and share and weather's share.
+It reads twice a second, judges no frame rate, and lets every touch and click through to the view. The hook (`window.__ebViewport.perf()`) gives the same, with the settings as three holds them: the renderer's pixel ratio and samples, the sun's shadow map, whether objects and foliage cast and the ground takes shadows, how far the shadow camera reaches, the sky drawn, and foliage's reach and share and weather's share.
 
 ## The budgets
 
@@ -56,7 +56,7 @@ It reads twice a second, judges no frame rate, and lets every touch and click th
   - `precache`: every file the service worker's list names, in bytes, as a device keeps them.
   - `space-wrecked-web`: Space-Wrecked's web export, every file in bytes. `spaceWrecked.spec.ts` reads its budget from the same entry, M4.12's 540,000.
   - Chunks are followed by their static imports only: a dynamic import is loaded when it is asked for, so it belongs to whatever asks.
-- **Counts**, checked by `perf.spec.ts`: draw calls and triangles for the grove fixture's glade, framed on a 1280 × 900 desktop, at each tier, once every plant's model is drawn. Over its budget fails. A phone's view is framed to its own shape, so it draws other levels of the same plants: the phone spec reads the counts but holds them to nothing.
+- **Counts**, checked by `perf.spec.ts`: draw calls and triangles for the grove fixture's glade with the gate's box, on a 1280 × 900 desktop, orbited 50° from its framing, at each tier, once every plant's model is drawn. Over its budget fails. A phone's view is framed to its own shape, so it draws other levels of the same plants: the phone spec holds its counts to nothing.
 - **A budget is a reading plus a margin** (5% for sizes, 10% for counts); `tools/budgets`'s tests hold budgets.json to it. A milestone that adds weight on purpose raises the budget in the same change, with its reading.
 - **Frame times stay readings** (D69).
 
@@ -66,9 +66,10 @@ It reads twice a second, judges no frame rate, and lets every touch and click th
   - import the grove fixture, its glade now under a shower (`glade-shower`, a physical sky and rain), open the glade, and show Stats;
   - on Auto in CI's software WebGL, find Low and "a software renderer";
   - pick Low, Medium and High in turn (Medium and High on phones), and read back each tier's settings from three (pixel ratio, held to the tier's most on a phone; antialiasing; the sun's shadow map and foliage's; the sky drawn; the drops falling), the camera as it was, and on desktop the draw calls and triangles within their budgets and each lower tier's plants a subset of the higher's: no circle of 1.5 m on a 2 m grid holds more of a type's plants at the lower;
-  - reload, and find the tier picked and Stats as they were.
+  - reload, and find the tier picked and Stats as they were;
+  - from the page's first frame, record every tier the view draws: on Auto, Low alone, never a guess drawn before the hints.
 - **Auto's step down,** in `perf.spec.ts`: hints a computer Auto reads as High (16 cores, 8 GB, a named GPU, no WebGPU) start the glade at High; the software renderer's frames run long, and Auto steps down with the overlay saying from what. Picked by hand, High stays through 7 seconds of the same frames.
-- **Unit tests** hold the hints table, the step down (frames drawn apart never counted, the warm-up, one step at a time, never up), the tiers' shares, and the budgets' reader on a made-up build.
+- **Unit tests** hold the hints table, the step down (frames drawn apart never counted, the warm-up, one step at a time, never up), the editor's tier state, the tiers' shares, the shadow camera's fit, and the budgets' reader on a made-up build.
 - **`pnpm budgets`** fails a build over a size budget, seen failing once with a budget set below its reading.
 
 ## Open questions
