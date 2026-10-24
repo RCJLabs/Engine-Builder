@@ -1904,6 +1904,40 @@ Evan chose on 2026-10-24, from these options:
 
 ---
 
+### D70. M5.8 walks spaces in play: games carry their spaces and a screen's Space widget draws one; Rapier runs on the page beside three, the sim hearing only trigger zones as actions; first- and third-person controllers with their cameras; a floating touch stick. LOCKED, 2026-10-24 (Evan's calls, M5.8)
+
+Evan chose on 2026-10-24, from these options:
+- **Where a player walks:**
+  - in play: games carry their spaces, models and terrain in a new pack format, and a screen's Space widget draws one with the game's HUD over it, in the Play panel, on the player page and in an export;
+  - in the editor first: a Walk button in the Scene panel, games getting spaces at M5.9;
+  - both, split: the editor in M5.8, play in a new M5.8b.
+- **Physics:**
+  - Rapier on the page, loaded with the first space walked, the sim pure and hearing only events (a trigger zone entered is an action), positions reaching saves at checkpoints in M5.9;
+  - Rapier in the game's worker beside the sim, positions in the game's state;
+  - a character of our own against the terrain and the colliders in plain arithmetic, no Rapier until combat.
+- **Controllers:** first- and third-person, a spawn point saying which; third-person only; first-person only.
+- **Touch:** a stick that appears where the left thumb lands, the right half dragging to look, a jump button; a stick fixed in a corner; tap to move.
+
+**Decision.**
+- **Spaces in play.** A pack of format 9 carries the project's spaces and prefabs as written, the trigger zones of each space resolved through its prefabs and overrides, and the files they draw from (terrain PNGs and the models' GLBs) as base64. A screen's `space` widget names a space and draws it, the screen's other widgets over it. It plays in the editor's Play panel, on the player page and in a game's exports.
+- **Rapier on the page.** The stage runs Rapier's compat build beside three, loaded the first time a space is drawn: the terrain as a heightfield, colliders from collider components and from placed models' own, `moves` as bodies that fall and are pushed, and the character as Rapier's kinematic character controller. The sim stays pure and replayable: entering a trigger zone sends `world/trigger`, which the sim checks (the zone exists, its `when` holds, `once` not yet spent) and runs as any action. The character's position is the stage's; M5.9 writes it into saves at checkpoints.
+- **First and third person.** A spawn point's new `view` field says which, third when left out. Third-person: the camera follows behind and above, pulled in where something solid is in the way. First-person: the camera at the eyes. Walk, run and jump in both, up gentle slopes and low steps only.
+- **A floating stick.** By touch, the left half of the space takes a stick where the thumb lands, the right half drags to look, and a jump button sits at the bottom right inside the safe area. By keys: WASD or the arrows to move, Shift to run, Space to jump, the mouse dragged (or locked, after a click) to look. By pad: the left stick moves, the right looks, A jumps.
+
+**Why.**
+- **In play:** Phase 5's gate is a walkable slice in a game; walking only in the editor would leave the hard part, spaces in packs and exports, for M5.9 beside worldspaces.
+- **Rapier on the page:** the sim must give the same result everywhere (CLAUDE.md), which a physics engine's floats don't; on the page, input meets the character without a trip to the worker, and the sim still decides everything a player can win or lose.
+- **Both views:** the roadmap's templates need both (M6.7), and the camera rig is the only part they don't share.
+- **A floating stick:** a thumb seldom lands where a fixed stick is drawn; tap to move needs navmeshes (M6.2).
+
+**Cost.**
+- **Rapier's compat build is 1.67 MB gzip,** about five times the 3D view's own code, downloaded the first time a space is walked, and the precache's budget rises with it.
+- **Movement isn't replayable:** a replay or a bot plays the trigger actions, not the walk that reached them. Bots can't walk until Rapier runs in Node for them (Phase 6).
+- **A game's exports grow** by its models, its terrain and, for a 3D game, the walk runtime.
+- **Untested for feel:** speeds, jump, slopes, the camera's distance and the stick's size are first guesses until a phone has played them.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
