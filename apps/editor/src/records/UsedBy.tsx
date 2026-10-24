@@ -51,7 +51,7 @@ function PlacedIn({ project, record }: { project: OpenProject; record: string })
   return (
     <section class="used-by" aria-labelledby={head}>
       <h4 id={head}>
-        Placed in <span class="muted">{places.size === 1 ? '1 place' : `${places.size} places`}</span>
+        In spaces <span class="muted">{places.size === 1 ? '1 place' : `${places.size} places`}</span>
       </h4>
       <ul class="used-by-list">
         {[...places.values()].map((place) => (

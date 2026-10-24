@@ -1,0 +1,105 @@
+{
+  "name": "Yard",
+  "objects": [
+    {
+      "id": "ground",
+      "shape": "plane",
+      "scale": [30, 1, 30],
+      "color": "#6b8f4e",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "gate",
+      "shape": "box",
+      "at": [0, 1, 12],
+      "scale": [3, 2, 0.4],
+      "components": {
+        "spawn": {
+          "start": true
+        },
+        "trigger": {
+          "when": "not flag.on(met-greta)",
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "met-greta",
+              "to": true
+            }
+          ],
+          "once": true
+        }
+      }
+    },
+    {
+      "id": "greta",
+      "record": "keeper:greta",
+      "at": [0, 0, 6],
+      "overrides": {
+        "greeting": "Welcome up.",
+        "helper": "ivo"
+      }
+    },
+    {
+      "id": "porch",
+      "prefab": "porch",
+      "at": [0, 0, -4],
+      "overrides": {
+        "lamp": {
+          "overrides": {
+            "glass": {
+              "components": {
+                "light": {
+                  "color": "#ff9944"
+                }
+              }
+            }
+          }
+        },
+        "host": {
+          "overrides": {
+            "greeting": "Kettle's on."
+          }
+        }
+      }
+    },
+    {
+      "id": "kettle",
+      "shape": "sphere",
+      "at": [-1, 0.6, -4],
+      "scale": [0.3, 0.3, 0.3],
+      "components": {
+        "sound": {
+          "of": "sound:kettle",
+          "volume": 0.5,
+          "range": 4
+        }
+      }
+    },
+    {
+      "id": "boulder",
+      "shape": "sphere",
+      "at": [8, 1, 2],
+      "scale": [3, 2, 3],
+      "color": "#8a8580",
+      "components": {
+        "collider": {
+          "shape": "sphere"
+        },
+        "hold": {
+          "grip": "sloper",
+          "size": 4
+        }
+      }
+    },
+    {
+      "id": "side-door",
+      "shape": "box",
+      "at": [-10, 1, 0],
+      "components": {
+        "spawn": {}
+      }
+    }
+  ]
+}

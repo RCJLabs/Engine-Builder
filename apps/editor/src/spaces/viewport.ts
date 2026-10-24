@@ -52,7 +52,7 @@ export interface ViewportHook {
   readonly backend: Backend;
   readonly frames: number;
   readonly grips: () => { name: string; x: number; y: number; along: Screen }[];
-  readonly objectAt: (id: string) => { x: number; y: number } | null;
+  readonly objectAt: (id: string, underHandles?: boolean) => { x: number; y: number } | null;
   readonly camera: () => Orbit;
 }
 
@@ -210,8 +210,8 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     return document.elementFromPoint(x, y) === canvas;
   };
 
-  /** A point on the object, clear of every handle and in sight: the middle of its box first. */
-  const objectAt = (id: string) => {
+  /** A point on the object, clear of every handle unless `underHandles`, and in sight: the middle of its box first. */
+  const objectAt = (id: string, underHandles = false) => {
     const object = built?.byId.get(id);
     if (!object) return null;
     const box = new THREE.Box3().setFromObject(object);
@@ -230,7 +230,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     spots.sort(
       (a, b) => Math.hypot(a[0] - middle[0], a[1] - middle[1]) - Math.hypot(b[0] - middle[0], b[1] - middle[1]),
     );
-    const spot = spots.find((s) => shows(s) && pick(s) === id && hitHandle(handles, project, s) === null);
+    const spot = spots.find(
+      (s) => shows(s) && pick(s) === id && (underHandles || hitHandle(handles, project, s) === null),
+    );
     return spot ? page(spot) : null;
   };
 

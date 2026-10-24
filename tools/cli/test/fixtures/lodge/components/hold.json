@@ -1,0 +1,18 @@
+{
+  "title": "Hold",
+  "description": "A climbing hold on a wall or a boulder.",
+  "fields": {
+    "grip": {
+      "kind": "enum",
+      "values": ["jug", "crimp", "sloper", "pinch"],
+      "label": "Grip"
+    },
+    "size": {
+      "kind": "int",
+      "min": 1,
+      "max": 5,
+      "optional": true,
+      "label": "Size"
+    }
+  }
+}
