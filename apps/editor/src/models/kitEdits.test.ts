@@ -57,7 +57,11 @@ describe('adding the starter kit', () => {
     const t = setup();
     await t.session.edit('kit', async (copy) => (await addStarterKit(copy, kit)).changes);
     await t.session.edit('lose one', async () => [
-      { path: 'records/material/kit-wood.json', before: kit.get('records/material/kit-wood.json') ?? null, after: null },
+      {
+        path: 'records/material/kit-wood.json',
+        before: kit.get('records/material/kit-wood.json') ?? null,
+        after: null,
+      },
     ]);
     const again = await addStarterKit(t.copy, kit);
     expect(again.added).toBe(1);
