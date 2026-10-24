@@ -71,6 +71,7 @@ function SpaceEditor({ project, open }: { project: OpenProject; open: OpenSpace 
           prefabs={now.prefabs}
           open={open}
           names={namesOf(project.index, project.catalog)}
+          terrain={now.terrain}
         />
       ) : (
         <p class="muted">Opening the 3D view…</p>

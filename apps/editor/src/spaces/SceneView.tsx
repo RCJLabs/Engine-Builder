@@ -1,15 +1,19 @@
 /**
  * The 3D view of the open space or prefab (M5.1, D63), with three in its chunk: the view made once
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
- * the objects chosen. Keyed by the file, so another file starts its own view.
+ * the objects chosen, its terrain the brush chosen (M5.3). Keyed by the file, so another file
+ * starts its own view.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
+import { writeStrokeHere } from '../terrain/actions.ts';
+import { brushKind, brushNow } from '../terrain/state.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
 import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
 import type { SpaceJson } from './spaceFile.ts';
 import { aim, choose, frameAsked, gizmoMode, type OpenSpace, picked, selectMore, snapOn } from './state.ts';
+import type { TerrainFiles } from './terrainView.ts';
 import { type Backend, createView, type View } from './viewport.ts';
 
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
@@ -20,8 +24,10 @@ export function SceneView(props: {
   open: OpenSpace;
   /** A placed record's name, for its label. */
   names?: NameOf;
+  /** A space's terrain files, when it has a terrain. */
+  terrain?: TerrainFiles;
 }) {
-  const { space, prefabs, names } = props;
+  const { space, prefabs, names, terrain } = props;
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
@@ -30,6 +36,7 @@ export function SceneView(props: {
   const shown = useRef('');
   const [backend, setBackend] = useState<Backend | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
+  const [unread, setUnread] = useState<string | null>(null);
 
   const showLatest = () => {
     const { space: s, prefabs: p, names } = latest.current;
@@ -37,9 +44,12 @@ export function SceneView(props: {
     // placed record's name changed.
     const named = s.objects.flatMap((o) => (o.record !== undefined ? [names?.(o.record) ?? ''] : []));
     const text = JSON.stringify([s, [...p], named]);
-    if (text === shown.current) return;
-    shown.current = text;
-    view.current?.show(s, p, names);
+    if (text !== shown.current) {
+      shown.current = text;
+      view.current?.show(s, p, names);
+    }
+    // The terrain's files are compared by the view, which decodes them only when they changed.
+    if (view.current) setUnread(view.current.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
   };
 
   useEffect(() => {
@@ -69,6 +79,12 @@ export function SceneView(props: {
           moved: () => {
             aim.value = made.aim();
           },
+          brush: () => (editing.access.peek().kind === 'editing' && made.terrain.grid() !== null ? brushNow() : null),
+          stroked: (stroke) => {
+            const grid = made.terrain.grid();
+            const layers = latest.current.space.terrain?.layers;
+            if (grid && layers) void writeStrokeHere(stroke, grid, layers);
+          },
         });
         setBackend(made.backend);
       },
@@ -82,7 +98,11 @@ export function SceneView(props: {
     };
   }, []);
 
-  useEffect(showLatest, [space, prefabs, names]);
+  useEffect(showLatest, [space, prefabs, names, terrain]);
+  const brush = brushKind.value;
+  useEffect(() => {
+    if (brush === null) view.current?.terrain.ring(null, 0);
+  }, [brush]);
   const mode = gizmoMode.value;
   const ids = picked.value;
   const framing = frameAsked.value;
@@ -114,12 +134,16 @@ export function SceneView(props: {
           </p>
         ) : backend === null ? (
           <p class="muted scene-note">Starting the 3D view…</p>
+        ) : unread ? (
+          <p class="field-problem scene-note" role="alert">
+            The terrain can’t be drawn: {unread}. Its problem is in the Problems panel.
+          </p>
         ) : null}
       </div>
       <p class="muted scene-help">
-        Drag to orbit, two fingers or the right button to pan, pinch or the wheel to zoom; tap or click to choose. On a
-        keyboard, arrows orbit, + and − zoom, F frames, Delete deletes; hold the right button and press W, A, S, D, Q or
-        E to fly.
+        {brush !== null
+          ? 'Drag to brush the terrain; two fingers pan and pinch, the right button orbits, and the wheel zooms. Camera in the terrain tools puts dragging back to orbiting.'
+          : 'Drag to orbit, two fingers or the right button to pan, pinch or the wheel to zoom; tap or click to choose. On a keyboard, arrows orbit, + and − zoom, F frames, Delete deletes; hold the right button and press W, A, S, D, Q or E to fly.'}
       </p>
     </>
   );

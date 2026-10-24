@@ -2,8 +2,9 @@
  * A space or prefab as three objects (M5.1): one per object of the file, each standing where its
  * file puts it, a placed prefab a group of the prefab's own objects, as its placement's overrides
  * change them (M5.2). A placed record is a marker with its name above it; each component a small
- * mark of its kind, a light a light as well. Geometry is shared by shape and materials by colour,
- * so building a space again after an edit costs little.
+ * mark of its kind, a light a light as well, and water (M5.3) a see-through surface of its colour.
+ * Geometry is shared by shape and materials by colour, so building a space again after an edit
+ * costs little.
  */
 import { type Fields, isFields, overridden, passedOn, placedObjects } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
@@ -28,6 +29,9 @@ export interface Built {
 
 /** What a record's name is, by "type:id": the record's name field, when its type has one. */
 export type NameOf = (key: string) => string | undefined;
+
+/** Water left without its fields (docs/specs/terrain.md#water). */
+const WATER = { color: '#3a6d8c', clarity: 0.6 } as const;
 
 /** The marks' colours: one a kind, each light enough to read on the view's dark ground. */
 const MARKS: Readonly<Record<string, string>> = {
@@ -73,6 +77,30 @@ export function createBuilder() {
     return made;
   };
   const wire = new THREE.MeshBasicMaterial({ color: MISSING, wireframe: true });
+  const waters = new Map<string, THREE.Material>();
+  /** Water's surface: clearer water is fainter, its opacity clarity's complement. */
+  const water = (fields: Fields) => {
+    const color = typeof fields.color === 'string' ? fields.color : WATER.color;
+    const clarity = typeof fields.clarity === 'number' ? Math.min(1, Math.max(0, fields.clarity)) : WATER.clarity;
+    const key = `${color}:${clarity}`;
+    let made = waters.get(key);
+    if (!made) {
+      made = new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.15,
+        transparent: true,
+        opacity: 1 - clarity,
+        // So the ground under it is drawn through it, whatever order the two are drawn in.
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+      // So the view's hook can tell water's surface from a shape's own colour.
+      made.userData.water = true;
+      waters.set(key, made);
+    }
+    return made;
+  };
+  const fieldsOf = (value: unknown): Fields => (isFields(value) ? value : {});
   const marks = markGeometry();
   const markMaterials = new Map(
     Object.entries(MARKS).map(([kind, color]) => [
@@ -88,7 +116,7 @@ export function createBuilder() {
     const components = object.components ?? {};
     const centre = object.shape !== undefined && object.shape !== 'plane' ? 0.5 : 0;
     for (const [kind, fields] of Object.entries(components)) {
-      const f: Fields = isFields(fields) ? fields : {};
+      const f = fieldsOf(fields);
       if (kind === 'light') {
         const light = new THREE.PointLight(
           typeof f.color === 'string' ? f.color : '#ffffff',
@@ -104,6 +132,9 @@ export function createBuilder() {
         node.add(
           markOf('collider', f.shape === 'sphere' ? marks.sphere : f.shape === 'capsule' ? marks.capsule : marks.box),
         );
+      } else if (kind === 'water' && object.shape === undefined) {
+        // A placement has no surface of its own: water on it is W145, drawn as a metre's plane.
+        node.add(new THREE.Mesh(geometry.plane, water(f)));
       } else if (kind === 'trigger') node.add(markOf('trigger', marks.box));
       else if (kind === 'spawn') node.add(markOf('spawn', marks.arrow));
       else if (kind === 'sound') {
@@ -125,7 +156,11 @@ export function createBuilder() {
   ): THREE.Object3D => {
     const seen = overridden(object, layers);
     if (seen.shape !== undefined) {
-      const mesh = new THREE.Mesh(geometry[seen.shape], material(seen.color ?? GREY, seen.shape === 'plane'));
+      const wet = seen.components?.water;
+      const mesh = new THREE.Mesh(
+        geometry[seen.shape],
+        wet !== undefined ? water(fieldsOf(wet)) : material(seen.color ?? GREY, seen.shape === 'plane'),
+      );
       setTransform(mesh, transformOf(seen));
       return withComponents(mesh, seen);
     }
@@ -174,6 +209,7 @@ export function createBuilder() {
       missing.dispose();
       for (const each of materials.values()) each.dispose();
       for (const each of markMaterials.values()) each.dispose();
+      for (const each of waters.values()) each.dispose();
       wire.dispose();
     },
   };

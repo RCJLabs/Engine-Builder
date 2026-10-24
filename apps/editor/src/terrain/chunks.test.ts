@@ -3,7 +3,7 @@
  * at a seam between any two levels. The ray onto the ground lands on what they draw.
  */
 import { describe, expect, it } from 'vitest';
-import { chunkMesh, chunksOf, chunksPerSide, lodFor, type Neighbours } from './chunks.ts';
+import { chunkMesh, chunksOf, chunksPerSide, edgeLine, lodFor, seamGap } from './chunks.ts';
 import { heightAt, newGrid, type TerrainGrid } from './grid.ts';
 import { groundHit } from './ray.ts';
 
@@ -65,6 +65,24 @@ describe('a seam', () => {
           const x = 32 + k - 64;
           expect(edgeAt(west.positions, 'x', seamZ, x)).toBeCloseTo(edgeAt(south.positions, 'x', seamZ, x), 4);
         }
+      }
+    }
+  });
+
+  it('measures the same from the buffers: no gap with the neighbours’ levels, a gap without them', () => {
+    const g = rough();
+    for (let a = 0; a <= 3; a++) {
+      for (let b = a + 1; b <= 3; b++) {
+        const fine = chunkMesh(g, 1, 1, a, { east: b }, GREEN);
+        const coarse = chunkMesh(g, 2, 1, b, { west: a }, GREEN);
+        expect(seamGap(edgeLine(fine.positions, 'east'), edgeLine(coarse.positions, 'west'))).toBeLessThan(1e-5);
+        const unstitched = chunkMesh(g, 1, 1, a, {}, GREEN);
+        expect(seamGap(edgeLine(unstitched.positions, 'east'), edgeLine(coarse.positions, 'west'))).toBeGreaterThan(
+          0.1,
+        );
+        const below = chunkMesh(g, 1, 2, b, { north: a }, GREEN);
+        const above = chunkMesh(g, 1, 1, a, { south: b }, GREEN);
+        expect(seamGap(edgeLine(above.positions, 'south'), edgeLine(below.positions, 'north'))).toBeLessThan(1e-5);
       }
     }
   });

@@ -145,3 +145,31 @@ export function chunksOf(g: TerrainGrid, area: { i0: number; i1: number; j0: num
   }
   return out;
 }
+
+export type Side = 'west' | 'east' | 'north' | 'south';
+
+/**
+ * The heights a chunk's mesh draws along one side, at each of the side's grid vertices, read off
+ * the mesh's own vertices between them: what the view's seam check measures, from its buffers.
+ */
+export function edgeLine(positions: Float32Array, side: Side): Float32Array {
+  const n = Math.round(Math.sqrt(positions.length / 3)) - 1;
+  const step = CHUNK / n;
+  const y = (k: number) => {
+    const [a, b] = side === 'west' ? [0, k] : side === 'east' ? [n, k] : side === 'north' ? [k, 0] : [k, n];
+    return positions[(b * (n + 1) + a) * 3 + 1] as number;
+  };
+  const out = new Float32Array(CHUNK + 1);
+  for (let k = 0; k <= CHUNK; k++) {
+    const lo = Math.min(n - 1, Math.floor(k / step));
+    out[k] = y(lo) + (y(lo + 1) - y(lo)) * (k / step - lo);
+  }
+  return out;
+}
+
+/** The widest gap, in metres, between two lines of heights along the seam two chunks share. */
+export function seamGap(a: Float32Array, b: Float32Array): number {
+  let widest = 0;
+  for (let k = 0; k < a.length; k++) widest = Math.max(widest, Math.abs((a[k] as number) - (b[k] as number)));
+  return widest;
+}

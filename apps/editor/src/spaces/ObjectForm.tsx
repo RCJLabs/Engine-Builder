@@ -4,12 +4,14 @@
  * and colour, its prefab or its record; several, how many, with Group into prefab and Delete in the
  * toolbar. Typing into a field joins into one step of undo, as the record form's fields do. Its
  * components follow, and a placement's parts (M5.2): a record's fields here, a prefab's objects,
- * each object inside one opening its own form, every change an override.
+ * each object inside one opening its own form, every change an override. With nothing chosen in a
+ * space with a terrain, the terrain's form (M5.3).
  */
 import { SHAPES } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { TerrainForm } from '../terrain/TerrainForm.tsx';
 import { deleteChosen, placeChosen, setObject } from './actions.ts';
 import { ComponentsSection } from './ComponentsSection.tsx';
 import type { Transform } from './gizmoMath.ts';
@@ -27,7 +29,13 @@ export function ObjectForm({ project }: { project: OpenProject }) {
   if (!now?.space) return <p class="muted">{now?.problem ?? `Opening ${open.path}…`}</p>;
   const objects = now.space.objects.filter((o) => ids.includes(o.id));
   if (objects.length === 0) {
-    return <p class="muted">Choose an object in the view or the outliner to edit it here.</p>;
+    const { terrain } = now.space;
+    return (
+      <>
+        <p class="muted">Choose an object in the view or the outliner to edit it here.</p>
+        {terrain && open.kind === 'space' ? <TerrainForm key={open.path} terrain={terrain} /> : null}
+      </>
+    );
   }
   if (objects.length > 1) {
     return (
