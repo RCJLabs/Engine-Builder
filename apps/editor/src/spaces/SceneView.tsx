@@ -3,7 +3,7 @@
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
  * the objects chosen. Keyed by the file, so another file starts its own view.
  */
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
 import { attachGestures } from './gestures.ts';
@@ -77,8 +77,10 @@ export function SceneView(props: { space: SpaceJson; prefabs: ReadonlyMap<string
   const mode = gizmoMode.value;
   const ids = picked.value;
   const framing = frameAsked.value;
-  useEffect(() => view.current?.setMode(mode), [mode]);
-  useEffect(() => view.current?.select(ids), [ids]);
+  // The view takes the mode and the pick as the label says them, not a paint later: in that gap, a
+  // tap found clear of the gizmo before its object was chosen landed on the gizmo that came with it.
+  useLayoutEffect(() => view.current?.setMode(mode), [mode]);
+  useLayoutEffect(() => view.current?.select(ids), [ids]);
   useEffect(() => {
     if (framing > 0) view.current?.frame();
   }, [framing]);

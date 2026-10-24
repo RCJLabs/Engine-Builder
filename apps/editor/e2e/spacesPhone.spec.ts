@@ -145,9 +145,12 @@ for (const viewport of [
       await lowerSheet(page);
       await scenePanel(page).getByRole('button', { name: 'Frame' }).tap();
       await toView(page);
-      for (const id of ['crate-2', 'crate-3']) {
+      // Each spot is looked for once the view has the last pick: found before, it can sit under the gizmo
+      // the pick brings, and the tap takes hold of a handle (CI's 844×390 run, PR #48).
+      for (const [i, id] of ['crate-2', 'crate-3'].entries()) {
         const at = await objectAt(page, id);
         await page.touchscreen.tap(at.x, at.y);
+        await expect(view).toHaveAttribute('aria-label', `Yard: 3 objects, ${i + 1} object${i ? 's' : ''} chosen`);
       }
       await scenePanel(page).getByRole('button', { name: 'Select more' }).tap();
       await expect(view).toHaveAttribute('aria-label', 'Yard: 3 objects, 2 objects chosen');

@@ -113,10 +113,14 @@ test('a space built with the gizmo, grouped, renamed and kept', async ({ page })
   await expect.poll(async () => (await object(page, 'crate'))?.scale).toEqual(scaled?.scale);
 
   // Two crates picked in the view, the second with Shift, and grouped into a new prefab.
+  // Each spot is looked for once the view's gizmo is the one a click would meet: the Move gizmo, then
+  // the one on the crate just picked, which the view's own label says it has.
   await scenePanel(page).getByRole('button', { name: 'Move', exact: true }).click();
+  await grip(page, 'move-x');
   const second = await objectAt(page, 'crate-2');
   await page.mouse.click(second.x, second.y);
   await expect(page.locator('[data-panel="inspector"]').getByRole('heading', { name: 'crate-2' })).toBeVisible();
+  await expect(page.locator('.scene-view')).toHaveAttribute('aria-label', 'Yard: 3 objects, 1 object chosen');
   const third = await objectAt(page, 'crate-3');
   await page.keyboard.down('Shift');
   await page.mouse.click(third.x, third.y);
