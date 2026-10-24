@@ -38,6 +38,8 @@ export interface ModelSummary {
   readonly collider: ModelCollider | null;
   /** Each slot's colour as three draws it. */
   readonly materials: Readonly<Record<string, string>>;
+  /** Textures its materials draw with: a KTX2 three couldn't read leaves its material without one. */
+  readonly textures: number;
 }
 
 interface Decoded {
@@ -199,9 +201,11 @@ export function createModelsView(renderer: THREE.WebGPURenderer) {
       const level = levels?.getCurrentLevel() ?? 0;
       const shown = levels ? levels.levels[level]?.object : body;
       const colours: Record<string, string> = {};
+      const textures = new Set<THREE.Texture>();
       for (const mesh of meshesOf(levels ? (levels.levels[0]?.object ?? holder) : (body ?? holder))) {
         const slots = (mesh.userData.slots ?? []) as (string | undefined)[];
         materialsOf(mesh).forEach((material, i) => {
+          for (const value of Object.values(material)) if ((value as THREE.Texture)?.isTexture) textures.add(value);
           const colour = (material as THREE.MeshStandardMaterial).color;
           const slot = slots[i];
           if (slot !== undefined && colour) colours[slot] = `#${colour.getHexString()}`;
@@ -214,6 +218,7 @@ export function createModelsView(renderer: THREE.WebGPURenderer) {
         triangles: shown ? trianglesOf(shown) : 0,
         collider: drawn.record.collider ?? null,
         materials: colours,
+        textures: textures.size,
       };
     },
 

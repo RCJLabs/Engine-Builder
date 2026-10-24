@@ -5,7 +5,7 @@
  */
 import type { Document } from '@gltf-transform/core';
 import { describe, expect, it } from 'vitest';
-import { crateModel, dracoDecoder, glbOf, gltfOf, gridModel, jsonOf, nodeIO } from '../test/shapes.ts';
+import { crateModel, dracoDecoder, glbOf, gltfOf, gridModel, jsonOf, nodeIO, signModel } from '../test/shapes.ts';
 import { packModel } from './pack.ts';
 
 const decoders = async () => ({ draco: await dracoDecoder() });
@@ -162,5 +162,15 @@ describe('packing a model', () => {
     const [kept] = back.getRoot().listTextures();
     expect(kept?.getMimeType()).toBe('image/ktx2');
     expect(kept?.getImage()).toEqual(bytes);
+  });
+
+  it('keeps a texture under KHR_texture_basisu, which the file still needs', async () => {
+    const sign = await glbOf(signModel());
+    const packed = await packModel({ name: 'sign.glb', bytes: sign }, [], await decoders());
+    const json = jsonOf(packed);
+    expect(json.extensionsRequired).toEqual(['EXT_meshopt_compression', 'KHR_mesh_quantization', 'KHR_texture_basisu']);
+    const [texture] = (await (await nodeIO()).readBinary(packed)).getRoot().listTextures();
+    expect(texture?.getMimeType()).toBe('image/ktx2');
+    expect(texture?.getImage()).toEqual(signModel().getRoot().listTextures()[0]?.getImage());
   });
 });

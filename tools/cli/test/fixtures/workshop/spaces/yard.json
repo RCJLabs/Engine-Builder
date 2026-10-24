@@ -1,0 +1,19 @@
+{
+  "name": "Yard",
+  "objects": [
+    {
+      "id": "crate",
+      "record": "model:crate"
+    },
+    {
+      "id": "lantern",
+      "record": "prop:lantern",
+      "at": [2, 0, 0]
+    },
+    {
+      "id": "hills",
+      "record": "model:hills",
+      "at": [0, 0, -10]
+    }
+  ]
+}

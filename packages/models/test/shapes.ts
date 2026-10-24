@@ -4,10 +4,27 @@
  * or as a .gltf with its .bin beside it.
  */
 import { Document, type Node, NodeIO } from '@gltf-transform/core';
-import { ALL_EXTENSIONS, EXTMeshoptCompression, KHRDracoMeshCompression } from '@gltf-transform/extensions';
+import {
+  ALL_EXTENSIONS,
+  EXTMeshoptCompression,
+  KHRDracoMeshCompression,
+  KHRTextureBasisu,
+} from '@gltf-transform/extensions';
 import draco3d from 'draco3d';
 import { MeshoptDecoder } from 'meshoptimizer/decoder';
 import { MeshoptEncoder } from 'meshoptimizer/encoder';
+import {
+  createDefaultContainer,
+  KHR_DF_CHANNEL_RGBSDA_ALPHA,
+  KHR_DF_CHANNEL_RGBSDA_BLUE,
+  KHR_DF_CHANNEL_RGBSDA_GREEN,
+  KHR_DF_CHANNEL_RGBSDA_RED,
+  KHR_DF_MODEL_RGBSDA,
+  KHR_DF_SAMPLE_DATATYPE_LINEAR,
+  KHR_DF_TRANSFER_SRGB,
+  VK_FORMAT_R8G8B8A8_SRGB,
+  write,
+} from 'three/examples/jsm/libs/ktx-parse.module.js';
 
 /** A grid of `n` by `n` vertices 0.1 m apart, with hills, UVs from 0 to 1 and normals. */
 export function gridArrays(n = 33) {
@@ -89,6 +106,70 @@ export function crateModel(): Document {
     .createScene('scene')
     .addChild(part(1, [0, 0.5, 0], 'wood'))
     .addChild(part(0.5, [0, 1.25, 0], ''));
+  return doc;
+}
+
+/**
+ * A KTX2 image `size` texels square of one sRGB colour, in KTX2's own uncompressed RGBA8 form:
+ * three's KTX2Loader reads it as a raw texture, no Basis transcoder needed. The repo has no Basis
+ * encoder, so this is the KTX2 the tests can make.
+ */
+export function ktx2Image(size: number, rgba: readonly [number, number, number, number]): Uint8Array {
+  const container = createDefaultContainer();
+  container.vkFormat = VK_FORMAT_R8G8B8A8_SRGB;
+  container.pixelWidth = size;
+  container.pixelHeight = size;
+  container.levelCount = 1;
+  const texels = new Uint8Array(size * size * 4).map((_, i) => rgba[i % 4] as number);
+  container.levels = [{ levelData: texels, uncompressedByteLength: texels.byteLength }];
+  const [dfd] = container.dataFormatDescriptor;
+  if (!dfd) throw new Error('ktx-parse made no data format descriptor');
+  dfd.colorModel = KHR_DF_MODEL_RGBSDA;
+  dfd.transferFunction = KHR_DF_TRANSFER_SRGB;
+  dfd.bytesPlane = [4, 0, 0, 0, 0, 0, 0, 0];
+  const channels = [
+    KHR_DF_CHANNEL_RGBSDA_RED,
+    KHR_DF_CHANNEL_RGBSDA_GREEN,
+    KHR_DF_CHANNEL_RGBSDA_BLUE,
+    KHR_DF_CHANNEL_RGBSDA_ALPHA,
+  ];
+  dfd.samples = channels.map((channel, i) => ({
+    bitOffset: i * 8,
+    bitLength: 7,
+    channelType: channel === KHR_DF_CHANNEL_RGBSDA_ALPHA ? channel | KHR_DF_SAMPLE_DATATYPE_LINEAR : channel,
+    samplePosition: [0, 0, 0, 0],
+    sampleLower: 0,
+    sampleUpper: 255,
+  }));
+  return write(container);
+}
+
+/** A sign: a board a metre square standing up, painted with a KTX2 texture under KHR_texture_basisu. */
+export function signModel(): Document {
+  const doc = new Document();
+  const buffer = doc.createBuffer();
+  const positions = new Float32Array([-0.5, 0, 0, 0.5, 0, 0, 0.5, 1, 0, -0.5, 1, 0]);
+  const normals = new Float32Array([0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]);
+  const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
+  const texture = doc
+    .createTexture('paint')
+    .setImage(ktx2Image(4, [200, 60, 40, 255]))
+    .setMimeType('image/ktx2');
+  doc.createExtension(KHRTextureBasisu).setRequired(true);
+  const primitive = doc
+    .createPrimitive()
+    .setAttribute('POSITION', doc.createAccessor().setType('VEC3').setArray(positions).setBuffer(buffer))
+    .setAttribute('NORMAL', doc.createAccessor().setType('VEC3').setArray(normals).setBuffer(buffer))
+    .setAttribute('TEXCOORD_0', doc.createAccessor().setType('VEC2').setArray(uvs).setBuffer(buffer))
+    .setIndices(
+      doc
+        .createAccessor()
+        .setType('SCALAR')
+        .setArray(new Uint16Array([0, 1, 2, 0, 2, 3]))
+        .setBuffer(buffer),
+    )
+    .setMaterial(doc.createMaterial('paint').setBaseColorTexture(texture).setDoubleSided(true));
+  doc.createScene('scene').addChild(doc.createNode('sign').setMesh(doc.createMesh('sign').addPrimitive(primitive)));
   return doc;
 }
 
