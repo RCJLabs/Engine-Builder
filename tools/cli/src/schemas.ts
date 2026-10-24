@@ -43,7 +43,11 @@ const entryOf = (type: string): SchemaEntry => ({
   url: `${URL_PREFIX}${type}.json`,
 });
 
-const TYPE_FILE_ENTRY: SchemaEntry = { fileMatch: ['**/types/*.json'], url: `${URL_PREFIX}${TYPE_FILE}.json` };
+// A project's component kinds are type files too (M5.2, D64).
+const TYPE_FILE_ENTRY: SchemaEntry = {
+  fileMatch: ['**/types/*.json', '**/components/*.json'],
+  url: `${URL_PREFIX}${TYPE_FILE}.json`,
+};
 
 const writeJson = (path: string, value: unknown) => writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 

@@ -86,7 +86,7 @@ describe('a space’s file', () => {
     expect(readSpace('{ "name": ')).toMatchObject({ ok: false, problem: expect.stringMatching(/^It isn’t JSON/) });
     expect(readSpace('{ "name": "x", "objects": [{ "id": "a" }] }')).toEqual({
       ok: false,
-      problem: '/objects/0: An object is a shape or a placed prefab: give it one',
+      problem: '/objects/0: An object is a shape, a placed prefab or a placed record: give it one',
     });
   });
 

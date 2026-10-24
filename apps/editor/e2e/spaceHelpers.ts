@@ -10,7 +10,7 @@ type Hooked = {
   __ebViewport?: {
     frames: number;
     grips(): Grip[];
-    objectAt(id: string): { x: number; y: number } | null;
+    objectAt(id: string, underHandles?: boolean): { x: number; y: number } | null;
     camera(): { target: [number, number, number]; yaw: number; pitch: number; distance: number };
   };
 };
@@ -78,15 +78,15 @@ export async function grip(page: Page, name: string): Promise<Grip> {
   );
 }
 
-/** A point on an object clear of the gizmo, in page pixels. */
-export async function objectAt(page: Page, id: string): Promise<{ x: number; y: number }> {
-  await expect
-    .poll(() => page.evaluate((id) => (window as unknown as Hooked).__ebViewport?.objectAt(id) ?? null, id))
-    .not.toBeNull();
-  return page.evaluate(
-    (id) => (window as unknown as Hooked).__ebViewport?.objectAt(id) as { x: number; y: number },
-    id,
-  );
+/** A point on an object clear of the gizmo, or anywhere on it with `underHandles`, in page pixels. */
+export async function objectAt(page: Page, id: string, underHandles = false): Promise<{ x: number; y: number }> {
+  const at = () =>
+    page.evaluate(([id, under]) => (window as unknown as Hooked).__ebViewport?.objectAt(id, under) ?? null, [
+      id,
+      underHandles,
+    ] as const);
+  await expect.poll(at).not.toBeNull();
+  return (await at()) as { x: number; y: number };
 }
 
 /** Where the view's camera is: its target, yaw, pitch and distance. */

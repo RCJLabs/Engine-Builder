@@ -5,22 +5,17 @@
  * screen's facts can name records.
  */
 import { checkProjectUi, type ProjectSource, readUi } from '@eb/compiler';
-import type { RecordIndex as RecordLookup } from '@eb/core';
 import { type Diagnostic, knownFrom, recordFieldsOf } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
+import { recordLookup } from '../records/lookup.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import { type GameState, gameChecks } from '../scripts/gameState.ts';
 
 // export.json's checks (M4.10) load with these: both run once the record index is read.
 export { exportProblems } from '../export/exportChecks.ts';
 export { guideProblems } from '../guide/guideChecks.ts';
-
-/** The index's records, as a fact's arguments look them up. */
-function lookup(index: RecordIndex): RecordLookup {
-  const byType = new Map<string, string[]>();
-  for (const { type, id } of index.records.values()) byType.set(type, [...(byType.get(type) ?? []), id]);
-  return { ids: (type) => byType.get(type) ?? [], has: (type, id) => byType.get(type)?.includes(id) ?? false };
-}
+// The spaces' checks that read records (M5.2) load with these too.
+export { spaceProblems } from '../spaces/spaceChecks.ts';
 
 export async function screenProblems(
   source: ProjectSource,
@@ -37,7 +32,7 @@ export async function screenProblems(
     openFacts: known.openFacts,
     kits: catalog.kits,
     ...(game.catalog ? { actions: game.catalog.actions, modes: game.catalog.modes, events: game.catalog.events } : {}),
-    records: lookup(index),
+    records: recordLookup(index),
     assets: new Set(catalog.assets),
     recordFields: recordFieldsOf(catalog.recordTypes),
   });

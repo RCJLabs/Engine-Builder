@@ -13,7 +13,7 @@ import { openScene } from '../scenes/open.ts';
 import { openUiFile } from '../screens/open.ts';
 import { openScript } from '../scripts/open.ts';
 import { openSpaceAt } from '../spaces/open.ts';
-import { designType } from '../types/open.ts';
+import { designKind, designType } from '../types/open.ts';
 import type { Place } from './problemList.ts';
 
 export function openPlace(place: Place): void {
@@ -24,6 +24,9 @@ export function openPlace(place: Place): void {
       return;
     case 'type':
       designType(place.type);
+      return;
+    case 'component':
+      designKind(place.id);
       return;
     case 'asset':
       openAsset(place.path);

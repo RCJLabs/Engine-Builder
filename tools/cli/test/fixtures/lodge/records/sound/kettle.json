@@ -1,0 +1,12 @@
+{
+  "name": "Kettle",
+  "voices": [
+    {
+      "volume": 0.4,
+      "randomness": 0,
+      "frequency": 1200,
+      "attack": 0.2,
+      "release": 1.2
+    }
+  ]
+}

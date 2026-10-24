@@ -1,0 +1,25 @@
+{
+  "name": "Lantern",
+  "objects": [
+    {
+      "id": "post",
+      "shape": "cylinder",
+      "scale": [0.15, 2.4, 0.15],
+      "color": "#5a4632"
+    },
+    {
+      "id": "glass",
+      "shape": "sphere",
+      "at": [0, 2.5, 0],
+      "scale": [0.4, 0.4, 0.4],
+      "color": "#ffe8b0",
+      "components": {
+        "light": {
+          "color": "#ffcc88",
+          "intensity": 3,
+          "range": 6
+        }
+      }
+    }
+  ]
+}

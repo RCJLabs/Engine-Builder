@@ -191,3 +191,62 @@
 .sheet-tabs {
   margin-bottom: 8px;
 }
+
+/* Placed records' names over the view (M5.2): the page's, so they stay sharp; never in a finger's way. */
+.scene-labels {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 12rem;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--surface);
+}
+
+/* An object's components and a placement's parts in its form (M5.2). */
+.part-section {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.part-section h4 {
+  margin: 8px 0 0;
+}
+
+.part-box {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 10px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.part-field {
+  min-width: 0;
+}
+
+.part-mark {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--accent);
+}

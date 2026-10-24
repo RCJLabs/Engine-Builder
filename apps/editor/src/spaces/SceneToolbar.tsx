@@ -6,8 +6,11 @@
 import { SHAPES, spacePath } from '@eb/compiler';
 import { useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
+import { Picker } from '../forms/Picker.tsx';
+import { refChoices } from '../forms/refChoices.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
+import { namesOf } from '../records/names.ts';
 import { addHere, deleteChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
@@ -101,7 +104,7 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
           Frame
         </button>
       </fieldset>
-      {shown === 'add' && canEdit ? <AddRow done={() => setShown(null)} /> : null}
+      {shown === 'add' && canEdit ? <AddRow project={project} done={() => setShown(null)} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (
         <NameRecord
           type="prefab"
@@ -120,8 +123,9 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
   );
 }
 
-/** What Add puts down: a shape, or a placement of a prefab that doesn't place the file open (E061). */
-function AddRow({ done }: { done: () => void }) {
+/** What Add puts down: a shape, a placement of a prefab that doesn't place the file open (E061), or a record (M5.2). */
+function AddRow({ project, done }: { project: OpenProject; done: () => void }) {
+  const [choosing, setChoosing] = useState(false);
   const open = openSpace.value;
   const now = liveOf(open);
   const prefabs = [...(now?.prefabs ?? new Map())].filter(
@@ -144,6 +148,26 @@ function AddRow({ done }: { done: () => void }) {
           {nameOf({ id, name: prefab.name, prefab: id })}
         </button>
       ))}
+      <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing(true)}>
+        Record…
+      </button>
+      {choosing ? (
+        <Picker
+          title="Place a record"
+          choices={refChoices(
+            { kind: 'ref', to: [...project.catalog.records.keys()].sort() },
+            project.catalog.records,
+            namesOf(project.index, project.catalog),
+          )}
+          current=""
+          empty="The project has no records yet: make one in the Records panel, then place it here."
+          choose={(record) => {
+            setChoosing(false);
+            add({ record });
+          }}
+          close={() => setChoosing(false)}
+        />
+      ) : null}
     </fieldset>
   );
 }

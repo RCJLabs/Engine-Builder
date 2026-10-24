@@ -1,0 +1,32 @@
+{
+  "name": "Porch",
+  "objects": [
+    {
+      "id": "floor",
+      "shape": "box",
+      "scale": [4, 0.2, 2],
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "lamp",
+      "prefab": "lantern",
+      "at": [1.6, 0.1, 0.6],
+      "overrides": {
+        "glass": {
+          "components": {
+            "light": {
+              "intensity": 1.5
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "host",
+      "record": "keeper:ivo",
+      "at": [-1, 0.1, 0]
+    }
+  ]
+}

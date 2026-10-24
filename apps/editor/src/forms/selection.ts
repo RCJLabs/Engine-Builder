@@ -14,7 +14,9 @@ export type Chosen =
   | { readonly kind: 'script'; readonly id: string }
   | { readonly kind: 'scene'; readonly id: string }
   | { readonly kind: 'ui'; readonly path: string }
-  | { readonly kind: 'space'; readonly path: string };
+  | { readonly kind: 'space'; readonly path: string }
+  /** A project's own component kind, components/<id>.json, in the type designer (M5.2). */
+  | { readonly kind: 'component'; readonly id: string };
 
 /** A project opening or closing clears it. */
 export const chosen = signal<Chosen | null>(null);

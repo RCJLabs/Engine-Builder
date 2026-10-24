@@ -19,6 +19,29 @@ export type SpaceFile =
   | { readonly kind: 'misplaced'; readonly reason: string }
   | { readonly kind: 'ignored' };
 
+/** A project's own component kinds, each a type file (M5.2, D64): components/<kind>.json. */
+export const COMPONENTS_DIR = 'components';
+
+export const componentPath = (kind: string) => `${COMPONENTS_DIR}/${kind}.json`;
+
+export type ComponentFile =
+  | { readonly kind: 'component'; readonly id: string }
+  | { readonly kind: 'misplaced'; readonly reason: string }
+  | { readonly kind: 'ignored' };
+
+/** What a file under components/ is: a kind's type file, named by the kind's id, as types/ names a type. */
+export function classifyComponentFile(path: string): ComponentFile {
+  const parts = path.split('/');
+  const name = parts[parts.length - 1] ?? '';
+  if (parts[0] !== COMPONENTS_DIR || !name.endsWith('.json')) return { kind: 'ignored' };
+  if (parts.length !== 2) return { kind: 'misplaced', reason: 'A component kind sits at components/<kind>.json' };
+  const id = name.slice(0, -'.json'.length);
+  if (!isRecordId(id)) {
+    return { kind: 'misplaced', reason: `"${id}" isn’t a kind's id: use lowercase words joined by hyphens` };
+  }
+  return { kind: 'component', id };
+}
+
 /** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is. */
 export function classifySpaceFile(path: string): SpaceFile {
   const parts = path.split('/');

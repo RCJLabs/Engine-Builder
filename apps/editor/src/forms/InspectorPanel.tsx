@@ -119,6 +119,7 @@ function Chosen() {
   }
   const loaded = designer.module.value;
   if (!loaded) return <p class="muted">Opening the type designer…</p>;
+  if (pick.kind === 'component') return <loaded.KindDesigner key={pick.id} project={project} kind={pick.id} />;
   return pick.kind === 'type' ? (
     <loaded.TypeDesigner key={pick.type} project={project} type={pick.type} />
   ) : (

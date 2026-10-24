@@ -65,6 +65,11 @@ export const DIAGNOSTIC_CODES = {
   E059: 'Two objects in one space or prefab share an id',
   E060: "An object places a prefab that prefabs/ doesn't have",
   E061: 'A prefab places itself, directly or through others',
+  E062: "A component's kind is neither one of the engine's nor in components/",
+  E063: "A component's fields don't fit its kind",
+  E064: "An object places a record, or a type, the project doesn't have",
+  E065: "A placed record's override isn't a field of its type, or doesn't fit the field",
+  E066: "An override names an object the prefab doesn't have",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -106,6 +111,8 @@ export const DIAGNOSTIC_CODES = {
   W139: 'The Android app names no signing key fingerprints, so it opens with a browser bar',
   W140: "A guide step opens a file the project doesn't have, or one the editor has no place for",
   W141: 'A file under spaces/ or prefabs/ that the compiler ignores: in a folder, or not named by an id',
+  W142: 'More than one spawn in a space is its start',
+  W143: 'A file under components/ that the compiler ignores',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

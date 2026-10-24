@@ -1,9 +1,11 @@
+import { classifySpaceFile } from '@eb/compiler';
 import { parseRef } from '@eb/core';
 import type { Usage } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import type { Catalog } from '../forms/catalog.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { openSpaceAt } from '../spaces/open.ts';
 import { openRecord } from './actions.ts';
 import { nameIn } from './names.ts';
 import { describePath } from './paths.ts';
@@ -18,11 +20,49 @@ const FIRST = 50;
  */
 export function UsedBy({ project, type, id }: { project: OpenProject; type: string; id: string }) {
   return (
-    <Users
-      project={project}
-      of={(index) => index.usedBy.get(`${type}:${id}`) ?? []}
-      none="Nothing refers to this record."
-    />
+    <>
+      <Users
+        project={project}
+        of={(index) => index.usedBy.get(`${type}:${id}`) ?? []}
+        none="Nothing refers to this record."
+      />
+      <PlacedIn project={project} record={`${type}:${id}`} />
+    </>
+  );
+}
+
+/** The spaces and prefabs that place the record, or name it in a component or an override (M5.2), each opening there. */
+function PlacedIn({ project, record }: { project: OpenProject; record: string }) {
+  const head = useUniqueId();
+  const uses = project.index?.spaceUsers?.get(record) ?? [];
+  if (uses.length === 0) return null;
+  const places = new Map<string, { file: string; object: string; index: number }>();
+  for (const use of uses) {
+    const index = Number(use.path.split('/')[2]);
+    places.set(`${use.file}#${use.object}`, { file: use.file, object: use.object, index });
+  }
+  const entries = [...project.catalog.spaces, ...project.catalog.prefabs];
+  const title = (file: string) => {
+    const role = classifySpaceFile(file);
+    if (role.kind !== 'space' && role.kind !== 'prefab') return file;
+    const name = entries.find((e) => e.kind === role.kind && e.id === role.id)?.name ?? role.id;
+    return `${role.kind === 'space' ? 'Space' : 'Prefab'} ${name}`;
+  };
+  return (
+    <section class="used-by" aria-labelledby={head}>
+      <h4 id={head}>
+        In spaces <span class="muted">{places.size === 1 ? '1 place' : `${places.size} places`}</span>
+      </h4>
+      <ul class="used-by-list">
+        {[...places.values()].map((place) => (
+          <li key={`${place.file}#${place.object}`}>
+            <button type="button" class="record-button" onClick={() => openSpaceAt(place.file, place.index)}>
+              {title(place.file)}, {place.object}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

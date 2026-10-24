@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { FIXTURE_LUDUS, readFixture } from '../../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../forms/catalog.ts';
 import { EMPTY_INDEX, updateIndex } from '../records/recordIndex.ts';
+import { NO_SCRIPTS } from '../scripts/gameState.ts';
+import { spaceProblems } from '../spaces/spaceChecks.ts';
 import { badgeText, countProblems, countsText, projectProblems, tally } from './collect.ts';
 import { ALL_PROBLEMS, fileTitle, groupProblems, placeOf, shownGroups, whereOf } from './problemList.ts';
 
@@ -41,6 +43,24 @@ function broken(): Record<string, string> {
     'spaces/broken.json': '{ "name": ',
     'spaces/old/yard.json': '{}',
     'prefabs/crate.json': json({ name: 'Crate', objects: [{ id: 'me', prefab: 'crate' }] }),
+    // M5.2: a component of no kind and one that doesn't fit, a record placed that isn't there and one
+    // whose override doesn't fit, an override of an object the prefab lacks, two starts, and the
+    // component kinds' own: one of the engine's name taken, one not a type file, a note.
+    'spaces/court.json': json({
+      name: 'Court',
+      objects: [
+        { id: 'a', shape: 'box', components: { glow: {}, light: { range: 0 } } },
+        { id: 'b', record: 'gladiator:nobody' },
+        { id: 'c', record: 'gladiator:spiculus', overrides: { might: 'strong' } },
+        { id: 'd', prefab: 'lamp', overrides: { shade: {} } },
+        { id: 'e', shape: 'box', components: { spawn: { start: true } } },
+        { id: 'f', shape: 'box', components: { spawn: { start: true } } },
+      ],
+    }),
+    'prefabs/lamp.json': json({ name: 'Lamp', objects: [{ id: 'bulb', shape: 'sphere' }] }),
+    'components/light.json': json({ title: 'Light', fields: {} }),
+    'components/hold.json': json({ title: 'Hold', fields: { grade: { kind: 'grade' } } }),
+    'components/notes.md': 'notes',
     'assets/assets.json': json({
       files: {
         'portraits/spiculus.svg': { ...own, licence: 'CC-BY-NC-4.0' },
@@ -55,7 +75,9 @@ function broken(): Record<string, string> {
 async function both(files: Record<string, string>) {
   const source = memorySource(files);
   const catalog = await readCatalog(source);
-  const index = await updateIndex(EMPTY_INDEX, source, catalog, null);
+  const read = await updateIndex(EMPTY_INDEX, source, catalog, null);
+  // The spaces' checks that read records follow the index, as the editor runs them (projects/opened.ts).
+  const index = { ...read, spaces: (await spaceProblems(source, catalog, read, NO_SCRIPTS)).problems };
   return {
     catalog,
     index,
@@ -78,6 +100,7 @@ describe('the project’s problems', () => {
       'E011',
       'E015',
       'E016',
+      'E017',
       'E018',
       'E019',
       'E020',
@@ -86,11 +109,18 @@ describe('the project’s problems', () => {
       'E059',
       'E060',
       'E061',
+      'E062',
+      'E063',
+      'E064',
+      'E065',
+      'E066',
       'W101',
       'W105',
       'W106',
       'W107',
       'W141',
+      'W142',
+      'W143',
     ]);
   });
 
@@ -132,7 +162,11 @@ describe('where each problem is fixed', () => {
       id: 'flamma',
       at: '',
     });
-    expect(placed('E015')).toEqual({ kind: 'type', type: 'beast' });
+    expect(placed('E015', 'types/beast.json')).toEqual({ kind: 'type', type: 'beast' });
+    // A component kind's opens it in the designer (M5.2); one named as an engine kind is, nowhere else.
+    expect(placed('E015', 'components/hold.json')).toEqual({ kind: 'component', id: 'hold' });
+    expect(placed('E063')).toEqual({ kind: 'space', path: 'spaces/court.json', object: 0 });
+    expect(placed('E066')).toEqual({ kind: 'space', path: 'spaces/court.json', object: 3 });
     expect(placed('E008')).toEqual({ kind: 'panel', panel: 'project' });
     expect(placed('E019')).toEqual({ kind: 'asset', path: 'ui/button.png' });
     expect(placed('E020')).toEqual({ kind: 'asset', path: 'portraits/spiculus.svg' });
@@ -153,7 +187,10 @@ describe('where each problem is fixed', () => {
     const { catalog, index, editor } = await both(broken());
     const find = (code: string) => editor.find((d) => d.code === code) as (typeof editor)[number];
     expect(whereOf(find('E001'), catalog)).toBe('Might');
-    expect(whereOf(find('E015'), catalog)).toBe('name › min');
+    expect(whereOf(editor.find((d) => d.code === 'E015' && d.file === 'types/beast.json') as never, catalog)).toBe(
+      'name › min',
+    );
+    expect(fileTitle('components/hold.json', catalog, index)).toBe('Component kind hold');
     expect(whereOf(find('E020'), catalog)).toBe('portraits/spiculus.svg › licence');
     expect(whereOf(find('E008'), catalog)).toBe('version');
     expect(fileTitle('records/gladiator/spiculus.json', catalog, index)).toBe('Gladiator Spiculus');
@@ -173,7 +210,7 @@ describe('the panel’s view', () => {
     expect(groups.flatMap((g) => g.problems)).toEqual(editor);
     const shown = (view: Partial<typeof ALL_PROBLEMS>) =>
       shownGroups(groups, { ...ALL_PROBLEMS, ...view }, catalog).flatMap((g) => g.problems.map((p) => p.code));
-    expect(shown({ severity: 'warning' }).sort()).toEqual(['W101', 'W105', 'W106', 'W107', 'W141']);
+    expect(shown({ severity: 'warning' }).sort()).toEqual(['W101', 'W105', 'W106', 'W107', 'W141', 'W142', 'W143']);
     expect(shown({ search: 'spiculus might' })).toEqual(['E001']);
     expect(shown({ search: 'E020' })).toEqual(['E020']);
     expect(shown({ search: 'nothing like this' })).toEqual([]);
@@ -186,12 +223,12 @@ describe('the panel’s view', () => {
     const { catalog, index, editor } = await both(broken());
     const counts = countProblems(editor);
     expect(tally(catalog, index)).toEqual(counts);
-    expect(counts.warnings).toBe(5);
-    expect(countsText(counts)).toBe(`${counts.errors} errors and 5 warnings`);
+    expect(counts.warnings).toBe(7);
+    expect(countsText(counts)).toBe(`${counts.errors} errors and 7 warnings`);
     expect(countsText({ errors: 1, warnings: 0 })).toBe('1 error');
     expect(countsText({ errors: 0, warnings: 0 })).toBe('No problems');
     expect(countsText({ errors: 0, warnings: 1 })).toBe('1 warning');
-    expect(badgeText(counts)).toBe(String(counts.errors + 5));
+    expect(badgeText(counts)).toBe(String(counts.errors + 7));
     expect(badgeText({ errors: 0, warnings: 0 })).toBeNull();
     expect(badgeText(null)).toBeNull();
   });

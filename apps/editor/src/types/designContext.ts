@@ -10,9 +10,15 @@ import { useContext } from 'preact/hooks';
 import { type FormApi, pointerOf } from '../forms/formContext.ts';
 import type { Path } from '../forms/values.ts';
 import type { OpenProject } from '../projects/opened.ts';
-import type { IndexedRecord } from '../records/recordIndex.ts';
+
 import { nodeAt, setInTypeFile } from './defPaths.ts';
 import { type FieldChange, setChange } from './fieldEdits.ts';
+
+/** What holds values of the type: a record, or an object's component of a kind (M5.2), with its problems. */
+export interface Holder {
+  readonly value: unknown;
+  readonly problems: readonly Diagnostic[];
+}
 
 export interface Design {
   readonly project: OpenProject;
@@ -33,8 +39,11 @@ export interface Design {
   problemsAt(pointer: string): readonly Diagnostic[];
   /** The pointers that have problems, for a shut row to say it holds some. */
   readonly troubled: readonly string[];
-  /** The type's records as the index read them; none until it has. */
-  readonly records: readonly IndexedRecord[];
+  /**
+   * The type's records as the index read them, none until it has; for a component kind (M5.2), the
+   * objects' own components of it in spaces and prefabs.
+   */
+  readonly records: readonly Holder[];
   /** Every type file's type, for refs to name, sound or not. */
   readonly types: readonly string[];
   /** A type's title, or its name. */

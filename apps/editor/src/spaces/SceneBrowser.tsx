@@ -8,6 +8,7 @@ import { useEffect } from 'preact/hooks';
 import { BackIcon } from '../app/icons.tsx';
 import { noteError } from '../app/state.ts';
 import type { OpenProject } from '../projects/opened.ts';
+import { namesOf } from '../records/names.ts';
 import { liveOf } from './live.ts';
 import { SceneToolbar } from './SceneToolbar.tsx';
 import { SpaceList } from './SpaceList.tsx';
@@ -64,7 +65,13 @@ function SpaceEditor({ project, open }: { project: OpenProject; open: OpenSpace 
           {now.problem} Its problem is in the Problems panel; fix the file there, or by hand, to see it here.
         </p>
       ) : SceneView ? (
-        <SceneView key={open.path} space={now.space} prefabs={now.prefabs} open={open} />
+        <SceneView
+          key={open.path}
+          space={now.space}
+          prefabs={now.prefabs}
+          open={open}
+          names={namesOf(project.index, project.catalog)}
+        />
       ) : (
         <p class="muted">Opening the 3D view…</p>
       )}

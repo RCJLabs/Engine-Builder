@@ -18,7 +18,7 @@
  * again when the grounds change, since its EXTERNALs name the game's facts; its own problems
  * stand in for its checks, and its checks are given at the scene's lines.
  */
-import { atSceneLine, type ProjectSource, parseJsonFile, readFiles, scenePath } from '@eb/compiler';
+import { atSceneLine, type ProjectSource, parseJsonFile, readFiles, type SpaceUse, scenePath } from '@eb/compiler';
 import { type FactCatalog, formatRef } from '@eb/core';
 import { compileScene, type SourceMap } from '@eb/ink';
 import { TALK } from '@eb/kits';
@@ -80,6 +80,10 @@ export interface RecordIndex {
   readonly exports?: readonly Diagnostic[];
   /** guide.json's problems (M4.11), checked against the project's files (guideChecks.ts). */
   readonly guide?: readonly Diagnostic[];
+  /** The spaces' and prefabs' problems that need the records (M5.2), checked once they are (spaceChecks.ts). */
+  readonly spaces?: readonly Diagnostic[];
+  /** What in spaces/ and prefabs/ names each "type:id" (M5.2): a placed record, a ref in a component or an override. */
+  readonly spaceUsers?: ReadonlyMap<string, readonly SpaceUse[]>;
 }
 
 export const EMPTY_INDEX: RecordIndex = { records: new Map(), usedBy: new Map(), assetUsers: new Map(), grounds: '' };

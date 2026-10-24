@@ -82,10 +82,13 @@ my-game/
   project.json            id, name, version, modules, targets, settings
   records/<type>/<id>.json one record per file (items, actors, quests, events…)
   types/<type>.json        the project's own record types, as fields (M2.4)
-  scenes/<id>.json         3D/2D scenes: entity trees with placed references
+  spaces/<id>.json         3D places: objects that are shapes, placed prefabs or placed records,
+                           with components and overrides (M5.1, M5.2)
+  prefabs/<id>.json        reusable groups of objects, placed by id (M5.1)
+  components/<kind>.json   the project's own component kinds, as type files (M5.2)
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
-  dialogue/*.ink           ink scenes, compiled into talks (M3.11)
+  scenes/<id>.ink          ink scenes, compiled into talks (M3.11)
   assets/…                 images, audio, models, fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
 ```
@@ -107,7 +110,7 @@ Records are Bethesda's "forms": typed data with stable ids.
 - **Custom record types** are data: a project's `types/<type>.json` lists a type's fields by kind, and the compiler builds the same strict zod schema a code type has (M2.4, D31, [specs/type-files.md](specs/type-files.md)). This covers the data unique to a game: football players, gladiators, cards. A project made only of data needs no code at all. The editor designs types in the inspector, and renames carry the records with them (M2.6, D33, [specs/editor-types.md](specs/editor-types.md)).
 - **References.**
   - A record field can point at another record. It holds the bare id when the field names one type (`"drops": "dead-hauler"`), and `type:id` when it allows several (`"target": "item:medkit"`). Validation checks every reference and builds the index behind the editor's "used by" ([specs/records.md](specs/records.md)).
-  - In scenes, a placed reference is an instance of a base record with overrides: position, a different inventory, a quest alias.
+  - In spaces, a placed record is an instance of a base record with overrides: a different name, a different inventory, a quest alias. A placed prefab overrides the objects inside it by their ids ([specs/components.md](specs/components.md)).
 - **Text fields** hold the default-language string. Phase 8 extracts them into string tables keyed by record path, so nobody manages string keys by hand.
 - **Schemas and diagnostics.**
   - Schemas are strict zod in `packages/schema`, mirroring types declared in pure code, and are exported as JSON Schema for autocomplete.

@@ -43,7 +43,7 @@ function bare(changes: Record<string, string> = {}): string {
 
 const read = (dir: string, path: string) => readFileSync(join(dir, path), 'utf8');
 const entry = (type: string) => ({ fileMatch: [`**/records/${type}/*.json`], url: `./${SCHEMAS}/${type}.json` });
-const TYPE_FILES = { fileMatch: ['**/types/*.json'], url: `./${SCHEMAS}/_type-file.json` };
+const TYPE_FILES = { fileMatch: ['**/types/*.json', '**/components/*.json'], url: `./${SCHEMAS}/_type-file.json` };
 const LUDUS_ENTRIES = [TYPE_FILES, ...['gladiator', 'school', 'weapon'].map(entry)];
 const WROTE = `Wrote the schemas of type files and of 3 record types (gladiator, school, weapon) to ${SCHEMAS}/`;
 const NO_TYPE =
