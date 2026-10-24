@@ -1,0 +1,194 @@
+/**
+ * The walk's physics (M5.8, D70, docs/specs/movement.md#the-stage): Rapier's world from a space's
+ * parts and terrain, and the character moved through it by Rapier's kinematic character controller.
+ * Rapier is the compat build, given by the caller, so Node's tests walk the same world the page does.
+ */
+import type RAPIER_NS from '@dimforge/rapier3d-compat';
+import type { Quat, Vec3 } from '../spaces/vec.ts';
+import type { Clear } from './cameras.ts';
+import type { Intent } from './controls.ts';
+import { type Fall, fallAfter, STANDING, STEP, stepOf } from './motion.ts';
+import type { Solid, Spawn } from './solids.ts';
+
+export type Rapier = typeof RAPIER_NS;
+
+export const BODY = { height: 1.8, radius: 0.35 } as const;
+export const SLOPE = 40;
+export const STEP_UP = 0.35;
+export const SNAP = 0.4;
+/** Below the ground's lowest by this much, the character is put back at its spawn. */
+export const FALL_LIMIT = 50;
+/** What the character weighs as it pushes what moves; what moves weighs its volume times this. */
+const CHARACTER_MASS = 80;
+const DENSITY = 300;
+
+/** A terrain as the physics takes it: its heights in metres row by row along z, centred on the origin. */
+export interface Ground {
+  readonly size: number;
+  readonly spacing: number;
+  readonly heights: Float32Array;
+  readonly low: number;
+}
+
+export interface Walker {
+  /** Where the feet are, the velocity of the last step and whether it ended on the ground. */
+  feet(): Vec3;
+  velocity(): Vec3;
+  grounded(): boolean;
+  /** One fixed step of the character and the world. */
+  step(intent: Intent, yaw: number): void;
+  /** Rays for the camera: what they meet, the character left out. */
+  readonly clear: Clear;
+  /** Where each solid that moves is now. */
+  moving(): { readonly path: string; readonly at: Vec3; readonly turn: Quat }[];
+  /** Back to the spawn, standing. */
+  respawn(): void;
+  /** Standing somewhere else: for tests and the editor's own tools, never a player's. */
+  teleport(feet: Vec3): void;
+  free(): void;
+}
+
+/** Rapier's heightfield runs column by column (the spike's rapierHeights, M1.10); ours row by row. */
+export function columnsOf(ground: Ground): Float32Array {
+  const { size, heights } = ground;
+  const out = new Float32Array(size * size);
+  for (let z = 0; z < size; z++) for (let x = 0; x < size; x++) out[x * size + z] = heights[z * size + x] as number;
+  return out;
+}
+
+const quat = (q: Quat) => ({ x: q[0], y: q[1], z: q[2], w: q[3] });
+
+function colliderOf(rapier: Rapier, solid: Solid): RAPIER_NS.ColliderDesc | null {
+  switch (solid.kind) {
+    case 'box':
+      return rapier.ColliderDesc.cuboid(...solid.half);
+    case 'ball':
+      return rapier.ColliderDesc.ball(solid.radius);
+    case 'capsule':
+      return solid.halfHeight > 0
+        ? rapier.ColliderDesc.capsule(solid.halfHeight, solid.radius)
+        : rapier.ColliderDesc.ball(solid.radius);
+    case 'hull':
+      return rapier.ColliderDesc.convexHull(new Float32Array(solid.points.flat()));
+  }
+}
+
+/** The solid's body: still ones fixed where they stand, moving ones dynamic, their shape about their centre. */
+function addSolid(rapier: Rapier, world: RAPIER_NS.World, solid: Solid) {
+  const desc = colliderOf(rapier, solid);
+  if (!desc) return null;
+  if (solid.kind === 'hull') {
+    // A hull's points are the world's already: its body stands at the origin.
+    const body = world.createRigidBody(solid.moves ? rapier.RigidBodyDesc.dynamic() : rapier.RigidBodyDesc.fixed());
+    world.createCollider(desc.setDensity(DENSITY), body);
+    return body;
+  }
+  const kind = solid.moves ? rapier.RigidBodyDesc.dynamic() : rapier.RigidBodyDesc.fixed();
+  const body = world.createRigidBody(kind.setTranslation(...solid.center).setRotation(quat(solid.turn)));
+  world.createCollider(desc.setDensity(DENSITY), body);
+  return body;
+}
+
+export function createWalker(
+  rapier: Rapier,
+  parts: { readonly solids: readonly Solid[]; readonly spawn: Spawn | undefined },
+  ground: Ground | null,
+): Walker {
+  const world = new rapier.World({ x: 0, y: -9.81, z: 0 });
+  world.timestep = STEP;
+  if (ground) {
+    const cells = ground.size - 1;
+    const span = cells * ground.spacing;
+    world.createCollider(rapier.ColliderDesc.heightfield(cells, cells, columnsOf(ground), { x: span, y: 1, z: span }));
+  }
+  const moving: { path: string; body: RAPIER_NS.RigidBody; offset: Vec3 }[] = [];
+  for (const solid of parts.solids) {
+    const body = addSolid(rapier, world, solid);
+    if (body && solid.moves) moving.push({ path: solid.path, body, offset: [0, 0, 0] });
+  }
+  const half = BODY.height / 2 - BODY.radius;
+  const character = world.createRigidBody(rapier.RigidBodyDesc.kinematicPositionBased());
+  const capsule = world.createCollider(rapier.ColliderDesc.capsule(half, BODY.radius), character);
+  const controller = world.createCharacterController(0.01);
+  controller.setUp({ x: 0, y: 1, z: 0 });
+  controller.setMaxSlopeClimbAngle((SLOPE * Math.PI) / 180);
+  controller.setMinSlopeSlideAngle((SLOPE * Math.PI) / 180);
+  controller.enableAutostep(STEP_UP, 0.2, true);
+  controller.enableSnapToGround(SNAP);
+  controller.setApplyImpulsesToDynamicBodies(true);
+  controller.setCharacterMass(CHARACTER_MASS);
+  // Rapier builds its query structures as the world steps: the first spawn's ray needs them.
+  world.step();
+
+  const lowest = ground ? ground.low : 0;
+  let fall: Fall = STANDING;
+  let velocity: Vec3 = [0, 0, 0];
+
+  const ray = (from: Vec3, dir: Vec3, most: number) => {
+    const hit = world.castRay(
+      new rapier.Ray({ x: from[0], y: from[1], z: from[2] }, { x: dir[0], y: dir[1], z: dir[2] }),
+      most,
+      true,
+      undefined,
+      undefined,
+      capsule,
+      character,
+    );
+    return hit ? hit.timeOfImpact : null;
+  };
+
+  /** Where the walk starts: its spawn point, or the origin on whatever is under it. */
+  const start = (): Vec3 => {
+    if (parts.spawn) return parts.spawn.at;
+    const down = ray([0, 1000, 0], [0, -1, 0], 2000);
+    return [0, down === null ? 0 : 1000 - down, 0];
+  };
+  const place = (feet: Vec3) => {
+    const centre = { x: feet[0], y: feet[1] + BODY.height / 2, z: feet[2] };
+    character.setTranslation(centre, true);
+    character.setNextKinematicTranslation(centre);
+  };
+  const feet = (): Vec3 => {
+    const t = character.translation();
+    return [t.x, t.y - BODY.height / 2, t.z];
+  };
+  // A spawn point a little under the ground stands on it: up out of the ground, then the snap down.
+  place(start());
+
+  return {
+    feet,
+    velocity: () => velocity,
+    grounded: () => fall.grounded,
+    step(intent, yaw) {
+      const asked = stepOf(intent, yaw, fall);
+      controller.computeColliderMovement(capsule, { x: asked.delta[0], y: asked.delta[1], z: asked.delta[2] });
+      const moved = controller.computedMovement();
+      const was = character.translation();
+      const next = { x: was.x + moved.x, y: was.y + moved.y, z: was.z + moved.z };
+      character.setNextKinematicTranslation(next);
+      fall = fallAfter(asked.vy, asked.delta[1], moved.y, controller.computedGrounded());
+      velocity = [moved.x / STEP, moved.y / STEP, moved.z / STEP];
+      world.step();
+      if (next.y - BODY.height / 2 < lowest - FALL_LIMIT) this.respawn();
+    },
+    clear: ray,
+    moving: () =>
+      moving.map(({ path, body }) => {
+        const t = body.translation();
+        const r = body.rotation();
+        return { path, at: [t.x, t.y, t.z] as Vec3, turn: [r.x, r.y, r.z, r.w] as Quat };
+      }),
+    respawn() {
+      this.teleport(start());
+    },
+    teleport(at) {
+      fall = STANDING;
+      velocity = [0, 0, 0];
+      place(at);
+    },
+    free() {
+      world.removeCharacterController(controller);
+      world.free();
+    },
+  };
+}

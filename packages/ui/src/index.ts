@@ -16,6 +16,14 @@ export {
   scrollFor,
 } from './render/mapLayout.ts';
 export {
+  type Sent,
+  type SpaceAsk,
+  type SpaceDrawn,
+  type SpaceHost,
+  WALK_QUALITIES,
+  type WalkQuality,
+} from './render/spaceHost.ts';
+export {
   drawn,
   type Opened,
   type Shown as ShownScreen,
