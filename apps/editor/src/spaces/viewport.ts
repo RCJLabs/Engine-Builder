@@ -2,14 +2,16 @@
  * The Scene panel's view (M5.1, D8, D63, docs/specs/viewport.md#the-scene-panel): three's
  * WebGPURenderer, on WebGPU where the browser has it and WebGL2 where it doesn't; the editor's
  * light and grid; the camera; picking; the gizmo where the chosen objects are; a space's terrain
- * (M5.3), in terrainView.ts. It draws only when something changes, so a still editor spends nothing
- * on it.
+ * (M5.3), in terrainView.ts; its environment (M5.4), in environmentView.ts. It draws only when
+ * something changes, so a still editor spends nothing on it, unless rain or snow is falling.
  */
 
 import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
+import type { Look } from '../environment/look.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
+import { createEnvironmentView, type EnvironmentSummary } from './environmentView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
@@ -41,6 +43,8 @@ export interface View {
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
   show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf): void;
+  /** A space's environment as the view draws it, or none for the editor's own light (M5.4). */
+  showEnvironment(look: Look | null): void;
   /** A space's terrain, or none: a problem in words when its files can't be read. */
   showTerrain(settings: TerrainJson | null, files: TerrainFiles | null): string | null;
   /** The terrain's brushes and strokes (M5.3), over rays from the view's points. */
@@ -71,6 +75,8 @@ export interface ViewportHook {
   readonly paintAt: (x: number, z: number) => number[] | null;
   /** The opacity of the water an object draws, or null for none. */
   readonly waterAt: (id: string) => number | null;
+  /** The sky, light, fog and weather drawn (M5.4), or null for the editor's own. */
+  readonly environment: () => EnvironmentSummary | null;
 }
 
 type Hooked = { __ebViewport?: ViewportHook };
@@ -85,10 +91,11 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   const backend: Backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl';
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(cssColor(host, '--surface-2', '#262a31'));
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x3a4250, 1.6));
+  const skyLight = new THREE.HemisphereLight(0xffffff, 0x3a4250, 1.6);
   const sun = new THREE.DirectionalLight(0xffffff, 2.2);
   sun.position.set(6, 12, 8);
-  scene.add(sun);
+  scene.add(skyLight, sun);
+  const environment = createEnvironmentView(scene, { sky: skyLight, sun });
   // A metre a square, 60 m across: the editor's, never saved. Wider, its far lines shimmer into a band.
   const grid = new THREE.GridHelper(60, 60, cssColor(host, '--muted', '#a9b0ba'), cssColor(host, '--line', '#343a43'));
   scene.add(grid);
@@ -183,9 +190,12 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       gizmo.group.visible = at !== null;
       if (at) gizmo.place(at.pivot, at.metres, at.own);
       terrain.levels([camera.position.x, camera.position.y, camera.position.z]);
+      environment.frame(camera, orbit.target, performance.now());
       renderer.render(scene, camera);
       placeLabels();
       frames++;
+      // Falling weather is drawn every frame; everything else waits to be asked.
+      if (environment.animating()) draw();
     });
   }
 
@@ -289,6 +299,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       });
       return opacity;
     },
+    environment: () => environment.summary(),
   };
 
   return {
@@ -342,6 +353,10 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       outline();
       draw();
     },
+    showEnvironment(look) {
+      environment.show(look);
+      draw();
+    },
     showTerrain(settings, files) {
       const problem = terrain.show(settings, files);
       // The terrain is the ground: the editor's grid would only flicker through it.
@@ -388,6 +403,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       builder.dispose();
       gizmo.dispose();
       terrain.dispose();
+      environment.dispose();
       grid.dispose();
       renderer.dispose();
     },

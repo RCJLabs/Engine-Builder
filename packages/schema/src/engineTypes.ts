@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { AUDIO_DATA } from './audioTypes.ts';
 import { condition, valueSchema } from './condition.ts';
 import { effect } from './effect.ts';
+import { ENVIRONMENT_DATA } from './environmentTypes.ts';
 import { defineRecordType, type RecordType } from './recordType.ts';
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -123,8 +124,11 @@ export const SHEET_DATA: DataType = Object.freeze({
   recordType: SHEET_TYPE as RecordType,
 });
 
-/** The engine's own types' forms and checks: flags and sheets (M3.1), and sound, ambience and music (M4.8). */
-export const ENGINE_DATA: readonly DataType[] = Object.freeze([FLAG_TYPE, SHEET_DATA, ...AUDIO_DATA]);
+/**
+ * The engine's own types' forms and checks: flags and sheets (M3.1), sound, ambience and music
+ * (M4.8), and environments (M5.4).
+ */
+export const ENGINE_DATA: readonly DataType[] = Object.freeze([FLAG_TYPE, SHEET_DATA, ...AUDIO_DATA, ENVIRONMENT_DATA]);
 
 export const ENGINE_TYPES: readonly RecordType[] = Object.freeze(ENGINE_DATA.map((d) => d.recordType));
 

@@ -1,0 +1,9 @@
+{
+  "name": "Dale",
+  "environment": "dale-dusk",
+  "objects": [
+    { "id": "barn", "name": "Barn", "shape": "box", "at": [0, 0, 0], "scale": [6, 4, 10], "color": "#7a4a32" },
+    { "id": "lamp", "prefab": "lamp", "at": [4, 0, 6] },
+    { "id": "pond", "shape": "plane", "at": [-12, 0.05, 4], "scale": [8, 1, 6], "components": { "water": {} } }
+  ]
+}

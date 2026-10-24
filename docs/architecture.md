@@ -83,7 +83,8 @@ my-game/
   records/<type>/<id>.json one record per file (items, actors, quests, events…)
   types/<type>.json        the project's own record types, as fields (M2.4)
   spaces/<id>.json         3D places: objects that are shapes, placed prefabs or placed records,
-                           with components and overrides (M5.1, M5.2), and a terrain's settings (M5.3)
+                           with components and overrides (M5.1, M5.2), a terrain's settings (M5.3),
+                           and the id of the environment record it is drawn under (M5.4)
   spaces/<id>.heights.png  a space's terrain: 16-bit greyscale heights; .paint.png, RGBA layer weights (M5.3)
   prefabs/<id>.json        reusable groups of objects, placed by id (M5.1)
   components/<kind>.json   the project's own component kinds, as type files (M5.2)

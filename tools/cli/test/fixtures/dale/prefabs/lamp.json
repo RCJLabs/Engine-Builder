@@ -1,0 +1,14 @@
+{
+  "name": "Lamp",
+  "objects": [
+    { "id": "post", "shape": "cylinder", "scale": [0.2, 3, 0.2], "color": "#3a3a3a" },
+    {
+      "id": "bulb",
+      "shape": "sphere",
+      "at": [0, 3, 0],
+      "scale": [0.5, 0.5, 0.5],
+      "color": "#ffe8a0",
+      "components": { "light": { "range": 8 } }
+    }
+  ]
+}

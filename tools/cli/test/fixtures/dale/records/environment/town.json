@@ -1,0 +1,17 @@
+{
+  "name": "Town",
+  "hour": 17.5,
+  "sky": "physical",
+  "turbidity": 4,
+  "sun": "#ffd8a8",
+  "sun-strength": 2,
+  "ambient": "#d8c8b8",
+  "ambient-strength": 1.2,
+  "fog": {
+    "color": "#c7a88a",
+    "near": 60,
+    "far": 400
+  },
+  "weather": "rain",
+  "weather-amount": 0.4
+}

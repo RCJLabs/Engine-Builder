@@ -80,6 +80,9 @@ function objectLine(object: SpaceObject): string {
   return `{ ${fields.join(', ')} }`;
 }
 
+/** The space's keys written in their places; any others follow the objects. */
+const PLACED_KEYS: ReadonlySet<string> = new Set(['name', 'environment', 'terrain', 'objects']);
+
 const FRESH: JsonLayout = { bom: false, eol: '\n', indent: '  ', finalNewline: true };
 
 /** A space's text, one object to a line, in `layout`'s line ends, indent and last newline. */
@@ -91,12 +94,14 @@ export function spaceText(space: SpaceJson, layout: JsonLayout = FRESH): string 
       ? '[]'
       : `[${eol}${space.objects.map((o) => `${indent}${indent}${objectLine(o)}`).join(`,${eol}`)}${eol}${indent}]`;
   const others = Object.entries(space)
-    .filter(([key]) => key !== 'name' && key !== 'terrain' && key !== 'objects')
+    .filter(([key]) => !PLACED_KEYS.has(key))
     .map(([key, value]) => `,${eol}${indent}${JSON.stringify(key)}: ${JSON.stringify(value)}`)
     .join('');
-  // The terrain's settings (M5.3) on a line of their own, between the name and the objects.
-  const terrain = space.terrain ? `${eol}${indent}"terrain": ${JSON.stringify(space.terrain)},` : '';
-  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${terrain}${eol}${indent}"objects": ${objects}${others}${eol}}`;
+  // The environment (M5.4) and the terrain's settings (M5.3) each on a line of their own, between
+  // the name and the objects.
+  const line = (key: 'environment' | 'terrain') =>
+    space[key] === undefined ? '' : `${eol}${indent}"${key}": ${JSON.stringify(space[key])},`;
+  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${line('environment')}${line('terrain')}${eol}${indent}"objects": ${objects}${others}${eol}}`;
   return `${layout.bom ? BOM : ''}${body}${layout.finalNewline ? eol : ''}`;
 }
 

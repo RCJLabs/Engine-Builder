@@ -152,7 +152,10 @@ apps/editor/           the editor PWA
                        form's fields over a part), PartFields, ComponentsSection, PlacedParts (Here, Inside and an
                        object inside), ObjectFields; M5.3 (D65): terrainView.ts (with three: the chunks at their
                        levels, strokes drawn as they land, the brush's ring, the hook's terrain readings); live.ts
-                       reads a space's terrain files, build.ts draws water
+                       reads a space's terrain files, build.ts draws water; M5.4 (D66): environmentView.ts (with
+                       three: the lights and fog, the hook's environment(), read back from three), skyView.ts (three's
+                       SkyMesh, a gradient sphere with the sun's disc, or a colour) and weatherView.ts (rain as
+                       lines, snow as one mesh drawn many times); live.ts reads a space's environment record
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -161,6 +164,12 @@ apps/editor/           the editor PWA
                        (add, change, remove, a layer removed, a stroke written, as file changes); state.ts (the brush
                        chosen), actions.ts (the edits as steps of undo), TerrainTools (the toolbar's row), TerrainForm
                        (the inspector's)
+  src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
+                       and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
+                       weather.ts (each drop's place from its seed, the moment and where the camera looks) and
+                       environmentEdits.ts (a space given one, a new one from a preset, a field changed, as file
+                       changes); actions.ts (the edits as steps of undo), EnvironmentField (the inspector's, with
+                       nothing chosen in a space), EnvironmentStart (Start from, above an environment's form)
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -206,7 +215,8 @@ apps/editor/           the editor PWA
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
                        is the save journal with big files; loot-, stats-, factions-, roster-, events- and dialogue-bench.ts
                        the index with kits; scenes-bench.ts, with ink scenes; debug-bench.ts, the debug tools, M4.9;
-                       terrain-bench.ts, dabs, the files, chunks and the ray at 257 and 513, M5.3)
+                       terrain-bench.ts, dabs, the files, chunks and the ray at 257 and 513, M5.3; environment-bench.ts,
+                       a look worked out and a frame of weather placed, M5.4)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share;
@@ -244,7 +254,10 @@ apps/editor/           the editor PWA
                        the project's own, components, a placed record and a prefab's overrides made with forms;
                        terrainHelpers.ts, terrain.spec.ts and terrainPhone.spec.ts are M5.3's, a terrain sculpted
                        with each brush, painted with each layer, watered, seen at two levels with no crack, and
-                       kept, by mouse and keys and by touch, through window.__ebViewport
+                       kept, by mouse and keys and by touch, through window.__ebViewport;
+                       environmentHelpers.ts, environments.spec.ts and environmentsPhone.spec.ts are M5.4's, an
+                       environment from each preset, its hour, fog and weather, read through window.__ebViewport
+                       and the canvas's own pixels, and kept, by mouse and keys and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -298,7 +311,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        screen's ambience and music, a theme's sounds and a feedback line's sound as E049; M4.12:
                        listCheck.ts (a list's checks: its source's kit, a codex's fields, an offered list's takes,
                        E049); M5.2: componentTypes.ts (the engine's component kinds as type files: five, and water
-                       since M5.3); not pure
+                       since M5.3); M5.4: environmentTypes.ts (environment, an engine
+                       type, in ENGINE_DATA: E068); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -321,7 +335,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        of an object inside it), components.ts (components/ read: W143), spaceParts.ts (E062 to
                        E066, W142, and the uses "used by" lists); M5.3: a space's terrain in spaceShape.ts (E058),
                        its PNGs in spaceFiles.ts and terrains.ts (headers only: E067, W144), water off a plane in
-                       spaceParts.ts (W145); not pure
+                       spaceLints.ts (W145, beside W142); M5.4: a space's environment in spaceShape.ts (E058 in a
+                       prefab) and spaceParts.ts (E069, and a use for "used by"); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -439,7 +454,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        own, placed records and overrides two prefabs deep, which spaces.test.ts validates clean
                        and breaks once for each of M5.2's checks; fell/, a hill with its heights and paint PNGs,
                        a tarn and a lochan, which terrain.test.ts validates clean and breaks once for each of
-                       M5.3's checks
+                       M5.3's checks; dale/, the seven preset environments and a dusk of its own named by a farm, a
+                       cave and a station, which environment.test.ts validates clean and breaks once for each of
+                       M5.4's checks
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

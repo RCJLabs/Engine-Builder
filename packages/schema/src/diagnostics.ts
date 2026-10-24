@@ -71,6 +71,8 @@ export const DIAGNOSTIC_CODES = {
   E065: "A placed record's override isn't a field of its type, or doesn't fit the field",
   E066: "An override names an object the prefab doesn't have",
   E067: "A terrain's heights or paint file is missing, isn't a PNG, or isn't of its kind and size",
+  E068: "An environment's fog starts no nearer than where it is whole: its near isn't below its far",
+  E069: "A space names an environment that isn't one of the project's environment records",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',

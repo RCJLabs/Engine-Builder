@@ -31,14 +31,18 @@ export function UsedBy({ project, type, id }: { project: OpenProject; type: stri
   );
 }
 
-/** The spaces and prefabs that place the record, or name it in a component or an override (M5.2), each opening there. */
+/**
+ * The spaces and prefabs that place the record, or name it in a component or an override (M5.2),
+ * or are drawn under it (an environment, M5.4), each opening there.
+ */
 function PlacedIn({ project, record }: { project: OpenProject; record: string }) {
   const head = useUniqueId();
   const uses = project.index?.spaceUsers?.get(record) ?? [];
   if (uses.length === 0) return null;
-  const places = new Map<string, { file: string; object: string; index: number }>();
+  const places = new Map<string, { file: string; object: string; index: number | undefined }>();
   for (const use of uses) {
-    const index = Number(use.path.split('/')[2]);
+    // A space's environment is in no object: it opens with nothing chosen, where its field is.
+    const index = use.object === '' ? undefined : Number(use.path.split('/')[2]);
     places.set(`${use.file}#${use.object}`, { file: use.file, object: use.object, index });
   }
   const entries = [...project.catalog.spaces, ...project.catalog.prefabs];
@@ -57,7 +61,7 @@ function PlacedIn({ project, record }: { project: OpenProject; record: string })
         {[...places.values()].map((place) => (
           <li key={`${place.file}#${place.object}`}>
             <button type="button" class="record-button" onClick={() => openSpaceAt(place.file, place.index)}>
-              {title(place.file)}, {place.object}
+              {title(place.file)}, {place.object === '' ? 'its environment' : place.object}
             </button>
           </li>
         ))}

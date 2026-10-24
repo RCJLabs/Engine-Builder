@@ -633,6 +633,11 @@ describe('the code table', () => {
         'spaces/moor.heights.png': pngOf(65, 65, 16, 0),
       }),
     );
+    // M5.4: an environment whose fog starts where it is whole, and a space naming one there isn't.
+    const environed = await kitted([], {
+      'records/environment/murk.json': JSON.stringify({ fog: { color: '#808080', near: 50, far: 50 } }),
+      'spaces/cave.json': JSON.stringify({ name: 'Cave', environment: 'gloom', objects: [] }),
+    });
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -651,6 +656,7 @@ describe('the code table', () => {
       placed,
       parts,
       terrained,
+      environed,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

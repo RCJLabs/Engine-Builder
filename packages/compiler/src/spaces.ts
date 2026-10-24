@@ -46,6 +46,12 @@ export function checkSpaces(files: readonly SpaceFileRead[], terrains: readonly 
       diagnostics.push(at(read.file, 'E058', '/terrain', 'Only a space has a terrain: a prefab is placed in one'));
       continue;
     }
+    if (read.kind === 'prefab' && space.environment !== undefined) {
+      diagnostics.push(
+        at(read.file, 'E058', '/environment', 'Only a space has an environment: a prefab takes its space’s'),
+      );
+      continue;
+    }
     sound.set(read.file, { read, space });
   }
   const spaces = [...sound.values()].filter(({ read }) => read.kind === 'space');

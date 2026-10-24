@@ -58,6 +58,18 @@ describe('a rename reaching spaces', () => {
     expect(await problems(after)).toEqual([]);
   });
 
+  it('of an environment: every space drawn under it (M5.4)', async () => {
+    const files = {
+      ...project(),
+      'records/environment/dusk.json': json({ hour: 19 }),
+      'spaces/fell.json': json({ name: 'Fell', environment: 'dusk', objects: [] }),
+    };
+    const after = applied(files, await renameRecord(memorySource(files), 'environment', 'dusk', 'gloaming'));
+    expect(after['spaces/fell.json']).toEqual({ name: 'Fell', environment: 'gloaming', objects: [] });
+    expect(after['records/environment/gloaming.json']).toEqual({ hour: 19 });
+    expect(await problems(after)).toEqual([]);
+  });
+
   it('of a type: every "type:id" of it there', async () => {
     const files = project();
     const after = applied(files, await renameType(memorySource(files), 'keeper', 'warden'));

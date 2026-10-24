@@ -1,16 +1,18 @@
 /**
  * The 3D view of the open space or prefab (M5.1, D63), with three in its chunk: the view made once
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
- * the objects chosen, its terrain the brush chosen (M5.3). Keyed by the file, so another file
- * starts its own view.
+ * the objects chosen, its terrain the brush chosen (M5.3), its environment drawn (M5.4). Keyed by
+ * the file, so another file starts its own view.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
+import { lookOf } from '../environment/look.ts';
 import { writeStrokeHere } from '../terrain/actions.ts';
 import { brushKind, brushNow } from '../terrain/state.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
 import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
+import type { LiveSpace } from './live.ts';
 import type { SpaceJson } from './spaceFile.ts';
 import {
   aim,
@@ -36,14 +38,17 @@ export function SceneView(props: {
   names?: NameOf;
   /** A space's terrain files, when it has a terrain. */
   terrain?: TerrainFiles;
+  /** A space's environment, when it names one. */
+  environment?: LiveSpace['environment'];
 }) {
-  const { space, prefabs, names, terrain } = props;
+  const { space, prefabs, names, terrain, environment } = props;
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
   const latest = useRef(props);
   latest.current = props;
   const shown = useRef('');
+  const lit = useRef<string | null>(null);
   const [backend, setBackend] = useState<Backend | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [unread, setUnread] = useState<string | null>(null);
@@ -61,6 +66,12 @@ export function SceneView(props: {
     // The terrain's files are compared by the view, which decodes them only when they changed.
     const shownView = view.current;
     if (!shownView) return;
+    const record = latest.current.environment?.record ?? null;
+    const looks = JSON.stringify(record);
+    if (looks !== lit.current) {
+      lit.current = looks;
+      shownView.showEnvironment(record ? lookOf(record) : null);
+    }
     setUnread(shownView.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
     groundHeight.value = shownView.terrain.grid() ? shownView.terrain.height : null;
     aim.value = shownView.aim();
@@ -113,7 +124,7 @@ export function SceneView(props: {
     };
   }, []);
 
-  useEffect(showLatest, [space, prefabs, names, terrain]);
+  useEffect(showLatest, [space, prefabs, names, terrain, environment]);
   const brush = brushKind.value;
   useEffect(() => {
     if (brush === null) view.current?.terrain.ring(null, 0);
@@ -153,6 +164,10 @@ export function SceneView(props: {
         ) : unread ? (
           <p class="field-problem scene-note" role="alert">
             The terrain can’t be drawn: {unread}. Its problem is in the Problems panel.
+          </p>
+        ) : environment && environment.record === null ? (
+          <p class="field-problem scene-note" role="alert">
+            The environment “{environment.id}” can’t be drawn. Its problem is in the Problems panel.
           </p>
         ) : null}
       </div>

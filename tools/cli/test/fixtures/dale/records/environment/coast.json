@@ -1,0 +1,15 @@
+{
+  "name": "Coast",
+  "hour": 9,
+  "sky": "physical",
+  "turbidity": 3,
+  "sun": "#fff4e0",
+  "sun-strength": 2.2,
+  "ambient": "#dfeaf2",
+  "ambient-strength": 1.6,
+  "fog": {
+    "color": "#b8c8d4",
+    "near": 80,
+    "far": 500
+  }
+}
