@@ -46,6 +46,12 @@ describe('a space’s file', () => {
     const fell = spaceText({ name: 'Fell', terrain, objects: [] });
     expect(fell).toBe(`{\n  "name": "Fell",\n  "terrain": ${JSON.stringify(terrain)},\n  "objects": []\n}\n`);
     expect(readSpace(fell)).toEqual({ ok: true, space: { name: 'Fell', terrain, objects: [] } });
+    // The environment's id after the name, before the terrain, wherever the space had it (M5.4).
+    const dusk = spaceText({ terrain, objects: [], environment: 'dusk', name: 'Fell' });
+    expect(dusk).toBe(
+      `{\n  "name": "Fell",\n  "environment": "dusk",\n  "terrain": ${JSON.stringify(terrain)},\n  "objects": []\n}\n`,
+    );
+    expect(readSpace(dusk)).toEqual({ ok: true, space: { name: 'Fell', environment: 'dusk', terrain, objects: [] } });
   });
 
   it('keeps its line ends, indent and last newline, and stays byte for byte when nothing changes', () => {

@@ -5,11 +5,12 @@
  * toolbar. Typing into a field joins into one step of undo, as the record form's fields do. Its
  * components follow, and a placement's parts (M5.2): a record's fields here, a prefab's objects,
  * each object inside one opening its own form, every change an override. With nothing chosen in a
- * space with a terrain, the terrain's form (M5.3).
+ * space, its environment (M5.4) and, with a terrain, the terrain's form (M5.3).
  */
 import { SHAPES } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
+import { EnvironmentField } from '../environment/EnvironmentField.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { TerrainForm } from '../terrain/TerrainForm.tsx';
 import { deleteChosen, placeChosen, setObject } from './actions.ts';
@@ -33,6 +34,14 @@ export function ObjectForm({ project }: { project: OpenProject }) {
     return (
       <>
         <p class="muted">Choose an object in the view or the outliner to edit it here.</p>
+        {open.kind === 'space' ? (
+          <EnvironmentField
+            key={`${open.path}#environment`}
+            project={project}
+            id={now.space.environment}
+            record={now.environment?.record}
+          />
+        ) : null}
         {terrain && open.kind === 'space' ? <TerrainForm key={open.path} terrain={terrain} /> : null}
       </>
     );

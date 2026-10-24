@@ -60,6 +60,19 @@ export {
   SHEET_TYPE_FILE,
   withEngineTypes,
 } from './engineTypes.ts';
+export {
+  checkEnvironment,
+  ENVIRONMENT,
+  ENVIRONMENT_DATA,
+  ENVIRONMENT_DEFAULTS,
+  ENVIRONMENT_TYPE_FILE,
+  type EnvironmentRecord,
+  type Fog,
+  SKIES,
+  type Sky,
+  WEATHERS,
+  type Weather,
+} from './environmentTypes.ts';
 export { type SchemaIssue, schemaIssues } from './issues.ts';
 export { recordJsonSchema, typeFileJsonSchema } from './jsonSchema.ts';
 export { KitChecks } from './kitCheck.ts';

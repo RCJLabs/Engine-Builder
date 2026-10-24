@@ -72,6 +72,7 @@ function SpaceEditor({ project, open }: { project: OpenProject; open: OpenSpace 
           open={open}
           names={namesOf(project.index, project.catalog)}
           terrain={now.terrain}
+          environment={now.environment}
         />
       ) : (
         <p class="muted">Opening the 3D view…</p>

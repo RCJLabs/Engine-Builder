@@ -1,6 +1,7 @@
 /**
  * The boxes an object's form and an override's share (M5.1, M5.2): a name, and three numbers for a
  * place, a turn or a scale. Typing joins into one step; what isn't a number yet stays in its box.
+ * NumberRow is one labelled number, the terrain's and the environment's forms' (M5.3, M5.4).
  */
 import { useUniqueId } from '../app/ids.ts';
 import { useDraft } from '../editing/draft.ts';
@@ -91,5 +92,60 @@ function NumberBox(props: {
         }}
       />
     </span>
+  );
+}
+
+/** A labelled number, written as it is typed or, with `onLeave`, as the field is left, once it fits. */
+export function NumberRow(props: {
+  label: string;
+  value: number;
+  canEdit: boolean;
+  /** Written as the field is left, or Enter pressed, rather than as each key lands. */
+  onLeave?: boolean;
+  fits: (n: number) => boolean;
+  why: string;
+  write: (n: number) => void;
+}) {
+  const { label, value, canEdit, onLeave, fits, why, write } = props;
+  const id = useUniqueId();
+  const whyId = useUniqueId();
+  const draft = useDraft(String(value));
+  const typed = parseNumber(draft.shown);
+  const good = typed !== null && fits(typed);
+  const commit = (text: string) => {
+    const n = parseNumber(text);
+    if (n !== null && fits(n) && n !== value) write(n);
+  };
+  return (
+    <div class="form-field">
+      <label for={id}>{label}</label>
+      <input
+        id={id}
+        class="field form-input"
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        value={draft.shown}
+        readOnly={!canEdit}
+        aria-invalid={draft.draft !== null && !good ? 'true' : undefined}
+        aria-describedby={draft.draft !== null && !good ? whyId : undefined}
+        data-project-field
+        onInput={(event) => {
+          draft.setDraft(event.currentTarget.value);
+          if (!onLeave) commit(event.currentTarget.value);
+        }}
+        onChange={(event) => {
+          if (onLeave) commit(event.currentTarget.value);
+        }}
+        onBlur={() => {
+          if (good) draft.clear();
+        }}
+      />
+      {draft.draft !== null && !good ? (
+        <p id={whyId} class="field-problem">
+          {typed === null ? 'Not a number yet' : why}
+        </p>
+      ) : null}
+    </div>
   );
 }

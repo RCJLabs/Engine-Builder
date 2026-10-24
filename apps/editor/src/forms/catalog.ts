@@ -22,7 +22,7 @@ import {
 } from '@eb/compiler';
 import type { CalendarDef } from '@eb/core';
 import { DIALOGUE, TALK } from '@eb/kits';
-import { type DataType, type Diagnostic, isEngineType, type RecordType, severityOf } from '@eb/schema';
+import { type DataType, type Diagnostic, ENVIRONMENT, isEngineType, type RecordType, severityOf } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 
 export interface Catalog {
@@ -136,10 +136,10 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   for (const ids of records.values()) ids.sort(byText);
   const assets = [...read.assets].sort(byText);
   const named = known.types.map((t) => t.type).filter((type) => !isEngineType(type));
-  // The project's own types first, so its first is the table Records opens on; the audio after.
+  // The project's own types first, so its first is the table Records opens on; the engine's after.
   const names = [
-    ...[...new Set([...named, ...records.keys()])].filter((type) => !AUDIO_TYPES.has(type)).sort(byText),
-    ...AUDIO_ORDER,
+    ...[...new Set([...named, ...records.keys()])].filter((type) => !ENGINE_TABLES.has(type)).sort(byText),
+    ...ENGINE_ORDER,
   ];
   const log = read.assetsLog;
   return {
@@ -166,9 +166,12 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
   };
 }
 
-/** The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music are tables like a project's own (M4.8). */
-const AUDIO_ORDER = [SOUND, AMBIENCE, MUSIC];
-const AUDIO_TYPES: ReadonlySet<string> = new Set(AUDIO_ORDER);
+/**
+ * The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music
+ * (M4.8) and its environments (M5.4) are tables like a project's own.
+ */
+const ENGINE_ORDER = [SOUND, AMBIENCE, MUSIC, ENVIRONMENT];
+const ENGINE_TABLES: ReadonlySet<string> = new Set(ENGINE_ORDER);
 
 /** The spaces and prefabs, read and checked as the compiler reads and checks them for eb validate (compiler/spaces.ts). */
 async function readSpaceFiles(source: ProjectSource) {

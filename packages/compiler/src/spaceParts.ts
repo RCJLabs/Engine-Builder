@@ -2,15 +2,17 @@
  * The checks of spaces and prefabs that need the project's types and records (M5.2, D64,
  * docs/specs/components.md): each component against its kind (E062, E063), each placed record
  * against the records there are and its overrides against its type (E064, E065), each prefab
- * override against the prefab's objects (E066, and E058 for a field it can't change), and a
- * space's starts (W142). Every reference found is a use, for the editor's "used by".
+ * override against the prefab's objects (E066, and E058 for a field it can't change), a space's
+ * environment against the records (E069, M5.4), and its starts (W142). Every reference found is a
+ * use, for the editor's "used by".
  */
-import { parseRef, pointerSegment, type RecordIndex } from '@eb/core';
+import { formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import {
   checkPart,
   type DataType,
   type Diagnostic,
   type DiagnosticCode,
+  ENVIRONMENT,
   type Known,
   type PartContext,
   type RecordType,
@@ -18,7 +20,8 @@ import {
   severityOf,
   z,
 } from '@eb/schema';
-import { eachPlaced, type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
+import { type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
+import { starts, waters } from './spaceLints.ts';
 import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 import { atLines, type SpaceFileRead } from './spaces.ts';
 
@@ -40,7 +43,7 @@ export interface SpacePartsContext {
 export interface SpaceUse {
   readonly key: string;
   readonly file: string;
-  /** The id of the file's object it is in: the placement, for a ref inside its overrides. */
+  /** The id of the file's object it is in: the placement, for a ref inside its overrides; '' for the space's environment. */
   readonly object: string;
   readonly path: string;
 }
@@ -73,10 +76,21 @@ export function checkSpaceParts(
     for (const [i, object] of space.objects.entries()) {
       checkObject({ ctx, file: read.file, object: object.id, prefabs, diagnostics, uses }, object, `/objects/${i}`);
     }
-    if (read.kind === 'space') diagnostics.push(...starts(read.file, space, prefabs));
+    if (read.kind === 'space') {
+      environmentOf({ ctx, file: read.file, object: '', prefabs, diagnostics, uses }, space);
+      diagnostics.push(...starts(read.file, space, prefabs));
+    }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
   return { diagnostics, uses };
+}
+
+/** The space's environment (M5.4): a use of its record, which is E069 when there is none. */
+function environmentOf(walk: Walk, space: SpaceJson): void {
+  const id = space.environment;
+  if (id === undefined) return;
+  walk.uses.push({ key: formatRef(ENVIRONMENT, id), file: walk.file, object: '', path: '/environment' });
+  if (!walk.ctx.records.has(ENVIRONMENT, id)) report(walk, 'E069', '/environment', `No environment record "${id}"`);
 }
 
 const report = (walk: Walk, code: DiagnosticCode, path: string, message: string) =>
@@ -224,58 +238,6 @@ function partContext(
     condition: () => {},
     effect: () => {},
   };
-}
-
-/** W142 at each object, past the first, whose spawn (its own or one it places) is the space's start. */
-function starts(file: string, space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>): Diagnostic[] {
-  const found: Diagnostic[] = [];
-  let seen = 0;
-  space.objects.forEach((object, i) => {
-    let here = 0;
-    eachPlaced(object, prefabs, (o) => {
-      if (isFields(o.components?.spawn) && o.components.spawn.start === true) here++;
-    });
-    if (here > 0 && seen + here > 1) {
-      found.push({
-        code: 'W142',
-        severity: 'warning',
-        message: `${seen + here} spawns are this space's start: a space is entered at one`,
-        file,
-        path: `/objects/${i}`,
-      });
-    }
-    seen += here;
-  });
-  return found;
-}
-
-const dry = (o: SpaceObject) => isFields(o.components?.water) && o.shape !== 'plane';
-
-/**
- * W145 at each object whose water isn't on a plane (M5.3): its own, or one a placement's overrides
- * make so. An object inside a prefab that is so as the prefab has it is the prefab file's warning.
- */
-function waters(file: string, space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>): Diagnostic[] {
-  const found: Diagnostic[] = [];
-  space.objects.forEach((object, i) => {
-    eachPlaced(object, prefabs, (seen, ids) => {
-      if (!dry(seen)) return;
-      let own: SpaceObject | undefined = object;
-      for (const id of ids.slice(1)) {
-        own = own?.prefab === undefined ? undefined : prefabs.get(own.prefab)?.objects.find((o) => o.id === id);
-      }
-      if (ids.length > 1 && own && dry(own)) return;
-      const where = ids.length > 1 ? ` (${ids.join(' › ')})` : '';
-      found.push({
-        code: 'W145',
-        severity: 'warning',
-        message: `Water off a plane${where}: only a plane's top is a water surface`,
-        file,
-        path: `/objects/${i}`,
-      });
-    });
-  });
-  return found;
 }
 
 /** The checks that need the project's types and records, each at its line, and the references they found. */

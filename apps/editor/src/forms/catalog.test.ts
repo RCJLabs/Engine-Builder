@@ -62,12 +62,13 @@ describe('readCatalog', () => {
       'sound',
       'ambience',
       'music',
+      'environment',
       'gladiator',
       'school',
       'weapon',
     ]);
     // The engine's audio types are tables too, after the project's own (M4.8); its flag and sheet live in Logic.
-    expect(catalog.names).toEqual(['gladiator', 'school', 'weapon', 'sound', 'ambience', 'music']);
+    expect(catalog.names).toEqual(['gladiator', 'school', 'weapon', 'sound', 'ambience', 'music', 'environment']);
     expect(catalog.records.get('gladiator')).toEqual(['flamma', 'priscus', 'spiculus']);
     expect(catalog.assets).toEqual(['portraits/spiculus.svg']);
     expect(catalog.broken.size).toBe(0);
@@ -100,10 +101,28 @@ describe('readCatalog', () => {
         'records/horse/bucephalus.json': '{}',
       }),
     );
-    expect([...catalog.types.keys()]).toEqual(['flag', 'sheet', 'sound', 'ambience', 'music', 'gladiator', 'school']);
+    expect([...catalog.types.keys()]).toEqual([
+      'flag',
+      'sheet',
+      'sound',
+      'ambience',
+      'music',
+      'environment',
+      'gladiator',
+      'school',
+    ]);
     // Its first problem in the file's own order: the title comes before the fields.
     expect(catalog.broken.get('weapon')).toMatchObject({ code: 'E015', file: 'types/weapon.json', path: '/title' });
-    expect(catalog.names).toEqual(['gladiator', 'horse', 'school', 'weapon', 'sound', 'ambience', 'music']);
+    expect(catalog.names).toEqual([
+      'gladiator',
+      'horse',
+      'school',
+      'weapon',
+      'sound',
+      'ambience',
+      'music',
+      'environment',
+    ]);
   });
 
   it('takes no type from a type file the compiler ignores, such as a name that is no type id', async () => {

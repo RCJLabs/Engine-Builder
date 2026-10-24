@@ -3,7 +3,8 @@
  * with every prefab beside it, so placements draw what they place. The view, the outliner and
  * the object form all read this one copy.
  */
-import { classifySpaceFile, PREFABS_DIR, type ProjectSource, terrainPath } from '@eb/compiler';
+import { classifySpaceFile, PREFABS_DIR, type ProjectSource, parseJsonFile, terrainPath } from '@eb/compiler';
+import { ENVIRONMENT, ENVIRONMENT_DATA, type EnvironmentRecord, schemaIssues } from '@eb/schema';
 import { effect, signal } from '@preact/signals';
 import { editing } from '../editing/current.ts';
 import { current, revision } from '../projects/opened.ts';
@@ -19,6 +20,11 @@ export interface LiveSpace {
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   /** A space's terrain files (M5.3) as they are, null for one that is missing, when it has a terrain. */
   readonly terrain?: { readonly heights: Uint8Array | null; readonly paint: Uint8Array | null };
+  /**
+   * A space's environment (M5.4) when it names one: its record, or null when there is none of that
+   * id, or it isn't of its type, so the view keeps the editor's own light.
+   */
+  readonly environment?: { readonly id: string; readonly record: EnvironmentRecord | null };
 }
 
 export const live = signal<LiveSpace | null>(null);
@@ -41,11 +47,23 @@ async function readLive(source: ProjectSource, open: OpenSpace): Promise<LiveSpa
   if (!bytes) return { open, space: null, problem: `There is no ${open.path} any more.`, prefabs };
   const read = readSpace(decode(bytes));
   if (!read.ok) return { open, space: null, problem: read.problem, prefabs };
-  if (!read.space.terrain || open.kind !== 'space') return { open, space: read.space, prefabs };
+  if (open.kind !== 'space') return { open, space: read.space, prefabs };
+  const id = read.space.environment;
+  const environment = id === undefined ? {} : { environment: { id, record: await environmentOf(source, id) } };
+  if (!read.space.terrain) return { open, space: read.space, prefabs, ...environment };
   const [heights, paint] = await Promise.all(
     (['heights', 'paint'] as const).map((part) => source.read(terrainPath(open.id, part))),
   );
-  return { open, space: read.space, prefabs, terrain: { heights: heights ?? null, paint: paint ?? null } };
+  const terrain = { heights: heights ?? null, paint: paint ?? null };
+  return { open, space: read.space, prefabs, terrain, ...environment };
+}
+
+async function environmentOf(source: ProjectSource, id: string): Promise<EnvironmentRecord | null> {
+  const bytes = await source.read(`records/${ENVIRONMENT}/${id}.json`);
+  const parsed = bytes ? parseJsonFile(bytes) : null;
+  if (!parsed?.ok) return null;
+  const sound = schemaIssues(ENVIRONMENT_DATA.recordType.schema, parsed.value).length === 0;
+  return sound ? (parsed.value as EnvironmentRecord) : null;
 }
 
 let asked = 0;

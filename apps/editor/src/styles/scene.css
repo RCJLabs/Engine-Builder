@@ -304,3 +304,21 @@
   flex: 1 1 8rem;
   min-width: 0;
 }
+
+/* A space's environment in the inspector (M5.4): a slider's value beside it, read as a clock or a share. */
+.environment-slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
+
+.environment-slider label {
+  grid-column: 1 / -1;
+}
+
+.environment-slider output {
+  min-width: 3.5rem;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

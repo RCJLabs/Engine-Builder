@@ -1,6 +1,6 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
-import { type DataType, type Diagnostic, slotScope } from '@eb/schema';
+import { type DataType, type Diagnostic, ENVIRONMENT, slotScope } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
@@ -8,6 +8,7 @@ import { SoundPreview } from '../audio/SoundPreview.tsx';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { FightPreview } from '../encounters/FightPreview.tsx';
+import { EnvironmentStart } from '../environment/EnvironmentStart.tsx';
 import { SheetRows } from '../logic/SheetRows.tsx';
 import { MapPreview } from '../maps/MapPreview.tsx';
 import type { OpenProject } from '../projects/opened.ts';
@@ -225,6 +226,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {type === AMBIENCE || type === MUSIC ? (
           <LoopPreview type={type} id={id} value={value} project={project} />
         ) : null}
+        {/* An environment starts from a preset (M5.4). */}
+        {type === ENVIRONMENT ? <EnvironmentStart /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

@@ -7,9 +7,7 @@
 import type { TerrainJson } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
-import { useDraft } from '../editing/draft.ts';
-import { parseNumber } from '../forms/values.ts';
-import { TextBox } from '../spaces/ObjectFields.tsx';
+import { NumberRow, TextBox } from '../spaces/ObjectFields.tsx';
 import { removeLayerHere, removeTerrainHere, setTerrain } from './actions.ts';
 import { DEFAULT_LAYERS } from './terrainEdits.ts';
 
@@ -129,60 +127,6 @@ function Layer(props: {
         <button type="button" class="button" onClick={() => void removeLayerHere(k, layer.name)}>
           Remove {layer.name}
         </button>
-      ) : null}
-    </div>
-  );
-}
-
-function NumberRow(props: {
-  label: string;
-  value: number;
-  canEdit: boolean;
-  /** Written as the field is left, or Enter pressed, rather than as each key lands. */
-  onLeave?: boolean;
-  fits: (n: number) => boolean;
-  why: string;
-  write: (n: number) => void;
-}) {
-  const { label, value, canEdit, onLeave, fits, why, write } = props;
-  const id = useUniqueId();
-  const whyId = useUniqueId();
-  const draft = useDraft(String(value));
-  const typed = parseNumber(draft.shown);
-  const good = typed !== null && fits(typed);
-  const commit = (text: string) => {
-    const n = parseNumber(text);
-    if (n !== null && fits(n) && n !== value) write(n);
-  };
-  return (
-    <div class="form-field">
-      <label for={id}>{label}</label>
-      <input
-        id={id}
-        class="field form-input"
-        type="text"
-        inputMode="text"
-        autoComplete="off"
-        value={draft.shown}
-        readOnly={!canEdit}
-        aria-invalid={draft.draft !== null && !good ? 'true' : undefined}
-        aria-describedby={draft.draft !== null && !good ? whyId : undefined}
-        data-project-field
-        onInput={(event) => {
-          draft.setDraft(event.currentTarget.value);
-          if (!onLeave) commit(event.currentTarget.value);
-        }}
-        onChange={(event) => {
-          if (onLeave) commit(event.currentTarget.value);
-        }}
-        onBlur={() => {
-          if (good) draft.clear();
-        }}
-      />
-      {draft.draft !== null && !good ? (
-        <p id={whyId} class="field-problem">
-          {typed === null ? 'Not a number yet' : why}
-        </p>
       ) : null}
     </div>
   );

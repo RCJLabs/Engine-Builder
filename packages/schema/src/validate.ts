@@ -14,6 +14,7 @@ import type { z } from 'zod';
 import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
+import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
 import { FlagChecks } from './flagCheck.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
@@ -162,6 +163,7 @@ export function validateRecords(
     if (sound && record.type === QUEST && on.includes(QUESTS))
       checkCounts(record.value as QuestRecord, { ...ctx, heard }, slotsAt);
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
+    if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);

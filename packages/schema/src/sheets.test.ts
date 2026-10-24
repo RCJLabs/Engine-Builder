@@ -277,6 +277,7 @@ describe('the engine’s types', () => {
       'sound',
       'ambience',
       'music',
+      'environment',
       'item',
     ]);
   });

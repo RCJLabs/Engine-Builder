@@ -86,6 +86,8 @@ export const terrainSchema = z
 
 export const spaceSchema = z.strictObject({
   name: z.string().min(1).max(80),
+  /** The id of the environment record it is drawn under (M5.4, D66): a space's alone. */
+  environment: id.optional(),
   terrain: terrainSchema.optional(),
   objects: z.array(objectSchema).max(5000),
 });
