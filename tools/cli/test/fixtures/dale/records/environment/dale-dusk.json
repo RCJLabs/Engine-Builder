@@ -1,0 +1,19 @@
+{
+  "name": "Dale at dusk",
+  "hour": 19.25,
+  "sky": "gradient",
+  "zenith": "#22355a",
+  "horizon": "#e0905a",
+  "ground": "#3a3028",
+  "sun": "#ffe2c0",
+  "sun-strength": 1.6,
+  "ambient": "#b8a8c8",
+  "ambient-strength": 1.1,
+  "fog": {
+    "color": "#8a7f86",
+    "near": 40,
+    "far": 300
+  },
+  "weather": "rain",
+  "weather-amount": 0.25
+}

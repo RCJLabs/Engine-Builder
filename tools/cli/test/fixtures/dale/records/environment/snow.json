@@ -1,0 +1,19 @@
+{
+  "name": "Snow",
+  "hour": 11,
+  "sky": "gradient",
+  "zenith": "#8fb0d0",
+  "horizon": "#e6eef5",
+  "ground": "#f4f7fa",
+  "sun": "#ffffff",
+  "sun-strength": 2,
+  "ambient": "#e8f0f8",
+  "ambient-strength": 1.8,
+  "fog": {
+    "color": "#e6edf3",
+    "near": 20,
+    "far": 160
+  },
+  "weather": "snow",
+  "weather-amount": 0.6
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Desert",
+  "hour": 14,
+  "sky": "physical",
+  "turbidity": 6,
+  "sun": "#fff0d0",
+  "sun-strength": 2.6,
+  "ambient": "#f2e2c4",
+  "ambient-strength": 1.4,
+  "fog": {
+    "color": "#d9c3a0",
+    "near": 120,
+    "far": 600
+  }
+}

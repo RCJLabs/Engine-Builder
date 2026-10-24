@@ -1,0 +1,5 @@
+{
+  "name": "Cave",
+  "environment": "cave",
+  "objects": [{ "id": "boulder", "shape": "sphere", "at": [0, 0, -4], "scale": [3, 2, 3], "color": "#5c564e" }]
+}

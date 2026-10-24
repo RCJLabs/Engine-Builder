@@ -1,0 +1,15 @@
+{
+  "name": "Forest",
+  "hour": 16,
+  "sky": "physical",
+  "turbidity": 4,
+  "sun": "#fff1d6",
+  "sun-strength": 1.8,
+  "ambient": "#cfe0c4",
+  "ambient-strength": 1.4,
+  "fog": {
+    "color": "#8fa38a",
+    "near": 30,
+    "far": 220
+  }
+}

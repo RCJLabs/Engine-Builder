@@ -1,0 +1,9 @@
+{
+  "name": "Sci-fi interior",
+  "hour": 12,
+  "sky": "colour",
+  "zenith": "#10161d",
+  "sun-strength": 0,
+  "ambient": "#cfe3ff",
+  "ambient-strength": 1.2
+}

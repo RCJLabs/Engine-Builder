@@ -1,0 +1,14 @@
+{
+  "name": "Cave",
+  "hour": 12,
+  "sky": "colour",
+  "zenith": "#0d0f12",
+  "sun-strength": 0,
+  "ambient": "#8a7f70",
+  "ambient-strength": 0.6,
+  "fog": {
+    "color": "#0d0f12",
+    "near": 5,
+    "far": 60
+  }
+}
