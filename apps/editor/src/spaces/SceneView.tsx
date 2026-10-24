@@ -121,11 +121,12 @@ export function SceneView(props: {
   const mode = gizmoMode.value;
   const ids = picked.value;
   const framing = frameAsked.value;
-  // The view takes the mode and the pick as the label says them, not a paint later: in that gap, a
-  // tap found clear of the gizmo before its object was chosen landed on the gizmo that came with it.
+  // The view takes the mode, the pick and Frame as the label says them, not a paint later: in that
+  // gap, a tap found clear of the gizmo before its object was chosen landed on the gizmo that came
+  // with it, and a handle found just after Frame was pressed was where the camera had it before.
   useLayoutEffect(() => view.current?.setMode(mode), [mode]);
   useLayoutEffect(() => view.current?.select(ids), [ids]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (framing > 0) view.current?.frame();
   }, [framing]);
 

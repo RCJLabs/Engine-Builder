@@ -895,6 +895,7 @@ How to read this file:
       - Opening a 513 terrain built every chunk at full detail, then again at its level. Building each once at its level takes 18 to 29 ms against 138 to 168 ms, in Node (Readings).
       - Add put objects at 0 m, under any raised ground.
       - W145 read "Water sits on a plane" for water that doesn't sit on one; it says "Water off a plane" now.
+      - CI's whole suite failed once on M5.1's sideways spec. A handle was found just after Frame was pressed but before the view framed, as Frame ran after a paint; on a loaded runner the drag missed the handle. Frame now runs as the toolbar's press lands, as the mode and the pick have since M5.1. Reproduced first: Frame planted 150 ms late fails that spec.
     - **Logged for later:** the brush's ring before a finger lands ([specs/terrain.md](docs/specs/terrain.md#open-questions), question 4); a height typed for Flatten (question 3); layers as textures with M5.5 (question 1); terrains beyond 513 with M5.9 (question 2); a pinch in brush mode has no check of its own that the stroke it cut short went back.
     - **Untested for feel:** everything. No real finger has stroked a terrain. The brushes' rates, the radius's range and the ring's colour are first guesses.
     - **54 planted bugs**, each command first seen passing on the clean tree; 48 caught the first time.
