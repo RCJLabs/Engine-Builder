@@ -35,6 +35,8 @@ export interface FoliageShown {
 export interface FoliageSummary {
   readonly foliage: string;
   readonly model: string | null;
+  /** Where each of its model's levels starts, as it is drawn now: none until the model is decoded. */
+  readonly froms: readonly number[];
   readonly plants: number;
   readonly drawn: number;
   readonly capped: boolean;
@@ -272,6 +274,7 @@ export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | 
         return {
           foliage: kind.shown.id,
           model: kind.shown.record.model,
+          froms: kind.template?.froms ?? [],
           plants: chunks.reduce((n, c) => n + c.plants, 0),
           drawn,
           capped: kind.capped,

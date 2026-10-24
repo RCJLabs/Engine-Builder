@@ -13,6 +13,7 @@ import {
   fillGrass,
   foliage,
   keptState,
+  levelPines,
   nearAndFar,
   newFoliage,
   paintRock,
@@ -59,6 +60,8 @@ for (const viewport of [
       await plantAndClear(page, true, () => pinch(page, false));
       await expectInReach(page);
       await fillGrass(page, true);
+      await expectInReach(page);
+      await levelPines(page, true);
       await expectInReach(page);
 
       await nearAndFar(page, () => pinch(page, false));

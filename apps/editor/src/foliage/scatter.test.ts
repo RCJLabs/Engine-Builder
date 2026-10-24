@@ -49,6 +49,14 @@ describe('the scatter', () => {
     expect(shared.length).toBeLessThan(5);
   });
 
+  it('reads its own channel of the density, whatever the others hold', () => {
+    // Channel 0 full everywhere, channel 1 half: the second type stands as if painted half.
+    const g = grid(255);
+    for (let v = 0; v < 129 * 129; v++) g.foliage[v * 4 + 1] = 128;
+    const second = scatterOf('pines', 1, { model: 'kit-pine', density: 2 });
+    expect(spots(scatterAll(g, second).chunks)).toEqual(spots(scatterAll(grid(128), pines()).chunks));
+  });
+
   it('scatters a chunk alone as the whole scatters it', () => {
     const g = grid();
     const all = scatterAll(g, pines({ density: 20 }));

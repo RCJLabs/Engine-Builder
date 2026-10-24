@@ -70,6 +70,21 @@ describe('a rename reaching spaces', () => {
     expect(await problems(after)).toEqual([]);
   });
 
+  it('of a foliage type: every terrain that grows it, in its place in the list (M5.6)', async () => {
+    const terrain = { size: 65, spacing: 1, low: 0, high: 10, layers: [{ name: 'Grass', color: '#5f8f3e' }] };
+    const files = {
+      ...project(),
+      'records/foliage/ferns.json': json({ model: 'kit-fern' }),
+      'spaces/fell.json': json({ name: 'Fell', terrain: { ...terrain, foliage: ['pines', 'ferns'] }, objects: [] }),
+    };
+    const after = applied(files, await renameRecord(memorySource(files), 'foliage', 'ferns', 'bracken'));
+    expect((after['spaces/fell.json'] as { terrain: { foliage: string[] } }).terrain.foliage).toEqual([
+      'pines',
+      'bracken',
+    ]);
+    expect(after['records/foliage/bracken.json']).toEqual({ model: 'kit-fern' });
+  });
+
   it('of a type: every "type:id" of it there', async () => {
     const files = project();
     const after = applied(files, await renameType(memorySource(files), 'keeper', 'warden'));

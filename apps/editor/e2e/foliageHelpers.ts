@@ -7,7 +7,7 @@
 import { expect, type Page } from '@playwright/test';
 import { press, showInspector } from './componentHelpers.ts';
 import { stored } from './kitHelpers.ts';
-import { showAssets } from './ludus.ts';
+import { openRecord, showAssets } from './ludus.ts';
 import { camera, scenePanel, showScene } from './spaceHelpers.ts';
 import { lowerSheet } from './templateHelpers.ts';
 import {
@@ -27,6 +27,7 @@ export const GRASS = 'glade-grass';
 export interface FoliageSummary {
   readonly foliage: string;
   readonly model: string | null;
+  readonly froms: readonly number[];
   readonly plants: number;
   readonly drawn: number;
   readonly capped: boolean;
@@ -155,17 +156,51 @@ export async function fillGrass(page: Page, touch: boolean): Promise<void> {
   expect(await near(page, GRASS, ROCK[0], ROCK[1], 0.75)).toBe(0);
 }
 
-/** Each type's chunk nearest the camera that has plants, and its level. */
-const nearestLevel = (f: FoliageSummary | undefined) =>
-  [...(f?.chunks ?? [])].filter((c) => c.plants > 0).sort((a, b) => a.distance - b.distance)[0]?.level;
+/** Where the pine's second level starts, in metres: given in its form once the trees are planted. */
+const PINE_FROM = 40;
 
 /**
- * Near the trees, their nearest chunk drawn at its model's first level. Zoomed out until the
- * camera is past the grass's 60 m from every chunk: no grass drawn, but every plant still
- * scattered, and every tree still drawn (out to its 400 m).
+ * The kit's pine given a LOD level in its form, half its triangles from 40 m, after its trees are
+ * drawn: the trees can only take it up by drawing their model again, as a placed pine would.
+ */
+export async function levelPines(page: Page, touch: boolean): Promise<void> {
+  await openRecord(page, 'Model', 'kit-pine');
+  const pine = (await showInspector(page, touch)).getByRole('region', { name: 'Model kit-pine' });
+  await press(pine.getByRole('button', { name: 'Add to LOD levels' }), touch);
+  await pine.getByLabel('Keeps', { exact: true }).last().fill('0.5');
+  await pine.getByLabel('From, in metres', { exact: true }).last().fill(String(PINE_FROM));
+  await expect
+    .poll(() => stored(page, FOLDER, 'records/model/kit-pine.json'))
+    .toMatchObject({ lod: [{ ratio: 0.5, from: PINE_FROM }] });
+  await seeScene(page, touch);
+}
+
+/** The level a chunk at `distance` should draw: −1 past the type's reach, else the last level started. */
+const levelAt = (distance: number, drawnTo: number, froms: readonly number[]) =>
+  distance > drawnTo ? -1 : froms.reduce((level, from, k) => (distance >= from ? k : level), 0);
+
+/** How a type's chunks are drawn: its model's levels, the chunks at a level their distance doesn't give, and the levels of those with plants. */
+async function levelsOf(page: Page, id: string, drawnTo: number) {
+  const f = (await foliage(page))[id];
+  return {
+    froms: f?.froms,
+    wrong: f?.chunks.filter((c) => c.level !== levelAt(c.distance, drawnTo, f.froms)).length,
+    planted: [...new Set(f?.chunks.filter((c) => c.plants > 0).map((c) => c.level))].sort(),
+  };
+}
+
+/**
+ * Near: every tree chunk at the level its distance gives, those under 40 m whole. Zoomed out until
+ * the camera is 150 m off, past the grass's 60 m from every chunk: no grass drawn, though every
+ * plant is still scattered, and every tree still drawn, at the pine's second level.
  */
 export async function nearAndFar(page: Page, zoomOut: () => Promise<void>): Promise<void> {
-  await expect.poll(async () => nearestLevel((await foliage(page))[TREES])).toBe(0);
+  await expect
+    .poll(async () => {
+      const trees = await levelsOf(page, TREES, 400);
+      return { froms: trees.froms, wrong: trees.wrong, whole: trees.planted.includes(0) };
+    })
+    .toEqual({ froms: [0, PINE_FROM], wrong: 0, whole: true });
   const scattered = (await foliage(page))[GRASS]?.plants ?? 0;
   expect(scattered).toBeGreaterThan(10_000);
   await expect.poll(async () => (await foliage(page))[GRASS]?.drawn).toBeGreaterThan(0);
@@ -179,9 +214,16 @@ export async function nearAndFar(page: Page, zoomOut: () => Promise<void>): Prom
         grassScattered: now[GRASS]?.plants,
         grassLevels: [...new Set(now[GRASS]?.chunks.map((c) => c.level))],
         treesDrawn: now[TREES]?.drawn === now[TREES]?.plants,
+        trees: await levelsOf(page, TREES, 400),
       };
     })
-    .toEqual({ grassDrawn: 0, grassScattered: scattered, grassLevels: [-1], treesDrawn: true });
+    .toEqual({
+      grassDrawn: 0,
+      grassScattered: scattered,
+      grassLevels: [-1],
+      treesDrawn: true,
+      trees: { froms: [0, PINE_FROM], wrong: 0, planted: [1] },
+    });
 }
 
 /** What a reload must give back: the terrain's list, the density file's bytes hashed, both records, and the plants. */

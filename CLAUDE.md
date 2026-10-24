@@ -171,7 +171,12 @@ apps/editor/           the editor PWA
                        modelParts.ts (materials, slots, LOD levels cut by the simplifier, the collider's wire) and
                        viewModels.ts (the view's side: the lazy load, a rebuild when a file is decoded, wires on the
                        chosen, window.__ebViewport.models()); live.ts reads what its models need; Add → Model…;
-                       lastShown.ts (what the view was last shown, kept only once there is a view)
+                       lastShown.ts (what the view was last shown, kept only once there is a view); M5.6 (D68):
+                       foliageView.ts (with three: each foliage type scattered over the grid and drawn as instanced
+                       meshes a chunk, at the model's level for its distance, scattered again where the terrain
+                       changed, the hook's foliage() and plantsNear()), terrainView.ts reads the density file and
+                       says what changed, live.ts reads the terrain's foliage records and their models;
+                       viewportHook.ts (window.__ebViewport's shape, set and taken away)
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -179,7 +184,13 @@ apps/editor/           the editor PWA
                        seam measured from a mesh's buffers), ray.ts (where a ray meets the ground) and terrainEdits.ts
                        (add, change, remove, a layer removed, a stroke written, as file changes); state.ts (the brush
                        chosen), actions.ts (the edits as steps of undo), TerrainTools (the toolbar's row), TerrainForm
-                       (the inspector's)
+                       (the inspector's); M5.6: Plant and Clear in brushes.ts, the foliage's density in grid.ts
+  src/foliage/         a terrain's foliage in the editor (M5.6, D68): plain functions with tests: scatter.ts (where
+                       each plant stands, by chunk, from the density and a cell's seed), drawing.ts (a chunk's level
+                       for its distance, plants near a point) and foliageEdits.ts (a type added, taken out, filled,
+                       made new from a preset, Start from, as file changes); actions.ts (the edits as steps of undo),
+                       FoliageSection (the inspector's, under the terrain's form), FoliageTools (Plant and Clear's
+                       type and Fill in the terrain's row), FoliageStart (Start from, above a foliage record's form)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -276,7 +287,10 @@ apps/editor/           the editor PWA
                        and the canvas's own pixels, and kept, by mouse and keys and by touch; modelHelpers.ts,
                        models.spec.ts and modelsPhone.spec.ts are M5.5's, a Draco, a Meshopt and a KTX2-textured
                        model imported, a material on a slot, LOD and a collider made, placed and read back through
-                       window.__ebViewport near and far, the starter kit added, and kept, by mouse and keys and by touch
+                       window.__ebViewport near and far, the starter kit added, and kept, by mouse and keys and by touch;
+                       foliageHelpers.ts, foliage.spec.ts and foliagePhone.spec.ts are M5.6's, the kit's pines and
+                       grass made foliage of a glade, planted, cleared, filled from a layer and seen past the grass's
+                       reach through window.__ebViewport, and kept, by mouse and keys and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -333,6 +347,7 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        since M5.3); M5.4: environmentTypes.ts (environment, an engine
                        type, in ENGINE_DATA: E068); M5.5: materialTypes.ts (material, its presets) and
                        modelTypes.ts (model: its file, scale, slots, LOD and collider; E071, E072), engine types in
+                       ENGINE_DATA; M5.6: foliageTypes.ts (foliage, its presets; E074), an engine type in
                        ENGINE_DATA; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
@@ -359,7 +374,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        spaceLints.ts (W145, beside W142); M5.4: a space's environment in spaceShape.ts (E058 in a
                        prefab) and spaceParts.ts (E069, and a use for "used by"); M5.5: gltf.ts (a glTF's JSON read
                        for its counts, materials, extensions and files beside it, moved from the editor) and
-                       models.ts (each model record's file: E070, W146); not pure
+                       models.ts (each model record's file: E070, W146); M5.6: a terrain's foliage in spaceShape.ts
+                       (E058, FOLIAGE_MOST), its density PNG in spaceFiles.ts and terrains.ts (E067, W144) and
+                       spaceParts.ts (E073, and a use for "used by"); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -487,7 +504,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        cave and a station, which environment.test.ts validates clean and breaks once for each of
                        M5.4's checks; workshop/, a starter kit crate, Draco hills, a KTX2 sign, a material on a
                        slot, LOD, three colliders and a type drawn as a model, placed in a yard, which
-                       models.test.ts validates clean and breaks once for each of M5.5's checks
+                       models.test.ts validates clean and breaks once for each of M5.5's checks; grove/, a glade
+                       whose terrain grows the kit's pines and scrub from its density PNG, which foliage.test.ts
+                       validates clean and breaks once for each of M5.6's checks
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
@@ -500,10 +519,11 @@ games/space-wrecked/   Proof #1 (M4.12, D62): Space-Wrecked's acts 1–2 as a pr
                        (act 2: jumps, supplies, hunters, quest events, docking), shared.ts, captain.ts (the bot),
                        game.ts; ui/, its screens, theme, feedback and shell; export.json
 tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes, cylinders, cones, a wedge, flat faces),
-                       pieces.ts (the twenty pieces, their parts by material and their colliders' shapes), kit.ts (the
+                       pieces.ts (the 21 pieces, the grass since M5.6, their parts by material and their colliders'
+                       shapes), kit.ts (the
                        files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
                        starter-kit/ to it byte for byte and to eb validate
-starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: twenty pieces dedicated
+starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: 21 pieces dedicated
                        by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
 tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/records/ from source/, one file per
                        family (ship.ts: parts, the hull and shops; crew.ts; fights.ts; events.ts; quests.ts; board.ts;

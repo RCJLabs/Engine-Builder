@@ -13,6 +13,7 @@ import {
   fillGrass,
   foliage,
   keptState,
+  levelPines,
   nearAndFar,
   newFoliage,
   paintRock,
@@ -59,6 +60,8 @@ test('foliage made, planted, cleared, filled, seen near and far, and kept', asyn
   });
   await inReach(page);
   await fillGrass(page, false);
+  await inReach(page);
+  await levelPines(page, false);
   await inReach(page);
 
   // From about 50 m, out past the grass's reach.

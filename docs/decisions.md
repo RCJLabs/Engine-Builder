@@ -1842,6 +1842,14 @@ Evan chose on 2026-10-24, from these options:
 - **The scatter is worked out each time a space is drawn.** Its time is a reading; M5.7 can bake it into an export if a phone finds it dear.
 - **Four types a terrain,** as four paint layers; a second file can come if a world needs more.
 
+**As built** (2026-10-24, M5.6):
+- **The scatter waits for the next frame** when the terrain's list, its settings or a record change, so a terrain read and its list read in one change scatter once. A stroke scatters again only the chunks its dabs reach, as they land; an undo or a Fill, the chunks whose density or heights differ.
+- **The foliage's models are read as placed ones are,** through the same reader with their keys added, so a foliage type's model is decoded once, cut into its levels and drawn with its slots exactly as a placed one. Until it is decoded the plants stand scattered but undrawn, and a change to how the model is drawn (its LOD, slots or scale) draws its plants again.
+- **The kit's pine has no LOD levels** (under 1,000 triangles), so the gate gives it one in its form after the trees are planted: half its triangles from 40 m. That holds two things at once: each chunk draws the level its distance gives, and a change to the model reaches plants already drawn. The first gate, without it, missed a planted bug that never refreshed a type's model, since the models happened to be decoded before the scatter ran.
+- **The grass preset is dense:** 150 per 100 m² fills a 129-vertex terrain with 24,552 plants, about 9,200 drawn within 60 m of a camera 53 m off; one frame of that took 273 ms in the container's software WebGL (Readings). A phone's figure is M5.7's to measure.
+- **The viewport's hook moved to `viewportHook.ts`,** its shape and its setting apart from the view, to keep `viewport.ts` from growing past 430 lines.
+- **Untested for feel and on a phone:** no phone has painted foliage, filled a hillside or drawn a meadow; the presets' densities and distances are first guesses.
+
 ---
 
 ## Open

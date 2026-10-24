@@ -73,13 +73,14 @@ The terrain's row gains two brushes, acting on the foliage type chosen:
 | Clear | takes the same away |
 
 - **Their dabs** are the terrain brushes': the same radius, strength, falloff `(1 − (d / r)²)²` and spacing along a stroke. A density stays within 0 and 255. Each stroke is one step of undo, written as the pointer lifts.
-- **Fill** sets the chosen type's density at every vertex at once: Everywhere (255), Nowhere (0), or from a paint layer's weight there ("Fill from Grass": the grass grows where Grass is painted, as thick as it is painted). One step of undo.
+- **Fill** sets the chosen type's density at every vertex at once: Everywhere (255), Nowhere (0), or from a paint layer's weight there ("Where Grass is": the grass grows where Grass is painted, as thick as it is painted). One step of undo, "Fill Glade, grass from Grass".
 
 ## Drawing
 
 - **Instanced, by chunk.** For each chunk, each foliage type is drawn as one instanced mesh for each mesh in its model, with the model's materials and slots as a placed model draws them (models.md).
 - **Detail by distance.** A chunk draws a type at the model's LOD level for the distance from the camera to the chunk's centre, as the model's own `lod` sets it, and not at all beyond the type's `distance`.
-- **Drawn again** when what it is drawn from changes: a stroke's chunks when the density or the heights change; all of a type's chunks when its record or its model's record does, or the terrain's list does.
+- **Drawn again** when what it is drawn from changes: a stroke's chunks as its dabs land, and the chunks an undo or a Fill changed; every chunk, scattered again on the next frame, when the terrain's list or settings or a type's record change; and a type's chunks when its model is drawn otherwise (decoded, or its LOD levels, slots or scale changed).
+- **The model** is drawn as a placed model is (models.md): read with the space's models, though nothing places it, decoded once, and cut into its LOD levels by the simplifier. Until its file is decoded, its plants stand scattered but undrawn.
 
 ## Checks
 
@@ -100,7 +101,7 @@ The terrain's row gains two brushes, acting on the foliage type chosen:
 - **The terrain's form** gains Foliage: each type the terrain lists, with its record's name, Open and Remove; then Add foliage, a picker of the project's foliage records it doesn't list yet and New from Trees, Bushes, Grass or Rocks. A new one is a record named after the space and the preset (`glade-trees`, "Glade, trees"), its model the preset's kit model when the project has it, else its first model record, else none (E005 shows on its form). Each is one step of undo with the list.
 - **The terrain's row** gains Plant and Clear after Paint, once the terrain lists a foliage type. With either chosen, it holds the type to paint, and Fill, a menu of Everywhere, Nowhere and each paint layer.
 - **The view's hook** (`window.__ebViewport`) adds:
-  - `foliage()`: for each of the terrain's types, its foliage and model ids, the plants scattered, the plants drawn now, whether the scatter stopped at its most, and each chunk's plants, LOD level (−1 when not drawn) and distance;
+  - `foliage()`: for each of the terrain's types, its foliage and model ids, where each of its model's levels starts as drawn now (none until the model is decoded), the plants scattered, the plants drawn now, whether the scatter stopped at its most, and each chunk's plants, LOD level (−1 when not drawn) and distance;
   - `plantsNear(foliage, x, z, radius)`: how many of a type's plants stand within `radius` metres of a point.
 
 ## The gate
@@ -108,12 +109,13 @@ The terrain's row gains two brushes, acting on the foliage type chosen:
 - **`foliage.spec.ts`** on desktop, by mouse and keys, and **`foliagePhone.spec.ts`** by touch at 360×740, 390×844 and 844×390 start from an empty project. They:
   - add the starter kit, make a space and give it a 129-vertex terrain, and paint Rock at a spot of its own;
   - in the terrain's form, add foliage new from Trees and from Grass, the kit's pine and grass;
-  - plant trees in a stroke, then clear across part of it: fewer trees there, more than none, and an undo puts them back;
-  - fill the grass from Grass: grass where Grass is painted and none at the Rock;
-  - read the counts near and far: near the trees, their nearest chunk drawn at level 0; zoomed out past the grass's 60 m, no grass drawn but every plant still scattered, and the trees' chunks at coarser levels;
-  - reload, and find the terrain's list, the density file's bytes, both records and the hook's counts as they were.
+  - plant trees in a stroke 32 m long with a brush 10 m across, then clear across its middle: fewer trees within 30 m of the row, more than none, and an undo puts every one back;
+  - fill the grass from Grass: grass on open ground and none within 0.75 m of the Rock's middle;
+  - give the kit's pine a LOD level in its form, half its triangles from 40 m (it has none, under 1,000 triangles), after its trees are drawn, so they take it up only by drawing their model again;
+  - read the counts near and far: every tree chunk at the level its distance gives, some whole, and some grass drawn; zoomed out until the camera is 150 m off, past the grass's 60 m from every chunk, no grass drawn and every chunk's level −1, every grass plant still scattered, and every tree still drawn, at the pine's second level;
+  - reload, and find the terrain's list, the density file's bytes, both records, each type's plants by chunk and the trees by the row as they were.
 - **`tools/cli/test/foliage.test.ts`** holds the grove fixture to `eb validate`, clean, and finds each check in a copy broken once for each.
-- **Unit tests** hold the scatter to its rules: the same plants every time, painting more only adding, the slope and height limits, the cap, and one chunk scattered alone giving that chunk's plants of the whole.
+- **Unit tests** hold the scatter to its rules: the same plants every time, painting more only adding, each type reading its own channel, the slope and height limits, the turn, size and lean, the cap, and one chunk scattered alone giving that chunk's plants of the whole. Others hold Plant and Clear to their channel and to 0 and 255, a stroke's undo, the edits (added, filled, taken out with the later channels moved down, made new, Start from), a chunk's level and the count near a point, the foliage's models read as placed ones are, and a rename reaching the terrain's list.
 
 ## Open questions
 
