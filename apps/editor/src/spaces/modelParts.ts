@@ -8,6 +8,7 @@ import { simplifyIndices } from '@eb/models/lod';
 import { MATERIAL_DEFAULTS, type MaterialRecord, type ModelCollider, type ModelRecord } from '@eb/schema';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
 import * as THREE from 'three/webgpu';
+import { meshesOf } from './meshes.ts';
 
 /** The collider's wire, in the collider mark's colour (build.ts). */
 const WIRE = '#3ecf8e';
@@ -26,15 +27,6 @@ export function materialOf(record: MaterialRecord): THREE.MeshStandardMaterial {
   });
   made.name = record.name ?? '';
   return made;
-}
-
-/** Each mesh under `root`. */
-export function meshesOf(root: THREE.Object3D): THREE.Mesh[] {
-  const meshes: THREE.Mesh[] = [];
-  root.traverse((part) => {
-    if ((part as THREE.Mesh).isMesh) meshes.push(part as THREE.Mesh);
-  });
-  return meshes;
 }
 
 /** A mesh's materials, one or many, as a list. */

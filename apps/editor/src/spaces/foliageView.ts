@@ -22,7 +22,7 @@ import type { Area } from '../terrain/brushes.ts';
 import { chunksOf } from '../terrain/chunks.ts';
 import { extentOf, heightAt, type TerrainGrid } from '../terrain/grid.ts';
 import type { DrawModel } from './build.ts';
-import { meshesOf } from './modelParts.ts';
+import { meshesOf } from './meshes.ts';
 import type { Vec3 } from './vec.ts';
 
 /** A foliage type the terrain lists: its record, or null when there is none or it isn't sound, so nothing grows. */
