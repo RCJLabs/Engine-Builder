@@ -89,7 +89,8 @@ apps/editor/           the editor PWA
                        flags (M3.1), loot tables and shops (M3.3), stats, actors and items (M3.4), factions
                        (M3.5), the roster and recruits (M3.6), events (M3.7), talks (M3.8), quests (M3.9)), table.ts,
                        cells.ts, filters.ts and view.ts (columns, cells, filters, sort as plain functions), names.ts
-                       (nameField), the table and its tools, UsedBy, actions.ts, RenameRecord (M2.6)
+                       (nameField), the table and its tools, UsedBy (In spaces, M5.2), actions.ts, RenameRecord (M2.6),
+                       lookup.ts (a record and its value by key, for the screens' and the spaces' checks, M5.2)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
                        (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form; M3.2's
@@ -144,7 +145,12 @@ apps/editor/           the editor PWA
                        held to three's own), snap.ts, gizmoMath.ts, handles.ts (hits measured on screen, 44 px),
                        drag.ts, orbit.ts (the camera), spaceFile.ts (the writer, one object a line) and spaceEdits.ts;
                        and with three, loaded with the first file opened: SceneView, viewport.ts (WebGPURenderer,
-                       picking, drawing on demand, window.__ebViewport), build.ts, gizmoView.ts, gestures.ts
+                       picking, drawing on demand, window.__ebViewport), build.ts, gizmoView.ts, gestures.ts; M5.2
+                       (D64): spaceChecks.ts (the checks that read records, after the index, and who uses each
+                       record), partEdits.ts (components and overrides as plain functions), kindEdits.ts (a kind's
+                       file and its components), recordRenames.ts (renames reaching spaces), partForm.ts (the record
+                       form's fields over a part), PartFields, ComponentsSection, PlacedParts (Here, Inside and an
+                       object inside), ObjectFields
   src/designer/        the UI designer (M4.5, D55): a screen as an outline, a form and a device frame, the theme as
                        colours; tree.ts and treeEdits.ts (the outline's rows and its edits, as plain functions),
                        paths.ts, widgets.ts (each kind's fields, new widgets, key order), drawable.ts (a half-made
@@ -184,7 +190,7 @@ apps/editor/           the editor PWA
                        index finds it, M4.11), typeFileChanges.ts and fieldEdits.ts (what it
                        does to the type file), typeEdits.ts (steps over the working copy), typeActions.ts, the
                        designer's components (TypeDesigner, FieldList, FieldEditor, ValueOptions, AddField…);
-                       KitFields.tsx (a kit's fields, locked, M3.3)
+                       KitFields.tsx (a kit's fields, locked, M3.3); KindDesigner.tsx (a component kind, M5.2)
   test/                memory-fs.ts (an in-memory File System API that can cut the power), fs-folder.ts (a disk
                        folder behind it), fake-locks.ts (Web Locks as the spec describes them), fighter.ts (a type
                        and a project that reach every place a value can sit), *-bench.ts (timings; assets-bench.ts
@@ -222,7 +228,9 @@ apps/editor/           the editor PWA
                        spaceWrecked.spec.ts is M4.12's, Space-Wrecked's web export played by touch sideways and
                        upright (a captain, a job from the board, a part fitted), and its size budget;
                        spaceHelpers.ts, spaces.spec.ts and spacesPhone.spec.ts are M5.1's, a space built in the
-                       Scene panel by mouse and keys and by touch, through window.__ebViewport
+                       Scene panel by mouse and keys and by touch, through window.__ebViewport;
+                       componentHelpers.ts, components.spec.ts and componentsPhone.spec.ts are M5.2's, a kind of
+                       the project's own, components, a placed record and a prefab's overrides made with forms
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -275,7 +283,7 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        M4.8: audioTypes.ts (sound, ambience, music: the engine's audio types, in ENGINE_DATA); a
                        screen's ambience and music, a theme's sounds and a feedback line's sound as E049; M4.12:
                        listCheck.ts (a list's checks: its source's kit, a codex's fields, an offered list's takes,
-                       E049); not pure
+                       E049); M5.2: componentTypes.ts (the engine's five component kinds as type files); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -294,7 +302,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        (guide.json: E057, W140, opensInEditor) and template.ts (fromTemplate, idFromName,
                        shortNameOf: a template's files under the author's name); M5.1: spaces.ts (spaces/ and
                        prefabs/ read and checked: E058 to E061, not packed yet) and spaceFiles.ts (where they sit,
-                       W141); not pure
+                       W141); M5.2: spaceShape.ts (an object's shape), overrides.ts (what a placement's layers make
+                       of an object inside it), components.ts (components/ read: W143), spaceParts.ts (E062 to
+                       E066, W142, and the uses "used by" lists); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -407,7 +417,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        hand in Dirtbag's style, and valley-random.golden.json (M4.6); the drift's hostile ships
                        fought with the encounters kit, and pit/, a slice of Ludus whose bouts the roster fights,
                        and pit-lanista.golden.json; fights.test.ts, every fight of 300 seeds of each rolled
-                       against the table it showed (M4.7)
+                       against the table it showed (M4.7); lodge/, a yard with every component kind and one of its
+                       own, placed records and overrides two prefabs deep, which spaces.test.ts validates clean
+                       and breaks once for each of M5.2's checks
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

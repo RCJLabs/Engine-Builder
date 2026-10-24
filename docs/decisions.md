@@ -1654,6 +1654,13 @@ Evan chose on 2026-10-24, from these options:
 - **Nothing runs yet.** A trigger zone's effects are checked but don't fire until M5.7; a light shows in the editor's view only.
 - **Untested for feel** until a phone uses it.
 
+**As built** (2026-10-24, M5.2):
+- **The override is laid over the object as layers,** innermost first: the same plain functions (`overrides.ts` in the compiler) feed the checks, the editor's forms and the view, so what is checked is what is drawn.
+- **A placed record's overrides are checked as the record,** but only the fields they set are reported there; a problem in a field the placement leaves alone is the record's own, reported at the record.
+- **Reverting the last field of an override takes the override out,** and an override left empty goes with it, so a reverted placement is the line it was.
+- **The space checks that read records run after the record index** in the editor, as the screens' do, so a record's In spaces and the Problems panel agree with `eb validate`.
+- **Not counted yet:** the flag lint reads records alone, so a flag only a trigger zone names is W110 until M5.7 runs triggers ([specs/components.md](specs/components.md#open-questions), question 3).
+
 ---
 
 ## Open
