@@ -46,19 +46,15 @@ test('a space built with the gizmo, grouped, renamed and kept', async ({ page })
   const errors = watchErrors(page);
   await createProject(page, 'Yard works');
   await showScene(page);
-  // three loads with the first file opened, never with the editor's start or the panel's list.
-  const viewLoaded = () =>
-    page.evaluate(() =>
-      performance
-        .getEntriesByType('resource')
-        .map((entry) => entry.name)
-        .filter((name) => /\/SceneView-[^/]*\.js$/.test(name)),
-    );
-  expect(await viewLoaded()).toEqual([]);
+  // three loads with the first file opened, never with the editor's start or the panel's list. Its
+  // core marks the page as it runs, whichever chunk carries it: a chunk's name alone said nothing
+  // once a planted static import folded three into the list's own chunk.
+  const viewLoaded = () => page.evaluate(() => (window as { __THREE__?: string }).__THREE__ ?? null);
+  expect(await viewLoaded()).toBeNull();
 
   // A prefab with a box in it.
   await newSpaceFile(page, 'prefab', 'Crate');
-  expect(await viewLoaded()).toHaveLength(1);
+  expect(await viewLoaded()).toMatch(/^\d+$/);
   await add(page, 'Box');
   await expect
     .poll(() => stored(page, FOLDER, 'prefabs/crate.json'))

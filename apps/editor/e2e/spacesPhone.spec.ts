@@ -49,6 +49,28 @@ async function toView(page: Page): Promise<void> {
     .evaluate((view) => view.scrollIntoView({ block: 'nearest' }));
 }
 
+/**
+ * The whole view on screen once scrolled to: each corner the canvas's own, under no bar. On a phone on
+ * its side the view is held to what fits; a planted view as tall as upright still let every drag land.
+ */
+async function expectViewWhole(page: Page): Promise<void> {
+  await toView(page);
+  const covered = await scenePanel(page)
+    .locator('.scene-canvas')
+    .evaluate((canvas) => {
+      const box = canvas.getBoundingClientRect();
+      // 8 px in from each corner: nearer, the view's rounded corner clips the canvas.
+      const corners: [number, number][] = [
+        [box.left + 8, box.top + 8],
+        [box.right - 8, box.top + 8],
+        [box.left + 8, box.bottom - 8],
+        [box.right - 8, box.bottom - 8],
+      ];
+      return corners.filter(([x, y]) => document.elementFromPoint(x, y) !== canvas).map(([x, y]) => `${x},${y}`);
+    });
+  expect(covered).toEqual([]);
+}
+
 async function expectInReach(page: Page): Promise<void> {
   await expectNothingOffscreen(page);
   expect(await smallTargets(page, '[data-panel="scene"], [data-panel="outliner"], [data-panel="inspector"]')).toEqual(
@@ -95,6 +117,7 @@ for (const viewport of [
         .poll(async () => (await yard(page))?.objects.map((o) => o.id))
         .toEqual(['crate', 'crate-2', 'crate-3']);
       await expectInReach(page);
+      await expectViewWhole(page);
 
       // The first crate chosen in the outliner, then moved, turned and scaled by one finger.
       const outliner = await showOutliner(page);
