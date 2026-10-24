@@ -1710,6 +1710,45 @@ Evan chose on 2026-10-24, from these options:
 
 ---
 
+### D66. M5.4 is the whole environment: sky, sun and time of day, fog, rain and snow, and seven presets; an environment is a record a space names; the sky is physical or a gradient; M5.4 is proved by machine. LOCKED, 2026-10-24 (Evan's calls, M5.4)
+
+Evan chose on 2026-10-24, from these options:
+- **Scope:**
+  - all of it now: sky, sun and time of day, fog, rain and snow, and the seven presets (desert, coast, forest, snow, cave, sci-fi interior, town); the hour set by the author and previewed in the view, driven by the game's clock from M5.8;
+  - the same but rain and snow after M5.7, once particle budgets are measured on phones;
+  - one fixed look per space now, with time of day, weather and presets later.
+- **Storage:**
+  - an engine record type, `environment`, made in Records with forms, that a space names; presets are records New environment writes, as New screen writes stock screens;
+  - a field in the space's JSON, like the terrain;
+  - files of their own, `environments/<id>.json`.
+- **Sky:**
+  - three's physical sky (Preetham, as its SkyMesh draws it) for outdoors, a three-colour gradient for stylised looks, and a flat colour for caves and interiors;
+  - a gradient only;
+  - the physical sky only, caves and interiors a flat colour.
+- **The gate:**
+  - by machine: an e2e on desktop and by touch at 360, 390 and sideways makes an environment from each preset, sets the hour, fog and weather, and reads the view back (the sun's direction, the sky's colour at the zenith and the horizon from the canvas, fog's range, rain's particles), then reloads; a fixture held to `eb validate`; frame times readings only;
+  - the same, plus screenshots of each preset at dawn, noon and dusk;
+  - the same, then Evan's phone before M5.5.
+
+**Decision.**
+- **M5.4 is the whole environment.** Sky, sun and time of day, fog, rain and snow, and the seven presets. The hour is the author's to set and the view previews it; from M5.8 the game's clock drives it.
+- **An environment is a record.** The engine's `environment` type, made and changed in Records with its form; a space names the one it uses, so many spaces share a look, and renames and used-by follow as for any record. The seven presets are records New environment writes into the project, as New screen writes stock screens: data the author owns and changes, never code.
+- **The sky is physical or a gradient.** Outdoors, three's physical sky, lit from where the hour puts the sun; a stylised look, a gradient of three colours with a sun disc; a cave or an interior, one flat colour.
+- **The gate is by machine.** An e2e on desktop and by touch at 360, 390 and sideways makes an environment from each preset, sets the hour, fog and weather, and reads the view back through its hook and the canvas's pixels, then finds it all after a reload. A fixture holds the new checks to `eb validate`. Frame times are readings in software rendering only.
+
+**Why.**
+- **Scope:** an environment is little without its time of day, and rain and snow are a handful of instanced points; leaving them would mean coming back to the same records and form.
+- **Storage:** a record reuses everything M2 built: its form, its checks, the record index's renames and used-by. A field in each space would be copied by hand across ten caves.
+- **Sky:** the physical sky gives sunsets from one number, the hour; a gradient is cheaper and takes any look; a cave has no sky at all.
+- **Gate:** as for M5.1 to M5.3, the editor is the product, so the gate builds in it. A frame rate measured in software says little about a phone.
+
+**Cost.**
+- **The physical sky is a shader on every frame:** on a phone it may cost more than a gradient. M5.7's tiers can swap it.
+- **Weather is drawn in the editor only** until M5.8 brings a camera that moves through it.
+- **Pixels read from a canvas** depend on the renderer; the gate reads them with a tolerance, and from both backends only as the e2e's Chromium has them.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
