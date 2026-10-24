@@ -83,10 +83,9 @@ export {
   type SpaceKind,
   spacePath,
 } from './spaceFiles.ts';
-export { checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
+export { checkProjectSpaceParts, checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
 export { SHAPES, type Shape, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 export {
-  checkProjectSpaceParts,
   checkProjectSpaces,
   checkSpaces,
   readSpaces,

@@ -20,7 +20,7 @@ import {
 } from '@eb/schema';
 import { eachPlaced, type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
 import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
-import type { SpaceFileRead } from './spaces.ts';
+import { atLines, type SpaceFileRead } from './spaces.ts';
 
 export interface SpacePartsContext {
   /** Every record type there is, by name. */
@@ -246,4 +246,13 @@ function starts(file: string, space: SpaceJson, prefabs: ReadonlyMap<string, Spa
     seen += here;
   });
   return found;
+}
+
+/** The checks that need the project's types and records, each at its line, and the references they found. */
+export function checkProjectSpaceParts(
+  files: readonly SpaceFileRead[],
+  parts: SpacePartsContext,
+): { diagnostics: Diagnostic[]; uses: SpaceUse[] } {
+  const found = checkSpaceParts(files, parts);
+  return { diagnostics: atLines(files, found.diagnostics), uses: found.uses };
 }

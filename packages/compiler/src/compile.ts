@@ -25,6 +25,7 @@ import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
+import { checkProjectSpaceParts } from './spaceParts.ts';
 import { checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
 
@@ -93,7 +94,8 @@ export async function compileProject(
   const index = indexOf(records);
   // After the records: a placed record, and every reference in a component or an override, names one (M5.2).
   diagnostics.push(
-    ...checkProjectSpaces(spaces.files, {
+    ...checkProjectSpaces(spaces.files),
+    ...checkProjectSpaceParts(spaces.files, {
       types: new Map(known.types.map((t) => [t.type, t])),
       records: index,
       value: recordValues(records),
@@ -101,7 +103,7 @@ export async function compileProject(
       kinds: components.kinds,
       uncheckedKinds: components.unchecked,
       assets: files.assets,
-    }),
+    }).diagnostics,
   );
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {

@@ -10,7 +10,6 @@ import { parseJsonFile } from './decode.ts';
 import { placeOfPointer } from './jsonLines.ts';
 import type { ProjectSource } from './source.ts';
 import { classifySpaceFile, PREFABS_DIR, SPACES_DIR, type SpaceKind } from './spaceFiles.ts';
-import { checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
 import { type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 
 /** A file under spaces/ or prefabs/ as read: its value is undefined when it isn't JSON (E007). */
@@ -111,7 +110,7 @@ export async function readSpaces(
 }
 
 /** Each problem at its line and column as well as its path, as the screens' are. */
-function atLines(files: readonly SpaceFileRead[], found: readonly Diagnostic[]): Diagnostic[] {
+export function atLines(files: readonly SpaceFileRead[], found: readonly Diagnostic[]): Diagnostic[] {
   const texts = new Map(files.map((f) => [f.file, f.text]));
   return found.map((d) => {
     const text = d.file === undefined ? undefined : texts.get(d.file);
@@ -120,16 +119,11 @@ function atLines(files: readonly SpaceFileRead[], found: readonly Diagnostic[]):
   });
 }
 
-/** The checks, each at its line. With the project's types and records, the components, placed records and overrides too (M5.2). */
-export function checkProjectSpaces(files: readonly SpaceFileRead[], parts?: SpacePartsContext): Diagnostic[] {
-  return atLines(files, [...checkSpaces(files), ...(parts ? checkSpaceParts(files, parts).diagnostics : [])]);
-}
-
-/** The checks that need the project's types and records alone, each at its line, and the references they found: the editor's, after its record index. */
-export function checkProjectSpaceParts(
-  files: readonly SpaceFileRead[],
-  parts: SpacePartsContext,
-): { diagnostics: Diagnostic[]; uses: SpaceUse[] } {
-  const found = checkSpaceParts(files, parts);
-  return { diagnostics: atLines(files, found.diagnostics), uses: found.uses };
+/**
+ * The files' own checks, each at its line. Those that read the project's types and records are
+ * spaceParts.ts's checkProjectSpaceParts, apart so the editor's start, which runs these, carries
+ * none of them (M5.2).
+ */
+export function checkProjectSpaces(files: readonly SpaceFileRead[]): Diagnostic[] {
+  return atLines(files, checkSpaces(files));
 }
