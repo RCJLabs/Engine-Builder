@@ -1,0 +1,33 @@
+{
+  "name": "Fell",
+  "terrain": {
+    "size": 65,
+    "spacing": 2,
+    "low": -8,
+    "high": 24,
+    "layers": [
+      { "name": "Grass", "color": "#5f8f3e" },
+      { "name": "Rock", "color": "#8a8580" },
+      { "name": "Snow", "color": "#eef2f5" }
+    ]
+  },
+  "objects": [
+    {
+      "id": "tarn",
+      "name": "Tarn",
+      "shape": "plane",
+      "at": [30, -1.5, -24],
+      "scale": [16, 1, 16],
+      "components": { "water": { "color": "#2f5d74", "clarity": 0.7 } }
+    },
+    {
+      "id": "lochan",
+      "name": "Lochan",
+      "shape": "plane",
+      "at": [-20, 9, 12],
+      "scale": [4, 1, 4],
+      "components": { "water": {} }
+    },
+    { "id": "cairn", "name": "Cairn", "shape": "cylinder", "at": [0, 18, 0], "scale": [1, 1.6, 1], "color": "#7d776f" }
+  ]
+}

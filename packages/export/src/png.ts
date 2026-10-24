@@ -1,7 +1,8 @@
 /**
  * PNG in and out, in plain code so an icon is the same bytes in the browser and in Node
  * (docs/specs/export.md#icons; Dirtbag's app/build/pwa.ts encodes its own the same way). Reads
- * 8-bit, non-interlaced PNGs of every colour type; writes RGBA.
+ * 8-bit, non-interlaced PNGs of every colour type; writes RGBA. A terrain's heights (M5.3, D65)
+ * are 16-bit greyscale, read and written by encodeGray16 and decodeGray16.
  */
 import { unzlibSync, zlibSync } from 'fflate';
 
@@ -40,19 +41,17 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   return out;
 }
 
-/** RGBA as a PNG: every row filtered with "none", deflated at level 9. */
-export function encodePng({ width, height, data }: Rgba): Uint8Array {
+/** A PNG of IHDR's depth and colour type around rows already filtered, each led by its filter byte. */
+function pngOf(width: number, height: number, depth: number, colour: number, raw: Uint8Array, level: 6 | 9) {
   const header = new Uint8Array(13);
   const view = new DataView(header.buffer);
   view.setUint32(0, width);
   view.setUint32(4, height);
-  header.set([8, 6, 0, 0, 0], 8);
-  const raw = new Uint8Array(height * (width * 4 + 1));
-  for (let y = 0; y < height; y++) raw.set(data.subarray(y * width * 4, (y + 1) * width * 4), y * (width * 4 + 1) + 1);
+  header.set([depth, colour, 0, 0, 0], 8);
   const parts = [
     new Uint8Array(SIGNATURE),
     chunk('IHDR', header),
-    chunk('IDAT', zlibSync(raw, { level: 9 })),
+    chunk('IDAT', zlibSync(raw, { level })),
     chunk('IEND', new Uint8Array()),
   ];
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
@@ -64,23 +63,77 @@ export function encodePng({ width, height, data }: Rgba): Uint8Array {
   return out;
 }
 
-// Samples a pixel of each colour type has.
-const CHANNELS: Readonly<Record<number, number>> = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 };
+/** RGBA as a PNG: every row filtered with "none", deflated at level 9. */
+export function encodePng({ width, height, data }: Rgba): Uint8Array {
+  const raw = new Uint8Array(height * (width * 4 + 1));
+  for (let y = 0; y < height; y++) raw.set(data.subarray(y * width * 4, (y + 1) * width * 4), y * (width * 4 + 1) + 1);
+  return pngOf(width, height, 8, 6, raw, 9);
+}
 
-const paeth = (a: number, b: number, c: number): number => {
-  const p = a + b - c;
-  const pa = Math.abs(p - a);
-  const pb = Math.abs(p - b);
-  const pc = Math.abs(p - c);
-  return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
-};
+/** Greyscale at 16 bits a sample, rows top to bottom: a terrain's heights (M5.3). */
+export interface Gray16 {
+  readonly width: number;
+  readonly height: number;
+  readonly data: Uint16Array;
+}
 
-/** A PNG's pixels, or an error that says what to save it as instead. */
-export function decodePng(bytes: Uint8Array): Rgba {
+/**
+ * 16-bit greyscale as a PNG, each row filtered with "sub" (each byte less the one a sample before):
+ * a smooth heightmap's neighbours differ little, so it deflates far smaller than unfiltered. Level 6,
+ * as a stroke writes it again each time it ends.
+ */
+export function encodeGray16({ width, height, data }: Gray16): Uint8Array {
+  const stride = width * 2;
+  const raw = new Uint8Array(height * (stride + 1));
+  for (let y = 0; y < height; y++) {
+    const row = y * (stride + 1);
+    raw[row] = 1;
+    let before = 0;
+    let beforeLow = 0;
+    for (let x = 0; x < width; x++) {
+      const v = data[y * width + x] as number;
+      const high = v >> 8;
+      const low = v & 0xff;
+      raw[row + 1 + x * 2] = (high - before) & 0xff;
+      raw[row + 2 + x * 2] = (low - beforeLow) & 0xff;
+      before = high;
+      beforeLow = low;
+    }
+  }
+  return pngOf(width, height, 16, 0, raw, 6);
+}
+
+/** A 16-bit greyscale PNG's samples, or an error that says what it is instead. */
+export function decodeGray16(bytes: Uint8Array): Gray16 {
+  const { header, data } = readChunks(bytes);
+  if (header.depth !== 16 || header.colour !== 0 || header.interlace !== 0) {
+    throw new Error('Heights are a 16-bit greyscale PNG, not interlaced');
+  }
+  const raw = unfilter(unzlibSync(data), header.width, header.height, 2);
+  const out = new Uint16Array(header.width * header.height);
+  for (let i = 0; i < out.length; i++) out[i] = ((raw[i * 2] as number) << 8) | (raw[i * 2 + 1] as number);
+  return { width: header.width, height: header.height, data: out };
+}
+
+interface Header {
+  readonly width: number;
+  readonly height: number;
+  readonly depth: number;
+  readonly colour: number;
+  readonly interlace: number;
+}
+
+/** A PNG's header, palette, transparency and image data joined, or an error. */
+function readChunks(bytes: Uint8Array): {
+  header: Header;
+  palette?: Uint8Array;
+  transparency?: Uint8Array;
+  data: Uint8Array;
+} {
   if (!SIGNATURE.every((b, i) => bytes[i] === b)) throw new Error('It isn’t a PNG file');
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let at = 8;
-  let header: { width: number; height: number; depth: number; colour: number; interlace: number } | undefined;
+  let header: Header | undefined;
   let palette: Uint8Array | undefined;
   let transparency: Uint8Array | undefined;
   const data: Uint8Array[] = [];
@@ -103,17 +156,34 @@ export function decodePng(bytes: Uint8Array): Rgba {
     at += 12 + length;
   }
   if (!header) throw new Error('The PNG has no header');
-  const channels = CHANNELS[header.colour];
-  if (header.depth !== 8 || channels === undefined || header.interlace !== 0) {
-    throw new Error('Save it as an 8-bit PNG (RGB or RGBA), not interlaced');
-  }
   const joined = new Uint8Array(data.reduce((n, d) => n + d.length, 0));
   let offset = 0;
   for (const d of data) {
     joined.set(d, offset);
     offset += d.length;
   }
-  const raw = unfilter(unzlibSync(joined), header.width, header.height, channels);
+  return { header, ...(palette ? { palette } : {}), ...(transparency ? { transparency } : {}), data: joined };
+}
+
+// Samples a pixel of each colour type has.
+const CHANNELS: Readonly<Record<number, number>> = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 };
+
+const paeth = (a: number, b: number, c: number): number => {
+  const p = a + b - c;
+  const pa = Math.abs(p - a);
+  const pb = Math.abs(p - b);
+  const pc = Math.abs(p - c);
+  return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+};
+
+/** A PNG's pixels, or an error that says what to save it as instead. */
+export function decodePng(bytes: Uint8Array): Rgba {
+  const { header, palette, transparency, data } = readChunks(bytes);
+  const channels = CHANNELS[header.colour];
+  if (header.depth !== 8 || channels === undefined || header.interlace !== 0) {
+    throw new Error('Save it as an 8-bit PNG (RGB or RGBA), not interlaced');
+  }
+  const raw = unfilter(unzlibSync(data), header.width, header.height, channels);
   return { width: header.width, height: header.height, data: toRgba(raw, header.colour, palette, transparency) };
 }
 

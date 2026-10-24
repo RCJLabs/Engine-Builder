@@ -1,5 +1,5 @@
 /**
- * The component kinds a project's objects can carry (M5.2, D64): the engine's five and the
+ * The component kinds a project's objects can carry (M5.2, D64): the engine's six (water since M5.3) and the
  * project's own, components/<kind>.json, each a type file read as types/ reads one. A kind's file
  * with problems still names its kind, so components of it aren't E062 as well: they wait,
  * unchecked, until the file is fixed. The spec is docs/specs/components.md.

@@ -33,6 +33,8 @@ export const selectMore = signal(false);
 export const sheetTab = signal<'inspector' | 'outliner'>('inspector');
 /** The ground in the middle of the view, where Add puts an object: the view keeps it up to date. */
 export const aim = signal<Vec3>([0, 0, 0]);
+/** The terrain's height at a point (M5.3), so Add stands an object on the ground; null with no terrain shown. */
+export const groundHeight = signal<((x: number, z: number) => number | null) | null>(null);
 /** Counts presses of Frame, so each one frames again. */
 export const frameAsked = signal(0);
 

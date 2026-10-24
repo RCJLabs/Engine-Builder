@@ -1576,7 +1576,7 @@ Evan chose on 2026-10-23, from these options:
 
 Evan chose on 2026-10-23, from these options:
 - **3D stack:**
-  - build on D8 now, the phone reading still setting the FPS targets before M5.6;
+  - build on D8 now, the phone reading still setting the FPS targets before M5.7;
   - take the reading first, Phase 5 waiting for it;
   - WebGL2 only, through three's older WebGLRenderer, until the reading.
 - **Files:**
@@ -1593,14 +1593,14 @@ Evan chose on 2026-10-23, from these options:
   - the camera and gizmos by machine, prefabs and the outliner by unit tests.
 
 **Decision.**
-- **D8's stack, now.** The viewport draws with three.js's `WebGPURenderer`, which falls back to WebGL2 where the browser has no WebGPU. D8 stays PROPOSED until the M1.10 reading from Evan's phone is in Readings, and M5.6's frame-rate targets wait for it.
+- **D8's stack, now.** The viewport draws with three.js's `WebGPURenderer`, which falls back to WebGL2 where the browser has no WebGPU. D8 stays PROPOSED until the M1.10 reading from Evan's phone is in Readings, and M5.7's frame-rate targets wait for it.
 - **Two folders.** A space, one exterior or one interior, is `spaces/<id>.json`: a name and its placed objects. A prefab is `prefabs/<id>.json`, the same shape. A placed prefab names its file, so editing the prefab changes every placement. M5.2's components and overrides build on both.
 - **A Scene panel.** On desktop it docks beside Play, and the Outliner is a panel of its own. On a tablet both are panels. On a phone the Scene panel sits behind More, as D37 says later panels do, and the outliner is a tab of the inspector sheet.
 - **The gate is an e2e** that builds a space in the editor by mouse and keys on desktop and by touch on phones: prefabs placed, moved, turned and scaled by gizmo with snapping, two grouped into a new prefab, renamed in the outliner, and everything still there after a reload.
 
 **Why.**
 - **Stack:** the viewport doesn't need frame-rate targets, only a renderer that works. The spike showed the stack works in Chromium. Waiting would stop Phase 5 on a reading.
-- **Files:** they keep `scenes/` for ink, and placing by reference is what lets M5.2's overrides and M5.8's persistent references say what changed.
+- **Files:** they keep `scenes/` for ink, and placing by reference is what lets M5.2's overrides and M5.9's persistent references say what changed.
 - **Panel:** a 3D view needs the biggest zone a layout has, and on a phone the whole screen.
 - **Gate:** the editor is the product, so the gate builds a space in it, as Phase 3's gate built the hut.
 
@@ -1638,20 +1638,20 @@ Evan chose on 2026-10-24, from these options:
   - written by hand for now, the editor only reading and drawing them.
 
 **Decision.**
-- **Two sources of component kinds.** The engine has five: light, collider, trigger zone, spawn point and sound emitter. A project adds its own as type files, in the format of `types/` (D31), made and edited in the type designer; renaming one's field rewrites the components that use it. Each kind's fields are a type file, so its form is drawn as a record's is. M5.2 makes components data, forms and markers in the view; nothing runs them until M5.7.
+- **Two sources of component kinds.** The engine has five: light, collider, trigger zone, spawn point and sound emitter. A project adds its own as type files, in the format of `types/` (D31), made and edited in the type designer; renaming one's field rewrites the components that use it. Each kind's fields are a type file, so its form is drawn as a record's is. M5.2 makes components data, forms and markers in the view; nothing runs them until M5.8.
 - **Any record can be placed.** An object places a record, of any type, by `type:id`, and can override that record's fields there: a different inventory, another name, a quest's slot. The record with its overrides is checked against its type, and the record's "used by" lists the placement. Until M5.5 gives records models, a placed record draws as a marker with its name.
 - **Prefab placements override by id.** A placement can change any field of any object inside the prefab it places, the object named by its id, or by a path of ids through prefabs inside prefabs. Overridden fields show as overridden, with Revert. A change to the prefab reaches every field a placement hasn't overridden.
 - **The gate is by machine.** An e2e by mouse and keys on desktop and by touch at 360, 390 and sideways adds components and edits them with their forms, places a record and overrides one of its fields, overrides a field inside a placed prefab and reverts it, and finds it all after a reload. A fixture project holds every new check to `eb validate`.
 
 **Why.**
-- **Kinds:** the engine's five are what M5.7 and M5.8 run (a light, something solid, a zone that starts a quest step, where a door arrives, a sound). A project's own kinds keep "content is data": a loot spot or a climbing hold needs no engine edit.
+- **Kinds:** the engine's five are what M5.8 and M5.9 run (a light, something solid, a zone that starts a quest step, where a door arrives, a sound). A project's own kinds keep "content is data": a loot spot or a climbing hold needs no engine edit.
 - **Placed records:** architecture.md promised placed references with overrides, as the Creation Kit's references are. Phase 5's gate puts pickups and a quest step in a walkable slice, which needs records placed in a space.
 - **Prefab overrides:** without them every variation of a prefab is a copy, and a copy no longer follows its prefab.
 - **Gate:** as for M5.1, the editor is the product, so the gate builds in it.
 
 **Cost.**
 - **Overrides must follow renames.** A record, a type or a field renamed has to rewrite the placements that name it, as it rewrites records (D33), or the space breaks.
-- **Nothing runs yet.** A trigger zone's effects are checked but don't fire until M5.7; a light shows in the editor's view only.
+- **Nothing runs yet.** A trigger zone's effects are checked but don't fire until M5.8; a light shows in the editor's view only.
 - **Untested for feel** until a phone uses it.
 
 **As built** (2026-10-24, M5.2):
@@ -1659,7 +1659,54 @@ Evan chose on 2026-10-24, from these options:
 - **A placed record's overrides are checked as the record,** but only the fields they set are reported there; a problem in a field the placement leaves alone is the record's own, reported at the record.
 - **Reverting the last field of an override takes the override out,** and an override left empty goes with it, so a reverted placement is the line it was.
 - **The space checks that read records run after the record index** in the editor, as the screens' do, so a record's In spaces and the Problems panel agree with `eb validate`.
-- **Not counted yet:** the flag lint reads records alone, so a flag only a trigger zone names is W110 until M5.7 runs triggers ([specs/components.md](specs/components.md#open-questions), question 3).
+- **Not counted yet:** the flag lint reads records alone, so a flag only a trigger zone names is W110 until M5.8 runs triggers ([specs/components.md](specs/components.md#open-questions), question 3).
+
+---
+
+### D65. M5.3 is terrain and water; foliage waits for Assets; heights and paint are PNGs beside the space; water is a component on a plane; M5.3 is proved by machine. LOCKED, 2026-10-24 (Evan's calls, M5.3)
+
+Evan chose on 2026-10-24, from these options:
+- **Scope:**
+  - terrain now (heightmap, sculpt and paint brushes, chunks with LOD, water), and scatter and foliage as a milestone of their own after M5.5 Assets, when there are models to scatter;
+  - all of it in M5.3, foliage drawn as stand-in shapes until M5.5;
+  - split in two in order, foliage right after terrain as stand-in shapes.
+- **Storage:**
+  - a 16-bit greyscale PNG of heights and an RGBA PNG of four paint layers beside the space, the size, spacing and height range in the space's JSON;
+  - raw 16-bit heights (`.r16`), as Unity and Unreal import;
+  - the heights as JSON numbers.
+- **Water:**
+  - a water component kind on a plane: a lake, a sea or a river at that plane's height, as many as a space needs;
+  - one sea level per terrain;
+  - both.
+- **The gate:**
+  - by machine: an e2e on desktop and by touch at 360, 390 and sideways, a fixture held to `eb validate`, and frame times as readings in software rendering only;
+  - the same, then Evan's phone before the next milestone.
+
+**Decision.**
+- **M5.3 is terrain and water.** A space can have one terrain: a square heightmap, sculpted and painted with brushes by mouse or finger, drawn in chunks whose detail falls with distance. Scatter and foliage are **M5.6 Foliage**, after **M5.5 Assets**; the milestones after it move one on (Performance M5.7, Movement M5.8, Worldspaces M5.9), and the references to them are renumbered.
+- **Heights and paint are PNGs beside the space.** `spaces/<id>.heights.png` is 16-bit greyscale, `spaces/<id>.paint.png` RGBA, one weight a channel for up to four layers. The space's JSON holds the terrain's size, spacing, height range and layers. Any image tool opens them; git sees binary files.
+- **Water is a component.** The engine's sixth kind, `water`, on a plane: the plane's height is the water's, its colour and clarity the component's.
+- **The gate is by machine.** An e2e on desktop and by touch at 360, 390 and sideways makes a terrain, sculpts with each brush, paints each layer, adds water, shows finer chunks near the camera than far off with no crack at a seam, and finds it all after a reload. A fixture project holds the new checks to `eb validate`. Frame times are readings in software rendering only.
+
+**Why.**
+- **Scope:** foliage before there are models is cones and boxes, built twice. Terrain and water need nothing from M5.5.
+- **Storage:** a 257×257 heightmap is about 66,000 numbers. As JSON that is about 400 kB, slow to read and write on a phone; as a 16-bit PNG it is roughly 60 to 130 kB, and opens in any image tool. Raw `.r16` previews nowhere.
+- **Water:** a component reuses M5.2's forms, checks and marks, and lets lakes sit above the sea.
+- **Gate:** as for M5.1 and M5.2, the editor is the product, so the gate builds in it. A frame rate measured in software says little about a phone, so it is recorded, not judged.
+
+**Cost.**
+- **Binary files in git:** a stroke changes the whole PNG, so diffs say only that it changed.
+- **Undo holds bytes:** a stroke keeps the file before and after, up to about a megabyte at 513×513.
+- **Nothing runs yet:** terrain and water are drawn in the editor only until M5.8 brings physics and a player.
+
+**As built** (2026-10-24, M5.3):
+- **The PNGs are the editor's own code,** a 16-bit greyscale encoder and decoder beside the RGBA ones in `@eb/export`, held to a file Pillow wrote and read back by Pillow. The compiler reads headers only.
+- **A height is read on the triangles drawn,** each square split from its (i + 1, j) corner to its (i, j + 1), so the brush lands, and the ray meets the ground, where the mesh is. The spec first said bilinear; the spike's `heightAt` and the mesh both split the square.
+- **A stroke is put back if a second finger lands,** rather than kept: two fingers landing a moment apart mean a pinch, and the first finger's dab is undone.
+- **Low and high are written as their field is left,** not on each key, so a range passed through while typing never clamps heights.
+- **The view builds each chunk once, at the level its distance gives it,** as a terrain opens: at 513 vertices, 18 to 29 ms against 138 to 168 ms for all at full detail, in Node (Readings).
+- **Undo holds a stroke's whole file,** before and after: up to 375 KiB of heights at 513 for a rough terrain, measured (Readings).
+- **Untested for feel** until a phone uses the brushes.
 
 ---
 

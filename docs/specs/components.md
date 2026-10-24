@@ -6,7 +6,7 @@ M5.2 is Phase 5's second milestone. It gives a space's objects three things M5.1
 - **placed records**, where an object stands for a record (an actor, an item, a container) with some of its fields changed there;
 - **overrides**, where a placement of a prefab changes fields of the objects inside it.
 
-Nothing here runs in a game yet. M5.2 makes them data, checks, forms and markers in the view; M5.7 runs them. The files are still those of [viewport.md](viewport.md), which this spec extends.
+Nothing here runs in a game yet. M5.2 makes them data, checks, forms and markers in the view; M5.8 runs them. The files are still those of [viewport.md](viewport.md), which this spec extends.
 
 ## An object
 
@@ -39,7 +39,7 @@ M5.1's fields stay as they were. M5.2 adds four:
 - **A kind is a type file** ([type-files.md](type-files.md)): a title and fields, in the format of `types/<type>.json`. Its form is drawn from it as a record's is, and its fields are checked as a record's are, references, conditions and effects included.
 - **The engine's kinds** are five, their ids taken:
 
-  | Kind | Fields | Means (from M5.7) |
+  | Kind | Fields | Means (from M5.8) |
   | --- | --- | --- |
   | `light` | `color` (colour), `intensity` (number, 0 to 100), `range` (number, metres, at least 0.1), all optional | a point light at the object |
   | `collider` | `shape` (`box`, `sphere` or `capsule`), `moves` (bool), both optional | something solid, the object's size; still unless it `moves` |
@@ -113,5 +113,5 @@ M5.1's fields stay as they were. M5.2 adds four:
 
 1. Should an override be able to take a component away, as Unity's "removed component" does?
 2. Should a placed record's overrides reach inside a field (one item of an inventory), rather than replace the field whole?
-3. Should the flag lint (W108 to W110) count a trigger zone's reads and sets? It reads records alone, so a flag only a trigger names is W110. Until M5.7 runs triggers, nothing sets it in play either; M5.7 should count them.
+3. Should the flag lint (W108 to W110) count a trigger zone's reads and sets? It reads records alone, so a flag only a trigger names is W110. Until M5.8 runs triggers, nothing sets it in play either; M5.8 should count them.
 4. Should the view pick an object inside a placement, and move it with the gizmo as an override? Now it is reached through the form's Inside list.

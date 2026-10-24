@@ -18,6 +18,7 @@ import {
   MANIFEST_FILE,
   RECORDS_DIR,
   SCENES_DIR,
+  spacePath,
   TYPES_DIR,
   UI_DIR,
 } from '@eb/compiler';
@@ -97,6 +98,9 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   if (scene?.kind === 'scene') return { kind: 'scene', id: scene.id, ...at };
   const ui = uiOf(file);
   if (ui !== undefined) return { kind: 'ui', path: file, ...at };
+  const terrain = classifySpaceFile(file);
+  // A terrain's PNG (M5.3) is fixed in its space, by its brushes and form.
+  if (terrain.kind === 'terrain') return { kind: 'space', path: spacePath('space', terrain.id) };
   if (spaceOf(file)) {
     const [objects, index] = pointerKeys(problem.path);
     const object = objects === 'objects' && index !== undefined ? Number(index) : Number.NaN;
@@ -131,6 +135,8 @@ export function fileTitle(file: string, catalog: Catalog, index: RecordIndex | n
   }
   const space = spaceOf(file);
   if (space) return `${space.kind === 'space' ? 'Space' : 'Prefab'} ${space.id}`;
+  const terrain = classifySpaceFile(file);
+  if (terrain.kind === 'terrain') return `Space ${terrain.id}: the terrain's ${terrain.part}`;
   if (file === '') return 'The game';
   return file;
 }

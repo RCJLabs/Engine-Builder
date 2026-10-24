@@ -82,9 +82,21 @@ export {
   type SpaceFile,
   type SpaceKind,
   spacePath,
+  type TerrainPart,
+  terrainPath,
 } from './spaceFiles.ts';
 export { checkProjectSpaceParts, checkSpaceParts, type SpacePartsContext, type SpaceUse } from './spaceParts.ts';
-export { SHAPES, type Shape, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
+export {
+  CHUNK,
+  SHAPES,
+  type Shape,
+  type SpaceJson,
+  type SpaceObject,
+  spaceSchema,
+  TERRAIN_SIZES,
+  type TerrainJson,
+  terrainSchema,
+} from './spaceShape.ts';
 export {
   checkProjectSpaces,
   checkSpaces,
@@ -92,6 +104,7 @@ export {
   type SpaceFileRead,
 } from './spaces.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
+export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';

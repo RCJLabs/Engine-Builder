@@ -1,9 +1,12 @@
 /**
  * The Scene panel's view (M5.1, D8, D63, docs/specs/viewport.md#the-scene-panel): three's
  * WebGPURenderer, on WebGPU where the browser has it and WebGL2 where it doesn't; the editor's
- * light and grid; the camera; picking; the gizmo where the chosen objects are. It draws only when
- * something changes, so a still editor spends nothing on it.
+ * light and grid; the camera; picking; the gizmo where the chosen objects are; a space's terrain
+ * (M5.3), in terrainView.ts. It draws only when something changes, so a still editor spends nothing
+ * on it.
  */
+
+import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
@@ -12,6 +15,7 @@ import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
+import { createTerrainView, type TerrainFiles, type TerrainSummary, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
 
 /** How long the gizmo's arms are on screen: a fifth of the view's short side, within these. */
@@ -37,6 +41,10 @@ export interface View {
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
   show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf): void;
+  /** A space's terrain, or none: a problem in words when its files can't be read. */
+  showTerrain(settings: TerrainJson | null, files: TerrainFiles | null): string | null;
+  /** The terrain's brushes and strokes (M5.3), over rays from the view's points. */
+  readonly terrain: Pick<TerrainView, 'start' | 'to' | 'end' | 'ring' | 'grid' | 'height'>;
   select(ids: readonly string[]): void;
   setMode(mode: Mode): void;
   /** The chosen objects in view, or the whole space when none are. */
@@ -54,6 +62,15 @@ export interface ViewportHook {
   readonly grips: () => { name: string; x: number; y: number; along: Screen }[];
   readonly objectAt: (id: string, underHandles?: boolean) => { x: number; y: number } | null;
   readonly camera: () => Orbit;
+  /** The terrain's chunks, their levels and the widest seam (M5.3), or null with none. */
+  readonly terrain: () => TerrainSummary | null;
+  /** The ground at (x, z) in page pixels, when it is in sight: where to stroke. */
+  readonly groundAt: (x: number, z: number) => { x: number; y: number } | null;
+  /** The terrain's height and its four paint weights at the vertex nearest (x, z). */
+  readonly heightAt: (x: number, z: number) => number | null;
+  readonly paintAt: (x: number, z: number) => number[] | null;
+  /** The opacity of the water an object draws, or null for none. */
+  readonly waterAt: (id: string) => number | null;
 }
 
 type Hooked = { __ebViewport?: ViewportHook };
@@ -82,6 +99,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   scene.add(outlines);
   const gizmo = createGizmo();
   scene.add(gizmo.group);
+  // draw is hoisted: the terrain asks for a frame as a stroke lands.
+  const terrain = createTerrainView(cssColor(host, '--accent', '#6cb4ff'), () => draw());
+  scene.add(terrain.root);
   // Placed records' names (M5.2), drawn by the page over the canvas: sharp at any size, and words a
   // screen reader skips, as the outliner names the same objects.
   const labelLayer = document.createElement('div');
@@ -99,6 +119,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   let size = { w: 1, h: 1 };
   let frames = 0;
   let asked = false;
+  let gone = false;
 
   const placedNow = (id: string) => draft?.get(id) ?? filed.get(id);
   const chosenPlaced = () => chosen.flatMap((id) => placedNow(id) ?? []);
@@ -151,19 +172,22 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     }
   };
 
-  const draw = () => {
+  function draw() {
     if (asked) return;
     asked = true;
     requestAnimationFrame(() => {
       asked = false;
+      // A frame asked for just before the view went: the panel closed, its meshes already freed.
+      if (gone) return;
       const at = footing();
       gizmo.group.visible = at !== null;
       if (at) gizmo.place(at.pivot, at.metres, at.own);
+      terrain.levels([camera.position.x, camera.position.y, camera.position.z]);
       renderer.render(scene, camera);
       placeLabels();
       frames++;
     });
-  };
+  }
 
   const placeLabels = () => {
     const world = new THREE.Vector3();
@@ -249,6 +273,22 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     },
     objectAt,
     camera: () => orbit,
+    terrain: () => terrain.summary(),
+    groundAt(x, z) {
+      const y = terrain.height(x, z);
+      const spot = y === null ? null : project([x, y, z]);
+      return spot && shows(spot) ? page(spot) : null;
+    },
+    heightAt: terrain.height,
+    paintAt: terrain.paint,
+    waterAt(id) {
+      let opacity: number | null = null;
+      built?.byId.get(id)?.traverse((part) => {
+        const material = (part as THREE.Mesh).material;
+        if (material && !Array.isArray(material) && material.userData.water) opacity = material.opacity;
+      });
+      return opacity;
+    },
   };
 
   return {
@@ -302,6 +342,14 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       outline();
       draw();
     },
+    showTerrain(settings, files) {
+      const problem = terrain.show(settings, files);
+      // The terrain is the ground: the editor's grid would only flicker through it.
+      grid.visible = terrain.grid() === null;
+      draw();
+      return problem;
+    },
+    terrain,
     select(ids) {
       chosen = ids;
       outline();
@@ -319,15 +367,18 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
         const object = built?.byId.get(id);
         if (object) box.expandByObject(object);
       }
+      if (chosen.length === 0 && terrain.grid()) box.expandByObject(terrain.chunks);
       if (box.isEmpty()) return setOrbit({ ...START, yaw: orbit.yaw, pitch: orbit.pitch });
       const sphere = box.getBoundingSphere(new THREE.Sphere());
       setOrbit(framed(orbit, [sphere.center.x, sphere.center.y, sphere.center.z], sphere.radius));
     },
     aim() {
-      return onPlane(rayAt([size.w / 2, size.h / 2]), [0, 0, 0], [0, 1, 0]) ?? orbit.target;
+      const middle = rayAt([size.w / 2, size.h / 2]);
+      return terrain.ground(middle) ?? onPlane(middle, [0, 0, 0], [0, 1, 0]) ?? orbit.target;
     },
     draw,
     dispose() {
+      gone = true;
       watcher.disconnect();
       labelLayer.remove();
       if (hooked().__ebViewport?.objectAt === objectAt) delete hooked().__ebViewport;
@@ -336,6 +387,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       outline();
       builder.dispose();
       gizmo.dispose();
+      terrain.dispose();
       grid.dispose();
       renderer.dispose();
     },

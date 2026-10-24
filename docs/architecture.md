@@ -83,7 +83,8 @@ my-game/
   records/<type>/<id>.json one record per file (items, actors, quests, events…)
   types/<type>.json        the project's own record types, as fields (M2.4)
   spaces/<id>.json         3D places: objects that are shapes, placed prefabs or placed records,
-                           with components and overrides (M5.1, M5.2)
+                           with components and overrides (M5.1, M5.2), and a terrain's settings (M5.3)
+  spaces/<id>.heights.png  a space's terrain: 16-bit greyscale heights; .paint.png, RGBA layer weights (M5.3)
   prefabs/<id>.json        reusable groups of objects, placed by id (M5.1)
   components/<kind>.json   the project's own component kinds, as type files (M5.2)
   ui/<screen>.json         screens: widget trees, bindings, actions
@@ -249,7 +250,7 @@ The design combines chooser-of-the-dead, climbing-world-traveler, spliceworld, d
 
 - **Contents.** A snapshot of the sim state plus the actions since it, with a checksum.
   - The state holds ids into content, not copies of it, so a content update reaches existing saves.
-  - Worlds will save placed references as changes against the authored content (M5.8), as Bethesda's change forms do.
+  - Worlds will save placed references as changes against the authored content (M5.9), as Bethesda's change forms do.
 - **Loading.** On the same build the log must replay to exactly the saved state. After an update it replays under the new rules, and what changed is reported rather than refused.
 - **Versioning.**
   - `SAVE_VERSION` covers the file and the kernel's state.

@@ -14,8 +14,14 @@ export type SpaceKind = 'space' | 'prefab';
 
 export const spacePath = (kind: SpaceKind, id: string) => `${kind === 'space' ? SPACES_DIR : PREFABS_DIR}/${id}.json`;
 
+/** A terrain's two files beside its space (M5.3, D65): 16-bit heights and RGBA paint. */
+export type TerrainPart = 'heights' | 'paint';
+
+export const terrainPath = (id: string, part: TerrainPart) => `${SPACES_DIR}/${id}.${part}.png`;
+
 export type SpaceFile =
   | { readonly kind: SpaceKind; readonly id: string }
+  | { readonly kind: 'terrain'; readonly id: string; readonly part: TerrainPart }
   | { readonly kind: 'misplaced'; readonly reason: string }
   | { readonly kind: 'ignored' };
 
@@ -42,11 +48,19 @@ export function classifyComponentFile(path: string): ComponentFile {
   return { kind: 'component', id };
 }
 
-/** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is. */
+const TERRAIN_FILE = /^(.+)\.(heights|paint)\.png$/;
+
+/** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs carry their space's. */
 export function classifySpaceFile(path: string): SpaceFile {
   const parts = path.split('/');
   const top = parts[0];
   const name = parts[parts.length - 1] ?? '';
+  const terrain = top === SPACES_DIR && parts.length === 2 ? TERRAIN_FILE.exec(name) : null;
+  if (terrain) {
+    const id = terrain[1] as string;
+    if (isRecordId(id)) return { kind: 'terrain', id, part: terrain[2] as TerrainPart };
+    return { kind: 'misplaced', reason: `"${id}" isn’t a space's id: its terrain's files carry it` };
+  }
   if ((top !== SPACES_DIR && top !== PREFABS_DIR) || !name.endsWith('.json')) return { kind: 'ignored' };
   const kind: SpaceKind = top === SPACES_DIR ? 'space' : 'prefab';
   if (parts.length !== 2) {

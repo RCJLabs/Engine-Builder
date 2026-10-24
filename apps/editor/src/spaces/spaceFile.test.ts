@@ -41,6 +41,11 @@ describe('a space’s file', () => {
       objects: [{ color: '#ffffff', shape: 'box' as const, id: 'a', at: [1, 2, 3] as [number, number, number] }],
     };
     expect(spaceText(shuffled)).toContain('{ "id": "a", "shape": "box", "at": [1, 2, 3], "color": "#ffffff" }');
+    // A terrain's settings sit on one line between the name and the objects (M5.3), and read back.
+    const terrain = { size: 65, spacing: 1, low: 0, high: 10, layers: [{ name: 'Grass', color: '#5f8f3e' }] };
+    const fell = spaceText({ name: 'Fell', terrain, objects: [] });
+    expect(fell).toBe(`{\n  "name": "Fell",\n  "terrain": ${JSON.stringify(terrain)},\n  "objects": []\n}\n`);
+    expect(readSpace(fell)).toEqual({ ok: true, space: { name: 'Fell', terrain, objects: [] } });
   });
 
   it('keeps its line ends, indent and last newline, and stays byte for byte when nothing changes', () => {

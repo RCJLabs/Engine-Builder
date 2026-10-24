@@ -70,6 +70,7 @@ export const DIAGNOSTIC_CODES = {
   E064: "An object places a record, or a type, the project doesn't have",
   E065: "A placed record's override isn't a field of its type, or doesn't fit the field",
   E066: "An override names an object the prefab doesn't have",
+  E067: "A terrain's heights or paint file is missing, isn't a PNG, or isn't of its kind and size",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -113,6 +114,8 @@ export const DIAGNOSTIC_CODES = {
   W141: 'A file under spaces/ or prefabs/ that the compiler ignores: in a folder, or not named by an id',
   W142: 'More than one spawn in a space is its start',
   W143: 'A file under components/ that the compiler ignores',
+  W144: "A terrain's heights or paint file whose space has no terrain",
+  W145: "A water component on an object that isn't a plane",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

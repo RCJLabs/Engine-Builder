@@ -1,7 +1,7 @@
 /**
  * The Scene panel's toolbar (M5.1, docs/specs/viewport.md#the-toolbar): the gizmo's mode, snapping,
- * Add, Select more, Group into prefab, Delete and Frame. Every button is 44 px; on a phone the bar
- * wraps rather than scrolls.
+ * Add, Select more, Group into prefab, Delete and Frame, and in a space Terrain, whose row holds the
+ * terrain tools (M5.3). Every button is 44 px; on a phone the bar wraps rather than scrolls.
  */
 import { SHAPES, spacePath } from '@eb/compiler';
 import { useState } from 'preact/hooks';
@@ -11,6 +11,7 @@ import { refChoices } from '../forms/refChoices.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
+import { TerrainTools } from '../terrain/TerrainTools.tsx';
 import { addHere, deleteChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
@@ -32,10 +33,12 @@ const SHAPE_NAMES: Record<(typeof SHAPES)[number], string> = {
 };
 
 export function SceneToolbar({ project }: { project: OpenProject }) {
-  const [shown, setShown] = useState<'add' | 'group' | null>(null);
+  const [shown, setShown] = useState<'add' | 'group' | 'terrain' | null>(null);
   const canEdit = editing.access.value.kind === 'editing';
   const chosen = picked.value.length;
-  const toggle = (what: 'add' | 'group') => setShown(shown === what ? null : what);
+  const toggle = (what: 'add' | 'group' | 'terrain') => setShown(shown === what ? null : what);
+  const open = openSpace.value;
+  const space = liveOf(open)?.space;
   return (
     <>
       <fieldset class="scene-toolbar">
@@ -103,7 +106,13 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
         >
           Frame
         </button>
+        {open?.kind === 'space' ? (
+          <button type="button" class="button" aria-expanded={shown === 'terrain'} onClick={() => toggle('terrain')}>
+            Terrain
+          </button>
+        ) : null}
       </fieldset>
+      {shown === 'terrain' && open?.kind === 'space' && space ? <TerrainTools terrain={space.terrain} /> : null}
       {shown === 'add' && canEdit ? <AddRow project={project} done={() => setShown(null)} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (
         <NameRecord

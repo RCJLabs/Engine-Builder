@@ -94,7 +94,7 @@ export async function compileProject(
   const index = indexOf(records);
   // After the records: a placed record, and every reference in a component or an override, names one (M5.2).
   diagnostics.push(
-    ...checkProjectSpaces(spaces.files),
+    ...checkProjectSpaces(spaces.files, spaces.terrains),
     ...checkProjectSpaceParts(spaces.files, {
       types: new Map(known.types.map((t) => [t.type, t])),
       records: index,

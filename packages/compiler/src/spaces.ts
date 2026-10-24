@@ -2,7 +2,7 @@
  * Spaces and prefabs (M5.1, D63): spaces/<id>.json is one place in a 3D world, and
  * prefabs/<id>.json a group of objects placed by reference. Their shape is E058; two objects of one
  * id in a file E059; a placement of a prefab prefabs/ lacks E060; a prefab that places itself, by
- * any road, E061. Nothing packs them yet: a game draws spaces from M5.7. The spec is
+ * any road, E061. Nothing packs them yet: a game draws spaces from M5.8. The spec is
  * docs/specs/viewport.md.
  */
 import { type Diagnostic, type DiagnosticCode, schemaIssues, severityOf } from '@eb/schema';
@@ -11,6 +11,7 @@ import { placeOfPointer } from './jsonLines.ts';
 import type { ProjectSource } from './source.ts';
 import { classifySpaceFile, PREFABS_DIR, SPACES_DIR, type SpaceKind } from './spaceFiles.ts';
 import { type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
+import { checkTerrains, pngHeader, type TerrainFileRead } from './terrains.ts';
 
 /** A file under spaces/ or prefabs/ as read: its value is undefined when it isn't JSON (E007). */
 export interface SpaceFileRead {
@@ -29,8 +30,8 @@ const at = (file: string, code: DiagnosticCode, path: string, message: string): 
   path,
 });
 
-/** Each file's shape, ids and placements checked against the prefabs there are. */
-export function checkSpaces(files: readonly SpaceFileRead[]): Diagnostic[] {
+/** Each file's shape, ids and placements checked against the prefabs there are; and a space's terrain files (M5.3). */
+export function checkSpaces(files: readonly SpaceFileRead[], terrains: readonly TerrainFileRead[] = []): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
   const sound = new Map<string, { read: SpaceFileRead; space: SpaceJson }>();
   for (const read of files) {
@@ -40,8 +41,21 @@ export function checkSpaces(files: readonly SpaceFileRead[]): Diagnostic[] {
       diagnostics.push(...issues.map((issue) => at(read.file, 'E058', issue.path, issue.message)));
       continue;
     }
-    sound.set(read.file, { read, space: read.value as SpaceJson });
+    const space = read.value as SpaceJson;
+    if (read.kind === 'prefab' && space.terrain !== undefined) {
+      diagnostics.push(at(read.file, 'E058', '/terrain', 'Only a space has a terrain: a prefab is placed in one'));
+      continue;
+    }
+    sound.set(read.file, { read, space });
   }
+  const spaces = [...sound.values()].filter(({ read }) => read.kind === 'space');
+  diagnostics.push(
+    ...checkTerrains(
+      new Map(spaces.map(({ read, space }) => [read.id, { file: read.file, space }])),
+      new Set(files.filter((f) => f.kind === 'space').map((f) => f.id)),
+      terrains,
+    ),
+  );
   const prefabs = new Set(files.filter((f) => f.kind === 'prefab').map((f) => f.id));
   for (const { read, space } of sound.values()) {
     const seen = new Set<string>();
@@ -82,16 +96,25 @@ function cycles(sound: ReadonlyMap<string, { read: SpaceFileRead; space: SpaceJs
   return found;
 }
 
-/** The files under spaces/ and prefabs/, read: W141 for a file that's neither, E007 for one that isn't JSON. */
+/**
+ * The files under spaces/ and prefabs/, read: W141 for a file that's neither, E007 for one that
+ * isn't JSON; a terrain's PNGs as far as their headers (M5.3).
+ */
 export async function readSpaces(
   source: ProjectSource,
-): Promise<{ files: SpaceFileRead[]; diagnostics: Diagnostic[] }> {
+): Promise<{ files: SpaceFileRead[]; terrains: TerrainFileRead[]; diagnostics: Diagnostic[] }> {
   const files: SpaceFileRead[] = [];
+  const terrains: TerrainFileRead[] = [];
   const diagnostics: Diagnostic[] = [];
   const paths = [...(await source.files(SPACES_DIR)), ...(await source.files(PREFABS_DIR))].sort();
   for (const file of paths) {
     const role = classifySpaceFile(file);
     if (role.kind === 'ignored') continue;
+    if (role.kind === 'terrain') {
+      const bytes = await source.read(file);
+      terrains.push({ file, id: role.id, part: role.part, header: bytes ? pngHeader(bytes) : null });
+      continue;
+    }
     if (role.kind === 'misplaced') {
       diagnostics.push(at(file, 'W141', '', role.reason));
       continue;
@@ -106,7 +129,7 @@ export async function readSpaces(
     const text = bytes === undefined ? undefined : new TextDecoder().decode(bytes);
     files.push({ file, kind: role.kind, id: role.id, value: parsed.value, ...(text !== undefined ? { text } : {}) });
   }
-  return { files, diagnostics };
+  return { files, terrains, diagnostics };
 }
 
 /** Each problem at its line and column as well as its path, as the screens' are. */
@@ -124,6 +147,9 @@ export function atLines(files: readonly SpaceFileRead[], found: readonly Diagnos
  * spaceParts.ts's checkProjectSpaceParts, apart so the editor's start, which runs these, carries
  * none of them (M5.2).
  */
-export function checkProjectSpaces(files: readonly SpaceFileRead[]): Diagnostic[] {
-  return atLines(files, checkSpaces(files));
+export function checkProjectSpaces(
+  files: readonly SpaceFileRead[],
+  terrains: readonly TerrainFileRead[] = [],
+): Diagnostic[] {
+  return atLines(files, checkSpaces(files, terrains));
 }
