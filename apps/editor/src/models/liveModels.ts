@@ -78,16 +78,18 @@ async function readMaterial(source: ProjectSource, id: string): Promise<Material
 }
 
 /**
- * What the space's models need, or undefined when it places no record. `fieldOf` is each type's
- * model field (placedModels.ts's modelFieldOf over the catalog's type files).
+ * What the space's models need, or undefined when it places no record and `also` is empty. `fieldOf`
+ * is each type's model field (placedModels.ts's modelFieldOf over the catalog's type files); `also`,
+ * the model records its foliage draws (M5.6), by "model:id".
  */
 export async function readLiveModels(
   source: ProjectSource,
   space: SpaceJson,
   prefabs: ReadonlyMap<string, SpaceJson>,
   fieldOf: (type: string) => string | null,
+  also: readonly string[] = [],
 ): Promise<LiveModels | undefined> {
-  const keys = placedKeys(space, prefabs);
+  const keys = [...new Set([...placedKeys(space, prefabs), ...also])].sort();
   if (keys.length === 0) return undefined;
   const records = new Map<string, unknown>();
   const fields = new Map<string, string>();
@@ -108,7 +110,7 @@ export async function readLiveModels(
   };
   eachPlacedRecord(space, prefabs, (key, passed) => void modelHere(key, passed, peek));
   for (const key of named) records.set(key, await readRecord(source, key));
-  const needs = modelNeeds(space, prefabs, sourcesOf({ records, fields }));
+  const needs = modelNeeds(space, prefabs, sourcesOf({ records, fields }), also);
   const files = new Map(
     await Promise.all(needs.files.map(async (path) => [path, await readFile(source, path)] as const)),
   );

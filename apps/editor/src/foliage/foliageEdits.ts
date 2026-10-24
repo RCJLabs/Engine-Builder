@@ -89,6 +89,13 @@ export async function fillFoliage(source: ProjectSource, space: string, k: numbe
   return written(source, path, encodePng({ ...read, data }));
 }
 
+/** A foliage record started again from `preset` (Start from): its name and model kept, every other field the preset's. */
+export function foliageWithPreset(value: unknown, preset: FoliagePreset): Record<string, unknown> {
+  const now = typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+  const kept = (['name', 'model'] as const).flatMap((k) => (now[k] === undefined ? [] : [[k, now[k]] as const]));
+  return { ...Object.fromEntries(kept), ...preset.value };
+}
+
 /** The model a new foliage from `preset` scatters: the kit's when the project has it, else its first model, else none. */
 export const presetModel = (preset: FoliagePreset, models: readonly string[]): string | null =>
   models.includes(preset.kitModel) ? preset.kitModel : (models[0] ?? null);

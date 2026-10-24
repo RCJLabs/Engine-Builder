@@ -5,7 +5,7 @@ import { FOLIAGE_PRESETS } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import type { FileChange } from '../editing/history.ts';
 import { addTerrain, newTerrain } from '../terrain/terrainEdits.ts';
-import { addFoliage, fillFoliage, newFoliage, presetModel, removeFoliage } from './foliageEdits.ts';
+import { addFoliage, fillFoliage, foliageWithPreset, newFoliage, presetModel, removeFoliage } from './foliageEdits.ts';
 
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 type Files = Record<string, string | Uint8Array>;
@@ -135,5 +135,16 @@ describe('foliage in a terrain', () => {
       new Set(['glade-trees']),
     );
     expect(again.id).toBe('glade-trees-2');
+  });
+
+  it('starts again from a preset keeping its name and model, every other field the preset’s', () => {
+    const grass = FOLIAGE_PRESETS.find((p) => p.id === 'grass');
+    if (!grass) throw new Error('no Grass preset');
+    expect(foliageWithPreset({ name: 'Meadow', model: 'tuft', lowest: 2, density: 1 }, grass)).toEqual({
+      name: 'Meadow',
+      model: 'tuft',
+      ...grass.value,
+    });
+    expect(foliageWithPreset({}, grass)).toEqual(grass.value);
   });
 });

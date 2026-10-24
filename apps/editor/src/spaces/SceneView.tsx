@@ -2,7 +2,8 @@
  * The 3D view of the open space or prefab (M5.1, D63), with three in its chunk: the view made once
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
  * the objects chosen, its terrain the brush chosen (M5.3), its environment drawn (M5.4), its placed
- * records drawn as their models (M5.5). Keyed by the file, so another file starts its own view.
+ * records drawn as their models (M5.5), its terrain's foliage grown (M5.6). Keyed by the file, so
+ * another file starts its own view.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
@@ -43,8 +44,10 @@ export function SceneView(props: {
   environment?: LiveSpace['environment'];
   /** What its placed records need to draw as models, when it places any. */
   models?: LiveSpace['models'];
+  /** The foliage its terrain lists, when it lists any. */
+  foliage?: LiveSpace['foliage'];
 }) {
-  const { space, prefabs, names, terrain, environment, models } = props;
+  const { space, prefabs, names, terrain, environment, models, foliage } = props;
   const host = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<View | null>(null);
@@ -68,6 +71,7 @@ export function SceneView(props: {
     if (!shownView) return;
     const record = latest.current.environment?.record ?? null;
     if (lit.current.due(JSON.stringify(record), true)) shownView.showEnvironment(record ? lookOf(record) : null);
+    shownView.showFoliage(latest.current.foliage ?? []);
     setUnread(shownView.showTerrain(s.terrain ?? null, latest.current.terrain ?? null));
     groundHeight.value = shownView.terrain.grid() ? shownView.terrain.height : null;
     aim.value = shownView.aim();
@@ -104,7 +108,8 @@ export function SceneView(props: {
           stroked: (stroke) => {
             const grid = made.terrain.grid();
             const layers = latest.current.space.terrain?.layers;
-            if (grid && layers) void writeStrokeHere(stroke, grid, layers);
+            const grown = (latest.current.foliage ?? []).map((f) => f.record?.name ?? f.id);
+            if (grid && layers) void writeStrokeHere(stroke, grid, layers, grown);
           },
         });
         setBackend(made.backend);
@@ -120,7 +125,7 @@ export function SceneView(props: {
     };
   }, []);
 
-  useEffect(showLatest, [space, prefabs, names, terrain, environment, models]);
+  useEffect(showLatest, [space, prefabs, names, terrain, environment, models, foliage]);
   const brush = brushKind.value;
   useEffect(() => {
     if (brush === null) view.current?.terrain.ring(null, 0);
