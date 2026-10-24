@@ -11,6 +11,10 @@ import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
 import type { Look } from '../environment/look.ts';
 import type { LiveModels } from '../models/liveModels.ts';
+import { frameStats } from '../perf/frames.ts';
+import { createFrameClock } from '../perf/stepDown.ts';
+import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
+import { extentOf } from '../terrain/grid.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView } from './environmentView.ts';
@@ -19,11 +23,12 @@ import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf,
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
+import { castShadows, fitSunShadow, sunShadows } from './shadows.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
 import { createTerrainView, type TerrainFiles, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
 import { createViewModels } from './viewModels.ts';
-import { clearHook, setHook, type ViewportHook, waterOpacity } from './viewportHook.ts';
+import { clearHook, type PerfSummary, setHook, type ViewportHook, waterOpacity } from './viewportHook.ts';
 
 /** How long the gizmo's arms are on screen: a fifth of the view's short side, within these. */
 const GIZMO_PX = { least: 72, most: 120, share: 0.22 } as const;
@@ -62,15 +67,29 @@ export interface View {
   frame(): void;
   /** The ground in the middle of the view. */
   aim(): Vec3;
+  /** The tier drawn, its settings as three has them, and its frames (M5.7). */
+  perf(): PerfSummary;
   draw(): void;
   dispose(): void;
 }
 
+/** A frame asked for within this many ms of the last one ending is drawn back to back. */
+const BACK_TO_BACK = 20;
+
 const cssColor = (host: HTMLElement, name: string, fallback: string) =>
   getComputedStyle(host).getPropertyValue(name).trim() || fallback;
 
-export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): Promise<View> {
-  const renderer = new THREE.WebGPURenderer({ canvas, antialias: true });
+/**
+ * The view at a quality tier (M5.7, D69): antialiasing is the renderer's from the start, so a tier
+ * that changes it makes a new view. `onLong` hears when frames drawn back to back run long.
+ */
+export async function createView(
+  host: HTMLElement,
+  canvas: HTMLCanvasElement,
+  tier: TierSettings = TIERS.high,
+  onLong: () => void = () => {},
+): Promise<View> {
+  const renderer = new THREE.WebGPURenderer({ canvas, antialias: tier.antialias });
   await renderer.init();
   const backend: Backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl';
   const scene = new THREE.Scene();
@@ -79,7 +98,12 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   const sun = new THREE.DirectionalLight(0xffffff, 2.2);
   sun.position.set(6, 12, 8);
   scene.add(skyLight, sun);
-  const environment = createEnvironmentView(scene, { sky: skyLight, sun });
+  sunShadows(renderer, sun, tier.shadowMap);
+  const environment = createEnvironmentView(
+    scene,
+    { sky: skyLight, sun },
+    { physicalSky: tier.physicalSky, weatherShare: tier.weatherShare },
+  );
   // A metre a square, 60 m across: the editor's, never saved. Wider, its far lines shimmer into a band.
   const grid = new THREE.GridHelper(60, 60, cssColor(host, '--muted', '#a9b0ba'), cssColor(host, '--line', '#343a43'));
   scene.add(grid);
@@ -96,7 +120,11 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     () => draw(),
     (area) => foliage.changed(area),
   );
-  const foliage = createFoliageView(() => draw(), terrain.grid);
+  const foliage = createFoliageView(() => draw(), terrain.grid, {
+    reach: tier.foliageReach,
+    share: tier.foliageShare,
+    shadows: tier.foliageShadows && tier.shadowMap > 0,
+  });
   scene.add(terrain.root, foliage.root);
   // Placed records' names (M5.2), drawn by the page over the canvas: sharp at any size, and words a
   // screen reader skips, as the outliner names the same objects.
@@ -115,6 +143,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   let size = { w: 1, h: 1 };
   let frames = 0;
   let asked = false;
+  // When the last frame ended: a frame asked for straight after it is drawn back to back.
+  let lastEnd = Number.NEGATIVE_INFINITY;
+  const clock = createFrameClock();
   let gone = false;
 
   const placedNow = (id: string) => draft?.get(id) ?? filed.get(id);
@@ -178,7 +209,8 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
   function draw() {
     if (asked) return;
     asked = true;
-    requestAnimationFrame(() => {
+    const askedAt = performance.now();
+    requestAnimationFrame((time) => {
       asked = false;
       // A frame asked for just before the view went: the panel closed, its meshes already freed.
       if (gone) return;
@@ -192,6 +224,9 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       renderer.render(scene, camera);
       placeLabels();
       frames++;
+      const long = clock.frame(time, askedAt - lastEnd <= BACK_TO_BACK);
+      lastEnd = performance.now();
+      if (long) onLong();
       // Falling weather is drawn every frame; everything else waits to be asked.
       if (environment.animating()) draw();
     });
@@ -206,9 +241,11 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     }
     const drawModel = models.use(live);
     built = builder.build(space, prefabs, names, drawModel);
+    if (tier.shadowMap > 0) castShadows(built.root);
     foliage.models(drawModel);
     scene.add(built.root);
     labelLayer.replaceChildren();
+    fitShadows();
     labels = built.labels.map(({ text, at }) => {
       const box = document.createElement('span');
       box.className = 'scene-label';
@@ -220,6 +257,19 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     draft = null;
     outline();
     draw();
+  }
+
+  /** The sun's shadow camera round everything drawn: the terrain's corners and heights, and the objects. */
+  function fitShadows() {
+    if (tier.shadowMap === 0) return;
+    const g = terrain.grid();
+    let radius = g ? Math.hypot(extentOf(g), extentOf(g), Math.max(Math.abs(g.low), Math.abs(g.high))) : 0;
+    const box = built ? new THREE.Box3().setFromObject(built.root) : new THREE.Box3();
+    if (!box.isEmpty()) {
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
+      radius = Math.max(radius, sphere.center.length() + sphere.radius);
+    }
+    fitSunShadow(sun, radius || 10);
   }
 
   const placeLabels = () => {
@@ -246,7 +296,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     const w = Math.max(1, host.clientWidth);
     const h = Math.max(1, host.clientHeight);
     size = { w, h };
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(pixelRatioOf(tier, window.devicePixelRatio));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -319,8 +369,27 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     models: () => models.summaries(built?.root),
     foliage: () => foliage.summary(),
     plantsNear: foliage.near,
+    perf,
   };
   setHook(hook);
+
+  function perf(): PerfSummary {
+    return {
+      tier: tier.name,
+      backend,
+      pixelRatio: renderer.getPixelRatio(),
+      antialias: renderer.samples > 0,
+      shadowMap: renderer.shadowMap.enabled && sun.castShadow ? sun.shadow.mapSize.x : 0,
+      foliageShadows: foliage.summary().some((f) => f.shadows),
+      sky: environment.summary()?.sky ?? null,
+      foliageReach: tier.foliageReach,
+      foliageShare: tier.foliageShare,
+      weatherShare: tier.weatherShare,
+      frames: frameStats(clock.intervals()),
+      drawCalls: renderer.info.render.drawCalls,
+      triangles: renderer.info.render.triangles,
+    };
+  }
 
   return {
     backend,
@@ -356,12 +425,15 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
     show,
     showEnvironment(look) {
       environment.show(look);
+      // The sun moved: its shadow camera with it.
+      fitShadows();
       draw();
     },
     showTerrain(settings, files) {
       const problem = terrain.show(settings, files);
       // The terrain is the ground: the editor's grid would only flicker through it.
       grid.visible = terrain.grid() === null;
+      fitShadows();
       draw();
       return problem;
     },
@@ -391,6 +463,7 @@ export async function createView(host: HTMLElement, canvas: HTMLCanvasElement): 
       const sphere = box.getBoundingSphere(new THREE.Sphere());
       setOrbit(framed(orbit, [sphere.center.x, sphere.center.y, sphere.center.z], sphere.radius));
     },
+    perf,
     aim() {
       const middle = rayAt([size.w / 2, size.h / 2]);
       return terrain.ground(middle) ?? onPlane(middle, [0, 0, 0], [0, 1, 0]) ?? orbit.target;

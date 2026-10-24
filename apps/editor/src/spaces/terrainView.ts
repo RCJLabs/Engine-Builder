@@ -172,6 +172,8 @@ export function createTerrainView(
     lods = new Array(n * n).fill(-1);
     for (let k = 0; k < n * n; k++) {
       const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
+      // The ground takes the sun's shadows when the tier draws them (M5.7); it casts none on itself.
+      mesh.receiveShadow = true;
       meshes.push(mesh);
       chunks.add(mesh);
     }

@@ -322,3 +322,24 @@
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
+
+/* The perf overlay (M5.7): over the view's corner, never in a finger's way or a pick's. */
+.perf-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: var(--surface);
+  pointer-events: none;
+}
+
+.perf-overlay p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

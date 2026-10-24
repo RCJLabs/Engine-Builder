@@ -40,6 +40,8 @@ export interface FoliageSummary {
   readonly plants: number;
   readonly drawn: number;
   readonly capped: boolean;
+  /** Whether its plants cast the sun's shadows, as the tier lets them (M5.7). */
+  readonly shadows: boolean;
   readonly chunks: readonly { at: [number, number]; plants: number; level: number; distance: number }[];
 }
 
@@ -91,7 +93,18 @@ function templateOf(holder: THREE.Object3D): Template {
 
 const UP = new THREE.Vector3(0, 1, 0);
 
-export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | null) {
+/** What a quality tier lets foliage draw (M5.7, D69): its reach and share of each type's, and whether it casts shadows. */
+export interface FoliageTier {
+  readonly reach: number;
+  readonly share: number;
+  readonly shadows: boolean;
+}
+
+export function createFoliageView(
+  draw: () => void,
+  gridOf: () => TerrainGrid | null,
+  tier: FoliageTier = { reach: 1, share: 1, shadows: false },
+) {
   const root = new THREE.Group();
   let list: readonly FoliageShown[] = [];
   let listKey = '';
@@ -131,6 +144,7 @@ export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | 
         instanced.setMatrixAt(n, instance.multiplyMatrices(plant, part.matrix));
       }
       instanced.instanceMatrix.needsUpdate = true;
+      instanced.castShadow = tier.shadows;
       instanced.computeBoundingSphere();
       root.add(instanced);
       return instanced;
@@ -156,7 +170,7 @@ export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | 
     if (!grid) return;
     list.forEach((shown, channel) => {
       if (!shown.record || channel > 3) return;
-      const scatter = scatterOf(shown.id, channel, shown.record);
+      const scatter = scatterOf(shown.id, channel, shown.record, 1, tier.share);
       const { chunks, capped } = scatterAll(grid, scatter);
       if (capped) console.warn(`${shown.id} stops at ${MOST_PLANTS} plants`);
       const kind: Kind = {
@@ -240,7 +254,7 @@ export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | 
       const { across, width } = chunkGrid(grid);
       const e = extentOf(grid);
       for (const kind of kinds) {
-        const drawnTo = kind.shown.record.distance ?? 200;
+        const drawnTo = (kind.shown.record.distance ?? 200) * tier.reach;
         for (let cj = 0; cj < across; cj++) {
           for (let ci = 0; ci < across; ci++) {
             const [x, z] = [(ci + 0.5) * width - e, (cj + 0.5) * width - e];
@@ -278,6 +292,7 @@ export function createFoliageView(draw: () => void, gridOf: () => TerrainGrid | 
           plants: chunks.reduce((n, c) => n + c.plants, 0),
           drawn,
           capped: kind.capped,
+          shadows: [...kind.meshes.values()].some((made) => made.some((m) => m.castShadow)),
           chunks,
         };
       });

@@ -37,7 +37,8 @@ export function gradientAt(look: Pick<Look, 'zenith' | 'horizon' | 'ground'>, y:
     : mixColour(look.horizon, look.ground, Math.min(1, -y * 6));
 }
 
-export function createSkyView(scene: THREE.Scene, editorBackground: THREE.Color): SkyView {
+/** `physicalAllowed` false draws a physical sky as its gradient: a quality tier's (M5.7, D69). */
+export function createSkyView(scene: THREE.Scene, editorBackground: THREE.Color, physicalAllowed = true): SkyView {
   const root = new THREE.Group();
   let physical: SkyMesh | null = null;
   let shown: SkyKind | null = null;
@@ -94,7 +95,7 @@ export function createSkyView(scene: THREE.Scene, editorBackground: THREE.Color)
   return {
     root,
     show(look) {
-      shown = look?.sky ?? null;
+      shown = look?.sky === 'physical' && !physicalAllowed ? 'gradient' : (look?.sky ?? null);
       sunAt = new THREE.Vector3(...(look?.sun.direction ?? [0, 1, 0]));
       if (physical) physical.visible = shown === 'physical';
       gradient.visible = shown === 'gradient';

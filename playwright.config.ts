@@ -14,6 +14,13 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // The specs written before M5.7 hold the view to what was authored, every plant and drop and
+    // the physical sky, so they draw at High; Auto would pick Low for the software renderer here.
+    // perf.spec.ts and perfPhone.spec.ts set their own (D69).
+    storageState: {
+      cookies: [],
+      origins: [{ origin: BASE_URL.replace(/\/$/, ''), localStorage: [{ name: 'eb-quality', value: 'high' }] }],
+    },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {

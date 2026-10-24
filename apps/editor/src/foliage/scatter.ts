@@ -32,9 +32,11 @@ export interface Scatter {
   readonly lowest: number;
   readonly highest: number;
   readonly scale: number;
+  /** How many of the plants painted stand, 0 to 1: a quality tier's share (M5.7, D69). */
+  readonly share: number;
 }
 
-export function scatterOf(id: string, channel: number, record: FoliageRecord, modelScale = 1): Scatter {
+export function scatterOf(id: string, channel: number, record: FoliageRecord, modelScale = 1, share = 1): Scatter {
   const f = { ...FOLIAGE_DEFAULTS, ...record };
   const tan = f.steepest >= 90 ? Number.POSITIVE_INFINITY : Math.tan((f.steepest * Math.PI) / 180);
   return {
@@ -49,6 +51,7 @@ export function scatterOf(id: string, channel: number, record: FoliageRecord, mo
     lowest: f.lowest ?? Number.NEGATIVE_INFINITY,
     highest: f.highest ?? Number.POSITIVE_INFINITY,
     scale: modelScale,
+    share,
   };
 }
 
@@ -131,7 +134,8 @@ export function scatterChunk(g: TerrainGrid, s: Scatter, ci: number, cj: number,
       const z = -e + (v + (r[2] as number)) * c;
       if (x > e || z > e) continue;
       if (!inside(x, x0, x1, ci === across - 1) || !inside(z, z0, z1, cj === across - 1)) continue;
-      if ((r[0] as number) >= densityAt(g, s.channel, x, z)) continue;
+      // A share below 1 keeps the plants whose first draw is lowest: a subset of the whole, none moved.
+      if ((r[0] as number) >= densityAt(g, s.channel, x, z) * s.share) continue;
       const ground = groundAt(g, x, z);
       if (ground.gx * ground.gx + ground.gz * ground.gz > s.steepest2) continue;
       if (ground.height < s.lowest || ground.height > s.highest) continue;

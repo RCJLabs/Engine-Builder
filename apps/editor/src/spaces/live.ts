@@ -7,7 +7,6 @@
 import { classifySpaceFile, PREFABS_DIR, type ProjectSource, parseJsonFile, terrainPath } from '@eb/compiler';
 import {
   type DataType,
-  ENVIRONMENT,
   ENVIRONMENT_DATA,
   type EnvironmentRecord,
   FOLIAGE_DATA,

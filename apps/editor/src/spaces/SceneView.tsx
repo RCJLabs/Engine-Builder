@@ -2,12 +2,17 @@
  * The 3D view of the open space or prefab (M5.1, D63), with three in its chunk: the view made once
  * it mounts, shown the file again after each change, its gizmo following the toolbar's mode and
  * the objects chosen, its terrain the brush chosen (M5.3), its environment drawn (M5.4), its placed
- * records drawn as their models (M5.5), its terrain's foliage grown (M5.6). Keyed by the file, so
- * another file starts its own view.
+ * records drawn as their models (M5.5), its terrain's foliage grown (M5.6), at the quality tier
+ * the editor holds (M5.7): a new tier makes the view again on a new canvas, its camera kept, since
+ * three takes antialiasing only as its renderer is made. Keyed by the file, so another file starts
+ * its own view.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { lookOf } from '../environment/look.ts';
+import { PerfOverlay } from '../perf/PerfOverlay.tsx';
+import { autoPick, quality, readAuto, statsShown, stepDown, tierNow } from '../perf/state.ts';
+import { TIERS } from '../perf/tiers.ts';
 import { writeStrokeHere } from '../terrain/actions.ts';
 import { brushKind, brushNow } from '../terrain/state.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
@@ -15,6 +20,7 @@ import type { NameOf } from './build.ts';
 import { attachGestures } from './gestures.ts';
 import { lastShown } from './lastShown.ts';
 import type { LiveSpace } from './live.ts';
+import type { Orbit } from './orbit.ts';
 import type { SpaceJson } from './spaceFile.ts';
 import {
   aim,
@@ -55,6 +61,13 @@ export function SceneView(props: {
   latest.current = props;
   const shown = useRef(lastShown());
   const lit = useRef(lastShown());
+  // The camera as the last view left it, for the view a new tier makes.
+  const kept = useRef<Orbit | null>(null);
+  const readPerf = useRef(() => view.current?.perf() ?? null).current;
+  // Auto's tier waits for the device's hints; a tier picked by hand needn't.
+  const [hinted, setHinted] = useState(autoPick.peek() !== null);
+  const ready = hinted || quality.value !== 'auto';
+  const tier = tierNow.value;
   const [backend, setBackend] = useState<Backend | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [unread, setUnread] = useState<string | null>(null);
@@ -78,19 +91,27 @@ export function SceneView(props: {
   };
 
   useEffect(() => {
+    if (!hinted) void readAuto().finally(() => setHinted(true));
+  }, []);
+
+  useEffect(() => {
     let gone = false;
     let detach = () => {};
     const box = host.current;
     const drawn = canvas.current;
-    if (!box || !drawn) return;
-    createView(box, drawn).then(
+    if (!box || !drawn || !ready) return;
+    createView(box, drawn, TIERS[tier], stepDown).then(
       (made) => {
         if (gone) return made.dispose();
         view.current = made;
         made.setMode(gizmoMode.peek());
+        // A new view is shown everything afresh.
+        shown.current = lastShown();
+        lit.current = lastShown();
         showLatest();
         made.select(picked.peek());
-        made.frame();
+        if (kept.current) made.setOrbit(kept.current);
+        else made.frame();
         aim.value = made.aim();
         detach = attachGestures(made, box, {
           snap: () => snapOn.peek(),
@@ -120,10 +141,12 @@ export function SceneView(props: {
       gone = true;
       groundHeight.value = null;
       detach();
+      kept.current = view.current?.orbit() ?? kept.current;
       view.current?.dispose();
       view.current = null;
+      setBackend(null);
     };
-  }, []);
+  }, [ready, tier]);
 
   useEffect(showLatest, [space, prefabs, names, terrain, environment, models, foliage]);
   const brush = brushKind.value;
@@ -155,7 +178,8 @@ export function SceneView(props: {
         tabIndex={0}
         data-backend={backend ?? undefined}
       >
-        <canvas ref={canvas} class="scene-canvas" />
+        <canvas key={tier} ref={canvas} class="scene-canvas" />
+        {statsShown.value && backend !== null ? <PerfOverlay read={readPerf} /> : null}
         {failed ? (
           <p class="field-problem scene-note" role="alert">
             The 3D view couldn’t start: {failed}
