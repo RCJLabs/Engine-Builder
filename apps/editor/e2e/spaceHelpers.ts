@@ -126,6 +126,10 @@ export async function dragTouch(
   }
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await cdp.detach();
+  // A finger is off the glass a while before it taps again. Chrome drops a tap that comes within
+  // about 50 ms of a drag's end (2026-10-24, 360×740: 10 of 20 taps lost straight after, 12 of 20
+  // after 50 ms, none after 100 ms), and on CI each phone's first tap after the camera was levelled was.
+  await page.waitForTimeout(250);
 }
 
 /** Two fingers spreading apart from the middle of the view: a pinch that zooms in. */
