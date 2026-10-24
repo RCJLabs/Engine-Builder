@@ -23,8 +23,10 @@ jobs:
   verify:
     runs-on: ubuntu-24.04
     # M4.8's run took 11 minutes before the e2e and 11 to 14 in it, past the 20 it had: room to grow,
-    # still short of a hang going unnoticed.
-    timeout-minutes: 30
+    # still short of a hang going unnoticed. M5.6's took 28 of 30; M5.7's ran out at 30 with 240 of
+    # 295 tests passed and none failed, its perf specs added and every older 3D spec drawn at High,
+    # shadows and all (Readings). 45 gives the same room again.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
