@@ -1,0 +1,10 @@
+{
+  "//": "Runs in the editor's import worker (browser) and in Node (the starter kit's script and the tests), so it uses neither platform's types; src/globals.d.ts declares what it needs. Not eb.pure: it reads and writes files through gltf-transform and WebAssembly.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}
