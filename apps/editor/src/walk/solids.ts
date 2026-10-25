@@ -14,6 +14,7 @@ import {
   type SpaceObject,
 } from '@eb/compiler';
 import type { ModelCollider } from '@eb/schema';
+import { chestOf, FIGURE, type NpcOf } from '../spaces/figureLook.ts';
 import { transformOf } from '../spaces/spaceFile.ts';
 import { add, mulQuat, type Quat, quatOfTurn, rotate, type Vec3 } from '../spaces/vec.ts';
 
@@ -179,10 +180,26 @@ export function yawOf(turn: Quat): number {
   return (Math.atan2(-x, -z) * 180) / Math.PI + 0;
 }
 
+/** An NPC drawn as the engine's figure (M6.1): a fixed capsule its height tall, standing on its place. */
+function figureSolid(path: string, frame: Frame, height: number): Solid {
+  const radius = FIGURE.radius;
+  const tall = height * Math.abs(frame.scale[1]);
+  return {
+    kind: 'capsule',
+    path,
+    center: [frame.at[0], frame.at[1] + tall / 2, frame.at[2]],
+    turn: frame.turn,
+    radius,
+    halfHeight: Math.max(0, tall / 2 - radius),
+    moves: false,
+  };
+}
+
 /**
  * The space's parts, depth first as the view draws them. A zone is kept only when the sim has it
  * (`zones`, the pack's trigger zones for the space), and a use only when the sim has it too (`uses`,
- * its label by path), so the walk sends nothing the sim can't hear.
+ * its label by path), so the walk sends nothing the sim can't hear. A placed actor (M6.1, `npcs`)
+ * has its model's collider or its figure's capsule, and its Talk at its chest.
  */
 export function partsOf(
   space: SpaceJson,
@@ -190,6 +207,7 @@ export function partsOf(
   models: ModelOf,
   zones: ReadonlySet<string>,
   uses: ReadonlyMap<string, string> = new Map(),
+  npcs: NpcOf = () => null,
 ): Parts {
   const solids: Solid[] = [];
   const found: Zone[] = [];
@@ -221,9 +239,20 @@ export function partsOf(
       });
     }
     if (seen.record !== undefined) {
-      const model = models(seen.record, passedOn(object, layers));
-      const solid = model?.collider ? modelSolid(path, frame, model.collider, model.scale) : null;
+      const passed = passedOn(object, layers);
+      const model = models(seen.record, passed);
+      const npc = npcs(seen.record, passed);
+      const solid = model?.collider
+        ? modelSolid(path, frame, model.collider, model.scale)
+        : npc?.figure
+          ? figureSolid(path, frame, npc.figure.height)
+          : null;
       if (solid) solids.push(solid);
+      const talk = npc && label === undefined ? uses.get(path) : undefined;
+      if (npc && talk !== undefined) {
+        const chest = chestOf(npc.height) * Math.abs(frame.scale[1]);
+        usable.push({ path, center: [frame.at[0], frame.at[1] + chest, frame.at[2]], label: talk });
+      }
       return;
     }
     const prefab = seen.prefab === undefined ? undefined : prefabs.get(seen.prefab);

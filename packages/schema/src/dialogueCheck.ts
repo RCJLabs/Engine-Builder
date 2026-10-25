@@ -9,7 +9,7 @@
  * E042 and W123 wait for finish().
  */
 import { type Effect, type FactCatalog, NAME_PATTERN, satisfiability } from '@eb/core';
-import { ECONOMY, type Line, stepsFrom, TALK, type TalkOption, type TalkRecord } from '@eb/kits';
+import { ACTOR, ECONOMY, type Line, stepsFrom, TALK, type TalkOption, type TalkRecord } from '@eb/kits';
 import type { SoundCondition } from './conditions.ts';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { factTests } from './flagCheck.ts';
@@ -176,6 +176,9 @@ export class DialogueChecks {
 
   /** One record that passed its schema. */
   record(type: string, id: string, value: unknown, report: Report): void {
+    // An NPC's talk (M6.1, D73): placed, Interact opens it, so it is opened as an open-talk opens it.
+    const talk = type === ACTOR ? (value as { readonly talk?: unknown }).talk : undefined;
+    if (typeof talk === 'string') this.opened.add(talk);
     if (type !== TALK) return;
     const reached = checkTalk(value as TalkRecord, this.economy, report);
     checkWays(value as TalkRecord, reached, this.facts, report);
@@ -210,7 +213,7 @@ export class DialogueChecks {
     }
     for (const [id, { report }] of this.talks) {
       if (!this.opened.has(id)) {
-        report('W123', '', 'No row, choice, line, consequence or outcome opens it with Open a talk');
+        report('W123', '', 'No row, choice, line, consequence, outcome or actor opens it');
       }
     }
   }

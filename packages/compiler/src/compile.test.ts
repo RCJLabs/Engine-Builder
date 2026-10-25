@@ -710,6 +710,21 @@ describe('the code table', () => {
         message: expect.stringContaining('The space "bothy" has no spawn point "window"'),
       },
     ]);
+    // M6.1: an actor placed in two spaces, the second time inside a prefab.
+    const twice = await kitted(['stats'], {
+      'records/actor/smith.json': '{ "name": "Ada" }',
+      'prefabs/forge.json': JSON.stringify({ name: 'Forge', objects: [{ id: 'by', record: 'actor:smith' }] }),
+      'spaces/ford.json': JSON.stringify({ name: 'Ford', objects: [{ id: 'smith', record: 'actor:smith' }] }),
+      'spaces/yard.json': JSON.stringify({ name: 'Yard', objects: [{ id: 'forge', prefab: 'forge' }] }),
+    });
+    expect(brief(twice.diagnostics)).toEqual([
+      {
+        code: 'E077',
+        file: 'spaces/yard.json',
+        path: '/objects/0',
+        message: 'The actor "smith" stands in one place only: it is already at "smith" in spaces/ford.json',
+      },
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -732,6 +747,7 @@ describe('the code table', () => {
       modelled,
       foliaged,
       doors,
+      twice,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

@@ -82,6 +82,7 @@ const hookOf = ({ space, kind, began, walker, sender, acts, surface, streaming, 
   },
   perf: () => surface.view.perf(surface.clock.intervals()),
   cells: () => streaming.cells(),
+  npcs: () => surface.view.npcs.list(),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -119,7 +120,14 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   // while another is on its way.
   const outbox = createOutbox(ask.send);
   const sender = createSender(ask.space, outbox, first.zones);
-  const acts = createActs(ask, outbox, first.uses, prompt, { feet: walker.feet(), time: performance.now() });
+  const acts = createActs(
+    ask,
+    outbox,
+    first.uses,
+    prompt,
+    { feet: walker.feet(), time: performance.now() },
+    (path, feet) => surface.view.npcs.face(path, feet, performance.now()),
+  );
   let gone = acts.taken(ask.taken);
   surface.view.hide(gone);
   const view = () => surface.view;
@@ -156,8 +164,11 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     frame = requestAnimationFrame(tick);
     const elapsed = Math.min(0.25, (time - last) / 1000);
     last = time;
-    // Paused, nothing moves and the frame is held.
-    if (paused) return;
+    // Paused, nothing moves and the frame is held: but for an NPC turning to face the player (M6.1).
+    if (paused) {
+      if (surface.view.npcs.turning(time)) draw();
+      return;
+    }
     const held = { ...surface.inputs.take(), ...touches.take() };
     by = inputBy(held, by);
     const intent = intentOf(held, elapsed);
@@ -204,7 +215,8 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     pause(on) {
       if (on && !paused) acts.stand(walker.feet(), yaw, performance.now());
       paused = on;
-      if (!on) return;
+      // The walk goes on, its talk over: the NPC that faced the player turns back.
+      if (!on) return surface.view.npcs.back(performance.now());
       surface.inputs.clear();
       touches.clear();
     },

@@ -9,6 +9,7 @@ import { BackIcon } from '../app/icons.tsx';
 import { noteError } from '../app/state.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { namesOf } from '../records/names.ts';
+import { figuresFrom } from './figureLook.ts';
 import { liveOf } from './live.ts';
 import { SceneToolbar } from './SceneToolbar.tsx';
 import { SpaceList } from './SpaceList.tsx';
@@ -71,6 +72,7 @@ function SpaceEditor({ project, open }: { project: OpenProject; open: OpenSpace 
           prefabs={now.prefabs}
           open={open}
           names={namesOf(project.index, project.catalog)}
+          figures={figuresFrom((key) => project.index?.records.get(key)?.value)}
           terrain={now.terrain}
           environment={now.environment}
           models={now.models}

@@ -24,6 +24,7 @@ import { createFarModels } from './farModels.ts';
 import { closeFog, DAYLIGHT } from './fog.ts';
 import type { Placement } from './footprints.ts';
 import { createNearObjects, nodeAt } from './nearObjects.ts';
+import { createNpcView } from './npcView.ts';
 import { BODY, topOf } from './physics.ts';
 import type { Solid } from './solids.ts';
 import type { WalkSpace } from './world.ts';
@@ -51,6 +52,8 @@ export interface WalkView {
   settle(): void;
   /** Draws these placements' models far, and these water objects. */
   far(placements: readonly Placement[], water: readonly string[]): void;
+  /** The NPCs (M6.1): one turned to face the player as its Talk is used, and back as the walk goes on. */
+  readonly npcs: Pick<ReturnType<typeof createNpcView>, 'isNpc' | 'face' | 'back' | 'turning' | 'list'>;
   streaming(): {
     readonly built: string[];
     readonly waiting: number;
@@ -160,7 +163,9 @@ export async function createWalkView(
       }
     },
     shadows,
+    (key, passed) => space.npcs(key, passed)?.figure ?? null,
   );
+  const npcs = createNpcView(space, () => near.root);
   const farOnes = createFarModels(space.space, space.prefabs, builder, draw, shadows);
   let lastFar: { placements: readonly Placement[]; water: readonly string[] } = { placements: [], water: [] };
   const showFar = () => farOnes.show(lastFar.placements, lastFar.water);
@@ -217,6 +222,7 @@ export async function createWalkView(
       character.position.set(...feet);
       character.rotation.set(0, (yaw * Math.PI) / 180, 0);
       for (const m of moved) follow(m.path, m.at, m.turn);
+      npcs.apply(performance.now());
       const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
       terrain.levels(eye);
       foliage.levels(eye);
@@ -259,6 +265,7 @@ export async function createWalkView(
       lastFar = { placements, water };
       showFar();
     },
+    npcs,
     streaming: () => ({
       built: near.built(),
       waiting: near.waiting,

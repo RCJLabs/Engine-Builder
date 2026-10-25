@@ -236,6 +236,32 @@ describe('the acts', () => {
     expect(sent.map((a) => a.type)).toEqual(['world/at', 'world/use']);
   });
 
+  it('tells the stage of each use, and says no stand again that a use has just said (M6.1)', async () => {
+    const { ask, sent } = asked();
+    const turned: [string, readonly number[]][] = [];
+    const acts = createActs(
+      ask,
+      createOutbox(ask.send),
+      [use('smith', [0, -1])],
+      prompt(),
+      { feet: [0, 0, 0], time: 0 },
+      (path, feet) => void turned.push([path, feet]),
+    );
+    acts.frame([0, 0, 0], 0, true, 'keys', 10);
+    expect(turned).toEqual([['smith', [0, 0, 0]]]);
+    // The talk opens and pauses the walk, which says where the player stands: it has, just now.
+    acts.stand([0, 0, 0], 0, 20);
+    acts.stand([0, 0, 0.001], 0.01, 30);
+    for (let i = 0; i < 4; i++) {
+      await flush();
+      acts.frame([0, 0, 0], 0, false, 'keys', 40);
+    }
+    expect(sent.map((a) => a.type)).toEqual(['world/at', 'world/use']);
+    acts.stand([2, 0, 0], 0, 50);
+    await flush();
+    expect(sent.at(-1)).toEqual({ type: 'world/at', space: 'glen', feet: [2, 0, 0], yaw: 0 });
+  });
+
   it('says where the player stands when due, and nothing in a space the sim hasn’t them in', async () => {
     const here = asked();
     const acts = createActs(here.ask, createOutbox(here.ask.send), [], prompt(), { feet: [0, 0, 0], time: 0 });

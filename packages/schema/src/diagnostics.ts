@@ -80,6 +80,7 @@ export const DIAGNOSTIC_CODES = {
   E074: "A foliage record's smallest is above its largest, or its lowest isn't below its highest",
   E075: "project.json's start-space names a space the project doesn't have",
   E076: "enter-space names a space the project doesn't have, or a spawn point its space doesn't have",
+  E077: 'An actor is placed in more than one place across the spaces: an NPC stands in one',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',

@@ -7,6 +7,7 @@ import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { ViewKind } from './cameras.ts';
+import type { NpcSeen } from './npcView.ts';
 
 /** What the walk has built and drawn of its space (M5.10, docs/specs/streaming.md#the-hook). */
 export interface WalkCells {
@@ -62,6 +63,8 @@ export interface WalkHook {
   perf(): PerfSummary;
   /** What is built near and drawn far (M5.10). */
   cells(): WalkCells;
+  /** The NPCs built (M6.1): each one's actor, what it draws as, and the yaws it faces and was placed at. */
+  npcs(): readonly NpcSeen[];
 }
 
 declare global {

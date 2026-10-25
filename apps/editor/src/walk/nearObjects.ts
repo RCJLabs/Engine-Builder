@@ -6,6 +6,7 @@
  */
 import * as THREE from 'three/webgpu';
 import type { createBuilder, DrawModel } from '../spaces/build.ts';
+import type { FigureOf } from '../spaces/figureLook.ts';
 import { lodsOf } from '../spaces/meshes.ts';
 import { castShadows } from '../spaces/shadows.ts';
 import type { SpaceJson, SpaceObject } from '../spaces/spaceFile.ts';
@@ -45,6 +46,8 @@ export function createNearObjects(
   /** Called with each object once it is built, before it is drawn. */
   dressed: (node: THREE.Object3D) => void,
   shadows: boolean,
+  /** Placed actors without a model, as the engine's figure (M6.1). */
+  figures: FigureOf = () => null,
 ): NearObjects {
   const root = new THREE.Group();
   const byId = new Map<string, SpaceObject>(space.objects.map((o) => [o.id, o]));
@@ -57,7 +60,7 @@ export function createNearObjects(
   const make = (id: string) => {
     const object = byId.get(id);
     if (!object) return;
-    const made = builder.build({ ...space, objects: [object] }, prefabs, undefined, draw(), true);
+    const made = builder.build({ ...space, objects: [object] }, prefabs, undefined, draw(), true, figures);
     const node = made.root.children[0];
     if (!node) return;
     made.root.remove(node);

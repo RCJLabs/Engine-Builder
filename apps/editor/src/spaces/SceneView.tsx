@@ -17,6 +17,7 @@ import { writeStrokeHere } from '../terrain/actions.ts';
 import { brushKind, brushNow } from '../terrain/state.ts';
 import { deleteChosen, placeChosen } from './actions.ts';
 import type { NameOf } from './build.ts';
+import type { FigureOf } from './figureLook.ts';
 import { attachGestures } from './gestures.ts';
 import { lastShown } from './lastShown.ts';
 import type { LiveSpace } from './live.ts';
@@ -54,6 +55,8 @@ export function SceneView(props: {
   models?: LiveSpace['models'];
   /** The foliage its terrain lists, when it lists any. */
   foliage?: LiveSpace['foliage'];
+  /** Placed actors without a model, drawn as the engine's figure (M6.1). */
+  figures?: FigureOf;
 }) {
   const { space, prefabs, names, terrain, environment, models, foliage } = props;
   const host = useRef<HTMLDivElement>(null);
@@ -76,12 +79,14 @@ export function SceneView(props: {
 
   const showLatest = () => {
     const shownView = view.current;
-    const { space: s, prefabs: p, names, models: m } = latest.current;
+    const { space: s, prefabs: p, names, models: m, figures: f } = latest.current;
     // Read again after any change to the project, it is drawn again only when it, a prefab, a
-    // placed record's name or what its models are drawn from changed.
-    const named = s.objects.flatMap((o) => (o.record !== undefined ? [names?.(o.record) ?? ''] : []));
+    // placed record's name or figure, or what its models are drawn from changed.
+    const named = s.objects.flatMap((o) =>
+      o.record !== undefined ? [names?.(o.record) ?? '', f?.(o.record, o.overrides ? [o.overrides] : []) ?? null] : [],
+    );
     const text = JSON.stringify([s, [...p], named, m?.key ?? null]);
-    if (shown.current.due(text, shownView !== null)) shownView?.show(s, p, names, m);
+    if (shown.current.due(text, shownView !== null)) shownView?.show(s, p, names, m, f);
     // The terrain's files are compared by the view, which decodes them only when they changed.
     if (!shownView) return;
     const record = latest.current.environment?.record ?? null;

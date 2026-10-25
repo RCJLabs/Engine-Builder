@@ -40,6 +40,8 @@ export function createActs(
   first: readonly UsePoint[],
   prompt: Prompt,
   start: Told,
+  /** Each use as it is sent (M6.1): an NPC's Talk turns it toward the player. */
+  onUse: (path: string, feet: Vec3) => void = () => {},
 ): Acts {
   let uses = first;
   let gone: ReadonlySet<string> = new Set(ask.taken);
@@ -49,10 +51,12 @@ export function createActs(
   const used: { object: string; sent: Sent | 'waiting' }[] = [];
   const stood: { feet: readonly number[]; yaw: number; sent: Sent | 'waiting' }[] = [];
 
+  let said = '';
   const stand = (feet: Vec3, yaw: number, now: number) => {
     // A stage drawing a space the sim hasn't the player in says nothing of where they stand.
     if (!ask.here()) return;
     const action = standing(ask.space, feet, yaw);
+    said = JSON.stringify([action.feet, action.yaw]);
     const entry: { feet: readonly number[]; yaw: number; sent: Sent | 'waiting' } = {
       feet: action.feet as number[],
       yaw: action.yaw as number,
@@ -71,6 +75,7 @@ export function createActs(
     void outbox.post({ type: 'world/use', space: ask.space, object: target.path }).then((sent) => {
       entry.sent = sent;
     });
+    onUse(target.path, feet);
   };
 
   return {
@@ -85,7 +90,9 @@ export function createActs(
       outbox.pump();
     },
     stand(feet, yaw, now) {
-      stand(feet, yaw, now);
+      // Already said, as a use says it just before (M6.1): a talk's mode would refuse it again.
+      const action = standing(ask.space, feet, yaw);
+      if (JSON.stringify([action.feet, action.yaw]) !== said) stand(feet, yaw, now);
       outbox.pump();
     },
     taken(paths) {
