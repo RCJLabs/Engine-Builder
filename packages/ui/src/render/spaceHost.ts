@@ -12,6 +12,14 @@ export type Sent = 'accepted' | 'refused' | 'dropped';
 export const WALK_QUALITIES = ['auto', 'low', 'medium', 'high'] as const;
 export type WalkQuality = (typeof WALK_QUALITIES)[number];
 
+/** An NPC of the space as the sim keeps it (M6.2): where it last stood, its goal, where it got to. */
+export interface NpcGoal {
+  readonly feet?: readonly [number, number, number];
+  readonly yaw?: number;
+  readonly goal?: string;
+  readonly arrived?: string;
+}
+
 /** Where the player stood, from a load (M5.9): the feet, and the way they faced in degrees. */
 export interface StandAt {
   readonly feet: readonly [number, number, number];
@@ -27,6 +35,8 @@ export interface SpaceAsk {
   readonly arrive?: string;
   /** The objects taken here, by path: neither drawn nor solid. */
   readonly taken: readonly string[];
+  /** The NPCs of this space the sim knows of (M6.2), by actor: where each stood and where it is sent. */
+  readonly npcs?: Readonly<Record<string, NpcGoal>>;
   /** The sim has the player in this space now: only then does the stage say where they stand. */
   here(): boolean;
   /** Sends `world/trigger`, `world/use` and `world/at` as the character walks, as a button's action is sent. */
@@ -39,6 +49,8 @@ export interface SpaceDrawn {
   quality(next: WalkQuality): void;
   /** The objects taken here now, as the sim says after each step (M5.9). */
   taken(paths: readonly string[]): void;
+  /** The NPCs here as the sim says after each step (M6.2): a walk-to sends one off. */
+  npcs?(next: Readonly<Record<string, NpcGoal>>): void;
   stop(): void;
 }
 

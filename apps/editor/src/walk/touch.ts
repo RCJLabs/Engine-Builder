@@ -2,12 +2,22 @@
  * The walk by touch (M5.8, D70, docs/specs/movement.md#controls): a stick that appears where a thumb
  * lands on the left half and follows it, a drag on the right half that looks, and a 64 px jump button
  * at the bottom right, inside the safe area. Drawn in the page's own DOM, over the canvas; styled
- * here, so the walk's one script carries everything it draws.
+ * here, so the walk's one script carries everything it draws. A touch anywhere but a button that
+ * lifts within TAP_MS and TAP_PX is a tap (M6.2), which walks the player there.
  */
 import { knobOf, NO_PUSH, type Push, pushOf, STICK_SIZE } from './stick.ts';
 
+export const TAP_MS = 300;
+export const TAP_PX = 10;
+
 export interface Touches {
-  take(): { readonly stick: Push; readonly jumpButton: boolean; readonly drag?: { x: number; y: number; by: 'touch' } };
+  take(): {
+    readonly stick: Push;
+    readonly jumpButton: boolean;
+    readonly drag?: { x: number; y: number; by: 'touch' };
+    /** A tap since the last frame, in CSS pixels from the box's top left. */
+    readonly tap?: { x: number; y: number };
+  };
   clear(): void;
   dispose(): void;
 }
@@ -70,6 +80,9 @@ export function createTouches(box: HTMLElement): Touches {
   let jumping = false;
   // A tap shorter than a frame still jumps: the press counts until the next frame takes it.
   let tapped = false;
+  /** Where and when each touch began, for a tap. */
+  const began = new Map<number, { x: number; y: number; time: number }>();
+  let tap: { x: number; y: number } | undefined;
   // Shown once the device is touched, or a coarse pointer says it will be.
   const show = () => {
     jump.style.display = 'block';
@@ -84,6 +97,8 @@ export function createTouches(box: HTMLElement): Touches {
     if (event.pointerType !== 'touch' || event.target === jump) return;
     show();
     const at = local(event);
+    const onButton = event.target instanceof Element && event.target.closest('button') !== null;
+    if (!onButton) began.set(event.pointerId, { x: at.x, y: at.y, time: event.timeStamp });
     if (at.x < at.half && !stick) {
       stick = { id: event.pointerId, from: { x: at.x, y: at.y }, at: { x: at.x, y: at.y } };
       Object.assign(base.style, { display: 'block', left: `${at.x}px`, top: `${at.y}px` });
@@ -105,6 +120,13 @@ export function createTouches(box: HTMLElement): Touches {
     }
   };
   const up = (event: PointerEvent) => {
+    const start = began.get(event.pointerId);
+    began.delete(event.pointerId);
+    if (start && event.type === 'pointerup') {
+      const at = local(event);
+      const still = Math.hypot(at.x - start.x, at.y - start.y) <= TAP_PX;
+      if (still && event.timeStamp - start.time <= TAP_MS) tap = { x: at.x, y: at.y };
+    }
     if (stick?.id === event.pointerId) {
       stick = null;
       base.style.display = 'none';
@@ -134,10 +156,13 @@ export function createTouches(box: HTMLElement): Touches {
       drag = { x: 0, y: 0 };
       const jump = jumping || tapped;
       tapped = false;
+      const tapAt = tap;
+      tap = undefined;
       return {
         stick: stick ? pushOf(stick.from, stick.at) : NO_PUSH,
         jumpButton: jump,
         ...(moved.x !== 0 || moved.y !== 0 ? { drag: { ...moved, by: 'touch' as const } } : {}),
+        ...(tapAt ? { tap: tapAt } : {}),
       };
     },
     clear() {
@@ -145,6 +170,8 @@ export function createTouches(box: HTMLElement): Touches {
       look = null;
       jumping = false;
       tapped = false;
+      tap = undefined;
+      began.clear();
       drag = { x: 0, y: 0 };
       base.style.display = 'none';
     },

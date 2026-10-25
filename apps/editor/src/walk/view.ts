@@ -27,6 +27,7 @@ import { createNearObjects, nodeAt } from './nearObjects.ts';
 import { createNpcView } from './npcView.ts';
 import { BODY, topOf } from './physics.ts';
 import type { Solid } from './solids.ts';
+import { createTapMarker, rayFrom } from './tapMarker.ts';
 import type { WalkSpace } from './world.ts';
 
 const FOV = 70;
@@ -53,7 +54,13 @@ export interface WalkView {
   /** Draws these placements' models far, and these water objects. */
   far(placements: readonly Placement[], water: readonly string[]): void;
   /** The NPCs (M6.1): one turned to face the player as its Talk is used, and back as the walk goes on. */
-  readonly npcs: Pick<ReturnType<typeof createNpcView>, 'isNpc' | 'face' | 'back' | 'turning' | 'list'>;
+  readonly npcs: Pick<
+    ReturnType<typeof createNpcView>,
+    'isNpc' | 'face' | 'back' | 'turning' | 'list' | 'built' | 'place'
+  >;
+  /** Tap to move (M6.2): the ray through a point of the view, and the ring where the player is going. */
+  ray(x: number, y: number): { from: Vec3; dir: Vec3 };
+  readonly marker: ReturnType<typeof createTapMarker>;
   streaming(): {
     readonly built: string[];
     readonly waiting: number;
@@ -127,6 +134,7 @@ export async function createWalkView(
   const builder = createBuilder();
   const character = bodyMesh();
   scene.add(character);
+  const marker = createTapMarker(scene);
 
   let hidden: ReadonlySet<string> = new Set();
   /** Each moving solid's node, its world matrix when built, and its body's authored place inverted. */
@@ -266,6 +274,8 @@ export async function createWalkView(
       showFar();
     },
     npcs,
+    ray: (x, y) => rayFrom(camera, x, y, size.w, size.h),
+    marker,
     streaming: () => ({
       built: near.built(),
       waiting: near.waiting,

@@ -103,6 +103,17 @@ export interface WorldView {
   readonly arrive?: string;
   /** The objects taken in every space, as "space/object". */
   readonly taken: readonly string[];
+  /** Each NPC the sim has heard of or sent somewhere (M6.2): its space, where it stood, its goal, where it got to. */
+  readonly npcs?: Readonly<Record<string, NpcView>>;
+}
+
+/** An NPC as the world module keeps it (M6.2, D74). */
+export interface NpcView {
+  readonly space: string;
+  readonly feet?: readonly [number, number, number];
+  readonly yaw?: number;
+  readonly goal?: string;
+  readonly arrived?: string;
 }
 
 /** What the page's screens name, sent once as a session starts: the facts and conditions to read after each step. */

@@ -75,6 +75,8 @@ export interface ViewportHook {
   readonly plantsNear: (foliage: string, x: number, z: number, radius: number) => number;
   /** The tier drawn and its frames (M5.7). */
   readonly perf: () => PerfSummary;
+  /** The navmesh Show navigation draws (M6.2), as three has it, or null for none drawn. */
+  readonly nav: () => { triangles: number; tiles: number; polygons: number } | null;
 }
 
 type Hooked = { __ebViewport?: ViewportHook };

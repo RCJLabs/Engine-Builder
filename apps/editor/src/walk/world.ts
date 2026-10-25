@@ -53,8 +53,8 @@ export const sourcesOf = (world: PackWorld): ModelSources => ({
   field: (type) => (Object.hasOwn(world.fields, type) ? (world.fields[type] as string) : null),
 });
 
-/** The terrain's heights in metres, row by row along z, from its 16-bit PNG and its range. */
-function groundOf(space: SpaceJson, heights: Uint8Array | null): Ground | null {
+/** The terrain's heights in metres, row by row along z, from its 16-bit PNG and its range: the walk's, and the bake's (M6.2). */
+export function groundOf(space: SpaceJson, heights: Uint8Array | null): Ground | null {
   const t = space.terrain;
   if (!t || !heights) return null;
   const file = decodeGray16(heights);

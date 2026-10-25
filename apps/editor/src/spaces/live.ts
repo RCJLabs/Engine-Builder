@@ -7,6 +7,7 @@
 import {
   classifySpaceFile,
   modelFieldOf,
+  navPath,
   PREFABS_DIR,
   type ProjectSource,
   parseJsonFile,
@@ -52,6 +53,8 @@ export interface LiveSpace {
   readonly foliage?: readonly FoliageShown[];
   /** What its placed records need to draw as models (M5.5), when it places any. */
   readonly models?: LiveModels;
+  /** A space's navmesh file as it is (M6.2), null when it has none. */
+  readonly nav?: Uint8Array | null;
 }
 
 export const live = signal<LiveSpace | null>(null);
@@ -73,7 +76,8 @@ async function readLive(project: OpenProject, open: OpenSpace): Promise<LiveSpac
   // The foliage's models are read as placed ones are, so the view draws them the same way.
   const grown = (read.foliage ?? []).flatMap((f) => (f.record ? [`${MODEL}:${f.record.model}`] : []));
   const models = await readLiveModels(source, read.space, read.prefabs, fieldOf, grown);
-  return models ? { ...read, models } : read;
+  const nav = open.kind === 'space' ? { nav: (await source.read(navPath(open.id))) ?? null } : {};
+  return { ...read, ...(models ? { models } : {}), ...nav };
 }
 
 async function readSpaceAndPrefabs(source: ProjectSource, open: OpenSpace): Promise<LiveSpace> {

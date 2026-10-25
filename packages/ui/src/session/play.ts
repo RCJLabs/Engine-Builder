@@ -181,8 +181,9 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
 function worldOf(state: GameState): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
-  const { space, at, arrive, taken } = slice;
-  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken };
+  const { space, at, arrive, taken, npcs } = slice;
+  const walking = npcs && Object.keys(npcs).length > 0 ? { npcs } : {};
+  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken, ...walking };
 }
 
 /** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */

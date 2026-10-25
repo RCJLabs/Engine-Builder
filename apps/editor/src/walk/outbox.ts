@@ -3,13 +3,17 @@
  * for while another is on its way, so world/at then world/use, back to back, would lose the use.
  * The next goes when none is on its way; a dropped one is tried again RETRY_MS later, up to TRIES
  * times, by a timer, so a hidden page, which draws no frames, still sends it. A newer world/at takes
- * the place of one still waiting: only the latest counts.
+ * the place of one still waiting: only the latest counts; and a newer world/npcs-at (M6.2) of one
+ * still waiting, since it carries every arrival not yet heard.
  */
 import type { Action } from '@eb/core';
 import type { Sent } from '@eb/ui';
 
 export const TRIES = 60;
 export const RETRY_MS = 50;
+
+/** The actions only the latest of counts. */
+const LATEST: ReadonlySet<string> = new Set(['world/at', 'world/npcs-at']);
 
 export interface Outbox {
   /** Sent after those posted before it; what the sim made of it, or dropped after TRIES frames. */
@@ -35,8 +39,8 @@ export function createOutbox(send: (action: Action) => Promise<Sent>): Outbox {
   const box: Outbox = {
     post(action) {
       return new Promise<Sent>((done) => {
-        if (action.type === 'world/at') {
-          const old = queue.findIndex((l, i) => (i > 0 || !flying) && l.action.type === 'world/at');
+        if (LATEST.has(action.type)) {
+          const old = queue.findIndex((l, i) => (i > 0 || !flying) && l.action.type === action.type);
           if (old >= 0) queue.splice(old, 1)[0]?.done('dropped');
         }
         queue.push({ action, done, tries: 0 });

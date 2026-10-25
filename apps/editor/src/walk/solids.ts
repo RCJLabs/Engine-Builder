@@ -27,7 +27,8 @@ export interface Frame {
 
 export const WORLD_FRAME: Frame = { at: [0, 0, 0], turn: [0, 0, 0, 1], scale: [1, 1, 1] };
 
-export type Solid =
+/** `npc`: a placed actor's (M6.2), which the crowd walks: kinematic, moved to where its agent is. */
+export type Solid = (
   | {
       readonly kind: 'box';
       readonly path: string;
@@ -54,7 +55,8 @@ export type Solid =
       readonly halfHeight: number;
       readonly moves: boolean;
     }
-  | { readonly kind: 'hull'; readonly path: string; readonly points: readonly Vec3[]; readonly moves: boolean };
+  | { readonly kind: 'hull'; readonly path: string; readonly points: readonly Vec3[]; readonly moves: boolean }
+) & { readonly npc?: boolean };
 
 /** A trigger zone: a ball for a sphere, a box for anything else, the size of its object. */
 export type Zone =
@@ -112,11 +114,12 @@ export const frameOf = (object: SpaceObject): Frame => {
 };
 
 /** The unit shape's middle: half a metre up for those that stand on their place, none for a plane. */
-export const middleOf = (object: SpaceObject): Vec3 => [0, object.shape === 'plane' ? 0 : 0.5, 0];
+export const middleOfShape = (shape: string | undefined): Vec3 => [0, shape === 'plane' ? 0 : 0.5, 0];
+export const middleOf = (object: SpaceObject): Vec3 => middleOfShape(object.shape);
 
-/** An object's collider component, sized by its scale. */
-function colliderOf(path: string, frame: Frame, object: SpaceObject, fields: Fields): Solid {
-  const center = pointIn(frame, middleOf(object));
+/** A collider component on an object of `shape`, sized by its scale: the walk's, and the navmesh's bake (M6.2). */
+export function colliderSolid(path: string, frame: Frame, shape: string | undefined, fields: Fields): Solid {
+  const center = pointIn(frame, middleOfShape(shape));
   const [sx, sy, sz] = frame.scale.map(Math.abs) as [number, number, number];
   const moves = fields.moves === true;
   if (fields.shape === 'sphere')
@@ -224,7 +227,7 @@ export function partsOf(
     const frame = within(parent, frameOf(seen));
     const path = ids.join('/');
     const components = seen.components ?? {};
-    if (isFields(components.collider)) solids.push(colliderOf(path, frame, seen, components.collider));
+    if (isFields(components.collider)) solids.push(colliderSolid(path, frame, seen.shape, components.collider));
     if (isFields(components.trigger) && zones.has(path)) found.push(zoneOf(path, frame, seen));
     const label = isFields(components.interact) ? uses.get(path) : undefined;
     if (label !== undefined) usable.push({ path, center: pointIn(frame, middleOf(seen)), label });
@@ -247,7 +250,7 @@ export function partsOf(
         : npc?.figure
           ? figureSolid(path, frame, npc.figure.height)
           : null;
-      if (solid) solids.push(solid);
+      if (solid) solids.push(npc ? { ...solid, npc: true } : solid);
       const talk = npc && label === undefined ? uses.get(path) : undefined;
       if (npc && talk !== undefined) {
         const chest = chestOf(npc.height) * Math.abs(frame.scale[1]);

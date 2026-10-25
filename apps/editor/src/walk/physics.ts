@@ -47,6 +47,8 @@ export interface Walker {
   remove(taken: ReadonlySet<string>): void;
   /** Solids of objects built as their cells come near (M5.10), solid at once. */
   add(solids: readonly Solid[]): void;
+  /** An NPC's solid moved by `shift` from where it was placed (M6.2), as its agent walks. */
+  npcAt(path: string, shift: Vec3): void;
   /** The solids of these top-level objects, taken down with their cells. */
   drop(tops: ReadonlySet<string>): void;
   /** How many bodies the world holds, the character's left out. */
@@ -88,10 +90,19 @@ function colliderOf(rapier: Rapier, solid: Solid): RAPIER_NS.ColliderDesc | null
   }
 }
 
-/** The solid's body: still ones fixed where they stand, moving ones dynamic, their shape about their centre. */
+/**
+ * The solid's body: still ones fixed where they stand, moving ones dynamic, an NPC's kinematic (M6.2)
+ * so the crowd moves it, each shape about its centre.
+ */
 function addSolid(rapier: Rapier, world: RAPIER_NS.World, solid: Solid) {
   const desc = colliderOf(rapier, solid);
   if (!desc) return null;
+  if (solid.npc && solid.kind !== 'hull') {
+    const kind = rapier.RigidBodyDesc.kinematicPositionBased();
+    const body = world.createRigidBody(kind.setTranslation(...solid.center).setRotation(quat(solid.turn)));
+    world.createCollider(desc, body);
+    return body;
+  }
   if (solid.kind === 'hull') {
     // A hull's points are the world's already: its body stands at the origin.
     const body = world.createRigidBody(solid.moves ? rapier.RigidBodyDesc.dynamic() : rapier.RigidBodyDesc.fixed());
@@ -119,11 +130,14 @@ export function createWalker(
   }
   let moving: { path: string; body: RAPIER_NS.RigidBody }[] = [];
   let bodies: { path: string; body: RAPIER_NS.RigidBody }[] = [];
+  /** Each NPC's body by path, with where it was placed: the crowd's moves are from there. */
+  const npcs = new Map<string, { body: RAPIER_NS.RigidBody; from: Vec3 }>();
   const add = (solids: readonly Solid[]) => {
     for (const solid of solids) {
       const body = addSolid(rapier, world, solid);
       if (body) bodies.push({ path: solid.path, body });
       if (body && solid.moves) moving.push({ path: solid.path, body });
+      if (body && solid.npc && solid.kind !== 'hull') npcs.set(solid.path, { body, from: solid.center });
     }
   };
   /** Takes out the bodies `gone` says of: from the world, and from the lists. */
@@ -131,6 +145,7 @@ export function createWalker(
     for (const { path, body } of bodies) if (gone(path)) world.removeRigidBody(body);
     bodies = bodies.filter((b) => !gone(b.path));
     moving = moving.filter((m) => !gone(m.path));
+    for (const path of [...npcs.keys()]) if (gone(path)) npcs.delete(path);
   };
   add(parts.solids);
   const half = BODY.height / 2 - BODY.radius;
@@ -222,6 +237,12 @@ export function createWalker(
       takeOut((path) => isTaken(path, taken));
     },
     add,
+    npcAt(path, shift) {
+      const npc = npcs.get(path);
+      if (!npc) return;
+      const [x, y, z] = npc.from;
+      npc.body.setNextKinematicTranslation({ x: x + shift[0], y: y + shift[1], z: z + shift[2] });
+    },
     drop(tops) {
       if (tops.size > 0) takeOut((path) => tops.has(topOf(path)));
     },

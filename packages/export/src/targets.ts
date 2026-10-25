@@ -5,7 +5,7 @@
  */
 import { type ExportJson, FULL } from '@eb/compiler';
 import { buildHash, sha256, utf8 } from './hash.ts';
-import { type Boot, gamePage, inlineScript, inlineStyle, WALK_ELEMENT } from './html.ts';
+import { type Boot, gamePage, inlineScript, inlineStyle, NAV_ELEMENT, WALK_ELEMENT } from './html.ts';
 import { iconFiles, readIcon } from './icons.ts';
 import type { PackContent } from './leaks.ts';
 import { readme } from './readme.ts';
@@ -15,13 +15,15 @@ import { androidWorkflow, pagesWorkflow, twaManifest, twaPackageJson } from './w
 
 /**
  * The engine's player for an exported game: apps/editor's game page, built (vite.game.config.ts),
- * and walk.js, the stage of a game with spaces (vite.walk.config.ts, M5.8).
+ * and walk.js, the stage of a game with spaces (vite.walk.config.ts, M5.8), and nav.js, the
+ * navigation of one whose spaces have navmeshes (vite.nav.config.ts, M6.2).
  */
 export interface Runtime {
   readonly version: string;
   readonly js: string;
   readonly css: string;
   readonly walk?: string;
+  readonly nav?: string;
 }
 
 /** A pack as the build reads it: its project, records and theme, and its world when it has spaces. */
@@ -73,11 +75,12 @@ const isDark = (colour: string): boolean => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5;
 };
 
-const boot = (input: BuildInput, sw: boolean, walk?: string): Boot => ({
+const boot = (input: BuildInput, sw: boolean, walk?: string, nav?: string): Boot => ({
   edition: input.edition,
   pack: input.pack,
   sw,
   ...(walk === undefined ? {} : { walk }),
+  ...(nav === undefined ? {} : { nav }),
 });
 
 /** walk.js for a game with spaces, none for one without; a runtime built without it can't export one. */
@@ -91,17 +94,31 @@ function walkOf(input: BuildInput): string | undefined {
   return input.runtime.walk;
 }
 
+/** nav.js for a game whose spaces have a navmesh (M6.2), none for the rest. */
+function navOf(input: BuildInput): string | undefined {
+  const navmeshes = (input.pack.world as { navmeshes?: Record<string, unknown> } | undefined)?.navmeshes;
+  if (navmeshes === undefined || Object.keys(navmeshes).length === 0) return undefined;
+  if (input.runtime.nav === undefined) {
+    throw new Error(
+      'This game’s spaces have navmeshes, and the runtime it is exported with has no nav.js: build it with the editor',
+    );
+  }
+  return input.runtime.nav;
+}
+
 /** The runtime's files, named by their content so a browser never pairs an old script with a new page. */
 async function runtimeNames(
   runtime: Runtime,
   walk: string | undefined,
-): Promise<{ js: string; css: string; walk?: string }> {
+  nav: string | undefined,
+): Promise<{ js: string; css: string; walk?: string; nav?: string }> {
   const named = async (text: string, name: string, ext: string) =>
     `${name}.${(await sha256(utf8.encode(text))).slice(0, 8)}.${ext}`;
   return {
     js: await named(runtime.js, 'game', 'js'),
     css: await named(runtime.css, 'game', 'css'),
     ...(walk === undefined ? {} : { walk: await named(walk, 'walk', 'js') }),
+    ...(nav === undefined ? {} : { nav: await named(nav, 'nav', 'js') }),
   };
 }
 
@@ -112,6 +129,7 @@ export const engineTexts = (runtime: Runtime): string[] => [
   inlineScript(runtime.js),
   inlineStyle(runtime.css),
   ...(runtime.walk === undefined ? [] : [runtime.walk, inlineScript(runtime.walk)]),
+  ...(runtime.nav === undefined ? [] : [runtime.nav, inlineScript(runtime.nav)]),
 ];
 
 function icons(input: BuildInput) {
@@ -123,14 +141,15 @@ function icons(input: BuildInput) {
 export async function webFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
   const walk = walkOf(input);
-  const names = await runtimeNames(input.runtime, walk);
+  const nav = navOf(input);
+  const names = await runtimeNames(input.runtime, walk, nav);
   const files: Files = new Map();
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, true, names.walk),
+    boot: boot(input, true, names.walk, names.nav),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: true,
@@ -139,6 +158,7 @@ export async function webFiles(input: BuildInput): Promise<Files> {
   files.set(names.js, utf8.encode(input.runtime.js));
   files.set(names.css, utf8.encode(input.runtime.css));
   if (walk !== undefined && names.walk) files.set(names.walk, utf8.encode(walk));
+  if (nav !== undefined && names.nav) files.set(names.nav, utf8.encode(nav));
   files.set('manifest.webmanifest', utf8.encode(webManifest(info)));
   for (const [path, bytes] of icons(input)) files.set(path, bytes);
   const android = input.settings?.targets?.android;
@@ -155,13 +175,14 @@ export async function webFiles(input: BuildInput): Promise<Files> {
 export async function itchFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
   const walk = walkOf(input);
-  const names = await runtimeNames(input.runtime, walk);
+  const nav = navOf(input);
+  const names = await runtimeNames(input.runtime, walk, nav);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, false, names.walk),
+    boot: boot(input, false, names.walk, names.nav),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: false,
@@ -171,6 +192,7 @@ export async function itchFiles(input: BuildInput): Promise<Files> {
     [names.js, utf8.encode(input.runtime.js)],
     [names.css, utf8.encode(input.runtime.css)],
     ...(walk !== undefined && names.walk ? [[names.walk, utf8.encode(walk)] as [string, Uint8Array]] : []),
+    ...(nav !== undefined && names.nav ? [[names.nav, utf8.encode(nav)] as [string, Uint8Array]] : []),
     ['icons/favicon.png', icons(input).get('icons/favicon.png') as Uint8Array],
   ]);
 }
@@ -186,14 +208,21 @@ export function singleFile(input: BuildInput): { readonly name: string; readonly
   const info = gameInfo(input);
   const favicon = icons(input).get('icons/favicon.png') as Uint8Array;
   const walk = walkOf(input);
+  const nav = navOf(input);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, false, walk === undefined ? undefined : `#${WALK_ELEMENT}`),
+    boot: boot(
+      input,
+      false,
+      walk === undefined ? undefined : `#${WALK_ELEMENT}`,
+      nav === undefined ? undefined : `#${NAV_ELEMENT}`,
+    ),
     runtime: { inline: { js: input.runtime.js, css: input.runtime.css } },
     ...(walk === undefined ? {} : { walk }),
+    ...(nav === undefined ? {} : { nav }),
     favicon: `data:image/png;base64,${base64(favicon)}`,
     installable: false,
   });

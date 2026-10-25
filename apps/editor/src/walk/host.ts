@@ -8,9 +8,13 @@
  */
 import type { PackWorld } from '@eb/core';
 import type { SpaceAsk, SpaceDrawn, SpaceHost, WalkQuality } from '@eb/ui';
+import type { NavLib } from '../nav/lib.ts';
+
+/** nav.js, loaded by the stage once it walks a space with a navmesh (M6.2). */
+export type LoadNav = () => Promise<NavLib>;
 
 export interface WalkStage {
-  startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn>;
+  startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld, nav?: LoadNav): Promise<SpaceDrawn>;
 }
 
 export type LoadStage = () => Promise<WalkStage>;
@@ -36,7 +40,7 @@ function loadingIn(box: HTMLElement, name: string): HTMLElement {
   return screen;
 }
 
-export function walkHost(world: PackWorld, load: LoadStage): SpaceHost {
+export function walkHost(world: PackWorld, load: LoadStage, nav?: LoadNav): SpaceHost {
   return {
     name: (space) => spaceName(world, space),
     draw(box, ask) {
@@ -45,9 +49,10 @@ export function walkHost(world: PackWorld, load: LoadStage): SpaceHost {
       let paused = false;
       let quality: WalkQuality = ask.quality;
       let taken = ask.taken;
+      let npcs = ask.npcs;
       const loading = loadingIn(box, spaceName(world, ask.space) ?? ask.space);
       void load()
-        .then((stage) => stage.startStage(box, { ...ask, quality, taken }, world))
+        .then((stage) => stage.startStage(box, { ...ask, quality, taken, ...(npcs ? { npcs } : {}) }, world, nav))
         .then((made) => {
           // The stage resolves once its first frame is drawn: the space is there to see.
           loading.remove();
@@ -56,6 +61,7 @@ export function walkHost(world: PackWorld, load: LoadStage): SpaceHost {
           if (paused) made.pause(true);
           if (quality !== ask.quality) made.quality(quality);
           if (taken !== ask.taken) made.taken(taken);
+          if (npcs !== ask.npcs && npcs) made.npcs?.(npcs);
         })
         .catch((error: unknown) => {
           loading.remove();
@@ -74,6 +80,10 @@ export function walkHost(world: PackWorld, load: LoadStage): SpaceHost {
         taken(paths) {
           taken = paths;
           drawn?.taken(paths);
+        },
+        npcs(next) {
+          npcs = next;
+          drawn?.npcs?.(next);
         },
         stop() {
           stopped = true;

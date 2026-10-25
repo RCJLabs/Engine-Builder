@@ -179,6 +179,14 @@ describe('where each problem is fixed', () => {
     // A terrain's PNG opens its space (M5.3), and is listed under it.
     expect(placed('E067', 'spaces/fell.heights.png')).toEqual({ kind: 'space', path: 'spaces/fell.json' });
     expect(fileTitle('spaces/fell.heights.png', catalog, null)).toBe("Space fell: the terrain's heights");
+    // A navmesh's opens its space too, where Bake navigation is (M6.2).
+    expect(
+      placeOf({ code: 'W147', severity: 'warning', message: '', file: 'spaces/fell.nav', path: '' }, catalog),
+    ).toEqual({
+      kind: 'space',
+      path: 'spaces/fell.json',
+    });
+    expect(fileTitle('spaces/fell.nav', catalog, null)).toBe('Space fell: its navmesh');
     // A component kind's opens it in the designer (M5.2); one named as an engine kind is, nowhere else.
     expect(placed('E015', 'components/hold.json')).toEqual({ kind: 'component', id: 'hold' });
     expect(placed('E063')).toEqual({ kind: 'space', path: 'spaces/court.json', object: 0 });
