@@ -186,13 +186,14 @@ describe('new widgets', () => {
   const kits = KITS.map((kit) => kit.id);
   const known = knownFrom({ kits });
   const options = { facts: known.facts, openFacts: false, kits, events: known.events };
-  it('check clean, but for what they leave to fill in: an image’s file, a button’s action and a space’s space', () => {
+  // A new Space widget draws the space the player is in (M5.9): nothing to fill in.
+  it('check clean, but for what they leave to fill in: an image’s file and a button’s action', () => {
     for (const kind of WIDGETS) {
       const screens = new Map([
         ['new', { file: 'ui/new.json', value: { main: { widget: 'stack', children: [newWidget(kind)] } } }],
       ]);
       const problems = checkUi(screens, undefined, options).filter((p) => p.severity === 'error');
-      const expected = kind === 'image' || kind === 'button' || kind === 'space' ? 1 : 0;
+      const expected = kind === 'image' || kind === 'button' ? 1 : 0;
       expect(problems.length, `${kind}: ${problems.map((p) => p.message).join('; ')}`).toBe(expected);
     }
   });

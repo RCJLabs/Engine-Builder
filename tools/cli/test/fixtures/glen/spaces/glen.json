@@ -1,0 +1,159 @@
+{
+  "name": "The glen",
+  "objects": [
+    {
+      "id": "start",
+      "name": "Start",
+      "shape": "box",
+      "at": [0, 0, 8],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [30, 0.2, 30],
+      "color": "#6f8f4e",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "rope",
+      "name": "Rope",
+      "shape": "box",
+      "at": [0, 0, 6.5],
+      "scale": [0.5, 0.25, 0.5],
+      "color": "#c8a165",
+      "components": {
+        "interact": {
+          "label": "Take",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "rope"
+            },
+            {
+              "effect": "start-quest",
+              "quest": "supplies"
+            }
+          ],
+          "takes": true
+        }
+      }
+    },
+    {
+      "id": "bothy",
+      "name": "Bothy",
+      "shape": "box",
+      "at": [-6, 0, -6],
+      "scale": [5, 3, 4],
+      "color": "#a39a8c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "bothy-door",
+      "name": "Bothy door",
+      "shape": "box",
+      "at": [-6, 0, -3.9],
+      "scale": [1.2, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Open",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "bothy",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bothy-out",
+      "name": "Outside the bothy",
+      "shape": "box",
+      "at": [-6, 0, -2.5],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "turn": [0, 180, 0],
+      "components": {
+        "spawn": {}
+      }
+    },
+    {
+      "id": "gate",
+      "name": "Gate",
+      "shape": "box",
+      "at": [6, 0, 1],
+      "scale": [3, 2, 0.6],
+      "color": "#d9c27a",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "set-stage",
+              "quest": "supplies",
+              "stage": "stored"
+            }
+          ],
+          "once": true,
+          "when": "quests.reached(quest: supplies, stage: store)"
+        }
+      }
+    },
+    {
+      "id": "shed",
+      "name": "Shed",
+      "shape": "box",
+      "at": [6, 0, -6],
+      "scale": [4, 3, 4],
+      "color": "#8a8f96",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "shed-door",
+      "name": "Shed door",
+      "shape": "box",
+      "at": [6, 0, -3.6],
+      "scale": [1.4, 2.2, 0.8],
+      "color": "#2b2b2b",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "shed",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "shed-out",
+      "name": "Outside the shed",
+      "shape": "box",
+      "at": [6, 0, -1.5],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "turn": [0, 180, 0],
+      "components": {
+        "spawn": {}
+      }
+    }
+  ]
+}

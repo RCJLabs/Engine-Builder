@@ -164,8 +164,9 @@ export type Widget =
   /**
    * A space walked in play (M5.8, D70, docs/specs/movement.md#the-space-widget): it fills its region,
    * drawn by the page's host. `label` names it for assistive tech; the space's name when left out.
+   * Without `space`, it draws the space the player is in, and the next as enter-space moves them (M5.9).
    */
-  | (Base & { readonly widget: 'space'; readonly space: string; readonly label?: string });
+  | (Base & { readonly widget: 'space'; readonly space?: string; readonly label?: string });
 
 export type WidgetKind = Widget['widget'];
 export const WIDGETS: readonly WidgetKind[] = [

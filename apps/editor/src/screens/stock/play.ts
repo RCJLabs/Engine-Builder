@@ -72,18 +72,18 @@ export function hudScreen(ctx: StockContext): Screen {
 
 /**
  * A space walked (M5.8, D70, docs/specs/movement.md#the-space-widget): the live numbers at the top,
- * the project's first space filling the screen, and the actions on offer under it, for the start
- * mode when no screen shows it yet.
+ * the space the player is in filling the screen, the next as a door takes them there (M5.9), and the
+ * actions on offer under it, for the start mode when no screen shows it yet.
  */
 export function spaceScreen(ctx: StockContext): Screen {
-  const space = ctx.spaces?.[0];
+  const spaces = ctx.spaces ?? [];
   const start = ctx.modes?.start;
   const shown = numbers(ctx);
   return {
-    title: space?.name ?? 'Space',
+    title: spaces.length === 1 ? (spaces[0]?.name ?? 'Walk') : 'Walk',
     shows: start !== undefined && !ctx.shown.has(start) ? [start] : [],
     ...(shown.length > 0 ? { top: row(shown) } : {}),
-    main: { widget: 'space', space: space?.id ?? '' },
+    main: { widget: 'space' },
     bottom: {
       widget: 'list',
       of: 'offered',

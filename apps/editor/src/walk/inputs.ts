@@ -70,7 +70,9 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
       pads.reduce((best, p) => (Math.abs(p.axes[i] ?? 0) > Math.abs(best) ? (p.axes[i] ?? 0) : best), 0),
     );
     const a = pads.some((p) => p.buttons[0]?.pressed === true);
-    return { axes, a };
+    // X, in the standard mapping: Interact (M5.9).
+    const x = pads.some((p) => p.buttons[2]?.pressed === true);
+    return { axes, a, x };
   };
 
   return {

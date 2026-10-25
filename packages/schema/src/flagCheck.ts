@@ -17,6 +17,7 @@ import {
 } from '@eb/core';
 import type { Report } from './checkValue.ts';
 import type { SoundCondition } from './conditions.ts';
+import type { SpaceSpawns } from './worldCheck.ts';
 
 interface Place {
   /** The record, as "type:id". */
@@ -39,12 +40,26 @@ function listed(from: ReadonlySet<string>): string {
 }
 
 /**
+ * The effects and conditions of spaces' trigger zones and interacts (M5.9), which the kits' checks
+ * hear as they hear a record's: a set-stage there starts its quest (W125) and must name a stage the
+ * quest has (E043). Each is reported at its file.
+ */
+export interface HeldElsewhere {
+  readonly effects: readonly { readonly file: string; readonly path: string; readonly effect: Effect }[];
+  readonly conditions: readonly { readonly file: string; readonly sound: SoundCondition }[];
+}
+
+/**
  * Flags set and read outside the records (M5.8): by a space's trigger zones and by the screens'
- * conditions and bindings. Each flag's id to the files that set or read it.
+ * conditions and bindings. Each flag's id to the files that set or read it. `held`: what else the
+ * zones and interacts hold, for the kits' checks (M5.9).
  */
 export interface FlagUses {
   readonly set: ReadonlyMap<string, ReadonlySet<string>>;
   readonly read: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly held?: HeldElsewhere;
+  /** Each space's spawn points (M5.9), for an enter-space in a record (E076), where the spaces are read apart. */
+  readonly spawns?: SpaceSpawns;
 }
 
 export class FlagChecks {

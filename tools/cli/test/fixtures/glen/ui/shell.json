@@ -1,0 +1,5 @@
+{
+  "title": "The glen",
+  "tagline": "A rope, a lamp and a shed by the burn",
+  "slot-line": "Rope {inventory.count(item: rope)} · Lamp {inventory.count(item: lamp)}"
+}

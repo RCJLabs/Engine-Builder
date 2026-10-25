@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "glen",
+  "name": "The glen",
+  "version": "0.1.0",
+  "kits": ["inventory", "quests"],
+  "start-space": "glen"
+}

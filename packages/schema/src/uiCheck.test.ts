@@ -261,6 +261,21 @@ describe('checkUi', () => {
     ]);
   });
 
+  it('lets a Space widget leave its space out, for the player’s, in a project with spaces (M5.9)', () => {
+    expect(only({ widget: 'space' }, { spaces: new Set(['trailhead']) })).toEqual([]);
+    expect(only({ widget: 'space' }, { spaces: new Set() })).toEqual([
+      {
+        code: 'E049',
+        file: 'ui/hud.json',
+        path: '/main/widget',
+        message: 'A Space widget draws the space the player is in, and this project has no spaces/',
+      },
+    ]);
+    expect(only({ widget: 'space', space: '' }, { spaces: new Set(['trailhead']) })).toEqual([
+      expect.objectContaining({ code: 'E047', path: '/main/space' }),
+    ]);
+  });
+
   it('gives a screen’s ambience or music, or a theme’s sound, that names no record as E049 (M4.8)', () => {
     const heard: RecordIndex = {
       ids: () => [],

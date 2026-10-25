@@ -121,7 +121,7 @@ describe('eb with the trail', () => {
     expect(resumed.report).toMatchObject({ replayed: 1, skipped: 0 });
     const { play } = resumed;
     // Where it was: the cairn's zone fired and its flag set, nothing taken, in the start.
-    expect(play.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [] });
+    expect(play.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [], space: 'trailhead' });
     expect(play.state.flag).toEqual({ values: { 'cairn-seen': true } });
     expect(play.take({ type: 'world/trigger', space: 'trailhead', object: 'cairn/zone' }).beats).toEqual([
       { type: 'rejected', action: 'world/trigger', reason: 'spent' },

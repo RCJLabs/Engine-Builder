@@ -37,6 +37,8 @@ export interface WalkView {
     moving: readonly { path: string; at: Vec3; turn: Quat }[],
   ): void;
   perf(frames: readonly number[]): PerfSummary;
+  /** Objects taken (M5.9): drawn no more, with everything inside them, as soon as the sim says so. */
+  hide(taken: ReadonlySet<string>): void;
   readonly frames: number;
   dispose(): void;
 }
@@ -103,6 +105,13 @@ export async function createWalkView(
   scene.add(character);
 
   let built: ReturnType<typeof builder.build> | null = null;
+  let hidden: ReadonlySet<string> = new Set();
+  const hideIn = (root: THREE.Object3D) => {
+    for (const path of hidden) {
+      const node = nodeAt(root, path);
+      if (node) node.visible = false;
+    }
+  };
   let lods: THREE.LOD[] = [];
   /** Each moving solid's node, and its world matrix and its body's when the space was built. */
   let movers = new Map<string, { node: THREE.Object3D; meshAt: THREE.Matrix4; bodyAt: THREE.Matrix4 | null }>();
@@ -123,6 +132,7 @@ export async function createWalkView(
     if (tier.shadowMap > 0) castShadows(built.root);
     lods = lodsOf(built.root);
     foliage.models(draw);
+    hideIn(built.root);
     scene.add(built.root);
     built.root.updateMatrixWorld(true);
     const moving = space.parts.solids.filter((s) => s.moves).map((s) => s.path);
@@ -202,6 +212,10 @@ export async function createWalkView(
         sky: environment.summary()?.sky ?? null,
         frames: frameStats(intervals),
       });
+    },
+    hide(taken) {
+      hidden = taken;
+      if (built) hideIn(built.root);
     },
     get frames() {
       return frames;

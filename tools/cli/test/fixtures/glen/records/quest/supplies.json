@@ -1,0 +1,38 @@
+{
+  "name": "Supplies",
+  "stages": [
+    {
+      "id": "gather",
+      "log": "Take a rope from the glen and the lamp from the bothy.",
+      "objectives": [
+        {
+          "id": "rope",
+          "text": "Take a rope",
+          "done-when": "inventory.count(item: rope) >= 1"
+        },
+        {
+          "id": "lamp",
+          "text": "Take the bothy's lamp",
+          "done-when": "inventory.count(item: lamp) >= 1"
+        }
+      ],
+      "next": "store"
+    },
+    {
+      "id": "store",
+      "log": "Take them to the shed by the burn.",
+      "objectives": [
+        {
+          "id": "shed",
+          "text": "Reach the shed",
+          "done-when": "world.in(space: shed)",
+          "next": "stored"
+        }
+      ]
+    },
+    {
+      "id": "stored",
+      "log": "The rope and the lamp are in the shed for the night."
+    }
+  ]
+}

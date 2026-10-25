@@ -86,10 +86,23 @@ export interface View {
   readonly lists: Readonly<Record<string, readonly Entry[]>>;
   /** The map the party is on, with the maps kit on and a map entered (M4.6). */
   readonly map?: MapView;
+  /** Where the player is in the game's spaces, for the stage (M5.9): a game with spaces has it. */
+  readonly world?: WorldView;
   /** How many actions the game has taken. */
   readonly turn: number;
   /** Nothing is on offer: the game is over. */
   readonly ended: boolean;
+}
+
+/** The world module's slice as the stage reads it (M5.9, D71, docs/specs/worldspaces.md#where-the-player-is). */
+export interface WorldView {
+  readonly space: string;
+  /** Where the player last stood, in a space: in `space`, unless the stage is a step behind. */
+  readonly at?: { readonly space: string; readonly feet: readonly [number, number, number]; readonly yaw: number };
+  /** The spawn point to arrive at in `space` when `at` is left out. */
+  readonly arrive?: string;
+  /** The objects taken in every space, as "space/object". */
+  readonly taken: readonly string[];
 }
 
 /** What the page's screens name, sent once as a session starts: the facts and conditions to read after each step. */

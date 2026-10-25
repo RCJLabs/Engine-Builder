@@ -15,7 +15,7 @@ import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
 import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
-import { FlagChecks, type FlagUses } from './flagCheck.ts';
+import { FlagChecks, type FlagUses, type HeldElsewhere } from './flagCheck.ts';
 import { checkFoliage, FOLIAGE, type FoliageRecord } from './foliageTypes.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
@@ -183,6 +183,7 @@ export function validateRecords(
     }
   }
   if (options.flagsElsewhere) flags.elsewhere(options.flagsElsewhere);
+  heldBy(kits, options.flagsElsewhere?.held, diagnostics);
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
   kits.finish();
   return {
@@ -190,6 +191,16 @@ export function validateRecords(
     usedBy: sortUsages(usages),
     assetsUsedBy: sortUsages(assetUsages),
   };
+}
+
+/** What the zones and interacts hold (M5.9), heard by the kits' checks before they finish, each at its file. */
+function heldBy(kits: KitChecks, held: HeldElsewhere | undefined, diagnostics: Diagnostic[]): void {
+  const at =
+    (file: string) =>
+    (code: DiagnosticCode, path: string, message: string): void =>
+      void diagnostics.push({ code, severity: severityOf(code), message, file, path });
+  for (const { file, path, effect } of held?.effects ?? []) kits.effect(at(file), path, effect);
+  for (const { file, sound } of held?.conditions ?? []) kits.condition(at(file), sound);
 }
 
 function listUsage(map: Map<string, Usage[]>, key: string, entry: Usage): void {

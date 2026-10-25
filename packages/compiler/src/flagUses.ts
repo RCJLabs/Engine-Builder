@@ -28,5 +28,5 @@ export function withScreens(zones: FlagUses, screens: ReadonlyMap<string, Readon
   for (const from of [zones.read, screens]) {
     for (const [flag, where] of from) read.set(flag, new Set([...(read.get(flag) ?? []), ...where]));
   }
-  return { set: zones.set, read };
+  return { set: zones.set, read, ...(zones.held ? { held: zones.held } : {}) };
 }

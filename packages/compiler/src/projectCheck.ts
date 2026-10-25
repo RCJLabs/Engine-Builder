@@ -70,6 +70,7 @@ export async function readProjectFiles(
   const diagnostics: Diagnostic[] = [];
   const report = (r: Report) => diagnostics.push(diagnosticOf(r));
   const { project, startSpace } = await readManifestFile(source, report);
+  if (startSpace !== undefined) await checkStartSpace(source, startSpace, report);
   const kits = project?.kits ?? [];
   const types = await readTypes(source, codeTypes, report, kits);
   const assets = await readAssets(source);
@@ -126,6 +127,20 @@ async function readManifestFile(
   const { problems, ...read } = checkManifest(parsed.value);
   for (const problem of problems) report({ ...problem, file });
   return read;
+}
+
+/** E075 (M5.9, D71): the start-space names one of spaces/. Here, so the editor's catalog has it too. */
+async function checkStartSpace(source: ProjectSource, named: string, report: (r: Report) => void): Promise<void> {
+  const files = await source.files(SPACES_DIR);
+  if (
+    files.some((path) => {
+      const role = classifySpaceFile(path);
+      return role.kind === 'space' && role.id === named;
+    })
+  )
+    return;
+  const message = `No space "${named}": spaces/${named}.json isn't there`;
+  report({ code: 'E075', message, file: MANIFEST_FILE, path: '/start-space' });
 }
 
 async function readAssets(source: ProjectSource): Promise<ReadonlySet<string>> {

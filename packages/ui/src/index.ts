@@ -15,11 +15,13 @@ export {
   placeStyle,
   scrollFor,
 } from './render/mapLayout.ts';
+export { placingIn } from './render/placing.ts';
 export {
   type Sent,
   type SpaceAsk,
   type SpaceDrawn,
   type SpaceHost,
+  type StandAt,
   WALK_QUALITIES,
   type WalkQuality,
 } from './render/spaceHost.ts';

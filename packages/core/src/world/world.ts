@@ -10,6 +10,7 @@
 import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
+import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
 export * from './types.ts';
@@ -21,14 +22,24 @@ const PLACE = { space: TEXT, object: TEXT };
 const placeIn = (list: readonly string[], args: Readonly<Record<string, unknown>>) =>
   typeof args.space === 'string' && typeof args.object === 'string' && list.includes(placeKey(args.space, args.object));
 
+/**
+ * A game's modules with the world module built from the pack's world: checking joins one with no
+ * spaces' data (EMPTY_WORLD), and a game played headless, by eb sim or the editor's Run, needs the
+ * spaces enter-space names.
+ */
+export function withPackWorld(modules: readonly Module[], world: PackWorld | undefined): readonly Module[] {
+  if (!world) return modules;
+  return modules.map((m) => (m.id === WORLD ? worldModule(worldDataOf(world)) : m));
+}
+
 /** The module for a pack's world: on whenever the pack has spaces. */
 export function worldModule(world: WorldData): Module {
   return defineModule<WorldSlice>({
     id: WORLD,
     version: WORLD_VERSION,
     // Version 1 had only `fired`: nothing was taken, and the player is in the start.
-    migrate: { 2: (slice) => ({ ...(slice as object), taken: [] }) },
-    init: () => ({ fired: [], taken: [] }),
+    migrate: { 2: (slice) => ({ ...(slice as object), taken: [], space: world.start }) },
+    init: () => ({ fired: [], taken: [], space: world.start }),
     events: {
       entered: { args: PLACE, label: 'The player enters a trigger zone' },
       used: { args: PLACE, label: 'The player uses something' },
@@ -38,7 +49,7 @@ export function worldModule(world: WorldData): Module {
       // None is ever offered: only the stage sends them, as the character walks, uses and stands.
       trigger: { run: (ctx, action) => trigger(world, ctx, action), options: () => [] },
       use: { run: (ctx, action) => use(world, ctx, action), options: () => [] },
-      at: { run: (ctx, action) => at(world, ctx, action), options: () => [] },
+      at: { run: (ctx, action) => at(ctx, action), options: () => [] },
     },
     effects: {
       'enter-space': { run: (ctx, effect) => enterSpace(world, ctx, effect) },
@@ -60,7 +71,7 @@ export function worldModule(world: WorldData): Module {
         args: { space: TEXT },
         domain: BOOL,
         label: 'the player is in the space',
-        read: (view, args) => typeof args.space === 'string' && (view.state.space ?? world.start) === args.space,
+        read: (view, args) => typeof args.space === 'string' && view.state.space === args.space,
       },
     },
   });

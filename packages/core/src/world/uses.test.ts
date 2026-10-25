@@ -124,7 +124,7 @@ describe('world/at', () => {
     expect(p.world.at?.yaw).toBe(5);
   });
 
-  it('refuses feet or a yaw that aren’t three numbers and a number, and a space the pack lacks', () => {
+  it('refuses feet or a yaw that aren’t three numbers and a number, and a space the player isn’t in', () => {
     const p = play();
     // NaN and the infinities have no JSON form: the kernel refuses such an action before the module sees it.
     expect(() => p.at({ space: 'glen', feet: [0, 0, Number.NaN], yaw: 0 })).toThrow(/not JSON/);
@@ -137,10 +137,16 @@ describe('world/at', () => {
     ]) {
       expect(p.at(fields).beats).toEqual([{ type: 'rejected', action: 'world/at', reason: 'bad-at' }]);
     }
-    expect(p.at({ space: 'moor', feet: [0, 0, 0], yaw: 0 }).beats).toEqual([
-      { type: 'rejected', action: 'world/at', reason: 'no-space', space: 'moor' },
-    ]);
+    for (const space of ['moor', 'bothy']) {
+      expect(p.at({ space, feet: [0, 0, 0], yaw: 0 }).beats).toEqual([
+        { type: 'rejected', action: 'world/at', reason: 'elsewhere', space },
+      ]);
+    }
     expect(p.world.at).toBeUndefined();
+    // Once in the bothy, the glen is elsewhere.
+    p.enter('glen', 'bothy-door');
+    expect(p.at({ space: 'glen', feet: [0, 0, 0], yaw: 0 }).accepted).toBe(false);
+    expect(p.at({ space: 'bothy', feet: [0, 0, 0], yaw: 0 }).accepted).toBe(true);
   });
 });
 

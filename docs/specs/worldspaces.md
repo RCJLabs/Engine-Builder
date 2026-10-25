@@ -36,8 +36,9 @@ The stage tells the sim where the player stands: `{ "action": "world/at", "space
 Like `world/trigger` it is never offered and is let through from the page.
 
 - Refused: `bad-at` (not three finite numbers and a finite yaw), `elsewhere` (not the space the
-  player is in).
-- The stage sends it rounded to the centimetre and the degree:
+  player is in, as from a stage a step behind an `enter-space`).
+- The sim keeps it to the centimetre and the tenth of a degree, the yaw turned into 0 to 360.
+- The stage sends it:
   - as the shell pauses, and as the page hides;
   - before each `world/use`;
   - every 5 s while the player has moved 0.5 m since the last.
@@ -72,7 +73,9 @@ A new component kind, `interact`:
 ## Packs
 
 Format 10's world adds each space's uses, resolved through prefabs and overrides as its trigger
-zones are, and the start space. A pack without spaces keeps its format and hash.
+zones are, each space's spawn points by the object's path, and the start space. A world that
+format 9 holds (no uses, no spawn points, its first space by id the start) is still written as
+format 9, so its hash stays; a pack without spaces keeps its format and hash too.
 
 ## The gate
 

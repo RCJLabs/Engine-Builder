@@ -1,0 +1,48 @@
+{
+  "title": "The glen",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Take a rope and the bothy's lamp.",
+        "style": "heading",
+        "shows-when": "not quests.reached(quest: supplies, stage: store)"
+      },
+      {
+        "widget": "text",
+        "text": "Take them to the shed by the burn.",
+        "style": "heading",
+        "shows-when": "quests.reached(quest: supplies, stage: store) and not quests.reached(quest: supplies, stage: stored)"
+      },
+      {
+        "widget": "text",
+        "text": "The supplies are in the shed.",
+        "style": "heading",
+        "shows-when": "quests.reached(quest: supplies, stage: stored)"
+      },
+      {
+        "widget": "text",
+        "text": "Rope {inventory.count(item: rope)} · Lamp {inventory.count(item: lamp)}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Rest a while",
+        "action": {
+          "take": "glen/rest"
+        }
+      }
+    ]
+  }
+}

@@ -8,7 +8,7 @@ import type { Quat, Vec3 } from '../spaces/vec.ts';
 import type { Clear } from './cameras.ts';
 import type { Intent } from './controls.ts';
 import { type Fall, fallAfter, STANDING, STEP, stepOf } from './motion.ts';
-import type { Solid, Spawn } from './solids.ts';
+import { isTaken, type Solid, type Spawn } from './solids.ts';
 
 export type Rapier = typeof RAPIER_NS;
 
@@ -43,6 +43,8 @@ export interface Walker {
   moving(): { readonly path: string; readonly at: Vec3; readonly turn: Quat }[];
   /** Back to the spawn, standing. */
   respawn(): void;
+  /** Solids taken (M5.9): gone from the world, with everything inside them. */
+  remove(taken: ReadonlySet<string>): void;
   /** Standing somewhere else: for tests and the editor's own tools, never a player's. */
   teleport(feet: Vec3): void;
   free(): void;
@@ -93,7 +95,8 @@ function addSolid(rapier: Rapier, world: RAPIER_NS.World, solid: Solid) {
 
 export function createWalker(
   rapier: Rapier,
-  parts: { readonly solids: readonly Solid[]; readonly spawn: Spawn | undefined },
+  /** `at`: where a load stood the player, in place of the spawn (M5.9). */
+  parts: { readonly solids: readonly Solid[]; readonly spawn: Spawn | undefined; readonly at?: Vec3 },
   ground: Ground | null,
 ): Walker {
   const world = new rapier.World({ x: 0, y: -9.81, z: 0 });
@@ -103,9 +106,11 @@ export function createWalker(
     const span = cells * ground.spacing;
     world.createCollider(rapier.ColliderDesc.heightfield(cells, cells, columnsOf(ground), { x: span, y: 1, z: span }));
   }
-  const moving: { path: string; body: RAPIER_NS.RigidBody; offset: Vec3 }[] = [];
+  let moving: { path: string; body: RAPIER_NS.RigidBody; offset: Vec3 }[] = [];
+  let bodies: { path: string; body: RAPIER_NS.RigidBody }[] = [];
   for (const solid of parts.solids) {
     const body = addSolid(rapier, world, solid);
+    if (body) bodies.push({ path: solid.path, body });
     if (body && solid.moves) moving.push({ path: solid.path, body, offset: [0, 0, 0] });
   }
   const half = BODY.height / 2 - BODY.radius;
@@ -160,7 +165,7 @@ export function createWalker(
     return [t.x, t.y - BODY.height / 2, t.z];
   };
   // A spawn point a little under the ground stands on it: up out of the ground, then the snap down.
-  place(start());
+  place(parts.at ?? start());
 
   return {
     feet,
@@ -192,6 +197,15 @@ export function createWalker(
       }),
     respawn() {
       this.teleport(start());
+    },
+    remove(taken) {
+      const [gone, kept] = [
+        bodies.filter((b) => isTaken(b.path, taken)),
+        bodies.filter((b) => !isTaken(b.path, taken)),
+      ];
+      for (const { body } of gone) world.removeRigidBody(body);
+      bodies = kept;
+      moving = moving.filter((m) => !isTaken(m.path, taken));
     },
     teleport(at) {
       fall = STANDING;

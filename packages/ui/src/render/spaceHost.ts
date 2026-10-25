@@ -12,10 +12,24 @@ export type Sent = 'accepted' | 'refused' | 'dropped';
 export const WALK_QUALITIES = ['auto', 'low', 'medium', 'high'] as const;
 export type WalkQuality = (typeof WALK_QUALITIES)[number];
 
+/** Where the player stood, from a load (M5.9): the feet, and the way they faced in degrees. */
+export interface StandAt {
+  readonly feet: readonly [number, number, number];
+  readonly yaw: number;
+}
+
 export interface SpaceAsk {
   readonly space: string;
   readonly quality: WalkQuality;
-  /** Sends `world/trigger` as the character walks into a zone, as a button's action is sent. */
+  /** Where to stand as the walk starts (M5.9): from a load. */
+  readonly at?: StandAt;
+  /** The spawn point to arrive at when `at` is left out; the space's start when this is too. */
+  readonly arrive?: string;
+  /** The objects taken here, by path: neither drawn nor solid. */
+  readonly taken: readonly string[];
+  /** The sim has the player in this space now: only then does the stage say where they stand. */
+  here(): boolean;
+  /** Sends `world/trigger`, `world/use` and `world/at` as the character walks, as a button's action is sent. */
   send(action: Action): Promise<Sent>;
 }
 
@@ -23,6 +37,8 @@ export interface SpaceDrawn {
   /** The shell's pause over the game: no input, no steps, the frame held. */
   pause(on: boolean): void;
   quality(next: WalkQuality): void;
+  /** The objects taken here now, as the sim says after each step (M5.9). */
+  taken(paths: readonly string[]): void;
   stop(): void;
 }
 

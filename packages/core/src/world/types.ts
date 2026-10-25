@@ -50,8 +50,8 @@ export interface StoodAt {
 export interface WorldSlice {
   /** The once zones and once uses that have run, as "space/object", sorted. */
   readonly fired: readonly string[];
-  /** The space the player is in; the start when left out, as a version 1 save is. */
-  readonly space?: string;
+  /** The space the player is in: the start in a new game, and in a version 1 save. */
+  readonly space: string;
   readonly at?: StoodAt;
   /** The spawn point the player arrives at in `space`, when `at` isn't there: its start when left out. */
   readonly arrive?: string;

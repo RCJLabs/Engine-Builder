@@ -53,6 +53,18 @@ describe('the stage’s trigger in a play', () => {
     expect(p.act({ type: 'world/at', space: 'moor', feet: [1, 0, 2], yaw: 90 }).accepted).toBe(false);
   });
 
+  it('shows the stage where the player is, where they stood and what is taken', () => {
+    const p = play();
+    expect(p.view.world).toEqual({ space: 'trailhead', taken: [] });
+    p.act({ type: 'world/use', space: 'trailhead', object: 'rope' });
+    const stood = p.act({ type: 'world/at', space: 'trailhead', feet: [1, 0, 2], yaw: 90 });
+    expect(stood.view.world).toEqual({
+      space: 'trailhead',
+      at: { space: 'trailhead', feet: [1, 0, 2], yaw: 90 },
+      taken: ['trailhead/rope'],
+    });
+  });
+
   it('lets no other unoffered action by', () => {
     expect(play().act({ type: 'trail/unknown' }).accepted).toBe(false);
   });

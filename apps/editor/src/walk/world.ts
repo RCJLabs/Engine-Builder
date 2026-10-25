@@ -87,6 +87,8 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     return { ...(collider ? { collider } : {}), ...(scale !== undefined ? { scale } : {}) };
   };
   const zones = new Set(Object.keys(world.triggers[id] ?? {}));
+  const found = world.uses && Object.hasOwn(world.uses, id) ? (world.uses[id] ?? {}) : {};
+  const uses = new Map(Object.entries(found).map(([path, use]) => [path, use.label]));
   const heights = bytesOf(world.files[terrainPath(id, 'heights')]);
   const listed = space.terrain?.foliage ?? [];
   const terrain: TerrainFiles | null = space.terrain
@@ -108,7 +110,7 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     id,
     space,
     prefabs,
-    parts: partsOf(space, prefabs, models, zones),
+    parts: partsOf(space, prefabs, models, zones, uses),
     ground: groundOf(space, heights),
     terrain,
     environment,

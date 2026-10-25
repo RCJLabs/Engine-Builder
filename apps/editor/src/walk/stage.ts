@@ -2,6 +2,9 @@
  * The walk (M5.8, D70, docs/specs/movement.md#the-stage): a space of the pack's world drawn into a
  * Space widget's box and walked. Rapier steps the character at 60 Hz, at most five steps a frame;
  * each step the zones it entered send world/trigger; the camera follows; the shell's pause holds it.
+ * M5.9 (D71, docs/specs/worldspaces.md): it starts where a load stood the player, or at the spawn
+ * point they arrive at; Interact uses what they face; it says where they stand; what is taken goes.
+ * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
 import RAPIER from '@dimforge/rapier3d-compat';
@@ -10,11 +13,14 @@ import type { SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
 import { tierFromHints } from '../perf/hints.ts';
 import { readHints } from '../perf/readHints.ts';
 import { lowerTier } from '../perf/tiers.ts';
+import type { Vec3 } from '../spaces/vec.ts';
+import { type Acts, createActs, type InputBy } from './acts.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
-import { intentOf } from './controls.ts';
+import { type Held, intentOf, PAD_DEAD } from './controls.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import { jumpOf, stepsFor } from './motion.ts';
 import { createWalker, type Walker } from './physics.ts';
+import { createPrompt } from './prompt.ts';
 import { createSender, type Sender } from './sender.ts';
 import { spawnOf } from './solids.ts';
 import { createSurface, type Surface, type Tier } from './surface.ts';
@@ -33,14 +39,18 @@ async function tierFor(quality: WalkQuality): Promise<Tier> {
 interface Walking {
   readonly space: string;
   readonly kind: ViewKind;
+  readonly began: WalkHook['began'];
   readonly walker: Walker;
   readonly sender: Sender;
+  readonly acts: Acts;
   readonly surface: Surface;
+  gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
 
-const hookOf = ({ space, kind, walker, sender, surface, look }: Walking): WalkHook => ({
+const hookOf = ({ space, kind, began, walker, sender, acts, surface, gone, look }: Walking): WalkHook => ({
   space,
+  began,
   character: () => ({
     feet: walker.feet(),
     velocity: walker.velocity(),
@@ -52,6 +62,10 @@ const hookOf = ({ space, kind, walker, sender, surface, look }: Walking): WalkHo
   camera: () => ({ at: look().shot.at, distance: look().shot.distance }),
   zones: () => [...sender.inside],
   sent: () => sender.sent(),
+  prompt: () => acts.prompt(),
+  used: () => acts.used(),
+  stood: () => acts.stood(),
+  taken: () => [...gone()].sort(),
   moving: () => walker.moving().map(({ path, at }) => ({ path, at })),
   get frames() {
     return surface.view.frames;
@@ -62,31 +76,62 @@ const hookOf = ({ space, kind, walker, sender, surface, look }: Walking): WalkHo
   perf: () => surface.view.perf(surface.clock.intervals()),
 });
 
+/** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
+function inputBy(held: Held, was: InputBy): InputBy {
+  const pad = held.pad;
+  if (pad && (pad.a || pad.x === true || pad.axes.some((v) => Math.abs(v) > PAD_DEAD))) return 'pad';
+  if (held.keys.size > 0 || held.drag?.by === 'mouse') return 'keys';
+  if (held.jumpButton || held.drag?.by === 'touch' || (held.stick && (held.stick.x !== 0 || held.stick.y !== 0)))
+    return 'touch';
+  return was;
+}
+
+const coarse = () => typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+
 export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn> {
   const space = walkSpace(world, ask.space);
   if (!space) {
     box.textContent = `No space "${ask.space}" in this game.`;
-    return { pause() {}, quality() {}, stop() {} };
+    return { pause() {}, quality() {}, taken() {}, stop() {} };
   }
   await loadRapier();
-  const spawn = spawnOf(space.parts.spawns);
-  const walker = createWalker(RAPIER, { solids: space.parts.solids, spawn }, space.ground);
+  const spawn = spawnOf(space.parts.spawns, ask.arrive);
+  const at: Vec3 | undefined = ask.at ? [ask.at.feet[0], ask.at.feet[1], ask.at.feet[2]] : undefined;
+  const walker = createWalker(RAPIER, { solids: space.parts.solids, spawn, ...(at ? { at } : {}) }, space.ground);
   const kind: ViewKind = spawn?.view ?? 'third';
   const surface = await createSurface(box, space, await tierFor(ask.quality));
   const touches = createTouches(box);
+  const prompt = createPrompt(box);
   const sender = createSender(ask, space.parts.zones);
-  let [yaw, pitch] = [spawn?.yaw ?? 0, kind === 'third' ? THIRD.pitch : 0];
+  const acts = createActs(ask, space.parts.uses, prompt, { feet: walker.feet(), time: performance.now() });
+  let gone = acts.taken(ask.taken);
+  walker.remove(gone);
+  surface.view.hide(gone);
+  const began: WalkHook['began'] = at
+    ? { from: 'at' }
+    : spawn && spawn.path === ask.arrive
+      ? { from: 'arrive', spawn: spawn.path }
+      : { from: 'start', ...(spawn ? { spawn: spawn.path } : {}) };
+  let [yaw, pitch] = [ask.at?.yaw ?? spawn?.yaw ?? 0, kind === 'third' ? THIRD.pitch : 0];
   let shot: Shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
-  let [gone, paused, carried, jumpWaiting, last, frame] = [false, false, 0, false, performance.now(), 0];
+  let [stopped, paused, carried, jumpWaiting, last, frame] = [false, false, 0, false, performance.now(), 0];
+  let by: InputBy = coarse() ? 'touch' : 'keys';
+  const retier = (tier: Tier) => surface.retier(tier).then(() => surface.view.hide(gone));
 
+  const draw = () => {
+    shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
+    surface.view.frame(shot, walker.feet(), yaw, kind === 'third', walker.moving());
+  };
   const tick = (time: number) => {
-    if (gone) return;
+    if (stopped) return;
     frame = requestAnimationFrame(tick);
     const elapsed = Math.min(0.25, (time - last) / 1000);
     last = time;
     // Paused, nothing moves and the frame is held.
     if (paused) return;
-    const intent = intentOf({ ...surface.inputs.take(), ...touches.take() }, elapsed);
+    const held = { ...surface.inputs.take(), ...touches.take() };
+    by = inputBy(held, by);
+    const intent = intentOf(held, elapsed);
     yaw += intent.look[0];
     pitch = heldPitch(kind, pitch + intent.look[1]);
     const steps = stepsFor(carried, elapsed);
@@ -97,18 +142,35 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
       walker.step({ ...intent, jump }, yaw);
       sender.step(walker.feet());
     }
-    shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
-    surface.view.frame(shot, walker.feet(), yaw, kind === 'third', walker.moving());
+    acts.frame(walker.feet(), yaw, intent.use, by, time);
+    draw();
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
-    if (lower) void surface.retier({ name: lower, auto: true });
+    if (lower) void retier({ name: lower, auto: true });
   };
+  // The page hidden is the last chance to say where the player stood: a phone may close the tab.
+  const hidden = () => {
+    if (document.visibilityState === 'hidden' && !paused) acts.stand(walker.feet(), yaw, performance.now());
+  };
+  document.addEventListener('visibilitychange', hidden);
+  draw();
   frame = requestAnimationFrame(tick);
 
-  const hook = hookOf({ space: ask.space, kind, walker, sender, surface, look: () => ({ yaw, pitch, shot, paused }) });
+  const hook = hookOf({
+    space: ask.space,
+    kind,
+    began,
+    walker,
+    sender,
+    acts,
+    surface,
+    gone: () => gone,
+    look: () => ({ yaw, pitch, shot, paused }),
+  });
   setWalkHook(hook);
   return {
     pause(on) {
+      if (on && !paused) acts.stand(walker.feet(), yaw, performance.now());
       paused = on;
       if (!on) return;
       surface.inputs.clear();
@@ -117,15 +179,23 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     quality(next) {
       void tierFor(next).then((picked) => {
         const now = surface.tier;
-        if (!gone && (picked.name !== now.name || picked.auto !== now.auto)) void surface.retier(picked);
+        if (!stopped && (picked.name !== now.name || picked.auto !== now.auto)) void retier(picked);
       });
     },
+    taken(paths) {
+      gone = acts.taken(paths);
+      walker.remove(gone);
+      surface.view.hide(gone);
+    },
     stop() {
-      gone = true;
+      stopped = true;
       cancelAnimationFrame(frame);
+      document.removeEventListener('visibilitychange', hidden);
+      acts.close();
       clearWalkHook(hook);
       surface.dispose();
       touches.dispose();
+      prompt.dispose();
       walker.free();
     },
   };

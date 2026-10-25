@@ -57,5 +57,6 @@ export {
   type WorldData,
   type WorldSlice,
   type WorldUse,
+  withPackWorld,
   worldModule,
 } from './world/world.ts';

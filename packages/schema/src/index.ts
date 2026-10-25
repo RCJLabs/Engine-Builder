@@ -74,7 +74,7 @@ export {
   WEATHERS,
   type Weather,
 } from './environmentTypes.ts';
-export type { FlagUses } from './flagCheck.ts';
+export type { FlagUses, HeldElsewhere } from './flagCheck.ts';
 export {
   checkFoliage,
   FOLIAGE,

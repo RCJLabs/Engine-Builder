@@ -16,6 +16,7 @@ import {
   ENVIRONMENT,
   type FlagUses,
   FOLIAGE,
+  type HeldElsewhere,
   type Known,
   type PartContext,
   type RecordType,
@@ -68,6 +69,8 @@ interface Walk {
   readonly diagnostics: Diagnostic[];
   readonly uses: SpaceUse[];
   readonly flags: { readonly set: Map<string, Set<string>>; readonly read: Map<string, Set<string>> };
+  /** The zones' and interacts' effects and conditions (M5.9), for the kits' checks. */
+  readonly held: { effects: HeldElsewhere['effects'][number][]; conditions: HeldElsewhere['conditions'][number][] };
 }
 
 const listFlag = (flags: Map<string, Set<string>>, flag: string, file: string) =>
@@ -82,9 +85,10 @@ export function checkSpaceParts(
   const diagnostics: Diagnostic[] = [];
   const uses: SpaceUse[] = [];
   const flags = { set: new Map<string, Set<string>>(), read: new Map<string, Set<string>>() };
+  const held: Walk['held'] = { effects: [], conditions: [] };
   for (const read of sound) {
     const space = read.value as SpaceJson;
-    const walk = (object: string): Walk => ({ ctx, file: read.file, object, prefabs, diagnostics, uses, flags });
+    const walk = (object: string): Walk => ({ ctx, file: read.file, object, prefabs, diagnostics, uses, flags, held });
     for (const [i, object] of space.objects.entries()) checkObject(walk(object.id), object, `/objects/${i}`);
     if (read.kind === 'space') {
       environmentOf(walk(''), space);
@@ -93,7 +97,8 @@ export function checkSpaceParts(
     }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
-  return { diagnostics, uses, flags };
+  const holds = held.effects.length > 0 || held.conditions.length > 0;
+  return { diagnostics, uses, flags: { ...flags, ...(holds ? { held } : {}) } };
 }
 
 /** The space's environment (M5.4): a use of its record, which is E069 when there is none. */
@@ -255,15 +260,18 @@ function partContext(
         report(walk, 'E018', path, `No file assets/${value}`);
       }
     },
-    // A trigger zone's flags (M5.8): set and read in play, so the flags' lint counts them.
-    condition: (_path, sound) => {
+    // A trigger zone's flags (M5.8): set and read in play, so the flags' lint counts them; and what
+    // a zone or an interact holds, which the kits' checks hear as they hear a record's (M5.9).
+    condition: (path, sound) => {
       for (const ref of conditionRefs(sound.tree, walk.ctx.known.facts)) {
         if (ref.type === FLAG) listFlag(walk.flags.read, ref.id, walk.file);
       }
+      if (kept(path)) walk.held.conditions.push({ file: walk.file, sound });
     },
     effect: (path, effect) => {
       const sets = effect.effect === 'set-flag' || effect.effect === 'add-to-flag';
       if (sets && typeof effect.flag === 'string') listFlag(walk.flags.set, effect.flag, walk.file);
+      if (kept(path)) walk.held.effects.push({ file: walk.file, path, effect });
       const spaces = walk.ctx.spaces;
       if (spaces && kept(path))
         checkEnterSpace(effect, spaces, (code, at, message) => report(walk, code, at, message), path);

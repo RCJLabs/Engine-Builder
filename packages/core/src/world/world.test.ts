@@ -68,13 +68,17 @@ describe('world/trigger', () => {
     const w = walk();
     expect(w.fact('world.fired', { space: 'trailhead', object: 'cairn/zone' })).toBe(false);
     w.enter('trailhead', 'cairn/zone');
-    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [] });
+    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [], space: 'trailhead' });
     expect(w.fact('world.fired', { space: 'trailhead', object: 'cairn/zone' })).toBe(true);
     const again = w.enter('trailhead', 'cairn/zone');
     expect(again.accepted).toBe(false);
     expect(again.beats).toEqual([{ type: 'rejected', action: 'world/trigger', reason: 'spent' }]);
     w.enter('trailhead', 'a-stile');
-    expect(w.state.world).toEqual({ fired: ['trailhead/a-stile', 'trailhead/cairn/zone'], taken: [] });
+    expect(w.state.world).toEqual({
+      fired: ['trailhead/a-stile', 'trailhead/cairn/zone'],
+      taken: [],
+      space: 'trailhead',
+    });
   });
 
   it('runs a zone every time while its condition holds, and never while it doesn’t', () => {
@@ -87,7 +91,7 @@ describe('world/trigger', () => {
     w.enter('trailhead', 'gate');
     expect(w.fact('flag.number', { flag: 'gates' })).toBe(2);
     // Not remembered: only once zones are.
-    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [] });
+    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [], space: 'trailhead' });
   });
 
   it('refuses a zone the pack lacks, own keys only, and a trigger without its names', () => {
@@ -114,7 +118,7 @@ describe('world/trigger', () => {
     const step = w.enter('trailhead', 'bog');
     expect(step.accepted).toBe(false);
     expect(w.fact('flag.number', { flag: 'gates' })).toBe(0);
-    expect(w.state.world).toEqual({ fired: [], taken: [] });
+    expect(w.state.world).toEqual({ fired: [], taken: [], space: 'trailhead' });
   });
 
   it('is never offered: only the stage sends it', () => {

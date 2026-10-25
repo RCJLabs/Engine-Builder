@@ -59,12 +59,13 @@ export function use(world: WorldData, ctx: ModuleContext<WorldSlice>, action: Ac
 const cm = (n: number) => Math.round(n * 100) / 100;
 const finite = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n);
 
-export function at(world: WorldData, ctx: ModuleContext<WorldSlice>, action: Action): void {
+export function at(ctx: ModuleContext<WorldSlice>, action: Action): void {
   const { space, feet, yaw } = action as Action & { space?: unknown; feet?: unknown; yaw?: unknown };
   if (typeof space !== 'string' || !Array.isArray(feet) || feet.length !== 3 || !feet.every(finite) || !finite(yaw)) {
     ctx.refuse('bad-at');
   }
-  if (own(world.spawns, space) === undefined) ctx.refuse('no-space', { space });
+  // A stage a step behind, still sending the space it left, must not undo the enter-space.
+  if (space !== ctx.read().space) ctx.refuse('elsewhere', { space });
   const stood: StoodAt = {
     space,
     feet: [cm(feet[0] as number), cm(feet[1] as number), cm(feet[2] as number)],
