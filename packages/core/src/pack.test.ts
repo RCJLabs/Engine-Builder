@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { canonicalJson } from './canonical.ts';
 import { createPack, PACK_FORMAT, PackError, packHash, readPack } from './pack.ts';
 import { createRecordStore } from './records.ts';
+import { worldDataOf } from './world/packWorld.ts';
 
 const project = { id: 'salvage-run', name: 'Salvage Run', version: '0.1.0' };
 const records = { item: { medkit: { name: 'Medkit', weight: 1 } }, actor: { rook: { name: 'Rook' } } };
@@ -211,6 +212,23 @@ describe('createPack', () => {
     // Before format 9 there is no world to carry, and before format 10 no uses, spawns or start.
     expect(() => readPack({ ...reloaded(createPack(project, records)), world })).toThrow('Unknown pack fields: world');
     expect(broken({ start: 'trailhead' })).toThrow('Unknown pack world fields: start');
+  });
+
+  it('reads a format 9 world as the module needs it: no uses, no spawn points, its first space the start', () => {
+    const world = {
+      spaces: { trailhead: { name: 'Trailhead', objects: [] }, bothy: { name: 'Bothy', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+    };
+    expect(worldDataOf(world)).toEqual({
+      triggers: {},
+      uses: {},
+      spawns: { bothy: [], trailhead: [] },
+      start: 'bothy',
+    });
   });
 
   it('carries the uses, spawn points and start as format 10 (M5.9)', () => {

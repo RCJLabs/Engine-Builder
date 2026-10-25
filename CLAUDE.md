@@ -215,7 +215,10 @@ apps/editor/           the editor PWA
                        button), surface.ts (the canvas, its view at a tier), sender.ts (world/trigger sent), hook.ts
                        (window.__ebWalk), stage.ts (the loop), entry.ts (walk.js's), host.ts and hosts.ts (the Space
                        widget's host, walk.js loaded once), editorWalk.ts (the Play panel's and the player page's);
-                       walk.test.ts walks the trail headless in Node through Rapier
+                       walk.test.ts walks the trail headless in Node through Rapier; M5.9 (D71): interact.ts (the use
+                       the player faces: 2 m, 60°), stood.ts (when to say where the player stands), outbox.ts (one
+                       step at a time, a dropped one tried again), acts.ts (Interact and world/at through the
+                       outbox), prompt.ts (the prompt, a button beside Jump), all with tests in acts.test.ts
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -326,9 +329,12 @@ apps/editor/           the editor PWA
                        the boulder, the step jumped, the bank, the crate, the cairn's trigger sent once, the bothy in
                        first person) and by a stand-in pad, by touch at 360, 390 and sideways with the floating
                        stick, a look drag and the jump button, and exported as one file and as a web build, each
-                       walked to the cairn offline
+                       walked to the cairn offline; glenHelpers.ts, glen.spec.ts and glenPhone.spec.ts are M5.9's,
+                       the glen walked by keys and the mouse, by a stand-in pad and by touch at 360, 390 and
+                       sideways: the rope and the lamp taken by Interact, each door each way with its loading screen,
+                       the gate's zone setting the quest's stage, and a save in the bothy loaded where it stood
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 9)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 10)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -341,7 +347,10 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
   src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
                        the engine's own modules (logic, flag, sheet)
   src/world/           M5.8 (D70): packWorld.ts (format 9's world and its checks) and world.ts (the world module:
-                       world/trigger checked and run, world/entered, world.fired), joined only to a game with spaces
+                       world/trigger checked and run, world/entered, world.fired), joined only to a game with spaces;
+                       M5.9 (D71): the slice at version 2 (types.ts: the space, where the player stood, the spawn
+                       arrived at, what was taken), actions.ts (world/use, world/at, enter-space), format 10's uses,
+                       spawn points and start (packWorld.ts, worldDataOf for format 9), withPackWorld for headless runs
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -386,7 +395,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        type, in ENGINE_DATA: E068); M5.5: materialTypes.ts (material, its presets) and
                        modelTypes.ts (model: its file, scale, slots, LOD and collider; E071, E072), engine types in
                        ENGINE_DATA; M5.6: foliageTypes.ts (foliage, its presets; E074), an engine type in
-                       ENGINE_DATA; not pure
+                       ENGINE_DATA; M5.9: the interact component kind, enter-space in effect.ts, worldCheck.ts (E076),
+                       and what zones and uses hold heard by the kits' checks (flagCheck.ts's HeldElsewhere); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -416,7 +426,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        (E058, FOLIAGE_MOST), its density PNG in spaceFiles.ts and terrains.ts (E067, W144) and
                        spaceParts.ts (E073, and a use for "used by"); M5.8: world.ts (format 9's world: the spaces,
                        the zones resolved through prefabs and overrides, the files and records they draw from),
-                       flagUses.ts (the flags zones and screens use, for W108 to W110), placedModels.ts; not pure
+                       flagUses.ts (the flags zones and screens use, for W108 to W110), placedModels.ts; M5.9: world.ts
+                       (format 10's uses, spaceSpawns, the start), spaceParts.ts (E076 in zones and uses, and what
+                       they hold for the kits' checks), projectCheck.ts (E075); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -477,7 +489,7 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
                        each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
                        SpaceWidget.tsx and spaceHost.ts (M5.8: the box a page's host walks a space in, and the host's
-                       contract);
+                       contract; the player's space when it names none, M5.9), placing.ts (where its stage starts);
                        stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
@@ -552,7 +564,11 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        physical sky and rain for the perf specs); trail/, M5.8's gate: a trailhead with a path, a
                        bank, a boulder, a step, a crate that moves, the kit's crate and a cairn whose zone sets the
                        flag its HUD shows, and a bothy in first person, which world.test.ts builds as format 9,
-                       breaks once for each of M5.8's checks and exports, and apps/editor's walk.test.ts walks
+                       breaks once for each of M5.8's checks and exports, and apps/editor's walk.test.ts walks;
+                       saves/trail-world-v1.json, a save by the world module's version 1 that must keep loading;
+                       glen/, M5.9's gate: a glen with a rope, a bothy whose door is an interact and whose lamp is on
+                       a table, a shed whose door is a zone, and a gate's zone that sets the supplies quest's stage,
+                       which glen.test.ts plays through the session to a save and a load
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

@@ -39,6 +39,8 @@ export interface WalkView {
   perf(frames: readonly number[]): PerfSummary;
   /** Objects taken (M5.9): drawn no more, with everything inside them, as soon as the sim says so. */
   hide(taken: ReadonlySet<string>): void;
+  /** The taken objects the scene has and doesn't draw, as three holds them: the hook's check. */
+  hidden(): string[];
   readonly frames: number;
   dispose(): void;
 }
@@ -216,6 +218,10 @@ export async function createWalkView(
     hide(taken) {
       hidden = taken;
       if (built) hideIn(built.root);
+    },
+    hidden() {
+      const root = built?.root;
+      return root ? [...hidden].filter((path) => nodeAt(root, path)?.visible === false).sort() : [];
     },
     get frames() {
       return frames;

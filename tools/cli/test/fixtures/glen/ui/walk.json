@@ -6,7 +6,7 @@
     "children": [
       {
         "widget": "text",
-        "text": "Take a rope and the bothy's lamp.",
+        "text": "Take a rope and the bothy’s lamp.",
         "style": "heading",
         "shows-when": "not quests.reached(quest: supplies, stage: store)"
       },

@@ -66,6 +66,7 @@ const hookOf = ({ space, kind, began, walker, sender, acts, surface, gone, look 
   used: () => acts.used(),
   stood: () => acts.stood(),
   taken: () => [...gone()].sort(),
+  hidden: () => surface.view.hidden(),
   moving: () => walker.moving().map(({ path, at }) => ({ path, at })),
   get frames() {
     return surface.view.frames;

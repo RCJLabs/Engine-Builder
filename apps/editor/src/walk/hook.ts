@@ -31,8 +31,10 @@ export interface WalkHook {
   used(): readonly { readonly object: string; readonly sent: Sent | 'waiting' }[];
   /** Each world/at sent, in order, as sent, with its answer. */
   stood(): readonly { readonly feet: readonly number[]; readonly yaw: number; readonly sent: Sent | 'waiting' }[];
-  /** The objects hidden and taken out of the physics as taken, sorted. */
+  /** The objects taken here, as the sim says, sorted. */
   taken(): readonly string[];
+  /** Of those, the ones the view has and doesn't draw, read from three's scene. */
+  hidden(): readonly string[];
   /** Where each solid that moves is. */
   moving(): readonly { readonly path: string; readonly at: Vec3 }[];
   readonly frames: number;

@@ -1967,6 +1967,11 @@ Evan chose on 2026-10-25, from these options:
 - **Interact.** A new component kind, `interact`, gives an object a label, a condition, effects, `once` and `takes`. The prompt shows for the nearest one in reach that the player faces; E, the pad's X or a touch button beside Jump uses it, sending `world/use`, checked and run by the sim. A pickup is an interact that takes its object and gives an item.
 - **Where you stood.** The world module's slice keeps the space, where the player stood and which way they faced, and the objects taken. The stage tells the sim with `world/at` as the shell pauses, as the page hides, before each use and every few seconds of walking; a load puts the player back there. Moving bodies go back to their authored places.
 - **The start space** (my call, put to Evan in the PR): a game starts in project.json's `start-space`, or in its first space by id; a game whose screens name each space, as the trail's do, never needs one.
+- **Made on the way** (my calls, in the PR):
+  - **`world/at` for another space is refused** (`elsewhere`), so a stage a step behind an `enter-space` can't put the player back where they were; the stage doesn't send one for a space the sim hasn't them in.
+  - **A world format 9 holds stays format 9** (no uses, no spawn points, the first space the start), so a game walked before M5.9 keeps its pack's hash.
+  - **The kits' checks hear what zones and uses hold,** in `eb validate` and the editor alike: a quest started by a pickup is started, and a zone's `set-stage` names a stage the quest has (E043).
+  - **The stage sends one step at a time** through an outbox, since the shell drops a step asked for while another is on its way.
 
 **Why.**
 - **The split:** the gate needs only doors, pickups, a trigger's quest step and positions; streaming needs a far bigger exterior and its own readings on a phone, and snapping is the editor's alone.

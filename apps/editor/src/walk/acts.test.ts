@@ -47,6 +47,9 @@ describe('facing', () => {
     const high: UsePoint = { path: 'high', center: [0, 3, -0.5], label: 'Take' };
     expect(facing([floor], [0, 0, 0], 0, new Set())?.path).toBe('floor');
     expect(facing([high], [0, 0, 0], 0, new Set())).toBeUndefined();
+    // On a shelf at chest height, 1.9 m away: in reach from the middle, though 2.3 m from the feet.
+    const shelf: UsePoint = { path: 'shelf', center: [0, 1.3, -1.9], label: 'Take' };
+    expect(facing([shelf], [0, 0, 0], 0, new Set())?.path).toBe('shelf');
   });
 });
 

@@ -96,8 +96,8 @@
       "id": "gate",
       "name": "Gate",
       "shape": "box",
-      "at": [6, 0, 1],
-      "scale": [3, 2, 0.6],
+      "at": [3, 0, -2.5],
+      "scale": [0.6, 2, 2],
       "color": "#d9c27a",
       "components": {
         "trigger": {

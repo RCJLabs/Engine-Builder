@@ -125,3 +125,9 @@ jobs:
         env:
           SITE: ${{ needs.deploy.outputs.page_url }}
         run: node tools/site-check/src/cli.ts "${SITE}games/space-wrecked/"
+
+      # The trail's web export (M5.8, D70), its walk.js beside it: the page, its files and worker.
+      - name: The trail loads its files
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+        run: node tools/site-check/src/cli.ts "${SITE}games/trail/"
