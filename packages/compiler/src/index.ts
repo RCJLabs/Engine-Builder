@@ -59,6 +59,28 @@ export {
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
 export { checkModels, modelDiagnostics, modelFileOf } from './models.ts';
 export {
+  checkNavFiles,
+  NAV_HEADER,
+  NAV_VERSION,
+  type NavFileRead,
+  navFileBytes,
+  navHeader,
+  navmeshOf,
+} from './navFiles.ts';
+export {
+  NAV_AGENT,
+  NAV_CELLS,
+  type NavFrame,
+  type NavModelOf,
+  type NavSolid,
+  navHashes,
+  navInputs,
+  navInputsHash,
+  navModelsOf,
+  navSolids,
+} from './navInputs.ts';
+export { actorPlaces, walkersOf } from './npcPlaces.ts';
+export {
   eachPlaced,
   type Fields,
   isFields,
@@ -95,6 +117,7 @@ export {
   classifyComponentFile,
   classifySpaceFile,
   componentPath,
+  navPath,
   PREFABS_DIR,
   SPACES_DIR,
   type SpaceFile,

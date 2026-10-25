@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { canonicalJson } from './canonical.ts';
 import { createPack, PACK_FORMAT, PackError, packHash, readPack } from './pack.ts';
 import { createRecordStore } from './records.ts';
-import { worldDataOf } from './world/packWorld.ts';
+import { type PackWorld, worldDataOf } from './world/packWorld.ts';
 
 const project = { id: 'salvage-run', name: 'Salvage Run', version: '0.1.0' };
 const records = { item: { medkit: { name: 'Medkit', weight: 1 } }, actor: { rook: { name: 'Rook' } } };
@@ -228,6 +228,7 @@ describe('createPack', () => {
       uses: {},
       spawns: { bothy: [], trailhead: [] },
       start: 'bothy',
+      actors: {},
     });
   });
 
@@ -244,7 +245,7 @@ describe('createPack', () => {
       start: 'trailhead',
     };
     const placed = createPack(project, records, undefined, undefined, undefined, undefined, world);
-    expect(placed.format).toBe(PACK_FORMAT);
+    expect(placed.format).toBe(10);
     expect(readPack(reloaded(placed))).toEqual(placed);
     const moved = { ...world, start: 'bothy' };
     expect(createPack(project, records, undefined, undefined, undefined, undefined, moved).hash).not.toBe(placed.hash);
@@ -279,6 +280,50 @@ describe('createPack', () => {
     expect(broken({ spawns: { trailhead: [] } })).toThrow('The pack lists no spawn points for "bothy"');
     expect(broken({ start: 'moor' })).toThrow("The pack's start is not one of its spaces");
     expect(broken({ start: undefined })).toThrow("The pack's start is not one of its spaces");
+  });
+
+  it('carries the navmeshes and the actors placed as format 11 (M6.2), and only with a navmesh', () => {
+    const world = {
+      spaces: { square: { name: 'Square', objects: [] }, inn: { name: 'Inn', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+      uses: {},
+      spawns: { square: ['gate'], inn: [] },
+      start: 'square',
+      navmeshes: { square: 'RUJOVg==' },
+      actors: { carter: { space: 'square', path: 'carter' }, keeper: { space: 'inn', path: 'bar/keeper' } },
+    };
+    const walked = createPack(project, records, undefined, undefined, undefined, undefined, world);
+    expect(walked.format).toBe(PACK_FORMAT);
+    expect(readPack(reloaded(walked))).toEqual(walked);
+    expect(worldDataOf(walked.world as PackWorld).actors).toEqual(world.actors);
+    // No navmesh, nobody walks: format 10 holds it, actors and all left out, so its hash stays M5.9's.
+    const still = createPack(project, records, undefined, undefined, undefined, undefined, { ...world, navmeshes: {} });
+    expect(still.format).toBe(10);
+    expect(still.world).not.toHaveProperty('actors');
+    expect(still.world).not.toHaveProperty('navmeshes');
+    const broken = (change: Record<string, unknown>) => () =>
+      readPack({ ...reloaded(walked), world: { ...world, ...change } });
+    expect(broken({ navmeshes: {} })).toThrow('A format 11 pack has no navmeshes, or one that is not base64');
+    expect(broken({ navmeshes: { square: 'not base64!' } })).toThrow(
+      'A format 11 pack has no navmeshes, or one that is not base64',
+    );
+    expect(broken({ navmeshes: { moor: 'RUJOVg==' } })).toThrow('A navmesh of a space the pack lacks: "moor"');
+    const placed = "The pack's actors are not each a space it has and an object's path";
+    expect(broken({ actors: { carter: { space: 'moor', path: 'carter' } } })).toThrow(placed);
+    expect(broken({ actors: { carter: { space: 'square', path: 'Carter' } } })).toThrow(placed);
+    expect(broken({ actors: { carter: { space: 'square', path: 'carter', yaw: 3 } } })).toThrow(placed);
+    expect(broken({ actors: { Carter: { space: 'square', path: 'carter' } } })).toThrow(
+      '"Carter" is not a valid actor',
+    );
+    // Before format 11 there are no navmeshes.
+    const ten = reloaded(still);
+    expect(() => readPack({ ...ten, world: { ...(ten.world as object), navmeshes: world.navmeshes } })).toThrow(
+      'Unknown pack world fields: navmeshes',
+    );
   });
 });
 
@@ -432,8 +477,8 @@ describe('readPack', () => {
   });
 
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 11 })).toThrow(
-      'This pack is format 11; this engine reads formats 1 to 10. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 12 })).toThrow(
+      'This pack is format 12; this engine reads formats 1 to 11. Update the engine.',
     );
   });
 

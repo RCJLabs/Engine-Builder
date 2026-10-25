@@ -6,6 +6,8 @@
  * point they arrive at; Interact uses what they face; it says where they stand; what is taken goes.
  * M5.10 (D72, docs/specs/streaming.md): it builds what is near the player and draws the models of
  * what is far, the ring around them worked out again as they cross into another cell.
+ * M6.2 (D74, docs/specs/navigation.md#the-stage): in a space with a navmesh, its NPCs walk where the
+ * sim sends them and a tap walks the player (navStage.ts).
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
@@ -20,7 +22,9 @@ import { type Acts, createActs, type InputBy } from './acts.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { type Held, intentOf, PAD_DEAD } from './controls.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
+import type { LoadNav } from './host.ts';
 import { jumpOf, stepsFor } from './motion.ts';
+import { createNavStage, type NavStage } from './navStage.ts';
 import { createOutbox } from './outbox.ts';
 import { createWalker, type Walker } from './physics.ts';
 import { createPrompt } from './prompt.ts';
@@ -50,11 +54,24 @@ interface Walking {
   readonly acts: Acts;
   readonly surface: Surface;
   readonly streaming: Streaming;
+  readonly nav: NavStage | null;
   gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
 
-const hookOf = ({ space, kind, began, walker, sender, acts, surface, streaming, gone, look }: Walking): WalkHook => ({
+const hookOf = ({
+  space,
+  kind,
+  began,
+  walker,
+  sender,
+  acts,
+  surface,
+  streaming,
+  nav,
+  gone,
+  look,
+}: Walking): WalkHook => ({
   space,
   began,
   character: () => ({
@@ -83,6 +100,8 @@ const hookOf = ({ space, kind, began, walker, sender, acts, surface, streaming, 
   perf: () => surface.view.perf(surface.clock.intervals()),
   cells: () => streaming.cells(),
   npcs: () => surface.view.npcs.list(),
+  nav: () => nav?.hook() ?? null,
+  screenOf: (point) => surface.view.screenOf(point),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -97,7 +116,12 @@ function inputBy(held: Held, was: InputBy): InputBy {
 
 const coarse = () => typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
 
-export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn> {
+export async function startStage(
+  box: HTMLElement,
+  ask: SpaceAsk,
+  world: PackWorld,
+  loadNav?: LoadNav,
+): Promise<SpaceDrawn> {
   const space = walkSpace(world, ask.space);
   if (!space) {
     box.textContent = `No space "${ask.space}" in this game.`;
@@ -139,6 +163,7 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     TIERS[tier.name].viewDistance,
     gone,
   );
+  const nav = await createNavStage(space, world, ask, outbox, loadNav, { walker, view });
   const began: WalkHook['began'] = at
     ? { from: 'at' }
     : spawn && spawn.path === ask.arrive
@@ -171,7 +196,8 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     }
     const held = { ...surface.inputs.take(), ...touches.take() };
     by = inputBy(held, by);
-    const intent = intentOf(held, elapsed);
+    const pushed = intentOf(held, elapsed);
+    const intent = nav ? nav.intent(pushed, held.tap, walker.feet(), yaw) : pushed;
     yaw += intent.look[0];
     pitch = heldPitch(kind, pitch + intent.look[1]);
     const steps = stepsFor(carried, elapsed);
@@ -181,10 +207,12 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     for (let i = 0; i < steps.steps; i++) {
       walker.step({ ...intent, jump }, yaw);
       const feet = walker.feet();
+      nav?.step(feet);
       streaming.step(feet[0], feet[2], gone);
       sender.step(feet);
     }
     acts.frame(walker.feet(), yaw, intent.use, by, time);
+    nav?.frame(time);
     draw();
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
@@ -192,7 +220,9 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   };
   // The page hidden is the last chance to say where the player stood: a phone may close the tab.
   const hidden = () => {
-    if (document.visibilityState === 'hidden' && !paused) acts.stand(walker.feet(), yaw, performance.now());
+    if (document.visibilityState !== 'hidden' || paused) return;
+    acts.stand(walker.feet(), yaw, performance.now());
+    nav?.stand(performance.now());
   };
   document.addEventListener('visibilitychange', hidden);
   draw();
@@ -207,13 +237,17 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     acts,
     surface,
     streaming,
+    nav,
     gone: () => gone,
     look: () => ({ yaw, pitch, shot, paused }),
   });
   setWalkHook(hook);
   return {
     pause(on) {
-      if (on && !paused) acts.stand(walker.feet(), yaw, performance.now());
+      if (on && !paused) {
+        acts.stand(walker.feet(), yaw, performance.now());
+        nav?.stand(performance.now());
+      }
       paused = on;
       // The walk goes on, its talk over: the NPC that faced the player turns back.
       if (!on) return surface.view.npcs.back(performance.now());
@@ -231,12 +265,16 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
       walker.remove(gone);
       surface.view.hide(gone);
     },
+    npcs(next) {
+      nav?.told(next);
+    },
     stop() {
       stopped = true;
       cancelAnimationFrame(frame);
       document.removeEventListener('visibilitychange', hidden);
       acts.close();
       clearWalkHook(hook);
+      nav?.stop();
       surface.dispose();
       touches.dispose();
       prompt.dispose();

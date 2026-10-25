@@ -4,6 +4,7 @@
  * eb validates it clean and builds it as format 10; played through the session as the stage would
  * play it, each door moves the player, each take is kept, and a save puts them back where they stood.
  */
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { compileWithGame } from '@eb/compiler';
 import type { Action } from '@eb/core';
@@ -91,5 +92,23 @@ describe('eb with the glen', () => {
     });
     // A world/at from the glen, a stage a step behind, changes nothing.
     expect(resumed.play.take({ type: 'world/at', space: 'glen', feet: [0, 0, 0], yaw: 0 }).accepted).toBe(false);
+  });
+
+  it('loads a save made by the world module’s version 2, migrated with no NPC walking, in the bothy', async () => {
+    const open = await opened();
+    const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/glen-world-v2.json'), 'utf8');
+    const resumed = resumeFrom(open, raw);
+    if (!resumed.ok) throw new Error(resumed.message);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 2, to: 3 }]);
+    expect(resumed.report).toMatchObject({ replayed: 3, skipped: 0 });
+    expect(resumed.play.state.world).toEqual({
+      fired: [],
+      taken: ['glen/rope'],
+      space: 'bothy',
+      arrive: 'door',
+      at: { space: 'bothy', feet: [0.5, 0, -0.2], yaw: 12.5 },
+      npcs: {},
+    });
+    expect(resumed.play.take(use('bothy', 'lamp')).accepted).toBe(true);
   });
 });

@@ -52,6 +52,8 @@ export function effectText(effect: unknown): string {
       const chances = outcomes.map((o) => (isObject(o) ? written(o.chance) : '?'));
       return chances.length > 0 ? `roll ${chances.join(' / ')}` : 'roll';
     }
+    case 'walk-to':
+      return `walk ${named(effect.actor, 'an actor')} to ${named(effect.to, 'a place')}`;
     default:
       return kitEffectText(effect) ?? effect.effect;
   }

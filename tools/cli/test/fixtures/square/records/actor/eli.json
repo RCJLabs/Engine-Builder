@@ -1,0 +1,10 @@
+{
+  "name": "Eli",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.6800000000000002,
+    "clothes": "#3a5a6b",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

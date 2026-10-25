@@ -5,7 +5,7 @@
 import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
-import { asFormat9, type PackWorld, worldProblem } from './world/packWorld.ts';
+import { asFormat9, asFormat10, type PackWorld, worldProblem } from './world/packWorld.ts';
 
 export type { PackWorld } from './world/packWorld.ts';
 
@@ -16,11 +16,12 @@ export type { PackWorld } from './world/packWorld.ts';
  * beats are said in, screens or none; format 6 (M4.3) its play shell's settings, ui/shell.json,
  * feedback or none; format 7 (M4.4) its assets' credits, from the provenance log, ui or none;
  * format 8 (M4.8) the audio files its music names, as base64, credits or none; format 9 (M5.8) its
- * spaces and what they draw from, audio or none. A pack is written in the lowest format that holds it,
+ * spaces and what they draw from, audio or none; format 10 (M5.9) its uses, spawn points and start;
+ * format 11 (M6.2) its navmeshes and where each actor is placed. A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 10;
+export const PACK_FORMAT = 11;
 
 export interface PackProject {
   readonly id: string;
@@ -61,7 +62,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -116,12 +117,15 @@ export function createPack(
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
   const walked = world !== undefined && Object.keys(world.spaces).length > 0;
-  const nine = walked ? asFormat9(world) : undefined;
+  const ten = walked ? asFormat10(world) : undefined;
+  const nine = ten !== undefined ? asFormat9(ten) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
   const format = walked
-    ? nine === undefined
-      ? 10
-      : 9
+    ? ten === undefined
+      ? 11
+      : nine === undefined
+        ? 10
+        : 9
     : sounded
       ? 8
       : credited
@@ -145,7 +149,7 @@ export function createPack(
     ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
     ...(credited ? { credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)) } : {}),
     ...(sounded ? { audio } : {}),
-    ...(walked ? { world: nine ?? world } : {}),
+    ...(walked ? { world: nine ?? ten ?? world } : {}),
   } as const;
   return { ...content, hash: packHash(content) };
 }
@@ -173,7 +177,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`

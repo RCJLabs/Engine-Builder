@@ -117,6 +117,20 @@ export const enterSpaceEffect = () =>
     }),
   );
 
+/**
+ * `{ "effect": "walk-to", "actor": "carter", "to": "well" }` (M6.2, D74): a placed actor's goal
+ * becomes an object of its space, which the stage walks it to. E079 checks both once the spaces are read.
+ */
+export const walkToEffect = () =>
+  named(
+    'walk-to',
+    z.strictObject({
+      effect: z.literal('walk-to'),
+      actor: z.string().refine(isRecordId, { error: "Expected an actor's id" }),
+      to: objectPath,
+    }),
+  );
+
 /** The effects validation knows, by name. */
 export interface EffectCatalog {
   readonly schemas: ReadonlyMap<string, z.core.$ZodType>;
@@ -147,6 +161,6 @@ export function effectCatalog(schemas: readonly z.core.$ZodType[], closed: boole
 
 /** The engine's own effects (D36), which every project knows: the rest are kept as written, without `--types`. */
 export const ENGINE_EFFECTS: EffectCatalog = effectCatalog(
-  [setFlagEffect(), addToFlagEffect(), rollEffect(effect()), enterSpaceEffect()],
+  [setFlagEffect(), addToFlagEffect(), rollEffect(effect()), enterSpaceEffect(), walkToEffect()],
   false,
 );

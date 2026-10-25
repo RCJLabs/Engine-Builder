@@ -59,6 +59,8 @@ export const NEW_EFFECTS = {
       ],
     },
   },
+  // M6.2: offered once an actor stands in a space (EffectsField's AddEffect).
+  'walk-to': { label: 'Send an NPC walking', effect: { effect: 'walk-to', actor: '', to: '' } },
   other: { label: 'Another effect, as JSON', effect: { effect: '' } },
 } as const satisfies Record<string, { label: string; effect: Effect }>;
 

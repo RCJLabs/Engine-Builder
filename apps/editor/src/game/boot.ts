@@ -1,7 +1,7 @@
 /**
  * What an exported game's page holds in `#eb-game` (docs/specs/export.md#the-runtime): the
  * edition, which names its saves' storage, the pack, and whether to register the service worker;
- * for a game with spaces, where walk.js is (M5.8).
+ * for a game with spaces, where walk.js is (M5.8), and nav.js for one with navmeshes (M6.2).
  */
 export interface Boot {
   readonly edition: string;
@@ -9,10 +9,13 @@ export interface Boot {
   readonly sw: boolean;
   /** walk.js's file beside the page, or "#eb-walk", the page's element that holds it. */
   readonly walk?: string;
+  /** nav.js's (M6.2), for a game whose spaces have navmeshes: its file, or "#eb-nav". */
+  readonly nav?: string;
 }
 
 /** Only the names Export writes: the boot JSON never points the page at another script. */
 const WALK = /^(#eb-walk|walk\.[0-9a-f]{8}\.js)$/;
+const NAV = /^(#eb-nav|nav\.[0-9a-f]{8}\.js)$/;
 
 export type BootRead = { readonly ok: true; readonly boot: Boot } | { readonly ok: false; readonly message: string };
 
@@ -30,6 +33,9 @@ export function readBoot(text: string | null | undefined): BootRead {
   }
   if (boot.walk !== undefined && (typeof boot.walk !== 'string' || !WALK.test(boot.walk))) {
     return { ok: false, message: 'This page’s game names a walk Export doesn’t write: export it again.' };
+  }
+  if (boot.nav !== undefined && (typeof boot.nav !== 'string' || !NAV.test(boot.nav))) {
+    return { ok: false, message: 'This page’s game names a navigation Export doesn’t write: export it again.' };
   }
   return { ok: true, boot: boot as Boot };
 }

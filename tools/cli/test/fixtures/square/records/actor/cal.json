@@ -1,0 +1,10 @@
+{
+  "name": "Cal",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.6400000000000001,
+    "clothes": "#6b7a3a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

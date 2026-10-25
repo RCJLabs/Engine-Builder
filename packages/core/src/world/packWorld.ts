@@ -1,5 +1,5 @@
 import { isRecordId } from '../records.ts';
-import type { Triggers, Uses, WorldData } from './types.ts';
+import type { Placed, Triggers, Uses, WorldData } from './types.ts';
 
 /**
  * Format 9: the project's spaces walked in play (M5.8, D70, docs/specs/movement.md#spaces-in-the-pack-format-9).
@@ -29,6 +29,10 @@ export interface PackWorld {
   readonly spawns?: Readonly<Record<string, readonly string[]>>;
   /** Format 10: the space a new game starts in. */
   readonly start?: string;
+  /** Format 11 (M6.2): each space's navmesh as its .nav file, base64. */
+  readonly navmeshes?: Readonly<Record<string, string>>;
+  /** Format 11: each placed actor's space and path. */
+  readonly actors?: Readonly<Record<string, Placed>>;
 }
 
 /** What the world module is built from. A format 9 pack has no uses, and starts in its first space. */
@@ -39,6 +43,7 @@ export function worldDataOf(world: PackWorld): WorldData {
     uses: world.uses ?? {},
     spawns: world.spawns ?? Object.fromEntries(spaces.map((id) => [id, []])),
     start: world.start ?? (spaces[0] as string),
+    actors: world.actors ?? {},
   };
 }
 
@@ -53,6 +58,15 @@ export function asFormat9(world: PackWorld): PackWorld | undefined {
   const used = uses !== undefined && Object.values(uses).some((found) => Object.keys(found).length > 0);
   const spawned = spawns !== undefined && Object.values(spawns).some((list) => list.length > 0);
   return used || spawned || (start !== undefined && start !== first) ? undefined : nine;
+}
+
+/**
+ * The world as format 10 when it has no navmesh (M6.2): without one no NPC walks, so the actors'
+ * places aren't needed and a game walked before M6.2 keeps its format and its hash.
+ */
+export function asFormat10(world: PackWorld): PackWorld | undefined {
+  const { navmeshes, actors, ...ten } = world;
+  return navmeshes !== undefined && Object.keys(navmeshes).length > 0 ? undefined : ten;
 }
 
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
@@ -75,7 +89,10 @@ const extra = (value: Readonly<Record<string, unknown>>, allowed: readonly strin
  */
 export function worldProblem(world: unknown, format = 9): string | undefined {
   if (!isObject(world)) return `A format ${format} pack has no world`;
-  const placed = format >= 10 ? ['uses', 'spawns', 'start'] : [];
+  const placed = [
+    ...(format >= 10 ? ['uses', 'spawns', 'start'] : []),
+    ...(format >= 11 ? ['navmeshes', 'actors'] : []),
+  ];
   const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields', ...placed]);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
   const { spaces, prefabs, triggers, files, records, fields } = world;
@@ -98,7 +115,32 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   const key = Object.keys(records).find((k) => !/^[a-z0-9-]+:[a-z0-9-]+$/.test(k));
   if (key !== undefined) return `"${key}" is not a record's type and id`;
   if (!allOf(fields, (field) => typeof field === 'string')) return "The pack's model fields are not text";
-  return format >= 10 ? placesProblem(world) : undefined;
+  return (format >= 10 ? placesProblem(world) : undefined) ?? (format >= 11 ? walkersProblem(world) : undefined);
+}
+
+/** Format 11's navmeshes, each of a space the pack has and base64, and the actors' places. */
+function walkersProblem(world: Readonly<Record<string, unknown>>): string | undefined {
+  const { spaces, navmeshes, actors } = world;
+  if (!isObject(spaces)) return 'A format 11 pack has no spaces';
+  if (
+    !allOf(navmeshes, (data) => typeof data === 'string' && BASE64.test(data)) ||
+    Object.keys(navmeshes).length === 0
+  ) {
+    return 'A format 11 pack has no navmeshes, or one that is not base64';
+  }
+  const lost = Object.keys(navmeshes).find((space) => !Object.hasOwn(spaces, space));
+  if (lost !== undefined) return `A navmesh of a space the pack lacks: "${lost}"`;
+  const placed = (value: unknown) =>
+    isObject(value) &&
+    typeof value.space === 'string' &&
+    Object.hasOwn(spaces, value.space) &&
+    typeof value.path === 'string' &&
+    isPath(value.path) &&
+    extra(value, ['space', 'path']) === undefined;
+  if (!allOf(actors, placed)) return "The pack's actors are not each a space it has and an object's path";
+  const named = Object.keys(actors).find((id) => !isRecordId(id));
+  if (named !== undefined) return `"${named}" is not a valid actor`;
+  return undefined;
 }
 
 /** Format 10's uses, spawn points and start, each of a space the pack has. */

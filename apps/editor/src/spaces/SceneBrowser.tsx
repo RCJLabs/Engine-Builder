@@ -77,6 +77,7 @@ function SpaceEditor({ project, open }: { project: OpenProject; open: OpenSpace 
           environment={now.environment}
           models={now.models}
           foliage={now.foliage}
+          nav={now.nav ?? null}
         />
       ) : (
         <p class="muted">Opening the 3D view…</p>

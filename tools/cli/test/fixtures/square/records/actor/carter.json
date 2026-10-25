@@ -1,0 +1,11 @@
+{
+  "name": "Tam the carter",
+  "description": "Waits at the gate with a cart.",
+  "talk": "carter",
+  "figure": {
+    "height": 1.8,
+    "clothes": "#5a4a3a",
+    "trim": "#2f2f2f",
+    "skin": "#c99a76"
+  }
+}

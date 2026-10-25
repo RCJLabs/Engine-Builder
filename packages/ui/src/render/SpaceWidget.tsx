@@ -26,6 +26,8 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
   latest.current = world;
   const placing = space === undefined ? undefined : placingIn(space, world);
   const takenKey = placing?.taken.join('\n') ?? '';
+  // The NPCs' goals as text: a walk-to after a step reaches the stage, their stands do not restart it.
+  const npcsKey = JSON.stringify(placing?.npcs ?? {});
   const quality = drawing.quality ?? 'auto';
   // Where to stand is read as the stage starts, not after: each world/at would start it again.
   useEffect(() => {
@@ -48,6 +50,7 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
   useEffect(() => drawn.current?.pause(drawing.paused === true), [drawing.paused]);
   useEffect(() => drawn.current?.quality(quality), [quality]);
   useEffect(() => drawn.current?.taken(placing?.taken ?? []), [takenKey]);
+  useEffect(() => drawn.current?.npcs?.(placing?.npcs ?? {}), [npcsKey]);
   const named = space === undefined ? undefined : (drawing.spaces?.name(space) ?? space);
   const label = widget.label === undefined ? (named ?? 'The space the player is in') : fill(widget.label, drawing.view);
   if (!host || space === undefined) {

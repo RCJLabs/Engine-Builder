@@ -1,0 +1,430 @@
+{
+  "name": "Market day",
+  "rows": [
+    {
+      "id": "ash-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "ash",
+          "at": "ash-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "ash",
+          "to": "ash-south"
+        }
+      ]
+    },
+    {
+      "id": "ash-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "ash",
+          "at": "ash-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "ash",
+          "to": "ash-north"
+        }
+      ]
+    },
+    {
+      "id": "bea-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "bea",
+          "at": "bea-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "bea",
+          "to": "bea-south"
+        }
+      ]
+    },
+    {
+      "id": "bea-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "bea",
+          "at": "bea-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "bea",
+          "to": "bea-north"
+        }
+      ]
+    },
+    {
+      "id": "cal-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "cal",
+          "at": "cal-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "cal",
+          "to": "cal-south"
+        }
+      ]
+    },
+    {
+      "id": "cal-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "cal",
+          "at": "cal-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "cal",
+          "to": "cal-north"
+        }
+      ]
+    },
+    {
+      "id": "dot-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "dot",
+          "at": "dot-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "dot",
+          "to": "dot-south"
+        }
+      ]
+    },
+    {
+      "id": "dot-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "dot",
+          "at": "dot-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "dot",
+          "to": "dot-north"
+        }
+      ]
+    },
+    {
+      "id": "eli-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "eli",
+          "at": "eli-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "eli",
+          "to": "eli-south"
+        }
+      ]
+    },
+    {
+      "id": "eli-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "eli",
+          "at": "eli-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "eli",
+          "to": "eli-north"
+        }
+      ]
+    },
+    {
+      "id": "fen-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "fen",
+          "at": "fen-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "fen",
+          "to": "fen-south"
+        }
+      ]
+    },
+    {
+      "id": "fen-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "fen",
+          "at": "fen-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "fen",
+          "to": "fen-north"
+        }
+      ]
+    },
+    {
+      "id": "gil-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "gil",
+          "at": "gil-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "gil",
+          "to": "gil-south"
+        }
+      ]
+    },
+    {
+      "id": "gil-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "gil",
+          "at": "gil-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "gil",
+          "to": "gil-north"
+        }
+      ]
+    },
+    {
+      "id": "hal-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "hal",
+          "at": "hal-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "hal",
+          "to": "hal-south"
+        }
+      ]
+    },
+    {
+      "id": "hal-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "hal",
+          "at": "hal-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "hal",
+          "to": "hal-north"
+        }
+      ]
+    },
+    {
+      "id": "ivy-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "ivy",
+          "at": "ivy-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "ivy",
+          "to": "ivy-south"
+        }
+      ]
+    },
+    {
+      "id": "ivy-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "ivy",
+          "at": "ivy-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "ivy",
+          "to": "ivy-north"
+        }
+      ]
+    },
+    {
+      "id": "jo-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "jo",
+          "at": "jo-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "jo",
+          "to": "jo-south"
+        }
+      ]
+    },
+    {
+      "id": "jo-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "jo",
+          "at": "jo-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "jo",
+          "to": "jo-north"
+        }
+      ]
+    },
+    {
+      "id": "kit-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "kit",
+          "at": "kit-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "kit",
+          "to": "kit-south"
+        }
+      ]
+    },
+    {
+      "id": "kit-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "kit",
+          "at": "kit-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "kit",
+          "to": "kit-north"
+        }
+      ]
+    },
+    {
+      "id": "lin-north",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "lin",
+          "at": "lin-north"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "lin",
+          "to": "lin-south"
+        }
+      ]
+    },
+    {
+      "id": "lin-south",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "lin",
+          "at": "lin-south"
+        }
+      },
+      "do": [
+        {
+          "effect": "walk-to",
+          "actor": "lin",
+          "to": "lin-north"
+        }
+      ]
+    },
+    {
+      "id": "watered",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "carter",
+          "at": "well"
+        }
+      },
+      "do": [
+        {
+          "effect": "set-flag",
+          "flag": "watered",
+          "to": true
+        }
+      ]
+    }
+  ]
+}

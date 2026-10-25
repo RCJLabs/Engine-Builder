@@ -12,10 +12,14 @@ export interface Boot {
   readonly sw: boolean;
   /** walk.js (M5.8): its file beside the page, or "#eb-walk", the element of a single page that holds it. */
   readonly walk?: string;
+  /** nav.js (M6.2), for a game whose spaces have a navmesh: its file, or "#eb-nav". */
+  readonly nav?: string;
 }
 
 /** The single page's element that holds walk.js as text, run only once a Space widget draws. */
 export const WALK_ELEMENT = 'eb-walk';
+/** The single page's element that holds nav.js as text, run only once a space with a navmesh is walked. */
+export const NAV_ELEMENT = 'eb-nav';
 
 /**
  * JSON safe inside a script tag: `<`, `>` and `&` as \u escapes, so no "</script>" or "<!--" can
@@ -57,6 +61,8 @@ export interface PageParts {
   readonly installable: boolean;
   /** walk.js inside a single page, as text the runtime runs when a space is first drawn. */
   readonly walk?: string;
+  /** nav.js inside a single page (M6.2). */
+  readonly nav?: string;
 }
 
 /** The page. Parts are joined, never put in with String.replace, whose "$&" would read a pattern. */
@@ -98,6 +104,9 @@ export function gamePage(parts: PageParts): string {
     ...(parts.walk === undefined
       ? []
       : [`<script type="text/plain" id="${WALK_ELEMENT}">${inlineScript(parts.walk)}</script>`]),
+    ...(parts.nav === undefined
+      ? []
+      : [`<script type="text/plain" id="${NAV_ELEMENT}">${inlineScript(parts.nav)}</script>`]),
     // After the page's script, which as a module runs only once the page is read, this included.
     `<script type="application/json" id="eb-game">${scriptJson(parts.boot)}</script>`,
     '</body>',

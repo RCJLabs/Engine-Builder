@@ -54,7 +54,7 @@ export function Game({ boot }: { readonly boot: Boot }) {
         seed={freshSeed}
         history
         crashes
-        spaces={exportedWalk(shown.opened.world, boot.walk)}
+        spaces={exportedWalk(shown.opened.world, boot.walk, boot.nav)}
         {...(boot.sw ? { update: { ready: updateReady.value, apply: applyGameUpdate } } : {})}
       />
     </>

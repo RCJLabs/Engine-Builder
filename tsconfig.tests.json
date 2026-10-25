@@ -11,6 +11,7 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "apps/editor/e2e/**/*.ts",
+    "apps/editor/scripts/bake.ts",
     "apps/editor/test/styles.d.ts",
     "apps/editor/test/vite.d.ts",
     "packages/models/test/draco3d.d.ts",

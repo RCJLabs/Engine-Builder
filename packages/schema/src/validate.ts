@@ -24,7 +24,7 @@ import { checkModel, MODEL, type ModelRecord } from './modelTypes.ts';
 import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
-import { checkEnterSpace, type SpaceSpawns } from './worldCheck.ts';
+import { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walkers } from './worldCheck.ts';
 
 export interface RecordInput {
   readonly type: string;
@@ -93,6 +93,8 @@ export interface ValidateOptions {
    * Without it, enter-space gets only the shape check.
    */
   readonly spaces?: SpaceSpawns;
+  /** Where each placed actor stands (M6.2), for walk-to's names (E079). Without it, walk-to gets only the shape check. */
+  readonly walkers?: Walkers;
   /** Flags set and read by spaces' trigger zones and by screens (M5.8), for the flags' lint. */
   readonly flagsElsewhere?: FlagUses;
 }
@@ -162,6 +164,7 @@ export function validateRecords(
         for (const flag of kits.flagsReadBy(value)) flags.heard(flag, from);
         kits.effect(report, path, value);
         if (options.spaces) checkEnterSpace(value, options.spaces, report, path);
+        if (options.walkers) checkWalkTo(value, options.walkers, report, path);
       },
     };
     const slotsAt = kits.slotsOf(record.type, record.value);

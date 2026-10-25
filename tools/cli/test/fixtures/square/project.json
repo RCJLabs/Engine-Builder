@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "square",
+  "name": "The square",
+  "version": "0.1.0",
+  "kits": ["stats", "dialogue"],
+  "start-space": "square"
+}

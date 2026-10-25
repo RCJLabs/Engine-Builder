@@ -4,7 +4,19 @@
  * and every reference they hold, which "used by" lists beside the records'. Read again after every
  * change, once the record index is.
  */
-import { checkProjectSpaceParts, type ProjectSource, readSpaces, type SpaceUse, spaceSpawns } from '@eb/compiler';
+import {
+  checkNavFiles,
+  checkProjectSpaceParts,
+  modelFieldOf,
+  navHashes,
+  navModelsOf,
+  type ProjectSource,
+  readSpaces,
+  type SpaceJson,
+  type SpaceUse,
+  spaceSpawns,
+  walkersOf,
+} from '@eb/compiler';
 import { compareText, type Diagnostic, type FlagUses, knownFrom } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import { recordLookup } from '../records/lookup.ts';
@@ -17,7 +29,8 @@ export interface SpaceChecks {
   readonly users: ReadonlyMap<string, readonly SpaceUse[]>;
   /**
    * The flags the trigger zones set and read (M5.8), for the flags' lint; what the zones and
-   * interacts hold and each space's spawn points (M5.9), for the records' checks.
+   * interacts hold and each space's spawn points (M5.9), and where each actor stands (M6.2), for
+   * the records' checks.
    */
   readonly flags: FlagUses;
 }
@@ -34,22 +47,40 @@ export async function spaceProblems(
     return { problems: [], users: new Map(), flags: NO_FLAG_USES };
   const read = await readSpaces(source);
   const spawns = spaceSpawns(read.files);
+  const prefabs = new Map(
+    read.files.filter((f) => f.kind === 'prefab' && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson]),
+  );
+  // Any .nav counts: one that won't read is E078's alone, not an E079 at every walk-to too.
+  const navved = new Set(read.navs.map((nav) => nav.id));
+  const walkers = walkersOf(read.files, prefabs, navved);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
+  const value = (type: string, id: string) => {
+    const record = index.records.get(`${type}:${id}`);
+    return record?.unreadable === undefined ? record?.value : undefined;
+  };
   const found = checkProjectSpaceParts(read.files, {
     types: new Map(catalog.recordTypes.map((t) => [t.type, t])),
     records: recordLookup(index),
-    value: (type, id) => {
-      const record = index.records.get(`${type}:${id}`);
-      return record?.unreadable === undefined ? record?.value : undefined;
-    },
+    value,
     known: knownFrom({ ...gameChecks(game), kits: catalog.kits, ...calendar }),
     kinds: catalog.components,
     uncheckedKinds: new Set(catalog.componentFiles.filter((kind) => !catalog.components.has(kind))),
     assets: new Set(catalog.assets),
     spaces: spawns,
+    walkers,
   });
+  // A navmesh baked from the space as it stands now (M6.2), as the compiler checks it.
+  const models = navModelsOf({
+    record: (key) => value(key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)),
+    field: (type) => {
+      const file = catalog.types.get(type)?.file;
+      return file ? modelFieldOf(file) : null;
+    },
+  });
+  const hashes = await navHashes(source, read.files, read.navs, models);
+  const navs = checkNavFiles(read.navs, new Set(spawns.keys()), hashes);
   const users = new Map<string, SpaceUse[]>();
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
-  return { problems: found.diagnostics, users, flags: { ...found.flags, spawns } };
+  return { problems: [...found.diagnostics, ...navs], users, flags: { ...found.flags, spawns, walkers } };
 }

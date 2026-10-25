@@ -40,12 +40,12 @@ pnpm check        # typecheck → lint → unit tests → build → budgets → 
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
-pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js beside it (M5.8), then apps/editor/dist
+pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js and nav.js beside it (M5.8, M6.2), then apps/editor/dist
                   # (the player page at play/ and the runtime at runtime/ with it), then the 3D spike into
                   # apps/editor/dist/spikes/3d, then pnpm build:games: Space-Wrecked's web export into
                   # apps/editor/dist/games/space-wrecked (M4.12) and the trail's into apps/editor/dist/games/trail (M5.8)
-pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, walk.js, the
-                  # precache, the exports; and the runtime the service worker must keep (M5.8)
+pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, walk.js, nav.js,
+                  # the precache, the exports; and the runtime the service worker must keep (M5.8, M6.2)
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
@@ -58,6 +58,8 @@ pnpm eb new <folder> --template <id> [--name <text>]  # a project from a templat
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
 pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
+pnpm bake <project> <space>                            # spaces/<space>.nav baked in Node, as Bake navigation bakes it (M6.2);
+                                                       # give the project as an absolute path under pnpm -C
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -98,7 +100,7 @@ apps/editor/           the editor PWA
                        lookup.ts (a record and its value by key, for the screens' and the spaces' checks, M5.2)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
-                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField) in the record form; M3.2's
+                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField, WalkToFields since M6.2) in the record form; M3.2's
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
                        (a kit's effect, its form drawn from its fields, M3.3); ScenesSection (M3.11)
   src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
@@ -188,7 +190,15 @@ apps/editor/           the editor PWA
                        (latch: touching or flush within 12 px; dropBy), snapView.ts (each object's box as drawn, the
                        latch's wires); the toolbar's Grid step and Drop; M6.1 (D73): figureLook.ts (an NPC's look as
                        plain values: its figure, height and chest), figureView.ts (the figure in three; figuresIn, the
-                       hook's figures())
+                       hook's figures()); M6.2 (D74): navOverlay.ts (Show navigation's lines, the hook's nav())
+  src/nav/             navmeshes in the editor (M6.2, D74): geometry.ts (the solids and the terrain as Recast's soup of
+                       triangles), lib.ts (Recast and Detour: a soup baked, a navmesh opened, paths, closest points, the
+                       crowd), entry.ts (nav.js's, built by vite.nav.config.ts beside walk.js); bake.worker.ts,
+                       protocol.ts and bakeClient.ts (the bake off the page, running the nav.js in runtime/);
+                       bakeProject.ts (a space baked from a project's files, for pnpm bake and the tests, with
+                       scripts/bake.ts); navState.ts, navActions.ts (Bake navigation as a step of undo, the row's words)
+                       and NavTools (the Scene toolbar's Navigation row); nav.test.ts, navChecks.test.ts (E076, E078,
+                       E079 and W147 in the editor, as eb validate gives them)
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -230,7 +240,12 @@ apps/editor/           the editor PWA
                        4 ms a frame), farModels.ts (the far, instanced at their coarsest level), fog.ts; streaming.test.ts
                        walks the moor headless, and the rest have their own tests; M6.1 (D73): facing.ts (an NPC turned
                        to face the player and back), npcView.ts (the NPCs built, turned, and the hook's npcs(), read
-                       from three), npcs.test.ts (the figure, its capsule and its Talk at its chest)
+                       from three), npcs.test.ts (the figure, its capsule and its Talk at its chest); M6.2 (D74):
+                       goals.ts (each object's place, through prefabs), crowdWalk.ts (Detour's crowd walking the NPCs
+                       built, their arrivals), npcTell.ts (world/npcs-at through the outbox), tapPath.ts (a tap's
+                       corners as a push), tapMarker.ts (its ring; a tap's ray, screenOf's projection), navStage.ts
+                       (the walk's navigation: nav.js loaded, the hook's nav()); navWalk.test.ts, and square.test.ts,
+                       the square walked headless through Recast with the sim hearing each arrival
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -260,7 +275,8 @@ apps/editor/           the editor PWA
                        game.js and game.css, its worker inlined: boot.ts (#eb-game read, walk.js named, M5.8),
                        Game.tsx (the pack played in the shell, saves under its edition, spaces walked by walk.js),
                        pwa.ts (./sw.js and Reload to update); game/index.html only builds it, as Export writes its
-                       own page; vite.walk.config.ts builds src/walk/ into dist-game/walk.js beside it (M5.8)
+                       own page; vite.walk.config.ts builds src/walk/ into dist-game/walk.js beside it (M5.8), and
+                       vite.nav.config.ts src/nav/entry.ts into dist-game/nav.js (M6.2)
   src/export/          the Project panel's Export section (M4.10): exportForm.ts (export.json as a type file, its
                        edits), ExportSection.tsx (the form, a button a target, the report) and its lazy
                        ExportSlot; exporting.ts (packs from the Play worker, the runtime from runtime/,
@@ -352,9 +368,12 @@ apps/editor/           the editor PWA
                        starter kit to the millimetre, the grid at 1 m and Drop, by mouse and by touch;
                        fordHelpers.ts, ford.spec.ts and fordPhone.spec.ts are M6.1's, the ford walked by keys, a pad and
                        touch, each NPC talked to and turned, the walk paused under a talk and the bags on the HUD kept by a
-                       save; npcEditor.spec.ts, Ada made in the editor alone at 1280 and 390 wide and talked to in Play
+                       save; npcEditor.spec.ts, Ada made in the editor alone at 1280 and 390 wide and talked to in Play;
+                       squareHelpers.ts, square.spec.ts and squarePhone.spec.ts are M6.2's, the square walked by keys
+                       (Tam sent to the well, the twelve across without meeting, a save mid-walk) and crossed by a tap
+                       at 360, 390 and sideways; navEditor.spec.ts, a stall moved, W147, Bake navigation, at 1280 and 390
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 10)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 11)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -370,7 +389,9 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        world/trigger checked and run, world/entered, world.fired), joined only to a game with spaces;
                        M5.9 (D71): the slice at version 2 (types.ts: the space, where the player stood, the spawn
                        arrived at, what was taken), actions.ts (world/use, world/at, enter-space), format 10's uses,
-                       spawn points and start (packWorld.ts, worldDataOf for format 9), withPackWorld for headless runs
+                       spawn points and start (packWorld.ts, worldDataOf for format 9), withPackWorld for headless runs;
+                       M6.2 (D74): npcs.ts (walk-to, world/npcs-at, world/npc-arrived, world.npc-at), the slice at
+                       version 3 with npcs, format 11's navmeshes and actors (asFormat10 when there are none)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -417,7 +438,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        ENGINE_DATA; M5.6: foliageTypes.ts (foliage, its presets; E074), an engine type in
                        ENGINE_DATA; M5.9: the interact component kind, enter-space in effect.ts, worldCheck.ts (E076),
                        and what zones and uses hold heard by the kits' checks (flagCheck.ts's HeldElsewhere); M6.1:
-                       npcFields.ts (an actor's model and figure, and its talk, faction and carries with their kits); not pure
+                       npcFields.ts (an actor's model and figure, and its talk, faction and carries with their kits); M6.2:
+                       walk-to in effect.ts, worldCheck.ts's checkWalkTo (E079); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -450,7 +472,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        flagUses.ts (the flags zones and screens use, for W108 to W110), placedModels.ts; M5.9: world.ts
                        (format 10's uses, spaceSpawns, the start), spaceParts.ts (E076 in zones and uses, and what
                        they hold for the kits' checks), projectCheck.ts (E075); M6.1:
-                       npcPlaces.ts (E077: an actor in one place) and world.ts's Talk uses; not pure
+                       npcPlaces.ts (E077: an actor in one place) and world.ts's Talk uses; M6.2: navInputs.ts (the
+                       solids and terrain a bake reads, and their hash), navFiles.ts (a .nav's header: E078, W147),
+                       npcPlaces.ts's walkersOf (E079's names), world.ts's navmeshes and actors; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -597,7 +621,11 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        zone and a chest, written only by `pnpm make:moor` from moor.ts (makeMoor.ts) and held to it
                        byte for byte by moor.test.ts; ford/, M6.1's gate: a smith and a ferry-keeper drawn as figures, a
                        warden drawn as the kit's pillar and a drover with no talk, a horseshoe passed between their bags,
-                       which ford.test.ts plays through the session and breaks once for E077
+                       which ford.test.ts plays through the session and breaks once for E077; square/, M6.2's gate: a
+                       market with three stalls, a well and a gate, a carter whose talk sends them to the well and twelve
+                       villagers a sheet sends between marks, its navmesh baked by `pnpm bake`, which square.test.ts
+                       plays through the session and breaks once each for W147, E078 and E079;
+                       saves/glen-world-v2.json, a save by the world module's version 2 that must keep loading
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
@@ -623,7 +651,7 @@ tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 tools/budgets/         pnpm budgets (M5.7, D69): measure.ts (a chunk's static imports, the start, the precache, gzip
-                       -9 a file), budgets.ts (budgets.json read, the five sizes measured and held to it), cli.ts;
+                       -9 a file), budgets.ts (budgets.json read, the eight sizes measured and held to it), cli.ts;
                        test/budgets.test.ts on a made-up build, and budgets.json to its readings' margins
 budgets.json           each size and count budget with its reading, date and what it measures (M5.7)
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

@@ -32,6 +32,7 @@ import {
   severityOf,
   type Usage,
   validateRecords,
+  type Walkers,
 } from '@eb/schema';
 import { type Catalog, recordFile } from '../forms/catalog.ts';
 import type { GameChecks } from '../scripts/gameState.ts';
@@ -261,8 +262,12 @@ export async function updateIndex(
   // What the zones and interacts hold changed (M5.9): every record again, as the kits' checks hear it all.
   const held = heldKey(flagsElsewhere) !== heldKey(before.flagsElsewhere);
   const checking = grounds === before.grounds && !held ? dirty : new Set(records.keys());
-  // A record's enter-space names a space and a spawn point (E076): the spaces' read gives them (M5.9).
-  const spawned = flagsElsewhere?.spawns ? { spaces: flagsElsewhere.spawns } : {};
+  // A record's enter-space names a space and a spawn point (E076): the spaces' read gives them (M5.9),
+  // and where each actor stands for a walk-to (E079, M6.2).
+  const spawned = {
+    ...(flagsElsewhere?.spawns ? { spaces: flagsElsewhere.spawns } : {}),
+    ...(flagsElsewhere?.walkers ? { walkers: flagsElsewhere.walkers } : {}),
+  };
   const checks = flagsElsewhere ? { ...game, flagsElsewhere, ...spawned } : game;
   check(records, checking, catalog, checks);
   // Read after the check, so the records just checked count by what they name now.
@@ -292,21 +297,30 @@ export const usesKey = (uses: FlagUses | undefined): string => {
   return JSON.stringify([listed(uses.set), listed(uses.read), heldKey(uses)]);
 };
 
-/** What the zones and interacts hold (M5.9), as text: the spaces are walked in one order, so it is the same each read. */
+/**
+ * What the zones and interacts hold (M5.9), each space's spawn points and where each actor stands
+ * (M6.2), as text: the spaces are walked in one order, so it is the same each read. Any of them
+ * changing checks the records again, a space with no zone or use at all as much as any.
+ */
 const heldKey = (uses: FlagUses | undefined): string => {
-  const held = uses?.held;
-  if (!held) return '';
+  if (!uses) return '';
+  const held = uses.held ?? { effects: [], conditions: [] };
   const effects = held.effects.map(({ file, path, effect }) => [file, path, effect]);
   const conditions = held.conditions.map(({ file, sound }) => [file, sound.at(''), sound.tree]);
-  const spawns = [...(uses?.spawns ?? [])].sort((a, b) => (a[0] < b[0] ? -1 : 1));
-  return JSON.stringify([effects, conditions, spawns]);
+  const spawns = [...(uses.spawns ?? [])]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([space, points]) => [space, [...points].sort()]);
+  const walkers = [...(uses.walkers ?? [])]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([actor, w]) => [actor, w.space, w.navmesh, [...w.objects].sort()]);
+  return JSON.stringify([effects, conditions, spawns, walkers]);
 };
 
 function check(
   records: Map<string, IndexedRecord>,
   dirty: ReadonlySet<string>,
   catalog: Catalog,
-  game: GameChecks & { readonly flagsElsewhere?: FlagUses; readonly spaces?: SpaceSpawns },
+  game: GameChecks & { readonly flagsElsewhere?: FlagUses; readonly spaces?: SpaceSpawns; readonly walkers?: Walkers },
 ): void {
   if (dirty.size === 0) return;
   // As the compiler does: a record of a type whose file has problems isn't checked, and one of a

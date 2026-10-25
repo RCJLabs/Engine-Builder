@@ -17,7 +17,7 @@ import {
 } from '@eb/core';
 import type { Report } from './checkValue.ts';
 import type { SoundCondition } from './conditions.ts';
-import type { SpaceSpawns } from './worldCheck.ts';
+import type { SpaceSpawns, Walkers } from './worldCheck.ts';
 
 interface Place {
   /** The record, as "type:id". */
@@ -60,6 +60,8 @@ export interface FlagUses {
   readonly held?: HeldElsewhere;
   /** Each space's spawn points (M5.9), for an enter-space in a record (E076), where the spaces are read apart. */
   readonly spawns?: SpaceSpawns;
+  /** Where each placed actor stands (M6.2), for a walk-to in a record (E079), read with the spaces. */
+  readonly walkers?: Walkers;
 }
 
 export class FlagChecks {

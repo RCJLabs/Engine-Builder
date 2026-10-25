@@ -3,7 +3,8 @@
  * after each step the view the page draws from. It runs where the game's scripts run, in a worker,
  * and gives back only JSON. A button can only ask for an action the game offers: one it doesn't is
  * refused here before the sim sees it, as the sim would refuse it. The one action no button asks
- * for is the stage's world/trigger (M5.8), never on offer, which the sim's own checks decide.
+ * for are the stage's (world/trigger since M5.8, world/npcs-at since M6.2), never on offer, which the
+ * sim's own checks decide.
  */
 import {
   type Action,
@@ -31,8 +32,11 @@ import type { Entry, Shown, View, Wants, WorldView } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
 
-/** What the stage sends as the character walks into a zone (M5.8), uses what it faces and stands (M5.9). */
-const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`]);
+/**
+ * What the stage sends as the character walks into a zone (M5.8), uses what it faces and stands
+ * (M5.9), and as its NPCs walk and arrive (M6.2).
+ */
+const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`, `${WORLD}/npcs-at`]);
 
 export interface Play {
   readonly view: View;
@@ -181,8 +185,9 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
 function worldOf(state: GameState): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
-  const { space, at, arrive, taken } = slice;
-  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken };
+  const { space, at, arrive, taken, npcs } = slice;
+  const walking = npcs && Object.keys(npcs).length > 0 ? { npcs } : {};
+  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken, ...walking };
 }
 
 /** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */

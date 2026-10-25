@@ -1,7 +1,8 @@
 /**
  * The NPCs in the walk's view (M6.1, D73, docs/specs/npcs.md#talking): which built objects are placed
  * actors, each turned to face the player as its Talk is used and back once the walk goes on, and
- * what the hook says of them. The turns are facing.ts's arithmetic, laid on the nodes here.
+ * what the hook says of them. The turns are facing.ts's arithmetic, laid on the nodes here. Since
+ * M6.2 (D74) an NPC the crowd walks is put where its agent is, facing the way it walks.
  */
 import { eachPlaced } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
@@ -44,6 +45,7 @@ export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
   const placed = new Map<string, number>();
   const ahead = new THREE.Vector3();
   const at = new THREE.Vector3();
+  const goal = new THREE.Vector3();
 
   /** Its yaw in the world, in degrees: where its −z points, as solids.ts's yawOf reads a turn. */
   const yawOf = (node: THREE.Object3D) => {
@@ -61,6 +63,21 @@ export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
 
   return {
     isNpc: (path: string) => npcs.has(path),
+    /** The NPCs drawn now: their cells are built (M5.10). */
+    built: (): Set<string> => new Set([...npcs.keys()].filter((path) => nodeAt(root(), path))),
+    /** Where the crowd has it (M6.2): its feet in the world, and its yaw when it walks, which a Talk turns back to. */
+    place(path: string, feet: Vec3, yaw: number | undefined): void {
+      const node = npcs.has(path) ? nodeAt(root(), path) : undefined;
+      if (!node?.parent) return;
+      node.parent.updateWorldMatrix(true, false);
+      node.position.copy(node.parent.worldToLocal(goal.set(feet[0], feet[1], feet[2])));
+      if (yaw !== undefined && !facing.turn(performance.now())) {
+        node.updateWorldMatrix(true, false);
+        node.rotateOnWorldAxis(UP, (yaw - yawOf(node)) * DEG);
+        placed.set(path, yaw);
+      }
+      node.updateMatrixWorld(true);
+    },
     /** Its Talk used: the NPC turns from where it faces toward the player's feet. */
     face(path: string, feet: Vec3, now: number): void {
       const node = npcs.has(path) ? nodeAt(root(), path) : undefined;

@@ -1,6 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig } from 'vite';
+import { GAME_DIR, importMetaUrl, runtimeScript } from './vite.classic.ts';
 import { dracoDefaultsOff } from './vite.draco.ts';
 
 /**
@@ -10,55 +10,13 @@ import { dracoDefaultsOff } from './vite.draco.ts';
  * dist-game/ beside the game runtime, after it, and files.json gains its name: one folder is one
  * runtime, for Export and for eb export's --runtime.
  */
-const outDir = resolve(import.meta.dirname, 'dist-game');
-
-function walkList(): Plugin {
-  return {
-    name: 'eb-walk-list',
-    apply: 'build',
-    enforce: 'post',
-    generateBundle(_options, bundle) {
-      const made = Object.keys(bundle).filter((name) => !name.endsWith('.map'));
-      if (made.length !== 1 || made[0] !== 'walk.js') {
-        this.error(`walk.js must be one file; the build made ${made.join(', ')}`);
-      }
-      const list = resolve(outDir, 'files.json');
-      if (!existsSync(list))
-        this.error('No game runtime in dist-game/: build it first (vite build -c vite.game.config.ts)');
-      const runtime = JSON.parse(readFileSync(list, 'utf8')) as Record<string, unknown>;
-      this.emitFile({
-        type: 'asset',
-        fileName: 'files.json',
-        source: `${JSON.stringify({ ...runtime, walk: 'walk.js' }, null, 2)}\n`,
-      });
-    },
-  };
-}
-
-/**
- * A classic script has no import.meta: rolldown leaves `{}` there, and three's KTX2Loader would make
- * its decoders' URLs against "undefined" and throw as walk.js runs. The page's own address stands in,
- * after Vite has made those URLs data URLs (assetsInlineLimit), so it is never fetched against.
- */
-function importMetaUrl(): Plugin {
-  return {
-    name: 'eb-import-meta-url',
-    enforce: 'post',
-    transform(code) {
-      return code.includes('import.meta.url')
-        ? { code: code.replaceAll('import.meta.url', 'self.location.href'), map: null }
-        : null;
-    },
-  };
-}
-
 export default defineConfig({
   publicDir: false,
-  plugins: [dracoDefaultsOff(), importMetaUrl(), walkList()],
+  plugins: [dracoDefaultsOff(), importMetaUrl(), runtimeScript('walk.js', 'walk')],
   // Library builds leave process.env alone for their users; walk.js is run as it is.
   define: { 'process.env.NODE_ENV': JSON.stringify('production') },
   build: {
-    outDir,
+    outDir: GAME_DIR,
     // The game runtime is already there.
     emptyOutDir: false,
     // Every decoder's wasm goes inside the script, which a single-file export holds whole.

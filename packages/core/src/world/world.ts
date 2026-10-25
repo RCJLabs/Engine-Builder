@@ -10,6 +10,7 @@
 import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
+import { npcsAt, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
@@ -37,22 +38,29 @@ export function worldModule(world: WorldData): Module {
   return defineModule<WorldSlice>({
     id: WORLD,
     version: WORLD_VERSION,
-    // Version 1 had only `fired`: nothing was taken, and the player is in the start.
-    migrate: { 2: (slice) => ({ ...(slice as object), taken: [], space: world.start }) },
-    init: () => ({ fired: [], taken: [], space: world.start }),
+    migrate: {
+      // Version 1 had only `fired`: nothing was taken, and the player is in the start.
+      2: (slice) => ({ ...(slice as object), taken: [], space: world.start }),
+      // Version 2 had no NPCs walking: each stands where it was placed.
+      3: (slice) => ({ ...(slice as object), npcs: {} }),
+    },
+    init: () => ({ fired: [], taken: [], space: world.start, npcs: {} }),
     events: {
       entered: { args: PLACE, label: 'The player enters a trigger zone' },
       used: { args: PLACE, label: 'The player uses something' },
       arrived: { args: { space: TEXT }, label: 'The player arrives in a space' },
+      'npc-arrived': { args: { actor: TEXT, at: TEXT }, label: 'An NPC arrives where it was sent' },
     },
     actions: {
       // None is ever offered: only the stage sends them, as the character walks, uses and stands.
       trigger: { run: (ctx, action) => trigger(world, ctx, action), options: () => [] },
       use: { run: (ctx, action) => use(world, ctx, action), options: () => [] },
       at: { run: (ctx, action) => at(ctx, action), options: () => [] },
+      'npcs-at': { run: (ctx, action) => npcsAt(world, ctx, action), options: () => [] },
     },
     effects: {
       'enter-space': { run: (ctx, effect) => enterSpace(world, ctx, effect) },
+      'walk-to': { run: (ctx, effect) => walkTo(world, ctx, effect) },
     },
     facts: {
       fired: {
@@ -72,6 +80,15 @@ export function worldModule(world: WorldData): Module {
         domain: BOOL,
         label: 'the player is in the space',
         read: (view, args) => typeof args.space === 'string' && view.state.space === args.space,
+      },
+      'npc-at': {
+        args: { actor: TEXT },
+        domain: TEXT,
+        label: 'where the NPC last arrived',
+        read: (view, args) =>
+          typeof args.actor === 'string' && Object.hasOwn(view.state.npcs, args.actor)
+            ? view.state.npcs[args.actor]?.arrived
+            : undefined,
       },
     },
   });

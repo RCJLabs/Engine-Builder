@@ -47,7 +47,7 @@ function versionFile(): Plugin {
 
 /**
  * The runtime of an exported game (M4.10), built first by vite.game.config.ts into dist-game/, and
- * walk.js beside it (M5.8), are served at runtime/ beside the editor, so the service worker keeps
+ * walk.js and nav.js beside it (M5.8, M6.2), are served at runtime/ beside the editor, so the service worker keeps
  * them and Export, and walking a space in play, work offline.
  * A dev server has none until it is built; Export then says so.
  */
@@ -60,11 +60,17 @@ function gameRuntime(): Plugin {
       const list = resolve(dir, 'files.json');
       if (!existsSync(list))
         this.error('No game runtime in dist-game/: build it first (vite build -c vite.game.config.ts)');
-      const { files, walk } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[]; walk?: string };
+      const { files, walk, nav } = JSON.parse(readFileSync(list, 'utf8')) as {
+        files: string[];
+        walk?: string;
+        nav?: string;
+      };
       // walk.js too (M5.8): the Play panel and the player page walk spaces with it.
       if (walk === undefined)
         this.error('No walk.js in dist-game/: build it first (vite build -c vite.walk.config.ts)');
-      for (const file of ['files.json', ...files, walk]) {
+      // And nav.js (M6.2): NPCs walk with it, and Bake navigation bakes with it.
+      if (nav === undefined) this.error('No nav.js in dist-game/: build it first (vite build -c vite.nav.config.ts)');
+      for (const file of ['files.json', ...files, walk, nav]) {
         this.emitFile({ type: 'asset', fileName: `runtime/${file}`, source: readFileSync(resolve(dir, file)) });
       }
     },

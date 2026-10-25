@@ -12,6 +12,7 @@ import * as THREE from 'three/webgpu';
 import { noteError } from '../app/state.ts';
 import type { Look } from '../environment/look.ts';
 import type { LiveModels } from '../models/liveTypes.ts';
+import type { NavLook } from '../nav/protocol.ts';
 import { frameStats } from '../perf/frames.ts';
 import { createFrameClock } from '../perf/stepDown.ts';
 import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
@@ -26,6 +27,7 @@ import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf,
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
 import { lodsOf } from './meshes.ts';
+import { createNavOverlay } from './navOverlay.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { perfSummary } from './perfSummary.ts';
 import { castShadows, fitShadowsTo, sunShadows } from './shadows.ts';
@@ -75,6 +77,8 @@ export interface View {
   showTerrain(settings: TerrainJson | null, files: TerrainFiles | null): string | null;
   /** The foliage types the terrain lists (M5.6), in its order: its channels. */
   showFoliage(list: readonly FoliageShown[]): void;
+  /** The navmesh over the view, or none (M6.2). */
+  showNav(look: NavLook | null): void;
   /** The terrain's brushes and strokes (M5.3), over rays from the view's points. */
   readonly terrain: Pick<TerrainView, 'start' | 'to' | 'end' | 'ring' | 'grid' | 'height'>;
   select(ids: readonly string[]): void;
@@ -143,6 +147,7 @@ export async function createView(
     shadows: tier.foliageShadows && tier.shadowMap > 0,
   });
   scene.add(terrain.root, foliage.root);
+  const navOverlay = createNavOverlay(scene, () => draw());
   // Placed records' names (M5.2), drawn by the page over the canvas: sharp at any size, and words a
   // screen reader skips, as the outliner names the same objects.
   const labelLayer = document.createElement('div');
@@ -397,6 +402,7 @@ export async function createView(
     foliage: () => foliage.summary(),
     plantsNear: foliage.near,
     perf,
+    nav: () => navOverlay.summary(),
   };
   setHook(hook);
 
@@ -483,6 +489,7 @@ export async function createView(
     showFoliage(list) {
       foliage.show(list);
     },
+    showNav: (look) => navOverlay.show(look),
     terrain,
     select(ids) {
       chosen = ids;
@@ -525,6 +532,7 @@ export async function createView(
       wires.dispose();
       terrain.dispose();
       foliage.dispose();
+      navOverlay.dispose();
       environment.dispose();
       models.dispose();
       grid.dispose();

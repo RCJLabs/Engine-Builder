@@ -1,0 +1,72 @@
+{
+  "format": 1,
+  "game": "glen",
+  "edition": "test",
+  "build": "3a433a6b9e520c30",
+  "savedAt": 1000,
+  "summary": {
+    "turn": 3,
+    "line": "Rope 1 · Lamp 0"
+  },
+  "snapshot": {
+    "kernel": {
+      "seed": "glen",
+      "step": 0,
+      "modes": [
+        {
+          "id": "out"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "flag": 1,
+        "glen": 1,
+        "inventory": 2,
+        "logic": 1,
+        "quests": 2,
+        "sheet": 1,
+        "world": 2
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {}
+    },
+    "sheet": {
+      "fired": []
+    },
+    "inventory": {
+      "bag": {},
+      "bags": {}
+    },
+    "quests": {
+      "quests": {}
+    },
+    "world": {
+      "fired": [],
+      "taken": [],
+      "space": "glen"
+    },
+    "glen": {}
+  },
+  "log": [
+    {
+      "type": "world/use",
+      "space": "glen",
+      "object": "rope"
+    },
+    {
+      "type": "world/use",
+      "space": "glen",
+      "object": "bothy-door"
+    },
+    {
+      "type": "world/at",
+      "space": "bothy",
+      "feet": [0.5, 0, -0.2],
+      "yaw": 12.5
+    }
+  ],
+  "hash": "0b13295881c21f0c",
+  "check": "05463c21c812bca2"
+}

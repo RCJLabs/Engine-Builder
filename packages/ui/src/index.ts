@@ -15,8 +15,9 @@ export {
   placeStyle,
   scrollFor,
 } from './render/mapLayout.ts';
-export { placingIn } from './render/placing.ts';
+export { npcsIn, placingIn } from './render/placing.ts';
 export {
+  type NpcGoal,
   type Sent,
   type SpaceAsk,
   type SpaceDrawn,

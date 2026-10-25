@@ -23,12 +23,17 @@ import { EXPORT_FILE } from './exportFile.ts';
 import { screenReads, withScreens } from './flagUses.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
 import { checkModels } from './models.ts';
+import { checkNavFiles } from './navFiles.ts';
+import { navHashes, navModelsOf } from './navInputs.ts';
+import { walkersOf } from './npcPlaces.ts';
+import { modelFieldOf } from './placedModels.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
 import { readScripts } from './scripts.ts';
 import type { ProjectSource } from './source.ts';
 import { checkProjectSpaceParts } from './spaceParts.ts';
+import type { SpaceJson } from './spaceShape.ts';
 import { atLines, checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
 import { packWorld, spaceSpawns } from './world.ts';
@@ -97,6 +102,13 @@ export async function compileProject(
   // Each space's spawn points, for enter-space's names (E076), and the space a game starts in (E075).
   const spawns = spaceSpawns(spaces.files);
   const start = startOf(files.startSpace, spawns);
+  // Where each placed actor stands and whether its space has a navmesh, for walk-to's names (E079, M6.2).
+  const prefabs = new Map(
+    spaces.files.filter((f) => f.kind === 'prefab' && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson]),
+  );
+  // Any .nav counts: one that won't read is E078's alone, not an E079 at every walk-to too.
+  const navved = new Set(spaces.navs.map((nav) => nav.id));
+  const walkers = walkersOf(spaces.files, prefabs, navved);
   // Before the records: a trigger zone's flags and a screen's count for the flags' lint (M5.8).
   const parts = checkProjectSpaceParts(spaces.files, {
     types: new Map(known.types.map((t) => [t.type, t])),
@@ -107,6 +119,7 @@ export async function compileProject(
     uncheckedKinds: components.unchecked,
     assets: files.assets,
     spaces: spawns,
+    walkers,
   });
   const screens = screenReads(grounds.facts);
   const uiDiagnostics = checkProjectUi(ui, {
@@ -127,6 +140,7 @@ export async function compileProject(
     assets: files.assets,
     flagsElsewhere: withScreens(parts.flags, screens.found),
     spaces: spawns,
+    walkers,
   });
   // What a zone or an interact holds is reported at its space's line (M5.9), a scene's at its own.
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));
@@ -134,6 +148,17 @@ export async function compileProject(
   diagnostics.push(...checkProjectSpaces(spaces.files, spaces.terrains), ...parts.diagnostics);
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));
+  // A navmesh baked from the space as it stands now (M6.2): its hash against the inputs' now.
+  const recordOf = (key: string) => {
+    const colon = key.indexOf(':');
+    return recordValues(records)(key.slice(0, colon), key.slice(colon + 1));
+  };
+  const field = (type: string) => {
+    const data = known.data.get(type);
+    return data ? modelFieldOf(data.file) : null;
+  };
+  const hashes = await navHashes(source, spaces.files, spaces.navs, navModelsOf({ record: recordOf, field }));
+  diagnostics.push(...checkNavFiles(spaces.navs, new Set(spawns.keys()), hashes));
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {
     types: new Set(known.types.map((t) => t.type)),
@@ -159,10 +184,8 @@ export async function compileProject(
     : await packWorld(source, {
         files: spaces.files,
         terrains: spaces.terrains,
-        record: (key) => {
-          const colon = key.indexOf(':');
-          return recordValues(records)(key.slice(0, colon), key.slice(colon + 1));
-        },
+        navs: spaces.navs,
+        record: recordOf,
         types: known.data,
         kinds: components.kinds,
         known: kitted,

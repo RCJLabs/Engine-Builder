@@ -7,9 +7,13 @@
  * three takes antialiasing only as its renderer is made. Keyed by the file, so another file starts
  * its own view.
  */
+import { navHeader, navmeshOf } from '@eb/compiler';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { noteError } from '../app/state.ts';
 import { editing } from '../editing/current.ts';
 import { lookOf } from '../environment/look.ts';
+import { lookInWorker } from '../nav/bakeClient.ts';
+import { navDrawn, showNav } from '../nav/navState.ts';
 import { PerfOverlay } from '../perf/PerfOverlay.tsx';
 import { autoPick, quality, readAuto, statsShown, stepDown, tierNow } from '../perf/state.ts';
 import { TIERS } from '../perf/tiers.ts';
@@ -57,6 +61,8 @@ export function SceneView(props: {
   foliage?: LiveSpace['foliage'];
   /** Placed actors without a model, drawn as the engine's figure (M6.1). */
   figures?: FigureOf;
+  /** A space's navmesh file (M6.2), drawn while Show navigation is on. */
+  nav?: Uint8Array | null;
 }) {
   const { space, prefabs, names, terrain, environment, models, foliage } = props;
   const host = useRef<HTMLDivElement>(null);
@@ -158,6 +164,32 @@ export function SceneView(props: {
   }, [ready, tier]);
 
   useEffect(showLatest, [space, prefabs, names, terrain, environment, models, foliage]);
+  // Show navigation (M6.2): the navmesh's triangles from the bake worker, for the file as it is.
+  const navFile = props.nav ?? null;
+  const showing = showNav.value;
+  useEffect(() => {
+    const made = view.current;
+    if (!made) return;
+    const header = showing && navFile ? navHeader(navFile) : null;
+    if (!header || !navFile) {
+      made.showNav(null);
+      navDrawn.value = null;
+      return;
+    }
+    let gone = false;
+    lookInWorker(navmeshOf(navFile)).then(
+      (look) => {
+        if (gone) return;
+        made.showNav(look);
+        navDrawn.value = { path: props.open.path, look };
+      },
+      (error: unknown) =>
+        noteError(`The navmesh couldn’t be drawn: ${error instanceof Error ? error.message : String(error)}`),
+    );
+    return () => {
+      gone = true;
+    };
+  }, [navFile, showing, backend]);
   const brush = brushKind.value;
   useEffect(() => {
     if (brush === null) view.current?.terrain.ring(null, 0);

@@ -29,6 +29,12 @@ export interface WorldUse {
 export type Triggers = Readonly<Record<string, Readonly<Record<string, TriggerZone>>>>;
 export type Uses = Readonly<Record<string, Readonly<Record<string, WorldUse>>>>;
 
+/** Where an actor is placed (M6.2): the space it stands in and its object's path there. */
+export interface Placed {
+  readonly space: string;
+  readonly path: string;
+}
+
 /** What the module is built from: the pack's zones and uses, each space's spawn points, and the start. */
 export interface WorldData {
   readonly triggers: Triggers;
@@ -37,6 +43,8 @@ export interface WorldData {
   readonly spawns: Readonly<Record<string, readonly string[]>>;
   /** The space a new game starts in. */
   readonly start: string;
+  /** Format 11 (M6.2): each placed actor's space and path, so walk-to knows where it walks. */
+  readonly actors: Readonly<Record<string, Placed>>;
 }
 
 /** Where the player stood as the stage last said: in a space, the feet's place and the way they faced. */
@@ -45,6 +53,19 @@ export interface StoodAt {
   readonly feet: readonly [number, number, number];
   /** Degrees, as the stage turns: 0 faces −z. */
   readonly yaw: number;
+}
+
+/**
+ * An NPC as the sim keeps it (M6.2, D74): its space, where the stage last said it stood, the object
+ * it is walking to and the one it last arrived at. One never sent anywhere is where it was placed.
+ */
+export interface NpcPlace {
+  readonly space: string;
+  readonly feet?: readonly [number, number, number];
+  /** Degrees, as the stage turns: 0 faces −z. */
+  readonly yaw?: number;
+  readonly goal?: string;
+  readonly arrived?: string;
 }
 
 export interface WorldSlice {
@@ -57,12 +78,14 @@ export interface WorldSlice {
   readonly arrive?: string;
   /** The objects taken, as "space/object", sorted. */
   readonly taken: readonly string[];
+  /** Version 3 (M6.2): the NPCs sent somewhere or said to stand somewhere, by actor. */
+  readonly npcs: Readonly<Record<string, NpcPlace>>;
 }
 
-/** The slice's shape: 2 since M5.9, which added where the player is and what was taken. */
-export const WORLD_VERSION = 2;
+/** The slice's shape: 2 since M5.9, which added where the player is and what was taken; 3 since M6.2, the NPCs. */
+export const WORLD_VERSION = 3;
 
 /** A world with no spaces' data: what a check builds the module from when only its names matter. */
-export const EMPTY_WORLD: WorldData = { triggers: {}, uses: {}, spawns: {}, start: '' };
+export const EMPTY_WORLD: WorldData = { triggers: {}, uses: {}, spawns: {}, start: '', actors: {} };
 
 export const placeKey = (space: string, object: string) => `${space}/${object}`;

@@ -1,0 +1,10 @@
+{
+  "name": "Bea",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.62,
+    "clothes": "#4a6378",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

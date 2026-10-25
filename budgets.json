@@ -20,16 +20,22 @@
       "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders"
     },
     "walk": {
-      "budget": 2667511,
-      "reading": 2540487,
-      "read": "2026-10-24",
+      "budget": 2677945,
+      "reading": 2550423,
+      "read": "2026-10-25",
       "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space"
     },
+    "nav": {
+      "budget": 241910,
+      "reading": 230390,
+      "read": "2026-10-25",
+      "of": "zlib's gzip at level 9 of runtime/nav.js (M6.2): Recast and Detour through recast-navigation-js, their wasm inline, loaded beside walk.js only for a space with a navmesh, and by Bake navigation's worker"
+    },
     "precache": {
-      "budget": 13438250,
-      "reading": 12798333,
-      "read": "2026-10-24",
-      "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8"
+      "budget": 14457502,
+      "reading": 13769049,
+      "read": "2026-10-25",
+      "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2"
     },
     "space-wrecked-web": {
       "budget": 540000,

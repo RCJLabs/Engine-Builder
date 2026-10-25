@@ -28,5 +28,12 @@ export function withScreens(zones: FlagUses, screens: ReadonlyMap<string, Readon
   for (const from of [zones.read, screens]) {
     for (const [flag, where] of from) read.set(flag, new Set([...(read.get(flag) ?? []), ...where]));
   }
-  return { set: zones.set, read, ...(zones.held ? { held: zones.held } : {}) };
+  // The spaces' spawn points and walkers (M5.9, M6.2) go along: the editor's records check against them.
+  return {
+    set: zones.set,
+    read,
+    ...(zones.held ? { held: zones.held } : {}),
+    ...(zones.spawns ? { spawns: zones.spawns } : {}),
+    ...(zones.walkers ? { walkers: zones.walkers } : {}),
+  };
 }

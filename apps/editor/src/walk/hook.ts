@@ -7,6 +7,7 @@ import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { ViewKind } from './cameras.ts';
+import type { WalkNav } from './navStage.ts';
 import type { NpcSeen } from './npcView.ts';
 
 /** What the walk has built and drawn of its space (M5.10, docs/specs/streaming.md#the-hook). */
@@ -65,6 +66,10 @@ export interface WalkHook {
   cells(): WalkCells;
   /** The NPCs built (M6.1): each one's actor, what it draws as, and the yaws it faces and was placed at. */
   npcs(): readonly NpcSeen[];
+  /** The navigation (M6.2): the navmesh, each NPC's agent, the tapped path and the stands sent; null without one. */
+  nav(): WalkNav | null;
+  /** Where a point of the space is drawn now (M6.2), in CSS pixels from the view's top left, for a tap. */
+  screenOf(point: Vec3): readonly [number, number] | null;
 }
 
 declare global {

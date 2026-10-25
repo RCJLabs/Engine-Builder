@@ -2087,6 +2087,56 @@ Evan chose on 2026-10-25, from these options:
 
 ---
 
+### D74. M6.2 walks NPCs on a navmesh baked in the editor: the sim sets an NPC's goal and the stage's crowd walks it there; a tap walks the player too; moving solids don't carve it. LOCKED, 2026-10-25 (Evan's calls, M6.2)
+
+Evan chose on 2026-10-25, from these options:
+- **Who decides where an NPC walks:**
+  - the sim sets a goal and the stage walks it there, its arrival an event content can react to;
+  - the stage alone, for looks, the sim never hearing of it;
+  - grid paths worked out in the sim, in pure code, the stage only animating.
+- **Where a space's navmesh comes from:**
+  - baked in the editor and kept as a file beside the space;
+  - baked as a game loads, in a worker;
+  - baked by Play, export and `eb build`.
+- **The player:** NPCs only for now, or tap a spot to walk there too.
+- **Solids that move:** a static navmesh, or one that moving solids carve with Recast's TileCache.
+
+**Decision.**
+- **Goals are the sim's, walking is the stage's.**
+  - A `walk-to` effect sends a placed actor to an object in its space: a marker box, a spawn point, a door.
+  - The stage's crowd walks it there, round solids and the other NPCs. Arriving is the event `world/npc-arrived`, which a sheet's row, a quest stage or a talk can wait on.
+  - The world module's slice keeps each NPC's goal and where it last stood, told by the stage as it tells where the player stands. The slice goes to version 3, with a migration and a version 2 save that must keep loading.
+  - Headless, a test walks NPCs with the same navmesh through recast in Node, as walk.test.ts walks the trail through Rapier.
+- **The navmesh is baked in the editor and kept as a file.**
+  - Bake navigation, in the Scene panel's toolbar, bakes the open space in a worker and writes `spaces/<id>.nav`. The navmesh is drawn over the view.
+  - The file carries a hash of what it was baked from: the space's solids through prefabs and overrides, placed models' colliders, and the terrain's heights. A navmesh whose hash no longer matches is W147 in the Problems panel.
+  - The pack carries each space's navmesh, and exports ship it. A phone bakes nothing.
+- **Tap to move.** A tap on the ground walks the player there along the navmesh, beside the stick and the keys; the stick, the keys or a pad take over at once. A marker shows where they are going.
+- **A static navmesh.** It is baked from what doesn't move. A moved crate is steered round only by the crowd's avoidance; carving at runtime waits.
+
+**Made on the way** (Claude's calls, 2026-10-25):
+- **The agent:** the navmesh is baked for the player's body (0.35 m round, 1.8 m tall, a 0.35 m step, 40° slopes), so anywhere an NPC walks the player can follow.
+- **Tap to move by touch only:** on a computer, a click already locks the pointer to look; a click to walk would fight it.
+- **Navigation loads apart from walk.js:** recast's wasm is 338,824 bytes and its glue 559,543, and walk.js has about 117 KB of gzip left in its budget. A space with a navmesh loads `nav.js` beside it.
+- **A cell of 0.15 m by 0.1 m,** a space up to 128 m across baked as one tile and a bigger one in tiles: in Node, a 40 m square with three stalls bakes in 37 ms to 17,976 bytes, the same bytes each time (the M6.2 spike).
+- **E079 covers a space with no `.nav` too,** as well as an actor in no space and an object its space lacks, so a walk-to that can't walk is an error before play. A `.nav` that won't read counts as there for E079: one bad file is E078 alone, not an E079 at every walk-to besides.
+- **Format 11 only where needed:** a pack's actors and navmeshes go in only when a space has a navmesh, so every pack without one keeps format 10 and the hash its golden files hold.
+- **The editor bakes with the walk's own Recast:** Bake navigation's worker runs the `nav.js` the editor keeps in runtime/, which the service worker precaches, so the editor bakes offline. The precache grows to 13,769,049 bytes (nav.js is 775,803 of them; 230,390 gzipped).
+- **`world/npcs-at` is never on offer,** like the stage's other world actions, so the session's guard on offered actions passes it to the sim. The gate's e2e found it refused there; the headless tests now send through the same guard.
+
+**Why.**
+- **The sim sets goals:** quests and talks need to send people places and hear that they got there, and a save must put them back; the sim can't run Detour itself, as pure packages import only pure ones.
+- **A file:** a phone shouldn't spend seconds baking a big space as it loads, and a file can be looked at, checked and shipped.
+- **Tap to move:** a thumb on a small screen walks further, with less effort, by tapping where to go.
+- **Static:** carving costs a bigger file and work each time something moves, for crates few games push into a crowd's way.
+
+**Cost.**
+- **A navmesh goes stale** whenever a solid moves in the editor, until Bake navigation is pressed again; W147 says so.
+- **NPCs walk only near the player:** the crowd walks those built in the rings around them (M5.10); one farther off waits where it last stood.
+- **Bots walking NPCs** in `eb sim` wait for a headless world runner; until then a headless arrival comes only from a test's walker.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
