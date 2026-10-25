@@ -57,6 +57,7 @@ pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the
 pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
+pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
 ```
 
 - Without `--types` or `--game`, a project's own `scripts/game.ts` is its game (M3.2, D38): `eb` runs it to check content and to play.
@@ -183,7 +184,9 @@ apps/editor/           the editor PWA
                        made at a quality tier (viewport.ts, SceneView.tsx: a new tier, a new view on a new canvas, the
                        camera kept), shadows.ts (the sun's shadows at a tier, fitted round what is drawn, with tests),
                        meshes.ts's lodsOf (models' levels picked for the view's camera alone), perfSummary.ts (the
-                       tier read back from three: the hook's perf() and the overlay's)
+                       tier read back from three: the hook's perf() and the overlay's); M5.10 (D72): bounds.ts
+                       (latch: touching or flush within 12 px; dropBy), snapView.ts (each object's box as drawn, the
+                       latch's wires); the toolbar's Grid step and Drop
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -218,7 +221,12 @@ apps/editor/           the editor PWA
                        walk.test.ts walks the trail headless in Node through Rapier; M5.9 (D71): interact.ts (the use
                        the player faces: 2 m, 60°), stood.ts (when to say where the player stands), outbox.ts (one
                        step at a time, a dropped one tried again), acts.ts (Interact and world/at through the
-                       outbox), prompt.ts (the prompt, a button beside Jump), all with tests in acts.test.ts
+                       outbox), prompt.ts (the prompt, a button beside Jump), all with tests in acts.test.ts; M5.10 (D72):
+                       cells.ts (64 m cells, the near and kept rings, the far), footprints.ts (each top-level
+                       object's reach and its placed models), streamer.ts (the rings as the player crosses cells),
+                       streaming.ts (the rings to the walker, the zones, the uses and the view), nearObjects.ts (built
+                       4 ms a frame), farModels.ts (the far, instanced at their coarsest level), fog.ts; streaming.test.ts
+                       walks the moor headless, and the rest have their own tests
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -332,7 +340,12 @@ apps/editor/           the editor PWA
                        walked to the cairn offline; glenHelpers.ts, glen.spec.ts and glenPhone.spec.ts are M5.9's,
                        the glen walked by keys and the mouse, by a stand-in pad and by touch at 360, 390 and
                        sideways: the rope and the lamp taken by Interact, each door each way with its loading screen,
-                       the gate's zone setting the quest's stage, and a save in the bothy loaded where it stood
+                       the gate's zone setting the quest's stage, and a save in the bothy loaded where it stood;
+                       streamingHelpers.ts, streaming.spec.ts and streamingPhone.spec.ts are M5.10's, the moor
+                       walked through window.__ebWalk.cells(): its rings built and taken down along the road, its far
+                       models instanced, the cairn's zone heard once built and the chest taken, by keys and by touch;
+                       snappingHelpers.ts, snapping.spec.ts and snappingPhone.spec.ts, a hut latched together from the
+                       starter kit to the millimetre, the grid at 1 m and Drop, by mouse and by touch
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 10)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -568,7 +581,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        saves/trail-world-v1.json, a save by the world module's version 1 that must keep loading;
                        glen/, M5.9's gate: a glen with a rope, a bothy whose door is an interact and whose lamp is on
                        a table, a shed whose door is a zone, and a gate's zone that sets the supplies quest's stage,
-                       which glen.test.ts plays through the session to a save and a load
+                       which glen.test.ts plays through the session to a save and a load; moor/, M5.10's gate: a
+                       kilometre of terrain with about 1,350 starter kit pieces over all 256 cells, a road, a cairn's
+                       zone and a chest, written only by `pnpm make:moor` from moor.ts (makeMoor.ts) and held to it
+                       byte for byte by moor.test.ts
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

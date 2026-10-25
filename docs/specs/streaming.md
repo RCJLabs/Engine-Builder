@@ -16,7 +16,7 @@ what to build of it, and the Scene panel draws all of it, as before.
 - **An object's footprint** is its place on x and z widened by its reach, and it is in every cell
   its footprint touches:
   - a shape's reach is half the diagonal of its scale on x and z;
-  - a placed model's is its collider's, or half a metre times its scale when it has none;
+  - a placed model's is its collider's reach, or half a metre, times its scales;
   - a placement's is the farthest any object inside it reaches, from the placement's place.
 - **The terrain and the environment** are always whole: the terrain draws its chunks at their
   levels (terrain.md) and is one heightfield in Rapier. Foliage is drawn to its reach (foliage.md).
@@ -63,12 +63,14 @@ what to build of it, and the Scene panel draws all of it, as before.
 | --- | --- |
 | `cell` | the player's cell, `[i, j]` |
 | `near` | the ids of the objects built, sorted |
+| `drawn` | of those, the ids drawn so far, sorted |
 | `waiting` | how many near objects are still to be drawn |
-| `far` | how many far models are drawn, and in how many instanced meshes |
+| `far` | how many far models are drawn, in how many instanced meshes, and the LOD level each mesh draws |
 | `bodies` | how many bodies Rapier holds, the character's left out |
 | `zones`, `uses` | how many trigger zones are heard and uses offered |
 | `view` | the view distance in metres |
-| `slowest` | the longest a frame's building took, in ms |
+| `farthest` | how far off the farthest object drawn far is, by its footprint's edge |
+| `slowest` | the longest a spread frame's building took, in ms; a ring built whole is left out |
 
 ## Snapping
 
@@ -96,13 +98,19 @@ The Scene panel's Snap (viewport.md) becomes three things:
 ## The gate
 
 - **The moor** (`tools/cli/test/fixtures/moor`): a terrain 1,024 m across (257 vertices, 4 m
-  apart), and cottages, fences, rocks and lamp posts from the starter kit spread over it; a road
-  from the spawn; a cairn whose zone sets a flag, 150 m along it; a chest to take by Interact
-  in a cell the start doesn't build.
-  - It is written by a generator and held to it byte for byte; it validates clean.
-  - `streaming.test.ts` walks it headless through Rapier: from the spawn along the road and off it
-    to the far corner, the ring's cells and objects as the spec says at each cell, bodies only for
-    what is near, the ground under the feet at every step, the cairn's zone heard once it's built.
+  apart), and cottages, fences, rocks, pines and lamp posts from the starter kit spread over it,
+  about 1,350 objects in all 256 cells; a road north from the spawn; a cairn whose zone sets a
+  flag, 158 m along it; a chest on the road past it to take by Interact, in a cell the start
+  doesn't build.
+  - It is written by a generator (`pnpm make:moor`) and held to it byte for byte; it validates
+    clean and builds as format 10.
+  - `streaming.test.ts` walks it headless through Rapier: along the road to the cairn and the
+    chest, and carried corner to corner, the ring's cells and objects as the spec says at each
+    cell, bodies only for what is near, the ground under the feet at every step, the cairn's zone
+    heard once its cell is built, the chest offered once it is.
+  - The plain parts have their own tests: `cells.test.ts` (cells, footprints, the streamer),
+    `nearObjects.test.ts` (the 4 ms a frame on a stepped clock), `streamingStage.test.ts` (a ring
+    built whole after a jump of more than a cell) and `fog.test.ts`.
 - **`streaming.spec.ts`** walks it in the Play panel by keys and the mouse, and
   **`streamingPhone.spec.ts`** by touch at 360, 390 and sideways:
   - the start's ring built under the loading screen;
@@ -114,12 +122,12 @@ The Scene panel's Snap (viewport.md) becomes three things:
   - The slowest frame's building is a reading, not a pass mark.
 - **`snapping.spec.ts`** by mouse and keys, and **`snappingPhone.spec.ts`** by touch at 360, 390 and
   sideways, build a hut from the starter kit in a new project:
-  - a floor; four walls, one a doorway, each dragged near the floor's edge until it latches,
-    touching or flush, read back from the file to the millimetre;
-  - a move with the step at 1 m landing on whole metres;
-  - a second floor put on the walls by Drop, at 2.5 m;
-  - an undo and a redo;
-  - a reload, the file as it was.
+  - a floor; a wall and a doorway, each dragged towards the floor's opposite edges until it
+    latches flush, read back from the file to the millimetre (±0.9 m, off the 0.5 m grid);
+  - a roof, a second floor, latched flush over the floor and then touching the walls' tops, at 2.5 m;
+  - the step at 1 m: the roof moved up lands at 4 m, where a 0.5 m step would stop at 3.5;
+  - Drop putting it back on the walls at 2.5 m;
+  - on desktop, an undo and a redo of the Drop, and a reload, the file and the step as they were.
 
 ## Open questions
 
@@ -127,7 +135,7 @@ The Scene panel's Snap (viewport.md) becomes three things:
 2. Far models are instanced by model; a far cell's pieces merged into one mesh would cut draws further.
 3. A point light in a cell built or taken down changes how many lights three's shaders hold, which
    recompiles them: a hitch a phone may feel.
-4. A model with no collider counts half a metre across for its cells: one wider than a cell may be
+4. A model with no collider reaches half a metre, 1 m across, for its cells: one wider than a cell may be
    left unbuilt at its edge.
 5. The view distances, the 4 ms a frame and the 12 px latch are first guesses until a phone walks
    the moor and builds the hut.

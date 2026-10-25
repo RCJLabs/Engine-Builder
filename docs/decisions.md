@@ -2017,7 +2017,7 @@ Evan chose on 2026-10-25, from these options:
 
 **Cost.**
 - **Point lights** in cells built or taken down change three's light count, which recompiles shaders: a hitch a phone may feel (spec, question 3).
-- **Footprints are estimates:** a model with no collider counts half a metre across, so one wider than a cell may be left unbuilt at its edge (question 4).
+- **Footprints are estimates:** a model with no collider reaches half a metre (1 m across), so one wider than a cell may be left unbuilt at its edge (question 4).
 - **Boxes along the world's axes** snap a piece turned 45° by its box, not its faces (question 6).
 - **Worlds past 1 km** wait for terrain tiles (question 1).
 
