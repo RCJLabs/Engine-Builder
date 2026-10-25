@@ -8,9 +8,11 @@
  * (choice events, decks, consequences; M3.7, docs/specs/events.md), the dialogue kit (speakers
  * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
  * M3.9, docs/specs/quests.md), the maps kit (layered and drawn maps, travel; M4.6,
- * docs/specs/maps.md), and the encounters kit (fights worked out exactly and rolled once; M4.7,
- * docs/specs/encounters.md). Their record types and checks are in @eb/schema.
+ * docs/specs/maps.md), the encounters kit (fights worked out exactly and rolled once; M4.7,
+ * docs/specs/encounters.md), and the ai kit (behaviours, schedules and awareness; M6.3,
+ * docs/specs/ai.md). Their record types and checks are in @eb/schema.
  */
+export * from './ai/index.ts';
 export { goesOnTo, leadsFrom, stepsFrom } from './dialogue/graph.ts';
 export { dialogueModule } from './dialogue/module.ts';
 export { lineOf, namedLine, namedOption, optionOf, talkRecord } from './dialogue/records.ts';

@@ -76,6 +76,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     kits,
     pack.project.calendar,
     pack.world ? worldDataOf(pack.world) : undefined,
+    pack.project.clock,
   );
   if (!loaded.ok) return { ok: false, message: `The game didn’t load: ${loaded.problem.message}` };
   const { modules, start } = loaded.game;

@@ -7,6 +7,7 @@
  */
 import {
   type CalendarDef,
+  type ClockDef,
   createGame,
   engineModules,
   isRecordId,
@@ -58,12 +59,14 @@ const shapeProblem = (what: string): GameRead => ({
 /**
  * The game in game.ts's exports, the engine's modules and the kits' joined, checked by making it
  * once. `world` is the pack's zones, uses and spaces when the project has spaces: none to check it with.
+ * `clock` is the pack's when its spaces are walked (M6.3): the time kit follows the walk's real time.
  */
 export function readGame(
   exports: Readonly<Record<string, unknown>>,
   kits: readonly string[] = [],
   calendar?: CalendarDef,
   world?: WorldData,
+  clock?: ClockDef,
 ): GameRead {
   const { modules, start, policies = [], metrics = [] } = exports;
   if (!Array.isArray(modules) || modules.length === 0 || !modules.every(isModule)) {
@@ -76,7 +79,7 @@ export function readGame(
   if (!Array.isArray(metrics) || !metrics.every(isMetric)) {
     return shapeProblem('metrics, if any: fact ids, or { fact, args, label }');
   }
-  const kitted = kitModules(kits, calendar);
+  const kitted = kitModules(kits, calendar, clock);
   const clash = modules.find((m) => kitted.some((kit) => kit.id === m.id && kit !== m));
   if (clash) {
     const message = `Its module "${clash.id}" has the id of the ${clash.id} kit, which project.json lists: name it otherwise`;

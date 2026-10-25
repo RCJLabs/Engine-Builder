@@ -297,7 +297,7 @@ describe('createPack', () => {
       actors: { carter: { space: 'square', path: 'carter' }, keeper: { space: 'inn', path: 'bar/keeper' } },
     };
     const walked = createPack(project, records, undefined, undefined, undefined, undefined, world);
-    expect(walked.format).toBe(PACK_FORMAT);
+    expect(walked.format).toBe(11);
     expect(readPack(reloaded(walked))).toEqual(walked);
     expect(worldDataOf(walked.world as PackWorld).actors).toEqual(world.actors);
     // No navmesh, nobody walks: format 10 holds it, actors and all left out, so its hash stays M5.9's.
@@ -323,6 +323,57 @@ describe('createPack', () => {
     const ten = reloaded(still);
     expect(() => readPack({ ...ten, world: { ...(ten.world as object), navmeshes: world.navmeshes } })).toThrow(
       'Unknown pack world fields: navmeshes',
+    );
+  });
+
+  it('carries the clock as format 12 (M6.3), only with the time kit and spaces, navmeshes or none', () => {
+    const world = {
+      spaces: { green: { name: 'Green', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+      uses: {},
+      spawns: { green: [] },
+      start: 'green',
+    };
+    const timed = { ...project, kits: ['time'], calendar: { ticksPerDay: 1440 }, clock: { rate: 20 } };
+    const clocked = createPack(timed, records, undefined, undefined, undefined, undefined, world);
+    expect(clocked.format).toBe(12);
+    expect(clocked.project.clock).toEqual({ rate: 20 });
+    // Format 12 keeps format 11's navmeshes and actors, none here, so a clocked world has one shape.
+    expect(clocked.world).toMatchObject({ navmeshes: {}, actors: {} });
+    expect(readPack(reloaded(clocked))).toEqual(clocked);
+    expect(
+      createPack({ ...timed, clock: { rate: 60 } }, records, undefined, undefined, undefined, undefined, world).hash,
+    ).not.toBe(clocked.hash);
+    // Without spaces nothing walks, and without the time kit nothing keeps time: no clock, an older format.
+    expect(createPack(timed, records).format).toBe(3);
+    expect(createPack(timed, records).project).not.toHaveProperty('clock');
+    const untimed = { ...timed, kits: ['inventory'] };
+    const nine = createPack(untimed, records, undefined, undefined, undefined, undefined, world);
+    expect(nine.format).toBe(9);
+    expect(nine.project).not.toHaveProperty('clock');
+    const read = reloaded(clocked);
+    const broken =
+      (clock: unknown, also: Record<string, unknown> = {}) =>
+      () =>
+        readPack({ ...read, project: { ...(read.project as object), clock, ...also } });
+    expect(broken(undefined)).toThrow('A format 12 pack has a clock');
+    expect(broken({ rate: 0 })).toThrow(
+      "The pack's clock runs at a whole number of game seconds a second, from 1 to 3600",
+    );
+    expect(broken({ rate: 2.5 })).toThrow('from 1 to 3600');
+    expect(broken({ rate: 20, pace: 1 })).toThrow('Unknown pack clock fields: pace');
+    expect(broken({ rate: 7 })).toThrow("At 7x, the pack's calendar's ticks aren't whole real milliseconds");
+    expect(broken({ rate: 20 }, { kits: ['inventory'], calendar: undefined })).toThrow(
+      "A pack's clock is the time kit's, which it doesn't list",
+    );
+    // Before format 12 there is no clock.
+    const eleven = reloaded(nine);
+    expect(() => readPack({ ...eleven, project: { ...(eleven.project as object), clock: { rate: 20 } } })).toThrow(
+      'Unknown pack project fields: clock',
     );
   });
 });
@@ -477,8 +528,8 @@ describe('readPack', () => {
   });
 
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 12 })).toThrow(
-      'This pack is format 12; this engine reads formats 1 to 11. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: PACK_FORMAT + 1 })).toThrow(
+      `This pack is format ${PACK_FORMAT + 1}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`,
     );
   });
 

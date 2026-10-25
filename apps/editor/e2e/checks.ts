@@ -88,7 +88,12 @@ export async function expectNoAxeIssues(page: Page): Promise<void> {
       new Promise((done) => setTimeout(done, 2_000)),
     ]),
   );
+  // A toast can still come while axe looks, one of a queue, and fades in short of its own contrast
+  // for 160 ms: axe looks with motion reduced, as a player who asks for that sees every toast.
+  const reduced = await page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const { violations } = await new AxeBuilder({ page }).analyze();
+  await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   expect(violations.map((v) => `${v.impact} ${v.id}: ${v.help} (${v.nodes[0]?.target.join(' ')})`)).toEqual([]);
   const twice = await page.evaluate(() => {
     const seen = new Set<string>();

@@ -1,8 +1,21 @@
 /**
  * What an actor gains to stand in a space as an NPC (M6.1, D73, docs/specs/npcs.md#the-actors-fields):
- * its look, always, and with each kit on, its talk, its faction and what it carries.
+ * its look, always, and with each kit on, its talk, its faction and what it carries; with the ai
+ * kit (M6.3, D75), its behaviour and its senses.
  */
-import { DIALOGUE, FACTION, FACTIONS, INVENTORY, ITEM, TALK } from '@eb/kits';
+import {
+  AI,
+  BEHAVIOUR,
+  CONE_DEG,
+  DIALOGUE,
+  FACTION,
+  FACTIONS,
+  HEARING_M,
+  INVENTORY,
+  ITEM,
+  SIGHT_M,
+  TALK,
+} from '@eb/kits';
 import { MODEL } from './modelTypes.ts';
 import type { Fields } from './typeFile.ts';
 
@@ -64,11 +77,44 @@ const BY_KIT: Readonly<Record<string, Fields>> = {
       description: 'Its bag at the start, by item: give and take change it in play',
     },
   },
+  [AI]: {
+    behaviour: {
+      kind: 'ref',
+      to: BEHAVIOUR,
+      optional: true,
+      label: 'Behaviour',
+      description: 'What it does, and when: it stands where it is placed when left out',
+    },
+    sight: {
+      kind: 'number',
+      min: 0,
+      max: 100,
+      optional: true,
+      label: 'Sight',
+      description: `How far it sees, in metres: ${SIGHT_M} when left out, 0 blind`,
+    },
+    cone: {
+      kind: 'int',
+      min: 1,
+      max: 360,
+      optional: true,
+      label: 'Cone',
+      description: `How wide it sees, in degrees: ${CONE_DEG} when left out`,
+    },
+    hearing: {
+      kind: 'number',
+      min: 0,
+      max: 100,
+      optional: true,
+      label: 'Hearing',
+      description: `How far it hears, in metres: ${HEARING_M} when left out, 0 deaf`,
+    },
+  },
 };
 
 /** An actor's NPC fields with these kits on: the look first, then each kit's in the kits' order. */
 export function npcFields(on: readonly string[]): Fields {
   const fields: Record<string, Fields[string]> = { ...LOOK };
-  for (const kit of [DIALOGUE, FACTIONS, INVENTORY]) if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
+  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, AI]) if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
   return fields;
 }

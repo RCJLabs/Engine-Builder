@@ -99,7 +99,7 @@ describe('eb with the glen', () => {
     const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/glen-world-v2.json'), 'utf8');
     const resumed = resumeFrom(open, raw);
     if (!resumed.ok) throw new Error(resumed.message);
-    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 2, to: 3 }]);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 2, to: 4 }]);
     expect(resumed.report).toMatchObject({ replayed: 3, skipped: 0 });
     expect(resumed.play.state.world).toEqual({
       fired: [],

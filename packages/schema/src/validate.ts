@@ -9,8 +9,9 @@ import {
   type RecordIndex,
   SHEET,
 } from '@eb/core';
-import { QUEST, QUESTS, type QuestRecord } from '@eb/kits';
+import { ACTOR, AI, BEHAVIOUR, QUEST, QUESTS, type QuestRecord } from '@eb/kits';
 import type { z } from 'zod';
+import { type Checked, checkBehaviours } from './aiCheck.ts';
 import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
@@ -126,6 +127,8 @@ export function validateRecords(
   const assetUsages = new Map<string, Usage[]>();
   const flags = new FlagChecks();
   const kits = new KitChecks(on, known, index);
+  // The ai kit's records, whose checks read every actor's and every behaviour's (M6.3).
+  const behaving: Checked[] = [];
   for (const record of records) {
     const from = formatRef(record.type, record.id);
     const report = (code: DiagnosticCode, path: string, message: string) =>
@@ -180,11 +183,14 @@ export function validateRecords(
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
     if (record.type === FOLIAGE && sound) checkFoliage(record.value as FoliageRecord, report);
+    if (sound && on.includes(AI) && (record.type === BEHAVIOUR || record.type === ACTOR))
+      behaving.push({ type: record.type, id: record.id, value: record.value, report });
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);
     }
   }
+  if (on.includes(AI)) checkBehaviours(behaving, options.calendar, options.walkers);
   if (options.flagsElsewhere) flags.elsewhere(options.flagsElsewhere);
   heldBy(kits, options.flagsElsewhere?.held, diagnostics);
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));

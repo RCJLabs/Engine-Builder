@@ -1,0 +1,14 @@
+{
+  "name": "Bram the guard",
+  "description": "Keeps the gate by day and walks the walls by night.",
+  "behaviour": "guards-watch",
+  "sight": 15,
+  "cone": 120,
+  "hearing": 10,
+  "figure": {
+    "height": 1.85,
+    "clothes": "#3a4a6a",
+    "trim": "#9a9a9a",
+    "skin": "#b88a66"
+  }
+}

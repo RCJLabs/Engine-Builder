@@ -4,7 +4,8 @@
  * log. The editor reads the same (forms/catalog.ts) and adds its record index's checks, so its
  * Problems panel and `eb validate` give the same list.
  */
-import type { CalendarDef, PackProject } from '@eb/core';
+import { type CalendarDef, type ClockDef, DEFAULT_RATE, msPerTickAt, type PackProject } from '@eb/core';
+import { TIME } from '@eb/kits';
 import { checkProvenance, type Diagnostic, type DiagnosticCode, type RecordType, severityOf } from '@eb/schema';
 import { type ParsedFile, parseJsonFile } from './decode.ts';
 import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
@@ -96,16 +97,19 @@ export interface KitSettings {
   readonly calendar?: CalendarDef;
   /** The project has a space: its game has the world module (M5.8, D70). */
   readonly spaces?: true;
+  /** The clock its spaces are walked at (M6.3, D75), when it runs. */
+  readonly clock?: ClockDef;
 }
 
 /** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
 export async function readKitSettings(source: ProjectSource): Promise<KitSettings> {
   const { project } = await readManifestFile(source, () => {});
-  const spaces = (await source.files(SPACES_DIR)).some((path) => classifySpaceFile(path).kind === 'space');
+  const spaces = await hasSpaces(source);
   return {
     kits: project?.kits ?? [],
     ...(project?.calendar ? { calendar: project.calendar } : {}),
     ...(spaces ? { spaces } : {}),
+    ...(project?.clock ? { clock: project.clock } : {}),
   };
 }
 
@@ -124,9 +128,36 @@ async function readManifestFile(
     report({ code: 'E007', message: parsed.message, file, path: '' });
     return { project: null };
   }
-  const { problems, ...read } = checkManifest(parsed.value);
+  const { problems, clockRate, ...read } = checkManifest(parsed.value);
   for (const problem of problems) report({ ...problem, file });
-  return read;
+  const clock = read.project && (await clockOf(source, read.project, clockRate, report));
+  return clock ? { ...read, project: { ...(read.project as PackProject), clock } } : read;
+}
+
+const hasSpaces = async (source: ProjectSource) =>
+  (await source.files(SPACES_DIR)).some((path) => classifySpaceFile(path).kind === 'space');
+
+/**
+ * The clock a project's spaces are walked at (M6.3, D75): with the time kit on and a space, the
+ * rate project.json gives (E080 has checked it, null when it refused it) or 20, unless that stops
+ * it. A clock left out that the calendar can't run at 20 stays still, W149 saying why.
+ */
+async function clockOf(
+  source: ProjectSource,
+  project: PackProject,
+  given: number | null | undefined,
+  report: (r: Report) => void,
+): Promise<ClockDef | undefined> {
+  if (given === null || !project.kits?.includes(TIME) || !(await hasSpaces(source))) return undefined;
+  const rate = given ?? DEFAULT_RATE;
+  if (rate === 0) return undefined;
+  const ticksPerDay = project.calendar?.ticksPerDay ?? 1;
+  if (msPerTickAt(ticksPerDay, rate) !== undefined) return { rate };
+  if (given === undefined) {
+    const message = `At ${DEFAULT_RATE}x, a tick of ${ticksPerDay} a day isn't a whole number of real milliseconds, so the clock stays still while walking: give project.json a clock whose rate splits them, or 0`;
+    report({ code: 'W149', message, file: MANIFEST_FILE, path: '' });
+  }
+  return undefined;
 }
 
 /** E075 (M5.9, D71): the start-space names one of spaces/. Here, so the editor's catalog has it too. */

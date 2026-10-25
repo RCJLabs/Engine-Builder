@@ -127,6 +127,23 @@ describe('eb with the square', () => {
     expect(back).toEqual(npcs());
     expect(back.ash).toEqual({ space: 'square', feet: [3.25, 0, 1.5], yaw: 120, goal: 'ash-south' });
   });
+
+  it('loads a save made by the world module’s version 3 (M6.3), each NPC as it was', async () => {
+    const open = await opened();
+    const raw = await readFile(resolve(import.meta.dirname, 'fixtures/saves/square-world-v3.json'), 'utf8');
+    const resumed = resumeFrom(open, raw);
+    if (!resumed.ok) throw new Error(resumed.message);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 3, to: 4 }]);
+    const npcs = (resumed.play.state.world as { npcs: Record<string, Npc> }).npcs;
+    expect(npcs.ash).toEqual({ space: 'square', feet: [3.25, 0, 1.5], yaw: 120, goal: 'ash-south' });
+    expect(npcs.carter).toEqual({ space: 'square', feet: [-6, 0, 2], yaw: 90 });
+    expect(Object.keys(npcs).sort()).toEqual(['carter', ...VILLAGERS].sort());
+    // And plays on: the arrival it walks to is heard.
+    const arrived = resumed.play.act(at({ ash: { feet: [3, 0, -9], yaw: 180, arrived: 'ash-south' } }));
+    expect(arrived.beats).toContainEqual(
+      expect.objectContaining({ type: 'world/npc-arrived', actor: 'ash', at: 'ash-south' }),
+    );
+  });
 });
 
 describe('the square broken', () => {

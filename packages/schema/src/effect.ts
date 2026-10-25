@@ -131,6 +131,31 @@ export const walkToEffect = () =>
     }),
   );
 
+/**
+ * `{ "effect": "follow", "actor": "dog", "distance": 3 }` (M6.3, D75): a placed actor follows the
+ * player, keeping `distance` metres off (2 when left out). E079 checks the actor once the spaces are read.
+ */
+export const followEffect = () =>
+  named(
+    'follow',
+    z.strictObject({
+      effect: z.literal('follow'),
+      actor: z.string().refine(isRecordId, { error: "Expected an actor's id" }),
+      distance: z.number().positive({ error: 'Metres, more than 0' }).max(50).optional(),
+    }),
+  );
+
+/** `{ "effect": "stand", "actor": "guard", "facing": "player" }` (M6.3): stops a placed actor, turned to the player or not. */
+export const standEffect = () =>
+  named(
+    'stand',
+    z.strictObject({
+      effect: z.literal('stand'),
+      actor: z.string().refine(isRecordId, { error: "Expected an actor's id" }),
+      facing: z.literal('player', { error: 'It faces only "player"' }).optional(),
+    }),
+  );
+
 /** The effects validation knows, by name. */
 export interface EffectCatalog {
   readonly schemas: ReadonlyMap<string, z.core.$ZodType>;
@@ -161,6 +186,14 @@ export function effectCatalog(schemas: readonly z.core.$ZodType[], closed: boole
 
 /** The engine's own effects (D36), which every project knows: the rest are kept as written, without `--types`. */
 export const ENGINE_EFFECTS: EffectCatalog = effectCatalog(
-  [setFlagEffect(), addToFlagEffect(), rollEffect(effect()), enterSpaceEffect(), walkToEffect()],
+  [
+    setFlagEffect(),
+    addToFlagEffect(),
+    rollEffect(effect()),
+    enterSpaceEffect(),
+    walkToEffect(),
+    followEffect(),
+    standEffect(),
+  ],
   false,
 );

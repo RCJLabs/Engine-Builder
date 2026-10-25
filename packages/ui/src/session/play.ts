@@ -3,8 +3,8 @@
  * after each step the view the page draws from. It runs where the game's scripts run, in a worker,
  * and gives back only JSON. A button can only ask for an action the game offers: one it doesn't is
  * refused here before the sim sees it, as the sim would refuse it. The one action no button asks
- * for are the stage's (world/trigger since M5.8, world/npcs-at since M6.2), never on offer, which the
- * sim's own checks decide.
+ * for are the stage's (world/trigger since M5.8, world/npcs-at since M6.2, time/elapse since M6.3),
+ * never on offer, which the sim's own checks decide.
  */
 import {
   type Action,
@@ -34,9 +34,10 @@ import { actionLabel } from './words.ts';
 
 /**
  * What the stage sends as the character walks into a zone (M5.8), uses what it faces and stands
- * (M5.9), and as its NPCs walk and arrive (M6.2).
+ * (M5.9), as its NPCs walk and arrive (M6.2), and as the clock runs and its NPCs sense the player (M6.3).
  */
-const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`, `${WORLD}/npcs-at`]);
+const ELAPSE = 'time/elapse';
+const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`, `${WORLD}/npcs-at`, ELAPSE, 'ai/sensed']);
 
 export interface Play {
   readonly view: View;
@@ -134,7 +135,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       action,
       enabled: true,
     }));
-    const world = worldOf(state);
+    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE));
     return {
       modes: state.kernel.modes.map((frame) => frame.id),
       offered,
@@ -181,13 +182,23 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
   };
 }
 
-/** The world module's slice, as the stage reads it: only what it says, in a game with spaces. */
-function worldOf(state: GameState): WorldView | undefined {
+/**
+ * The world module's slice, as the stage reads it: only what it says, in a game with spaces. `clocked`
+ * when the walk should send time/elapse now: the game follows real time and its mode allows it (M6.3).
+ */
+function worldOf(state: GameState, clocked: boolean): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
   const { space, at, arrive, taken, npcs } = slice;
   const walking = npcs && Object.keys(npcs).length > 0 ? { npcs } : {};
-  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken, ...walking };
+  return {
+    space,
+    ...(at ? { at } : {}),
+    ...(arrive !== undefined ? { arrive } : {}),
+    taken,
+    ...walking,
+    ...(clocked ? { clock: true as const } : {}),
+  };
 }
 
 /** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */

@@ -63,7 +63,7 @@ export async function createNavStage(
   ask: SpaceAsk,
   outbox: Outbox,
   load: LoadNav | undefined,
-  to: { readonly walker: Walker; view(): WalkView },
+  to: { readonly walker: Walker; view(): WalkView; readonly begun?: ReadonlySet<string> },
 ): Promise<NavStage | null> {
   const packed = world.navmeshes?.[space.id];
   if (packed === undefined || !load) return null;
@@ -74,7 +74,9 @@ export async function createNavStage(
   const places = objectPlaces(space.space, space.prefabs);
   const npcs = npcsOf(space, world, places);
   const placedOf = new Map(npcs.map((n) => [n.path, n.placed]));
-  const crowd = createCrowdWalk(nav, npcs, (path) => places.get(path), ask.npcs ?? {});
+  // The objects built as the walk began (M6.3): their NPCs start where they stood, any other at its goal.
+  const begun = (path: string) => to.begun?.has(path.split('/')[0] as string) ?? true;
+  const crowd = createCrowdWalk(nav, npcs, (path) => places.get(path), ask.npcs ?? {}, begun);
   const tell = createNpcTell(ask, outbox, (actor, goal) => crowd.heard(actor, goal));
   let tapped: TapPath | null = null;
   const turned = new Set<string>();
@@ -118,11 +120,11 @@ export async function createNavStage(
       const list = crowd.list();
       for (const npc of list) {
         if (npc.state === 'away') continue;
-        // Turned the way it walks, or once to the way a load said it faced.
+        // Turned the way it walks, once to the way a load said it faced, or to the player it faces (M6.3).
         const moving = Math.hypot(npc.velocity[0], npc.velocity[2]) > 0.1;
         const first = npc.yaw !== undefined && !turned.has(npc.path);
         if (first) turned.add(npc.path);
-        to.view().npcs.place(npc.path, npc.at, moving || first ? npc.yaw : undefined);
+        to.view().npcs.place(npc.path, npc.at, moving || first || npc.facing ? npc.yaw : undefined);
       }
       tell.frame(said(), crowd.arrivals(), now);
     },

@@ -77,7 +77,7 @@ apps/editor/           the editor PWA
                        the console's log (state.ts), ErrorToast.tsx and errors.ts (errors nothing caught, M2.8),
                        ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId),
                        ProjectKits.tsx (the Project panel's kit boxes, M3.3), ProjectCalendar.tsx and
-                       calendarFile.ts (project.json's calendar as a form, M3.5), loaded by CalendarSlot.tsx
+                       calendarFile.ts (project.json's calendar as a form, M3.5, and its clock, M6.3), loaded by CalendarSlot.tsx
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
@@ -100,7 +100,7 @@ apps/editor/           the editor PWA
                        lookup.ts (a record and its value by key, for the screens' and the spaces' checks, M5.2)
   src/logic/           the Logic panel and the sheet editor (M3.1): rowText.ts (a row in words), sheetEdits.ts (the
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
-                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField, WalkToFields since M6.2) in the record form; M3.2's
+                       (SheetRows, WhenField, EffectsField, choices.tsx, JsonField, WalkToFields since M6.2, with follow and stand since M6.3) in the record form; M3.2's
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
                        (a kit's effect, its form drawn from its fields, M3.3); ScenesSection (M3.11)
   src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
@@ -146,6 +146,11 @@ apps/editor/           the editor PWA
                        (a seed's map, a drawn map, the check over seeds in words) as plain functions; WorldPanel
                        and its lazy WorldBrowser; MapPreview above a map's form, MapBoard (laid out as the map
                        widget is, a drawn map's places dragged); the Map stock template is screens/stock/play.ts's
+  src/behaviours/      a behaviour in the editor (M6.3, D75): outline.ts (its rows and edits as plain functions: add,
+                       move, wrap, unwrap, remove, a node made another kind), nodeWords.ts (a step in a few words),
+                       nodeFields.ts (each kind's fields, and where each step's problems go); BehaviourOutline.tsx
+                       (the outline and its bar, in a behaviour's form) and NodeForm.tsx (the chosen step's form);
+                       aiChecks.test.ts (E080, W149, E081 and W148 in the editor, as eb validate gives them)
   src/encounters/      the fight above an encounter's form (M4.7, D57): fightPreview.ts (the kit's own table from
                        the records at full health, against its fighters, the roster's start or one actor picked;
                        a result in words) and FightPreview.tsx; its styles, styles/encounters.css
@@ -245,7 +250,12 @@ apps/editor/           the editor PWA
                        built, their arrivals), npcTell.ts (world/npcs-at through the outbox), tapPath.ts (a tap's
                        corners as a push), tapMarker.ts (its ring; a tap's ray, screenOf's projection), navStage.ts
                        (the walk's navigation: nav.js loaded, the hook's nav()); navWalk.test.ts, and square.test.ts,
-                       the square walked headless through Recast with the sim hearing each arrival
+                       the square walked headless through Recast with the sim hearing each arrival; M6.3 (D75):
+                       gameClock.ts (time/elapse once a real second while the walk runs, 2 s at most), senses.ts
+                       (sight by range, cone and Rapier's ray; the player's run, landing and Interact heard), walkSenses.ts
+                       (ai/sensed once a second through the outbox, the hook's senses()), crowdWalk.ts's follow and
+                       facing (crowdFollow.test.ts); village.test.ts, the village's day walked through Recast and the
+                       guard's senses through Rapier
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -371,9 +381,13 @@ apps/editor/           the editor PWA
                        save; npcEditor.spec.ts, Ada made in the editor alone at 1280 and 390 wide and talked to in Play;
                        squareHelpers.ts, square.spec.ts and squarePhone.spec.ts are M6.2's, the square walked by keys
                        (Tam sent to the well, the twelve across without meeting, a save mid-walk) and crossed by a tap
-                       at 360, 390 and sideways; navEditor.spec.ts, a stall moved, W147, Bake navigation, at 1280 and 390
+                       at 360, 390 and sideways; navEditor.spec.ts, a stall moved, W147, Bake navigation, at 1280 and 390;
+                       villageHelpers.ts, village.spec.ts and villagePhone.spec.ts are M6.3's, the village walked by keys
+                       and by touch at 360, 390 and sideways, the clock running and Wait jumping it, the guard hearing,
+                       seeing and halting the player; aiEditor.spec.ts, a watch made for the guard in the outline alone
+                       at 1280 and 390 and played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 11)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 12)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -382,7 +396,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        sweep's report as lines (report.ts: formatSweep, eb sim's and the editor's Run's);
                        replay.ts, a recording played on another build and where it parts (M4.9)
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
-  src/time/            calendars, timers and wall-clock settling: timeModule; starts.ts, the start-of events (M3.5)
+  src/time/            calendars, timers and wall-clock settling: timeModule; starts.ts, the start-of events (M3.5);
+                       clock.ts (project.json's clock as ms a tick, M6.3); time.hour and time.clock
   src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
                        the engine's own modules (logic, flag, sheet)
   src/world/           M5.8 (D70): packWorld.ts (format 9's world and its checks) and world.ts (the world module:
@@ -391,7 +406,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        arrived at, what was taken), actions.ts (world/use, world/at, enter-space), format 10's uses,
                        spawn points and start (packWorld.ts, worldDataOf for format 9), withPackWorld for headless runs;
                        M6.2 (D74): npcs.ts (walk-to, world/npcs-at, world/npc-arrived, world.npc-at), the slice at
-                       version 3 with npcs, format 11's navmeshes and actors (asFormat10 when there are none)
+                       version 3 with npcs, format 11's navmeshes and actors (asFormat10 when there are none);
+                       M6.3 (D75): follow and stand (npcs.ts), the slice at version 4
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -439,7 +455,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        ENGINE_DATA; M5.9: the interact component kind, enter-space in effect.ts, worldCheck.ts (E076),
                        and what zones and uses hold heard by the kits' checks (flagCheck.ts's HeldElsewhere); M6.1:
                        npcFields.ts (an actor's model and figure, and its talk, faction and carries with their kits); M6.2:
-                       walk-to in effect.ts, worldCheck.ts's checkWalkTo (E079); not pure
+                       walk-to in effect.ts, worldCheck.ts's checkWalkTo (E079); M6.3: follow and stand in effect.ts,
+                       aiTypes.ts (behaviour, and an actor's behaviour, sight, cone and hearing), aiCheck.ts (E081 for
+                       a node's units, hours, days and points, W148); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -474,7 +492,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        they hold for the kits' checks), projectCheck.ts (E075); M6.1:
                        npcPlaces.ts (E077: an actor in one place) and world.ts's Talk uses; M6.2: navInputs.ts (the
                        solids and terrain a bake reads, and their hash), navFiles.ts (a .nav's header: E078, W147),
-                       npcPlaces.ts's walkersOf (E079's names), world.ts's navmeshes and actors; not pure
+                       npcPlaces.ts's walkersOf (E079's names), world.ts's navmeshes and actors; M6.3: project.json's
+                       clock (manifest.ts, projectCheck.ts: E080, W149), packed as format 12, and E081 for a behaviour's
+                       points and walking against its actor's space; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -483,7 +503,7 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        M3.4 (D42): stats/ (values.ts: a value and its parts; pools.ts: damage, healing, bases;
                        statuses.ts: stacks and time; state.ts; module.ts, built knowing whether gear is on) and
                        gear/ (worn.ts, module.ts: equip and unequip); M3.5 (D43): factions/ (standing.ts: bounds,
-                       bands, prices, drift; module.ts, band-of since M6.1) and time/ (the time module with project.json's calendar);
+                       bands, prices, drift; module.ts, band-of since M6.1) and time/ (the time module with project.json's calendar, and its clock since M6.3);
                        M3.6 (D44): roster/ (offers.ts: recruits rolled and made; members.ts: cap, join, leave, ranks;
                        bonds.ts; hall.ts: hiring; offerFacts.ts: a hall's offers as facts, M4.12; module.ts, built
                        knowing whether economy is on); bands.ts (the band
@@ -506,12 +526,14 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        stats through the stats kit's facts; rounds.ts: every pair of hurts round by round, exactly,
                        the last 64 kept (M4.12); table.ts: the ends made whole out of 10,000, which the roll and the preview read; fight.ts;
                        module.ts, built knowing whether the roster is on, whose roster.place orders the party);
-                       kits.ts (KITS,
+                       M6.3 (D75): ai/ (types.ts; nodes.ts: paths and kinds; choose.ts: the leaf that holds; run.ts: a
+                       leaf started and gone on, in-orders and cooldowns; goals.ts: the world's goals; aware.ts:
+                       awareness from ai/sensed; module.ts, built with the calendar); kits.ts (KITS,
                        kitsOn: what project.json's kits
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
-                       a ship, raiders and a brute, M4.7): the records
+                       a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3): the records
                        and games the kit tests share;
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading;
                        fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1)
@@ -542,7 +564,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
-                       ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css)
+                       ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css; stepLine.ts,
+                       the stage's steps and the player's presses on one line to the worker, M6.3)
 packages/models/       3D models (M5.5, D67), not pure, in the browser and in Node: io.ts (gltf-transform's reader and
                        writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
                        (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
@@ -624,7 +647,12 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        which ford.test.ts plays through the session and breaks once for E077; square/, M6.2's gate: a
                        market with three stalls, a well and a gate, a carter whose talk sends them to the well and twelve
                        villagers a sheet sends between marks, its navmesh baked by `pnpm bake`, which square.test.ts
-                       plays through the session and breaks once each for W147, E078 and E079;
+                       plays through the session and breaks once each for W147, E078 and E079; village/, M6.3's gate: a
+                       smith whose day is the forge, the cottage and the green, and a guard who walks the walls by night,
+                       stands at the gate by day and halts a player seen close, its navmesh baked by `pnpm bake`, which
+                       village.test.ts plays through the session over a whole day and breaks once each for E080, W149,
+                       E081 and W148, and village-bench.ts times its days; saves/square-world-v3.json, a save by the
+                       world module's version 3 that must keep loading;
                        saves/glen-world-v2.json, a save by the world module's version 2 that must keep loading
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story

@@ -115,18 +115,23 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   const key = Object.keys(records).find((k) => !/^[a-z0-9-]+:[a-z0-9-]+$/.test(k));
   if (key !== undefined) return `"${key}" is not a record's type and id`;
   if (!allOf(fields, (field) => typeof field === 'string')) return "The pack's model fields are not text";
-  return (format >= 10 ? placesProblem(world) : undefined) ?? (format >= 11 ? walkersProblem(world) : undefined);
+  return (
+    (format >= 10 ? placesProblem(world) : undefined) ?? (format >= 11 ? walkersProblem(world, format) : undefined)
+  );
 }
 
-/** Format 11's navmeshes, each of a space the pack has and base64, and the actors' places. */
-function walkersProblem(world: Readonly<Record<string, unknown>>): string | undefined {
+/**
+ * Format 11's navmeshes, each of a space the pack has and base64, and the actors' places. Format 11
+ * is the format for navmeshes, so it has one; format 12, the clock's, may have none.
+ */
+function walkersProblem(world: Readonly<Record<string, unknown>>, format: number): string | undefined {
   const { spaces, navmeshes, actors } = world;
-  if (!isObject(spaces)) return 'A format 11 pack has no spaces';
+  if (!isObject(spaces)) return `A format ${format} pack has no spaces`;
   if (
     !allOf(navmeshes, (data) => typeof data === 'string' && BASE64.test(data)) ||
-    Object.keys(navmeshes).length === 0
+    (format === 11 && Object.keys(navmeshes).length === 0)
   ) {
-    return 'A format 11 pack has no navmeshes, or one that is not base64';
+    return `A format ${format} pack has no navmeshes, or one that is not base64`;
   }
   const lost = Object.keys(navmeshes).find((space) => !Object.hasOwn(spaces, space));
   if (lost !== undefined) return `A navmesh of a space the pack lacks: "${lost}"`;

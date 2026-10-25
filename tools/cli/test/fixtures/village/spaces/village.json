@@ -1,0 +1,177 @@
+{
+  "name": "The village",
+  "objects": [
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [40, 0.2, 40],
+      "color": "#7a8a5a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "post-west",
+      "name": "Gatepost, west",
+      "shape": "box",
+      "at": [-2.5, 0, -16],
+      "scale": [0.6, 3, 0.6],
+      "color": "#6b5a4a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "post-east",
+      "name": "Gatepost, east",
+      "shape": "box",
+      "at": [2.5, 0, -16],
+      "scale": [0.6, 3, 0.6],
+      "color": "#6b5a4a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "gate-in",
+      "name": "Inside the gate",
+      "shape": "box",
+      "at": [0, 0, -7],
+      "turn": [0, 180, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "gate",
+      "name": "The guard's post",
+      "shape": "box",
+      "at": [0, 0, -14],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "wall",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-6, 0, -9],
+      "scale": [5, 3, 0.4],
+      "color": "#8c8478",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "shape": "box",
+      "at": [10, 0, 6],
+      "scale": [2, 1.5, 2],
+      "color": "#4a3f3a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "anvil",
+      "name": "Anvil",
+      "shape": "box",
+      "at": [8, 0, 6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "cottage",
+      "name": "Cottage",
+      "shape": "box",
+      "at": [-10, 0, 9],
+      "scale": [5, 3, 4],
+      "color": "#a08060",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "cottage-door",
+      "name": "Cottage door",
+      "shape": "box",
+      "at": [-10, 0, 6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "green-1",
+      "name": "The green, west",
+      "shape": "box",
+      "at": [-4, 0, 1],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "green-2",
+      "name": "The green, east",
+      "shape": "box",
+      "at": [3, 0, 3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "green-3",
+      "name": "The green, north",
+      "shape": "box",
+      "at": [-1, 0, -3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "wall-ne",
+      "name": "The walls, north-east",
+      "shape": "box",
+      "at": [13, 0, -13],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "wall-se",
+      "name": "The walls, south-east",
+      "shape": "box",
+      "at": [13, 0, 13],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "wall-sw",
+      "name": "The walls, south-west",
+      "shape": "box",
+      "at": [-13, 0, 13],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "wall-nw",
+      "name": "The walls, north-west",
+      "shape": "box",
+      "at": [-13, 0, -13],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "smith",
+      "name": "Ada",
+      "record": "actor:smith",
+      "at": [8, 0, 7]
+    },
+    {
+      "id": "guard",
+      "name": "Bram",
+      "record": "actor:guard",
+      "at": [0, 0, -14]
+    }
+  ]
+}

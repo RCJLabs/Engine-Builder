@@ -1,10 +1,21 @@
 import { pointerSegment, SHEET } from '@eb/core';
-import { DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
-import { type DataType, type Diagnostic, ENVIRONMENT, FOLIAGE, MATERIAL, MODEL, slotScope } from '@eb/schema';
+import { ACTOR, AI, BEHAVIOUR, DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
+import {
+  type DataType,
+  type Diagnostic,
+  ENVIRONMENT,
+  FOLIAGE,
+  MATERIAL,
+  MODEL,
+  slotScope,
+  type TypeFile,
+} from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
 import { SoundPreview } from '../audio/SoundPreview.tsx';
+import { BehaviourOutline, settingsFor } from '../behaviours/BehaviourOutline.tsx';
+import { behaviourPointers } from '../behaviours/nodeFields.ts';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
 import { editing } from '../editing/current.ts';
 import { FightPreview } from '../encounters/FightPreview.tsx';
@@ -172,9 +183,10 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     () => [...checkRecord(catalog, type, id, value, index), ...modelFileProblems(index, type, id)],
     [catalog, type, id, value, index],
   );
+  const behaviour = type === BEHAVIOUR && catalog.kits.includes(AI);
   const routed = useMemo(
-    () => routeProblems(diagnostics, fieldPointers(typeFile, value)),
-    [diagnostics, typeFile, value],
+    () => routeProblems(diagnostics, shownPointers(project, typeFile, id, value, behaviour)),
+    [diagnostics, project, typeFile, id, value, behaviour],
   );
   const quest = type === QUEST && catalog.kits.includes(QUESTS);
   const api: FormApi = {
@@ -182,6 +194,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     catalog,
     names: namesOf(project.index, catalog),
     ...(quest ? { slots: slotScope(value) } : {}),
+    // A behaviour's conditions name the NPC running it as @self (M6.3).
+    ...(behaviour ? { slots: () => SELF } : {}),
     typeFile,
     id,
     problemsAt: (pointer) => routed.get(pointer) ?? [],
@@ -246,12 +260,26 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;
           // A sheet's rows get the sheet editor (M3.1); its type file only sketches them.
           if (type === SHEET && name === 'rows') return <SheetRows key={name} value={held} />;
+          // A behaviour's Do gets its outline (M6.3); the type file only sketches it.
+          if (behaviour && name === 'do') return <BehaviourOutline key={name} project={project} id={id} value={held} />;
           return <FieldView key={name} label={labelOf(name, def)} def={def} info={def} path={[name]} value={held} />;
         })}
         <UsedBy project={project} type={type} id={id} />
       </section>
     </FormContext.Provider>
   );
+}
+
+const SELF = { self: ACTOR } as const;
+
+/** Where the form shows problems: its fields', and for a behaviour each step's and the steps' fields. */
+function shownPointers(project: OpenProject, typeFile: TypeFile, id: string, value: unknown, behaviour: boolean) {
+  const shown = fieldPointers(typeFile, value);
+  if (!behaviour) return shown;
+  for (const pointer of shown) if (pointer.startsWith('/do/')) shown.delete(pointer);
+  const held = typeof value === 'object' && value !== null ? (value as Record<string, unknown>).do : undefined;
+  for (const pointer of behaviourPointers(held, settingsFor(project, id))) shown.add(pointer);
+  return shown;
 }
 
 /** What is wrong with the record as a whole, and the keys its type doesn't list, each removable. */

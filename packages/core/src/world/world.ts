@@ -10,11 +10,14 @@
 import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
-import { npcsAt, walkTo } from './npcs.ts';
+import { follow, npcsAt, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
 export * from './types.ts';
+
+const own = <T>(map: Readonly<Record<string, T>>, key: string): T | undefined =>
+  Object.hasOwn(map, key) ? map[key] : undefined;
 
 const TEXT: Domain = { type: 'text' };
 const BOOL: Domain = { type: 'bool' };
@@ -43,6 +46,8 @@ export function worldModule(world: WorldData): Module {
       2: (slice) => ({ ...(slice as object), taken: [], space: world.start }),
       // Version 2 had no NPCs walking: each stands where it was placed.
       3: (slice) => ({ ...(slice as object), npcs: {} }),
+      // Version 3 had no NPC following the player or facing them: its NPCs load as they were.
+      4: (slice) => slice,
     },
     init: () => ({ fired: [], taken: [], space: world.start, npcs: {} }),
     events: {
@@ -61,6 +66,8 @@ export function worldModule(world: WorldData): Module {
     effects: {
       'enter-space': { run: (ctx, effect) => enterSpace(world, ctx, effect) },
       'walk-to': { run: (ctx, effect) => walkTo(world, ctx, effect) },
+      follow: { run: (ctx, effect) => follow(world, ctx, effect) },
+      stand: { run: (ctx, effect) => stand(world, ctx, effect) },
     },
     facts: {
       fired: {
@@ -80,6 +87,13 @@ export function worldModule(world: WorldData): Module {
         domain: BOOL,
         label: 'the player is in the space',
         read: (view, args) => typeof args.space === 'string' && view.state.space === args.space,
+      },
+      // The space a placed actor stands in (M6.3): the ai kit's, as it hears what NPCs of a space sensed.
+      'npc-space': {
+        args: { actor: TEXT },
+        domain: TEXT,
+        label: 'the space the NPC stands in',
+        read: (_view, args) => (typeof args.actor === 'string' ? own(world.actors, args.actor)?.space : undefined),
       },
       'npc-at': {
         args: { actor: TEXT },

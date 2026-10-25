@@ -18,6 +18,9 @@ export interface NpcGoal {
   readonly yaw?: number;
   readonly goal?: string;
   readonly arrived?: string;
+  /** M6.3: the metres it keeps from the player it follows, or that it stands turned to them. */
+  readonly follow?: number;
+  readonly facing?: 'player';
 }
 
 /** Where the player stood, from a load (M5.9): the feet, and the way they faced in degrees. */
@@ -39,6 +42,8 @@ export interface SpaceAsk {
   readonly npcs?: Readonly<Record<string, NpcGoal>>;
   /** The sim has the player in this space now: only then does the stage say where they stand. */
   here(): boolean;
+  /** The game's clock runs as the space is walked now (M6.3, D75): the stage sends time/elapse. */
+  clocked?(): boolean;
   /** Sends `world/trigger`, `world/use` and `world/at` as the character walks, as a button's action is sent. */
   send(action: Action): Promise<Sent>;
 }

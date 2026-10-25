@@ -76,6 +76,8 @@ A test walks every tick of four years of a small calendar with a counter that ca
 | `time.tick` | int from 0 |
 | `time.day` | int from 0 |
 | `time.of-day` | int from 0 to ticksPerDay − 1 |
+| `time.hour` | int from 0: the hour of the day, with an `hours` unit (M6.3), the hours a behaviour's guard reads |
+| `time.clock` | text: the clock's face, `"09:05"`, with `hours` and `minutes` units, for a HUD (M6.3) |
 | `time.phase`, `time.weekday`, `time.month`, `time.season` | enum of the calendar's names, when it has them |
 | `time.year` | int from 1, with a year |
 | `time.day-of-year` | int from 0, with a year |
@@ -141,14 +143,14 @@ From M3.5 (D43), a project made only of data can keep time. The time module is a
 - **Packs** carry the calendar in `project.calendar` (format 3).
 - **E038:** a calendar whose shape is wrong, at the field, or that doesn't hold together, with `calendarOf`'s words, at `/calendar`. It is checked apart from the rest of project.json, so a calendar half filled in never stops the project being read: the kit keeps a day a tick until it holds together.
 - **W116:** a calendar given while the time kit is off: nothing reads it.
-- **Real time** (`time/elapse`) for a project made of data waits for Phase 4's stage, which sends it.
+- **Real time** (`time/elapse`) for a project made of data comes with M6.3's clock: the walk sends it once a second at project.json's `clock.rate` ([ai.md](ai.md#the-clock)).
 
 ## Wall-clock time
 
 `realTime: { msPerTick, maxElapseMs }` turns `time/elapse { ms }` on.
 
-- **ms** must be a whole number; anything else is refused with `bad-elapsed`. A negative one is refused with `clock-went-back`, because a device clock set back must not run time backwards or forwards.
-- **The cap.** At most `maxElapseMs` counts; the rest is dropped, with a `time/capped` beat. An idle game caps offline time at hours; a real-time game that pauses when hidden caps it near one frame.
+- **ms** must be a whole number; anything else is refused with `bad-elapsed`. It is never on offer: only a stage has a time to give (M6.3). A negative one is refused with `clock-went-back`, because a device clock set back must not run time backwards or forwards.
+- **The cap.** At most `maxElapseMs` counts; the rest is dropped, with a `time/capped` beat. An idle game caps offline time at hours; a real-time game that pauses when hidden caps it near one frame. A cap shorter than a tick still moves time, through the carry: M6.3's walk caps an elapse at 2 s with ticks of 3 s ([ai.md](ai.md#the-clock)).
 - **The carry.** Milliseconds short of a whole tick carry over to the next elapse, so many short elapses add up to exactly one long one. A property test settles random stretches, with timers and dice, at once and in pieces, and gets the same state.
 - **Where the clock is read.** The stage reads `Date.now()` and passes the difference. The sim never sees a timestamp, so a replay of the log reaches the same state whenever it runs. Epoch milliseconds don't change with time zones or daylight saving.
 - **Time away.** A save keeps `savedAt` beside the state, not in it ([saves.md](saves.md)). After a load, the stage passes `time/elapse` with now − `savedAt`. A migration gets no clock, so it can never seed a field with the current time, which spliceworld's had to do because an empty one read as 1970.

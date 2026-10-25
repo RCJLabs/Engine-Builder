@@ -38,6 +38,7 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
       quality,
       ...placing,
       here: () => latest.current?.space === space,
+      clocked: () => latest.current?.space === space && latest.current.clock === true,
       send: (action) => send.current?.(action) ?? Promise.resolve('dropped'),
     });
     drawn.current = made;

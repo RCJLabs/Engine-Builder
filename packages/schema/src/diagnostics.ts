@@ -82,7 +82,9 @@ export const DIAGNOSTIC_CODES = {
   E076: "enter-space names a space the project doesn't have, or a spawn point its space doesn't have",
   E077: 'An actor is placed in more than one place across the spaces: an NPC stands in one',
   E078: "A space's navmesh file isn't one the engine reads, or its space isn't there",
-  E079: "walk-to names an actor placed in no space, an object its space doesn't have, or a space with no navmesh",
+  E079: "walk-to, follow or stand names an actor placed in no space, an object its space doesn't have, or a space with no navmesh",
+  E080: "project.json's clock can't run: the time kit is off, its rate isn't a whole number from 0 to 3,600, or the calendar's ticks aren't whole real milliseconds at it",
+  E081: "A behaviour's node can't run: a point its actor's space lacks, walking where there is no navmesh, a unit, hour or weekday its calendar lacks, or an actor with a behaviour placed nowhere",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -130,6 +132,8 @@ export const DIAGNOSTIC_CODES = {
   W145: "A water component on an object that isn't a plane",
   W146: "A model's material slot names a material its file doesn't have",
   W147: "A space's navmesh was baked before its solids or terrain last changed",
+  W148: 'A behaviour no actor has',
+  W149: "No clock is given and the calendar's ticks aren't whole real milliseconds at 20x: the clock stays still while walking",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

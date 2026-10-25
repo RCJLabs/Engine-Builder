@@ -8,6 +8,8 @@
  * what is far, the ring around them worked out again as they cross into another cell.
  * M6.2 (D74, docs/specs/navigation.md#the-stage): in a space with a navmesh, its NPCs walk where the
  * sim sends them and a tap walks the player (navStage.ts).
+ * M6.3 (D75, docs/specs/ai.md): the time walked runs the game's clock (gameClock.ts), and the NPCs
+ * near the player see and hear them (walkSenses.ts).
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
@@ -21,6 +23,8 @@ import type { Vec3 } from '../spaces/vec.ts';
 import { type Acts, createActs, type InputBy } from './acts.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { type Held, intentOf, PAD_DEAD } from './controls.ts';
+import { createGameClock, type GameClock } from './gameClock.ts';
+import { objectPlaces } from './goals.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import type { LoadNav } from './host.ts';
 import { jumpOf, stepsFor } from './motion.ts';
@@ -34,6 +38,7 @@ import { createStreamer, type Ring } from './streamer.ts';
 import { createStreaming, type Streaming } from './streaming.ts';
 import { createSurface, type Surface, type Tier } from './surface.ts';
 import { createTouches } from './touch.ts';
+import { createWalkSenses, type WalkSenses } from './walkSenses.ts';
 import { walkSpace } from './world.ts';
 
 let rapierReady: Promise<void> | null = null;
@@ -55,6 +60,8 @@ interface Walking {
   readonly surface: Surface;
   readonly streaming: Streaming;
   readonly nav: NavStage | null;
+  readonly clock: GameClock;
+  readonly senses: WalkSenses | null;
   gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
@@ -69,6 +76,8 @@ const hookOf = ({
   surface,
   streaming,
   nav,
+  clock,
+  senses,
   gone,
   look,
 }: Walking): WalkHook => ({
@@ -102,6 +111,8 @@ const hookOf = ({
   npcs: () => surface.view.npcs.list(),
   nav: () => nav?.hook() ?? null,
   screenOf: (point) => surface.view.screenOf(point),
+  clock: () => clock.hook(),
+  senses: () => senses?.hook() ?? null,
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -163,7 +174,23 @@ export async function startStage(
     TIERS[tier.name].viewDistance,
     gone,
   );
-  const nav = await createNavStage(space, world, ask, outbox, loadNav, { walker, view });
+  const nav = await createNavStage(space, world, ask, outbox, loadNav, { walker, view, begun: first.near });
+  const clock = createGameClock(() => ask.clocked?.() === true, outbox);
+  const placed = objectPlaces(space.space, space.prefabs);
+  const senses = createWalkSenses(
+    space,
+    world,
+    outbox,
+    ask.here,
+    () => {
+      const agents = new Map((nav?.hook().agents ?? []).map((a) => [a.path, a.at]));
+      return surface.view.npcs.list().flatMap((n) => {
+        const at = agents.get(n.path) ?? placed.get(n.path);
+        return at ? [{ path: n.path, at, yaw: n.yaw }] : [];
+      });
+    },
+    walker.clear,
+  );
   const began: WalkHook['began'] = at
     ? { from: 'at' }
     : spawn && spawn.path === ask.arrive
@@ -213,6 +240,8 @@ export async function startStage(
     }
     acts.frame(walker.feet(), yaw, intent.use, by, time);
     nav?.frame(time);
+    clock.frame(elapsed * 1000);
+    senses?.frame(elapsed * 1000, walker.feet(), intent, walker.grounded());
     draw();
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
@@ -223,6 +252,7 @@ export async function startStage(
     if (document.visibilityState !== 'hidden' || paused) return;
     acts.stand(walker.feet(), yaw, performance.now());
     nav?.stand(performance.now());
+    clock.flush();
   };
   document.addEventListener('visibilitychange', hidden);
   draw();
@@ -238,6 +268,8 @@ export async function startStage(
     surface,
     streaming,
     nav,
+    clock,
+    senses,
     gone: () => gone,
     look: () => ({ yaw, pitch, shot, paused }),
   });
@@ -247,6 +279,7 @@ export async function startStage(
       if (on && !paused) {
         acts.stand(walker.feet(), yaw, performance.now());
         nav?.stand(performance.now());
+        clock.flush();
       }
       paused = on;
       // The walk goes on, its talk over: the NPC that faced the player turns back.

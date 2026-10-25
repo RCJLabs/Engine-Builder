@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { calendarProblems } from '../app/calendarFile.ts';
 import {
   calendarChange,
+  clockChange,
   kitsChange,
   kitsStep,
   kitsWith,
@@ -159,5 +160,24 @@ describe('calendarProblems (M3.5)', () => {
       at('records/sheet/a.json', '/calendar'),
     ]);
     expect(found.map((d) => d.path)).toEqual(['', '/months/0/days']);
+  });
+});
+
+describe('clockChange (M6.3)', () => {
+  const read = (change: { after: Uint8Array | null }[]) => JSON.parse(decode(change[0]?.after) as string);
+
+  it('adds a clock last, keeps its place once there, and takes it out once emptied', async () => {
+    const added = await clockChange(memorySource({ 'project.json': MANIFEST }), (clock) => {
+      expect(clock).toEqual({});
+      return { rate: 600 };
+    });
+    expect(Object.keys(read(added))).toEqual(['format', 'id', 'name', 'version', 'clock']);
+    const clocked = '{\n  "format": 1,\n  "clock": { "rate": 600 },\n  "kits": ["time"]\n}\n';
+    const changed = await clockChange(memorySource({ 'project.json': clocked }), () => ({ rate: 60 }));
+    expect(Object.keys(read(changed))).toEqual(['format', 'clock', 'kits']);
+    expect(read(changed).clock).toEqual({ rate: 60 });
+    const emptied = await clockChange(memorySource({ 'project.json': clocked }), () => ({}));
+    expect(read(emptied)).toEqual({ format: 1, kits: ['time'] });
+    expect(await clockChange(memorySource({ 'project.json': MANIFEST }), () => ({}))).toEqual([]);
   });
 });

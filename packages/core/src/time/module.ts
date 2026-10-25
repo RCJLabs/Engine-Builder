@@ -15,7 +15,11 @@ import { advanceTo, insert, type Timer, type TimeSlice } from './timers.ts';
 export interface RealTime {
   /** Real milliseconds per tick, for time/elapse. */
   readonly msPerTick: number;
-  /** The most one time/elapse counts, the offline cap; the rest is dropped. A real-time game that pauses when hidden sets it near one frame's worth. */
+  /**
+   * The most one time/elapse counts, the offline cap; the rest is dropped. A real-time game that
+   * pauses when hidden sets it near one frame's worth, which may be shorter than a tick: the carry
+   * still adds those up to ticks (M6.3's clock, a tick 3 s long, caps an elapse at 2 s).
+   */
   readonly maxElapseMs: number;
 }
 
@@ -56,8 +60,14 @@ export function timeModule(options: TimeOptions): Module {
         if (ticks === undefined) return ctx.refuse('bad-duration');
         advanceTo(ctx, calendar, ctx.read().tick + ticks);
       },
+      // The stage's, carrying the time it measured: never on offer, as no menu or bot has a time to give.
       ...(realTime
-        ? { elapse: (ctx: ModuleContext<TimeSlice>, action: Action) => elapse(ctx, calendar, action.ms, realTime) }
+        ? {
+            elapse: {
+              run: (ctx: ModuleContext<TimeSlice>, action: Action) => elapse(ctx, calendar, action.ms, realTime),
+              options: () => [],
+            },
+          }
         : {}),
     },
     effects: {
@@ -99,8 +109,8 @@ function checkRealTime(realTime: RealTime): RealTime {
   const { msPerTick, maxElapseMs } = realTime;
   if (!Number.isSafeInteger(msPerTick) || msPerTick < 1)
     throw new Error('realTime.msPerTick must be a whole number, at least 1');
-  if (!Number.isSafeInteger(maxElapseMs) || maxElapseMs < msPerTick) {
-    throw new Error('realTime.maxElapseMs must be a whole number, at least msPerTick');
+  if (!Number.isSafeInteger(maxElapseMs) || maxElapseMs < 1) {
+    throw new Error('realTime.maxElapseMs must be a whole number, at least 1');
   }
   return realTime;
 }
@@ -167,6 +177,32 @@ function waitPreview(slice: DeepReadonly<TimeSlice>, to: number) {
   return { to, fires };
 }
 
+const two = (n: number) => String(n).padStart(2, '0');
+
+/**
+ * The hour of the day, with an `hours` unit, and the clock's face, "09:05", with `minutes` too (M6.3):
+ * what a HUD shows while the clock runs, and the hours a behaviour's guard reads.
+ */
+function clockFacts(
+  calendar: Calendar,
+  date: (state: DeepReadonly<TimeSlice>) => { readonly ofDay: number },
+  fact: (domain: Domain, read: (state: DeepReadonly<TimeSlice>) => unknown) => FactSpec<TimeSlice>,
+  int: (min: number, max?: number) => Domain,
+): Record<string, FactSpec<TimeSlice>> {
+  const { hours, minutes } = calendar.units;
+  if (hours === undefined) return {};
+  const hour = (s: DeepReadonly<TimeSlice>) => Math.floor(date(s).ofDay / hours);
+  const found: Record<string, FactSpec<TimeSlice>> = {
+    hour: fact(int(0, Math.ceil(calendar.ticksPerDay / hours) - 1), hour),
+  };
+  if (minutes !== undefined && hours % minutes === 0)
+    found.clock = fact(
+      { type: 'text' },
+      (s) => `${two(hour(s))}:${two(Math.floor((date(s).ofDay % hours) / minutes))}`,
+    );
+  return found;
+}
+
 function facts(calendar: Calendar): Record<string, FactSpec<TimeSlice>> {
   const date = (state: DeepReadonly<TimeSlice>) => dateAt(calendar, state.tick);
   const int = (min: number, max?: number): Domain =>
@@ -201,6 +237,7 @@ function facts(calendar: Calendar): Record<string, FactSpec<TimeSlice>> {
     ...(calendar.seasons.length > 0
       ? { season: fact(oneOf(calendar.seasons.map((s) => s.id)), (s) => date(s).season) }
       : {}),
+    ...clockFacts(calendar, date, fact, int),
     pending: {
       read: ({ state }, args) => found(state, args.timer) !== undefined,
       args: timer,

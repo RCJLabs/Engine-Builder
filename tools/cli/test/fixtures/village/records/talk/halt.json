@@ -1,0 +1,30 @@
+{
+  "name": "Bram halts you",
+  "speaker": "guard",
+  "starts": [
+    {
+      "line": "halt"
+    }
+  ],
+  "lines": [
+    {
+      "id": "halt",
+      "text": "Halt. You're walking about like you own the place.",
+      "options": [
+        {
+          "id": "friend",
+          "label": "I'm a friend of Ada's",
+          "next": "fine"
+        },
+        {
+          "id": "leave",
+          "label": "I'm just leaving"
+        }
+      ]
+    },
+    {
+      "id": "fine",
+      "text": "Then keep to the green, friend."
+    }
+  ]
+}

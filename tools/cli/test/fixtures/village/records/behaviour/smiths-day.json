@@ -1,0 +1,28 @@
+{
+  "name": "The smith's day",
+  "description": "The forge from 8 to 18, the cottage from 22 to 6, the green between.",
+  "do": {
+    "first": [
+      {
+        "hours": [8, 18],
+        "do": {
+          "work": "anvil"
+        }
+      },
+      {
+        "hours": [22, 6],
+        "do": {
+          "sleep": "cottage-door"
+        }
+      },
+      {
+        "do": {
+          "sandbox": ["green-1", "green-2", "green-3"],
+          "dwell": {
+            "minutes": 20
+          }
+        }
+      }
+    ]
+  }
+}

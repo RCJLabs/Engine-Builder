@@ -7,6 +7,9 @@
  */
 import type { Effect, RecordIndex } from '@eb/core';
 import {
+  ACTOR,
+  AI,
+  BEHAVIOUR,
   DIALOGUE,
   ENCOUNTERS,
   EVENTS,
@@ -39,6 +42,9 @@ import { QuestChecks } from './questCheck.ts';
 import { slotScope } from './questSlots.ts';
 import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
+
+/** What a behaviour's fields can name as @slot: @self, the actor running it (M6.3). */
+const SELF: Readonly<Record<string, string>> = Object.freeze({ self: ACTOR });
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
 
@@ -125,8 +131,12 @@ export class KitChecks {
     this.encounters = on.includes(ENCOUNTERS) ? new EncounterChecks(on) : undefined;
   }
 
-  /** The slots each field of a record can name (M3.10): a quest's, with the quests kit on. */
+  /**
+   * The slots each field of a record can name (M3.10): a quest's, with the quests kit on; and in a
+   * behaviour, with the ai kit on, @self, the actor running it (M6.3).
+   */
   slotsOf(type: string, value: unknown): ((path: string) => Readonly<Record<string, string>>) | undefined {
+    if (type === BEHAVIOUR && this.on.includes(AI)) return () => SELF;
     return this.quests && type === QUEST ? slotScope(value) : undefined;
   }
 

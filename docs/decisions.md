@@ -2135,6 +2135,44 @@ Evan chose on 2026-10-25, from these options:
 - **NPCs walk only near the player:** the crowd walks those built in the rings around them (M5.10); one farther off waits where it last stood.
 - **Bots walking NPCs** in `eb sim` wait for a headless world runner; until then a headless arrival comes only from a test's walker.
 
+### D75. M6.3 runs a game clock while the player walks, gives NPCs behaviours the sim runs and the stage walks, authored as records of nodes, and lets them see and hear the player, an awareness ladder climbing and decaying. LOCKED, 2026-10-25 (Evan's calls, M6.3)
+
+Evan chose on 2026-10-25, from these options:
+- **The clock in a walked space:** runs while walking at a rate project.json sets (20x, a game day in 72 real minutes, by default; 0 stops it), paused under screens and kept in saves; only by actions (Rest, Wait, doors); or running at one engine-wide rate.
+- **Where an NPC's schedule and activity are decided:** the sim picks the package that holds and sets goals, the stage walks it (as D74), a far NPC simply wherever its schedule says; or the stage runs it all and the sim hears outcomes.
+- **Behaviour trees in M6.3:** records of nodes, checked by the compiler and edited as an outline with forms (the graph editor waits for Phase 8); the six packages only, no trees; or trees in scripts.
+- **Perception:** sight (range, cone, ray) and hearing (the player's noises), reported to the sim, with an awareness ladder (unaware, suspicious, alerted) that climbs and decays; sight only; or both senses with no ladder.
+
+**Decision.**
+- **The clock runs while walking.** project.json's `clock.rate` is game seconds a real second (20 left out, 0 stops it). The walk sends the time kit's `time/elapse` once a real second while it runs; under any screen or the shell's pause it stops. Rest and Wait still jump it. A calendar whose ticks a rate can't split into whole real milliseconds can't run it.
+- **The sim decides, the stage walks.** An actor's behaviour is a tree of nodes the ai kit's module (pure) re-checks after every event; the node that runs (sandbox, patrol, travel, follow, sleep, work, wait, face, effects) sets the NPC's goal in the world module as `walk-to` does, and the stage's crowd walks it (D74). An NPC not built when its node changes is put where that node sends it as it is built, so a far NPC is wherever its schedule says. All of it is saved and runs headless.
+- **Behaviours are records.** A `behaviour` record holds the tree: `first` (the first child that can run), `in-order`, `if` with a condition, `hours` and `days` shorthands, and the packages as leaves; `@self` is the NPC running it. The compiler checks it; the editor edits it as an outline with forms in the inspector.
+- **Perception.** An actor sees (a range, a cone, a clear ray to the player) and hears (the player's run, landing and Interact, each with a radius); the stage checks five times a second and says what each NPC sensed once a second. The sim keeps an awareness for each NPC, from 0 to 100, which sensing raises and quiet lowers: unaware, suspicious from 30, alerted from 70; behaviours, sheets and talks read its level.
+
+**Made on the way** (Claude's calls, 2026-10-25):
+- **The ai kit needs the stats and time kits:** actors are the stats kit's; schedules are hours, dwells are game time.
+- **A clock left out that the calendar can't run** (7 ticks a day, say, whose ticks 20x can't split into whole milliseconds) stays still, with W149 saying why, so a project with the time kit and a space never fails for a setting it never wrote; a `clock` given that can't run is E080.
+- **Packs carry the clock from format 12**, only when it runs, so every older pack keeps its format and golden hash.
+- **The world module at version 4** gains `follow` and `stand` beside `walk-to`, so following the player and stopping to face them are goals the stage reads where it reads the rest, and content can use them without a behaviour.
+- **A far NPC built as the player comes near starts at its goal**, its arrival said at once; one built as the space is entered or loaded starts where it last stood, as in M6.2. A schedule that moved on while nobody watched is then where it says.
+- **`time.hour` and `time.clock`:** with a calendar's hours and minutes, the time kit gives the hour and the clock's face ("22:05"), so a HUD can show the time a schedule runs on without a script.
+- **One step at a time.** The stage's steps (each elapse, the senses' reports, arrivals) and the player's presses share one line to the game's worker: a stage step that comes while another is on its way is dropped for its outbox to try again, and a press waits behind it, the latest kept. Before, a press that came while the clock's step was on its way was dropped, and the screens' buttons went dead for it; the editor's spec found Wait doing nothing. A screen's buttons are now disabled only while a press of the player's own is on its way, and come back in the one render with its view: the full e2e found focus lost after the hut's store closed when they came back a render later.
+- **A turn draws its last frame.** M6.1's facing stopped reporting a turn the moment its time ran out, so a stage paused under a talk could stop a frame short of facing the player. Main's CI caught it once in `npcEditor.spec.ts` at 390 wide after M6.2 merged; the turn now reports one frame more, and M6.3's PR carries the fix.
+- **The Project panel's calendar form gains Clock rate**, and a behaviour step's kind is changed by a button beside the choice, so moving through the kinds with the arrow keys can't throw away a step's children.
+- **The gate's guard can't be held suspicious apart from alerted:** one who turns to a noise sees whoever made it close enough to be heard. The gate reads the suspicion from the senses' report, then the alert from the halt.
+
+**Why.**
+- **The clock:** a schedule nobody sees change while they watch is no schedule; 20x is Skyrim's, and a project can slow or stop it.
+- **The sim decides:** saves, previews and headless tests need NPCs' activities in the state; the stage only has what is near.
+- **Records:** content is data, and an outline with forms is editable on a phone; a graph editor is Phase 8's.
+- **The ladder:** a single sighting shouldn't make a guard draw a sword, and one who lost the player should calm down; space-wrecked's heat works this way.
+
+**Cost.**
+- **Time passes while walking:** a walk sends an action a second, so a long walk records many; saves and replays carry them.
+- **Re-checking after every event** costs a tree walk an NPC an event; fine for tens of NPCs, measured in the gate.
+- **Perception is the stage's:** a headless run senses nothing unless a test says what was sensed, as a headless arrival comes only from a test's walker (D74).
+- **Every export carries the ai kit,** as it carries every kit, whether its game turns it on or not: Space-Wrecked's web export grew 9,992 bytes with M6.3, and its size budget was re-read.
+
 ---
 
 ## Open
