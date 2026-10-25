@@ -2,7 +2,8 @@
  * A game played through its screens (M4.1, docs/specs/screens.md#session): a kernel session, and
  * after each step the view the page draws from. It runs where the game's scripts run, in a worker,
  * and gives back only JSON. A button can only ask for an action the game offers: one it doesn't is
- * refused here before the sim sees it, as the sim would refuse it.
+ * refused here before the sim sees it, as the sim would refuse it. The one action no button asks
+ * for is the stage's world/trigger (M5.8), never on offer, which the sim's own checks decide.
  */
 import {
   type Action,
@@ -17,6 +18,7 @@ import {
   type RecordStore,
   type Session,
   type SimContext,
+  WORLD,
 } from '@eb/core';
 import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
@@ -27,6 +29,9 @@ import { soundCondition } from './sound.ts';
 import type { Entry, Shown, View, Wants } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
+
+/** What the stage sends as the character walks into a zone (M5.8). */
+const WALKED = `${WORLD}/trigger`;
 
 export interface Play {
   readonly view: View;
@@ -159,7 +164,8 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     compact: () => session.compact(),
     look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
-      if (!view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
+      const walked = action.type === WALKED;
+      if (!walked && !view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], cues: [], accepted: false };
       }
       return take(action);

@@ -17,7 +17,14 @@ import { type Catalog, readCatalog } from '../forms/catalog.ts';
 import { chosen } from '../forms/selection.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
 import { forgetTables } from '../records/viewState.ts';
-import { type GameState, gameChecks, isScriptPath, NO_SCRIPTS, readGameState } from '../scripts/gameState.ts';
+import {
+  type GameState,
+  gameChecks,
+  hasSpaces,
+  isScriptPath,
+  NO_SCRIPTS,
+  readGameState,
+} from '../scripts/gameState.ts';
 import { type ScriptWorker, scriptWorker } from '../scripts/scriptWorker.ts';
 import { folderKey, libraryKey, pageKey, type TrustKey, trust } from '../scripts/trust.ts';
 import { type FolderHandle, folderAccess } from './folders.ts';
@@ -93,6 +100,8 @@ function loadScreenChecks() {
 
 /** Checks scripts, and runs them, for whichever project is open. Started by the first project with scripts. */
 let checker: ScriptWorker | null = null;
+/** Whether each working copy had a space when its game was last checked. */
+const hadSpaces = new WeakMap<WorkingCopy, boolean>();
 
 /**
  * Reads the summary, the catalog and the record index again after changes to `copy`, one read
@@ -107,22 +116,35 @@ function refresher(copy: WorkingCopy): Refresh {
       if (open?.source !== copy) return false;
       current.value = { ...open, summary, catalog };
       let { game } = open;
-      // project.json too: its kits join the game the scripts make (M3.3).
-      if (paths === null || paths.some((path) => isScriptPath(path) || path === MANIFEST_FILE)) {
+      // project.json too: its kits join the game the scripts make (M3.3); and a first space, or the
+      // last gone, joins the world module or takes it away (M5.8).
+      const spaces = await hasSpaces(copy);
+      const turned = hadSpaces.get(copy) !== spaces;
+      hadSpaces.set(copy, spaces);
+      if (paths === null || turned || paths.some((path) => isScriptPath(path) || path === MANIFEST_FILE)) {
         checker ??= scriptWorker();
         game = await readGameState(copy, checker, trust.trusted(open.trustKey));
         open = current.value;
         if (open?.source !== copy) return false;
         current.value = { ...open, game };
       }
-      const { EMPTY_INDEX, updateIndex } = await loadIndex();
+      const { EMPTY_INDEX, updateIndex, usesKey } = await loadIndex();
       const checks = gameChecks(game);
-      const updated = await updateIndex(open.index ?? EMPTY_INDEX, copy, catalog, open.index ? paths : null, checks);
-      const { screenProblems, exportProblems, guideProblems, spaceProblems, modelProblems } = await loadScreenChecks();
+      const before = open.index ?? EMPTY_INDEX;
+      let updated = await updateIndex(before, copy, catalog, open.index ? paths : null, checks, before.flagsElsewhere);
+      const { screenProblems, exportProblems, guideProblems, spaceProblems, modelProblems, flagsElsewhere } =
+        await loadScreenChecks();
       const spaced = await spaceProblems(copy, catalog, updated, game);
+      const screens = await screenProblems(copy, catalog, updated, game);
+      // The zones and the screens set and read flags too (M5.8): when what they use has changed,
+      // the flags' lint again, as eb validate counts them. Only the flags are checked again.
+      const elsewhere = flagsElsewhere(spaced, screens);
+      if (usesKey(elsewhere) !== usesKey(updated.flagsElsewhere)) {
+        updated = await updateIndex(updated, copy, catalog, [], checks, elsewhere);
+      }
       const index = {
         ...updated,
-        screens: await screenProblems(copy, catalog, updated, game),
+        screens: screens.problems,
         exports: await exportProblems(copy, catalog, updated),
         guide: await guideProblems(copy),
         spaces: spaced.problems,

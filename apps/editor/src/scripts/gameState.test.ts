@@ -28,6 +28,24 @@ function inProcess(): ScriptWorker & { asked: number } {
 
 const project = (files: Record<string, string>) => memorySource({ 'project.json': '{}', ...files });
 
+describe('the open project’s game with spaces (M5.8)', () => {
+  const walked = MODULE.replace("['hold/*']", "['hold/*', 'world/*']");
+
+  it('joins the world module once the project has a space, which the check is told by name alone', async () => {
+    const without = await readGameState(
+      project({ 'scripts/hold.ts': walked, 'scripts/game.ts': GAME }),
+      inProcess(),
+      true,
+    );
+    expect(without.status).toBe('failed');
+    expect(without.problems.map((p) => p.message)).toEqual(['Mode "sea" allows "world/*", which matches no action']);
+    const files = { 'scripts/hold.ts': walked, 'scripts/game.ts': GAME, 'spaces/trailhead.json': '{ "objects": [] }' };
+    const loaded = await readGameState(project(files), inProcess(), true);
+    expect(loaded.status).toBe('loaded');
+    expect(loaded.catalog?.actions).toContain('world/trigger');
+  });
+});
+
 describe('the open project’s game', () => {
   it('is no scripts, without starting the worker, when there are none', async () => {
     const worker = inProcess();

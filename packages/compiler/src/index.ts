@@ -22,6 +22,7 @@ export {
   TARGETS,
   type TargetName,
 } from './exportFile.ts';
+export { SCREENS, screenReads, withScreens } from './flagUses.ts';
 export {
   type GltfSummary,
   gltfJson,
