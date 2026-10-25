@@ -4,8 +4,15 @@
  * log. The editor reads the same (forms/catalog.ts) and adds its record index's checks, so its
  * Problems panel and `eb validate` give the same list.
  */
-import { type CalendarDef, type ClockDef, DEFAULT_RATE, msPerTickAt, type PackProject } from '@eb/core';
-import { TIME } from '@eb/kits';
+import {
+  type CalendarDef,
+  type ClockDef,
+  DEFAULT_RATE,
+  msPerTickAt,
+  type PackFighting,
+  type PackProject,
+} from '@eb/core';
+import { FIGHTING, TIME } from '@eb/kits';
 import { checkProvenance, type Diagnostic, type DiagnosticCode, type RecordType, severityOf } from '@eb/schema';
 import { type ParsedFile, parseJsonFile } from './decode.ts';
 import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
@@ -99,6 +106,8 @@ export interface KitSettings {
   readonly spaces?: true;
   /** The clock its spaces are walked at (M6.3, D75), when it runs. */
   readonly clock?: ClockDef;
+  /** project.json's fighting (M6.4, D76), when it is sound and the fighting kit on. */
+  readonly fighting?: PackFighting;
 }
 
 /** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
@@ -110,6 +119,7 @@ export async function readKitSettings(source: ProjectSource): Promise<KitSetting
     ...(project?.calendar ? { calendar: project.calendar } : {}),
     ...(spaces ? { spaces } : {}),
     ...(project?.clock ? { clock: project.clock } : {}),
+    ...(project?.fighting ? { fighting: project.fighting } : {}),
   };
 }
 
@@ -128,8 +138,13 @@ async function readManifestFile(
     report({ code: 'E007', message: parsed.message, file, path: '' });
     return { project: null };
   }
-  const { problems, clockRate, ...read } = checkManifest(parsed.value);
+  const { problems, clockRate, fighting, ...read } = checkManifest(parsed.value);
   for (const problem of problems) report({ ...problem, file });
+  if (read.project?.kits?.includes(FIGHTING) && fighting === undefined && (await hasSpaces(source))) {
+    const message =
+      'With the fighting kit on and a space to fight in, say who the player is and which combat record a hit reads: "fighting": { "player": …, "combat": … }';
+    report({ code: 'E082', message, file, path: '' });
+  }
   const clock = read.project && (await clockOf(source, read.project, clockRate, report));
   return clock ? { ...read, project: { ...(read.project as PackProject), clock } } : read;
 }

@@ -1,6 +1,7 @@
 import { createPack, type Pack, type RecordIndex } from '@eb/core';
 import { TALK } from '@eb/kits';
 import {
+  checkFightingNames,
   compareDiagnostics,
   type DataType,
   type Diagnostic,
@@ -22,6 +23,7 @@ import { checkExport } from './exportCheck.ts';
 import { EXPORT_FILE } from './exportFile.ts';
 import { screenReads, withScreens } from './flagUses.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
+import { MANIFEST_FILE } from './layout.ts';
 import { checkModels } from './models.ts';
 import { checkNavFiles } from './navFiles.ts';
 import { navHashes, navModelsOf } from './navInputs.ts';
@@ -146,6 +148,11 @@ export async function compileProject(
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));
   // A placed record, and every reference in a component or an override, names one (M5.2).
   diagnostics.push(...checkProjectSpaces(spaces.files, spaces.terrains), ...parts.diagnostics);
+  // project.json's fighting names its player and its combat record, the player placed nowhere (M6.4).
+  const fighting = files.project?.fighting;
+  if (fighting)
+    for (const problem of checkFightingNames(fighting, index.has, (actor) => walkers.get(actor)?.space))
+      diagnostics.push({ ...problem, severity: 'error', file: MANIFEST_FILE });
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));
   // A navmesh baked from the space as it stands now (M6.2): its hash against the inputs' now.

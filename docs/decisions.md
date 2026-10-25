@@ -2173,6 +2173,42 @@ Evan chose on 2026-10-25, from these options:
 - **Perception is the stage's:** a headless run senses nothing unless a test says what was sensed, as a headless arrival comes only from a test's walker (D74).
 - **Every export carries the ai kit,** as it carries every kit, whether its game turns it on or not: Space-Wrecked's web export grew 9,992 bytes with M6.3, and its size budget was re-read.
 
+
+### D76. M6.4 resolves a hit physics found by the weapon's damage less armour, with no roll; aims softly toward the foe in front; leaves fallen NPCs as bodies to search and offers a fallen player their last save; and has NPCs close, wind up and strike, two at a time. LOCKED, 2026-10-25 (Evan's calls, M6.4)
+
+Evan chose on 2026-10-25, from these options:
+- **A hit that connects:** always lands, the sim taking the weapon's damage less the target's armour (no dice, nothing to show as odds); a hit roll of the combat record's hit less dodge on each contact, its odds shown; or always lands, its damage spread ±20% from the sim's stream.
+- **Aiming:** soft aim, an Attack button beside Jump, a strike turned toward the nearest foe within about 30° in front and a bow aimed at it; a Target button that locks onto the nearest foe; or free aim only.
+- **A fall:** a fallen NPC lies where it fell as a body to search, its bag and an optional loot table, and the player falling is offered their last save; goods straight to the player's bag and the game's own effects alone for the player; or bodies, and the game's own effects alone.
+- **How much NPCs fight:** an attack step that closes, winds up where the player can see it, strikes and recovers, archers keeping their distance, at most two foes striking at once while the rest circle; that and blocking for both sides; or everyone at once.
+
+**Decision.**
+- **The last save a fallen player loads** (Evan, asked again on 2026-10-25, since the shell saves after every step and the slot's newest save is a step before the blow): an arrival checkpoint, kept as the player comes into a space and as a game starts or loads, as Skyrim saves at its doors; the arrival checkpoint was chosen over the save just before the blow and over offering both.
+- **Contact always hits.** The stage finds a hit with Rapier, a swing's reach and arc or an arrow's flight, and says so; the sim takes `max(1, the weapon's damage + the wielder's damage − the target's armour)` off the target's health, the stats the project's `combat` record names. No roll, so the odds rule has nothing to show, and replays stay exact.
+- **Soft aim.** Attack (a click once the pointer is locked, F, a pad's west button, a touch button beside Jump) turns the player toward the nearest standing foe within 30° of where they face and the weapon's reach or range, over its wind-up; a bow aims at that foe's chest.
+- **Bodies and the last save.** A fallen NPC lies where it fell; Interact searches it, its bag (with its `drops` rolled into it as it fell) moving to the party's. A fallen player stops the walk and the shell offers the slot's last save; the actor's `on-fall` effects run first, so a game can add its own.
+- **Close, wind up, strike.** A behaviour's `attack` step fights the player: at most two NPCs engaged at once, in the order they began, the rest circling at 5 m; an engaged one closes to its weapon's reach, winds up where it can be seen, strikes and recovers; an archer shoots from where it stands while it can see the player in range.
+
+**Made on the way** (Claude's calls, 2026-10-25):
+- **The fighting kit** holds it, needing the stats kit (health is a pool), the gear kit (weapons are worn) and the encounters kit, whose `combat` record already says which stats are health, damage and armour, so a turn-based fight and a real-time one read the same record.
+- **project.json's `fighting`** names the player (an actor, so the player has stats, slots and gear) and the combat record; E082 when either is missing or wrong once a project has a space. The party's bag stays the player's.
+- **A weapon is an item's `weapon` group**, worn through the gear kit: melee (damage, reach, arc, wind-up, strike, recover) or ranged (damage, range, speed, draw, recover, ammo). One wearing none fights with fists.
+- **Searching takes everything** at once, each line toasted; taking item by item waits for M6.6's containers.
+- **Only the player's shots take ammo**; an NPC archer shoots without it, and what it carries is there to be searched for.
+- **Being hit alerts:** an NPC the player strikes has its awareness set to the top, whatever its faction; its behaviour decides whether it fights or not.
+- **The world module at version 5** gains `attack` and `fall` (not `fight`, the encounters kit's effect), so where an NPC is engaged and whether it is down are kept where the stage reads every other goal.
+
+**Why.**
+- **No roll:** a hit the player sees land that the sim calls a miss reads as a bug; damage less armour keeps gear meaningful.
+- **Soft aim:** one thumb on a phone, no extra button, and close to how a keyboard player aims anyway.
+- **Bodies:** searching a fallen foe is the reward of a fight in the games Phase 6 copies, and a last save is what a player expects after falling.
+- **Two at a time:** a crowd striking at once is unreadable on a small screen; taking turns gives every wind-up a chance to be seen and stepped away from.
+
+**Cost.**
+- **No blocking or dodging** in M6.4: stepping away from a wind-up is the only defence.
+- **The stage decides when an NPC strikes,** so a headless run fights only through a stage run in Node (Rapier and Recast), as arrivals and senses already do.
+- **No animation until M6.5:** a wind-up shows as the figure leaning back and its weapon brightening, a fall as the figure lying down.
+
 ---
 
 ## Open

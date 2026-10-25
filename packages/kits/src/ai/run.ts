@@ -3,6 +3,7 @@
  * if it is new, or goes on: an arrival finishes travel, sleep and work and starts a patrol's or a
  * sandbox's dwell, a dwell or wait that is due ends. A guard left starts its cooldown; an in-order
  * left starts from the top the next time it is chosen; one whose child finished goes on to the next.
+ * An attack left stands the NPC first, so a leaf that sets no goal of its own doesn't go on fighting.
  */
 import type { Effect } from '@eb/core';
 import { bind } from '../quests/slots.ts';
@@ -27,12 +28,14 @@ export function runBehaviour(ai: Ai, actor: string, tree: BehaviourNode, now: No
     if (leaf !== was?.leaf) {
       if (leaf !== undefined && started.has(leaf)) return;
       run = left(ai, tree, was, leaf, now.tick);
+      const fought = was?.leaf !== undefined && kindOf(nodeAt(tree, was.leaf)) === 'attack';
       if (leaf === undefined) {
         ai.save(actor, run);
         if (was?.leaf !== undefined) goals(ai, actor).stand();
         ai.doing(actor, undefined);
         return;
       }
+      if (fought) goals(ai, actor).stand();
       started.add(leaf);
       start(ai, actor, run, nodeAt(tree, leaf) as BehaviourNode, now.tick);
       ai.save(actor, run);
@@ -90,7 +93,8 @@ function start(ai: Ai, actor: string, run: Run, node: BehaviourNode, tick: numbe
   } else if (kind === 'face') {
     go.stand(true);
     run.done = true;
-  } else if (kind === 'effects') {
+  } else if (kind === 'attack') go.attack();
+  else if (kind === 'effects') {
     for (const effect of n.effects as readonly Effect[]) ai.apply(bind(effect, { self: actor }));
     run.done = true;
   }

@@ -1,0 +1,122 @@
+{
+  "format": 1,
+  "game": "village",
+  "edition": "test",
+  "build": "e634d815214c8df9",
+  "savedAt": 1000,
+  "summary": {
+    "turn": 4,
+    "line": "22:00"
+  },
+  "snapshot": {
+    "kernel": {
+      "seed": "village",
+      "step": 0,
+      "modes": [
+        {
+          "id": "out"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "ai": 1,
+        "dialogue": 1,
+        "flag": 1,
+        "logic": 1,
+        "sheet": 1,
+        "stats": 1,
+        "time": 1,
+        "village": 1,
+        "world": 4
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {}
+    },
+    "sheet": {
+      "fired": []
+    },
+    "stats": {
+      "actors": {}
+    },
+    "time": {
+      "tick": 0,
+      "carry": 0,
+      "next": 0,
+      "timers": []
+    },
+    "dialogue": {
+      "waiting": [],
+      "talked": {},
+      "heard": {},
+      "said": {}
+    },
+    "ai": {
+      "npcs": {
+        "guard": {
+          "leaf": "3.0"
+        },
+        "smith": {
+          "leaf": "0.0"
+        }
+      },
+      "aware": {}
+    },
+    "world": {
+      "fired": [],
+      "taken": [],
+      "space": "village",
+      "npcs": {
+        "guard": {
+          "space": "village",
+          "goal": "gate"
+        },
+        "smith": {
+          "space": "village",
+          "goal": "anvil"
+        }
+      }
+    },
+    "village": {}
+  },
+  "log": [
+    {
+      "type": "village/wait"
+    },
+    {
+      "type": "world/npcs-at",
+      "space": "village",
+      "npcs": {
+        "guard": {
+          "feet": [1, 0, 2],
+          "yaw": 90,
+          "arrived": "wall-ne"
+        }
+      }
+    },
+    {
+      "type": "world/npcs-at",
+      "space": "village",
+      "npcs": {
+        "smith": {
+          "feet": [1, 0, 2],
+          "yaw": 90,
+          "arrived": "cottage-door"
+        }
+      }
+    },
+    {
+      "type": "ai/sensed",
+      "space": "village",
+      "ms": 1000,
+      "npcs": {
+        "guard": {
+          "heard": 2
+        }
+      }
+    }
+  ],
+  "hash": "fa997b84f7562514",
+  "check": "18106fe727d8a6cf"
+}

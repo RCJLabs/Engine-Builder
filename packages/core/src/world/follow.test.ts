@@ -116,7 +116,7 @@ describe('follow and stand', () => {
       world: { fired: [], taken: [], space: 'square', npcs: { dog: { space: 'square', goal: 'stick' } } },
     };
     const { state, report } = game.migrate(JSON.parse(JSON.stringify(old)), sim);
-    expect(report.migrated).toEqual([{ module: 'world', from: 3, to: 4 }]);
+    expect(report.migrated).toEqual([{ module: 'world', from: 3, to: 5 }]);
     expect((state.world as WorldSlice).npcs).toEqual({ dog: { space: 'square', goal: 'stick' } });
   });
 });

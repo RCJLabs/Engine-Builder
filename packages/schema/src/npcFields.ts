@@ -1,7 +1,8 @@
 /**
  * What an actor gains to stand in a space as an NPC (M6.1, D73, docs/specs/npcs.md#the-actors-fields):
  * its look, always, and with each kit on, its talk, its faction and what it carries; with the ai
- * kit (M6.3, D75), its behaviour and its senses.
+ * kit (M6.3, D75), its behaviour and its senses; with the fighting kit (M6.4, D76), its drops and
+ * what happens as it falls, which the player's actor has too.
  */
 import {
   AI,
@@ -10,12 +11,14 @@ import {
   DIALOGUE,
   FACTION,
   FACTIONS,
+  FIGHTING,
   HEARING_M,
   INVENTORY,
   ITEM,
   SIGHT_M,
   TALK,
 } from '@eb/kits';
+import { FALLING_FIELDS } from './fightingTypes.ts';
 import { MODEL } from './modelTypes.ts';
 import type { Fields } from './typeFile.ts';
 
@@ -110,11 +113,13 @@ const BY_KIT: Readonly<Record<string, Fields>> = {
       description: `How far it hears, in metres: ${HEARING_M} when left out, 0 deaf`,
     },
   },
+  [FIGHTING]: FALLING_FIELDS,
 };
 
 /** An actor's NPC fields with these kits on: the look first, then each kit's in the kits' order. */
 export function npcFields(on: readonly string[]): Fields {
   const fields: Record<string, Fields[string]> = { ...LOOK };
-  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, AI]) if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
+  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, AI, FIGHTING])
+    if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
   return fields;
 }

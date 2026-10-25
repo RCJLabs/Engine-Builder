@@ -109,6 +109,14 @@ export const gearKit = defineModule<GearSlice>({
       read: ({ content, state }, { actor, item }) =>
         wornBy(content, state, actor as string).filter(([, worn]) => worn === item).length,
     },
+    // What the slot wears now (M6.4): the fighting kit finds an actor's weapon by its slots.
+    'in-slot': {
+      args: { ...ACTOR_ARG, slot: { type: 'ref', to: SLOT } },
+      domain: { type: 'ref', to: ITEM },
+      label: 'what the slot wears',
+      read: ({ content, state }, { actor, slot }) =>
+        wornBy(content, state, actor as string).find(([s]) => s === slot)?.[1],
+    },
     add: {
       args: { ...ACTOR_ARG, stat: { type: 'ref', to: STAT } },
       domain: { type: 'int' },

@@ -376,6 +376,62 @@ describe('createPack', () => {
       'Unknown pack project fields: clock',
     );
   });
+
+  it('carries the fighting as format 13 (M6.4), only with the fighting kit and spaces, clock or none', () => {
+    const world = {
+      spaces: { camp: { name: 'Camp', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+      uses: {},
+      spawns: { camp: [] },
+      start: 'camp',
+    };
+    const fighting = { player: 'hero', combat: 'blades' };
+    const armed = { ...project, kits: ['stats', 'fighting'], fighting };
+    const fought = createPack(armed, records, undefined, undefined, undefined, undefined, world);
+    expect(fought.format).toBe(13);
+    expect(fought.project.fighting).toEqual(fighting);
+    expect(fought.project).not.toHaveProperty('clock');
+    expect(fought.world).toMatchObject({ navmeshes: {}, actors: {} });
+    expect(readPack(reloaded(fought))).toEqual(fought);
+    const timed = { ...armed, kits: ['time', 'fighting'], clock: { rate: 20 } };
+    const both = createPack(timed, records, undefined, undefined, undefined, undefined, world);
+    expect(both.format).toBe(13);
+    expect(both.project).toMatchObject({ clock: { rate: 20 }, fighting });
+    expect(readPack(reloaded(both))).toEqual(both);
+    // Without spaces nothing is fought, and without the kit nothing reads it: no fighting, an older format.
+    expect(createPack(armed, records).format).toBe(3);
+    expect(createPack(armed, records).project).not.toHaveProperty('fighting');
+    const unarmed = createPack(
+      { ...armed, kits: ['stats'] },
+      records,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      world,
+    );
+    expect(unarmed.format).toBe(9);
+    const read = reloaded(fought);
+    const broken =
+      (given: unknown, also: Record<string, unknown> = {}) =>
+      () =>
+        readPack({ ...read, project: { ...(read.project as object), fighting: given, ...also } });
+    expect(broken(undefined)).toThrow('A format 13 pack has its fighting');
+    expect(broken({ player: 'Hero', combat: 'blades' })).toThrow('names its player and its combat record by id');
+    expect(broken({ ...fighting, aim: 1 })).toThrow('Unknown pack fighting fields: aim');
+    expect(broken(fighting, { kits: ['stats'] })).toThrow(
+      "A pack's fighting is the fighting kit's, which it doesn't list",
+    );
+    // Before format 13 there is no fighting.
+    const nine = reloaded(unarmed);
+    expect(() => readPack({ ...nine, project: { ...(nine.project as object), fighting } })).toThrow(
+      'Unknown pack project fields: fighting',
+    );
+  });
 });
 
 describe('readPack', () => {

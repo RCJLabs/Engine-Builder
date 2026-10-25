@@ -10,7 +10,7 @@
 import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
-import { follow, npcsAt, stand, walkTo } from './npcs.ts';
+import { attack, engaged, fall, follow, npcsAt, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
@@ -48,6 +48,8 @@ export function worldModule(world: WorldData): Module {
       3: (slice) => ({ ...(slice as object), npcs: {} }),
       // Version 3 had no NPC following the player or facing them: its NPCs load as they were.
       4: (slice) => slice,
+      // Version 4 had no NPC fighting or fallen: likewise.
+      5: (slice) => slice,
     },
     init: () => ({ fired: [], taken: [], space: world.start, npcs: {} }),
     events: {
@@ -68,6 +70,9 @@ export function worldModule(world: WorldData): Module {
       'walk-to': { run: (ctx, effect) => walkTo(world, ctx, effect) },
       follow: { run: (ctx, effect) => follow(world, ctx, effect) },
       stand: { run: (ctx, effect) => stand(world, ctx, effect) },
+      // Not `fight`, the encounters kit's turn-based fight, which the fighting kit needs beside it.
+      attack: { run: (ctx, effect) => attack(world, ctx, effect) },
+      fall: { run: (ctx, effect) => fall(world, ctx, effect) },
     },
     facts: {
       fired: {
@@ -94,6 +99,22 @@ export function worldModule(world: WorldData): Module {
         domain: TEXT,
         label: 'the space the NPC stands in',
         read: (_view, args) => (typeof args.actor === 'string' ? own(world.actors, args.actor)?.space : undefined),
+      },
+      // M6.4 (D76): one of the two fighting the player now, and one fallen.
+      'npc-engaged': {
+        args: { actor: TEXT },
+        domain: BOOL,
+        label: 'the NPC is one of the two fighting the player',
+        read: (view, args) => typeof args.actor === 'string' && engaged(view.state.npcs, args.actor),
+      },
+      'npc-down': {
+        args: { actor: TEXT },
+        domain: BOOL,
+        label: 'the NPC has fallen',
+        read: (view, args) =>
+          typeof args.actor === 'string' &&
+          Object.hasOwn(view.state.npcs, args.actor) &&
+          view.state.npcs[args.actor]?.down === true,
       },
       'npc-at': {
         args: { actor: TEXT },

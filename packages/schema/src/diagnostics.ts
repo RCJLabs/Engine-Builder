@@ -84,7 +84,8 @@ export const DIAGNOSTIC_CODES = {
   E078: "A space's navmesh file isn't one the engine reads, or its space isn't there",
   E079: "walk-to, follow or stand names an actor placed in no space, an object its space doesn't have, or a space with no navmesh",
   E080: "project.json's clock can't run: the time kit is off, its rate isn't a whole number from 0 to 3,600, or the calendar's ticks aren't whole real milliseconds at it",
-  E081: "A behaviour's node can't run: a point its actor's space lacks, walking where there is no navmesh, a unit, hour or weekday its calendar lacks, or an actor with a behaviour placed nowhere",
+  E081: "A behaviour's node can't run: a point its actor's space lacks, walking where there is no navmesh, a unit, hour or weekday its calendar lacks, an actor with a behaviour placed nowhere, or an attack with the fighting kit off",
+  E082: "project.json's fighting is wrong: missing with the fighting kit on and a space, the kit off, its player not an actor or placed in a space, or its combat not a combat record",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -134,6 +135,8 @@ export const DIAGNOSTIC_CODES = {
   W147: "A space's navmesh was baked before its solids or terrain last changed",
   W148: 'A behaviour no actor has',
   W149: "No clock is given and the calendar's ticks aren't whole real milliseconds at 20x: the clock stays still while walking",
+  W150: 'An actor whose behaviour attacks wears no weapon: it fights with its fists',
+  W151: "A weapon's field its kind doesn't read: a reach or an arc on a ranged weapon, a range or ammo on a melee one",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

@@ -133,7 +133,7 @@ describe('eb with the square', () => {
     const raw = await readFile(resolve(import.meta.dirname, 'fixtures/saves/square-world-v3.json'), 'utf8');
     const resumed = resumeFrom(open, raw);
     if (!resumed.ok) throw new Error(resumed.message);
-    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 3, to: 4 }]);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 3, to: 5 }]);
     const npcs = (resumed.play.state.world as { npcs: Record<string, Npc> }).npcs;
     expect(npcs.ash).toEqual({ space: 'square', feet: [3.25, 0, 1.5], yaw: 120, goal: 'ash-south' });
     expect(npcs.carter).toEqual({ space: 'square', feet: [-6, 0, 2], yaw: 90 });

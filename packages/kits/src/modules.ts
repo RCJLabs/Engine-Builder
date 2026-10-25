@@ -11,6 +11,8 @@ import { ENCOUNTERS } from './encounters/types.ts';
 import { eventsModule } from './events/module.ts';
 import { EVENTS } from './events/types.ts';
 import { factionsKit } from './factions/module.ts';
+import { fightingModule } from './fighting/module.ts';
+import { FIGHTING, type FightingDef } from './fighting/types.ts';
 import { gearKit } from './gear/module.ts';
 import { GEAR } from './gear/types.ts';
 import { inventoryKit } from './inventory/module.ts';
@@ -49,9 +51,15 @@ const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
 
 /**
  * The modules of the kits on, in the engine's order; the time kit's with the project's calendar
- * (M3.5), and its clock when its spaces are walked (M6.3).
+ * (M3.5), and its clock when its spaces are walked (M6.3); the fighting kit's with project.json's
+ * fighting when it has a world (M6.4), and the ai kit's hearing its hits when it is on.
  */
-export function kitModules(on: readonly string[], calendar?: CalendarDef, clock?: ClockDef): Module[] {
+export function kitModules(
+  on: readonly string[],
+  calendar?: CalendarDef,
+  clock?: ClockDef,
+  fighting?: FightingDef,
+): Module[] {
   return KITS.filter((kit) => on.includes(kit.id)).map((kit) => {
     if (kit.id === STATS) return on.includes(GEAR) ? STATS_WITH_GEAR : STATS_ALONE;
     if (kit.id === TIME) return timeKit(calendar, clock);
@@ -63,7 +71,8 @@ export function kitModules(on: readonly string[], calendar?: CalendarDef, clock?
       return on.includes(ECONOMY) ? MAPS_WITH_ECONOMY : MAPS_ALONE;
     }
     if (kit.id === ENCOUNTERS) return on.includes(ROSTER) ? ENCOUNTERS_WITH_ROSTER : ENCOUNTERS_ALONE;
-    if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR);
+    if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR, on.includes(FIGHTING));
+    if (kit.id === FIGHTING) return fightingModule(fighting);
     return MODULES.get(kit.id) as Module;
   });
 }

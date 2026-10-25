@@ -70,6 +70,13 @@ export interface NpcPlace {
   readonly arrived?: string;
   readonly follow?: number;
   readonly facing?: 'player';
+  /**
+   * Version 5 (M6.4, D76): sent to fight the player, its turn in the queue; the two lowest turns of
+   * those standing are engaged, the rest circle.
+   */
+  readonly fight?: number;
+  /** Fallen: its goals cleared, and no effect moves it again. */
+  readonly down?: true;
 }
 
 export interface WorldSlice {
@@ -88,9 +95,10 @@ export interface WorldSlice {
 
 /**
  * The slice's shape: 2 since M5.9, which added where the player is and what was taken; 3 since M6.2,
- * the NPCs; 4 since M6.3, an NPC following the player or facing them.
+ * the NPCs; 4 since M6.3, an NPC following the player or facing them; 5 since M6.4, an NPC fighting
+ * the player or fallen.
  */
-export const WORLD_VERSION = 4;
+export const WORLD_VERSION = 5;
 
 /** A world with no spaces' data: what a check builds the module from when only its names matter. */
 export const EMPTY_WORLD: WorldData = { triggers: {}, uses: {}, spawns: {}, start: '', actors: {} };

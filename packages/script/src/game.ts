@@ -13,6 +13,7 @@ import {
   isRecordId,
   type MetricSpec,
   type Module,
+  type PackFighting,
   type Policy,
   WORLD,
   type WorldData,
@@ -60,6 +61,7 @@ const shapeProblem = (what: string): GameRead => ({
  * The game in game.ts's exports, the engine's modules and the kits' joined, checked by making it
  * once. `world` is the pack's zones, uses and spaces when the project has spaces: none to check it with.
  * `clock` is the pack's when its spaces are walked (M6.3): the time kit follows the walk's real time.
+ * `fighting` is project.json's (M6.4): the fighting kit reads it only with a world to fight in.
  */
 export function readGame(
   exports: Readonly<Record<string, unknown>>,
@@ -67,6 +69,7 @@ export function readGame(
   calendar?: CalendarDef,
   world?: WorldData,
   clock?: ClockDef,
+  fighting?: PackFighting,
 ): GameRead {
   const { modules, start, policies = [], metrics = [] } = exports;
   if (!Array.isArray(modules) || modules.length === 0 || !modules.every(isModule)) {
@@ -79,7 +82,7 @@ export function readGame(
   if (!Array.isArray(metrics) || !metrics.every(isMetric)) {
     return shapeProblem('metrics, if any: fact ids, or { fact, args, label }');
   }
-  const kitted = kitModules(kits, calendar, clock);
+  const kitted = kitModules(kits, calendar, clock, world !== undefined ? fighting : undefined);
   const clash = modules.find((m) => kitted.some((kit) => kit.id === m.id && kit !== m));
   if (clash) {
     const message = `Its module "${clash.id}" has the id of the ${clash.id} kit, which project.json lists: name it otherwise`;

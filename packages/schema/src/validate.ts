@@ -9,13 +9,14 @@ import {
   type RecordIndex,
   SHEET,
 } from '@eb/core';
-import { ACTOR, AI, BEHAVIOUR, QUEST, QUESTS, type QuestRecord } from '@eb/kits';
+import { ACTOR, AI, BEHAVIOUR, FIGHTING, ITEM, QUEST, QUESTS, type QuestRecord } from '@eb/kits';
 import type { z } from 'zod';
 import { type Checked, checkBehaviours } from './aiCheck.ts';
 import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
 import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
+import { checkWeapon } from './fightingTypes.ts';
 import { FlagChecks, type FlagUses, type HeldElsewhere } from './flagCheck.ts';
 import { checkFoliage, FOLIAGE, type FoliageRecord } from './foliageTypes.ts';
 import { KitChecks } from './kitCheck.ts';
@@ -183,14 +184,15 @@ export function validateRecords(
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
     if (record.type === FOLIAGE && sound) checkFoliage(record.value as FoliageRecord, report);
-    if (sound && on.includes(AI) && (record.type === BEHAVIOUR || record.type === ACTOR))
+    if (sound && on.includes(AI) && (record.type === BEHAVIOUR || record.type === ACTOR || record.type === ITEM))
       behaving.push({ type: record.type, id: record.id, value: record.value, report });
+    if (sound && record.type === ITEM && on.includes(FIGHTING)) checkWeapon(record.value, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);
     }
   }
-  if (on.includes(AI)) checkBehaviours(behaving, options.calendar, options.walkers);
+  if (on.includes(AI)) checkBehaviours(behaving, options.calendar, options.walkers, on.includes(FIGHTING));
   if (options.flagsElsewhere) flags.elsewhere(options.flagsElsewhere);
   heldBy(kits, options.flagsElsewhere?.held, diagnostics);
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
