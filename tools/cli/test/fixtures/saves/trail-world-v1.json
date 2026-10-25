@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "game": "trail",
+  "edition": "test",
+  "build": "eadb7ccc992b7213",
+  "savedAt": 1000,
+  "summary": {
+    "turn": 1
+  },
+  "snapshot": {
+    "kernel": {
+      "seed": "fixture",
+      "step": 0,
+      "modes": [
+        {
+          "id": "trailhead"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "flag": 1,
+        "logic": 1,
+        "sheet": 1,
+        "trail": 1,
+        "world": 1
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {}
+    },
+    "sheet": {
+      "fired": []
+    },
+    "world": {
+      "fired": []
+    },
+    "trail": {}
+  },
+  "log": [
+    {
+      "type": "world/trigger",
+      "space": "trailhead",
+      "object": "cairn/zone"
+    }
+  ],
+  "hash": "d687be4bff0ce34b",
+  "check": "43f23f9786dbeb23"
+}
