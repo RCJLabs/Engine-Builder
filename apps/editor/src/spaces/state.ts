@@ -7,8 +7,13 @@ import { type SpaceKind, spacePath } from '@eb/compiler';
 import { effect, signal } from '@preact/signals';
 import { chosen } from '../forms/selection.ts';
 import { current } from '../projects/opened.ts';
+import type { Boxed } from './bounds.ts';
 import type { Mode } from './gizmoMath.ts';
+import { isMoveStep, type MoveStep } from './snap.ts';
 import type { Vec3 } from './vec.ts';
+
+/** The grid step's localStorage key (M5.10). Like every storage key, never renamed (CLAUDE.md). */
+export const STEP_KEY = 'eb-scene-step';
 
 export interface OpenSpace {
   readonly kind: SpaceKind;
@@ -27,6 +32,26 @@ export const picked = signal<readonly string[]>([]);
 export const inside = signal<readonly string[]>([]);
 export const gizmoMode = signal<Mode>('move');
 export const snapOn = signal(true);
+
+const storedStep = (): number | null => {
+  try {
+    return Number(window.localStorage.getItem(STEP_KEY));
+  } catch {
+    return null;
+  }
+};
+/** The grid's step for a move (M5.10, D72), kept on the device as Quality is: 0.5 m at first. */
+export const moveStep = signal<MoveStep>(((s) => (isMoveStep(s) ? s : 0.5))(storedStep()));
+export function chooseStep(next: MoveStep): void {
+  moveStep.value = next;
+  try {
+    window.localStorage.setItem(STEP_KEY, String(next));
+  } catch {
+    // A browser that keeps nothing keeps the step until the page closes.
+  }
+}
+/** The open file's objects' boxes as the view draws them (M5.10), for Drop; null with no view. */
+export const objectBoxes = signal<(() => readonly Boxed[]) | null>(null);
 /** Touch's way to choose many: each tap adds or takes away until it is turned off. */
 export const selectMore = signal(false);
 /** What a phone's inspector sheet shows while a space is open: the object's form, or the outliner. */

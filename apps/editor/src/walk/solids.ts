@@ -89,7 +89,7 @@ export type ModelOf = (
   passed: readonly Fields[],
 ) => { readonly collider?: ModelCollider; readonly scale?: number } | null;
 
-const DEEPEST = 8;
+export const DEEPEST = 8;
 
 const mul = (a: Vec3, b: Vec3): Vec3 => [a[0] * b[0], a[1] * b[1], a[2] * b[2]];
 
@@ -105,13 +105,13 @@ export function within(parent: Frame, local: Frame): Frame {
 /** A point given in the frame's own axes, in the world's. */
 export const pointIn = (frame: Frame, p: Vec3): Vec3 => add(frame.at, rotate(frame.turn, mul(frame.scale, p)));
 
-const frameOf = (object: SpaceObject): Frame => {
+export const frameOf = (object: SpaceObject): Frame => {
   const t = transformOf(object);
   return { at: t.at, turn: quatOfTurn(t.turn), scale: t.scale };
 };
 
 /** The unit shape's middle: half a metre up for those that stand on their place, none for a plane. */
-const middleOf = (object: SpaceObject): Vec3 => [0, object.shape === 'plane' ? 0 : 0.5, 0];
+export const middleOf = (object: SpaceObject): Vec3 => [0, object.shape === 'plane' ? 0 : 0.5, 0];
 
 /** An object's collider component, sized by its scale. */
 function colliderOf(path: string, frame: Frame, object: SpaceObject, fields: Fields): Solid {

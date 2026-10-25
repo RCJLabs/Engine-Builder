@@ -1,0 +1,5 @@
+{
+  "title": "The moor",
+  "tagline": "A road, a cairn and a chest",
+  "slot-line": "Lantern {inventory.count(item: lantern)}"
+}

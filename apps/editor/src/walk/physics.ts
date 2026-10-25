@@ -45,6 +45,12 @@ export interface Walker {
   respawn(): void;
   /** Solids taken (M5.9): gone from the world, with everything inside them. */
   remove(taken: ReadonlySet<string>): void;
+  /** Solids of objects built as their cells come near (M5.10), solid at once. */
+  add(solids: readonly Solid[]): void;
+  /** The solids of these top-level objects, taken down with their cells. */
+  drop(tops: ReadonlySet<string>): void;
+  /** How many bodies the world holds, the character's left out. */
+  bodies(): number;
   /** Standing somewhere else: for tests and the editor's own tools, never a player's. */
   teleport(feet: Vec3): void;
   free(): void;
@@ -59,6 +65,11 @@ export function columnsOf(ground: Ground): Float32Array {
 }
 
 const quat = (q: Quat) => ({ x: q[0], y: q[1], z: q[2], w: q[3] });
+/** The top-level object a part's path is in: "cottage/wall" is the cottage's. */
+export const topOf = (path: string): string => {
+  const at = path.indexOf('/');
+  return at < 0 ? path : path.slice(0, at);
+};
 /** How far a move goes over the ground, leaving out up and down. */
 const across = (v: Vec3) => Math.hypot(v[0], v[2]);
 
@@ -106,13 +117,22 @@ export function createWalker(
     const span = cells * ground.spacing;
     world.createCollider(rapier.ColliderDesc.heightfield(cells, cells, columnsOf(ground), { x: span, y: 1, z: span }));
   }
-  let moving: { path: string; body: RAPIER_NS.RigidBody; offset: Vec3 }[] = [];
+  let moving: { path: string; body: RAPIER_NS.RigidBody }[] = [];
   let bodies: { path: string; body: RAPIER_NS.RigidBody }[] = [];
-  for (const solid of parts.solids) {
-    const body = addSolid(rapier, world, solid);
-    if (body) bodies.push({ path: solid.path, body });
-    if (body && solid.moves) moving.push({ path: solid.path, body, offset: [0, 0, 0] });
-  }
+  const add = (solids: readonly Solid[]) => {
+    for (const solid of solids) {
+      const body = addSolid(rapier, world, solid);
+      if (body) bodies.push({ path: solid.path, body });
+      if (body && solid.moves) moving.push({ path: solid.path, body });
+    }
+  };
+  /** Takes out the bodies `gone` says of: from the world, and from the lists. */
+  const takeOut = (gone: (path: string) => boolean) => {
+    for (const { path, body } of bodies) if (gone(path)) world.removeRigidBody(body);
+    bodies = bodies.filter((b) => !gone(b.path));
+    moving = moving.filter((m) => !gone(m.path));
+  };
+  add(parts.solids);
   const half = BODY.height / 2 - BODY.radius;
   const character = world.createRigidBody(rapier.RigidBodyDesc.kinematicPositionBased());
   const capsule = world.createCollider(rapier.ColliderDesc.capsule(half, BODY.radius), character);
@@ -199,14 +219,13 @@ export function createWalker(
       this.teleport(start());
     },
     remove(taken) {
-      const [gone, kept] = [
-        bodies.filter((b) => isTaken(b.path, taken)),
-        bodies.filter((b) => !isTaken(b.path, taken)),
-      ];
-      for (const { body } of gone) world.removeRigidBody(body);
-      bodies = kept;
-      moving = moving.filter((m) => !isTaken(m.path, taken));
+      takeOut((path) => isTaken(path, taken));
     },
+    add,
+    drop(tops) {
+      if (tops.size > 0) takeOut((path) => tops.has(topOf(path)));
+    },
+    bodies: () => bodies.length,
     teleport(at) {
       fall = STANDING;
       velocity = [0, 0, 0];

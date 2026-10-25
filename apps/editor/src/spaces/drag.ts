@@ -4,6 +4,8 @@
  * nearest the pointer's ray; on a plane, where the ray meets it; on a ring, the angle around it from
  * where it was taken; the centre block, how far the pointer rose.
  */
+
+import { type Box, type Boxed, type Latch, latch } from './bounds.ts';
 import {
   AXES,
   type Axis,
@@ -29,20 +31,43 @@ export interface DragStart {
   readonly objects: readonly Placed[];
   readonly ray: Ray;
   readonly screen: Screen;
+  /** The grid's step for a move, in metres (M5.10). */
+  readonly step?: number;
+  /** For bounds snap (M5.10): the box of what is moved, the other objects', and how near, in metres, latches. */
+  readonly boxes?: { readonly moving: Box; readonly others: readonly Boxed[]; readonly tolerance: number };
 }
 
 export interface Drag {
   /** Where the objects are with the pointer here, or null where the ray meets nothing to follow. */
   update(ray: Ray, screen: Screen, snap: boolean): Placed[] | null;
+  /** What the last update latched onto (M5.10). */
+  latched(): readonly Latch[];
 }
 
 const others = (axis: Axis): Axis[] => [((axis + 1) % 3) as Axis, ((axis + 2) % 3) as Axis];
 
 export function startDrag(start: DragStart): Drag {
   const { handle, pivot, objects } = start;
+  let latches: readonly Latch[] = [];
+  const latched = () => latches;
+  /** A move of `delta` along `axes`: snapped, it latches onto other boxes first, and the grid takes the rest. */
+  const move = (delta: Vec3, axes: readonly Axis[], snap: boolean) => {
+    const boxes = start.boxes;
+    const found = snap && boxes ? latch(boxes.moving, boxes.others, delta, axes, boxes.tolerance) : null;
+    latches = found?.latched ?? [];
+    return moved(
+      objects,
+      found?.delta ?? delta,
+      axes,
+      snap,
+      start.step,
+      latches.map((l) => l.axis),
+    );
+  };
   if (handle.kind === 'scale-all') {
     return {
       update: (_ray, screen, snap) => scaled(objects, pivot, null, factorOfRise(start.screen[1] - screen[1]), snap),
+      latched,
     };
   }
   const axis = handle.kind === 'scale' ? (start.axes[handle.axis] as Vec3) : AXES[handle.axis];
@@ -52,9 +77,10 @@ export function startDrag(start: DragStart): Drag {
       update(ray, _screen, snap) {
         const t = alongAxis(ray, pivot, axis);
         if (from === null || t === null) return null;
-        if (handle.kind === 'move') return moved(objects, times(axis, t - from), [handle.axis], snap);
+        if (handle.kind === 'move') return move(times(axis, t - from), [handle.axis], snap);
         return scaled(objects, pivot, handle.axis, Math.abs(from) < 1e-6 ? 1 : t / from, snap);
       },
+      latched,
     };
   }
   const from = onPlane(start.ray, pivot, axis);
@@ -63,8 +89,9 @@ export function startDrag(start: DragStart): Drag {
       update(ray, _screen, snap) {
         const at = onPlane(ray, pivot, axis);
         if (!from || !at) return null;
-        return moved(objects, sub(at, from), others(handle.axis), snap);
+        return move(sub(at, from), others(handle.axis), snap);
       },
+      latched,
     };
   }
   // A ring: the angle from where it was taken hold of. Past 180° it reads as the other way round,
@@ -76,5 +103,6 @@ export function startDrag(start: DragStart): Drag {
       if (!grip || !at) return null;
       return turned(objects, pivot, handle.axis, angleAround(grip, sub(at, pivot), axis), snap);
     },
+    latched,
   };
 }

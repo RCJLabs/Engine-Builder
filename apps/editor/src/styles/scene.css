@@ -51,6 +51,17 @@
   padding: 0 12px;
 }
 
+/* The grid's step beside Snap (M5.10): its word and its choice, as tall as a button. */
+.scene-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scene-step select {
+  min-height: var(--tap);
+}
+
 .scene-toolbar [aria-pressed="true"],
 .outliner-row[aria-pressed="true"],
 .sheet-tabs [aria-selected="true"] {

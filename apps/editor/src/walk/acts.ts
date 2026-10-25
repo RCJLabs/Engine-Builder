@@ -22,6 +22,10 @@ export interface Acts {
   /** The objects taken here, as the sim says. */
   taken(paths: readonly string[]): ReadonlySet<string>;
   prompt(): { readonly object: string; readonly label: string } | null;
+  /** The uses offered from now on (M5.10): those of the objects built. */
+  uses(next: readonly UsePoint[]): void;
+  /** How many uses are offered. */
+  readonly offered: number;
   /** The walk is stopped: nothing waiting is sent. */
   close(): void;
   used(): { readonly object: string; readonly sent: Sent | 'waiting' }[];
@@ -33,10 +37,11 @@ const KEYS: Readonly<Record<InputBy, string | null>> = { keys: 'E', pad: 'X', to
 export function createActs(
   ask: SpaceAsk,
   outbox: Outbox,
-  uses: readonly UsePoint[],
+  first: readonly UsePoint[],
   prompt: Prompt,
   start: Told,
 ): Acts {
+  let uses = first;
   let gone: ReadonlySet<string> = new Set(ask.taken);
   let faced: UsePoint | undefined;
   let held = false;
@@ -88,6 +93,12 @@ export function createActs(
       return gone;
     },
     prompt: () => (faced ? { object: faced.path, label: faced.label } : null),
+    uses(next) {
+      uses = next;
+    },
+    get offered() {
+      return uses.length;
+    },
     close: () => outbox.close(),
     used: () => used.map((u) => ({ ...u })),
     stood: () => stood.map((s) => ({ ...s })),

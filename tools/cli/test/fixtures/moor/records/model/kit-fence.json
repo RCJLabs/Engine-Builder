@@ -1,0 +1,23 @@
+{
+  "name": "Fence",
+  "file": "starter-kit/fence.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      0.5,
+      0
+    ],
+    "size": [
+      2,
+      1,
+      0.1
+    ]
+  }
+}

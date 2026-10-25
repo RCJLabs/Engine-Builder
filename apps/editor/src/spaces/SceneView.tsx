@@ -28,7 +28,9 @@ import {
   frameAsked,
   gizmoMode,
   groundHeight,
+  moveStep,
   type OpenSpace,
+  objectBoxes,
   picked,
   selectMore,
   snapOn,
@@ -104,6 +106,7 @@ export function SceneView(props: {
       (made) => {
         if (gone) return made.dispose();
         view.current = made;
+        objectBoxes.value = () => made.boxes();
         made.setMode(gizmoMode.peek());
         // A new view is shown everything afresh.
         shown.current = lastShown();
@@ -115,6 +118,7 @@ export function SceneView(props: {
         aim.value = made.aim();
         detach = attachGestures(made, box, {
           snap: () => snapOn.peek(),
+          step: () => moveStep.peek(),
           many: () => selectMore.peek(),
           choose,
           place: (places, label) => {

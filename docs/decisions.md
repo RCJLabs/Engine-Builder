@@ -1984,6 +1984,43 @@ Evan chose on 2026-10-25, from these options:
 - **Each `world/at` is a step,** so a save is written every few seconds of walking.
 - **A load can put the player where they shouldn't stand,** such as inside a body that moved; the stage stands them on whatever is under them, and question 1 of the spec asks whether moving bodies should be saved.
 
+### D72. M5.10 streams one space by 64 m cells, the engine cutting it; far models drawn at their coarsest level to the tier's view distance; kit pieces snap by their boxes, on a grid whose step the toolbar picks, with Drop. LOCKED, 2026-10-25 (Evan's calls, M5.10)
+
+Evan chose on 2026-10-25, from these options:
+- **The exterior:**
+  - one space, cut into 64 m cells by the engine, building what is near the player; the terrain stays one heightmap of at most 513 vertices, tiles logged for later;
+  - one space, its terrain also grown past 513 as tiles side by side;
+  - a grid of cell spaces, each its own file and terrain tile, as Bethesda's worldspaces are.
+- **What is seen past the cells built:**
+  - models at their coarsest level, without physics, to the tier's view distance, then fog;
+  - only the near ring, terrain and fog past it;
+  - everything drawn, only physics, zones and uses streamed.
+- **Snapping:**
+  - pieces' boxes latching within 12 px on screen, a grid step from the toolbar, and Drop;
+  - sockets on models, joined socket to socket;
+  - both.
+
+**Decision.**
+- **One space, the engine's cells** ([specs/streaming.md](specs/streaming.md)). A space's top-level objects stream by the 64 m cells their footprints touch. The 3×3 cells around the player are built whole: drawn, solid, zones heard, uses offered. What is built stays until it leaves the 5×5. The terrain is always whole. Files, packs and saves are unchanged, and the Scene panel draws all of a space.
+- **Far models.** An object not near but within the tier's view distance (Low 250 m, Medium 400 m, High 600 m) draws only its models: at their coarsest level, as instanced meshes, with nothing solid. Fog closes at the view distance.
+- **Snapping.** While moving, the moved box latches touching or flush onto another object's box when within 12 px on screen. The grid takes any axis that didn't latch, at a step of 0.25, 0.5, 1 or 2 m. Drop stands the chosen objects on what is under them.
+- **Made on the way** (my calls, in the PR):
+  - **Far water is drawn** as well as far models, so a lake off in the distance doesn't vanish.
+  - **Drawing is spread over frames,** 4 ms a frame; bodies come and go at once, and the ring around the start or a respawn is built whole first.
+  - **A moving body belongs to its authored place:** taken down with that place's cells, it comes back there.
+  - **Drop's terrain** is the highest under the object's footprint, so nothing is sunk on a slope.
+
+**Why.**
+- **One space:** authoring stays as M5.1 to M5.9 made it, one file and one terrain. Paths, zones, uses and saves need no cell in them. A 513-vertex terrain 2 m apart is 1 km across, about Bethesda's terrain density (33 vertices over a 58.5 m cell), which is the size Proof #2's mini world asks for.
+- **Far models:** a kit's pieces repeat, so instancing draws hundreds far off in a few draws each. Without them a building pops in at 100 m.
+- **Boxes:** they need no data on any model, so every model and shape snaps the day it's imported, and a finger needs only to come within 12 px.
+
+**Cost.**
+- **Point lights** in cells built or taken down change three's light count, which recompiles shaders: a hitch a phone may feel (spec, question 3).
+- **Footprints are estimates:** a model with no collider counts half a metre across, so one wider than a cell may be left unbuilt at its edge (question 4).
+- **Boxes along the world's axes** snap a piece turned 45° by its box, not its faces (question 6).
+- **Worlds past 1 km** wait for terrain tiles (question 1).
+
 ---
 
 ## Open

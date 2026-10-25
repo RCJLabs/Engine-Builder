@@ -15,6 +15,7 @@ import type { LiveModels } from '../models/liveTypes.ts';
 import { frameStats } from '../perf/frames.ts';
 import { createFrameClock } from '../perf/stepDown.ts';
 import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
+import { type Boxed, LATCH_PX, type Latch, union } from './bounds.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView } from './environmentView.ts';
@@ -26,6 +27,7 @@ import { lodsOf } from './meshes.ts';
 import { eyeOf, FOV, framed, type Orbit, START } from './orbit.ts';
 import { perfSummary } from './perfSummary.ts';
 import { castShadows, fitShadowsTo, sunShadows } from './shadows.ts';
+import { boxesOf, createLatchWires } from './snapView.ts';
 import { placedOf, type SpaceJson } from './spaceFile.ts';
 import { createTerrainView, type TerrainFiles, type TerrainView } from './terrainView.ts';
 import { quatOfTurn, type Vec3 } from './vec.ts';
@@ -49,8 +51,12 @@ export interface View {
   pick(at: Screen): string | null;
   /** The gizmo's handle within reach of a point, when objects are chosen. */
   handleAt(at: Screen): Handle | null;
-  /** Takes hold of a handle: the drag, or null with nothing chosen. */
-  grab(handle: Handle, at: Screen): { drag: Drag; objects: readonly Placed[] } | null;
+  /** Takes hold of a handle: the drag, or null with nothing chosen; a move on a grid of `step` metres, latching onto the other objects' boxes. */
+  grab(handle: Handle, at: Screen, step?: number): { drag: Drag; objects: readonly Placed[] } | null;
+  /** The boxes a drag has latched onto, drawn as wires; none once it ends (M5.10). */
+  latched(latches: readonly Latch[]): void;
+  /** Each of the file's objects' boxes as drawn (M5.10). */
+  boxes(): Boxed[];
   /** Shows the chosen objects where a drag has them, or back where their file has them (null). */
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
@@ -114,6 +120,7 @@ export async function createView(
   const builder = createBuilder();
   const outlines = new THREE.Group();
   scene.add(outlines);
+  const wires = createLatchWires(scene, cssColor(host, '--accent', '#6cb4ff'));
   const gizmo = createGizmo();
   scene.add(gizmo.group);
   // draw is hoisted: the terrain asks for a frame as a stroke lands, and tells the foliage what changed.
@@ -360,6 +367,12 @@ export async function createView(
         : [];
     },
     objectAt,
+    screenOf: (point) => {
+      const spot = project(point);
+      return spot ? page(spot) : null;
+    },
+    boxes: () => boxesOf(built?.byId ?? new Map()),
+    latched: () => wires.latched(),
     camera: () => orbit,
     terrain: () => terrain.summary(),
     groundAt(x, z) {
@@ -401,15 +414,35 @@ export async function createView(
     rayAt,
     pick,
     handleAt: (at) => hitHandle(shapes(), project, at),
-    grab(handle, at) {
+    grab(handle, at, step) {
       const foot = footing();
       const objects = chosenPlaced();
       if (!foot || objects.length === 0) return null;
+      const all = boxesOf(built?.byId ?? new Map());
+      const moving = union(all.filter((b) => chosen.includes(b.id)).map((b) => b.box));
+      // 12 px on screen at the gizmo's distance, in metres.
+      const tolerance = metresFor(LATCH_PX, camera.position.distanceTo(new THREE.Vector3(...foot.pivot)), FOV, size.h);
+      const others = all.filter((b) => !chosen.includes(b.id));
       return {
-        drag: startDrag({ handle, pivot: foot.pivot, axes: foot.axes, objects, ray: rayAt(at), screen: at }),
+        drag: startDrag({
+          handle,
+          pivot: foot.pivot,
+          axes: foot.axes,
+          objects,
+          ray: rayAt(at),
+          screen: at,
+          ...(step === undefined ? {} : { step }),
+          ...(moving ? { boxes: { moving, others, tolerance } } : {}),
+        }),
         objects,
       };
     },
+    latched(latches) {
+      if (latches.length === 0 && wires.latched().length === 0) return;
+      wires.show(latches, latches.length === 0 ? [] : boxesOf(built?.byId ?? new Map()));
+      draw();
+    },
+    boxes: () => boxesOf(built?.byId ?? new Map()),
     preview(placed) {
       draft = placed ? new Map(placed.map((p) => [p.id, p])) : null;
       for (const id of chosen) {
@@ -480,6 +513,7 @@ export async function createView(
       outline();
       builder.dispose();
       gizmo.dispose();
+      wires.dispose();
       terrain.dispose();
       foliage.dispose();
       environment.dispose();

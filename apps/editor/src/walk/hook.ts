@@ -1,12 +1,32 @@
 /**
  * window.__ebWalk (M5.8, D70, docs/specs/movement.md#the-hook): what the e2e reads of a space being
  * walked, set while one is drawn, as window.__ebViewport is for the Scene panel's view. M5.9 adds
- * how it began, the prompt, the uses and stands sent, and what is taken.
+ * how it began, the prompt, the uses and stands sent, and what is taken; M5.10, its cells.
  */
 import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { ViewKind } from './cameras.ts';
+
+/** What the walk has built and drawn of its space (M5.10, docs/specs/streaming.md#the-hook). */
+export interface WalkCells {
+  readonly cell: readonly [number, number];
+  /** The objects near: solid, their zones heard and uses offered, drawn or waiting to be. */
+  readonly near: readonly string[];
+  /** Of those, the ones drawn, sorted. */
+  readonly drawn: readonly string[];
+  readonly waiting: number;
+  /** The far models drawn, in how many instanced meshes, and each mesh's LOD level. */
+  readonly far: { readonly models: number; readonly meshes: number; readonly levels: readonly number[] };
+  readonly bodies: number;
+  readonly zones: number;
+  readonly uses: number;
+  /** The view distance, in metres, and how far off the farthest object drawn far is. */
+  readonly view: number;
+  readonly farthest: number;
+  /** The longest a frame's building took, in ms. */
+  readonly slowest: number;
+}
 
 export interface WalkHook {
   readonly space: string;
@@ -40,6 +60,8 @@ export interface WalkHook {
   readonly frames: number;
   readonly paused: boolean;
   perf(): PerfSummary;
+  /** What is built near and drawn far (M5.10). */
+  cells(): WalkCells;
 }
 
 declare global {

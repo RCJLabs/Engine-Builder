@@ -1,0 +1,11 @@
+{
+  "name": "Cottage",
+  "objects": [
+    { "id": "floor", "record": "model:kit-floor" },
+    { "id": "north", "at": [0, 0.1, -0.9], "record": "model:kit-wall" },
+    { "id": "door", "at": [0, 0.1, 0.9], "record": "model:kit-doorway" },
+    { "id": "east", "at": [0.9, 0.1, 0], "turn": [0, 90, 0], "record": "model:kit-wall" },
+    { "id": "west", "at": [-0.9, 0.1, 0], "turn": [0, 90, 0], "record": "model:kit-wall" },
+    { "id": "roof", "at": [0, 2.6, 0], "record": "model:kit-floor" }
+  ]
+}

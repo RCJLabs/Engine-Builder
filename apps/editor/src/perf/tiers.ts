@@ -24,6 +24,8 @@ export interface TierSettings {
   readonly foliageShare: number;
   /** How many of an environment's drops fall. */
   readonly weatherShare: number;
+  /** How far a walk draws the models of what isn't near, in metres (M5.10, D72); fog closes there. */
+  readonly viewDistance: number;
 }
 
 export const TIERS: Readonly<Record<TierName, TierSettings>> = Object.freeze({
@@ -37,6 +39,7 @@ export const TIERS: Readonly<Record<TierName, TierSettings>> = Object.freeze({
     foliageReach: 0.5,
     foliageShare: 0.5,
     weatherShare: 0.25,
+    viewDistance: 250,
   },
   medium: {
     name: 'medium',
@@ -48,6 +51,7 @@ export const TIERS: Readonly<Record<TierName, TierSettings>> = Object.freeze({
     foliageReach: 0.75,
     foliageShare: 0.75,
     weatherShare: 0.5,
+    viewDistance: 400,
   },
   high: {
     name: 'high',
@@ -59,6 +63,7 @@ export const TIERS: Readonly<Record<TierName, TierSettings>> = Object.freeze({
     foliageReach: 1,
     foliageShare: 1,
     weatherShare: 1,
+    viewDistance: 600,
   },
 });
 

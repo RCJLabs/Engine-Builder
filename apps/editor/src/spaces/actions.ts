@@ -4,8 +4,9 @@
  */
 import { type SpaceKind, spacePath } from '@eb/compiler';
 import { editing } from '../editing/current.ts';
+import { dropBy } from './bounds.ts';
 import type { Transform } from './gizmoMath.ts';
-import { STEPS, snapTo } from './snap.ts';
+import { snapTo, tidy } from './snap.ts';
 import {
   addObject,
   changeObject,
@@ -17,8 +18,8 @@ import {
   placeObjects,
   renameObject,
 } from './spaceEdits.ts';
-import { type SpaceJson, type SpaceObject, withTransform } from './spaceFile.ts';
-import { aim, groundHeight, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
+import { type SpaceJson, type SpaceObject, transformOf, withTransform } from './spaceFile.ts';
+import { aim, groundHeight, moveStep, objectBoxes, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
 
 const count = (n: number, one: string) => `${n} ${one}${n === 1 ? '' : 's'}`;
 
@@ -42,7 +43,7 @@ export async function addHere(
   object: { readonly shape: SpaceObject['shape'] } | { readonly prefab: string } | { readonly record: string },
 ): Promise<void> {
   const [x, , z] = aim.value;
-  const snap = (v: number) => (snapOn.value ? snapTo(v, STEPS.move) : v);
+  const snap = (v: number) => (snapOn.value ? snapTo(v, moveStep.value) : v);
   const base: SpaceObject =
     'prefab' in object
       ? { id: object.prefab, prefab: object.prefab }
@@ -64,6 +65,28 @@ export async function addHere(
 /** The places a drag or the form gave the chosen objects. */
 export const placeChosen = (places: ReadonlyMap<string, Transform>, label: string, group?: string): Promise<void> =>
   editOpen(label, (space) => placeObjects(space, places), group);
+
+/**
+ * Drop (M5.10, D72): each chosen object stood on what is under it, the highest top of another
+ * object's box, else the terrain's highest under it, else 0 m, each as if the others weren't moved.
+ */
+export function dropChosen(): Promise<void> {
+  const chosen = new Set(picked.value);
+  const boxes = objectBoxes.value?.() ?? [];
+  const others = boxes.filter((b) => !chosen.has(b.id)).map((b) => b.box);
+  if (chosen.size === 0) return Promise.resolve();
+  return editOpen(`Drop ${count(chosen.size, 'object')}`, (space) => {
+    const places = new Map<string, Transform>();
+    for (const object of space.objects) {
+      const box = chosen.has(object.id) ? boxes.find((b) => b.id === object.id)?.box : undefined;
+      if (!box) continue;
+      const t = transformOf(object);
+      const by = dropBy(box, others, groundHeight.value);
+      places.set(object.id, { ...t, at: [t.at[0], tidy(t.at[1] + by), t.at[2]] });
+    }
+    return placeObjects(space, places);
+  });
+}
 
 export function deleteChosen(): Promise<void> {
   const gone = new Set(picked.value);

@@ -1,0 +1,8 @@
+{
+  "name": "Glow",
+  "color": "#ffd27a",
+  "roughness": 0.6,
+  "metalness": 0,
+  "emissive": "#ffb84d",
+  "emissive-strength": 3
+}

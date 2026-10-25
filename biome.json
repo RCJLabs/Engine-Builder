@@ -14,7 +14,8 @@
       "!tools/lint-boundaries/fixtures",
       "!games/*/source",
       "!games/*/records",
-      "!starter-kit"
+      "!starter-kit",
+      "!tools/cli/test/fixtures/moor"
     ]
   },
   "formatter": {

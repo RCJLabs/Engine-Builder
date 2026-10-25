@@ -6,6 +6,7 @@
 import type * as THREE from 'three/webgpu';
 import type { FrameStats } from '../perf/frames.ts';
 import type { TierName } from '../perf/tiers.ts';
+import type { Boxed, Latch } from './bounds.ts';
 import type { EnvironmentSummary } from './environmentView.ts';
 import type { FoliageSummary } from './foliageView.ts';
 import type { Screen } from './handles.ts';
@@ -13,6 +14,7 @@ import type { ModelSummary } from './modelsView.ts';
 import type { Orbit } from './orbit.ts';
 import type { SkyKind } from './skyView.ts';
 import type { TerrainSummary } from './terrainView.ts';
+import type { Vec3 } from './vec.ts';
 
 /** The view's tier, its settings as three has them, and its frames (M5.7, D69): the overlay's too. */
 export interface PerfSummary {
@@ -45,6 +47,11 @@ export interface ViewportHook {
   readonly frames: number;
   readonly grips: () => { name: string; x: number; y: number; along: Screen }[];
   readonly objectAt: (id: string, underHandles?: boolean) => { x: number; y: number } | null;
+  /** Where a point in the world is on the page, or null behind the camera (M5.10). */
+  readonly screenOf: (point: Vec3) => { x: number; y: number } | null;
+  /** Each of the file's objects' boxes, and what the drag held now has latched onto (M5.10). */
+  readonly boxes: () => Boxed[];
+  readonly latched: () => readonly Latch[];
   readonly camera: () => Orbit;
   /** The terrain's chunks, their levels and the widest seam (M5.3), or null with none. */
   readonly terrain: () => TerrainSummary | null;

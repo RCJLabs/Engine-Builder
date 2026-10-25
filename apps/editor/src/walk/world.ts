@@ -19,6 +19,7 @@ import {
 import type { LiveModels, ModelFileRead } from '../models/liveModels.ts';
 import type { FoliageShown } from '../spaces/foliageView.ts';
 import type { TerrainFiles } from '../spaces/terrainView.ts';
+import { type Streamed, streamedOf } from './footprints.ts';
 import type { Ground } from './physics.ts';
 import { type ModelOf, type Parts, partsOf } from './solids.ts';
 
@@ -27,6 +28,8 @@ export interface WalkSpace {
   readonly space: SpaceJson;
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   readonly parts: Parts;
+  /** What streams of it (M5.10): each top-level object's footprint, and the placed models far drawing needs. */
+  readonly streamed: Streamed;
   readonly ground: Ground | null;
   readonly terrain: TerrainFiles | null;
   readonly environment: EnvironmentRecord | null;
@@ -111,6 +114,7 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     space,
     prefabs,
     parts: partsOf(space, prefabs, models, zones, uses),
+    streamed: streamedOf(space, prefabs, models),
     ground: groundOf(space, heights),
     terrain,
     environment,
