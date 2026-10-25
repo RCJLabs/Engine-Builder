@@ -12,6 +12,7 @@ export const SIZES = [
   'scene-view',
   'models-view',
   'walk',
+  'nav',
   'precache',
   'space-wrecked-web',
   'trail-web',
@@ -55,6 +56,8 @@ export function measureSizes(dist: string): Record<SizeId, number> {
     'models-view': gzipped(inAssets(models)),
     // walk.js (M5.8): three, Rapier and the stage, the one file every page that walks a space loads.
     walk: gzipped([join(dist, 'runtime/walk.js')]),
+    // nav.js (M6.2): Recast and Detour with their wasm inside, loaded only for a space with a navmesh.
+    nav: gzipped([join(dist, 'runtime/nav.js')]),
     precache: precached(dist).reduce((sum, path) => sum + statSync(join(dist, path)).size, 0),
     'space-wrecked-web': bytesIn(join(dist, 'games/space-wrecked')),
     'trail-web': bytesIn(join(dist, 'games/trail')),
@@ -77,14 +80,21 @@ export function checkSizes(budgets: Budgets, measured: Record<SizeId, number>): 
 }
 
 /**
- * The runtime the editor keeps for Export and walks spaces with (runtime/files.json's files and
- * walk.js, M5.8) that its service worker doesn't precache: each would need the network. Workbox
- * leaves out anything over its size limit without a word, and walk.js is about 7 MB.
+ * The runtime the editor keeps for Export and walks spaces with (runtime/files.json's files,
+ * walk.js since M5.8 and nav.js since M6.2) that its service worker doesn't precache: each would
+ * need the network. Workbox leaves out anything over its size limit without a word, and walk.js is
+ * about 7 MB.
  */
 export function runtimeUncached(dist: string): string[] {
   const list = join(dist, 'runtime/files.json');
   if (!existsSync(list)) return ['runtime/files.json'];
-  const { files, walk } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[]; walk?: string };
+  const { files, walk, nav } = JSON.parse(readFileSync(list, 'utf8')) as {
+    files: string[];
+    walk?: string;
+    nav?: string;
+  };
   const kept = new Set(precached(dist));
-  return ['files.json', ...files, ...(walk ? [walk] : [])].map((f) => `runtime/${f}`).filter((f) => !kept.has(f));
+  return ['files.json', ...files, ...(walk ? [walk] : []), ...(nav ? [nav] : [])]
+    .map((f) => `runtime/${f}`)
+    .filter((f) => !kept.has(f));
 }

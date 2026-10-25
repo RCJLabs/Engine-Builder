@@ -26,11 +26,12 @@ function dist(): string {
     'assets/draco-h8.js': 'export default 2;',
     'sw.js':
       'define(["./workbox"],function(e){e.precacheAndRoute([{url:"index.html",revision:"1"},{url:"assets/main-a1.js",revision:null},{url:"runtime/files.json",revision:"2"},{url:"runtime/game.js",revision:"3"}])});',
-    'runtime/files.json': '{"version":"0.0.1","files":["game.js"],"walk":"walk.js"}',
+    'runtime/files.json': '{"version":"0.0.1","files":["game.js"],"walk":"walk.js","nav":"nav.js"}',
     'runtime/game.js': 'game();',
     'games/space-wrecked/index.html': 'x'.repeat(100),
     'games/space-wrecked/icons/icon.png': 'y'.repeat(50),
     'runtime/walk.js': 'const rapier="AGFzbQ";'.repeat(40),
+    'runtime/nav.js': 'const recast="AGFzbQ";'.repeat(25),
     'games/trail/index.html': 'z'.repeat(70),
     'games/trail/walk.0a1b2c3d.js': 'w'.repeat(30),
   };
@@ -54,7 +55,7 @@ describe('the size budgets', () => {
     expect(staticClosure(assets, 'main-a1.js')).toEqual(['main-a1.js', 'shared-b2.js']);
   });
 
-  it('measure the start, what the 3D view and its models add to it, walk.js, the precache and the exports', () => {
+  it('measure the start, what the 3D view and its models add to it, walk.js, nav.js, the precache and the exports', () => {
     const dir = dist();
     expect(startFiles(dir)).toEqual(['main-a1.js', 'shared-b2.js', 'main-c3.css']);
     const read = (path: string) => readFileSync(join(dir, path), 'utf8');
@@ -73,6 +74,7 @@ describe('the size budgets', () => {
       ),
     );
     expect(sizes.walk).toBe(gz(read('runtime/walk.js')));
+    expect(sizes.nav).toBe(gz(read('runtime/nav.js')));
     expect(sizes['space-wrecked-web']).toBe(150);
     expect(sizes['trail-web']).toBe(100);
   });
@@ -115,7 +117,7 @@ describe('budgets.json', () => {
     }
   });
 
-  it('find the runtime the service worker doesn’t keep: walk.js, left out here as Workbox leaves out a big file', () => {
-    expect(runtimeUncached(dist())).toEqual(['runtime/walk.js']);
+  it('find the runtime the service worker doesn’t keep: walk.js and nav.js, left out here as Workbox leaves out a big file', () => {
+    expect(runtimeUncached(dist())).toEqual(['runtime/walk.js', 'runtime/nav.js']);
   });
 });
