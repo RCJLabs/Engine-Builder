@@ -3,7 +3,7 @@
  * made once, and its catalogue taken. What goes wrong comes back as one problem, at a script and
  * line when it can be said.
  */
-import type { CalendarDef, Triggers } from '@eb/core';
+import type { CalendarDef, WorldData } from '@eb/core';
 import { type GameCatalog, gameCatalog } from './catalog.ts';
 import { GAME_SCRIPT } from './files.ts';
 import { type GameProblem, type ProjectGame, readGame } from './game.ts';
@@ -15,13 +15,13 @@ export type LoadedGame =
 
 /**
  * `compiled` holds each script's JavaScript by id; scripts/game.ts must be among them. The time kit
- * keeps `calendar`; the world module, on when the project has spaces, keeps `world`'s zones (M5.8).
+ * keeps `calendar`; the world module, on when the project has spaces, keeps `world`'s zones and uses (M5.8, M5.9).
  */
 export function loadProjectGame(
   compiled: ReadonlyMap<string, string>,
   kits: readonly string[] = [],
   calendar?: CalendarDef,
-  world?: Triggers,
+  world?: WorldData,
 ): LoadedGame {
   let exports: Readonly<Record<string, unknown>>;
   try {

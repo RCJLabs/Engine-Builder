@@ -187,7 +187,8 @@ export async function settled(page: Page): Promise<Walked> {
 export async function dragMouse(page: Page, box: Locator, dx: number, dy: number): Promise<void> {
   const area = await box.boundingBox();
   if (!area) throw new Error('No view to drag');
-  const [x, y] = [area.x + area.width / 2, area.y + area.height / 2];
+  // On a whole pixel: the browser moves by whole pixels, so a drag from half of one can lose one.
+  const [x, y] = [Math.round(area.x + area.width / 2), Math.round(area.y + area.height / 2)];
   await page.mouse.move(x, y);
   await page.mouse.down();
   // A press that moves under 4 px is a click, which locks the pointer: a short drag goes out and back.
@@ -230,7 +231,9 @@ export async function faceTowards(page: Page, box: Locator, x: number, z: number
   const want = (Math.atan2(-(x - w.feet[0]), -(z - w.feet[2])) * 180) / Math.PI;
   const turn = ((((want - w.yaw) % 360) + 540) % 360) - 180;
   await dragMouse(page, box, Math.round(-turn / 0.25), 0);
-  await expect.poll(async () => (await walked(page)).yaw).toBeCloseTo(w.yaw + Math.round(turn / 0.25) * 0.25, 1);
+  // To a pixel's turn: the browser can still round one move's pixel the other way.
+  const aimed = w.yaw + Math.round(turn / 0.25) * 0.25;
+  await expect.poll(async () => Math.abs((await walked(page)).yaw - aimed)).toBeLessThanOrEqual(0.26);
 }
 
 /**

@@ -41,7 +41,7 @@ beforeAll(async () => {
   world = compiled.pack.world;
 }, 30_000);
 
-const STILL: Intent = { move: [0, 0], run: false, jump: false, look: [0, 0] };
+const STILL: Intent = { move: [0, 0], run: false, jump: false, use: false, look: [0, 0] };
 const forward = (more: Partial<Intent> = {}): Intent => ({ ...STILL, move: [0, 1], ...more });
 
 function trail(name = 'trailhead') {
@@ -79,6 +79,19 @@ describe('the trailhead walked', () => {
     expect(near(y, groundAt(x, z), 0.05)).toBe(true);
     walkFor(walker, 1, forward({ run: true }));
     expect(near(z - walker.feet()[2], 5, 0.15)).toBe(true);
+  });
+
+  it('starts where a load stood it, and walks through the boulder once it is taken (M5.9)', () => {
+    const { space, walker, groundAt } = trail();
+    const at: Vec3 = [-4, groundAt(-4, 16), 16];
+    const loaded = createWalker(RAPIER, { solids: space.parts.solids, spawn: undefined, at }, space.ground);
+    walkFor(loaded, 0.2, STILL);
+    expect(near(loaded.feet()[0], -4, 1e-3) && near(loaded.feet()[2], 16, 1e-3)).toBe(true);
+    loaded.remove(new Set(['boulder']));
+    walkFor(loaded, 3, forward());
+    expect(loaded.feet()[2]).toBeLessThan(12);
+    loaded.free();
+    walker.free();
   });
 
   it('stops at the boulder’s face', () => {

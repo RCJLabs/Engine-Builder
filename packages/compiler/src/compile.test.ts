@@ -664,6 +664,52 @@ describe('the code table', () => {
       'records/foliage/odd.json': JSON.stringify({ model: 'none', smallest: 2, largest: 1 }),
       'spaces/glade.json': JSON.stringify({ name: 'Glade', terrain: { ...terrain, foliage: ['ferns'] }, objects: [] }),
     });
+    // M5.9: a start-space naming no space, a door into a space there isn't, a zone to a spawn point
+    // the bothy lacks, and a sheet's row that sends the player nowhere.
+    const enter = (space: string, spawn?: string) => [{ effect: 'enter-space', space, ...(spawn ? { spawn } : {}) }];
+    const doors = await kitted(
+      [],
+      {
+        'spaces/glen.json': JSON.stringify({
+          name: 'Glen',
+          objects: [
+            { id: 'door', shape: 'box', components: { interact: { label: 'Open', effects: enter('moor') } } },
+            { id: 'gate', shape: 'box', components: { trigger: { effects: enter('bothy', 'window') } } },
+          ],
+        }),
+        'spaces/bothy.json': JSON.stringify({ name: 'Bothy', objects: [] }),
+        'records/sheet/arrive.json': JSON.stringify({
+          rows: [{ id: 'in', when: { event: 'world/arrived' }, do: enter('glen', 'gate') }],
+        }),
+      },
+      { 'start-space': 'moor' },
+    );
+    expect(brief(doors.diagnostics)).toEqual([
+      {
+        code: 'E075',
+        file: 'project.json',
+        path: '/start-space',
+        message: 'No space "moor": spaces/moor.json isn\'t there',
+      },
+      {
+        code: 'E076',
+        file: 'records/sheet/arrive.json',
+        path: '/rows/0/do/0/spawn',
+        message: expect.stringContaining('The space "glen" has no spawn point "gate"'),
+      },
+      {
+        code: 'E076',
+        file: 'spaces/glen.json',
+        path: '/objects/0/components/interact/effects/0/space',
+        message: 'No space "moor": spaces/moor.json isn\'t there',
+      },
+      {
+        code: 'E076',
+        file: 'spaces/glen.json',
+        path: '/objects/1/components/trigger/effects/0/spawn',
+        message: expect.stringContaining('The space "bothy" has no spawn point "window"'),
+      },
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -685,6 +731,7 @@ describe('the code table', () => {
       environed,
       modelled,
       foliaged,
+      doors,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

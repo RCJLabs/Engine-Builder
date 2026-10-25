@@ -103,7 +103,12 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
       ...base,
     }),
     z.strictObject({ widget: z.literal('map'), label: z.string().min(1).optional(), empty: text.optional(), ...base }),
-    z.strictObject({ widget: z.literal('space'), space: z.string().min(1), label: text.optional(), ...base }),
+    z.strictObject({
+      widget: z.literal('space'),
+      space: z.string().min(1).optional(),
+      label: text.optional(),
+      ...base,
+    }),
   ]),
 ) as z.ZodType<Widget>;
 

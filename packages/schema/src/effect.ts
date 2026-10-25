@@ -99,6 +99,24 @@ export function rollEffect(effect: z.ZodType<Effect>) {
   ) satisfies z.ZodType<RollEffect>;
 }
 
+const objectPath = z
+  .string()
+  .refine((path) => path.split('/').every(isRecordId), { error: "Expected an object's path: ids joined by /" });
+
+/**
+ * `{ "effect": "enter-space", "space": "bothy", "spawn": "door" }` (M5.9, D71): the player moves to
+ * a space, at a spawn point or at its start. E076 checks both names once the spaces are read.
+ */
+export const enterSpaceEffect = () =>
+  named(
+    'enter-space',
+    z.strictObject({
+      effect: z.literal('enter-space'),
+      space: z.string().refine(isRecordId, { error: "Expected a space's id" }),
+      spawn: objectPath.optional(),
+    }),
+  );
+
 /** The effects validation knows, by name. */
 export interface EffectCatalog {
   readonly schemas: ReadonlyMap<string, z.core.$ZodType>;
@@ -129,6 +147,6 @@ export function effectCatalog(schemas: readonly z.core.$ZodType[], closed: boole
 
 /** The engine's own effects (D36), which every project knows: the rest are kept as written, without `--types`. */
 export const ENGINE_EFFECTS: EffectCatalog = effectCatalog(
-  [setFlagEffect(), addToFlagEffect(), rollEffect(effect())],
+  [setFlagEffect(), addToFlagEffect(), rollEffect(effect()), enterSpaceEffect()],
   false,
 );

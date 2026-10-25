@@ -1,14 +1,17 @@
 /**
  * eb with the trail (M5.8, D70, docs/specs/movement.md#the-gate): a game of two spaces, a cairn whose
  * trigger zone sets the flag its screen shows, and a bothy walked in first person. eb validates it
- * clean and builds it as format 9, with what its spaces draw from; a copy broken once for each of
- * M5.8's checks gives each.
+ * clean and builds it as format 10 (M5.9), with what its spaces draw from, their spawn points and its
+ * start; a copy broken once for each of M5.8's checks gives each.
  */
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { compileWithGame } from '@eb/compiler';
+import { openPack, resumeFrom } from '@eb/ui/session';
 import { describe, expect, it } from 'vitest';
+import { folderSource } from '../src/folderSource.ts';
 
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const TRAIL = resolve(import.meta.dirname, 'fixtures/trail');
@@ -33,12 +36,12 @@ describe('eb with the trail', () => {
     expect(run.out.trim()).toMatch(/^4 records: no problems, hash [0-9a-f]{16}\.$/);
   });
 
-  it('builds it as format 9: its spaces, the cairn’s zone through its prefab, and what they draw from', () => {
+  it('builds it as format 10: its spaces, the cairn’s zone through its prefab, what they draw from, its spawn points', () => {
     const out = join(mkdtempSync(join(tmpdir(), 'eb-trail-pack-')), 'trail.json');
     const run = eb(['build', TRAIL, '--out', out]);
     expect(run.code, run.out + run.err).toBe(0);
     const pack = JSON.parse(readFileSync(out, 'utf8'));
-    expect(pack.format).toBe(9);
+    expect(pack.format).toBe(10);
     expect(Object.keys(pack.world.spaces).sort()).toEqual(['bothy', 'trailhead']);
     expect(Object.keys(pack.world.prefabs)).toEqual(['cairn']);
     expect(pack.world.triggers).toEqual({
@@ -60,6 +63,9 @@ describe('eb with the trail', () => {
       'model:kit-crate',
     ]);
     expect(pack.world.fields).toEqual({});
+    expect(pack.world.uses).toEqual({});
+    expect(pack.world.spawns).toEqual({ bothy: ['door'], trailhead: ['start'] });
+    expect(pack.world.start).toBe('trailhead');
   });
 
   it('gives a Space widget naming a space there isn’t as E049, and a module named world as E031', () => {
@@ -100,5 +106,28 @@ describe('eb with the trail', () => {
     const walk = /"walk":"(walk\.[0-9a-f]{8}\.js)"/.exec(page)?.[1];
     expect(walk).toBeDefined();
     expect(readFileSync(join(out, walk as string), 'utf8')).toBe('window.__ebWalkStage = {};\n');
+  });
+
+  // Saves never break (M5.9): the world module's version 1 kept only the zones fired. Made by M5.8's
+  // build of the trail, after the cairn's zone; that build's hash is not this one's, so it replays.
+  it('loads a save made by the world module’s version 1, migrated, and plays on from it', async () => {
+    const compiled = await compileWithGame(folderSource(TRAIL));
+    const opened = openPack(JSON.parse(JSON.stringify(compiled.pack)));
+    if (!opened.ok) throw new Error(opened.message);
+    const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/trail-world-v1.json'), 'utf8');
+    const resumed = resumeFrom(opened.opened, raw);
+    if (!resumed.ok) throw new Error(resumed.message);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 1, to: 2 }]);
+    expect(resumed.report).toMatchObject({ replayed: 1, skipped: 0 });
+    const { play } = resumed;
+    // Where it was: the cairn's zone fired and its flag set, nothing taken, in the start.
+    expect(play.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [], space: 'trailhead' });
+    expect(play.state.flag).toEqual({ values: { 'cairn-seen': true } });
+    expect(play.take({ type: 'world/trigger', space: 'trailhead', object: 'cairn/zone' }).beats).toEqual([
+      { type: 'rejected', action: 'world/trigger', reason: 'spent' },
+    ]);
+    // And on, at version 2: where the player stands is kept.
+    expect(play.take({ type: 'world/at', space: 'trailhead', feet: [1, 0, -9], yaw: 180 }).accepted).toBe(true);
+    expect(play.state.world).toMatchObject({ at: { space: 'trailhead', feet: [1, 0, -9], yaw: 180 } });
   });
 });

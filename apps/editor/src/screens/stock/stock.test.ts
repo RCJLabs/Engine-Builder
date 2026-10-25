@@ -123,14 +123,14 @@ describe('the stock screens, written into a project and compiled against its gam
     }
   });
 
-  it('walks the first space for the start mode, before the HUD, and is offered only with spaces (M5.8)', async () => {
+  it('walks the player’s space for the start mode, before the HUD, and is offered only with spaces (M5.8, M5.9)', async () => {
     const files = filesOf('trail');
     const ctx = await contextOf('trail', files);
     const { added } = withStock(ctx, files);
     const space = JSON.parse(new TextDecoder().decode(added['ui/space.json']));
-    expect(space.title).toBe('Bothy');
+    expect(space.title).toBe('Walk');
     expect(space.shows).toEqual(['trailhead']);
-    expect(space.main).toEqual({ widget: 'space', space: 'bothy' });
+    expect(space.main).toEqual({ widget: 'space' });
     expect(space.bottom.of).toBe('offered');
     expect(showsOf(JSON.parse(new TextDecoder().decode(added['ui/hud.json'])))).toEqual([]);
     expect(STOCK.find((s) => s.id === 'space')?.offered({ ...ctx, spaces: [] })).toBe(false);

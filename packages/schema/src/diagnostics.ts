@@ -78,6 +78,8 @@ export const DIAGNOSTIC_CODES = {
   E072: "A model's collider lacks the numbers its shape needs, has ones it doesn't use, or has a size that isn't above 0",
   E073: "A terrain's foliage names a foliage record the project doesn't have",
   E074: "A foliage record's smallest is above its largest, or its lowest isn't below its highest",
+  E075: "project.json's start-space names a space the project doesn't have",
+  E076: "enter-space names a space the project doesn't have, or a spawn point its space doesn't have",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',

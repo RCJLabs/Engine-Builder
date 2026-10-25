@@ -1,79 +1,77 @@
 /**
- * The world module (M5.8, D70, docs/specs/movement.md#the-sim-worldtrigger): what the sim hears of
- * a space walked on the page. The stage moves the character, which the sim never sees; entering a
- * trigger zone is `world/trigger`, checked and run here like any action, so a game's state stays
- * replayable though the walk that reached the zone isn't. The zones come from the pack, each
- * space's resolved through its prefabs and overrides by the compiler.
+ * The world module (M5.8, D70; M5.9, D71, docs/specs/worldspaces.md): what the sim hears of the
+ * spaces walked on the page. The stage moves the character, which the sim never sees; entering a
+ * trigger zone is `world/trigger`, using what the player faces is `world/use`, and where the player
+ * stands is `world/at`, each checked and run here like any action, so a game's state stays
+ * replayable though the walk between them isn't. `enter-space` moves the player to a space. The
+ * zones and uses come from the pack, each space's resolved through its prefabs and overrides by
+ * the compiler.
  */
-import type { Condition, Domain } from '../logic/types.ts';
-import { defineModule, type Module, type ModuleContext } from '../sim/module.ts';
-import type { Action, Effect } from '../sim/types.ts';
+import type { Domain } from '../logic/types.ts';
+import { defineModule, type Module } from '../sim/module.ts';
+import { at, enterSpace, trigger, use } from './actions.ts';
+import { type PackWorld, worldDataOf } from './packWorld.ts';
+import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
-/** The world module's id, and its slice's key. */
-export const WORLD = 'world';
-
-/** A trigger zone as the pack holds it: its condition as a tree, its effects as written. */
-export interface TriggerZone {
-  readonly when?: Condition;
-  readonly effects: readonly Effect[];
-  readonly once?: boolean;
-}
-
-/** By space id, then by the object's path: its id, or "placement/inner" through a prefab. */
-export type Triggers = Readonly<Record<string, Readonly<Record<string, TriggerZone>>>>;
-
-export interface WorldSlice {
-  /** The once zones that have run, as "space/object", sorted. */
-  readonly fired: readonly string[];
-}
-
-const firedKey = (space: string, object: string) => `${space}/${object}`;
+export * from './types.ts';
 
 const TEXT: Domain = { type: 'text' };
+const BOOL: Domain = { type: 'bool' };
+const PLACE = { space: TEXT, object: TEXT };
 
-function remember(ctx: ModuleContext<WorldSlice>, key: string): void {
-  const fired = ctx.write().fired as string[];
-  let i = fired.length;
-  while (i > 0 && (fired[i - 1] as string) > key) i--;
-  fired.splice(i, 0, key);
+const placeIn = (list: readonly string[], args: Readonly<Record<string, unknown>>) =>
+  typeof args.space === 'string' && typeof args.object === 'string' && list.includes(placeKey(args.space, args.object));
+
+/**
+ * A game's modules with the world module built from the pack's world: checking joins one with no
+ * spaces' data (EMPTY_WORLD), and a game played headless, by eb sim or the editor's Run, needs the
+ * spaces enter-space names.
+ */
+export function withPackWorld(modules: readonly Module[], world: PackWorld | undefined): readonly Module[] {
+  if (!world) return modules;
+  return modules.map((m) => (m.id === WORLD ? worldModule(worldDataOf(world)) : m));
 }
 
-function trigger(triggers: Triggers, ctx: ModuleContext<WorldSlice>, action: Action): void {
-  const { space, object } = action as Action & { space?: unknown; object?: unknown };
-  if (typeof space !== 'string' || typeof object !== 'string') ctx.refuse('bad-trigger');
-  // Own keys only: a space or an object named like Object's own (`constructor`) is no zone.
-  const zones = Object.hasOwn(triggers, space) ? triggers[space] : undefined;
-  const zone = zones !== undefined && Object.hasOwn(zones, object) ? zones[object] : undefined;
-  if (zone === undefined) ctx.refuse('no-zone', { space, object });
-  const key = firedKey(space, object);
-  if (zone.once === true && ctx.read().fired.includes(key)) ctx.refuse('spent');
-  if (zone.when !== undefined && ctx.check(zone.when) !== true) ctx.refuse('unmet');
-  ctx.emit('entered', { space, object });
-  for (const effect of zone.effects) ctx.apply(effect);
-  if (zone.once === true) remember(ctx, key);
-}
-
-/** The module for a pack's trigger zones: on whenever the pack has spaces. */
-export function worldModule(triggers: Triggers): Module {
+/** The module for a pack's world: on whenever the pack has spaces. */
+export function worldModule(world: WorldData): Module {
   return defineModule<WorldSlice>({
     id: WORLD,
-    init: () => ({ fired: [] }),
+    version: WORLD_VERSION,
+    // Version 1 had only `fired`: nothing was taken, and the player is in the start.
+    migrate: { 2: (slice) => ({ ...(slice as object), taken: [], space: world.start }) },
+    init: () => ({ fired: [], taken: [], space: world.start }),
     events: {
-      entered: { args: { space: TEXT, object: TEXT }, label: 'The player enters a trigger zone' },
+      entered: { args: PLACE, label: 'The player enters a trigger zone' },
+      used: { args: PLACE, label: 'The player uses something' },
+      arrived: { args: { space: TEXT }, label: 'The player arrives in a space' },
     },
     actions: {
-      // Never offered: only the stage, as the character walks in, sends it.
-      trigger: { run: (ctx, action) => trigger(triggers, ctx, action), options: () => [] },
+      // None is ever offered: only the stage sends them, as the character walks, uses and stands.
+      trigger: { run: (ctx, action) => trigger(world, ctx, action), options: () => [] },
+      use: { run: (ctx, action) => use(world, ctx, action), options: () => [] },
+      at: { run: (ctx, action) => at(ctx, action), options: () => [] },
+    },
+    effects: {
+      'enter-space': { run: (ctx, effect) => enterSpace(world, ctx, effect) },
     },
     facts: {
       fired: {
-        args: { space: TEXT, object: TEXT },
-        domain: { type: 'bool' },
-        label: 'a once zone has run',
-        read: (view, args) =>
-          typeof args.space === 'string' &&
-          typeof args.object === 'string' &&
-          view.state.fired.includes(firedKey(args.space, args.object)),
+        args: PLACE,
+        domain: BOOL,
+        label: 'a once zone or use has run',
+        read: (v, a) => placeIn(v.state.fired, a),
+      },
+      taken: {
+        args: PLACE,
+        domain: BOOL,
+        label: 'the object has been taken',
+        read: (v, a) => placeIn(v.state.taken, a),
+      },
+      in: {
+        args: { space: TEXT },
+        domain: BOOL,
+        label: 'the player is in the space',
+        read: (view, args) => typeof args.space === 'string' && view.state.space === args.space,
       },
     },
   });

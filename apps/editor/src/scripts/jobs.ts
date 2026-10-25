@@ -5,7 +5,16 @@
  * plays it as `eb sim --seeds <n> --policy <name>` plays it, so the report says the same.
  */
 import { compileWithGame, gameOf, memorySource, projectGame, readKitSettings, readScripts } from '@eb/compiler';
-import { createGame, createRecordStore, formatSweep, MAX_TURNS, randomPolicy, seedsOf, sweep } from '@eb/core';
+import {
+  createGame,
+  createRecordStore,
+  formatSweep,
+  MAX_TURNS,
+  randomPolicy,
+  seedsOf,
+  sweep,
+  withPackWorld,
+} from '@eb/core';
 import { kitMetrics } from '@eb/kits';
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
 import type { GameCatalog } from '@eb/script';
@@ -39,7 +48,7 @@ export async function playJob(files: readonly SentFile[], seeds: number, policyN
   const { modules, start, policies, metrics } = scripted.game;
   const policy = [randomPolicy, ...policies].find((p) => p.name === policyName);
   if (!policy) throw new Error(`No bot "${policyName}": this game has ${policyNames(scripted.catalog).join(', ')}`);
-  const game = createGame({ modules, start });
+  const game = createGame({ modules: withPackWorld(modules, compiled.pack.world), start });
   const sim = { content: createRecordStore(compiled.pack.records) };
   // The kits' metrics come after the game's own, as eb sim's do (M3.9).
   const all = [...metrics, ...kitMetrics(compiled.pack.project.kits ?? [], sim.content)];

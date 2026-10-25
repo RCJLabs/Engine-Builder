@@ -19,6 +19,7 @@ import {
   type Session,
   type SimContext,
   WORLD,
+  type WorldSlice,
 } from '@eb/core';
 import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
@@ -26,12 +27,12 @@ import { mapShows } from './mapView.ts';
 import { codexEntries, creditEntries, parseCodex } from './records.ts';
 import { feedbackSayer } from './say.ts';
 import { soundCondition } from './sound.ts';
-import type { Entry, Shown, View, Wants } from './types.ts';
+import type { Entry, Shown, View, Wants, WorldView } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
 
-/** What the stage sends as the character walks into a zone (M5.8). */
-const WALKED = `${WORLD}/trigger`;
+/** What the stage sends as the character walks into a zone (M5.8), uses what it faces and stands (M5.9). */
+const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`]);
 
 export interface Play {
   readonly view: View;
@@ -129,6 +130,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       action,
       enabled: true,
     }));
+    const world = worldOf(state);
     return {
       modes: state.kernel.modes.map((frame) => frame.id),
       offered,
@@ -137,6 +139,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       fields,
       lists,
       ...(map ? { map } : {}),
+      ...(world ? { world } : {}),
       turn: state.kernel.step,
       ended: offered.length === 0,
     };
@@ -164,7 +167,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     compact: () => session.compact(),
     look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
-      const walked = action.type === WALKED;
+      const walked = WALKED.has(action.type);
       if (!walked && !view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], cues: [], accepted: false };
       }
@@ -172,6 +175,14 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     },
     take,
   };
+}
+
+/** The world module's slice, as the stage reads it: only what it says, in a game with spaces. */
+function worldOf(state: GameState): WorldView | undefined {
+  const slice = state[WORLD] as WorldSlice | undefined;
+  if (!slice) return undefined;
+  const { space, at, arrive, taken } = slice;
+  return { space, ...(at ? { at } : {}), ...(arrive !== undefined ? { arrive } : {}), taken };
 }
 
 /** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */

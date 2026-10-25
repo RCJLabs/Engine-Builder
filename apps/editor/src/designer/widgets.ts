@@ -99,7 +99,12 @@ const OWN: Readonly<Record<WidgetKind, Readonly<Record<string, FieldDef>>>> = {
   },
   // M5.8: the form offers the project's spaces for `space` (WidgetForm.tsx).
   space: {
-    space: { kind: 'text', label: 'Space', description: 'The space walked here, from spaces/.' },
+    space: {
+      kind: 'text',
+      optional: true,
+      label: 'Space',
+      description: 'The space walked here, from spaces/: the one the player is in when left out.',
+    },
     label: {
       kind: 'text',
       optional: true,
@@ -189,7 +194,7 @@ export function newWidget(kind: WidgetKind): Record<string, unknown> {
     case 'map':
       return { widget: kind };
     case 'space':
-      return { widget: kind, space: '' };
+      return { widget: kind };
   }
 }
 

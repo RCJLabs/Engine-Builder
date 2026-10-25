@@ -168,7 +168,12 @@ describe("a project's game", () => {
   it('joins the world module only for a project with spaces, so a mode can allow world/trigger (M5.8)', () => {
     const walker = (modes: string) =>
       `import { defineModule } from 'eb';\nconst walk = defineModule({ id: 'walk', init: () => ({}), actions: { rest() {} }, modes: { out: { actions: [${modes}] } } });\nexport const modules = [walk];\nexport const start = 'out';`;
-    const zones = { trailhead: { cairn: { effects: [] } } };
+    const zones = {
+      triggers: { trailhead: { cairn: { effects: [] } } },
+      uses: {},
+      spawns: { trailhead: [] },
+      start: 'trailhead',
+    };
     const loaded = loadProjectGame(compiled({ game: walker("'walk/*', 'world/*'") }), [], undefined, zones);
     expect(loaded.ok && loaded.catalog.modules).toEqual(['logic', 'flag', 'sheet', 'world', 'walk']);
     expect(loaded.ok && loaded.catalog.facts['world.fired']).toBeDefined();

@@ -4,7 +4,7 @@
  * and every reference they hold, which "used by" lists beside the records'. Read again after every
  * change, once the record index is.
  */
-import { checkProjectSpaceParts, type ProjectSource, readSpaces, type SpaceUse } from '@eb/compiler';
+import { checkProjectSpaceParts, type ProjectSource, readSpaces, type SpaceUse, spaceSpawns } from '@eb/compiler';
 import { compareText, type Diagnostic, type FlagUses, knownFrom } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import { recordLookup } from '../records/lookup.ts';
@@ -15,7 +15,10 @@ export interface SpaceChecks {
   readonly problems: readonly Diagnostic[];
   /** What names each "type:id", by file and path. */
   readonly users: ReadonlyMap<string, readonly SpaceUse[]>;
-  /** The flags the trigger zones set and read (M5.8), for the flags' lint. */
+  /**
+   * The flags the trigger zones set and read (M5.8), for the flags' lint; what the zones and
+   * interacts hold and each space's spawn points (M5.9), for the records' checks.
+   */
   readonly flags: FlagUses;
 }
 
@@ -30,6 +33,7 @@ export async function spaceProblems(
   if (catalog.spaces.length === 0 && catalog.prefabs.length === 0)
     return { problems: [], users: new Map(), flags: NO_FLAG_USES };
   const read = await readSpaces(source);
+  const spawns = spaceSpawns(read.files);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
   const found = checkProjectSpaceParts(read.files, {
     types: new Map(catalog.recordTypes.map((t) => [t.type, t])),
@@ -42,9 +46,10 @@ export async function spaceProblems(
     kinds: catalog.components,
     uncheckedKinds: new Set(catalog.componentFiles.filter((kind) => !catalog.components.has(kind))),
     assets: new Set(catalog.assets),
+    spaces: spawns,
   });
   const users = new Map<string, SpaceUse[]>();
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
-  return { problems: found.diagnostics, users, flags: found.flags };
+  return { problems: found.diagnostics, users, flags: { ...found.flags, spawns } };
 }

@@ -352,6 +352,25 @@
   outline-offset: -3px;
 }
 
+/* Between spaces (M5.9): the next space's name over the box, until its first frame is drawn. */
+.eb-space-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--eb-space) / 2);
+  padding: var(--eb-space);
+  text-align: center;
+  background: var(--eb-surface);
+  color: var(--eb-text);
+}
+
+.eb-space-loading .eb-heading {
+  font-weight: 600;
+}
+
 .eb-space-none {
   display: flex;
   flex-direction: column;

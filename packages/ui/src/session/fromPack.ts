@@ -18,6 +18,7 @@ import {
   type SaveFile,
   type SaveProblem,
   verifySaveFile,
+  worldDataOf,
 } from '@eb/core';
 import { loadProjectGame } from '@eb/script';
 import { audioConditions } from '../audio/mix.ts';
@@ -70,7 +71,12 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     return { ok: false, message: 'This game has no scripts/game.ts, so there is nothing to play' };
   }
   const kits = pack.project.kits ?? [];
-  const loaded = loadProjectGame(new Map(Object.entries(scripts)), kits, pack.project.calendar, pack.world?.triggers);
+  const loaded = loadProjectGame(
+    new Map(Object.entries(scripts)),
+    kits,
+    pack.project.calendar,
+    pack.world ? worldDataOf(pack.world) : undefined,
+  );
   if (!loaded.ok) return { ok: false, message: `The game didn’t load: ${loaded.problem.message}` };
   const { modules, start } = loaded.game;
   const screens = (pack.ui?.screens ?? {}) as Readonly<Record<string, Screen>>;

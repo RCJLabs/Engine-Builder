@@ -1,0 +1,125 @@
+{
+  "name": "The bothy",
+  "objects": [
+    {
+      "id": "door",
+      "name": "Door",
+      "shape": "box",
+      "at": [0, 0, 1.2],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true,
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [6, 0.2, 5.0],
+      "color": "#8b6a45",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "north-wall",
+      "name": "North wall",
+      "shape": "box",
+      "at": [0, 0, -2.6],
+      "scale": [6, 2.5, 0.2],
+      "color": "#b8b0a2",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-wall",
+      "name": "South wall",
+      "shape": "box",
+      "at": [0, 0, 2.6],
+      "scale": [6, 2.5, 0.2],
+      "color": "#b8b0a2",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "west-wall",
+      "name": "West wall",
+      "shape": "box",
+      "at": [-3.1, 0, 0],
+      "scale": [0.2, 2.5, 5.4],
+      "color": "#b8b0a2",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "east-wall",
+      "name": "East wall",
+      "shape": "box",
+      "at": [3.1, 0, 0],
+      "scale": [0.2, 2.5, 5.4],
+      "color": "#b8b0a2",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 2.45],
+      "scale": [1, 2, 0.1],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go out",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "glen",
+              "spawn": "bothy-out"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "table",
+      "name": "Table",
+      "shape": "box",
+      "at": [0, 0, -1],
+      "scale": [1.2, 0.8, 0.8],
+      "color": "#7a5530",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "lamp",
+      "name": "Lamp",
+      "shape": "box",
+      "at": [0, 0.8, -1],
+      "scale": [0.2, 0.3, 0.2],
+      "color": "#f2d16b",
+      "components": {
+        "interact": {
+          "label": "Take",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "lamp"
+            }
+          ],
+          "takes": true
+        }
+      }
+    }
+  ]
+}

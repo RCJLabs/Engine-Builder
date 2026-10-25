@@ -28,6 +28,7 @@ import {
   type FlagUses,
   knownFrom,
   type RecordInput,
+  type SpaceSpawns,
   severityOf,
   type Usage,
   validateRecords,
@@ -257,8 +258,12 @@ export async function updateIndex(
   if (usesKey(flagsElsewhere) !== usesKey(before.flagsElsewhere)) {
     for (const record of records.values()) if (record.type === FLAG) dirty.add(record.key);
   }
-  const checking = grounds === before.grounds ? dirty : new Set(records.keys());
-  const checks = flagsElsewhere ? { ...game, flagsElsewhere } : game;
+  // What the zones and interacts hold changed (M5.9): every record again, as the kits' checks hear it all.
+  const held = heldKey(flagsElsewhere) !== heldKey(before.flagsElsewhere);
+  const checking = grounds === before.grounds && !held ? dirty : new Set(records.keys());
+  // A record's enter-space names a space and a spawn point (E076): the spaces' read gives them (M5.9).
+  const spawned = flagsElsewhere?.spawns ? { spaces: flagsElsewhere.spawns } : {};
+  const checks = flagsElsewhere ? { ...game, flagsElsewhere, ...spawned } : game;
   check(records, checking, catalog, checks);
   // Read after the check, so the records just checked count by what they name now.
   const touched = (related: (r: IndexedRecord | undefined) => boolean) =>
@@ -284,14 +289,24 @@ export const usesKey = (uses: FlagUses | undefined): string => {
   if (!uses) return '';
   const listed = (map: ReadonlyMap<string, ReadonlySet<string>>) =>
     [...map].map(([flag, from]) => [flag, [...from].sort()] as const).sort((a, b) => (a[0] < b[0] ? -1 : 1));
-  return JSON.stringify([listed(uses.set), listed(uses.read)]);
+  return JSON.stringify([listed(uses.set), listed(uses.read), heldKey(uses)]);
+};
+
+/** What the zones and interacts hold (M5.9), as text: the spaces are walked in one order, so it is the same each read. */
+const heldKey = (uses: FlagUses | undefined): string => {
+  const held = uses?.held;
+  if (!held) return '';
+  const effects = held.effects.map(({ file, path, effect }) => [file, path, effect]);
+  const conditions = held.conditions.map(({ file, sound }) => [file, sound.at(''), sound.tree]);
+  const spawns = [...(uses?.spawns ?? [])].sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  return JSON.stringify([effects, conditions, spawns]);
 };
 
 function check(
   records: Map<string, IndexedRecord>,
   dirty: ReadonlySet<string>,
   catalog: Catalog,
-  game: GameChecks & { readonly flagsElsewhere?: FlagUses },
+  game: GameChecks & { readonly flagsElsewhere?: FlagUses; readonly spaces?: SpaceSpawns },
 ): void {
   if (dirty.size === 0) return;
   // As the compiler does: a record of a type whose file has problems isn't checked, and one of a

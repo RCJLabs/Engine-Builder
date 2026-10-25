@@ -45,6 +45,7 @@ export {
   effect,
   effectCatalog,
   effectMark,
+  enterSpaceEffect,
   isEffectShape,
   rollEffect,
   setFlagEffect,
@@ -73,7 +74,7 @@ export {
   WEATHERS,
   type Weather,
 } from './environmentTypes.ts';
-export type { FlagUses } from './flagCheck.ts';
+export type { FlagUses, HeldElsewhere } from './flagCheck.ts';
 export {
   checkFoliage,
   FOLIAGE,
@@ -191,3 +192,4 @@ export {
   type FoundRef,
   scanRecord,
 } from './walk.ts';
+export { checkEnterSpace, type SpaceSpawns } from './worldCheck.ts';

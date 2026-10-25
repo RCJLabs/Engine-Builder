@@ -220,8 +220,12 @@ function checkWidget(
     here('E018', '/asset', `No asset "${widget.asset}" in assets/`);
   }
   if (widget.widget === 'list') checkList(widget, options, here);
-  if (widget.widget === 'space' && options.spaces !== undefined && !options.spaces.has(widget.space)) {
-    here('E049', '/space', `No space "${widget.space}" in spaces/`);
+  if (widget.widget === 'space' && options.spaces !== undefined) {
+    if (widget.space !== undefined && !options.spaces.has(widget.space)) {
+      here('E049', '/space', `No space "${widget.space}" in spaces/`);
+    } else if (options.spaces.size === 0) {
+      here('E049', '/widget', 'A Space widget draws the space the player is in, and this project has no spaces/');
+    }
   }
   const needs = WIDGET_KITS[widget.widget];
   if (needs !== undefined && !options.kits.includes(needs)) {

@@ -13,8 +13,8 @@ import {
   type MetricSpec,
   type Module,
   type Policy,
-  type Triggers,
   WORLD,
+  type WorldData,
   worldModule,
 } from '@eb/core';
 import { kitModules } from '@eb/kits';
@@ -57,13 +57,13 @@ const shapeProblem = (what: string): GameRead => ({
 
 /**
  * The game in game.ts's exports, the engine's modules and the kits' joined, checked by making it
- * once. `world` is the pack's trigger zones when the project has spaces: none to check it with.
+ * once. `world` is the pack's zones, uses and spaces when the project has spaces: none to check it with.
  */
 export function readGame(
   exports: Readonly<Record<string, unknown>>,
   kits: readonly string[] = [],
   calendar?: CalendarDef,
-  world?: Triggers,
+  world?: WorldData,
 ): GameRead {
   const { modules, start, policies = [], metrics = [] } = exports;
   if (!Array.isArray(modules) || modules.length === 0 || !modules.every(isModule)) {

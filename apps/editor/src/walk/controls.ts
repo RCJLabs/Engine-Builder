@@ -10,6 +10,8 @@ export interface Intent {
   readonly run: boolean;
   /** Held this frame; the walk jumps when it is on the ground. */
   readonly jump: boolean;
+  /** Interact held this frame (M5.9): pressed, the walk uses what the player faces. */
+  readonly use: boolean;
   /** How far to turn, in degrees: left is positive yaw, up positive pitch. */
   readonly look: readonly [number, number];
 }
@@ -27,15 +29,24 @@ const LEFT = ['KeyA', 'ArrowLeft'];
 const RIGHT = ['KeyD', 'ArrowRight'];
 const RUN = ['ShiftLeft', 'ShiftRight'];
 const JUMP = ['Space'];
+const USE = ['KeyE'];
 
 /** The keys the walk takes, by KeyboardEvent.code: the page does nothing else with them while it has focus. */
-export const WALK_KEYS: ReadonlySet<string> = new Set([...FORWARD, ...BACK, ...LEFT, ...RIGHT, ...RUN, ...JUMP]);
+export const WALK_KEYS: ReadonlySet<string> = new Set([
+  ...FORWARD,
+  ...BACK,
+  ...LEFT,
+  ...RIGHT,
+  ...RUN,
+  ...JUMP,
+  ...USE,
+]);
 
 export interface Held {
   /** KeyboardEvent.code of each key held. */
   readonly keys: ReadonlySet<string>;
-  /** The pad's axes and whether A is down, when one is connected. */
-  readonly pad?: { readonly axes: readonly number[]; readonly a: boolean };
+  /** The pad's axes and whether A and X are down, when one is connected. */
+  readonly pad?: { readonly axes: readonly number[]; readonly a: boolean; readonly x?: boolean };
   /** The touch stick's push. */
   readonly stick?: Push;
   /** The jump button held. */
@@ -74,6 +85,7 @@ export function intentOf(held: Held, dt: number): Intent {
   for (const p of pushes) if (Math.hypot(p[0], p[1]) > Math.hypot(move[0], move[1])) move = p;
   const run = any(held.keys, RUN) || pad.strength > PAD_RUN || held.stick?.run === true;
   const jump = any(held.keys, JUMP) || held.pad?.a === true || held.jumpButton === true;
+  const use = any(held.keys, USE) || held.pad?.x === true;
   const look: [number, number] = [0, 0];
   if (held.drag) {
     const k = held.drag.by === 'mouse' ? MOUSE_DEGREES : TOUCH_DEGREES;
@@ -85,5 +97,5 @@ export function intentOf(held: Held, dt: number): Intent {
     look[0] -= right.push[0] * PAD_LOOK * dt;
     look[1] += right.push[1] * PAD_LOOK * dt;
   }
-  return { move, run, jump, look };
+  return { move, run, jump, use, look };
 }

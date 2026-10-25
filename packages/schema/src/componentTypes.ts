@@ -51,6 +51,23 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
       once: { kind: 'bool', optional: true, label: 'Once', description: 'Only the first time the player comes in' },
     },
   },
+  // M5.9 (D71): what the player takes, opens or reads, with Interact.
+  interact: {
+    title: 'Interact',
+    description: 'Something the player uses: a prompt when they face it within reach, and what using it does.',
+    fields: {
+      label: { kind: 'text', label: 'Label', description: 'What the prompt says: Take, Open, Read' },
+      when: { kind: 'condition', optional: true, label: 'When', description: 'Always when left out' },
+      effects: { kind: 'effects', label: 'Effects' },
+      once: { kind: 'bool', optional: true, label: 'Once', description: 'Only the first time' },
+      takes: {
+        kind: 'bool',
+        optional: true,
+        label: 'Takes',
+        description: 'Using it takes the object: it is gone, and stays gone in saves',
+      },
+    },
+  },
   spawn: {
     title: 'Spawn point',
     description: 'A place the player can arrive at, facing the way the object is turned.',

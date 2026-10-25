@@ -10,6 +10,7 @@ import {
   compareGolden,
   createGame,
   createRecordStore,
+  EMPTY_WORLD,
   eventCatalog,
   factCatalog,
   formatSweep,
@@ -22,6 +23,7 @@ import {
   seedsOf,
   sweep,
   WORLD,
+  withPackWorld,
   worldModule,
 } from '@eb/core';
 import { kitMetrics, kitModules } from '@eb/kits';
@@ -46,8 +48,9 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   // unless it names them; a project game's already have.
   const project = await readKitSettings(source);
   const kits = kitModules(project.kits, project.calendar).filter((kit) => !loaded.modules.some((m) => m.id === kit.id));
-  // No bot walks (movement.md, open question 2), so the world module has no zones to run.
-  const world = project.spaces && !loaded.modules.some((m) => m.id === WORLD) ? [worldModule({})] : [];
+  // No bot walks (movement.md, open question 2), so the checks need only the module's names; a game's
+  // own actions may still move the player between spaces (M5.9), so its runs have the pack's world.
+  const world = project.spaces && !loaded.modules.some((m) => m.id === WORLD) ? [worldModule(EMPTY_WORLD)] : [];
   const modules = [...kits, ...world, ...loaded.modules];
   // The game's modules are all it has, so content may name no other fact, event, action or mode.
   const compiled = await compileProject(source, loaded.recordTypes, {
@@ -68,7 +71,7 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const policies = new Map([randomPolicy, ...loaded.policies].map((p) => [p.name, p]));
   const policy = policies.get(settings.policy);
   if (!policy) throw new UsageError(`No policy "${settings.policy}": this game has ${[...policies.keys()].join(', ')}`);
-  const game = createGame({ modules, start: loaded.start });
+  const game = createGame({ modules: withPackWorld(modules, pack.world), start: loaded.start });
   const sim = { content: createRecordStore(pack.records) };
   const { maxTurns } = settings;
   // The kits' metrics come after the game's own (M3.9): each quest's state at the end.

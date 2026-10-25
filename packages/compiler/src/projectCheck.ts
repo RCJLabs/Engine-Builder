@@ -46,6 +46,8 @@ export interface ProjectFilesRead {
   readonly kits: readonly string[];
   /** project.json's calendar, with the time kit on and the calendar sound (M3.5, D43). */
   readonly calendar?: CalendarDef;
+  /** project.json's start-space (M5.9, D71), as written: E075 checks it against the spaces. */
+  readonly startSpace?: string;
   readonly types: ProjectTypes;
   /** The record files, as the source lists them. Their contents aren't read. */
   readonly recordFiles: readonly ListedRecord[];
@@ -67,14 +69,25 @@ export async function readProjectFiles(
 ): Promise<ProjectFilesRead> {
   const diagnostics: Diagnostic[] = [];
   const report = (r: Report) => diagnostics.push(diagnosticOf(r));
-  const project = await readManifestFile(source, report);
+  const { project, startSpace } = await readManifestFile(source, report);
+  if (startSpace !== undefined) await checkStartSpace(source, startSpace, report);
   const kits = project?.kits ?? [];
   const types = await readTypes(source, codeTypes, report, kits);
   const assets = await readAssets(source);
   const assetsLog = await checkAssetsLog(source, assets, report);
   const recordFiles = await listRecords(source, report);
   const calendar = project?.calendar;
-  return { project, kits, ...(calendar ? { calendar } : {}), types, recordFiles, assets, assetsLog, diagnostics };
+  return {
+    project,
+    kits,
+    ...(calendar ? { calendar } : {}),
+    ...(startSpace !== undefined ? { startSpace } : {}),
+    types,
+    recordFiles,
+    assets,
+    assetsLog,
+    diagnostics,
+  };
 }
 
 /** What a game's kits are built from: the kits on, and the time kit's calendar. */
@@ -87,7 +100,7 @@ export interface KitSettings {
 
 /** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
 export async function readKitSettings(source: ProjectSource): Promise<KitSettings> {
-  const project = await readManifestFile(source, () => {});
+  const { project } = await readManifestFile(source, () => {});
   const spaces = (await source.files(SPACES_DIR)).some((path) => classifySpaceFile(path).kind === 'space');
   return {
     kits: project?.kits ?? [],
@@ -96,21 +109,38 @@ export async function readKitSettings(source: ProjectSource): Promise<KitSetting
   };
 }
 
-async function readManifestFile(source: ProjectSource, report: (r: Report) => void): Promise<PackProject | null> {
+async function readManifestFile(
+  source: ProjectSource,
+  report: (r: Report) => void,
+): Promise<{ project: PackProject | null; startSpace?: string }> {
   const file = MANIFEST_FILE;
   const bytes = await source.read(file);
   if (bytes === undefined) {
     report({ code: 'E008', message: 'Missing project.json', file, path: '' });
-    return null;
+    return { project: null };
   }
   const parsed = parseJsonFile(bytes);
   if (!parsed.ok) {
     report({ code: 'E007', message: parsed.message, file, path: '' });
-    return null;
+    return { project: null };
   }
-  const { project, problems } = checkManifest(parsed.value);
+  const { problems, ...read } = checkManifest(parsed.value);
   for (const problem of problems) report({ ...problem, file });
-  return project;
+  return read;
+}
+
+/** E075 (M5.9, D71): the start-space names one of spaces/. Here, so the editor's catalog has it too. */
+async function checkStartSpace(source: ProjectSource, named: string, report: (r: Report) => void): Promise<void> {
+  const files = await source.files(SPACES_DIR);
+  if (
+    files.some((path) => {
+      const role = classifySpaceFile(path);
+      return role.kind === 'space' && role.id === named;
+    })
+  )
+    return;
+  const message = `No space "${named}": spaces/${named}.json isn't there`;
+  report({ code: 'E075', message, file: MANIFEST_FILE, path: '/start-space' });
 }
 
 async function readAssets(source: ProjectSource): Promise<ReadonlySet<string>> {

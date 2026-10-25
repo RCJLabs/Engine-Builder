@@ -69,10 +69,18 @@ export interface Spawn {
   readonly view: 'third' | 'first';
 }
 
+/** Something the player can use (M5.9): where its middle is, and what its prompt says. */
+export interface UsePoint {
+  readonly path: string;
+  readonly center: Vec3;
+  readonly label: string;
+}
+
 export interface Parts {
   readonly solids: readonly Solid[];
   readonly zones: readonly Zone[];
   readonly spawns: readonly Spawn[];
+  readonly uses: readonly UsePoint[];
 }
 
 /** A placed record's model collider and scale, as this placement sees it, or null for none. */
@@ -173,17 +181,20 @@ export function yawOf(turn: Quat): number {
 
 /**
  * The space's parts, depth first as the view draws them. A zone is kept only when the sim has it
- * (`zones`, the pack's trigger zones for the space), so the walk sends nothing the sim can't hear.
+ * (`zones`, the pack's trigger zones for the space), and a use only when the sim has it too (`uses`,
+ * its label by path), so the walk sends nothing the sim can't hear.
  */
 export function partsOf(
   space: SpaceJson,
   prefabs: ReadonlyMap<string, SpaceJson>,
   models: ModelOf,
   zones: ReadonlySet<string>,
+  uses: ReadonlyMap<string, string> = new Map(),
 ): Parts {
   const solids: Solid[] = [];
   const found: Zone[] = [];
   const spawns: Spawn[] = [];
+  const usable: UsePoint[] = [];
   const walk = (
     object: SpaceObject,
     layers: readonly unknown[],
@@ -197,6 +208,8 @@ export function partsOf(
     const components = seen.components ?? {};
     if (isFields(components.collider)) solids.push(colliderOf(path, frame, seen, components.collider));
     if (isFields(components.trigger) && zones.has(path)) found.push(zoneOf(path, frame, seen));
+    const label = isFields(components.interact) ? uses.get(path) : undefined;
+    if (label !== undefined) usable.push({ path, center: pointIn(frame, middleOf(seen)), label });
     if (isFields(components.spawn)) {
       const spawn = components.spawn;
       spawns.push({
@@ -220,8 +233,23 @@ export function partsOf(
     }
   };
   for (const object of space.objects) walk(object, [], WORLD_FRAME, [object.id], 0);
-  return { solids, zones: found, spawns };
+  return { solids, zones: found, spawns, uses: usable };
 }
 
-/** Where the walk starts: the spawn point with start, else the first, else none (the origin on the ground). */
-export const spawnOf = (spawns: readonly Spawn[]): Spawn | undefined => spawns.find((s) => s.start) ?? spawns[0];
+/**
+ * Where the walk starts: the spawn point the player arrives at (M5.9), else the one with start, else
+ * the first, else none (the origin on the ground).
+ */
+export const spawnOf = (spawns: readonly Spawn[], arrive?: string): Spawn | undefined =>
+  (arrive === undefined ? undefined : spawns.find((s) => s.path === arrive)) ??
+  spawns.find((s) => s.start) ??
+  spawns[0];
+
+/** The path, or one of the objects it is inside, is in `taken`: "rope" takes "rope/coil" with it. */
+export function isTaken(path: string, taken: ReadonlySet<string>): boolean {
+  if (taken.size === 0) return false;
+  for (let at = path.length; at > 0; at = path.lastIndexOf('/', at - 1)) {
+    if (taken.has(path.slice(0, at))) return true;
+  }
+  return false;
+}

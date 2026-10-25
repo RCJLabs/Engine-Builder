@@ -1,10 +1,12 @@
 /**
  * A pack's world (M5.8, D70, docs/specs/movement.md#spaces-in-the-pack-format-9): the project's
  * spaces and prefabs as written, each space's trigger zones resolved through its prefabs and
- * overrides, and the files the spaces draw from as base64. Only called once the project compiled
- * without errors, so every file here is sound.
+ * overrides, and the files the spaces draw from as base64; since M5.9 (D71, format 10) its
+ * interacts and spawn points resolved the same way, and the start. Only called once the project
+ * compiled without errors, so every file here is sound.
  */
-import type { PackWorld, TriggerZone } from '@eb/core';
+import type { PackWorld, TriggerZone, WorldUse } from '@eb/core';
+import type { SpaceSpawns } from '@eb/schema';
 import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL, packValue } from '@eb/schema';
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
@@ -27,24 +29,58 @@ export interface WorldSources {
   readonly kinds: ReadonlyMap<string, DataType>;
   /** What the trigger zones' conditions are parsed against. */
   readonly known: KnownOptions;
+  /** The space a new game starts in: project.json's start-space, or the only space (E075 otherwise). */
+  readonly start: string;
 }
 
 const TRIGGER = 'trigger';
+const INTERACT = 'interact';
+const SPAWN = 'spawn';
 
-/** Each space's trigger zones, by the path of ids that reaches the object: "gate/zone" inside a prefab. */
+/** Each object's component of a kind, by the path of ids that reaches it: "gate/zone" inside a prefab. */
+function componentsOf(
+  space: SpaceJson,
+  prefabs: ReadonlyMap<string, SpaceJson>,
+  kind: string,
+): Map<string, Readonly<Record<string, unknown>>> {
+  const found = new Map<string, Readonly<Record<string, unknown>>>();
+  for (const object of space.objects) {
+    eachPlaced(object, prefabs, (seen, ids) => {
+      const fields = seen.components?.[kind];
+      if (isFields(fields)) found.set(ids.join('/'), fields);
+    });
+  }
+  return found;
+}
+
+/** Each space's trigger zones, by the path of ids that reaches the object. */
 export function triggersOf(
   space: SpaceJson,
   prefabs: ReadonlyMap<string, SpaceJson>,
   pack: (fields: unknown) => unknown,
 ): Record<string, TriggerZone> {
   const zones: Record<string, TriggerZone> = {};
-  for (const object of space.objects) {
-    eachPlaced(object, prefabs, (seen, ids) => {
-      const fields = seen.components?.[TRIGGER];
-      if (isFields(fields)) zones[ids.join('/')] = pack(fields) as TriggerZone;
-    });
-  }
+  for (const [path, fields] of componentsOf(space, prefabs, TRIGGER)) zones[path] = pack(fields) as TriggerZone;
   return zones;
+}
+
+/** Each space's interacts, by the object's path (M5.9). */
+export function usesOf(
+  space: SpaceJson,
+  prefabs: ReadonlyMap<string, SpaceJson>,
+  pack: (fields: unknown) => unknown,
+): Record<string, WorldUse> {
+  const uses: Record<string, WorldUse> = {};
+  for (const [path, fields] of componentsOf(space, prefabs, INTERACT)) uses[path] = pack(fields) as WorldUse;
+  return uses;
+}
+
+/** Each space's spawn points by the object's path, through its prefabs: what enter-space can name (E076). */
+export function spaceSpawns(files: readonly SpaceFileRead[]): SpaceSpawns {
+  const read = (kind: 'space' | 'prefab') =>
+    files.filter((f) => f.kind === kind && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson] as const);
+  const prefabs = new Map(read('prefab'));
+  return new Map(read('space').map(([id, space]) => [id, new Set(componentsOf(space, prefabs, SPAWN).keys())]));
 }
 
 /** The pack's world, or undefined for a project without a space: its pack keeps its format. */
@@ -58,12 +94,19 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
   const spaces = of('space');
   if (spaces.size === 0) return undefined;
   const prefabs = of('prefab');
-  const schema = sources.kinds.get(TRIGGER)?.recordType.schema;
-  const pack = (fields: unknown) => (schema ? packValue(schema, fields, sources.known) : fields);
+  const packer = (kind: string) => {
+    const schema = sources.kinds.get(kind)?.recordType.schema;
+    return (fields: unknown) => (schema ? packValue(schema, fields, sources.known) : fields);
+  };
   const triggers: Record<string, Record<string, TriggerZone>> = {};
+  const uses: Record<string, Record<string, WorldUse>> = {};
+  const spawns: Record<string, string[]> = {};
   for (const [id, space] of spaces) {
-    const zones = triggersOf(space, prefabs, pack);
+    const zones = triggersOf(space, prefabs, packer(TRIGGER));
     if (Object.keys(zones).length > 0) triggers[id] = zones;
+    const found = usesOf(space, prefabs, packer(INTERACT));
+    if (Object.keys(found).length > 0) uses[id] = found;
+    spawns[id] = [...componentsOf(space, prefabs, SPAWN).keys()].sort();
   }
   const files: Record<string, string> = {};
   for (const terrain of sources.terrains) {
@@ -90,6 +133,9 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     files,
     records: drawn.records,
     fields: drawn.fields,
+    uses,
+    spawns,
+    start: sources.start,
   };
 }
 
