@@ -39,7 +39,7 @@ async function both(files: Record<string, Uint8Array>) {
   const catalog = await readCatalog(source);
   const game = stateOf(await checkJob(await scriptFiles(source), true), true);
   const updated = await updateIndex(EMPTY_INDEX, source, catalog, null, gameChecks(game));
-  const index = { ...updated, screens: await screenProblems(source, catalog, updated, game) };
+  const index = { ...updated, screens: (await screenProblems(source, catalog, updated, game)).problems };
   const validate = (await compileWithGame(source)).diagnostics;
   return { catalog, index, game, editor: projectProblems(catalog, index, game), validate };
 }

@@ -137,7 +137,7 @@ describe('createPack', () => {
     const screens = { hut: { main: { widget: 'log' } } };
     const audio = { 'audio/theme.wav': 'UklGRiQAAABXQVZF' };
     const sounded = createPack(project, records, undefined, { screens }, undefined, audio);
-    expect(sounded.format).toBe(PACK_FORMAT);
+    expect(sounded.format).toBe(8);
     expect(sounded.audio).toEqual(audio);
     expect(sounded).not.toHaveProperty('credits');
     expect(readPack(reloaded(sounded))).toEqual(sounded);
@@ -154,6 +154,62 @@ describe('createPack', () => {
     expect(() => readPack({ ...reloaded(sounded), audio: { 'audio/theme.wav': 'not base64!' } })).toThrow(
       'is not base64',
     );
+  });
+
+  it('carries the spaces as format 9, audio or none, hashing them too (M5.8)', () => {
+    const zone = {
+      when: { not: { fact: 'flag.on', args: { flag: 'cairn-seen' } } },
+      effects: [{ effect: 'set-flag', flag: 'cairn-seen', to: true }],
+      once: true,
+    };
+    const world = {
+      spaces: { trailhead: { name: 'Trailhead', objects: [] } },
+      prefabs: { cairn: { name: 'Cairn', objects: [] } },
+      triggers: { trailhead: { 'cairn/zone': zone } },
+      files: { 'spaces/trailhead.heights.png': 'iVBORw0K' },
+      records: { 'model:crate': { file: 'crate.glb' } },
+      fields: { prop: 'model' },
+    };
+    const walked = createPack(project, records, undefined, undefined, undefined, undefined, world);
+    expect(walked.format).toBe(PACK_FORMAT);
+    expect(walked.world).toEqual(world);
+    expect(walked).not.toHaveProperty('audio');
+    expect(readPack(reloaded(walked))).toEqual(walked);
+    const audio = { 'audio/theme.wav': 'UklGRiQAAABXQVZF' };
+    expect(
+      readPack(reloaded(createPack(project, records, undefined, undefined, undefined, audio, world))).audio,
+    ).toEqual(audio);
+    const moved = { ...world, files: { 'spaces/trailhead.heights.png': 'iVBORw0L' } };
+    expect(createPack(project, records, undefined, undefined, undefined, undefined, moved).hash).not.toBe(walked.hash);
+    // No spaces, no format 9: the hash stays what it was.
+    expect(createPack(project, records, undefined, undefined, undefined, undefined, { ...world, spaces: {} })).toEqual(
+      createPack(project, records),
+    );
+    const broken = (change: Record<string, unknown>) => () =>
+      readPack({ ...reloaded(walked), world: { ...world, ...change } });
+    expect(() => readPack({ ...reloaded(walked), world: undefined })).toThrow('A format 9 pack has no world');
+    expect(broken({ spaces: {} })).toThrow('A format 9 pack has no spaces');
+    expect(broken({ spaces: { Trailhead: {} } })).toThrow('"Trailhead" is not a valid space or prefab name');
+    expect(broken({ prefabs: { cairn: 'a cairn' } })).toThrow("The pack's prefabs are not objects");
+    expect(broken({ triggers: { bothy: {} } })).toThrow('Trigger zones of a space the pack lacks: "bothy"');
+    expect(broken({ triggers: { trailhead: { 'cairn//zone': zone } } })).toThrow(
+      '"cairn//zone" is not an object\'s path',
+    );
+    expect(broken({ triggers: { trailhead: { cairn: { when: zone.when } } } })).toThrow(
+      'The trigger zone "trailhead/cairn" has no effects',
+    );
+    expect(broken({ triggers: { trailhead: { cairn: { ...zone, once: 'yes' } } } })).toThrow(
+      'once is not true or false',
+    );
+    expect(broken({ triggers: { trailhead: { cairn: { ...zone, size: 2 } } } })).toThrow(
+      'Unknown trigger zone fields: size',
+    );
+    expect(broken({ files: { 'a.png': 'not base64!' } })).toThrow("The pack's world files are not base64");
+    expect(broken({ sky: {} })).toThrow('Unknown pack world fields: sky');
+    expect(broken({ records: { crate: {} } })).toThrow('"crate" is not a record\'s type and id');
+    expect(broken({ fields: { prop: 3 } })).toThrow("The pack's model fields are not text");
+    // Before format 9 there is no world to carry.
+    expect(() => readPack({ ...reloaded(createPack(project, records)), world })).toThrow('Unknown pack fields: world');
   });
 });
 
@@ -307,8 +363,8 @@ describe('readPack', () => {
   });
 
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 9 })).toThrow(
-      'This pack is format 9; this engine reads formats 1 to 8. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 10 })).toThrow(
+      'This pack is format 10; this engine reads formats 1 to 9. Update the engine.',
     );
   });
 

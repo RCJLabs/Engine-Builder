@@ -19,17 +19,29 @@
       "read": "2026-10-24",
       "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders"
     },
-    "precache": {
-      "budget": 6181672,
-      "reading": 5887306,
+    "walk": {
+      "budget": 2667511,
+      "reading": 2540487,
       "read": "2026-10-24",
-      "of": "bytes of every file the service worker precaches, as a device keeps them"
+      "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space"
+    },
+    "precache": {
+      "budget": 13438250,
+      "reading": 12798333,
+      "read": "2026-10-24",
+      "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8"
     },
     "space-wrecked-web": {
       "budget": 540000,
       "reading": 520046,
       "read": "2026-10-23",
       "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content"
+    },
+    "trail-web": {
+      "budget": 7553716,
+      "reading": 7194015,
+      "read": "2026-10-24",
+      "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page"
     }
   },
   "counts": {

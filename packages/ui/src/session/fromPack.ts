@@ -70,7 +70,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     return { ok: false, message: 'This game has no scripts/game.ts, so there is nothing to play' };
   }
   const kits = pack.project.kits ?? [];
-  const loaded = loadProjectGame(new Map(Object.entries(scripts)), kits, pack.project.calendar);
+  const loaded = loadProjectGame(new Map(Object.entries(scripts)), kits, pack.project.calendar, pack.world?.triggers);
   if (!loaded.ok) return { ok: false, message: `The game didn’t load: ${loaded.problem.message}` };
   const { modules, start } = loaded.game;
   const screens = (pack.ui?.screens ?? {}) as Readonly<Record<string, Screen>>;

@@ -15,7 +15,7 @@ import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
 import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
-import { FlagChecks } from './flagCheck.ts';
+import { FlagChecks, type FlagUses } from './flagCheck.ts';
 import { checkFoliage, FOLIAGE, type FoliageRecord } from './foliageTypes.ts';
 import { KitChecks } from './kitCheck.ts';
 import { kitDataTypes } from './kitTypes.ts';
@@ -87,6 +87,8 @@ export interface ValidateOptions {
   readonly kits?: readonly string[];
   /** project.json's calendar (M3.5, D43): the time kit's facts, events and effects follow it. */
   readonly calendar?: CalendarDef;
+  /** Flags set and read by spaces' trigger zones and by screens (M5.8), for the flags' lint. */
+  readonly flagsElsewhere?: FlagUses;
 }
 
 /**
@@ -173,6 +175,7 @@ export function validateRecords(
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);
     }
   }
+  if (options.flagsElsewhere) flags.elsewhere(options.flagsElsewhere);
   flags.finish((flag) => usages.has(formatRef(FLAG, flag)));
   kits.finish();
   return {

@@ -19,12 +19,13 @@
  * stand in for its checks, and its checks are given at the scene's lines.
  */
 import { atSceneLine, type ProjectSource, parseJsonFile, readFiles, type SpaceUse, scenePath } from '@eb/compiler';
-import { type FactCatalog, formatRef } from '@eb/core';
+import { type FactCatalog, FLAG, formatRef } from '@eb/core';
 import { compileScene, type SourceMap } from '@eb/ink';
 import { TALK } from '@eb/kits';
 import {
   compareText,
   type Diagnostic,
+  type FlagUses,
   knownFrom,
   type RecordInput,
   severityOf,
@@ -74,6 +75,8 @@ export interface RecordIndex {
   readonly assetUsers: ReadonlyMap<string, readonly Usage[]>;
   /** The types, assets and game the records were checked against (groundsOf). */
   readonly grounds: string;
+  /** The flags' uses outside the records the flags were linted with (M5.8): the zones' and the screens'. */
+  readonly flagsElsewhere?: FlagUses;
   /** The problems of the screens under ui/ (M4.1), checked against the game once the records are (screenChecks.ts). */
   readonly screens?: readonly Diagnostic[];
   /** export.json's problems (M4.10), checked once the records are, since editions read their used-by (exportChecks.ts). */
@@ -202,6 +205,7 @@ export async function updateIndex(
   catalog: Catalog,
   paths: readonly string[] | null,
   game: GameChecks = {},
+  flagsElsewhere?: FlagUses,
 ): Promise<RecordIndex> {
   const named = new Set(paths ?? []);
   const listed: { type: string; id: string; file: string; key: string }[] = [];
@@ -249,26 +253,45 @@ export async function updateIndex(
   for (const key of [...appeared, ...went]) {
     for (const usage of before.usedBy.get(key) ?? []) if (records.has(usage.from)) dirty.add(usage.from);
   }
+  // The zones or the screens set or read other flags: each flag's lint again (M5.8).
+  if (usesKey(flagsElsewhere) !== usesKey(before.flagsElsewhere)) {
+    for (const record of records.values()) if (record.type === FLAG) dirty.add(record.key);
+  }
   const checking = grounds === before.grounds ? dirty : new Set(records.keys());
-  check(records, checking, catalog, game);
+  const checks = flagsElsewhere ? { ...game, flagsElsewhere } : game;
+  check(records, checking, catalog, checks);
   // Read after the check, so the records just checked count by what they name now.
   const touched = (related: (r: IndexedRecord | undefined) => boolean) =>
     [...checking, ...went].some((key) => related(records.get(key)) || related(before.records.get(key)));
   const widen = relatedFor(catalog.kits).filter(touched);
   const more = [...records.values()].filter((r) => widen.some((related) => related(r)) && !checking.has(r.key));
-  if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog, game);
-  return { records, usedBy: usedByOf(records, 'refs'), assetUsers: usedByOf(records, 'assets'), grounds };
+  if (more.length > 0) check(records, new Set([...checking, ...more.map((r) => r.key)]), catalog, checks);
+  return {
+    records,
+    usedBy: usedByOf(records, 'refs'),
+    assetUsers: usedByOf(records, 'assets'),
+    grounds,
+    ...(flagsElsewhere ? { flagsElsewhere } : {}),
+  };
 }
 
 /**
  * Checks the `dirty` records, in place. Every other record goes to validateRecords as there but
  * unread, so references to it resolve and nothing about it is checked again.
  */
+/** The uses as text, each list sorted: two reads of the same project give the same key. */
+export const usesKey = (uses: FlagUses | undefined): string => {
+  if (!uses) return '';
+  const listed = (map: ReadonlyMap<string, ReadonlySet<string>>) =>
+    [...map].map(([flag, from]) => [flag, [...from].sort()] as const).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  return JSON.stringify([listed(uses.set), listed(uses.read)]);
+};
+
 function check(
   records: Map<string, IndexedRecord>,
   dirty: ReadonlySet<string>,
   catalog: Catalog,
-  game: GameChecks,
+  game: GameChecks & { readonly flagsElsewhere?: FlagUses },
 ): void {
   if (dirty.size === 0) return;
   // As the compiler does: a record of a type whose file has problems isn't checked, and one of a

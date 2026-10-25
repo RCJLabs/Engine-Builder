@@ -1,0 +1,35 @@
+{
+  "name": "Cairn",
+  "objects": [
+    {
+      "id": "stones",
+      "name": "Stones",
+      "shape": "cylinder",
+      "at": [0, 0, 0],
+      "scale": [1, 1.2, 1],
+      "color": "#7d776f",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "zone",
+      "name": "Cairn zone",
+      "shape": "box",
+      "at": [0, 0, 0],
+      "scale": [4, 3, 4],
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "cairn-seen",
+              "to": true
+            }
+          ],
+          "once": true
+        }
+      }
+    }
+  ]
+}

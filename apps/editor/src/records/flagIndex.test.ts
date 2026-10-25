@@ -49,6 +49,33 @@ describe('the index with flags', () => {
   });
 });
 
+describe('the index with flags used outside the records (M5.8)', () => {
+  const uses = (set: string[], read: string[]) => ({
+    set: new Map(set.map((flag) => [flag, new Set(['spaces/trailhead.json'])])),
+    read: new Map(read.map((flag) => [flag, new Set(['ui/'])])),
+  });
+
+  it('counts what the zones set and the screens read, and lints the flags again when that changes', async () => {
+    const files = project();
+    files.write(MET, '{}');
+    let { index } = await files.update(null);
+    expect(problemsOf(index, 'flag:met')).toEqual(['W110 : Nothing sets or reads this flag']);
+    // A zone sets it and a screen reads it: no file under records/ changed, and the warning goes.
+    const both = await files.update([], uses(['met'], ['met']));
+    index = both.index;
+    expect(problemsOf(index, 'flag:met')).toEqual([]);
+    expect(shown(index)).toEqual(shown(both.fresh));
+    ({ index } = await files.update([], uses(['met'], [])));
+    expect(problemsOf(index, 'flag:met')).toEqual([
+      "W108 : Set by spaces/trailhead.json, but no condition or row's When reads it",
+    ]);
+    ({ index } = await files.update([], uses([], ['met'])));
+    expect(problemsOf(index, 'flag:met')).toEqual(['W109 : Read by ui/, but nothing sets it: it always is off']);
+    ({ index } = await files.update([]));
+    expect(problemsOf(index, 'flag:met')).toEqual(['W110 : Nothing sets or reads this flag']);
+  });
+});
+
 describe('the index with flags, edit after edit', () => {
   const step = fc.oneof(
     fc.record({

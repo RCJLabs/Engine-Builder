@@ -22,4 +22,29 @@ describe('what Run sends the worker', () => {
     expect(files.has('notes.txt')).toBe(false);
     expect([...files.keys()].sort()).toEqual(Object.keys(project).filter(own).sort());
   });
+
+  it('sends models whole, and a .gltf’s buffers and images with it, which a space draws in play (M5.8)', async () => {
+    const encode = (text: string) => new TextEncoder().encode(text);
+    const glb = new Uint8Array([103, 108, 84, 70, 2, 0, 0, 0]);
+    const gltf = JSON.stringify({
+      asset: { version: '2.0' },
+      buffers: [{ uri: 'hill.bin', byteLength: 4 }],
+      images: [{ uri: 'moss.png' }],
+    });
+    const project = {
+      'project.json': '{}',
+      'assets/models/crate.glb': glb,
+      'assets/models/hill.gltf': encode(gltf),
+      'assets/models/hill.bin': new Uint8Array([1, 2, 3, 4]),
+      'assets/models/moss.png': new Uint8Array([137, 80, 78, 71]),
+      'assets/art/portrait.png': new Uint8Array([137, 80, 78, 71, 9]),
+    };
+    const files = new Map(await playFiles(memorySource(project)));
+    expect(files.get('assets/models/crate.glb')).toEqual(glb);
+    expect(new TextDecoder().decode(files.get('assets/models/hill.gltf'))).toBe(gltf);
+    expect(files.get('assets/models/hill.bin')).toEqual(new Uint8Array([1, 2, 3, 4]));
+    expect(files.get('assets/models/moss.png')).toEqual(new Uint8Array([137, 80, 78, 71]));
+    // Art no model names still goes by name alone.
+    expect(files.get('assets/art/portrait.png')).toEqual(new Uint8Array());
+  });
 });

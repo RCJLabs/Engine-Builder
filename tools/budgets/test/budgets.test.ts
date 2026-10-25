@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { type Budgets, checkSizes, measureSizes, readBudgets, SIZES } from '../src/budgets.ts';
+import { type Budgets, checkSizes, measureSizes, readBudgets, runtimeUncached, SIZES } from '../src/budgets.ts';
 import { startFiles, staticClosure } from '../src/measure.ts';
 
 /** A built editor, its chunks importing as Vite's minified ones do. */
@@ -25,9 +25,14 @@ function dist(): string {
     'assets/modelsView-g7.js': 'import{Mesh}from"./three-e5.js";import"./draco-h8.js";',
     'assets/draco-h8.js': 'export default 2;',
     'sw.js':
-      'define(["./workbox"],function(e){e.precacheAndRoute([{url:"index.html",revision:"1"},{url:"assets/main-a1.js",revision:null}])});',
+      'define(["./workbox"],function(e){e.precacheAndRoute([{url:"index.html",revision:"1"},{url:"assets/main-a1.js",revision:null},{url:"runtime/files.json",revision:"2"},{url:"runtime/game.js",revision:"3"}])});',
+    'runtime/files.json': '{"version":"0.0.1","files":["game.js"],"walk":"walk.js"}',
+    'runtime/game.js': 'game();',
     'games/space-wrecked/index.html': 'x'.repeat(100),
     'games/space-wrecked/icons/icon.png': 'y'.repeat(50),
+    'runtime/walk.js': 'const rapier="AGFzbQ";'.repeat(40),
+    'games/trail/index.html': 'z'.repeat(70),
+    'games/trail/walk.0a1b2c3d.js': 'w'.repeat(30),
   };
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(join(dir, path, '..'), { recursive: true });
@@ -49,7 +54,7 @@ describe('the size budgets', () => {
     expect(staticClosure(assets, 'main-a1.js')).toEqual(['main-a1.js', 'shared-b2.js']);
   });
 
-  it('measure the start, what the 3D view and its models add to it, the precache and the export', () => {
+  it('measure the start, what the 3D view and its models add to it, walk.js, the precache and the exports', () => {
     const dir = dist();
     expect(startFiles(dir)).toEqual(['main-a1.js', 'shared-b2.js', 'main-c3.css']);
     const read = (path: string) => readFileSync(join(dir, path), 'utf8');
@@ -61,8 +66,15 @@ describe('the size budgets', () => {
     // shared-b2.js came with the start; three-e5.js with the view.
     expect(sizes['scene-view']).toBe(sum(['assets/SceneView-d4.js', 'assets/three-e5.js', 'assets/side-f6.js']));
     expect(sizes['models-view']).toBe(sum(['assets/modelsView-g7.js', 'assets/draco-h8.js']));
-    expect(sizes.precache).toBe(read('index.html').length + read('assets/main-a1.js').length);
+    expect(sizes.precache).toBe(
+      ['index.html', 'assets/main-a1.js', 'runtime/files.json', 'runtime/game.js'].reduce(
+        (n, p) => n + read(p).length,
+        0,
+      ),
+    );
+    expect(sizes.walk).toBe(gz(read('runtime/walk.js')));
     expect(sizes['space-wrecked-web']).toBe(150);
+    expect(sizes['trail-web']).toBe(100);
   });
 
   it('say which is over its budget, and refuse a budgets.json without one', () => {
@@ -101,5 +113,9 @@ describe('budgets.json', () => {
         expect(count[what], id).toBeLessThanOrEqual(Math.ceil(count.reading[what] * 1.1));
       }
     }
+  });
+
+  it('find the runtime the service worker doesn’t keep: walk.js, left out here as Workbox leaves out a big file', () => {
+    expect(runtimeUncached(dist())).toEqual(['runtime/walk.js']);
   });
 });

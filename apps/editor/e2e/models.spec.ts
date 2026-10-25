@@ -14,6 +14,7 @@ import { showProject } from './ludus.ts';
 import {
   addKit,
   expectDrawn,
+  expectStored,
   expectWireOn,
   importModels,
   makeBark,
@@ -61,6 +62,7 @@ test('models imported, shaped, placed and read back, the starter kit added, and 
   expect(await smallTargets(page, '[data-panel="scene"], [data-panel="assets"], [data-panel="inspector"]')).toEqual([]);
   await expectNoAxeIssues(page);
   const kept = await models(page);
+  await expectStored(page);
 
   await page.reload();
   await showProject(page);

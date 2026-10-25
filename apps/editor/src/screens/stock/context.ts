@@ -31,6 +31,8 @@ export interface StockContext {
   readonly screens: readonly string[];
   /** The modes some screen already shows. */
   readonly shown: ReadonlySet<string>;
+  /** The project's spaces, by id and name, in id order (M5.8): the Space template walks the first. */
+  readonly spaces?: readonly Named[];
 }
 
 /** The records of a type, by id and name. */

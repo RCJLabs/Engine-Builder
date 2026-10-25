@@ -22,6 +22,7 @@ export {
   TARGETS,
   type TargetName,
 } from './exportFile.ts';
+export { SCREENS, screenReads, withScreens } from './flagUses.ts';
 export {
   type GltfSummary,
   gltfJson,
@@ -67,6 +68,14 @@ export {
   placedObjects,
   recordHere,
 } from './overrides.ts';
+export {
+  eachPlacedRecord,
+  type ModelSources,
+  modelFieldOf,
+  modelHere,
+  modelNeeds,
+  placedKeys,
+} from './placedModels.ts';
 export {
   type KitSettings,
   type ListedRecord,

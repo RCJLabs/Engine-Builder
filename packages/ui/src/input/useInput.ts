@@ -73,10 +73,19 @@ export function useInput(box: RefObject<HTMLElement | null>, actions: InputActio
     const tabs = box.current ? tabsFor(box.current) : undefined;
     if (tabs) stepTabs(tabs, step);
   };
+  // A space walked on the top screen takes the left stick and A, unless a control there has focus (M5.8).
+  const walking = () => {
+    const screen = box.current ? topScreen(box.current) : undefined;
+    const active = document.activeElement as HTMLElement | null;
+    const onControl = !!active && !!screen?.contains(active) && usable(active) && !active.closest('[data-eb-walk]');
+    return !!screen?.querySelector('[data-eb-walk]') && !onControl;
+  };
   const command = (c: PadCommand) => {
-    if (c.kind === 'move') move(c.direction);
-    else if (c.kind === 'press') press();
-    else if (c.kind === 'back') (back ?? pause)?.();
+    if (c.kind === 'move') {
+      if (!(c.stick && walking())) move(c.direction);
+    } else if (c.kind === 'press') {
+      if (!walking()) press();
+    } else if (c.kind === 'back') (back ?? pause)?.();
     else if (c.kind === 'start') pause?.();
     else tab(c.step);
   };
@@ -87,7 +96,8 @@ export function useInput(box: RefObject<HTMLElement | null>, actions: InputActio
     () => setDevice('pad'),
   );
   useSwipes(box, (direction, from) => {
-    if (!on) return;
+    // A drag on a space walked is the stage's: its stick and its look (M5.8).
+    if (!on || from.closest('[data-eb-walk]')) return;
     const tabs = from.closest<HTMLElement>('.eb-tabs');
     const screen = box.current ? topScreen(box.current) : undefined;
     if (tabs && screen?.contains(tabs)) stepTabs(tabs, direction === 'left' ? 1 : -1);

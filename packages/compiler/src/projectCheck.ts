@@ -10,6 +10,7 @@ import { type ParsedFile, parseJsonFile } from './decode.ts';
 import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
 import { checkManifest } from './manifest.ts';
 import type { ProjectSource } from './source.ts';
+import { classifySpaceFile, SPACES_DIR } from './spaceFiles.ts';
 import { type ProjectTypes, readTypes } from './types.ts';
 
 export interface Report {
@@ -80,12 +81,19 @@ export async function readProjectFiles(
 export interface KitSettings {
   readonly kits: readonly string[];
   readonly calendar?: CalendarDef;
+  /** The project has a space: its game has the world module (M5.8, D70). */
+  readonly spaces?: true;
 }
 
 /** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
 export async function readKitSettings(source: ProjectSource): Promise<KitSettings> {
   const project = await readManifestFile(source, () => {});
-  return { kits: project?.kits ?? [], ...(project?.calendar ? { calendar: project.calendar } : {}) };
+  const spaces = (await source.files(SPACES_DIR)).some((path) => classifySpaceFile(path).kind === 'space');
+  return {
+    kits: project?.kits ?? [],
+    ...(project?.calendar ? { calendar: project.calendar } : {}),
+    ...(spaces ? { spaces } : {}),
+  };
 }
 
 async function readManifestFile(source: ProjectSource, report: (r: Report) => void): Promise<PackProject | null> {

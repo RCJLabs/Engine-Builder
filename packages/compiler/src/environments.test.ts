@@ -129,6 +129,7 @@ describe('a space’s environment', () => {
     expect(found).toEqual({
       diagnostics: [],
       uses: [{ key: 'environment:dusk', file: 'spaces/fell.json', object: '', path: '/environment' }],
+      flags: { set: new Map(), read: new Map() },
     });
   });
 });

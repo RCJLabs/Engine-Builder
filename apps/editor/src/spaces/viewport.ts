@@ -9,8 +9,9 @@
 
 import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
+import { noteError } from '../app/state.ts';
 import type { Look } from '../environment/look.ts';
-import type { LiveModels } from '../models/liveModels.ts';
+import type { LiveModels } from '../models/liveTypes.ts';
 import { frameStats } from '../perf/frames.ts';
 import { createFrameClock } from '../perf/stepDown.ts';
 import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
@@ -192,9 +193,13 @@ export async function createView(
   };
 
   // show is hoisted: a model whose file finishes decoding builds the view again.
-  const models = createViewModels(renderer, () => {
-    if (shown) show(...shown);
-  });
+  const models = createViewModels(
+    renderer,
+    () => {
+      if (shown) show(...shown);
+    },
+    noteError,
+  );
   let shown: Parameters<View['show']> | null = null;
 
   const outline = () => {

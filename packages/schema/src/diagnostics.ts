@@ -52,7 +52,7 @@ export const DIAGNOSTIC_CODES = {
   E046: "A scene isn't ink the engine reads: a construct outside the subset, a tag it doesn't know, or a flow that runs out",
   E047: "A screen, the theme, the feedback or the shell isn't valid",
   E048: "A screen, a feedback line or the shell's slot line names a fact or a field it can't read",
-  E049: 'A screen takes an action, opens a screen, shows a mode, lists a source or names a sound, ambience or music the game lacks',
+  E049: 'A screen takes an action, opens a screen, shows a mode, lists a source or names a sound, ambience, music or space the game lacks',
   E050: "The theme's text falls short of AA contrast",
   E051: "A feedback line is on an event the game doesn't declare",
   E052: "A feedback line names an argument its event lacks, or matches one on a value it can't take",

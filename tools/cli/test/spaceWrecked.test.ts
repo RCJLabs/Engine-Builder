@@ -82,13 +82,13 @@ function pressable(screens: Readonly<Record<string, Screen>>, view: View): Actio
 }
 
 describe('Space-Wrecked', () => {
-  it('validates with no errors, and only the two warnings the scripts explain', () => {
+  it('validates with no errors, and only the warning the scripts explain', () => {
     const run = spawnSync(process.execPath, [CLI, 'validate', GAME], { cwd: tmpdir(), encoding: 'utf8' });
     expect(run.status, run.stdout + run.stderr).toBe(0);
-    // The scripts read heat and set room, which the lint can't see (W108 and W109 count records only).
+    // The scripts set room, which the lint can't see (W109 counts records, zones and screens only).
+    // Heat's W108 went in M5.8, as the screens that show it count as reading it.
     const warnings = run.stdout.split('\n').flatMap((line) => /warning (W\d+)/.exec(line)?.[1] ?? []);
-    expect(warnings).toEqual(['W108', 'W109']);
-    expect(run.stdout).toMatch(/records\/flag\/heat\.json: warning W108/);
+    expect(warnings).toEqual(['W109']);
     expect(run.stdout).toMatch(/records\/flag\/room\.json: warning W109/);
   });
 

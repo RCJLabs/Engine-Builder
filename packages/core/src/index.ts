@@ -20,6 +20,7 @@ export {
   PackError,
   type PackProject,
   type PackUi,
+  type PackWorld,
   packHash,
   readPack,
 } from './pack.ts';
@@ -43,3 +44,4 @@ export * from './sheets/index.ts';
 export * from './sim/index.ts';
 export { type Difference, type FacetReading, firstDifference, readFacets, stateHash } from './stateHash.ts';
 export * from './time/index.ts';
+export { type Triggers, type TriggerZone, WORLD, type WorldSlice, worldModule } from './world/world.ts';

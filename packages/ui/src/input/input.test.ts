@@ -115,9 +115,14 @@ describe('the gamepad', () => {
         [20, at(0.3)],
         [30, at(-0.7)],
       ]),
-    ).toEqual([[{ kind: 'move', direction: 'right' }], [], [], [{ kind: 'move', direction: 'left' }]]);
-    // The stronger axis wins.
-    expect(frames([[0, at(0.6, -0.9)]])).toEqual([[{ kind: 'move', direction: 'up' }]]);
+    ).toEqual([
+      [{ kind: 'move', direction: 'right', stick: true }],
+      [],
+      [],
+      [{ kind: 'move', direction: 'left', stick: true }],
+    ]);
+    // Marked as the stick's, which a space walked takes (M5.8); the stronger axis wins.
+    expect(frames([[0, at(0.6, -0.9)]])).toEqual([[{ kind: 'move', direction: 'up', stick: true }]]);
     // A stick that dips to 0.4 and back is still held: no second move.
     expect(
       frames([
@@ -125,7 +130,7 @@ describe('the gamepad', () => {
         [10, at(0.4)],
         [20, at(0.6)],
       ]),
-    ).toEqual([[{ kind: 'move', direction: 'right' }], [], []]);
+    ).toEqual([[{ kind: 'move', direction: 'right', stick: true }], [], []]);
   });
 
   it('reads every pad as one', () => {

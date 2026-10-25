@@ -1904,6 +1904,54 @@ Evan chose on 2026-10-24, from these options:
 
 ---
 
+### D70. M5.8 walks spaces in play: games carry their spaces and a screen's Space widget draws one; Rapier runs on the page beside three, the sim hearing only trigger zones as actions; first- and third-person controllers with their cameras; a floating touch stick. LOCKED, 2026-10-24 (Evan's calls, M5.8)
+
+Evan chose on 2026-10-24, from these options:
+- **Where a player walks:**
+  - in play: games carry their spaces, models and terrain in a new pack format, and a screen's Space widget draws one with the game's HUD over it, in the Play panel, on the player page and in an export;
+  - in the editor first: a Walk button in the Scene panel, games getting spaces at M5.9;
+  - both, split: the editor in M5.8, play in a new M5.8b.
+- **Physics:**
+  - Rapier on the page, loaded with the first space walked, the sim pure and hearing only events (a trigger zone entered is an action), positions reaching saves at checkpoints in M5.9;
+  - Rapier in the game's worker beside the sim, positions in the game's state;
+  - a character of our own against the terrain and the colliders in plain arithmetic, no Rapier until combat.
+- **Controllers:** first- and third-person, a spawn point saying which; third-person only; first-person only.
+- **Touch:** a stick that appears where the left thumb lands, the right half dragging to look, a jump button; a stick fixed in a corner; tap to move.
+
+**Decision.**
+- **Spaces in play.** A pack of format 9 carries the project's spaces and prefabs as written, the trigger zones of each space resolved through its prefabs and overrides, and the files they draw from (terrain PNGs and the models' GLBs) as base64. A screen's `space` widget names a space and draws it, the screen's other widgets over it. It plays in the editor's Play panel, on the player page and in a game's exports.
+- **Rapier on the page.** The stage runs Rapier's compat build beside three, loaded the first time a space is drawn: the terrain as a heightfield, colliders from collider components and from placed models' own, `moves` as bodies that fall and are pushed, and the character as Rapier's kinematic character controller. The sim stays pure and replayable: entering a trigger zone sends `world/trigger`, which the sim checks (the zone exists, its `when` holds, `once` not yet spent) and runs as any action. The character's position is the stage's; M5.9 writes it into saves at checkpoints.
+- **First and third person.** A spawn point's new `view` field says which, third when left out. Third-person: the camera follows behind and above, pulled in where something solid is in the way. First-person: the camera at the eyes. Walk, run and jump in both, up gentle slopes and low steps only.
+- **A floating stick.** By touch, the left half of the space takes a stick where the thumb lands, the right half drags to look, and a jump button sits at the bottom right inside the safe area. By keys: WASD or the arrows to move, Shift to run, Space to jump, the mouse dragged (or locked, after a click) to look. By pad: the left stick moves, the right looks, A jumps.
+
+**Why.**
+- **In play:** Phase 5's gate is a walkable slice in a game; walking only in the editor would leave the hard part, spaces in packs and exports, for M5.9 beside worldspaces.
+- **Rapier on the page:** the sim must give the same result everywhere (CLAUDE.md), which a physics engine's floats don't; on the page, input meets the character without a trip to the worker, and the sim still decides everything a player can win or lose.
+- **Both views:** the roadmap's templates need both (M6.7), and the camera rig is the only part they don't share.
+- **A floating stick:** a thumb seldom lands where a fixed stick is drawn; tap to move needs navmeshes (M6.2).
+
+**Cost.**
+- **Rapier's compat build is 1.67 MB gzip,** about five times the 3D view's own code, downloaded the first time a space is walked, and the precache's budget rises with it.
+- **Movement isn't replayable:** a replay or a bot plays the trigger actions, not the walk that reached them. Bots can't walk until Rapier runs in Node for them (Phase 6).
+- **A game's exports grow** by its models, its terrain and, for a 3D game, the walk runtime.
+- **Untested for feel:** speeds, jump, slopes, the camera's distance and the stick's size are first guesses until a phone has played them.
+
+**As built** (2026-10-25, M5.8):
+- **One walk.js for every page.** `vite.walk.config.ts` builds three, Rapier, the models' decoders and the stage into one classic script beside the game runtime in `dist-game/`, and `files.json` names it. The Play panel and the player page load the editor's own `runtime/walk.js`, not a chunk of their own, so Play walks what Export ships and the editor keeps one copy of Rapier. A dev server imports the stage as it is. `game.js` carries none of it: a game without spaces exports as before.
+- **walk.js is 6.9 MB, 2.54 MB at gzip -9:** Rapier's compat build is about 1.67 MB of that, as the spike read, and the Draco and Basis decoders, inlined so a single file holds them, about 0.37 MB. The editor's precache rises from 5.89 MB to 12.80 MB; Workbox's 2 MB limit for a file is raised to 10 MB, and `pnpm budgets` now fails when the service worker doesn't keep the runtime.
+- **The single file holds walk.js as text** in a `<script type="text/plain">`, run through a blob URL the first time a space draws, so a game that never walks never parses it. The boot JSON names `walk.<hash>.js` or `#eb-walk`, and the runtime refuses any other name.
+- **three's KTX2Loader builds its decoders' URLs** from `import.meta.url`, which a classic script lacks: walk.js gives it the page's address once Vite has made those URLs data URLs.
+- **The session lets the stage's `world/trigger` through.** A button can ask only for what the game offers, and nothing offers a trigger, so the session used to refuse every one before the sim saw it. The sim's own checks decide it now; every other action still has to be on offer.
+- **The editor's script check is told the project's spaces,** by name alone, so the world module joins its game and a mode allowing `world/*` loads. It runs again when a project gains its first space or loses its last, not on every edit to one.
+- **The editor's flag lint counts the zones and the screens,** as `eb validate` does (movement.md's question 7): the record index lints each flag with what the zones set and the screens read, checking only the flags again when those uses change.
+- **Play is sent models whole,** with a `.gltf`'s buffers and images, since a space draws them in play and E070 reads them; other art still goes by name.
+- **A press shorter than a frame counts.** A key tapped or the jump button tapped between two frames is held until the next frame takes it, and a jump on a frame too short for a physics step, as on a screen faster than 60 Hz, waits for the next frame that has one.
+- **The trail's web export is deployed** at `/games/trail/`, beside Space-Wrecked, for a phone to walk.
+- **Sideways in the editor,** the Play panel shows part of the view and scrolls to the rest; an exported game fills its page.
+- **Untested for feel and on a phone:** no phone has walked the trail. In the cloud container's software WebGL the walk drew at Low at about 13 frames a second (Readings).
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

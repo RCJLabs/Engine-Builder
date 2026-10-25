@@ -103,6 +103,7 @@ describe('a terrain’s foliage', () => {
         { key: 'foliage:pines', file: 'spaces/glade.json', object: '', path: '/terrain/foliage/0' },
         { key: 'foliage:meadow', file: 'spaces/glade.json', object: '', path: '/terrain/foliage/1' },
       ],
+      flags: { set: new Map(), read: new Map() },
     });
   });
 

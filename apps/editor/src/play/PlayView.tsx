@@ -15,6 +15,7 @@ import { showPanel } from '../app/panelControl.ts';
 import { problemCount } from '../problems/count.ts';
 import { type OpenProject, revision, runScripts } from '../projects/opened.ts';
 import { playFiles } from '../scripts/playFiles.ts';
+import { editorWalk } from '../walk/editorWalk.ts';
 import { playing } from './client.ts';
 import { DebugTools } from './debug/DebugTools.tsx';
 import { debugMoved, refreshLook, replayedGame, resetDebug } from './debug/tools.ts';
@@ -122,6 +123,7 @@ export function PlayView({ project }: { project: OpenProject }) {
               seed={() => seed}
               moved={debugMoved.value}
               onPlay={setInPlay}
+              spaces={editorWalk((replayed?.opened ?? shown.opened).world)}
             />
           </div>
           {inPlay ? <DebugTools project={project} store={store} game={shown.opened.game} /> : null}

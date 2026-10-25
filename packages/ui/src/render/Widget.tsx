@@ -9,6 +9,7 @@ import { actionFor, amount, fill, fillSome, holds } from './fill.ts';
 import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
 import { MapWidgetView } from './MapWidget.tsx';
+import { SpaceWidgetView } from './SpaceWidget.tsx';
 import { Tabs } from './Tabs.tsx';
 
 interface Props {
@@ -86,6 +87,8 @@ function WidgetBody({ widget, drawing, entry, at }: Props) {
       return <LogView widget={widget} drawing={drawing} entry={entry} />;
     case 'map':
       return <MapWidgetView widget={widget} drawing={drawing} />;
+    case 'space':
+      return <SpaceWidgetView widget={widget} drawing={drawing} />;
   }
 }
 

@@ -5,6 +5,7 @@
  */
 import type { SaveFile } from '@eb/core';
 import type { Store } from '@eb/platform';
+import type { SpaceHost } from '../render/spaceHost.ts';
 import type { PlayReply, PlayRequest } from '../session/protocol.ts';
 import type { View } from '../session/types.ts';
 
@@ -37,6 +38,8 @@ export interface ShellProps {
   readonly moved?: Moved;
   /** Told whenever a game comes into play or leaves it: the editor shows its debug tools while one is. */
   readonly onPlay?: (playing: boolean) => void;
+  /** Who draws the game's spaces (M5.8): the page's stage, made from the opened game's world. */
+  readonly spaces?: SpaceHost;
 }
 
 export interface Moved {

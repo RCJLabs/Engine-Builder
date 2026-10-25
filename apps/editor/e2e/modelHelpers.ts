@@ -7,7 +7,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { crateModel, glbOf, gridModel, signModel } from '../../../packages/models/test/shapes.ts';
 import { press, showInspector } from './componentHelpers.ts';
-import { newRecord, stored } from './kitHelpers.ts';
+import { newRecord, stored, storedText } from './kitHelpers.ts';
 import { openRecord, showAssets } from './ludus.ts';
 import { camera, scenePanel } from './spaceHelpers.ts';
 
@@ -33,6 +33,25 @@ export const models = (page: Page): Promise<Record<string, ModelSummary>> =>
   });
 
 export const record = (page: Page, id: string) => stored(page, FOLDER, `records/model/${id}.json`);
+
+/**
+ * What a reload must find written: the yard's four placements, the pine's record and its file. A
+ * reload while the starter kit's save still runs would lose it, which is the editor's to say, not
+ * the view's (M5.8: on CI the pine was missing after the reload, which no run here repeats).
+ */
+export async function expectStored(page: Page): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        const yard = (await stored(page, FOLDER, 'spaces/yard.json')) as { objects?: { record?: string }[] } | null;
+        return (yard?.objects ?? []).flatMap((o) => (o.record ? [o.record] : [])).sort();
+      },
+      { timeout: 20_000 },
+    )
+    .toEqual(['model:crate', 'model:hills', 'model:kit-pine', 'model:sign']);
+  expect(await record(page, 'kit-pine')).toMatchObject({ file: 'starter-kit/pine.glb' });
+  expect(await storedText(page, FOLDER, 'assets/starter-kit/pine.glb')).not.toBeNull();
+}
 
 /** The three files, as the gate imports them. */
 export async function modelFiles() {

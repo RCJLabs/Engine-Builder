@@ -319,3 +319,46 @@
   flex-direction: column;
   gap: calc(var(--eb-space) / 2);
 }
+
+/*
+ * A Space widget (M5.8) fills its region, and the region's other widgets stack over it: the region
+ * is its own stacking context, the space under the rest, and only controls over it take touches.
+ */
+.eb-region:has(.eb-space) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 12rem;
+}
+
+.eb-region:has(.eb-space) * {
+  pointer-events: none;
+}
+
+.eb-region:has(.eb-space) :is(button, a, input, select, textarea, .eb-space, .eb-space *) {
+  pointer-events: auto;
+}
+
+.eb-space {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  touch-action: none;
+  background: var(--eb-surface);
+}
+
+.eb-space:focus-visible {
+  outline: 3px solid var(--eb-accent);
+  outline-offset: -3px;
+}
+
+.eb-space-none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--eb-space);
+  padding: var(--eb-space);
+  text-align: center;
+  border: 2px dashed var(--eb-muted, currentColor);
+}

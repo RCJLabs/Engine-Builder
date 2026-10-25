@@ -160,7 +160,12 @@ export type Widget =
    * The map the party is on, its nodes as buttons and each move to the picked one (M4.6, D56,
    * docs/specs/maps.md#the-map-widget). `label` names it; `empty` is shown before a map is entered.
    */
-  | (Base & { readonly widget: 'map'; readonly label?: string; readonly empty?: string });
+  | (Base & { readonly widget: 'map'; readonly label?: string; readonly empty?: string })
+  /**
+   * A space walked in play (M5.8, D70, docs/specs/movement.md#the-space-widget): it fills its region,
+   * drawn by the page's host. `label` names it for assistive tech; the space's name when left out.
+   */
+  | (Base & { readonly widget: 'space'; readonly space: string; readonly label?: string });
 
 export type WidgetKind = Widget['widget'];
 export const WIDGETS: readonly WidgetKind[] = [
@@ -175,6 +180,7 @@ export const WIDGETS: readonly WidgetKind[] = [
   'tabs',
   'log',
   'map',
+  'space',
 ];
 
 /** How many lines a log widget shows unless it says, and the most it may. */

@@ -1,0 +1,280 @@
+/**
+ * M5.8's gate (D70), what its specs share: the trail brought into the editor and played to its
+ * trailhead, what window.__ebWalk says of the walk, keys held until the walk has done something,
+ * a mouse dragged across the view, and the floating stick and the look drag by touch.
+ */
+import { join } from 'node:path';
+import { expect, type Locator, type Page } from '@playwright/test';
+import { game, newGame, showPlay } from './hutScreens.ts';
+import { fixtureZip } from './kitHelpers.ts';
+import { openProject, showProject } from './ludus.ts';
+
+export const TRAIL = join(import.meta.dirname, '../../../tools/cli/test/fixtures/trail');
+
+type Vec3 = readonly [number, number, number];
+
+export interface Walked {
+  readonly space: string;
+  readonly feet: Vec3;
+  readonly velocity: Vec3;
+  readonly grounded: boolean;
+  readonly view: 'third' | 'first';
+  readonly yaw: number;
+  readonly pitch: number;
+  readonly camera: { readonly at: Vec3; readonly distance: number };
+  readonly zones: readonly string[];
+  readonly sent: readonly { readonly object: string; readonly sent: string }[];
+  readonly moving: readonly { readonly path: string; readonly at: Vec3 }[];
+  readonly frames: number;
+}
+
+/** The page's window.__ebWalk, as src/walk/hook.ts declares it. */
+interface Hooked {
+  __ebWalk?: {
+    readonly space: string;
+    character(): Pick<Walked, 'feet' | 'velocity' | 'grounded' | 'view' | 'yaw' | 'pitch'>;
+    camera(): Walked['camera'];
+    zones(): Walked['zones'];
+    sent(): Walked['sent'];
+    moving(): Walked['moving'];
+    readonly frames: number;
+  };
+}
+
+/** What the walk's hook says now. */
+export async function walked(page: Page): Promise<Walked> {
+  const read = await page.evaluate(() => {
+    const hook = (window as unknown as Hooked).__ebWalk;
+    if (!hook) return null;
+    return {
+      space: hook.space,
+      ...hook.character(),
+      camera: hook.camera(),
+      zones: hook.zones(),
+      sent: hook.sent(),
+      moving: hook.moving(),
+      frames: hook.frames,
+    };
+  });
+  if (!read) throw new Error('No space is being walked');
+  return read as Walked;
+}
+
+/** How fast it moves across the ground, in metres a second. */
+export const across = (w: Walked): number => Math.hypot(w.velocity[0], w.velocity[2]);
+
+/** A space's box, drawing: its hook set and a few frames drawn. */
+export async function drawing(page: Page, space: string, label: string): Promise<Locator> {
+  const box = page.getByRole('application', { name: label });
+  await expect(box).toBeVisible();
+  await expect
+    .poll(
+      () =>
+        page.evaluate((id) => {
+          const hook = (window as unknown as Hooked).__ebWalk;
+          return hook?.space === id ? hook.frames : 0;
+        }, space),
+      {
+        timeout: 60_000,
+      },
+    )
+    .toBeGreaterThan(3);
+  return box;
+}
+
+/** The trail imported, its scripts let run, and a new game of it in Play: the trailhead drawn. */
+export async function openTrail(page: Page, touch = false): Promise<Locator> {
+  const how = (button: Locator) => (touch ? button.tap() : button.click());
+  await page.goto('./');
+  await showProject(page);
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    how(page.getByRole('button', { name: 'Import zip' })),
+  ]);
+  await chooser.setFiles(fixtureZip(TRAIL, 'trail'));
+  await expect(openProject(page).getByRole('heading', { name: 'The trail' })).toBeVisible();
+  const panel = await showPlay(page);
+  await how(panel.getByRole('button', { name: 'Run its scripts' }));
+  const play = panel.getByRole('button', { name: 'Play', exact: true });
+  await expect(play).toBeEnabled();
+  await how(play);
+  await newGame(page, how);
+  await expect(game(page).getByText('Walk up the path to the cairn.')).toBeVisible();
+  return drawing(page, 'trailhead', 'The trailhead');
+}
+
+/** Keys held, by KeyboardEvent.code, until the walk says `done`, then let go. */
+export async function holdUntil(
+  page: Page,
+  keys: readonly string[],
+  done: (w: Walked) => boolean,
+  timeout = 30_000,
+): Promise<Walked> {
+  for (const key of keys) await page.keyboard.down(key);
+  try {
+    await expect.poll(async () => done(await walked(page)), { timeout, intervals: [50] }).toBe(true);
+  } finally {
+    for (const key of [...keys].reverse()) await page.keyboard.up(key);
+  }
+  return walked(page);
+}
+
+/**
+ * Keys held until the feet pass a line, let go by the page itself on the first frame they have: a
+ * strafe that stops where it should however slowly the test polls. Polled from here, a loaded CI
+ * box let go of D a metre late and walked the trail past the boulder and the stones (M5.8).
+ */
+export async function holdUntilPast(
+  page: Page,
+  keys: readonly string[],
+  axis: 'x' | 'z',
+  line: { readonly atLeast?: number; readonly atMost?: number },
+  timeout = 30_000,
+): Promise<Walked> {
+  const box = page.locator('[data-eb-walk]');
+  const past = box.evaluate(
+    (element, { codes, at, line }) =>
+      new Promise<void>((resolve) => {
+        const check = () => {
+          const hook = (window as unknown as { __ebWalk?: { character(): { feet: number[] } } }).__ebWalk;
+          const value = hook?.character().feet[at];
+          const over =
+            value !== undefined &&
+            (line.atLeast === undefined || value >= line.atLeast) &&
+            (line.atMost === undefined || value <= line.atMost);
+          if (!over) return void requestAnimationFrame(check);
+          for (const code of codes) element.dispatchEvent(new KeyboardEvent('keyup', { code, bubbles: true }));
+          resolve();
+        };
+        check();
+      }),
+    { codes: [...keys], at: axis === 'x' ? 0 : 2, line },
+  );
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Not past ${axis} ${JSON.stringify(line)} in ${timeout} ms`)), timeout);
+  });
+  for (const key of keys) await page.keyboard.down(key);
+  try {
+    await Promise.race([past, late]);
+  } finally {
+    clearTimeout(timer);
+    for (const key of [...keys].reverse()) await page.keyboard.up(key);
+  }
+  return walked(page);
+}
+
+/** Keys held for `ms` of the page's time, then let go: the walk where it ends up. */
+export async function holdFor(page: Page, keys: readonly string[], ms: number): Promise<Walked> {
+  for (const key of keys) await page.keyboard.down(key);
+  await page.waitForTimeout(ms);
+  for (const key of [...keys].reverse()) await page.keyboard.up(key);
+  return walked(page);
+}
+
+/** Until the character stands still on the ground: what a walk ends with. */
+export async function settled(page: Page): Promise<Walked> {
+  await expect
+    .poll(async () => {
+      const w = await walked(page);
+      return w.grounded && across(w) < 0.05 && Math.abs(w.velocity[1]) < 0.5;
+    })
+    .toBe(true);
+  return walked(page);
+}
+
+/** The mouse pressed in the view's middle and dragged by `dx` and `dy` pixels, in small moves. */
+export async function dragMouse(page: Page, box: Locator, dx: number, dy: number): Promise<void> {
+  const area = await box.boundingBox();
+  if (!area) throw new Error('No view to drag');
+  const [x, y] = [area.x + area.width / 2, area.y + area.height / 2];
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  // A press that moves under 4 px is a click, which locks the pointer: a short drag goes out and back.
+  if (Math.abs(dx) + Math.abs(dy) < 8) await page.mouse.move(x + 20, y);
+  const steps = 12;
+  for (let i = 1; i <= steps; i++) await page.mouse.move(x + (dx * i) / steps, y + (dy * i) / steps);
+  await page.mouse.up();
+}
+
+/** A finger on the view: down at a point, moved to others, held as the test asks, and lifted. */
+export async function finger(page: Page, id: number) {
+  const cdp = await page.context().newCDPSession(page);
+  let at: { x: number; y: number } | null = null;
+  const send = (type: 'touchStart' | 'touchMove' | 'touchEnd', points: { x: number; y: number }[]) =>
+    cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points.map((p) => ({ ...p, id })) });
+  return {
+    down: async (x: number, y: number) => {
+      at = { x, y };
+      await send('touchStart', [at]);
+    },
+    /** To a point `dx`, `dy` from where it went down, in a few moves. */
+    move: async (dx: number, dy: number) => {
+      const from = at;
+      if (!from) throw new Error('No finger down');
+      for (let i = 1; i <= 6; i++) await send('touchMove', [{ x: from.x + (dx * i) / 6, y: from.y + (dy * i) / 6 }]);
+    },
+    up: async () => {
+      await send('touchEnd', []);
+      await cdp.detach();
+    },
+  };
+}
+
+/**
+ * The view turned by the mouse to face a point on the ground: yaw 0 looks along -z, a pixel dragged
+ * right turns 0.25° the other way. To the nearest quarter degree.
+ */
+export async function faceTowards(page: Page, box: Locator, x: number, z: number): Promise<void> {
+  const w = await walked(page);
+  const want = (Math.atan2(-(x - w.feet[0]), -(z - w.feet[2])) * 180) / Math.PI;
+  const turn = ((((want - w.yaw) % 360) + 540) % 360) - 180;
+  await dragMouse(page, box, Math.round(-turn / 0.25), 0);
+  await expect.poll(async () => (await walked(page)).yaw).toBeCloseTo(w.yaw + Math.round(turn / 0.25) * 0.25, 1);
+}
+
+/**
+ * A point on the part of the view a finger can reach, `fx` across it: the view scrolled into sight,
+ * then down its middle line, a little below the middle of what shows. Sideways, the Play panel shows
+ * only part of the view.
+ */
+async function pointOn(box: Locator, fx: number): Promise<{ x: number; y: number }> {
+  await box.scrollIntoViewIfNeeded();
+  return box.evaluate((view, across) => {
+    const rect = view.getBoundingClientRect();
+    const x = rect.left + rect.width * across;
+    const shown: number[] = [];
+    for (let y = rect.top + 2; y < rect.bottom - 2; y += 4) {
+      const hit = document.elementFromPoint(x, y);
+      if (hit && view.contains(hit)) shown.push(y);
+    }
+    const y = shown[Math.floor(shown.length * 0.6)];
+    if (y === undefined) throw new Error('No part of the view is on the screen');
+    return { x, y };
+  }, fx);
+}
+
+/** The stick pushed `px` up from where a thumb lands on the view's left half, held until `done`. */
+export async function stickUntil(page: Page, box: Locator, px: number, done: (w: Walked) => boolean): Promise<Walked> {
+  const at = await pointOn(box, 0.25);
+  const thumb = await finger(page, 1);
+  await thumb.down(at.x, at.y);
+  await thumb.move(0, -px);
+  try {
+    await expect.poll(async () => done(await walked(page)), { timeout: 60_000, intervals: [50] }).toBe(true);
+  } finally {
+    await thumb.up();
+  }
+  return walked(page);
+}
+
+/** A drag by one finger on the view's right half, `dx` and `dy` pixels: a look. */
+export async function lookByTouch(page: Page, box: Locator, dx: number, dy: number): Promise<void> {
+  const at = await pointOn(box, 0.7);
+  const look = await finger(page, 2);
+  await look.down(at.x, at.y);
+  await look.move(dx, dy);
+  await look.up();
+}
+
+export const near = (a: number, b: number, by: number): boolean => Math.abs(a - b) <= by;

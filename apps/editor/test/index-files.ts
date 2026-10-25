@@ -3,6 +3,7 @@
  * reads, as a working copy's do, and what a table shows of an index.
  */
 import type { ProjectSource } from '@eb/compiler';
+import type { FlagUses } from '@eb/schema';
 import { FIXTURE_LUDUS, readFixture } from '../../../packages/compiler/test/fixture.ts';
 import { readCatalog } from '../src/forms/catalog.ts';
 import { EMPTY_INDEX, type RecordIndex, updateIndex } from '../src/records/recordIndex.ts';
@@ -34,10 +35,10 @@ export function project(reversed = false) {
       files.set(path, encoder.encode(JSON.stringify(value)));
     },
     /** The index after `paths` changed (all of them when null), and the index read afresh. */
-    update: async (paths: readonly string[] | null) => {
+    update: async (paths: readonly string[] | null, flagsElsewhere?: FlagUses) => {
       const catalog = await readCatalog(source);
-      index = await updateIndex(index, source, catalog, paths);
-      return { index, fresh: await updateIndex(EMPTY_INDEX, source, catalog, null) };
+      index = await updateIndex(index, source, catalog, paths, {}, flagsElsewhere);
+      return { index, fresh: await updateIndex(EMPTY_INDEX, source, catalog, null, {}, flagsElsewhere) };
     },
   };
 }

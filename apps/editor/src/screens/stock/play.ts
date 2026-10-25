@@ -70,6 +70,29 @@ export function hudScreen(ctx: StockContext): Screen {
   };
 }
 
+/**
+ * A space walked (M5.8, D70, docs/specs/movement.md#the-space-widget): the live numbers at the top,
+ * the project's first space filling the screen, and the actions on offer under it, for the start
+ * mode when no screen shows it yet.
+ */
+export function spaceScreen(ctx: StockContext): Screen {
+  const space = ctx.spaces?.[0];
+  const start = ctx.modes?.start;
+  const shown = numbers(ctx);
+  return {
+    title: space?.name ?? 'Space',
+    shows: start !== undefined && !ctx.shown.has(start) ? [start] : [],
+    ...(shown.length > 0 ? { top: row(shown) } : {}),
+    main: { widget: 'space', space: space?.id ?? '' },
+    bottom: {
+      widget: 'list',
+      of: 'offered',
+      empty: 'Nothing to do here.',
+      item: button('{.label}', { take: 'entry' }),
+    },
+  };
+}
+
 /** Whether the game starts on its map, so the map is its HUD (M4.6). */
 export const startsOnMap = (ctx: StockContext): boolean =>
   ctx.kits.includes('maps') && ctx.modes !== undefined && (ctx.modes.travelling ?? []).includes(ctx.modes.start);

@@ -6,6 +6,7 @@ import type { Action } from '@eb/core';
 import type { Breakpoint, ShellGo } from '../format/screen.ts';
 import type { View } from '../session/types.ts';
 import type { LogLine } from './feedback.ts';
+import type { Sent, SpaceHost, WalkQuality } from './spaceHost.ts';
 
 export interface Drawing {
   readonly view: View;
@@ -29,6 +30,12 @@ export interface Drawing {
    * Pointer, and a tabs widget shows the tab the selection is in.
    */
   readonly design?: { readonly selected: string | undefined };
+  /** Who draws a Space widget's space (M5.8): the page's stage. Without it, the box says where it is walked. */
+  readonly spaces?: SpaceHost | undefined;
+  /** Sends a trigger from the stage, answering what the sim made of it (M5.8). */
+  readonly send?: ((action: Action) => Promise<Sent>) | undefined;
+  /** The shell's Quality setting, for the stage (M5.8). */
+  readonly quality?: WalkQuality;
 }
 
 /** In a frame being designed, the tab of the tabs widget at `at` that holds the selection, if one does. */

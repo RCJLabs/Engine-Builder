@@ -19,6 +19,7 @@ import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
 import { checkExport } from './exportCheck.ts';
 import { EXPORT_FILE } from './exportFile.ts';
+import { screenReads, withScreens } from './flagUses.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
 import { checkModels } from './models.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
@@ -29,6 +30,7 @@ import type { ProjectSource } from './source.ts';
 import { checkProjectSpaceParts } from './spaceParts.ts';
 import { checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
+import { packWorld } from './world.ts';
 
 export interface CompileResult {
   /** Sorted by compareDiagnostics. */
@@ -90,22 +92,39 @@ export async function compileProject(
     ...(await readRecords(source, files.recordFiles, (r) => diagnostics.push(diagnosticOf(r)))),
     ...scenes.records.map((scene) => (talks.has(scene.id) ? { ...scene, unreadable: true } : scene)),
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
-  const validation = validateRecords(known.types, records, { ...kitted, assets: files.assets });
-  diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
   const index = indexOf(records);
-  // After the records: a placed record, and every reference in a component or an override, names one (M5.2).
-  diagnostics.push(
-    ...checkProjectSpaces(spaces.files, spaces.terrains),
-    ...checkProjectSpaceParts(spaces.files, {
-      types: new Map(known.types.map((t) => [t.type, t])),
-      records: index,
-      value: recordValues(records),
-      known: grounds,
-      kinds: components.kinds,
-      uncheckedKinds: components.unchecked,
-      assets: files.assets,
-    }).diagnostics,
-  );
+  // Before the records: a trigger zone's flags and a screen's count for the flags' lint (M5.8).
+  const parts = checkProjectSpaceParts(spaces.files, {
+    types: new Map(known.types.map((t) => [t.type, t])),
+    records: index,
+    value: recordValues(records),
+    known: grounds,
+    kinds: components.kinds,
+    uncheckedKinds: components.unchecked,
+    assets: files.assets,
+  });
+  const screens = screenReads(grounds.facts);
+  const uiDiagnostics = checkProjectUi(ui, {
+    facts: grounds.facts,
+    openFacts: grounds.openFacts,
+    kits: files.kits,
+    ...(actions !== undefined ? { actions } : {}),
+    ...(modes !== undefined ? { modes } : {}),
+    ...(validate.events !== undefined ? { events: validate.events } : {}),
+    records: index,
+    assets: files.assets,
+    recordFields: recordFieldsOf(known.types),
+    spaces: new Set(spaces.files.filter((f) => f.kind === 'space').map((f) => f.id)),
+    read: screens.read,
+  });
+  const validation = validateRecords(known.types, records, {
+    ...kitted,
+    assets: files.assets,
+    flagsElsewhere: withScreens(parts.flags, screens.found),
+  });
+  diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
+  // A placed record, and every reference in a component or an override, names one (M5.2).
+  diagnostics.push(...checkProjectSpaces(spaces.files, spaces.terrains), ...parts.diagnostics);
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
@@ -123,23 +142,24 @@ export async function compileProject(
     const present = new Set(await projectFiles(source));
     diagnostics.push(...checkGuide(guide, (file) => present.has(file)).diagnostics);
   }
-  diagnostics.push(
-    ...checkProjectUi(ui, {
-      facts: grounds.facts,
-      openFacts: grounds.openFacts,
-      kits: files.kits,
-      ...(actions !== undefined ? { actions } : {}),
-      ...(modes !== undefined ? { modes } : {}),
-      ...(validate.events !== undefined ? { events: validate.events } : {}),
-      records: index,
-      assets: files.assets,
-      recordFields: recordFieldsOf(known.types),
-    }),
-  );
+  diagnostics.push(...uiDiagnostics);
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
   const packedUi = packUi(ui);
   const audio = failed ? {} : await audioFiles(source, records);
+  const world = failed
+    ? undefined
+    : await packWorld(source, {
+        files: spaces.files,
+        terrains: spaces.terrains,
+        record: (key) => {
+          const colon = key.indexOf(':');
+          return recordValues(records)(key.slice(0, colon), key.slice(colon + 1));
+        },
+        types: known.data,
+        kinds: components.kinds,
+        known: kitted,
+      });
   return {
     diagnostics,
     pack:
@@ -153,6 +173,7 @@ export async function compileProject(
             // Credits travel with the screens that can show them: a game without any keeps its pack.
             packedUi === undefined ? undefined : creditsOf(files.assetsLog, files.assets),
             audio,
+            world,
           ),
     usedBy: validation.usedBy,
     records: records.length,

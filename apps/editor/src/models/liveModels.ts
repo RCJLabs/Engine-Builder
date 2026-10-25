@@ -4,38 +4,24 @@
  * and the material records their slots name. Each file carries a hash of its bytes, so the view
  * decodes a model again only when its file changed.
  */
-import { ASSETS_DIR, type ProjectSource, parseJsonFile, type SpaceJson } from '@eb/compiler';
+import {
+  ASSETS_DIR,
+  eachPlacedRecord,
+  type ModelSources,
+  modelHere,
+  modelNeeds,
+  type ProjectSource,
+  parseJsonFile,
+  placedKeys,
+  type SpaceJson,
+} from '@eb/compiler';
 import { MATERIAL, MATERIAL_DATA, type MaterialRecord, MODEL, schemaIssues } from '@eb/schema';
 import { folderOf } from '../assets/assetPaths.ts';
 import { recordFile } from '../forms/catalog.ts';
+import { type LiveModels, type ModelFileRead, sourcesOf } from './liveTypes.ts';
 import { gltfNames } from './modelImport.ts';
-import { eachPlacedRecord, type ModelSources, modelHere, modelNeeds, placedKeys } from './placedModels.ts';
 
-export interface ModelFileRead {
-  readonly bytes: Uint8Array;
-  /** A .gltf's files by the name it gives them, those that are there. */
-  readonly beside: ReadonlyMap<string, Uint8Array>;
-  /** The bytes' SHA-256, the files beside them included. */
-  readonly hash: string;
-}
-
-export interface LiveModels {
-  /** Each record read, by "type:id": those placed, and the models they draw as. */
-  readonly records: ReadonlyMap<string, unknown>;
-  /** The model field of each placed type that has one. */
-  readonly fields: ReadonlyMap<string, string>;
-  /** Each model file named, by its path inside assets/, or null when it isn't there. */
-  readonly files: ReadonlyMap<string, ModelFileRead | null>;
-  /** Each material record named, or null when it isn't there or isn't one. */
-  readonly materials: ReadonlyMap<string, MaterialRecord | null>;
-  /** All of it in one string, which changes when anything the view draws from does. */
-  readonly key: string;
-}
-
-export const sourcesOf = (models: Pick<LiveModels, 'records' | 'fields'>): ModelSources => ({
-  record: (key) => models.records.get(key),
-  field: (type) => models.fields.get(type) ?? null,
-});
+export { type LiveModels, type ModelFileRead, sourcesOf };
 
 const hex = (buffer: ArrayBuffer) => [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
 

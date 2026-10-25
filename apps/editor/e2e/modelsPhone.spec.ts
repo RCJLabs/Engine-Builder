@@ -14,6 +14,7 @@ import { showProject } from './ludus.ts';
 import {
   addKit,
   expectDrawn,
+  expectStored,
   expectWireOn,
   importModels,
   makeBark,
@@ -79,6 +80,7 @@ for (const viewport of [
         });
       await expectInReach(page);
       const kept = await models(page);
+      await expectStored(page);
 
       await page.reload();
       await showProject(page);
@@ -91,7 +93,11 @@ for (const viewport of [
       // As long as expectDrawn's wait: the last file decoded can come a batch later, slower beside another worker's frames.
       await expect
         .poll(async () => Object.keys(await models(page)).sort(), { timeout: 20_000 })
-        .toEqual(Object.keys(kept).sort());
+        .toEqual(Object.keys(kept).sort())
+        .catch((error: Error) => {
+          // Whatever the page said by then, as the failure: the errors check below comes too late to.
+          throw new Error(`${error.message}\nThe page's errors: ${JSON.stringify(errors)}`);
+        });
       const again = await models(page);
       for (const id of Object.keys(kept)) {
         expect(again[id], id).toMatchObject({ collider: kept[id]?.collider, materials: kept[id]?.materials });

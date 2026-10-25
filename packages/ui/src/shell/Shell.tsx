@@ -87,6 +87,9 @@ export function Shell(props: ShellProps) {
             cues={play.cues}
             busy={state.busy}
             act={state.act}
+            send={state.send}
+            spaces={props.spaces}
+            quality={settings.quality}
             history={props.history === true && screen === undefined}
             onPause={() => state.show('pause')}
             paused={screen !== undefined}
@@ -142,7 +145,15 @@ function ShellScreenFor({ state, memory, back, opened, update, settings, change 
     case 'saves':
       return <SavesScreen state={state} opened={opened} memory={memory} back={leave} />;
     case 'settings':
-      return <SettingsScreen settings={settings} change={change} memory={memory} back={leave} />;
+      return (
+        <SettingsScreen
+          settings={settings}
+          change={change}
+          memory={memory}
+          back={leave}
+          walks={opened.world !== undefined}
+        />
+      );
     case 'pause':
       return <Pause state={state} memory={memory} />;
     case 'stopped':

@@ -4,7 +4,14 @@
  * draw as models need (M5.5), and its terrain's foliage and their models (M5.6). The view, the
  * outliner and the object form all read this one copy.
  */
-import { classifySpaceFile, PREFABS_DIR, type ProjectSource, parseJsonFile, terrainPath } from '@eb/compiler';
+import {
+  classifySpaceFile,
+  modelFieldOf,
+  PREFABS_DIR,
+  type ProjectSource,
+  parseJsonFile,
+  terrainPath,
+} from '@eb/compiler';
 import {
   type DataType,
   ENVIRONMENT_DATA,
@@ -17,7 +24,6 @@ import {
 import { effect, signal } from '@preact/signals';
 import { editing } from '../editing/current.ts';
 import { type LiveModels, readLiveModels } from '../models/liveModels.ts';
-import { modelFieldOf } from '../models/placedModels.ts';
 import { current, type OpenProject, revision } from '../projects/opened.ts';
 import type { FoliageShown } from './foliageView.ts';
 import { readSpace, type SpaceJson } from './spaceFile.ts';

@@ -1,0 +1,12 @@
+{
+  "title": "The bothy",
+  "shows": ["bothy"],
+  "top": { "widget": "text", "text": "A bothy: a room of stone, a table and a lamp.", "style": "heading" },
+  "main": { "widget": "space", "space": "bothy" },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [{ "widget": "button", "label": "Step outside", "action": { "take": "trail/go-out" } }]
+  }
+}

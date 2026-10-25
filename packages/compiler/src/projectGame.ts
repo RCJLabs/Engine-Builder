@@ -21,11 +21,15 @@ export type ScriptedGame =
   | { readonly kind: 'failed'; readonly diagnostic: Diagnostic }
   | { readonly kind: 'loaded'; readonly game: ProjectGame; readonly catalog: GameCatalog };
 
-/** The game that scripts already read make, run, with the kits the project lists joined (D41), the time kit's with its calendar. */
+/**
+ * The game that scripts already read make, run, with the kits the project lists joined (D41), the
+ * time kit's with its calendar, and the world module when it has spaces (M5.8): with no zones, as
+ * checking needs none and no run here walks.
+ */
 export function gameOf(scripts: ScriptsRead, settings: KitSettings = { kits: [] }): ScriptedGame {
   if (!scripts.hasGame) return { kind: 'none' };
   if (scripts.compiled.size === 0) return { kind: 'broken' };
-  const loaded = loadProjectGame(scripts.compiled, settings.kits, settings.calendar);
+  const loaded = loadProjectGame(scripts.compiled, settings.kits, settings.calendar, settings.spaces ? {} : undefined);
   if (loaded.ok) return { kind: 'loaded', game: loaded.game, catalog: loaded.catalog };
   const { code, message, script = 'game', line } = loaded.problem;
   const diagnostic: Diagnostic = {

@@ -5,7 +5,7 @@
  * change, once the record index is.
  */
 import { checkProjectSpaceParts, type ProjectSource, readSpaces, type SpaceUse } from '@eb/compiler';
-import { compareText, type Diagnostic, knownFrom } from '@eb/schema';
+import { compareText, type Diagnostic, type FlagUses, knownFrom } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import { recordLookup } from '../records/lookup.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
@@ -15,7 +15,11 @@ export interface SpaceChecks {
   readonly problems: readonly Diagnostic[];
   /** What names each "type:id", by file and path. */
   readonly users: ReadonlyMap<string, readonly SpaceUse[]>;
+  /** The flags the trigger zones set and read (M5.8), for the flags' lint. */
+  readonly flags: FlagUses;
 }
+
+export const NO_FLAG_USES: FlagUses = { set: new Map(), read: new Map() };
 
 export async function spaceProblems(
   source: ProjectSource,
@@ -23,7 +27,8 @@ export async function spaceProblems(
   index: RecordIndex,
   game: GameState,
 ): Promise<SpaceChecks> {
-  if (catalog.spaces.length === 0 && catalog.prefabs.length === 0) return { problems: [], users: new Map() };
+  if (catalog.spaces.length === 0 && catalog.prefabs.length === 0)
+    return { problems: [], users: new Map(), flags: NO_FLAG_USES };
   const read = await readSpaces(source);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
   const found = checkProjectSpaceParts(read.files, {
@@ -41,5 +46,5 @@ export async function spaceProblems(
   const users = new Map<string, SpaceUse[]>();
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
-  return { problems: found.diagnostics, users };
+  return { problems: found.diagnostics, users, flags: found.flags };
 }

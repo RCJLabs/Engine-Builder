@@ -5,6 +5,9 @@
 import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
+import { type PackWorld, worldProblem } from './world/packWorld.ts';
+
+export type { PackWorld } from './world/packWorld.ts';
 
 /**
  * The newest format this engine reads and writes. Format 2 (M3.2) adds the project's scripts as
@@ -12,12 +15,12 @@ import { type CalendarDef, calendarOf } from './time/calendar.ts';
  * game's screens, kits and scripts or none; format 5 (M4.2) the game's feedback, the words its
  * beats are said in, screens or none; format 6 (M4.3) its play shell's settings, ui/shell.json,
  * feedback or none; format 7 (M4.4) its assets' credits, from the provenance log, ui or none;
- * format 8 (M4.8) the audio files its music names, as base64, credits or none. A pack is written
- * in the lowest format that holds it,
+ * format 8 (M4.8) the audio files its music names, as base64, credits or none; format 9 (M5.8) its
+ * spaces and what they draw from, audio or none. A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 8;
+export const PACK_FORMAT = 9;
 
 export interface PackProject {
   readonly id: string;
@@ -58,7 +61,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -67,8 +70,10 @@ export interface Pack {
   readonly ui?: PackUi;
   /** Format 7: each asset's credit, by its path, at least one (M4.4). Format 8: credits or none. */
   readonly credits?: readonly PackCredit[];
-  /** Format 8: the audio files the music records name, base64 by their path inside assets/, at least one (M4.8). */
+  /** Format 8: the audio files the music records name, base64 by their path inside assets/, at least one (M4.8). Format 9: audio or none. */
   readonly audio?: Readonly<Record<string, string>>;
+  /** Format 9: the spaces walked in play (M5.8). */
+  readonly world?: PackWorld;
   /** FNV-1a 64 of the canonical JSON of the rest of the pack: the same content gives the same hash anywhere. */
   readonly hash: string;
 }
@@ -82,13 +87,14 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
     ...(pack.ui !== undefined ? { ui: pack.ui } : {}),
     ...(pack.credits !== undefined ? { credits: pack.credits } : {}),
     ...(pack.audio !== undefined ? { audio: pack.audio } : {}),
+    ...(pack.world !== undefined ? { world: pack.world } : {}),
   });
 
 /**
  * A pack of the records, with the scripts when there are any (format 2), the kits when the project
  * lists any (format 3), the screens when there are any (format 4), the feedback when there is
- * any (format 5), the shell's settings when there are any (format 6) and the assets' credits
- * when there are any (format 7).
+ * any (format 5), the shell's settings when there are any (format 6), the assets' credits
+ * when there are any (format 7), the music's files (format 8) and the spaces (format 9).
  */
 export function createPack(
   project: PackProject,
@@ -97,6 +103,7 @@ export function createPack(
   ui?: PackUi,
   credits?: readonly PackCredit[],
   audio?: Readonly<Record<string, string>>,
+  world?: PackWorld,
 ): Pack {
   const scripted = scripts !== undefined && Object.keys(scripts).length > 0;
   // The calendar travels only with the kits: it is the time kit's.
@@ -107,22 +114,25 @@ export function createPack(
   const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
+  const walked = world !== undefined && Object.keys(world.spaces).length > 0;
   // The lowest format that holds it: each format adds one thing to the one before.
-  const format = sounded
-    ? 8
-    : credited
-      ? 7
-      : ui?.shell !== undefined
-        ? 6
-        : ui?.feedback !== undefined
-          ? 5
-          : screened
-            ? 4
-            : hasKits
-              ? 3
-              : scripted
-                ? 2
-                : 1;
+  const format = walked
+    ? 9
+    : sounded
+      ? 8
+      : credited
+        ? 7
+        : ui?.shell !== undefined
+          ? 6
+          : ui?.feedback !== undefined
+            ? 5
+            : screened
+              ? 4
+              : hasKits
+                ? 3
+                : scripted
+                  ? 2
+                  : 1;
   const content = {
     format,
     project: kitted,
@@ -131,6 +141,7 @@ export function createPack(
     ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
     ...(credited ? { credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)) } : {}),
     ...(sounded ? { audio } : {}),
+    ...(walked ? { world } : {}),
   } as const;
   return { ...content, hash: packHash(content) };
 }
@@ -158,7 +169,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
@@ -174,6 +185,7 @@ export function readPack(value: unknown): Pack {
     ...(format >= 4 ? ['ui'] : []),
     ...(format >= 7 ? ['credits'] : []),
     ...(format >= 8 ? ['audio'] : []),
+    ...(format >= 9 ? ['world'] : []),
   ];
   checkKeys(value, [...fields, 'hash'], 'pack');
   checkProject(value.project, format);
@@ -183,7 +195,10 @@ export function readPack(value: unknown): Pack {
   if (format >= 4 && (format < 7 || value.ui !== undefined)) checkUi(value.ui, format);
   // Format 8 is the format for audio, which a game without credits may carry.
   if (format === 7 || (format >= 8 && value.credits !== undefined)) checkCredits(value.credits);
-  if (format >= 8) checkAudio(value.audio);
+  // Format 9 is the format for spaces, which a game without music may carry.
+  if (format === 8 || (format >= 9 && value.audio !== undefined)) checkAudio(value.audio);
+  const world = format >= 9 ? worldProblem(value.world) : undefined;
+  if (world !== undefined) throw new PackError(world);
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;
   const actual = packHash(pack);

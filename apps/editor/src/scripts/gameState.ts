@@ -3,7 +3,7 @@
  * what scripts/game.ts declares once it has run. The script worker reads them again after each
  * change under scripts/; a project with no scripts never starts the worker.
  */
-import { gameOptions, MANIFEST_FILE, type ProjectSource, readFiles } from '@eb/compiler';
+import { classifySpaceFile, gameOptions, MANIFEST_FILE, type ProjectSource, readFiles, SPACES_DIR } from '@eb/compiler';
 import { type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
 import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, scriptPath } from '@eb/script';
 import type { CheckResult, SentFile } from './protocol.ts';
@@ -36,12 +36,21 @@ export const NO_SCRIPTS: GameState = { ids: [], status: 'none', problems: [], ca
 
 export const isScriptPath = (path: string): boolean => path === SCRIPTS_DIR || path.startsWith(`${SCRIPTS_DIR}/`);
 
+/** The project's space files (M5.8): with any, the world module joins its game. */
+const spaceFiles = async (source: ProjectSource): Promise<string[]> =>
+  (await source.files(SPACES_DIR)).filter((path) => classifySpaceFile(path).kind === 'space');
+
+export const hasSpaces = async (source: ProjectSource): Promise<boolean> => (await spaceFiles(source)).length > 0;
+
 /**
  * Every file under scripts/, as the worker reads them, and project.json, whose kits join the game
- * its scripts make (M3.3, D41).
+ * its scripts make (M3.3, D41); and each space file's name, empty, since whether there are any is
+ * all the check reads of them (M5.8).
  */
 export async function scriptFiles(source: ProjectSource): Promise<SentFile[]> {
-  return [...(await readFiles(source, [MANIFEST_FILE, ...(await source.files(SCRIPTS_DIR))]))];
+  const read = await readFiles(source, [MANIFEST_FILE, ...(await source.files(SCRIPTS_DIR))]);
+  const spaces = (await spaceFiles(source)).map((path): SentFile => [path, new Uint8Array()]);
+  return [...read, ...spaces];
 }
 
 export function stateOf(result: CheckResult, run: boolean): GameState {

@@ -71,6 +71,9 @@ describe('slots', () => {
 describe('settings', () => {
   it('reads each field on its own, falling back alone', () => {
     expect(readSettings(undefined)).toEqual(DEFAULT_SETTINGS);
+    expect(readSettings('{"quality": "high"}').quality).toBe('high');
+    // M5.8's Quality, Auto unless one of the four: a setting kept before it falls back to Auto alone.
+    expect(readSettings('{"quality": "ultra", "text": "large"}')).toEqual({ ...DEFAULT_SETTINGS, text: 'large' });
     expect(readSettings('{"torn')).toEqual(DEFAULT_SETTINGS);
     expect(readSettings('[1]')).toEqual(DEFAULT_SETTINGS);
     expect(readSettings('{"text":"larger","motion":"sideways"}')).toEqual({

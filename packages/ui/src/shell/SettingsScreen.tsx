@@ -10,6 +10,8 @@ import { type ScreenMemory, ShellScreen } from './ShellScreen.tsx';
 import {
   MOTIONS,
   type Motion,
+  QUALITIES,
+  type Quality,
   type Settings,
   TEXT_SIZES,
   type TextSize,
@@ -26,6 +28,7 @@ const VOLUME_WORDS: Readonly<Record<VolumeName, string>> = {
   ambience: 'Ambience',
   effects: 'Effects',
 };
+const QUALITY_WORDS: Readonly<Record<Quality, string>> = { auto: 'Auto', low: 'Low', medium: 'Medium', high: 'High' };
 const VIBRATION = ['on', 'off'] as const;
 const VIBRATION_WORDS = { on: 'On', off: 'Off' } as const;
 
@@ -46,6 +49,8 @@ interface SettingsProps {
   readonly change: (next: Settings) => void;
   readonly memory: ScreenMemory;
   readonly back: () => void;
+  /** The game has spaces (M5.8): Quality is offered for how they are drawn. */
+  readonly walks?: boolean;
 }
 
 function Choices<T extends string>(props: {
@@ -113,7 +118,7 @@ function Volume(props: { readonly name: VolumeName; readonly value: number; read
   );
 }
 
-export function SettingsScreen({ settings, change, memory, back }: SettingsProps) {
+export function SettingsScreen({ settings, change, memory, back, walks = false }: SettingsProps) {
   return (
     <ShellScreen
       name="settings"
@@ -144,6 +149,16 @@ export function SettingsScreen({ settings, change, memory, back }: SettingsProps
       {VOLUMES.map((name) => (
         <Volume key={name} name={name} value={settings[name]} set={(value) => change({ ...settings, [name]: value })} />
       ))}
+      {walks ? (
+        <Choices
+          legend="Quality"
+          name="quality"
+          values={QUALITIES}
+          words={QUALITY_WORDS}
+          chosen={settings.quality}
+          choose={(quality) => change({ ...settings, quality })}
+        />
+      ) : null}
       {canVibrate() ? (
         <Choices
           legend="Vibration"
