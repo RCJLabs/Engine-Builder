@@ -171,4 +171,22 @@ describe('the bothy walked', () => {
     // The north wall's inner face is at z -3.
     expect(near(walker.feet()[2], -3 + BODY.radius, 0.06)).toBe(true);
   });
+
+  it('walks its flat floor at 2.5 m/s every step, never catching on it, at any heading near north', () => {
+    const caught: string[] = [];
+    for (let k = 0; k <= 20; k++) {
+      const yaw = -0.5 + k * 0.05;
+      const { walker } = trail('bothy');
+      walkFor(walker, 0.5, STILL);
+      // From the door to short of the north wall, 1 m before it.
+      for (let i = 0; i < 300 && walker.feet()[2] > -2; i++) {
+        walker.step(forward(), yaw);
+        const [vx, , vz] = walker.velocity();
+        if (Math.hypot(vx, vz) < 2.4) caught.push(`yaw ${yaw.toFixed(2)} at z ${walker.feet()[2].toFixed(3)}`);
+      }
+      expect(walker.feet()[2]).toBeLessThanOrEqual(-2);
+      walker.free();
+    }
+    expect(caught).toEqual([]);
+  });
 });

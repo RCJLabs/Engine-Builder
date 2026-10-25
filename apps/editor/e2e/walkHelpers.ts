@@ -175,6 +175,18 @@ export async function finger(page: Page, id: number) {
 }
 
 /**
+ * The view turned by the mouse to face a point on the ground: yaw 0 looks along -z, a pixel dragged
+ * right turns 0.25° the other way. To the nearest quarter degree.
+ */
+export async function faceTowards(page: Page, box: Locator, x: number, z: number): Promise<void> {
+  const w = await walked(page);
+  const want = (Math.atan2(-(x - w.feet[0]), -(z - w.feet[2])) * 180) / Math.PI;
+  const turn = ((((want - w.yaw) % 360) + 540) % 360) - 180;
+  await dragMouse(page, box, Math.round(-turn / 0.25), 0);
+  await expect.poll(async () => (await walked(page)).yaw).toBeCloseTo(w.yaw + Math.round(turn / 0.25) * 0.25, 1);
+}
+
+/**
  * A point on the part of the view a finger can reach, `fx` across it: the view scrolled into sight,
  * then down its middle line, a little below the middle of what shows. Sideways, the Play panel shows
  * only part of the view.

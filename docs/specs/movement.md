@@ -67,6 +67,7 @@ All of it is in `apps/editor/src/walk/`, built into `walk.js` and loaded the fir
   | Snap to ground | 0.4 m |
 
   - It steps at a fixed 60 Hz, at most 5 steps a frame. A jump pressed on a frame too short for a step waits for the next frame that has one.
+  - On the ground each step presses down at 1 m/s, so a spawn a little above the floor comes down. Rapier 0.21 now and then loses a grounded step's whole slide to that press, about one step in a hundred on a flat floor. A grounded step that slides under half what it asked for is asked again without the press.
   - Below the terrain's low by 50 m, or 50 m below 0 in a space without a terrain, it is put back at its spawn.
 - **Not drawn in play:** an object with a trigger zone or a spawn point; the editor draws both.
 - **Spawn:** the space's spawn point with `start`, else its first spawn point, else the space's origin on the ground.

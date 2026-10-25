@@ -57,6 +57,8 @@ export function columnsOf(ground: Ground): Float32Array {
 }
 
 const quat = (q: Quat) => ({ x: q[0], y: q[1], z: q[2], w: q[3] });
+/** How far a move goes over the ground, leaving out up and down. */
+const across = (v: Vec3) => Math.hypot(v[0], v[2]);
 
 function colliderOf(rapier: Rapier, solid: Solid): RAPIER_NS.ColliderDesc | null {
   switch (solid.kind) {
@@ -148,6 +150,11 @@ export function createWalker(
     character.setTranslation(centre, true);
     character.setNextKinematicTranslation(centre);
   };
+  const slide = (delta: Vec3): Vec3 => {
+    controller.computeColliderMovement(capsule, { x: delta[0], y: delta[1], z: delta[2] });
+    const m = controller.computedMovement();
+    return [m.x, m.y, m.z];
+  };
   const feet = (): Vec3 => {
     const t = character.translation();
     return [t.x, t.y - BODY.height / 2, t.z];
@@ -161,13 +168,18 @@ export function createWalker(
     grounded: () => fall.grounded,
     step(intent, yaw) {
       const asked = stepOf(intent, yaw, fall);
-      controller.computeColliderMovement(capsule, { x: asked.delta[0], y: asked.delta[1], z: asked.delta[2] });
-      const moved = controller.computedMovement();
+      let moved = slide(asked.delta);
+      // Rapier 0.21 now and then loses a grounded step's whole slide to the press down it carries:
+      // on a flat floor, about one step in a hundred. Asked again without the press, it slides; a
+      // wall still stops it.
+      if (fall.grounded && asked.delta[1] < 0 && across(moved) < across(asked.delta) / 2) {
+        moved = slide([asked.delta[0], 0, asked.delta[2]]);
+      }
       const was = character.translation();
-      const next = { x: was.x + moved.x, y: was.y + moved.y, z: was.z + moved.z };
+      const next = { x: was.x + moved[0], y: was.y + moved[1], z: was.z + moved[2] };
       character.setNextKinematicTranslation(next);
-      fall = fallAfter(asked.vy, asked.delta[1], moved.y, controller.computedGrounded());
-      velocity = [moved.x / STEP, moved.y / STEP, moved.z / STEP];
+      fall = fallAfter(asked.vy, asked.delta[1], moved[1], controller.computedGrounded());
+      velocity = [moved[0] / STEP, moved[1] / STEP, moved[2] / STEP];
       world.step();
       if (next.y - BODY.height / 2 < lowest - FALL_LIMIT) this.respawn();
     },

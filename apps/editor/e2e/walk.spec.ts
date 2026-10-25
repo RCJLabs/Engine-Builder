@@ -8,7 +8,19 @@ import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { game, topScreen } from './hutScreens.ts';
 import { fakePad } from './inputHelpers.ts';
-import { across, dragMouse, drawing, holdFor, holdUntil, near, openTrail, settled, walked } from './walkHelpers.ts';
+import {
+  across,
+  dragMouse,
+  drawing,
+  faceTowards,
+  holdFor,
+  holdUntil,
+  near,
+  openTrail,
+  settled,
+  type Walked,
+  walked,
+} from './walkHelpers.ts';
 
 test('the trail walked by keys and the mouse, to the cairn and into the bothy', async ({ page }) => {
   test.setTimeout(300_000);
@@ -56,7 +68,8 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
     // Forward held through the jump: in the air, the walk goes only where it is pushed.
     await page.keyboard.down('KeyW');
     const rose = await holdUntil(page, ['Space'], (w) => !w.grounded && w.velocity[1] > 0);
-    await page.waitForTimeout(800);
+    // Until it lands: in the page's time the walk may run slower than real time.
+    await expect.poll(async () => (await walked(page)).grounded, { intervals: [20] }).toBe(true);
     await page.keyboard.up('KeyW');
     expect(rose.feet[1]).toBeGreaterThan(below.feet[1]);
     const on = await settled(page);
@@ -65,21 +78,28 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   });
 
   await test.step('can’t climb the bank, steeper than 40°', async () => {
-    const pushed = await holdFor(page, ['KeyD'], 6000);
-    // At 2.5 m/s it would be past x 19; the bank rises from x 12.
-    expect(pushed.feet[0]).toBeLessThan(12.6);
+    // Until it has gained no ground for 1.5 s past x 11: the bank rises from x 12.
+    let farthest = Number.NEGATIVE_INFINITY;
+    let since = Date.now();
+    const pushed = await holdUntil(page, ['KeyD'], (w) => {
+      if (w.feet[0] > farthest + 0.05) [farthest, since] = [w.feet[0], Date.now()];
+      return farthest > 11 && Date.now() - since > 1500;
+    });
+    expect(farthest).toBeLessThan(12.6);
     expect(pushed.feet[1]).toBeLessThan(2.6);
   });
 
   await test.step('pushes the loose crate, which moves', async () => {
     await holdUntil(page, ['KeyW'], (w) => w.feet[2] <= 8);
-    await holdUntil(page, ['KeyA'], (w) => w.feet[0] <= -4);
-    const before = (await walked(page)).moving.find((m) => m.path === 'loose-crate')?.at;
-    expect(before).toBeDefined();
-    const z = before?.[2] ?? 0;
+    await holdUntil(page, ['KeyA'], (w) => w.feet[0] <= -3.5);
+    const crate = (w: Walked) => w.moving.find((m) => m.path === 'loose-crate')?.at ?? [0, 0, 0];
+    const before = crate(await settled(page));
+    // Faced at its middle, so the push is square, wherever the strafe stopped.
+    await faceTowards(page, box, before[0], before[2]);
     // Pushed half a metre within the time: it would stay put if it didn't move.
-    await holdUntil(page, ['KeyW'], (w) => (w.moving.find((m) => m.path === 'loose-crate')?.at[2] ?? z) < z - 0.5);
+    await holdUntil(page, ['KeyW'], (w) => Math.hypot(crate(w)[0] - before[0], crate(w)[2] - before[2]) > 0.5);
     await settled(page);
+    await faceTowards(page, box, (await walked(page)).feet[0], -1000);
   });
 
   await test.step('runs at 5 m/s up the path to the cairn, its trigger sent once and its flag on the HUD', async () => {
@@ -112,15 +132,21 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
     // 100° up, held at 85.
     expect(looked.pitch).toBe(85);
     await dragMouse(page, room, 200, 340);
+    const level = await walked(page);
+    expect(near(level.yaw, 0, 0.5) && near(level.pitch, 0, 0.5), JSON.stringify(level)).toBe(true);
     await room.focus();
     const north = await holdUntil(page, ['KeyW'], (w) => w.feet[2] < -2 && across(w) < 0.05);
     // The north wall's inner face is at z -3.
-    expect(near(north.feet[2], -2.65, 0.1)).toBe(true);
+    expect(near(north.feet[2], -2.65, 0.1), JSON.stringify(north)).toBe(true);
   });
 
   await test.step('a tap of Space, down and up within a frame, still jumps', async () => {
     const before = await settled(page);
-    await page.keyboard.press('Space');
+    // Down and up in one task of the page's: no frame can come between them.
+    await page.getByRole('application', { name: 'Bothy' }).evaluate((box) => {
+      for (const type of ['keydown', 'keyup'])
+        box.dispatchEvent(new KeyboardEvent(type, { code: 'Space', bubbles: true }));
+    });
     await expect
       .poll(async () => (await walked(page)).feet[1] - before.feet[1], { intervals: [50] })
       .toBeGreaterThan(0.3);
@@ -146,6 +172,24 @@ test('the trail walked by a pad: both sticks and A', async ({ page }) => {
       },
       [axes, a] as const,
     );
+
+  await test.step('paused, the walk holds still whatever the pad does', async () => {
+    await page.getByRole('button', { name: 'Pause' }).click();
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __ebWalk?: { paused: boolean } }).__ebWalk?.paused))
+      .toBe(true);
+    const before = await walked(page);
+    await pad([0, -1, 0.5, 0]);
+    await page.waitForTimeout(1000);
+    const held = await walked(page);
+    expect(held.feet).toEqual(before.feet);
+    expect(held.yaw).toBe(before.yaw);
+    await pad([0, 0, 0, 0]);
+    await page.getByRole('button', { name: 'Resume' }).click();
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __ebWalk?: { paused: boolean } }).__ebWalk?.paused))
+      .toBe(false);
+  });
 
   await test.step('the left stick pushed all the way runs up the path to the cairn', async () => {
     await pad([0, -1, 0, 0]);
