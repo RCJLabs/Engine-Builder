@@ -1158,6 +1158,8 @@ How to read this file:
 **Goal:** the world is inhabited. NPCs keep schedules, fight and talk.
 
 - **M6.1 NPCs.** Built from actor records: appearance, stats, inventory, faction, dialogue.
+  - **As decided** (D73, your calls): an NPC is an actor record placed in a space, each actor in one place (E077); it draws as its model, else as a figure the engine draws from a height and colours; its talk field gives it a Talk prompt by Interact, and it turns to face the player as it talks; it carries a bag of its own, the inventory kit's slice going to version 2; with the factions kit it belongs to a faction; and the walk pauses under any screen ([specs/npcs.md](docs/specs/npcs.md)).
+  - **Gate:** the ford, a hamlet whose smith, ferry-keeper and warden are talked to by keys, a pad and touch at 360, 390 and sideways, a horseshoe passing from the smith's bag to the party's and on, the warden speaking only to friends of the ford, the walk paused under each talk, and a save loaded with the bags kept; and an NPC made in the editor alone, placed, seen as a figure and talked to.
 - **M6.2 Navigation.** Navmesh baking (recast-navigation-js) and crowds.
 - **M6.3 AI.** Packages and schedules (sandbox, patrol, travel, follow, sleep, work), data-driven behaviour trees, and perception by sight and hearing.
 - **M6.4 Combat.** Real-time melee and ranged; hits are detected by physics and damage is resolved in the sim; projectiles; death and loot.
