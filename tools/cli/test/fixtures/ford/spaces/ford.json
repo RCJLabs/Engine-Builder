@@ -1,0 +1,76 @@
+{
+  "name": "The ford",
+  "objects": [
+    {
+      "id": "start",
+      "name": "Start",
+      "shape": "box",
+      "at": [0, 0, 8],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [30, 0.2, 30],
+      "color": "#6f8f4e",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "river",
+      "name": "River",
+      "shape": "plane",
+      "at": [0, 0.02, -9],
+      "scale": [30, 1, 5],
+      "color": "#3d6f8f",
+      "components": {
+        "water": {}
+      }
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "shape": "box",
+      "at": [-6.5, 0, 8],
+      "scale": [3, 2.5, 3],
+      "color": "#7d756b",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "smith",
+      "name": "Ada",
+      "record": "actor:smith",
+      "at": [-3, 0, 8]
+    },
+    {
+      "id": "ferry",
+      "name": "Bryn",
+      "record": "actor:ferry",
+      "at": [3, 0, 8],
+      "turn": [0, 180, 0]
+    },
+    {
+      "id": "warden",
+      "name": "The warden",
+      "record": "actor:warden",
+      "at": [0, 0, 1]
+    },
+    {
+      "id": "drover",
+      "name": "A drover",
+      "record": "actor:drover",
+      "at": [0, 0, 5]
+    }
+  ]
+}

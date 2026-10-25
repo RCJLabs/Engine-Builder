@@ -1,0 +1,12 @@
+{
+  "name": "Bryn",
+  "description": "Keeps the ferry, and the mare that pulls it.",
+  "faction": "ford-folk",
+  "talk": "ferry",
+  "figure": {
+    "height": 1.85,
+    "clothes": "#2f5d6b",
+    "trim": "#d9c27a",
+    "skin": "#8a5a3c"
+  }
+}

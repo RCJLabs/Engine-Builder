@@ -1,0 +1,46 @@
+{
+  "title": "The ford",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "The ferry’s mare is lame. Ada the smith has a shoe.",
+        "style": "heading",
+        "shows-when": "inventory.carried(actor: ferry, item: horseshoe) == 0"
+      },
+      {
+        "widget": "text",
+        "text": "The mare is shod. Talk to the warden.",
+        "style": "heading",
+        "shows-when": "inventory.carried(actor: ferry, item: horseshoe) >= 1"
+      },
+      {
+        "widget": "text",
+        "text": "Horseshoes: you {inventory.count(item: horseshoe)} · Ada {inventory.carried(actor: smith, item: horseshoe)} · Bryn {inventory.carried(actor: ferry, item: horseshoe)}"
+      },
+      {
+        "widget": "text",
+        "text": "The ford’s folk: {factions.band(faction: ford-folk)}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Rest a while",
+        "action": {
+          "take": "ford/rest"
+        }
+      }
+    ]
+  }
+}

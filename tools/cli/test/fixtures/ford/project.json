@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "ford",
+  "name": "The ford",
+  "version": "0.1.0",
+  "kits": ["inventory", "stats", "factions", "dialogue"],
+  "start-space": "ford"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "The warden",
+  "description": "Stone, and older than the ford.",
+  "faction": "ford-folk",
+  "talk": "warden",
+  "model": "kit-pillar",
+  "figure": {
+    "height": 2.5
+  }
+}
