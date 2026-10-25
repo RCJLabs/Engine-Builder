@@ -78,7 +78,7 @@ export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
         if (!node) return [];
         const yaw = Math.round(yawOf(node) * 10) / 10 + 0;
         const was = Math.round(placedOf(path, node) * 10) / 10 + 0;
-        return [{ path, actor: npc.actor, drawn: npc.figure ? 'figure' : 'model', yaw, placed: was } as const];
+        return [{ path, actor: npc.actor, drawn: drawnAs(node), yaw, placed: was }];
       });
     },
   };

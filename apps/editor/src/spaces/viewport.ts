@@ -20,6 +20,7 @@ import { type Built, createBuilder, type NameOf, setTransform } from './build.ts
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView } from './environmentView.ts';
 import type { FigureOf } from './figureLook.ts';
+import { figuresIn } from './figureView.ts';
 import { createFoliageView, type FoliageShown } from './foliageView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
@@ -392,6 +393,7 @@ export async function createView(
     waterAt: (id) => waterOpacity(built?.byId.get(id)),
     environment: () => environment.summary(),
     models: () => models.summaries(built?.root),
+    figures: () => figuresIn(built?.root),
     foliage: () => foliage.summary(),
     plantsNear: foliage.near,
     perf,

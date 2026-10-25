@@ -60,7 +60,8 @@ export function createFigures() {
         part.castShadow = true;
         group.add(part);
       }
-      group.userData.figure = true;
+      // Its look, for the hooks: what the e2e reads of a figure drawn.
+      group.userData.figure = look;
       return group;
     },
     dispose() {
@@ -70,4 +71,17 @@ export function createFigures() {
       geometries.clear();
     },
   };
+}
+
+/** The figures drawn under each top-level object, as their looks: the hooks' figures(). */
+export function figuresIn(root: THREE.Object3D | undefined): (FigureLook & { readonly object: string })[] {
+  if (!root) return [];
+  return root.children.flatMap((object) => {
+    const found: (FigureLook & { readonly object: string })[] = [];
+    object.traverse((node) => {
+      const look = node.userData.figure as FigureLook | undefined;
+      if (look) found.push({ object: String(object.userData.objectId), ...look });
+    });
+    return found;
+  });
 }
