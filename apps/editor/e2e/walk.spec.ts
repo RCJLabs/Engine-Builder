@@ -15,6 +15,7 @@ import {
   faceTowards,
   holdFor,
   holdUntil,
+  holdUntilPast,
   near,
   openTrail,
   settled,
@@ -33,7 +34,7 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   await box.focus();
 
   await test.step('the third-person camera pulls in against the wall behind', async () => {
-    await holdUntil(page, ['KeyA'], (w) => w.feet[0] <= -6.4);
+    await holdUntilPast(page, ['KeyA'], 'x', { atMost: -6.4 });
     await dragMouse(page, box, 360, 0);
     const facing = await settled(page);
     expect(near(facing.yaw, -90, 0.5)).toBe(true);
@@ -49,7 +50,7 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   });
 
   await test.step('walks at 2.5 m/s and stops at the boulder’s face', async () => {
-    await holdUntil(page, ['KeyD'], (w) => w.feet[0] >= -4.05);
+    await holdUntilPast(page, ['KeyD'], 'x', { atLeast: -4.05 });
     let fastest = 0;
     const stopped = await holdUntil(page, ['KeyW'], (w) => {
       fastest = Math.max(fastest, across(w));
@@ -61,8 +62,8 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   });
 
   await test.step('is stopped by the step, 0.8 m tall, and jumps onto it', async () => {
-    await holdUntil(page, ['KeyS'], (w) => w.feet[2] >= 15.5);
-    await holdUntil(page, ['KeyD'], (w) => w.feet[0] >= 4);
+    await holdUntilPast(page, ['KeyS'], 'z', { atLeast: 15.5 });
+    await holdUntilPast(page, ['KeyD'], 'x', { atLeast: 4 });
     const below = await holdUntil(page, ['KeyW'], (w) => w.feet[2] < 14.5 && across(w) < 0.05);
     expect(near(below.feet[2], 13.35, 0.1)).toBe(true);
     // Forward held through the jump: in the air, the walk goes only where it is pushed.
@@ -90,8 +91,8 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   });
 
   await test.step('pushes the loose crate, which moves', async () => {
-    await holdUntil(page, ['KeyW'], (w) => w.feet[2] <= 8);
-    await holdUntil(page, ['KeyA'], (w) => w.feet[0] <= -3.5);
+    await holdUntilPast(page, ['KeyW'], 'z', { atMost: 8 });
+    await holdUntilPast(page, ['KeyA'], 'x', { atMost: -3.5 });
     const crate = (w: Walked) => w.moving.find((m) => m.path === 'loose-crate')?.at ?? [0, 0, 0];
     const before = crate(await settled(page));
     // Faced at its middle, so the push is square, wherever the strafe stopped.
@@ -103,7 +104,9 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
   });
 
   await test.step('runs at 5 m/s up the path to the cairn, its trigger sent once and its flag on the HUD', async () => {
-    await holdUntil(page, ['KeyD'], (w) => w.feet[0] >= 0);
+    await holdUntilPast(page, ['KeyD'], 'x', { atLeast: 0 });
+    // Faced at the stones' middle, wherever the strafe stopped: they are a box a metre across.
+    await faceTowards(page, box, 0, -10);
     let fastest = 0;
     const reached = await holdUntil(page, ['ShiftLeft', 'KeyW'], (w) => {
       fastest = Math.max(fastest, across(w));
@@ -115,6 +118,8 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
     // Still in the zone, against the stones: nothing more is sent.
     await holdFor(page, ['KeyW'], 1500);
     const stayed = await walked(page);
+    // The stones' near face is at z -9.5; the capsule stops its radius short.
+    expect(near(stayed.feet[2], -9.15, 0.15), JSON.stringify(stayed)).toBe(true);
     expect(stayed.zones).toEqual(['cairn/zone']);
     expect(stayed.sent).toEqual([{ object: 'cairn/zone', sent: 'accepted' }]);
   });

@@ -119,6 +119,51 @@ export async function holdUntil(
   return walked(page);
 }
 
+/**
+ * Keys held until the feet pass a line, let go by the page itself on the first frame they have: a
+ * strafe that stops where it should however slowly the test polls. Polled from here, a loaded CI
+ * box let go of D a metre late and walked the trail past the boulder and the stones (M5.8).
+ */
+export async function holdUntilPast(
+  page: Page,
+  keys: readonly string[],
+  axis: 'x' | 'z',
+  line: { readonly atLeast?: number; readonly atMost?: number },
+  timeout = 30_000,
+): Promise<Walked> {
+  const box = page.locator('[data-eb-walk]');
+  const past = box.evaluate(
+    (element, { codes, at, line }) =>
+      new Promise<void>((resolve) => {
+        const check = () => {
+          const hook = (window as unknown as { __ebWalk?: { character(): { feet: number[] } } }).__ebWalk;
+          const value = hook?.character().feet[at];
+          const over =
+            value !== undefined &&
+            (line.atLeast === undefined || value >= line.atLeast) &&
+            (line.atMost === undefined || value <= line.atMost);
+          if (!over) return void requestAnimationFrame(check);
+          for (const code of codes) element.dispatchEvent(new KeyboardEvent('keyup', { code, bubbles: true }));
+          resolve();
+        };
+        check();
+      }),
+    { codes: [...keys], at: axis === 'x' ? 0 : 2, line },
+  );
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Not past ${axis} ${JSON.stringify(line)} in ${timeout} ms`)), timeout);
+  });
+  for (const key of keys) await page.keyboard.down(key);
+  try {
+    await Promise.race([past, late]);
+  } finally {
+    clearTimeout(timer);
+    for (const key of [...keys].reverse()) await page.keyboard.up(key);
+  }
+  return walked(page);
+}
+
 /** Keys held for `ms` of the page's time, then let go: the walk where it ends up. */
 export async function holdFor(page: Page, keys: readonly string[], ms: number): Promise<Walked> {
   for (const key of keys) await page.keyboard.down(key);
@@ -145,6 +190,8 @@ export async function dragMouse(page: Page, box: Locator, dx: number, dy: number
   const [x, y] = [area.x + area.width / 2, area.y + area.height / 2];
   await page.mouse.move(x, y);
   await page.mouse.down();
+  // A press that moves under 4 px is a click, which locks the pointer: a short drag goes out and back.
+  if (Math.abs(dx) + Math.abs(dy) < 8) await page.mouse.move(x + 20, y);
   const steps = 12;
   for (let i = 1; i <= steps; i++) await page.mouse.move(x + (dx * i) / steps, y + (dy * i) / steps);
   await page.mouse.up();
