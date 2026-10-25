@@ -25,8 +25,9 @@ test('a hut snapped together from the starter kit by mouse, dropped, undone and 
 
   await test.step('the grid at 1 m: a move away from everything lands on whole metres, and latches nothing', async () => {
     await panel.getByLabel('Grid').selectOption('1');
-    // Up until the roof is drawn on the next whole metre over 3.5, clear of the walls' tops.
-    const latched = await dragUntil(page, 'move-y', ids.roof, 1, (now) => (now.box?.min[1] ?? 0) >= 4, false);
+    // Up until the roof is first drawn at 3.5 m or more, clear of the walls' tops: from 2.5, a 1 m
+    // step puts it at 4 where the 0.5 m one would stop at 3.5.
+    const latched = await dragUntil(page, 'move-y', ids.roof, 1, (now) => (now.box?.min[1] ?? 0) >= 3.5, false);
     expect(latched).toEqual([]);
     await expectAt(page, ids.roof, [0, 4, 0]);
   });

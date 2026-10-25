@@ -30,7 +30,7 @@ export interface NearObjects {
   /** Every object built again: a model's file decoded, or a tier's shadows. */
   rebuild(): void;
   readonly waiting: number;
-  /** The longest one frame's building took, in ms. */
+  /** The longest one frame's building took, in ms, rings built whole left out. */
   readonly slowest: number;
   lods(): readonly THREE.LOD[];
   built(): string[];
@@ -91,7 +91,8 @@ export function createNearObjects(
         const id = waiting.shift() as string;
         if (wanted.has(id) && !built.has(id)) make(id);
       } while (waiting.length > 0 && (all || performance.now() - start < BUDGET_MS));
-      slowest = Math.max(slowest, performance.now() - start);
+      // A ring built whole waits under the loading screen or a respawn: only spread frames can hitch.
+      if (!all) slowest = Math.max(slowest, performance.now() - start);
       relist();
       return true;
     },

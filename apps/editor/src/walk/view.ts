@@ -21,17 +21,14 @@ import { createViewModels } from '../spaces/viewModels.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { Shot } from './cameras.ts';
 import { createFarModels } from './farModels.ts';
+import { closeFog, DAYLIGHT } from './fog.ts';
 import type { Placement } from './footprints.ts';
 import { createNearObjects, nodeAt } from './nearObjects.ts';
 import { BODY, topOf } from './physics.ts';
 import type { Solid } from './solids.ts';
 import type { WalkSpace } from './world.ts';
 
-/** A game's sky when its space names no environment: daylight, not the editor's dark. */
-const DAYLIGHT = '#a9c6db';
 const FOV = 70;
-/** Where the view's own fog starts, as a share of the view distance. */
-const FOG_FROM = 0.6;
 
 export interface WalkView {
   readonly canvas: HTMLCanvasElement;
@@ -78,15 +75,6 @@ function bodyMesh(): THREE.Group {
   group.add(capsule, nose);
   for (const mesh of [capsule, nose]) mesh.castShadow = true;
   return group;
-}
-
-/** Fog closing at the view distance, unless the environment's own closes nearer (D72). */
-function closeFog(scene: THREE.Scene, distance: number): void {
-  const own = scene.fog instanceof THREE.Fog ? scene.fog : null;
-  if (own && own.far <= distance) return;
-  const sky = scene.background instanceof THREE.Color ? scene.background : new THREE.Color(DAYLIGHT);
-  const color = own ? own.color : sky;
-  scene.fog = new THREE.Fog(color, Math.min(own?.near ?? Number.POSITIVE_INFINITY, distance * FOG_FROM), distance);
 }
 
 /** Where a moving solid's body stood as authored: its node follows the body's moves from there. */

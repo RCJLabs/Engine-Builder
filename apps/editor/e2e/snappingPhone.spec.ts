@@ -35,7 +35,8 @@ for (const viewport of [
 
       await test.step('the grid at 1 m, a move landing on a whole metre, and Drop tapped', async () => {
         await panel.getByLabel('Grid').selectOption('1');
-        await dragUntil(page, 'move-y', ids.roof, 1, (now) => (now.box?.min[1] ?? 0) >= 4, true);
+        // First drawn at 3.5 m or more: a 1 m step from 2.5 puts it at 4, a 0.5 m one at 3.5.
+        await dragUntil(page, 'move-y', ids.roof, 1, (now) => (now.box?.min[1] ?? 0) >= 3.5, true);
         await expectAt(page, ids.roof, [0, 4, 0]);
         await panel.getByRole('button', { name: 'Drop' }).tap();
         await expectAt(page, ids.roof, [0, 2.5, 0]);

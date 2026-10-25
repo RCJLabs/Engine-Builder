@@ -44,7 +44,7 @@ export function createFarModels(
   const root = new THREE.Group();
   let instanced: THREE.InstancedMesh[] = [];
   let models = 0;
-  /** Each instanced batch's level: how many levels its model's LOD has past the whole, or 0. */
+  /** Each instanced batch's level: which of its model's LOD levels it draws, 0 the whole. */
   let levels: number[] = [];
 
   const clear = () => {
@@ -74,7 +74,8 @@ export function createFarModels(
         if (!holder || !level) continue;
         holder.updateMatrixWorld(true);
         const body = holder.children.find((child) => !child.userData.colliderWire);
-        const depth = body instanceof THREE.LOD ? body.levels.length - 1 : 0;
+        // The level drawn, read back from the LOD, so the hook says what is on screen.
+        const depth = body instanceof THREE.LOD ? body.levels.findIndex((l) => l.object === level) : 0;
         const at = group.map(matrixOf);
         for (const mesh of meshesOf(level)) {
           const batch = new THREE.InstancedMesh(mesh.geometry, mesh.material, at.length);
