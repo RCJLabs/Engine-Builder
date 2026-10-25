@@ -10,6 +10,7 @@ import { conditionRefs, FLAG, formatRef, parseRef, pointerSegment, type RecordIn
 import {
   checkEnterSpace,
   checkPart,
+  checkWalkTo,
   type DataType,
   type Diagnostic,
   type DiagnosticCode,
@@ -23,6 +24,7 @@ import {
   type SpaceSpawns,
   schemaIssues,
   severityOf,
+  type Walkers,
   z,
 } from '@eb/schema';
 import { checkActorPlaces } from './npcPlaces.ts';
@@ -45,6 +47,8 @@ export interface SpacePartsContext {
   readonly assets?: ReadonlySet<string>;
   /** Each space's spawn points (M5.9), for an enter-space in a zone's or a use's effects (E076). */
   readonly spaces?: SpaceSpawns;
+  /** Where each placed actor stands (M6.2), for a walk-to in a zone's or a use's effects (E079). */
+  readonly walkers?: Walkers;
 }
 
 /** A reference a space or prefab holds: a placed record, or a ref inside a component or an override. */
@@ -274,9 +278,10 @@ function partContext(
       const sets = effect.effect === 'set-flag' || effect.effect === 'add-to-flag';
       if (sets && typeof effect.flag === 'string') listFlag(walk.flags.set, effect.flag, walk.file);
       if (kept(path)) walk.held.effects.push({ file: walk.file, path, effect });
-      const spaces = walk.ctx.spaces;
-      if (spaces && kept(path))
-        checkEnterSpace(effect, spaces, (code, at, message) => report(walk, code, at, message), path);
+      const { spaces, walkers } = walk.ctx;
+      const at = (code: DiagnosticCode, where: string, message: string) => report(walk, code, where, message);
+      if (spaces && kept(path)) checkEnterSpace(effect, spaces, at, path);
+      if (walkers && kept(path)) checkWalkTo(effect, walkers, at, path);
     },
   };
 }

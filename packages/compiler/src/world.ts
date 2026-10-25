@@ -11,6 +11,8 @@ import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
+import type { NavFileRead } from './navFiles.ts';
+import { actorPlaces } from './npcPlaces.ts';
 import { eachPlaced, type Fields, isFields, recordHere } from './overrides.ts';
 import { eachPlacedRecord, type ModelSources, modelFieldOf, modelHere, modelNeeds } from './placedModels.ts';
 import type { ProjectSource } from './source.ts';
@@ -24,6 +26,8 @@ const ACTOR = 'actor';
 export interface WorldSources {
   readonly files: readonly SpaceFileRead[];
   readonly terrains: readonly TerrainFileRead[];
+  /** The spaces' navmeshes (M6.2): each sound one is packed whole, header and all. */
+  readonly navs: readonly NavFileRead[];
   /** A record's value by "type:id", undefined when there is none. */
   readonly record: (key: string) => unknown;
   /** The record types, for each one's model field. */
@@ -156,6 +160,16 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
       if (found) files[`${ASSETS_DIR}/${beside}`] = base64Of(found);
     }
   }
+  const navmeshes: Record<string, string> = {};
+  for (const nav of sources.navs) {
+    const bytes = nav.header !== null && spaces.has(nav.id) ? await source.read(nav.file) : undefined;
+    if (bytes) navmeshes[nav.id] = base64Of(bytes);
+  }
+  // Where each actor is placed, which the world module walks it from (M6.2): one place each (E077).
+  const actors: Record<string, { space: string; path: string }> = {};
+  for (const [actor, [first]] of actorPlaces(sources.files, prefabs)) {
+    if (first) actors[actor] = { space: first.space, path: first.path };
+  }
   return {
     spaces: Object.fromEntries(spaces),
     prefabs: Object.fromEntries(prefabs),
@@ -166,6 +180,9 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     uses,
     spawns,
     start: sources.start,
+    // Format 11 only with a navmesh: createPack leaves both out without one.
+    navmeshes,
+    actors,
   };
 }
 

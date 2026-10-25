@@ -49,6 +49,7 @@ export {
   isEffectShape,
   rollEffect,
   setFlagEffect,
+  walkToEffect,
 } from './effect.ts';
 export {
   ENGINE_DATA,
@@ -192,4 +193,4 @@ export {
   type FoundRef,
   scanRecord,
 } from './walk.ts';
-export { checkEnterSpace, type SpaceSpawns } from './worldCheck.ts';
+export { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walker, type Walkers } from './worldCheck.ts';

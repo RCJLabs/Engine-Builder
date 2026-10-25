@@ -81,6 +81,8 @@ export const DIAGNOSTIC_CODES = {
   E075: "project.json's start-space names a space the project doesn't have",
   E076: "enter-space names a space the project doesn't have, or a spawn point its space doesn't have",
   E077: 'An actor is placed in more than one place across the spaces: an NPC stands in one',
+  E078: "A space's navmesh file isn't one the engine reads, or its space isn't there",
+  E079: "walk-to names an actor placed in no space, an object its space doesn't have, or a space with no navmesh",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -127,6 +129,7 @@ export const DIAGNOSTIC_CODES = {
   W144: "A terrain's heights, paint or foliage file whose space has no terrain, or a foliage file whose terrain lists no foliage",
   W145: "A water component on an object that isn't a plane",
   W146: "A model's material slot names a material its file doesn't have",
+  W147: "A space's navmesh was baked before its solids or terrain last changed",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

@@ -725,6 +725,75 @@ describe('the code table', () => {
         message: 'The actor "smith" stands in one place only: it is already at "smith" in spaces/ford.json',
       },
     ]);
+    // M6.2: a navmesh baked before its well was placed, one of a space there isn't, one that isn't a
+    // navmesh, and a sheet that walks an actor placed nowhere, to an object its space lacks, and in
+    // a space with no navmesh.
+    const walk = (actor: string, to: string) => ({ effect: 'walk-to', actor, to });
+    const nav = (hash: string) => `EBNV\u0001${hash}recast`;
+    const walked = await kitted(['stats'], {
+      'records/actor/carter.json': '{ "name": "Carter" }',
+      'records/actor/keeper.json': '{ "name": "Keeper" }',
+      'records/actor/stranger.json': '{ "name": "Stranger" }',
+      'spaces/square.json': JSON.stringify({
+        name: 'Square',
+        objects: [
+          { id: 'carter', record: 'actor:carter' },
+          { id: 'well', shape: 'box', components: { collider: {} } },
+        ],
+      }),
+      'spaces/square.nav': nav('0000000000000000'),
+      'spaces/inn.json': JSON.stringify({ name: 'Inn', objects: [{ id: 'keeper', record: 'actor:keeper' }] }),
+      'spaces/yard.json': JSON.stringify({ name: 'Yard', objects: [] }),
+      'spaces/yard.nav': 'not a navmesh',
+      'spaces/moor.nav': nav('0000000000000000'),
+      'records/sheet/walks.json': JSON.stringify({
+        rows: [
+          {
+            id: 'go',
+            when: { event: 'world/arrived' },
+            do: [walk('stranger', 'well'), walk('carter', 'pump'), walk('keeper', 'keeper'), walk('carter', 'well')],
+          },
+        ],
+      }),
+    });
+    expect(brief(walked.diagnostics)).toEqual([
+      {
+        code: 'E079',
+        file: 'records/sheet/walks.json',
+        path: '/rows/0/do/0/actor',
+        message: 'The actor "stranger" stands in no space: place it in one to walk it',
+      },
+      {
+        code: 'E079',
+        file: 'records/sheet/walks.json',
+        path: '/rows/0/do/1/to',
+        message: 'The space "square", where "carter" stands, has no object "pump"',
+      },
+      {
+        code: 'E079',
+        file: 'records/sheet/walks.json',
+        path: '/rows/0/do/2',
+        message: 'The space "inn" has no navmesh: open it and press Bake navigation',
+      },
+      {
+        code: 'E078',
+        file: 'spaces/moor.nav',
+        path: '',
+        message: 'No space "moor" for this navmesh: spaces/moor.json isn\'t there',
+      },
+      {
+        code: 'W147',
+        file: 'spaces/square.nav',
+        path: '',
+        message: "Baked before the space's solids or terrain last changed: press Bake navigation again",
+      },
+      {
+        code: 'E078',
+        file: 'spaces/yard.nav',
+        path: '',
+        message: 'Not a navmesh this engine reads: open its space and press Bake navigation',
+      },
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -748,6 +817,7 @@ describe('the code table', () => {
       foliaged,
       doors,
       twice,
+      walked,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

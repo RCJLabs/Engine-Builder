@@ -8,6 +8,7 @@
 import { type Diagnostic, type DiagnosticCode, schemaIssues, severityOf } from '@eb/schema';
 import { parseJsonFile } from './decode.ts';
 import { placeOfPointer } from './jsonLines.ts';
+import { type NavFileRead, navHeader } from './navFiles.ts';
 import type { ProjectSource } from './source.ts';
 import { classifySpaceFile, PREFABS_DIR, SPACES_DIR, type SpaceKind } from './spaceFiles.ts';
 import { type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
@@ -104,13 +105,17 @@ function cycles(sound: ReadonlyMap<string, { read: SpaceFileRead; space: SpaceJs
 
 /**
  * The files under spaces/ and prefabs/, read: W141 for a file that's neither, E007 for one that
- * isn't JSON; a terrain's PNGs as far as their headers (M5.3).
+ * isn't JSON; a terrain's PNGs as far as their headers (M5.3), and a navmesh's (M6.2).
  */
-export async function readSpaces(
-  source: ProjectSource,
-): Promise<{ files: SpaceFileRead[]; terrains: TerrainFileRead[]; diagnostics: Diagnostic[] }> {
+export async function readSpaces(source: ProjectSource): Promise<{
+  files: SpaceFileRead[];
+  terrains: TerrainFileRead[];
+  navs: NavFileRead[];
+  diagnostics: Diagnostic[];
+}> {
   const files: SpaceFileRead[] = [];
   const terrains: TerrainFileRead[] = [];
+  const navs: NavFileRead[] = [];
   const diagnostics: Diagnostic[] = [];
   const paths = [...(await source.files(SPACES_DIR)), ...(await source.files(PREFABS_DIR))].sort();
   for (const file of paths) {
@@ -119,6 +124,11 @@ export async function readSpaces(
     if (role.kind === 'terrain') {
       const bytes = await source.read(file);
       terrains.push({ file, id: role.id, part: role.part, header: bytes ? pngHeader(bytes) : null });
+      continue;
+    }
+    if (role.kind === 'nav') {
+      const bytes = await source.read(file);
+      navs.push({ file, id: role.id, header: bytes ? navHeader(bytes) : null });
       continue;
     }
     if (role.kind === 'misplaced') {
@@ -135,7 +145,7 @@ export async function readSpaces(
     const text = bytes === undefined ? undefined : new TextDecoder().decode(bytes);
     files.push({ file, kind: role.kind, id: role.id, value: parsed.value, ...(text !== undefined ? { text } : {}) });
   }
-  return { files, terrains, diagnostics };
+  return { files, terrains, navs, diagnostics };
 }
 
 /** Each problem at its line and column as well as its path, as the screens' are. */

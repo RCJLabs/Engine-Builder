@@ -19,9 +19,13 @@ export type TerrainPart = 'heights' | 'paint' | 'foliage';
 
 export const terrainPath = (id: string, part: TerrainPart) => `${SPACES_DIR}/${id}.${part}.png`;
 
+/** A space's navmesh beside it (M6.2, D74), baked in the editor. */
+export const navPath = (id: string) => `${SPACES_DIR}/${id}.nav`;
+
 export type SpaceFile =
   | { readonly kind: SpaceKind; readonly id: string }
   | { readonly kind: 'terrain'; readonly id: string; readonly part: TerrainPart }
+  | { readonly kind: 'nav'; readonly id: string }
   | { readonly kind: 'misplaced'; readonly reason: string }
   | { readonly kind: 'ignored' };
 
@@ -49,8 +53,9 @@ export function classifyComponentFile(path: string): ComponentFile {
 }
 
 const TERRAIN_FILE = /^(.+)\.(heights|paint|foliage)\.png$/;
+const NAV_FILE = /^(.+)\.nav$/;
 
-/** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs carry their space's. */
+/** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs and a navmesh carry their space's. */
 export function classifySpaceFile(path: string): SpaceFile {
   const parts = path.split('/');
   const top = parts[0];
@@ -60,6 +65,12 @@ export function classifySpaceFile(path: string): SpaceFile {
     const id = terrain[1] as string;
     if (isRecordId(id)) return { kind: 'terrain', id, part: terrain[2] as TerrainPart };
     return { kind: 'misplaced', reason: `"${id}" isn’t a space's id: its terrain's files carry it` };
+  }
+  const nav = top === SPACES_DIR && parts.length === 2 ? NAV_FILE.exec(name) : null;
+  if (nav) {
+    const id = nav[1] as string;
+    if (isRecordId(id)) return { kind: 'nav', id };
+    return { kind: 'misplaced', reason: `"${id}" isn’t a space's id: its navmesh carries it` };
   }
   if ((top !== SPACES_DIR && top !== PREFABS_DIR) || !name.endsWith('.json')) return { kind: 'ignored' };
   const kind: SpaceKind = top === SPACES_DIR ? 'space' : 'prefab';
