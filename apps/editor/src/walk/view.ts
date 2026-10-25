@@ -27,7 +27,7 @@ import { createNearObjects, nodeAt } from './nearObjects.ts';
 import { createNpcView } from './npcView.ts';
 import { BODY, topOf } from './physics.ts';
 import type { Solid } from './solids.ts';
-import { createTapMarker, rayFrom } from './tapMarker.ts';
+import { createTapMarker, rayFrom, screenFrom } from './tapMarker.ts';
 import type { WalkSpace } from './world.ts';
 
 const FOV = 70;
@@ -60,6 +60,7 @@ export interface WalkView {
   >;
   /** Tap to move (M6.2): the ray through a point of the view, and the ring where the player is going. */
   ray(x: number, y: number): { from: Vec3; dir: Vec3 };
+  screenOf(p: Vec3): [number, number] | null;
   readonly marker: ReturnType<typeof createTapMarker>;
   streaming(): {
     readonly built: string[];
@@ -275,6 +276,7 @@ export async function createWalkView(
     },
     npcs,
     ray: (x, y) => rayFrom(camera, x, y, size.w, size.h),
+    screenOf: (p) => screenFrom(camera, p, size.w, size.h),
     marker,
     streaming: () => ({
       built: near.built(),

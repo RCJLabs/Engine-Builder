@@ -101,6 +101,7 @@ const hookOf = ({
   cells: () => streaming.cells(),
   npcs: () => surface.view.npcs.list(),
   nav: () => nav?.hook() ?? null,
+  screenOf: (point) => surface.view.screenOf(point),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */

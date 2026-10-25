@@ -59,7 +59,8 @@ function square() {
   if (!space) throw new Error('No space square');
   const play = startPlay(opened.setup, 'square');
   const take = (action: Action) => {
-    const step = play.take(action);
+    // As the page sends it: a button's and the stage's, through act's guard.
+    const step = play.act(action);
     if (!step.accepted) throw new Error(`${JSON.stringify(action)}: ${JSON.stringify(step.beats)}`);
     return step;
   };

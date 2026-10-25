@@ -33,3 +33,10 @@ export function rayFrom(camera: THREE.PerspectiveCamera, x: number, y: number, w
   const { origin, direction } = caster.ray;
   return { from: [origin.x, origin.y, origin.z] as Vec3, dir: [direction.x, direction.y, direction.z] as Vec3 };
 }
+
+/** The other way, for the hook: where a point is drawn, in CSS pixels from the view's top left; null off the view's depth. */
+export function screenFrom(camera: THREE.PerspectiveCamera, p: Vec3, w: number, h: number): [number, number] | null {
+  const v = new THREE.Vector3(p[0], p[1], p[2]).project(camera);
+  if (v.z < -1 || v.z > 1) return null;
+  return [((v.x + 1) / 2) * w, ((1 - v.y) / 2) * h];
+}

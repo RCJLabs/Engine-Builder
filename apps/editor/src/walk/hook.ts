@@ -68,6 +68,8 @@ export interface WalkHook {
   npcs(): readonly NpcSeen[];
   /** The navigation (M6.2): the navmesh, each NPC's agent, the tapped path and the stands sent; null without one. */
   nav(): WalkNav | null;
+  /** Where a point of the space is drawn now (M6.2), in CSS pixels from the view's top left, for a tap. */
+  screenOf(point: Vec3): readonly [number, number] | null;
 }
 
 declare global {

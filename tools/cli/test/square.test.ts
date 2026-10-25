@@ -45,7 +45,8 @@ const at = (npcs: Record<string, { feet: number[]; yaw: number; arrived?: string
 function played(open: Opened) {
   const play = startPlay(open.setup, 'square');
   const take = (action: Action) => {
-    const step = play.take(action);
+    // As the page sends it: a button's and the stage's, through act's guard.
+    const step = play.act(action);
     if (!step.accepted) throw new Error(`${JSON.stringify(action)}: ${JSON.stringify(step.beats)}`);
     return step;
   };
@@ -92,7 +93,7 @@ describe('eb with the square', () => {
     take({ type: 'world/trigger', space: 'square', object: 'market' });
     expect(goals()).toEqual(Object.fromEntries(VILLAGERS.map((v, i) => [v, `${v}-${i < 6 ? 'south' : 'north'}`])));
     // The zone goes off once.
-    expect(play.take({ type: 'world/trigger', space: 'square', object: 'market' }).accepted).toBe(false);
+    expect(play.act({ type: 'world/trigger', space: 'square', object: 'market' }).accepted).toBe(false);
     // Ash and Lin reach their marks together: the sheet sends each back the other way.
     take(
       at({
@@ -109,9 +110,9 @@ describe('eb with the square', () => {
 
   it('refuses a stand for an NPC of no space here, and one that isn’t a stand', async () => {
     const { play } = played(await opened());
-    expect(play.take(at({ smith: { feet: [0, 0, 0], yaw: 0 } })).accepted).toBe(false);
-    expect(play.take(at({ carter: { feet: [0, 0], yaw: 0 } })).accepted).toBe(false);
-    expect(play.take({ ...at({ carter: { feet: [0, 0, 0], yaw: 0 } }), space: 'inn' }).accepted).toBe(false);
+    expect(play.act(at({ smith: { feet: [0, 0, 0], yaw: 0 } })).accepted).toBe(false);
+    expect(play.act(at({ carter: { feet: [0, 0], yaw: 0 } })).accepted).toBe(false);
+    expect(play.act({ ...at({ carter: { feet: [0, 0, 0], yaw: 0 } }), space: 'inn' }).accepted).toBe(false);
   });
 
   it('saves each NPC where it stood, its goal with it, and a load gives them back', async () => {
