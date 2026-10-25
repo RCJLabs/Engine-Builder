@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { type ListWidget, listTakes, type Screen, type Widget } from '../format/screen.ts';
 import { DEFAULT_THEME } from '../format/theme.ts';
 import type { Entry, View } from '../session/types.ts';
-import { tabHolding } from './context.ts';
+import { type Drawing, drawingUnder, tabHolding } from './context.ts';
 import { actionFor, amount, fill, fillSome, holds, shownText } from './fill.ts';
 import { breakpointOf, layoutAt, layoutStyle, themeVars } from './layout.ts';
 import { drawn, screenFor, screenStack, stillOpen } from './stack.ts';
@@ -46,6 +46,15 @@ describe('the stack', () => {
     expect(stillOpen(opened, ['hut', 'talking'])).toEqual([]);
     expect(stillOpen(opened, ['closed'])).toEqual([]);
     expect(stillOpen({ modes: ['hut', 'talking'], ids: ['map'] }, ['hut', 'shopping'])).toEqual([]);
+  });
+});
+
+describe('a screen under another (M6.1)', () => {
+  it('draws paused, so a walk under a talk stops, and the top one as the shell has it', () => {
+    const drawing = { busy: false, log: [] } as unknown as Drawing;
+    expect(drawingUnder(drawing, true)).toBe(drawing);
+    expect(drawingUnder(drawing, false).paused).toBe(true);
+    expect(drawingUnder({ ...drawing, paused: true }, true).paused).toBe(true);
   });
 });
 

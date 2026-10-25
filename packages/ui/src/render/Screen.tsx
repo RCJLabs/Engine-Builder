@@ -6,7 +6,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Screen } from '../format/screen.ts';
 import { usable } from '../input/focus.ts';
-import { type Drawing, freshId } from './context.ts';
+import { type Drawing, drawingUnder, freshId } from './context.ts';
 import type { Shown } from './stack.ts';
 import { WidgetView } from './Widget.tsx';
 
@@ -23,6 +23,7 @@ export function ScreenView({ shown, top, drawing, remembered }: ScreenProps) {
   const id = useMemo(() => freshId('screen'), []);
   const modal = shown.kind === 'screen' && shown.screen.modal === true;
   const wasTop = useRef(false);
+  const covered = useMemo(() => drawingUnder(drawing, top), [top, drawing]);
   // A screen that comes to the top while the player is in the game takes focus, and so does a step
   // that left focus nowhere, as a button that went does: back to the control it last had, as a
   // dialog gives focus back to what opened it, or else to its heading, which announces it. The
@@ -52,7 +53,7 @@ export function ScreenView({ shown, top, drawing, remembered }: ScreenProps) {
         <h2 class="eb-sr" id={id} tabIndex={-1} ref={heading}>
           {title}
         </h2>
-        {shown.kind === 'screen' ? <Regions screen={shown.screen} drawing={drawing} /> : <Fallback drawing={drawing} />}
+        {shown.kind === 'screen' ? <Regions screen={shown.screen} drawing={covered} /> : <Fallback drawing={drawing} />}
       </div>
     </section>
   );

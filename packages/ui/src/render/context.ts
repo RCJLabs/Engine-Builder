@@ -44,6 +44,14 @@ export function tabHolding(at: string, selected: string | undefined): number | u
   return match ? Number(match[1]) : undefined;
 }
 
+/**
+ * What a screen of the stack draws with: under another screen, a talk's, an event's, a shop's, it is
+ * paused, so a Space widget's walk stops as under the shell's pause and nothing walks the player
+ * under a talk (M6.1, D73).
+ */
+export const drawingUnder = (drawing: Drawing, top: boolean): Drawing =>
+  top || drawing.paused ? drawing : { ...drawing, paused: true };
+
 let next = 0;
 /**
  * An id no other element of the page has. Not Preact's useId: the editor's dock renders panels in

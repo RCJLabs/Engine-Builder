@@ -8,6 +8,7 @@ import type { FrameStats } from '../perf/frames.ts';
 import type { TierName } from '../perf/tiers.ts';
 import type { Boxed, Latch } from './bounds.ts';
 import type { EnvironmentSummary } from './environmentView.ts';
+import type { FigureLook } from './figureLook.ts';
 import type { FoliageSummary } from './foliageView.ts';
 import type { Screen } from './handles.ts';
 import type { ModelSummary } from './modelsView.ts';
@@ -66,6 +67,8 @@ export interface ViewportHook {
   readonly environment: () => EnvironmentSummary | null;
   /** Each placed object drawn as a model (M5.5): its LOD level, triangles, collider and slots' colours. */
   readonly models: () => (ModelSummary & { readonly object: string })[];
+  /** Each placed actor drawn as the engine's figure (M6.1): its height and colours. */
+  readonly figures: () => (FigureLook & { readonly object: string })[];
   /** Each foliage type the terrain grows (M5.6): its plants, those drawn, and each chunk's level. */
   readonly foliage: () => FoliageSummary[];
   /** How many plants of a foliage type stand within `radius` metres of (x, z) across the ground. */

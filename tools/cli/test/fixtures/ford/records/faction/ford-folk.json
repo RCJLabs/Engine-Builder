@@ -1,0 +1,20 @@
+{
+  "name": "The ford’s folk",
+  "description": "The smith, the ferry and the warden of the crossing.",
+  "min": -20,
+  "max": 20,
+  "start": 0,
+  "bands": [
+    {
+      "id": "wary",
+      "name": "Wary",
+      "description": "They watch you cross."
+    },
+    {
+      "id": "friendly",
+      "name": "Friendly",
+      "from": 10,
+      "description": "They wave you through."
+    }
+  ]
+}

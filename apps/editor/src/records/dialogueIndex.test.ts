@@ -9,7 +9,7 @@ import { problemsOf, project, shown } from '../../test/index-files.ts';
 
 const MARGE = 'records/talk/marge.json';
 const WATCH = 'records/sheet/watch.json';
-const UNOPENED = 'W123 : No row, choice, line, consequence or outcome opens it with Open a talk';
+const UNOPENED = 'W123 : No row, choice, line, consequence, outcome or actor opens it';
 
 /** A talk of lines one after another, opening at the first. */
 const marge = (ids: string[]) =>

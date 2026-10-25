@@ -17,6 +17,7 @@ import {
   MODEL,
 } from '@eb/schema';
 import type { LiveModels, ModelFileRead } from '../models/liveModels.ts';
+import { type NpcOf, npcsFrom } from '../spaces/figureLook.ts';
 import type { FoliageShown } from '../spaces/foliageView.ts';
 import type { TerrainFiles } from '../spaces/terrainView.ts';
 import { type Streamed, streamedOf } from './footprints.ts';
@@ -35,6 +36,8 @@ export interface WalkSpace {
   readonly environment: EnvironmentRecord | null;
   readonly foliage: readonly FoliageShown[];
   readonly models: LiveModels | undefined;
+  /** Placed actors (M6.1): each one's figure, or none for a model, and its height. */
+  readonly npcs: NpcOf;
 }
 
 const bytesOf = (base64: string | undefined): Uint8Array | null => {
@@ -89,6 +92,7 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     const scale = typeof model.value.scale === 'number' ? model.value.scale : undefined;
     return { ...(collider ? { collider } : {}), ...(scale !== undefined ? { scale } : {}) };
   };
+  const npcs = npcsFrom(sources.record);
   const zones = new Set(Object.keys(world.triggers[id] ?? {}));
   const found = world.uses && Object.hasOwn(world.uses, id) ? (world.uses[id] ?? {}) : {};
   const uses = new Map(Object.entries(found).map(([path, use]) => [path, use.label]));
@@ -113,12 +117,13 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     id,
     space,
     prefabs,
-    parts: partsOf(space, prefabs, models, zones, uses),
+    parts: partsOf(space, prefabs, models, zones, uses, npcs),
     streamed: streamedOf(space, prefabs, models),
     ground: groundOf(space, heights),
     terrain,
     environment,
     foliage,
     models: modelsOf(world),
+    npcs,
   };
 }

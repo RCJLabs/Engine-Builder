@@ -78,7 +78,7 @@ async function makeTalk(page: Page): Promise<Locator> {
   await start.getByLabel(/^Line/).fill('hello');
   await makeHello(page, talk);
   // Whole, it is warned that nothing opens it yet (W123), at the top of its form.
-  const unopened = talk.getByText('No row, choice, line, consequence or outcome opens it with Open a talk');
+  const unopened = talk.getByText('No row, choice, line, consequence, outcome or actor opens it');
   await expect(unopened).toBeVisible();
   const thanks = await addLine(talk, 2, 'thanks', 'Appreciated. Next round is on me.');
   await thanks.getByLabel(/^Then/).fill('hello');

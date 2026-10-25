@@ -1,0 +1,5 @@
+{
+  "title": "The ford",
+  "tagline": "A smith, a ferry and a warden at a river crossing",
+  "slot-line": "Ada {inventory.carried(actor: smith, item: horseshoe)} · Bryn {inventory.carried(actor: ferry, item: horseshoe)}"
+}

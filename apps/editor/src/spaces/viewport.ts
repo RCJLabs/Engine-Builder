@@ -19,6 +19,8 @@ import { type Boxed, LATCH_PX, type Latch, union } from './bounds.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
 import { createEnvironmentView } from './environmentView.ts';
+import type { FigureOf } from './figureLook.ts';
+import { figuresIn } from './figureView.ts';
 import { createFoliageView, type FoliageShown } from './foliageView.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
@@ -60,7 +62,13 @@ export interface View {
   /** Shows the chosen objects where a drag has them, or back where their file has them (null). */
   preview(placed: readonly Placed[] | null): void;
   light(handle: Handle | null): void;
-  show(space: SpaceJson, prefabs: ReadonlyMap<string, SpaceJson>, names?: NameOf, models?: LiveModels): void;
+  show(
+    space: SpaceJson,
+    prefabs: ReadonlyMap<string, SpaceJson>,
+    names?: NameOf,
+    models?: LiveModels,
+    figures?: FigureOf,
+  ): void;
   /** A space's environment as the view draws it, or none for the editor's own light (M5.4). */
   showEnvironment(look: Look | null): void;
   /** A space's terrain, or none: a problem in words when its files can't be read. */
@@ -253,14 +261,14 @@ export async function createView(
   }
 
   function show(...args: Parameters<View['show']>) {
-    const [space, prefabs, names, live] = args;
+    const [space, prefabs, names, live, figures] = args;
     shown = args;
     if (built) {
       scene.remove(built.root);
       built.dispose();
     }
     const drawModel = models.use(live);
-    built = builder.build(space, prefabs, names, drawModel);
+    built = builder.build(space, prefabs, names, drawModel, false, figures);
     if (tier.shadowMap > 0) castShadows(built.root);
     lods = lodsOf(built.root);
     foliage.models(drawModel);
@@ -385,6 +393,7 @@ export async function createView(
     waterAt: (id) => waterOpacity(built?.byId.get(id)),
     environment: () => environment.summary(),
     models: () => models.summaries(built?.root),
+    figures: () => figuresIn(built?.root),
     foliage: () => foliage.summary(),
     plantsNear: foliage.near,
     perf,

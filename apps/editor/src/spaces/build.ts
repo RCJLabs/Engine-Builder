@@ -9,6 +9,8 @@
  */
 import { type Fields, isFields, overridden, passedOn, placedObjects } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
+import type { FigureOf } from './figureLook.ts';
+import { createFigures } from './figureView.ts';
 import type { Transform } from './gizmoMath.ts';
 import { GREY, type SpaceJson, type SpaceObject, transformOf } from './spaceFile.ts';
 
@@ -81,6 +83,7 @@ export function createBuilder() {
     return made;
   };
   const wire = new THREE.MeshBasicMaterial({ color: MISSING, wireframe: true });
+  const figures = createFigures();
   const waters = new Map<string, THREE.Material>();
   /** Water's surface: clearer water is fainter, its opacity clarity's complement. */
   const water = (fields: Fields) => {
@@ -161,6 +164,7 @@ export function createBuilder() {
     labels: { text: string; at: THREE.Object3D }[],
     models: DrawModel,
     play: boolean,
+    figureOf: FigureOf,
   ): THREE.Object3D => {
     const seen = overridden(object, layers);
     // A trigger zone and a spawn point are the editor's to see, not a player's (M5.8).
@@ -187,6 +191,14 @@ export function createBuilder() {
         group.add(model);
         return withComponents(group, seen, play);
       }
+      // An actor with no model is an NPC the engine draws (M6.1), in play and in the editor alike.
+      const look = figureOf(seen.record, passedOn(object, layers));
+      if (look) {
+        const figure = figures.figure(look);
+        group.add(figure);
+        if (!play) labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: figure });
+        return withComponents(group, seen, play);
+      }
       // In play a record that draws as no model is nothing to see; in the editor, its marker and name.
       if (play) return group;
       const marker = markOf('record', marks.record);
@@ -198,7 +210,7 @@ export function createBuilder() {
     if (!prefab) group.add(new THREE.Mesh(missing, wire));
     else if (depth < DEEPEST) {
       for (const inner of placedObjects(prefab, passedOn(object, layers))) {
-        const made = objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models, play);
+        const made = objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models, play, figureOf);
         // So the walk finds an object inside a placement by its path, as "placement/inner" (M5.8).
         made.userData.innerId = inner.object.id;
         group.add(made);
@@ -215,12 +227,14 @@ export function createBuilder() {
       models: DrawModel = () => null,
       /** Drawn for a player (M5.8): no marks, no labels, no zones or spawn points. */
       play = false,
+      /** Placed actors without a model, drawn as the engine's figure (M6.1). */
+      figureOf: FigureOf = () => null,
     ): Built {
       const root = new THREE.Group();
       const byId = new Map<string, THREE.Object3D>();
       const labels: { text: string; at: THREE.Object3D }[] = [];
       for (const object of space.objects) {
-        const made = objectOf(object, prefabs, 0, [], names, labels, models, play);
+        const made = objectOf(object, prefabs, 0, [], names, labels, models, play, figureOf);
         made.userData.objectId = object.id;
         root.add(made);
         if (!byId.has(object.id)) byId.set(object.id, made);
@@ -243,6 +257,7 @@ export function createBuilder() {
       for (const each of markMaterials.values()) each.dispose();
       for (const each of waters.values()) each.dispose();
       wire.dispose();
+      figures.dispose();
     },
   };
 }

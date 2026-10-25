@@ -11,12 +11,15 @@ import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
-import { eachPlaced, type Fields, isFields } from './overrides.ts';
+import { eachPlaced, type Fields, isFields, recordHere } from './overrides.ts';
 import { eachPlacedRecord, type ModelSources, modelFieldOf, modelHere, modelNeeds } from './placedModels.ts';
 import type { ProjectSource } from './source.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
 import type { TerrainFileRead } from './terrains.ts';
+
+/** The record type an NPC is placed as (M6.1). */
+const ACTOR = 'actor';
 
 export interface WorldSources {
   readonly files: readonly SpaceFileRead[];
@@ -64,14 +67,32 @@ export function triggersOf(
   return zones;
 }
 
-/** Each space's interacts, by the object's path (M5.9). */
+/** The talk a placed actor opens (M6.1, D73), through what its placement overrides, or undefined. */
+export type TalkOf = (record: string, passed: readonly Fields[]) => string | undefined;
+
+/** An NPC's Talk: the one use the engine makes, opening the actor's talk. */
+export const talkUse = (talk: string): WorldUse => ({ label: 'Talk', effects: [{ effect: 'open-talk', talk }] });
+
+/**
+ * Each space's interacts, by the object's path (M5.9); and since M6.1, each placed actor with a
+ * talk and no interact of its own, whose use is its Talk.
+ */
 export function usesOf(
   space: SpaceJson,
   prefabs: ReadonlyMap<string, SpaceJson>,
   pack: (fields: unknown) => unknown,
+  talkOf?: TalkOf,
 ): Record<string, WorldUse> {
   const uses: Record<string, WorldUse> = {};
   for (const [path, fields] of componentsOf(space, prefabs, INTERACT)) uses[path] = pack(fields) as WorldUse;
+  if (!talkOf) return uses;
+  for (const object of space.objects) {
+    eachPlaced(object, prefabs, (seen, ids, passed) => {
+      const path = ids.join('/');
+      const talk = seen.record === undefined || uses[path] ? undefined : talkOf(seen.record, passed);
+      if (talk !== undefined) uses[path] = talkUse(talk);
+    });
+  }
   return uses;
 }
 
@@ -81,6 +102,15 @@ export function spaceSpawns(files: readonly SpaceFileRead[]): SpaceSpawns {
     files.filter((f) => f.kind === kind && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson] as const);
   const prefabs = new Map(read('prefab'));
   return new Map(read('space').map(([id, space]) => [id, new Set(componentsOf(space, prefabs, SPAWN).keys())]));
+}
+
+/** A placed actor's talk, as the record and its placement's overrides say. */
+function talkOf(sources: WorldSources): TalkOf {
+  return (record, passed) => {
+    if (!record.startsWith(`${ACTOR}:`)) return undefined;
+    const talk = recordHere(sources.record(record), passed).talk;
+    return typeof talk === 'string' ? talk : undefined;
+  };
 }
 
 /** The pack's world, or undefined for a project without a space: its pack keeps its format. */
@@ -104,7 +134,7 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
   for (const [id, space] of spaces) {
     const zones = triggersOf(space, prefabs, packer(TRIGGER));
     if (Object.keys(zones).length > 0) triggers[id] = zones;
-    const found = usesOf(space, prefabs, packer(INTERACT));
+    const found = usesOf(space, prefabs, packer(INTERACT), talkOf(sources));
     if (Object.keys(found).length > 0) uses[id] = found;
     spawns[id] = [...componentsOf(space, prefabs, SPAWN).keys()].sort();
   }

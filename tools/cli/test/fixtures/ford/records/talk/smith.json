@@ -1,0 +1,54 @@
+{
+  "name": "Ada at the forge",
+  "speaker": "smith",
+  "starts": [
+    {
+      "if": "inventory.carried(actor: smith, item: horseshoe) == 0",
+      "line": "busy"
+    },
+    {
+      "line": "ask"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "The ferry’s mare threw a shoe. Take her this one?",
+      "options": [
+        {
+          "id": "take",
+          "label": "I’ll take it",
+          "effects": [
+            {
+              "effect": "take-item",
+              "actor": "smith",
+              "item": "horseshoe"
+            },
+            {
+              "effect": "give-item",
+              "item": "horseshoe"
+            },
+            {
+              "effect": "change-standing",
+              "faction": "ford-folk",
+              "by": 5
+            }
+          ],
+          "next": "thanks"
+        },
+        {
+          "id": "later",
+          "label": "Not today"
+        }
+      ]
+    },
+    {
+      "id": "thanks",
+      "text": "Bryn will be glad of it."
+    },
+    {
+      "id": "busy",
+      "text": "Mind the anvil."
+    }
+  ]
+}

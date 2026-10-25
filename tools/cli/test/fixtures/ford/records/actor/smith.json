@@ -1,0 +1,15 @@
+{
+  "name": "Ada",
+  "description": "The smith at the ford.",
+  "faction": "ford-folk",
+  "talk": "smith",
+  "carries": {
+    "horseshoe": 1
+  },
+  "figure": {
+    "height": 1.7,
+    "clothes": "#7a4a2a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

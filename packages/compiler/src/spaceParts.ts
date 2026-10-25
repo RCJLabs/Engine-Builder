@@ -25,6 +25,7 @@ import {
   severityOf,
   z,
 } from '@eb/schema';
+import { checkActorPlaces } from './npcPlaces.ts';
 import { type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
 import { starts, waters } from './spaceLints.ts';
 import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
@@ -97,6 +98,7 @@ export function checkSpaceParts(
     }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
+  diagnostics.push(...checkActorPlaces(sound, prefabs));
   const holds = held.effects.length > 0 || held.conditions.length > 0;
   return { diagnostics, uses, flags: { ...flags, ...(holds ? { held } : {}) } };
 }

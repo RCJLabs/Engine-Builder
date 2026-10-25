@@ -2023,6 +2023,70 @@ Evan chose on 2026-10-25, from these options:
 
 ---
 
+### D73. M6.1 makes NPCs of placed actors: one place each, drawn as a model or the engine's figure, talked to by a talk field with a Talk prompt, carrying bags of their own; the walk pauses under any screen. LOCKED, 2026-10-25 (Evan's calls, M6.1)
+
+Evan chose on 2026-10-25, from these options:
+- **What an NPC is in data:**
+  - an actor record placed in a space, as M5.2 already allows, each actor in one place only;
+  - a placed actor that may stand in many places, each placement keeping its own state;
+  - a new npc type naming an actor and adding the look and the talk.
+- **How an NPC looks until M6.5:** a model record, else a figure the engine draws from a height and colours; a model only; the figure only.
+- **Talking:**
+  - a talk field on the actor with a Talk prompt by Interact, the NPC turning to face the player;
+  - the same without turning;
+  - an interact component with `open-talk` by hand, as works today.
+- **Bags:**
+  - each actor's own bag in play;
+  - what an actor carries, read-only until barter;
+  - no NPC inventory until M6.6.
+
+**Decision.**
+- **An NPC is a placed actor.**
+  - Any space or prefab object with `record: "actor:<id>"` is an NPC.
+  - Each actor stands in one place across the project, counted through prefab placements. A second place is E077.
+  - Its stats, gear, bag and talk are the actor's, keyed by its id, as every kit already keys them.
+- **Its look:**
+  - The actor type gains `model` (a model record) and `figure` (a height and three colours).
+  - With a model, the NPC draws as that model: M5.5's materials, LOD and collider.
+  - Without one, the engine draws a figure: a body and a head at the figure's height and colours, a nose for where it faces, and a capsule as its solid.
+  - Both stand still until M6.5.
+- **Talking:**
+  - With the dialogue kit on, the actor gains `talk`.
+  - A placed actor with a talk is a use: its prompt says Talk, and Interact (E, the pad's X, the touch button) runs `open-talk`. An interact component on the same object takes the talk's place.
+  - The NPC turns to face the player as its talk opens, and back once the walk goes on. The turn is the stage's and isn't saved.
+  - While any screen covers the Space widget (a talk, an event, a shop), the walk pauses: no steps and no sends, and keys, the pad and touch are all dropped.
+- **Bags:**
+  - With the inventory kit on, the actor gains `carries`, items by count.
+  - The inventory kit's slice goes to version 2, adding `bags`: an actor's whole bag once anything in it changes, read from `carries` until then.
+  - `give-item`, `take-item` and `roll-loot` take an optional `actor`, the party's bag when left out.
+  - The new fact `inventory.carried(actor, item)` reads an NPC's bag, and the events `gained`, `lost` and `full` name the actor.
+  - A version 1 save migrates with every NPC's bag as its `carries`, and a fixture saved by version 1 must keep loading.
+
+**Made on the way** (Claude's calls, 2026-10-25):
+- **A faction for each actor:**
+  - With the factions kit on, the actor gains `faction`.
+  - The fact `factions.band-of(actor)` reads the party's band with that faction, for talks now and for hostility in M6.3 and M6.4.
+  - Standing stays the party's, by faction (D43).
+- **The figure:**
+  - The height is 1.75 m when left out, clamped to 0.5–2.5 m.
+  - Its colours are clothes, trim and skin.
+  - Its solid is a capsule 0.3 m round, and Talk's reach is measured from its chest.
+- **An actor's bag has events of its own:** `actor-gained`, `actor-lost` and `actor-full`, each naming the actor, beside the party's `gained`, `lost` and `full`. An event's arguments are all given or it is refused, so `actor` couldn't be left out of the party's.
+
+**Why.**
+- **One place each:** a talk or a quest names "the smith" by its id, and every kit's state is already keyed by actor. Copies would need a second key in every slice. Crowds come with schedules and radiant aliases (M6.3, M6.6).
+- **A figure when there is no model:** a project made in the editor alone has people at once, and the starter kit has none.
+- **The talk field:** the common case is one field, and the interact component still covers any other.
+- **Bags now:** barter (M6.6) and loot on death (M6.4) need a bag that isn't the party's, and D41 promised it as a migration.
+- **The pause:** a pad could walk the player under a talk, its steps refused by the sim; no screen over a walk should leave it running.
+
+**Cost.**
+- **A figure is not a person:** it has no arms and no animation until M6.5's rig.
+- **Copies of one actor** (guards, villagers) wait for M6.3's crowds.
+- **The pause applies to every screen over the widget,** so a game that wants its world to move under a menu can't yet.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).

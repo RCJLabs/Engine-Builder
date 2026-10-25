@@ -1,0 +1,23 @@
+{
+  "name": "The warden",
+  "speaker": "warden",
+  "starts": [
+    {
+      "if": "factions.band-of(actor: warden) == friendly",
+      "line": "welcome"
+    },
+    {
+      "line": "watch"
+    }
+  ],
+  "lines": [
+    {
+      "id": "watch",
+      "text": "I keep the ford. I don’t know you."
+    },
+    {
+      "id": "welcome",
+      "text": "The ford knows you now. Cross in peace."
+    }
+  ]
+}

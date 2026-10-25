@@ -59,16 +59,19 @@ export function recordHere(value: unknown, passed: readonly Fields[]): Record<st
   return Object.assign({}, isFields(value) ? value : {}, ...passed);
 }
 
-/** Every object a placement shows, depth first, with the path of ids that leads to it: what the view and W142 walk. */
+/**
+ * Every object a placement shows, depth first, with the path of ids that leads to it and what it
+ * passes on (a placed record's overrides): what the view, W142 and the world's uses walk.
+ */
 export function eachPlaced(
   object: SpaceObject,
   prefabs: ReadonlyMap<string, SpaceJson>,
-  visit: (seen: SpaceObject, ids: readonly string[]) => void,
+  visit: (seen: SpaceObject, ids: readonly string[], passed: readonly Fields[]) => void,
   deepest = 8,
 ): void {
   const walk = (o: SpaceObject, layers: readonly unknown[], ids: readonly string[], depth: number) => {
     const seen = overridden(o, layers);
-    visit(seen, ids);
+    visit(seen, ids, passedOn(o, layers));
     const prefab = o.prefab === undefined ? undefined : prefabs.get(o.prefab);
     if (!prefab || depth >= deepest) return;
     for (const inner of placedObjects(prefab, passedOn(o, layers))) {

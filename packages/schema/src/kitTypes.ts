@@ -248,7 +248,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
     [RESOURCE]: RESOURCE_TYPE_FILE,
     [SHOP]: on.includes(FACTIONS) ? FACTION_SHOP_TYPE_FILE : SHOP_TYPE_FILE,
   }),
-  [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on.includes(GEAR)), [STATUS]: STATUS_TYPE_FILE }),
+  [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on), [STATUS]: STATUS_TYPE_FILE }),
   [GEAR]: () => ({ [SLOT]: SLOT_TYPE_FILE }),
   [FACTIONS]: () => ({ [FACTION]: FACTION_TYPE_FILE }),
   [ROSTER]: (on) => ({

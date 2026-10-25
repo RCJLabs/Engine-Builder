@@ -1,0 +1,58 @@
+{
+  "name": "Bryn at the ferry",
+  "speaker": "ferry",
+  "starts": [
+    {
+      "if": "inventory.carried(actor: ferry, item: horseshoe) >= 1",
+      "line": "shod"
+    },
+    {
+      "if": "inventory.count(item: horseshoe) >= 1",
+      "line": "shoe"
+    },
+    {
+      "line": "lame"
+    }
+  ],
+  "lines": [
+    {
+      "id": "lame",
+      "text": "The mare’s lame. No crossing today."
+    },
+    {
+      "id": "shoe",
+      "text": "Is that a shoe for my mare?",
+      "options": [
+        {
+          "id": "give",
+          "label": "Here, from Ada",
+          "effects": [
+            {
+              "effect": "take-item",
+              "item": "horseshoe"
+            },
+            {
+              "effect": "give-item",
+              "actor": "ferry",
+              "item": "horseshoe"
+            },
+            {
+              "effect": "change-standing",
+              "faction": "ford-folk",
+              "by": 5
+            }
+          ],
+          "next": "shod"
+        },
+        {
+          "id": "keep",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "shod",
+      "text": "She’ll pull again by morning. Thank you."
+    }
+  ]
+}
