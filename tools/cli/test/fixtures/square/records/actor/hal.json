@@ -1,0 +1,10 @@
+{
+  "name": "Hal",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.62,
+    "clothes": "#3a6b5a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

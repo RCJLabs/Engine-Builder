@@ -24,13 +24,14 @@ ground walks the player there too.
     place, turn and size, the terrain's settings and its heights file's bytes, and the agent.
   - The compiler works the same hash out (`navInputs.ts`, shared with the editor's bake). A file
     whose hash differs is W147: "Baked before the space's solids last changed: Bake navigation again".
-  - A `.nav` file that isn't one, or names a space that isn't there, is E078.
+  - A `.nav` file that isn't one, or names a space that isn't there, is E078. A space with a `.nav`
+    that won't read still counts as having one for E079, so one bad file is one problem.
 
 ## Goals and arrivals
 
 - **`walk-to`** `{ "effect": "walk-to", "actor": "<actor>", "to": "<object path>" }`: the actor's goal
-  becomes that object in the space it stands in. E079 when the actor stands in no space, or the
-  object isn't in its space.
+  becomes that object in the space it stands in. E079 when the actor stands in no space, the
+  object isn't in its space, or its space has no `.nav` ("open it and press Bake navigation").
 - **`world/npc-arrived`** `{ actor, at }`: raised when the stage says the actor has reached its goal
   (within 0.5 m on the navmesh). A sheet's row, a quest stage or a talk's condition can wait on it.
 - **The fact** `world.npc-at(actor)`: the object path it last arrived at, undefined while walking.

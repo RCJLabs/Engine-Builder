@@ -1,0 +1,10 @@
+{
+  "name": "Fen",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.7000000000000002,
+    "clothes": "#7a6b3a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

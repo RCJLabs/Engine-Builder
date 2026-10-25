@@ -1,0 +1,427 @@
+{
+  "name": "The square",
+  "objects": [
+    {
+      "id": "cobbles",
+      "name": "Cobbles",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [40, 0.2, 40],
+      "color": "#8a8580",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "gate-in",
+      "name": "Gate",
+      "shape": "box",
+      "at": [0, 0, -14],
+      "turn": [0, 180, 0],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "post-west",
+      "name": "Gatepost, west",
+      "shape": "box",
+      "at": [-2.5, 0, -16],
+      "scale": [0.6, 3, 0.6],
+      "color": "#6b5a4a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "post-east",
+      "name": "Gatepost, east",
+      "shape": "box",
+      "at": [2.5, 0, -16],
+      "scale": [0.6, 3, 0.6],
+      "color": "#6b5a4a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "well",
+      "name": "Well",
+      "shape": "cylinder",
+      "at": [0, 0, 9],
+      "scale": [2, 1, 2],
+      "color": "#7d756b",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "stall-1",
+      "name": "Stall 1",
+      "prefab": "stall",
+      "at": [-7, 0, 2]
+    },
+    {
+      "id": "stall-2",
+      "name": "Stall 2",
+      "prefab": "stall",
+      "at": [7, 0, 2]
+    },
+    {
+      "id": "stall-3",
+      "name": "Stall 3",
+      "prefab": "stall",
+      "at": [0, 0, -3]
+    },
+    {
+      "id": "ash-north",
+      "name": "Ash's north mark",
+      "shape": "sphere",
+      "at": [-11, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "ash-south",
+      "name": "Ash's south mark",
+      "shape": "sphere",
+      "at": [11, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "ash",
+      "name": "Ash",
+      "record": "actor:ash",
+      "at": [-11, 0, 13.5]
+    },
+    {
+      "id": "bea-north",
+      "name": "Bea's north mark",
+      "shape": "sphere",
+      "at": [-9, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "bea-south",
+      "name": "Bea's south mark",
+      "shape": "sphere",
+      "at": [9, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "bea",
+      "name": "Bea",
+      "record": "actor:bea",
+      "at": [-9, 0, 13.5]
+    },
+    {
+      "id": "cal-north",
+      "name": "Cal's north mark",
+      "shape": "sphere",
+      "at": [-7, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "cal-south",
+      "name": "Cal's south mark",
+      "shape": "sphere",
+      "at": [7, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "cal",
+      "name": "Cal",
+      "record": "actor:cal",
+      "at": [-7, 0, 13.5]
+    },
+    {
+      "id": "dot-north",
+      "name": "Dot's north mark",
+      "shape": "sphere",
+      "at": [-5, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "dot-south",
+      "name": "Dot's south mark",
+      "shape": "sphere",
+      "at": [5, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "dot",
+      "name": "Dot",
+      "record": "actor:dot",
+      "at": [-5, 0, 13.5]
+    },
+    {
+      "id": "eli-north",
+      "name": "Eli's north mark",
+      "shape": "sphere",
+      "at": [-3, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "eli-south",
+      "name": "Eli's south mark",
+      "shape": "sphere",
+      "at": [3, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "eli",
+      "name": "Eli",
+      "record": "actor:eli",
+      "at": [-3, 0, 13.5]
+    },
+    {
+      "id": "fen-north",
+      "name": "Fen's north mark",
+      "shape": "sphere",
+      "at": [-1, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "fen-south",
+      "name": "Fen's south mark",
+      "shape": "sphere",
+      "at": [1, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "fen",
+      "name": "Fen",
+      "record": "actor:fen",
+      "at": [-1, 0, 13.5]
+    },
+    {
+      "id": "gil-north",
+      "name": "Gil's north mark",
+      "shape": "sphere",
+      "at": [1, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "gil-south",
+      "name": "Gil's south mark",
+      "shape": "sphere",
+      "at": [-1, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "gil",
+      "name": "Gil",
+      "record": "actor:gil",
+      "at": [-1, 0, -7.5]
+    },
+    {
+      "id": "hal-north",
+      "name": "Hal's north mark",
+      "shape": "sphere",
+      "at": [3, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "hal-south",
+      "name": "Hal's south mark",
+      "shape": "sphere",
+      "at": [-3, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "hal",
+      "name": "Hal",
+      "record": "actor:hal",
+      "at": [-3, 0, -7.5]
+    },
+    {
+      "id": "ivy-north",
+      "name": "Ivy's north mark",
+      "shape": "sphere",
+      "at": [5, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "ivy-south",
+      "name": "Ivy's south mark",
+      "shape": "sphere",
+      "at": [-5, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "ivy",
+      "name": "Ivy",
+      "record": "actor:ivy",
+      "at": [-5, 0, -7.5]
+    },
+    {
+      "id": "jo-north",
+      "name": "Jo's north mark",
+      "shape": "sphere",
+      "at": [7, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "jo-south",
+      "name": "Jo's south mark",
+      "shape": "sphere",
+      "at": [-7, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "jo",
+      "name": "Jo",
+      "record": "actor:jo",
+      "at": [-7, 0, -7.5]
+    },
+    {
+      "id": "kit-north",
+      "name": "Kit's north mark",
+      "shape": "sphere",
+      "at": [9, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "kit-south",
+      "name": "Kit's south mark",
+      "shape": "sphere",
+      "at": [-9, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "kit",
+      "name": "Kit",
+      "record": "actor:kit",
+      "at": [-9, 0, -7.5]
+    },
+    {
+      "id": "lin-north",
+      "name": "Lin's north mark",
+      "shape": "sphere",
+      "at": [11, 0, 15],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "lin-south",
+      "name": "Lin's south mark",
+      "shape": "sphere",
+      "at": [-11, 0, -9],
+      "scale": [0.3, 0.05, 0.3],
+      "color": "#e0d0a0"
+    },
+    {
+      "id": "lin",
+      "name": "Lin",
+      "record": "actor:lin",
+      "at": [-11, 0, -7.5]
+    },
+    {
+      "id": "carter",
+      "name": "Tam",
+      "record": "actor:carter",
+      "at": [3, 0, -13],
+      "turn": [0, -90, 0]
+    },
+    {
+      "id": "market",
+      "name": "Market day",
+      "shape": "box",
+      "at": [0, 0, -11],
+      "scale": [8, 2, 1.5],
+      "color": "#f4b860",
+      "components": {
+        "trigger": {
+          "once": true,
+          "effects": [
+            {
+              "effect": "walk-to",
+              "actor": "ash",
+              "to": "ash-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "bea",
+              "to": "bea-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "cal",
+              "to": "cal-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "dot",
+              "to": "dot-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "eli",
+              "to": "eli-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "fen",
+              "to": "fen-south"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "gil",
+              "to": "gil-north"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "hal",
+              "to": "hal-north"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "ivy",
+              "to": "ivy-north"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "jo",
+              "to": "jo-north"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "kit",
+              "to": "kit-north"
+            },
+            {
+              "effect": "walk-to",
+              "actor": "lin",
+              "to": "lin-north"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

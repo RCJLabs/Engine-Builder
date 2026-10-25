@@ -48,7 +48,7 @@ const bytesOf = (base64: string): Uint8Array => Uint8Array.from(atob(base64), (c
 const TAP_REACH = 500;
 
 /** The space's NPCs as the crowd walks them: the pack's actors placed here, at their places. */
-function npcsOf(space: WalkSpace, world: PackWorld, places: ReadonlyMap<string, Vec3>): CrowdNpc[] {
+export function npcsOf(space: WalkSpace, world: PackWorld, places: ReadonlyMap<string, Vec3>): CrowdNpc[] {
   return Object.entries(world.actors ?? {}).flatMap(([actor, placed]) => {
     const at = placed.space === space.id ? places.get(placed.path) : undefined;
     if (!at) return [];

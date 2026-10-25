@@ -106,7 +106,8 @@ export async function compileProject(
   const prefabs = new Map(
     spaces.files.filter((f) => f.kind === 'prefab' && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson]),
   );
-  const navved = new Set(spaces.navs.filter((nav) => nav.header !== null).map((nav) => nav.id));
+  // Any .nav counts: one that won't read is E078's alone, not an E079 at every walk-to too.
+  const navved = new Set(spaces.navs.map((nav) => nav.id));
   const walkers = walkersOf(spaces.files, prefabs, navved);
   // Before the records: a trigger zone's flags and a screen's count for the flags' lint (M5.8).
   const parts = checkProjectSpaceParts(spaces.files, {

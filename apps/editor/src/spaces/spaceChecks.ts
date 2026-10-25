@@ -50,7 +50,8 @@ export async function spaceProblems(
   const prefabs = new Map(
     read.files.filter((f) => f.kind === 'prefab' && f.value !== undefined).map((f) => [f.id, f.value as SpaceJson]),
   );
-  const navved = new Set(read.navs.filter((nav) => nav.header !== null).map((nav) => nav.id));
+  // Any .nav counts: one that won't read is E078's alone, not an E079 at every walk-to too.
+  const navved = new Set(read.navs.map((nav) => nav.id));
   const walkers = walkersOf(read.files, prefabs, navved);
   const calendar = catalog.calendar ? { calendar: catalog.calendar } : {};
   const value = (type: string, id: string) => {

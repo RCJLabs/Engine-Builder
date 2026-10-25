@@ -1,0 +1,10 @@
+{
+  "name": "Gil",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.6,
+    "clothes": "#5a3a2a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

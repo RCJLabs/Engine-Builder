@@ -1,0 +1,38 @@
+{
+  "title": "The square",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Tam waits at the gate with a barrel for the well.",
+        "style": "heading",
+        "shows-when": "not flag.on(flag: watered)"
+      },
+      {
+        "widget": "text",
+        "text": "The barrel is at the well.",
+        "style": "heading",
+        "shows-when": "flag.on(flag: watered)"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Rest a while",
+        "action": {
+          "take": "square/rest"
+        }
+      }
+    ]
+  }
+}

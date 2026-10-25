@@ -1,0 +1,37 @@
+{
+  "name": "Tam at the gate",
+  "speaker": "carter",
+  "starts": [
+    {
+      "line": "ask"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "The well wants a barrel taken to it. Shall I go?",
+      "options": [
+        {
+          "id": "go",
+          "label": "Take the cart to the well",
+          "effects": [
+            {
+              "effect": "walk-to",
+              "actor": "carter",
+              "to": "well"
+            }
+          ],
+          "next": "off"
+        },
+        {
+          "id": "stay",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "off",
+      "text": "Round the stalls, then. Mind the cobbles."
+    }
+  ]
+}

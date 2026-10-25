@@ -13,5 +13,7 @@
     "vite.classic.ts",
     "vite.draco.ts",
     "scripts"
-  ]
+  ],
+  "//exclude": "pnpm bake runs the app's own nav code, which reads the DOM's types: tsconfig.tests.json checks it.",
+  "exclude": ["scripts/bake.ts"]
 }

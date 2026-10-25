@@ -1,0 +1,10 @@
+{
+  "name": "Dot",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.6600000000000001,
+    "clothes": "#8a5a7a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}

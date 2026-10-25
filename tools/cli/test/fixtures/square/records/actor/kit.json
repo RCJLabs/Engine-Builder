@@ -1,0 +1,10 @@
+{
+  "name": "Kit",
+  "description": "Crosses the square on market day.",
+  "figure": {
+    "height": 1.6800000000000002,
+    "clothes": "#7a7a4a",
+    "trim": "#2f2f2f",
+    "skin": "#c08a62"
+  }
+}
