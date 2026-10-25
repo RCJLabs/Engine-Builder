@@ -1,6 +1,7 @@
 /**
  * A list of effects (M3.1, D36): a row's Do, or a roll outcome's. The engine's own effects each
- * get a form (set-flag, add-to-flag, roll, whose outcomes hold lists of their own); any other, the
+ * get a form (set-flag, add-to-flag, roll, whose outcomes hold lists of their own, walk-to since
+ * M6.2); any other, the
  * game's own among them (M3.2), is edited as JSON. Each can be moved and taken out; adding one
  * picks its kind first.
  */
@@ -18,6 +19,7 @@ import { JsonField } from './JsonField.tsx';
 import { KitEffect, kitEffectFile, newKitEffect } from './KitEffect.tsx';
 import { effectText } from './rowText.ts';
 import { moved, NEW_EFFECTS, type NewEffect, newEffect, without } from './sheetEdits.ts';
+import { WalkToFields, walkersNow } from './WalkToFields.tsx';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -122,6 +124,8 @@ function EffectItem(props: {
         </>
       ) : kind === 'roll' ? (
         <Roll path={path} value={value as Record<string, unknown>} />
+      ) : kind === 'walk-to' ? (
+        <WalkToFields path={path} value={value as Record<string, unknown>} />
       ) : kit ? (
         <KitEffect file={kit} path={path} value={value as Record<string, unknown>} />
       ) : (
@@ -223,7 +227,9 @@ function AddEffect({ to, add }: { to: string; add: (effect: Effect, said: string
   const id = useUniqueId();
   const [kind, setKind] = useState('set-flag');
   if (!form.canEdit) return null;
-  const engine = (Object.keys(NEW_EFFECTS) as NewEffect[]).filter((k) => k !== 'other');
+  // walk-to only once an actor stands in a space: with none, every one would be E079.
+  const walking = walkersNow().size > 0;
+  const engine = (Object.keys(NEW_EFFECTS) as NewEffect[]).filter((k) => k !== 'other' && (k !== 'walk-to' || walking));
   const kits = kitEffectFiles(openKits(), openCalendar());
   const own = ownEffectsOf(openGame());
   const pick = () => {

@@ -297,14 +297,20 @@ export const usesKey = (uses: FlagUses | undefined): string => {
   return JSON.stringify([listed(uses.set), listed(uses.read), heldKey(uses)]);
 };
 
-/** What the zones and interacts hold (M5.9), as text: the spaces are walked in one order, so it is the same each read. */
+/**
+ * What the zones and interacts hold (M5.9), each space's spawn points and where each actor stands
+ * (M6.2), as text: the spaces are walked in one order, so it is the same each read. Any of them
+ * changing checks the records again, a space with no zone or use at all as much as any.
+ */
 const heldKey = (uses: FlagUses | undefined): string => {
-  const held = uses?.held;
-  if (!held) return '';
+  if (!uses) return '';
+  const held = uses.held ?? { effects: [], conditions: [] };
   const effects = held.effects.map(({ file, path, effect }) => [file, path, effect]);
   const conditions = held.conditions.map(({ file, sound }) => [file, sound.at(''), sound.tree]);
-  const spawns = [...(uses?.spawns ?? [])].sort((a, b) => (a[0] < b[0] ? -1 : 1));
-  const walkers = [...(uses?.walkers ?? [])]
+  const spawns = [...(uses.spawns ?? [])]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([space, points]) => [space, [...points].sort()]);
+  const walkers = [...(uses.walkers ?? [])]
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([actor, w]) => [actor, w.space, w.navmesh, [...w.objects].sort()]);
   return JSON.stringify([effects, conditions, spawns, walkers]);

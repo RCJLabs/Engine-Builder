@@ -28,6 +28,8 @@ export const targetOf = (path: TapPath): Vec3 => path.corners[path.corners.lengt
  * back), and the path after it: past each corner within ARRIVE_M, null once at the last.
  */
 export function pushAlong(path: TapPath, feet: Vec3, yaw: number): { path: TapPath | null; move: [number, number] } {
+  // At the last corner it ends, however it got there: pushed aside, say, past the others.
+  if (across(feet, targetOf(path)) < ARRIVE_M) return { path: null, move: [0, 0] };
   let next = path.next;
   while (next < path.corners.length && across(feet, path.corners[next] as Vec3) < ARRIVE_M) next++;
   if (next >= path.corners.length) return { path: null, move: [0, 0] };
