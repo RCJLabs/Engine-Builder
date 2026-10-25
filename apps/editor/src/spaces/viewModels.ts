@@ -40,9 +40,9 @@ export function createViewModels(
     const next = queue.then(async () => {
       const ready = await (loading as Promise<ModelsView>);
       if (gone || latest !== models) return;
-      if (await ready.prepare(models)) {
-        if (!gone && latest === models) rebuild();
-      }
+      // Built again even when a newer copy came while this decoded: that copy's own batch finds the
+      // files already decoded and has nothing new to build for.
+      if ((await ready.prepare(models)) && !gone) rebuild();
     });
     queue = next.catch((error: unknown) => onError(`The models couldn’t be drawn: ${message(error)}`));
   };
