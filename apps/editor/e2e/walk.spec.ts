@@ -117,6 +117,15 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
     // The north wall's inner face is at z -3.
     expect(near(north.feet[2], -2.65, 0.1)).toBe(true);
   });
+
+  await test.step('a tap of Space, down and up within a frame, still jumps', async () => {
+    const before = await settled(page);
+    await page.keyboard.press('Space');
+    await expect
+      .poll(async () => (await walked(page)).feet[1] - before.feet[1], { intervals: [50] })
+      .toBeGreaterThan(0.3);
+    await settled(page);
+  });
   expect(errors).toEqual([]);
 });
 

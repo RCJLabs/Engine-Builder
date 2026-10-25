@@ -62,3 +62,12 @@ export function stepsFor(carried: number, elapsed: number): { steps: number; car
   // A frame past the most drops what it couldn't step, so the next doesn't try to catch up.
   return { steps, carried: steps === MOST_STEPS ? 0 : total - steps * STEP };
 }
+
+/**
+ * A jump pressed on a frame too short for a step (a screen faster than 60 Hz) waits for the next
+ * frame that has one, so a tap is never lost between them.
+ */
+export function jumpOf(pressed: boolean, waiting: boolean, steps: number): { jump: boolean; waiting: boolean } {
+  const jump = pressed || waiting;
+  return { jump, waiting: steps === 0 && jump };
+}

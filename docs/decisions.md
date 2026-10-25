@@ -1936,6 +1936,20 @@ Evan chose on 2026-10-24, from these options:
 - **A game's exports grow** by its models, its terrain and, for a 3D game, the walk runtime.
 - **Untested for feel:** speeds, jump, slopes, the camera's distance and the stick's size are first guesses until a phone has played them.
 
+**As built** (2026-10-25, M5.8):
+- **One walk.js for every page.** `vite.walk.config.ts` builds three, Rapier, the models' decoders and the stage into one classic script beside the game runtime in `dist-game/`, and `files.json` names it. The Play panel and the player page load the editor's own `runtime/walk.js`, not a chunk of their own, so Play walks what Export ships and the editor keeps one copy of Rapier. A dev server imports the stage as it is. `game.js` carries none of it: a game without spaces exports as before.
+- **walk.js is 6.9 MB, 2.54 MB at gzip -9:** Rapier's compat build is about 1.67 MB of that, as the spike read, and the Draco and Basis decoders, inlined so a single file holds them, about 0.37 MB. The editor's precache rises from 5.89 MB to 12.80 MB; Workbox's 2 MB limit for a file is raised to 10 MB, and `pnpm budgets` now fails when the service worker doesn't keep the runtime.
+- **The single file holds walk.js as text** in a `<script type="text/plain">`, run through a blob URL the first time a space draws, so a game that never walks never parses it. The boot JSON names `walk.<hash>.js` or `#eb-walk`, and the runtime refuses any other name.
+- **three's KTX2Loader builds its decoders' URLs** from `import.meta.url`, which a classic script lacks: walk.js gives it the page's address once Vite has made those URLs data URLs.
+- **The session lets the stage's `world/trigger` through.** A button can ask only for what the game offers, and nothing offers a trigger, so the session used to refuse every one before the sim saw it. The sim's own checks decide it now; every other action still has to be on offer.
+- **The editor's script check is told the project's spaces,** by name alone, so the world module joins its game and a mode allowing `world/*` loads. It runs again when a project gains its first space or loses its last, not on every edit to one.
+- **The editor's flag lint counts the zones and the screens,** as `eb validate` does (movement.md's question 7): the record index lints each flag with what the zones set and the screens read, checking only the flags again when those uses change.
+- **Play is sent models whole,** with a `.gltf`'s buffers and images, since a space draws them in play and E070 reads them; other art still goes by name.
+- **A press shorter than a frame counts.** A key tapped or the jump button tapped between two frames is held until the next frame takes it, and a jump on a frame too short for a physics step, as on a screen faster than 60 Hz, waits for the next frame that has one.
+- **The trail's web export is deployed** at `/games/trail/`, beside Space-Wrecked, for a phone to walk.
+- **Sideways in the editor,** the Play panel shows part of the view and scrolls to the rest; an exported game fills its page.
+- **Untested for feel and on a phone:** no phone has walked the trail. In the cloud container's software WebGL the walk drew at Low at about 13 frames a second (Readings).
+
 ---
 
 ## Open

@@ -224,6 +224,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 - Foliage is density painted over a terrain, a channel of a PNG for each of up to four `foliage` records; where each plant stands is worked out from it by a fixed seed whenever the space is drawn, and drawn as instanced meshes a chunk at the model's level for its distance ([specs/foliage.md](specs/foliage.md), M5.6, D68).
 - All of it is lazy-loaded: a game without a 3D scene never downloads it.
 - What the M1.10 spike found (Rapier's heightfield layout, rays on triangle edges, what Rapier weighs) is in [apps/spike-3d](../apps/spike-3d/README.md#findings-for-phase-5).
+- **Walking** (M5.8, D70, [specs/movement.md](specs/movement.md)): a pack of format 9 carries the spaces and what they draw from; a screen's Space widget draws one and the player walks it, first or third person, by keys and mouse, a pad or a floating touch stick. Rapier's compat build runs on the page beside three, the character a kinematic capsule; the sim hears only `world/trigger` as a zone is entered and stays pure. The stage, three and Rapier are one classic script, `walk.js`, beside a game's runtime and loaded with the first space drawn; the editor's Play panel walks with the same file.
 - **Quality tiers** (M5.7, D69, [specs/performance.md](specs/performance.md)): Low, Medium and High set the pixel ratio, antialiasing, the sun's shadow map, a physical sky or its gradient, and how far and how thick foliage and weather are drawn, a lower tier drawing a subset of the same plants and drops. Auto starts from the device's hints and steps down when frames drawn back to back run long; a tier picked by hand always wins. No post-processing yet (performance.md question 4).
 
 ## UI
@@ -343,7 +344,7 @@ packages/kits       pure: the kits' modules, a folder each: inventory and econom
 packages/schema     zod schemas for the project format and records; type files (M2.4); effect fields and the engine's types (M3.1); JSON Schema export
 packages/compiler   project loader, validation, packs, export.json and editions (M4.10) (browser + Node)
 packages/export     a game's exports from the runtime and its packs: targets, service worker, icons, leak check, workflows (M4.10)
-packages/ui         runtime UI (M4.1 to M4.9): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, audio (the ZzFX port, renders, the mix, the player and buzzes), and the host the editor's debug tools reach into (M4.9)
+packages/ui         runtime UI (M4.1 to M4.9): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, audio (the ZzFX port, renders, the mix, the player and buzzes), and the host the editor's debug tools reach into (M4.9), and the Space widget with its host's contract (M5.8)
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
 packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
@@ -370,6 +371,7 @@ These are set from readings, not guesses (see ROADMAP Readings).
 - **Editor shell:** about 15 kB of gzipped JS at Phase 0.
 - **UI-only game export:** a budget set at M4.12 from the first measured template, Space-Wrecked's web export: 540,000 bytes. M4.10's reading: the runtime is 87.8 kB of gzipped JS.
 - **The editor's build** (M5.7): its start, what the 3D view and its models add, and the precache, each a reading plus 5% in `budgets.json`, held by `pnpm budgets`; the glade's draw calls and triangles at each tier, a reading plus 10%, held by `perf.spec.ts`.
+- **Walking** (M5.8): `walk.js` at gzip -9 and the trail's web export, each a reading plus 5%; walk.js is 2.54 MB at gzip, about 1.67 MB of it Rapier.
 - **3D:** FPS targets per quality tier, set from the M1.10 reading on a real phone, not yet taken (D69).
 
 ## Open questions

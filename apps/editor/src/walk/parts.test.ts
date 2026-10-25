@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { FIRST, heldPitch, lookOf, shotOf, THIRD } from './cameras.ts';
 import { intentOf, MOUSE_DEGREES, PAD_LOOK, TOUCH_DEGREES } from './controls.ts';
-import { fallAfter, GRAVITY, JUMP, MOST_STEPS, pushed, RUN, STEP, stepOf, stepsFor, WALK } from './motion.ts';
+import { fallAfter, GRAVITY, JUMP, jumpOf, MOST_STEPS, pushed, RUN, STEP, stepOf, stepsFor, WALK } from './motion.ts';
 import { modelSolid, partsOf, spawnOf, WORLD_FRAME, within, yawOf } from './solids.ts';
 import { DEAD_ZONE, knobOf, NO_PUSH, pushOf, STICK_SIZE } from './stick.ts';
 import { answered, inZone, stepZones } from './zones.ts';
@@ -142,6 +142,17 @@ describe('the zones', () => {
     expect(stepZones(dropped, new Set(['gate'])).send).toEqual(['gate']);
     // An answer for a zone left meanwhile changes nothing.
     expect(answered(left.states, 'gate', 'accepted').get('gate')).toBeUndefined();
+  });
+});
+
+describe('a jump between frames', () => {
+  it('waits through a frame with no step for the next that has one, and is spent there', () => {
+    // Pressed on a frame of 8 ms, a 120 Hz screen's: no step, so it waits.
+    expect(jumpOf(true, false, 0)).toEqual({ jump: true, waiting: true });
+    // Let go by the next frame, which steps: it jumps there, and waits no more.
+    expect(jumpOf(false, true, 1)).toEqual({ jump: true, waiting: false });
+    expect(jumpOf(false, false, 1)).toEqual({ jump: false, waiting: false });
+    expect(jumpOf(false, false, 0)).toEqual({ jump: false, waiting: false });
   });
 });
 

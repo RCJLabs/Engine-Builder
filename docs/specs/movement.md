@@ -24,7 +24,7 @@ A pack whose project has spaces is format 9 and carries `world`:
 - **`files`** are the files the spaces draw from, as base64 by their path in the project. That means each space's terrain PNGs, and the GLB of every model record a space places, directly, through a prefab or as a terrain's foliage.
 - **A pack without spaces keeps its format,** so every pack written before M5.8 keeps its hash.
 - **Compiler problems:** a Space widget naming a space there isn't is E049, as a widget naming any missing thing is.
-- **The flags' lint counts zones and screens** (W108 to W110): a flag a trigger zone sets or reads, or a screen's shows-when or binding reads, is used as a record's use is. Before M5.8 a flag set only by a zone and shown only on a screen was W110. The editor's Problems panel still lints flags from records alone (open question 7).
+- **The flags' lint counts zones and screens** (W108 to W110): a flag a trigger zone sets or reads, or a screen's shows-when or binding reads, is used as a record's use is. Before M5.8 a flag set only by a zone and shown only on a screen was W110. The editor's record index lints them the same way, checking only the flags again when what the zones and screens use changes.
 
 ## The sim: `world/trigger`
 
@@ -38,14 +38,14 @@ The `world` module is the engine's own, joined to a game whenever its project ha
   - `spent`: a `once` zone has fired;
   - `unmet`: its `when` doesn't hold.
 - **Reduce:** `world/entered` is raised with the space and object, so a sheet's row can hear it; then the zone's effects run in order. An effect that refuses refuses the whole action: nothing it did stays and a `once` zone isn't spent. A `once` zone is remembered as fired.
-- **Never offered:** `options` is empty, so bots and Run's sweeps never send it (open question 2).
+- **Never offered:** `options` is empty, so bots and Run's sweeps never send it (open question 2). A play's session refuses any action the game doesn't offer before the sim sees it, as a button can ask only for what is offered; the stage's `world/trigger` is the one it lets through, for the sim's own checks to decide.
 - **Fact:** `world.fired(space, object)`, whether a once zone has run.
 - **State:** `{ fired: string[] }`, sorted `space/object` keys, slice version 1.
 - **Replay:** a trigger action replays like any other, so the game's state is replayable. The walk that reached the zone is not.
 
 ## The stage
 
-All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget draws.
+All of it is in `apps/editor/src/walk/`, built into `walk.js` and loaded the first time a Space widget draws (see Exports). `stage.ts` is the loop; `surface.ts` the canvas, its view at a tier and the keys, mouse and pad read through it; `sender.ts` the zones' triggers; `physics.ts` Rapier; `view.ts` three.
 
 - **The view** draws the space as the Scene panel does: its objects, prefabs, models, terrain, environment and foliage, at the quality tier the shell's settings give (D69). It has no grid, gizmo or labels.
 - **Rapier** is the compat build, loaded with the view.
@@ -66,7 +66,7 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
   | Step | 0.35 m |
   | Snap to ground | 0.4 m |
 
-  - It steps at a fixed 60 Hz, at most 5 steps a frame.
+  - It steps at a fixed 60 Hz, at most 5 steps a frame. A jump pressed on a frame too short for a step waits for the next frame that has one.
   - Below the terrain's low by 50 m, or 50 m below 0 in a space without a terrain, it is put back at its spawn.
 - **Not drawn in play:** an object with a trigger zone or a spawn point; the editor draws both.
 - **Spawn:** the space's spawn point with `start`, else its first spawn point, else the space's origin on the ground.
@@ -88,7 +88,7 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
 
 - **The stick** is 112 px across, with a dead zone of 12%. It shows only while a thumb holds it.
 - **Mouse look** turns 0.25° a pixel; a touch drag 0.3°.
-- **Keys move the character while the space has focus.** The screen's buttons stay reachable by Tab and by the pad's spatial focus on its d-pad, and Escape opens the shell's pause as before.
+- **Keys move the character while the space has focus.** The screen's buttons stay reachable by Tab and by the pad's spatial focus on its d-pad, and Escape opens the shell's pause as before. A key tapped between two frames still counts once, as does a tap of the jump button.
 - **Pause stops the walk:** no input, no steps, the frame held.
 - **Pure functions with tests:**
   - `controls.ts`: inputs to a move intent;
@@ -111,11 +111,14 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
 
 ## Exports
 
-- **A second runtime file:** a game's runtime is still `game.js` and `game.css`. A game with spaces also gets `walk.js`: three, Rapier and the stage, built apart by `vite.walk.config.ts` into `dist-walk/` as one classic script.
-- **Web and itch.io:** the page loads `walk.<hash>.js` the first time a Space widget draws, and the service worker precaches it.
-- **One file:** the export holds it inline.
+- **A second runtime file:** a game's runtime is still `game.js` and `game.css`. A game with spaces also gets `walk.js`: three, Rapier, the models' Draco and Basis decoders and the stage, built apart by `vite.walk.config.ts` as one classic script into `dist-game/` beside the runtime, whose `files.json` names it (`"walk": "walk.js"`). It leaves the stage on `window.__ebWalkStage`. `eb export --runtime` takes the same folder.
+- **The editor walks with the same file:** its build serves the runtime at `runtime/`, `walk.js` with it, and the Play panel and the player page load `runtime/walk.js` the first time a Space widget draws. Its service worker precaches it (Workbox's limit for a file raised to 10 MB), and `pnpm budgets` fails if it doesn't.
+- **Web and itch.io:** the page loads `walk.<hash>.js` the first time a Space widget draws, and the web build's service worker precaches it. The boot JSON names it.
+- **One file:** the page holds walk.js as text in `<script type="text/plain" id="eb-walk">`, its `</script` broken as the runtime's is, and runs it through a blob URL the first time a space draws. The boot JSON names `#eb-walk`.
 - **Repository:** the same as web.
+- **A game with spaces needs a runtime with walk.js:** an export without one stops and says so.
 - **A game without spaces** exports exactly as before.
+- **The leak check** takes walk.js out with the rest of the engine's own text before it reads.
 
 ## The hook
 
@@ -123,8 +126,9 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
 - `character()`: where it stands, its velocity, whether it is on the ground, its view, and its yaw and pitch;
 - `camera()`: the camera's position and its distance from the head;
 - `zones()`: the zones it is in;
-- `sent()`: the trigger actions sent and the sim's answer to each;
-- `frames`: a count of the frames drawn.
+- `sent()`: the trigger actions sent and the sim's answer to each, `waiting` until it comes;
+- `moving()`: where each solid that moves is;
+- `frames`: a count of the frames drawn; `paused`; and `perf()`, the view's tier and frame times as the Scene panel's hook gives them.
 
 ## The gate
 
@@ -148,10 +152,12 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
   - the jump button jumps;
   - the cairn is reached;
   - every screen is in reach (overflow, 44 px targets, axe).
-- **Exports:** the trail exported to the web and as one file, walked to the cairn from each, offline.
-- **Unit tests:** controls, the stick, the cameras, zones entered and left, `world/trigger`'s checks, format 9 read and written, the compiler's triggers through prefabs and overrides.
-- **Budgets:** `walk.js` and the trail's web export get size budgets of their own. The precache's budget rises by Rapier, with its reading.
+- **Exports:** the trail exported to the web and as one file, walked to the cairn from each, offline (`walkExport.spec.ts`).
+- **Unit tests:** controls, the stick, the cameras, zones entered and left, `world/trigger`'s checks, format 9 read and written, the compiler's triggers through prefabs and overrides; the trail walked headless in Node through Rapier (`walk.test.ts`); the session taking the stage's trigger; the targets' walk.js; the editor's script check and flag lint with spaces.
+- **Budgets:** `walk.js` and the trail's web export get size budgets of their own. The precache's budget rises by walk.js, with its reading. The trail's web build is deployed at `/games/trail/` for a phone to walk.
 - **Untested for feel:** every number above, until a phone has walked the trail.
+
+As built (2026-10-25): every step above passes. The desktop walk also taps Space in the bothy, down and up within a frame, and the phone walk taps the jump button: each must jump.
 
 ## Open questions
 
@@ -161,4 +167,6 @@ All of it is in `apps/editor/src/walk/`, loaded the first time a Space widget dr
 4. **Look sensitivity and invert** in the shell's settings, if players ask.
 5. **A separate `.wasm`** for Rapier (the spike's question 1) for the web export, about 30% smaller; one-file exports need the compat build either way.
 6. **Plants that block** (foliage.md question 2) and colliders on foliage models.
-7. **The editor's flag lint:** its Problems panel lints flags from the records, as before; counting the open project's zones and screens there means the record index reading spaces and screens.
+7. **Resolved (2026-10-25):** the editor's record index lints flags with the zones' and screens' uses, as `eb validate` does.
+8. **walk.js's decoders:** Draco and Basis are inside it, about 0.37 MB at gzip, for the few games whose models need them; a file of their own each, fetched when a model does, would spare the rest (the single file aside).
+9. **The editor's Play panel sideways** shows part of the view at 844×390 and scrolls to the rest; a Play panel that gives the game the whole screen would suit walking better.

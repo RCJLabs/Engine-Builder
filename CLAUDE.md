@@ -40,10 +40,12 @@ pnpm check        # typecheck → lint → unit tests → build → budgets → 
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
-pnpm build        # an exported game's runtime into apps/editor/dist-game, then apps/editor/dist (the player page at play/
-                  # and the runtime at runtime/ with it), then the 3D spike into apps/editor/dist/spikes/3d, then
-                  # pnpm build:games: Space-Wrecked's web export into apps/editor/dist/games/space-wrecked (M4.12)
-pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, the precache, the export
+pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js beside it (M5.8), then apps/editor/dist
+                  # (the player page at play/ and the runtime at runtime/ with it), then the 3D spike into
+                  # apps/editor/dist/spikes/3d, then pnpm build:games: Space-Wrecked's web export into
+                  # apps/editor/dist/games/space-wrecked (M4.12) and the trail's into apps/editor/dist/games/trail (M5.8)
+pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, walk.js, the
+                  # precache, the exports; and the runtime the service worker must keep (M5.8)
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
@@ -203,6 +205,17 @@ apps/editor/           the editor PWA
                        back run long, past a 2 s warm-up); state.ts (Quality and Stats, kept per device, Auto's pick
                        and its step, the words for why), readHints.ts (the hints read in the browser), QualityTools
                        (the Scene toolbar's Quality and Stats), PerfOverlay (over the view's corner)
+  src/walk/            a space walked in play (M5.8, D70), built into walk.js: plain functions with tests: solids.ts
+                       (a space's solids, trigger zones and spawns through prefabs and overrides), zones.ts (zones
+                       entered, sent once, answered), controls.ts (keys, pad, stick and drags as one intent), stick.ts
+                       (the floating stick), cameras.ts (third person pulled in, first person), motion.ts (walk, run,
+                       jump and fall, fixed steps, a jump carried to a frame with a step), physics.ts (Rapier's world,
+                       the heightfield, the kinematic character) and world.ts (a space of the pack's world); with
+                       three and the page: view.ts, inputs.ts (keys, mouse, pad), touch.ts (the stick and the jump
+                       button), surface.ts (the canvas, its view at a tier), sender.ts (world/trigger sent), hook.ts
+                       (window.__ebWalk), stage.ts (the loop), entry.ts (walk.js's), host.ts and hosts.ts (the Space
+                       widget's host, walk.js loaded once), editorWalk.ts (the Play panel's and the player page's);
+                       walk.test.ts walks the trail headless in Node through Rapier
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -229,9 +242,10 @@ apps/editor/           the editor PWA
                        seed.ts; pwa.ts (the update the shell offers on its title); player.worker.ts runs its
                        scripts, locked down
   src/game/            an exported game's runtime (M4.10, D60), built by vite.game.config.ts into dist-game/ as
-                       game.js and game.css, its worker inlined: boot.ts (#eb-game read), Game.tsx (the pack
-                       played in the shell, saves under its edition), pwa.ts (./sw.js and Reload to update);
-                       game/index.html only builds it, as Export writes its own page
+                       game.js and game.css, its worker inlined: boot.ts (#eb-game read, walk.js named, M5.8),
+                       Game.tsx (the pack played in the shell, saves under its edition, spaces walked by walk.js),
+                       pwa.ts (./sw.js and Reload to update); game/index.html only builds it, as Export writes its
+                       own page; vite.walk.config.ts builds src/walk/ into dist-game/walk.js beside it (M5.8)
   src/export/          the Project panel's Export section (M4.10): exportForm.ts (export.json as a type file, its
                        edits), ExportSection.tsx (the form, a button a target, the report) and its lazy
                        ExportSlot; exporting.ts (packs from the Play worker, the runtime from runtime/,
@@ -306,9 +320,15 @@ apps/editor/           the editor PWA
                        perfHelpers.ts, perf.spec.ts and perfPhone.spec.ts are M5.7's, the grove's glade at Auto and
                        each tier read back from three through window.__ebViewport.perf(), its plants a subset at each
                        lower tier, its counts within budgets.json's, Auto stepping down on a computer it reads as
-                       fast, and the tier and Stats kept, by mouse and keys and by touch
+                       fast, and the tier and Stats kept, by mouse and keys and by touch;
+                       walkHelpers.ts, walk.spec.ts, walkPhone.spec.ts and walkExport.spec.ts are M5.8's, the trail
+                       walked in the Play panel through window.__ebWalk: by keys and the mouse (the camera pulled in,
+                       the boulder, the step jumped, the bank, the crate, the cairn's trigger sent once, the bothy in
+                       first person) and by a stand-in pad, by touch at 360, 390 and sideways with the floating
+                       stick, a look drag and the jump button, and exported as one file and as a web build, each
+                       walked to the cairn offline
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 8)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 9)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -320,6 +340,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
   src/time/            calendars, timers and wall-clock settling: timeModule; starts.ts, the start-of events (M3.5)
   src/sheets/          the engine's flag and sheet modules (M3.1): flags.ts, sheets.ts; engine.ts beside it lists
                        the engine's own modules (logic, flag, sheet)
+  src/world/           M5.8 (D70): packWorld.ts (format 9's world and its checks) and world.ts (the world module:
+                       world/trigger checked and run, world/entered, world.fired), joined only to a game with spaces
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -392,7 +414,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        for its counts, materials, extensions and files beside it, moved from the editor) and
                        models.ts (each model record's file: E070, W146); M5.6: a terrain's foliage in spaceShape.ts
                        (E058, FOLIAGE_MOST), its density PNG in spaceFiles.ts and terrains.ts (E067, W144) and
-                       spaceParts.ts (E073, and a use for "used by"); not pure
+                       spaceParts.ts (E073, and a use for "used by"); M5.8: world.ts (format 9's world: the spaces,
+                       the zones resolved through prefabs and overrides, the files and records they draw from),
+                       flagUses.ts (the flags zones and screens use, for W108 to W110), placedModels.ts; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -452,6 +476,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        and buzzes; hook.ts, window.__ebAudio; useAudio.ts); render/ (GameScreens, Screen, Widget, Tabs, LogView, Feedback.tsx (toasts
                        and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
                        each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
+                       SpaceWidget.tsx and spaceHost.ts (M5.8: the box a page's host walks a space in, and the host's
+                       contract);
                        stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
@@ -469,7 +495,7 @@ packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the 
                        icons.ts (PNG in and out, 16-bit greyscale for a terrain's heights since M5.3, icons scaled
                        or drawn), hash.ts (the build's hash), leaks.ts (the
                        leak check and its control), workflows.ts and readme.ts (Publish's), exportGame.ts (one
-                       export, start to end, and the zip)
+                       export, start to end, and the zip); walk.js beside the page, or inside a single one (M5.8)
   test/                hut.ts (the hut with a map of the summit and a taster), export-bench.ts
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
@@ -523,7 +549,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        models.test.ts validates clean and breaks once for each of M5.5's checks; grove/, a glade
                        whose terrain grows the kit's pines and scrub from its density PNG, which foliage.test.ts
                        validates clean and breaks once for each of M5.6's checks, under a shower since M5.7 (a
-                       physical sky and rain for the perf specs)
+                       physical sky and rain for the perf specs); trail/, M5.8's gate: a trailhead with a path, a
+                       bank, a boulder, a step, a crate that moves, the kit's crate and a cairn whose zone sets the
+                       flag its HUD shows, and a bothy in first person, which world.test.ts builds as format 9,
+                       breaks once for each of M5.8's checks and exports, and apps/editor's walk.test.ts walks
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

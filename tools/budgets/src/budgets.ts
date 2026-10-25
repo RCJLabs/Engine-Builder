@@ -3,7 +3,7 @@
  * a milestone that adds weight on purpose raises it in the same change, with its new reading.
  * The count budgets are the perf e2e's: this file only reads them.
  */
-import { readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { bytesIn, chunkNamed, gzipped, precached, startFiles, staticClosure } from './measure.ts';
 
@@ -74,4 +74,17 @@ export function checkSizes(budgets: Budgets, measured: Record<SizeId, number>): 
     if (typeof budget !== 'number') throw new Error(`budgets.json has no size budget "${id}"`);
     return { id, bytes: measured[id], budget, over: measured[id] > budget };
   });
+}
+
+/**
+ * The runtime the editor keeps for Export and walks spaces with (runtime/files.json's files and
+ * walk.js, M5.8) that its service worker doesn't precache: each would need the network. Workbox
+ * leaves out anything over its size limit without a word, and walk.js is about 7 MB.
+ */
+export function runtimeUncached(dist: string): string[] {
+  const list = join(dist, 'runtime/files.json');
+  if (!existsSync(list)) return ['runtime/files.json'];
+  const { files, walk } = JSON.parse(readFileSync(list, 'utf8')) as { files: string[]; walk?: string };
+  const kept = new Set(precached(dist));
+  return ['files.json', ...files, ...(walk ? [walk] : [])].map((f) => `runtime/${f}`).filter((f) => !kept.has(f));
 }

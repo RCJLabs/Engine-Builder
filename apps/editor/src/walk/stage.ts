@@ -13,7 +13,7 @@ import { lowerTier } from '../perf/tiers.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { intentOf } from './controls.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
-import { stepsFor } from './motion.ts';
+import { jumpOf, stepsFor } from './motion.ts';
 import { createWalker, type Walker } from './physics.ts';
 import { createSender, type Sender } from './sender.ts';
 import { spawnOf } from './solids.ts';
@@ -91,9 +91,8 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     pitch = heldPitch(kind, pitch + intent.look[1]);
     const steps = stepsFor(carried, elapsed);
     carried = steps.carried;
-    // A jump pressed on a frame too short for a step (a screen faster than 60 Hz) waits for one.
-    const jump = intent.jump || jumpWaiting;
-    jumpWaiting = steps.steps === 0 && jump;
+    const { jump, waiting } = jumpOf(intent.jump, jumpWaiting, steps.steps);
+    jumpWaiting = waiting;
     for (let i = 0; i < steps.steps; i++) {
       walker.step({ ...intent, jump }, yaw);
       sender.step(walker.feet());
