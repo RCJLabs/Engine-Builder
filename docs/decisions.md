@@ -2071,6 +2071,7 @@ Evan chose on 2026-10-25, from these options:
   - The height is 1.75 m when left out, clamped to 0.5–2.5 m.
   - Its colours are clothes, trim and skin.
   - Its solid is a capsule 0.3 m round, and Talk's reach is measured from its chest.
+- **An actor's bag has events of its own:** `actor-gained`, `actor-lost` and `actor-full`, each naming the actor, beside the party's `gained`, `lost` and `full`. An event's arguments are all given or it is refused, so `actor` couldn't be left out of the party's.
 
 **Why.**
 - **One place each:** a talk or a quest names "the smith" by its id, and every kit's state is already keyed by actor. Copies would need a second key in every slice. Crowds come with schedules and radiant aliases (M6.3, M6.6).

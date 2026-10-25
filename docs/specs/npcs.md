@@ -75,7 +75,9 @@ with one is E037, as before.
   party's when left out. An item's `max` holds for each bag. Their previews say whose.
 - **The fact** `inventory.carried(actor: <actor>, item: <item>)`: how many of the item the actor's
   bag holds. `inventory.count` and `inventory.tagged` stay the party's.
-- **Events:** `gained`, `lost` and `full` say `actor` when it isn't the party's bag.
+- **Events:** an actor's bag raises `actor-gained`, `actor-lost` and `actor-full`, each with its
+  `actor`; the party's raises `gained`, `lost` and `full` as before. They are apart because an
+  event's arguments are all given or it is refused, so `actor` can't be left out of one.
 - **Saves:** version 1 migrates to version 2 with `bags` empty, every NPC's bag its `carries`.
   `packages/kits/test/fixtures/saves/market-inventory-v1.json`, saved by version 1, must keep
   loading.
@@ -99,8 +101,10 @@ with one is E037, as before.
 
 - **Solids:** an NPC with a model has its model's collider; one without has its figure's capsule.
 - **Uses:** a use the pack has at a placed actor's path is offered at its chest.
-- **The hook,** `window.__ebWalk.npcs()`: each NPC built, by path: its actor, `model` or `figure`,
-  the yaw it faces now and the yaw it was placed at, and whether the walk is paused.
+- **The hook,** `window.__ebWalk.npcs()`: each NPC built, by path: its actor, `model` or `figure`
+  as three drew it, the yaw it faces now and the yaw it was placed at; `paused` says whether the
+  walk is. In the Scene panel, `window.__ebViewport.figures()`: each figure drawn, by its object, at
+  its height and in its colours.
 
 ## The editor
 

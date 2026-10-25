@@ -186,7 +186,9 @@ apps/editor/           the editor PWA
                        meshes.ts's lodsOf (models' levels picked for the view's camera alone), perfSummary.ts (the
                        tier read back from three: the hook's perf() and the overlay's); M5.10 (D72): bounds.ts
                        (latch: touching or flush within 12 px; dropBy), snapView.ts (each object's box as drawn, the
-                       latch's wires); the toolbar's Grid step and Drop
+                       latch's wires); the toolbar's Grid step and Drop; M6.1 (D73): figureLook.ts (an NPC's look as
+                       plain values: its figure, height and chest), figureView.ts (the figure in three; figuresIn, the
+                       hook's figures())
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -226,7 +228,9 @@ apps/editor/           the editor PWA
                        object's reach and its placed models), streamer.ts (the rings as the player crosses cells),
                        streaming.ts (the rings to the walker, the zones, the uses and the view), nearObjects.ts (built
                        4 ms a frame), farModels.ts (the far, instanced at their coarsest level), fog.ts; streaming.test.ts
-                       walks the moor headless, and the rest have their own tests
+                       walks the moor headless, and the rest have their own tests; M6.1 (D73): facing.ts (an NPC turned
+                       to face the player and back), npcView.ts (the NPCs built, turned, and the hook's npcs(), read
+                       from three), npcs.test.ts (the figure, its capsule and its Talk at its chest)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -345,7 +349,10 @@ apps/editor/           the editor PWA
                        walked through window.__ebWalk.cells(): its rings built and taken down along the road, its far
                        models instanced, the cairn's zone heard once built and the chest taken, by keys and by touch;
                        snappingHelpers.ts, snapping.spec.ts and snappingPhone.spec.ts, a hut latched together from the
-                       starter kit to the millimetre, the grid at 1 m and Drop, by mouse and by touch
+                       starter kit to the millimetre, the grid at 1 m and Drop, by mouse and by touch;
+                       fordHelpers.ts, ford.spec.ts and fordPhone.spec.ts are M6.1's, the ford walked by keys, a pad and
+                       touch, each NPC talked to and turned, the walk paused under a talk and the bags on the HUD kept by a
+                       save; npcEditor.spec.ts, Ada made in the editor alone at 1280 and 390 wide and talked to in Play
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 10)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -409,7 +416,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        modelTypes.ts (model: its file, scale, slots, LOD and collider; E071, E072), engine types in
                        ENGINE_DATA; M5.6: foliageTypes.ts (foliage, its presets; E074), an engine type in
                        ENGINE_DATA; M5.9: the interact component kind, enter-space in effect.ts, worldCheck.ts (E076),
-                       and what zones and uses hold heard by the kits' checks (flagCheck.ts's HeldElsewhere); not pure
+                       and what zones and uses hold heard by the kits' checks (flagCheck.ts's HeldElsewhere); M6.1:
+                       npcFields.ts (an actor's model and figure, and its talk, faction and carries with their kits); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -441,16 +449,17 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        the zones resolved through prefabs and overrides, the files and records they draw from),
                        flagUses.ts (the flags zones and screens use, for W108 to W110), placedModels.ts; M5.9: world.ts
                        (format 10's uses, spaceSpawns, the start), spaceParts.ts (E076 in zones and uses, and what
-                       they hold for the kits' checks), projectCheck.ts (E075); not pure
+                       they hold for the kits' checks), projectCheck.ts (E075); M6.1:
+                       npcPlaces.ts (E077: an actor in one place) and world.ts's Talk uses; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
 packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its types: inventory/ (items, the bag, give
-                       and take), loot/draw.ts (loot tables rolled), economy/ (resources, quote.ts's prices, shops);
+                       and take; bags.ts, an actor's bag, M6.1), loot/draw.ts (loot tables rolled), economy/ (resources, quote.ts's prices, shops);
                        M3.4 (D42): stats/ (values.ts: a value and its parts; pools.ts: damage, healing, bases;
                        statuses.ts: stacks and time; state.ts; module.ts, built knowing whether gear is on) and
                        gear/ (worn.ts, module.ts: equip and unequip); M3.5 (D43): factions/ (standing.ts: bounds,
-                       bands, prices, drift; module.ts) and time/ (the time module with project.json's calendar);
+                       bands, prices, drift; module.ts, band-of since M6.1) and time/ (the time module with project.json's calendar);
                        M3.6 (D44): roster/ (offers.ts: recruits rolled and made; members.ts: cap, join, leave, ranks;
                        bonds.ts; hall.ts: hiring; offerFacts.ts: a hall's offers as facts, M4.12; module.ts, built
                        knowing whether economy is on); bands.ts (the band
@@ -480,7 +489,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7): the records
                        and games the kit tests share;
-                       fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading
+                       fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading;
+                       fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1)
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
                        conditions.ts (ink conditions as the engine's, through EXTERNALs), tags.ts and fx.ts,
@@ -503,7 +513,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
                        SpaceWidget.tsx and spaceHost.ts (M5.8: the box a page's host walks a space in, and the host's
                        contract; the player's space when it names none, M5.9), placing.ts (where its stage starts);
-                       stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
+                       stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions; context.ts's
+                       drawingUnder, a screen under another drawn paused, M6.1); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
                        shell/ (M4.3, D53: the play shell, engine-drawn; useShell.ts its state and saves, slots.ts and
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
@@ -584,7 +595,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        which glen.test.ts plays through the session to a save and a load; moor/, M5.10's gate: a
                        kilometre of terrain with about 1,350 starter kit pieces over all 256 cells, a road, a cairn's
                        zone and a chest, written only by `pnpm make:moor` from moor.ts (makeMoor.ts) and held to it
-                       byte for byte by moor.test.ts
+                       byte for byte by moor.test.ts; ford/, M6.1's gate: a smith and a ferry-keeper drawn as figures, a
+                       warden drawn as the kit's pillar and a drover with no talk, a horseshoe passed between their bags,
+                       which ford.test.ts plays through the session and breaks once for E077
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

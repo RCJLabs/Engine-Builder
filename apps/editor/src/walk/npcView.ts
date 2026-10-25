@@ -24,14 +24,21 @@ const UP = new THREE.Vector3(0, 1, 0);
 const DEG = Math.PI / 180;
 
 export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
-  const npcs = new Map<string, { actor: string; figure: boolean }>();
+  const npcs = new Map<string, { actor: string }>();
   for (const object of space.space.objects) {
     eachPlaced(object, space.prefabs, (seen, ids, passed) => {
       const npc = seen.record?.startsWith(`${ACTOR}:`) ? space.npcs(seen.record, passed) : null;
-      if (npc && seen.record)
-        npcs.set(ids.join('/'), { actor: seen.record.slice(ACTOR.length + 1), figure: !!npc.figure });
+      if (npc && seen.record) npcs.set(ids.join('/'), { actor: seen.record.slice(ACTOR.length + 1) });
     });
   }
+  // What three drew it as: the figure's group is tagged with its look (figureView.ts).
+  const drawnAs = (node: THREE.Object3D): NpcSeen['drawn'] => {
+    let figure = false;
+    node.traverse((part) => {
+      if (part.userData.figure) figure = true;
+    });
+    return figure ? 'figure' : 'model';
+  };
   const facing = createFacing();
   // Each NPC's yaw as placed, read the first time it is seen, before anything turns it.
   const placed = new Map<string, number>();
