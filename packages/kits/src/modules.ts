@@ -1,5 +1,7 @@
 /** The kits' modules (M3.3, D41), apart from the list of kits so that reading the list costs no sim code. */
-import type { CalendarDef, Module } from '@eb/core';
+import type { CalendarDef, ClockDef, Module } from '@eb/core';
+import { aiModule } from './ai/module.ts';
+import { AI } from './ai/types.ts';
 import { dialogueModule } from './dialogue/module.ts';
 import { DIALOGUE } from './dialogue/types.ts';
 import { economyKit } from './economy/module.ts';
@@ -45,11 +47,14 @@ const MAPS_WITH_ECONOMY = mapsModule(true);
 const ENCOUNTERS_ALONE = encountersModule(false);
 const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
 
-/** The modules of the kits on, in the engine's order; the time kit's with the project's calendar (M3.5). */
-export function kitModules(on: readonly string[], calendar?: CalendarDef): Module[] {
+/**
+ * The modules of the kits on, in the engine's order; the time kit's with the project's calendar
+ * (M3.5), and its clock when its spaces are walked (M6.3).
+ */
+export function kitModules(on: readonly string[], calendar?: CalendarDef, clock?: ClockDef): Module[] {
   return KITS.filter((kit) => on.includes(kit.id)).map((kit) => {
     if (kit.id === STATS) return on.includes(GEAR) ? STATS_WITH_GEAR : STATS_ALONE;
-    if (kit.id === TIME) return timeKit(calendar);
+    if (kit.id === TIME) return timeKit(calendar, clock);
     if (kit.id === ROSTER) return on.includes(ECONOMY) ? ROSTER_WITH_ECONOMY : ROSTER_ALONE;
     if (kit.id === EVENTS) return on.includes(ECONOMY) ? EVENTS_WITH_ECONOMY : EVENTS_ALONE;
     if (kit.id === DIALOGUE) return on.includes(ECONOMY) ? DIALOGUE_WITH_ECONOMY : DIALOGUE_ALONE;
@@ -58,6 +63,7 @@ export function kitModules(on: readonly string[], calendar?: CalendarDef): Modul
       return on.includes(ECONOMY) ? MAPS_WITH_ECONOMY : MAPS_ALONE;
     }
     if (kit.id === ENCOUNTERS) return on.includes(ROSTER) ? ENCOUNTERS_WITH_ROSTER : ENCOUNTERS_ALONE;
+    if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR);
     return MODULES.get(kit.id) as Module;
   });
 }

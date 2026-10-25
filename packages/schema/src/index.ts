@@ -6,6 +6,7 @@
  * Kits and games import zod from here, so every schema comes from the zod this package reads.
  */
 export { z } from 'zod';
+export { BEHAVIOUR_TYPE_FILE, behaviourData, nodeSchema } from './aiTypes.ts';
 export {
   ASSET_KEY,
   ASSET_KINDS,
@@ -46,9 +47,11 @@ export {
   effectCatalog,
   effectMark,
   enterSpaceEffect,
+  followEffect,
   isEffectShape,
   rollEffect,
   setFlagEffect,
+  standEffect,
   walkToEffect,
 } from './effect.ts';
 export {
@@ -98,6 +101,7 @@ export {
   kitDataTypes,
   kitOf,
   kitTypeFiles,
+  kitTypeFrom,
   RESOURCE_TYPE_FILE,
   SHOP_TYPE_FILE,
 } from './kitTypes.ts';

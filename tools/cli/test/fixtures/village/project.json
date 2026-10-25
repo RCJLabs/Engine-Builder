@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "id": "village",
+  "name": "The village",
+  "version": "0.1.0",
+  "kits": ["stats", "time", "dialogue", "ai"],
+  "calendar": {
+    "ticksPerDay": 1440,
+    "units": {
+      "minutes": 1,
+      "hours": 60
+    },
+    "start": {
+      "tick": 600
+    }
+  },
+  "start-space": "village"
+}

@@ -105,6 +105,8 @@ export interface WorldView {
   readonly taken: readonly string[];
   /** Each NPC the sim has heard of or sent somewhere (M6.2): its space, where it stood, its goal, where it got to. */
   readonly npcs?: Readonly<Record<string, NpcView>>;
+  /** The game's clock runs while walking (M6.3, D75): the time kit follows real time and the mode allows time/elapse. */
+  readonly clock?: true;
 }
 
 /** An NPC as the world module keeps it (M6.2, D74). */
@@ -114,6 +116,9 @@ export interface NpcView {
   readonly yaw?: number;
   readonly goal?: string;
   readonly arrived?: string;
+  /** M6.3 (D75): the metres it keeps from the player it follows, or that it stands turned to them. */
+  readonly follow?: number;
+  readonly facing?: 'player';
 }
 
 /** What the page's screens name, sent once as a session starts: the facts and conditions to read after each step. */

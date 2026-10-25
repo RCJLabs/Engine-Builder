@@ -58,6 +58,8 @@ export interface StoodAt {
 /**
  * An NPC as the sim keeps it (M6.2, D74): its space, where the stage last said it stood, the object
  * it is walking to and the one it last arrived at. One never sent anywhere is where it was placed.
+ * Version 4 (M6.3, D75): instead of a goal, the metres it keeps from the player it follows, or, standing,
+ * that it faces them.
  */
 export interface NpcPlace {
   readonly space: string;
@@ -66,6 +68,8 @@ export interface NpcPlace {
   readonly yaw?: number;
   readonly goal?: string;
   readonly arrived?: string;
+  readonly follow?: number;
+  readonly facing?: 'player';
 }
 
 export interface WorldSlice {
@@ -82,8 +86,11 @@ export interface WorldSlice {
   readonly npcs: Readonly<Record<string, NpcPlace>>;
 }
 
-/** The slice's shape: 2 since M5.9, which added where the player is and what was taken; 3 since M6.2, the NPCs. */
-export const WORLD_VERSION = 3;
+/**
+ * The slice's shape: 2 since M5.9, which added where the player is and what was taken; 3 since M6.2,
+ * the NPCs; 4 since M6.3, an NPC following the player or facing them.
+ */
+export const WORLD_VERSION = 4;
 
 /** A world with no spaces' data: what a check builds the module from when only its names matter. */
 export const EMPTY_WORLD: WorldData = { triggers: {}, uses: {}, spawns: {}, start: '', actors: {} };

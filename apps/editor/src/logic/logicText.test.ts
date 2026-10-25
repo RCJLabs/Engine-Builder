@@ -74,6 +74,22 @@ describe('a row in words', () => {
     expect(holdsText({ number: { min: 0, max: 10, start: 2 } })).toBe('A number from 0 to 10: starts at 2');
     expect(holdsText({ number: { max: 3 } })).toBe('A number up to 3: starts at 0');
   });
+
+  it('says the world’s moves in a few words: walk-to, follow and stand (M6.2, M6.3)', () => {
+    expect(
+      doText([
+        { effect: 'walk-to', actor: 'tam', to: 'well' },
+        { effect: 'follow', actor: 'patch' },
+        { effect: 'follow', actor: 'patch', distance: 3 },
+        { effect: 'stand', actor: 'bram' },
+        { effect: 'stand', actor: 'bram', facing: 'player' },
+      ]),
+    ).toBe(
+      'Do: walk tam to well, then have patch follow the player, then have patch follow the player, 3 m behind, ' +
+        'then stop bram, then stop bram, facing the player',
+    );
+    expect(effectText({ effect: 'follow', actor: '' })).toBe('have an actor not yet chosen follow the player');
+  });
 });
 
 describe('sheet edits', () => {

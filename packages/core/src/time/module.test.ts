@@ -258,6 +258,7 @@ describe('previews, facts and options', () => {
     expect(Object.keys(catalog).filter((id) => id.startsWith('time.'))).toEqual([
       'time.day',
       'time.day-of-year',
+      'time.hour',
       'time.left',
       'time.of-day',
       'time.pending',
@@ -268,6 +269,26 @@ describe('previews, facts and options', () => {
     ]);
     expect(catalog['time.phase']?.domain).toEqual({ type: 'enum', values: ['day', 'night'] });
     expect(catalog['time.of-day']?.domain).toEqual({ type: 'int', min: 0, max: 23 });
+    // An hour a tick, and no minutes: the hour, and no clock's face.
+    expect(catalog['time.hour']?.domain).toEqual({ type: 'int', min: 0, max: 23 });
+    expect(catalog['time.clock']).toBeUndefined();
+  });
+
+  it('gives the hour and the clock’s face with hours and minutes (M6.3)', () => {
+    const minutes = gameWith(
+      timeModule({ calendar: { ticksPerDay: 1440, units: { minutes: 1, hours: 60 }, start: { tick: 545 } } }),
+    );
+    let state = minutes.init('clock', sim);
+    expect(minutes.catalog()['time.clock']?.domain).toEqual({ type: 'text' });
+    expect(minutes.catalog()['time.hour']?.domain).toEqual({ type: 'int', min: 0, max: 23 });
+    expect(minutes.fact(state, 'time.hour', {}, sim)).toBe(9);
+    expect(minutes.fact(state, 'time.clock', {}, sim)).toBe('09:05');
+    // Past the half hour it is still nine.
+    state = minutes.reduce(state, apply({ effect: 'wait', minutes: 30 }), sim).state;
+    expect(minutes.fact(state, 'time.hour', {}, sim)).toBe(9);
+    expect(minutes.fact(state, 'time.clock', {}, sim)).toBe('09:35');
+    state = minutes.reduce(state, apply({ effect: 'wait', hours: 14, minutes: 27 }), sim).state;
+    expect(minutes.fact(state, 'time.clock', {}, sim)).toBe('00:02');
   });
 
   it('starts with the timers the game gives it', () => {
@@ -279,7 +300,7 @@ describe('previews, facts and options', () => {
 
   it.each([
     ['no milliseconds per tick', { ...options, realTime: { msPerTick: 0, maxElapseMs: 10 } }, 'realTime.msPerTick'],
-    ['a cap under one tick', { ...options, realTime: { msPerTick: 10, maxElapseMs: 9 } }, 'realTime.maxElapseMs'],
+    ['no cap', { ...options, realTime: { msPerTick: 10, maxElapseMs: 0 } }, 'realTime.maxElapseMs'],
     ['a timer due now', { ...options, timers: [{ after: {}, effects: [] }] }, 'at least one tick later'],
     [
       'a timer with a bad name',

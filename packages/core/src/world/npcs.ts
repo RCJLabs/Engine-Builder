@@ -3,6 +3,8 @@
  * actor a goal, an object in its space, and the stage's crowd walks it there; `world/npcs-at` is the
  * stage saying where each NPC it walks stands, and which reached its goal. The sim never walks
  * anyone: it keeps the goals and hears the arrivals, so a save puts each NPC back where it stood.
+ * M6.3 (D75, docs/specs/ai.md#the-world-module-at-version-4): `follow` sends one after the player and
+ * `stand` stops it, turned to them or not; each replaces the others.
  */
 import type { ModuleContext } from '../sim/module.ts';
 import type { Action, Effect } from '../sim/types.ts';
@@ -14,17 +16,51 @@ const own = <T>(map: Readonly<Record<string, T>>, key: string): T | undefined =>
 type Npcs = Record<string, NpcPlace>;
 const npcsOf = (ctx: ModuleContext<WorldSlice>) => (ctx.write() as { npcs: Npcs }).npcs;
 
-export function walkTo(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
-  const { actor, to } = effect as Effect & { actor?: unknown; to?: unknown };
-  // E079 keeps these from content; a script's own effect can still get them wrong.
+/** Where it stood, what it is told now aside: the effect's actor, once it is one placed in a space. */
+function stillOf(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect, name: string) {
+  const { actor } = effect as Effect & { actor?: unknown };
+  // E079 keeps a bad actor from content; a script's own effect can still get it wrong.
   const placed = typeof actor === 'string' ? own(world.actors, actor) : undefined;
-  if (placed === undefined) throw new Error(`walk-to: no actor placed in a space: ${JSON.stringify(actor)}`);
+  if (placed === undefined) throw new Error(`${name}: no actor placed in a space: ${JSON.stringify(actor)}`);
+  const npcs = npcsOf(ctx);
+  const {
+    goal: _goal,
+    follow: _follow,
+    facing: _facing,
+    ...was
+  } = own(npcs, actor as string) ?? {
+    space: placed.space,
+  };
+  return { npcs, actor: actor as string, was };
+}
+
+export function walkTo(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { to } = effect as Effect & { to?: unknown };
+  const { npcs, actor, was } = stillOf(world, ctx, effect, 'walk-to');
   if (typeof to !== 'string' || to.length === 0)
     throw new Error(`walk-to: no object to walk to: ${JSON.stringify(to)}`);
-  const npcs = npcsOf(ctx);
-  const was = own(npcs, actor as string);
-  const { arrived: _left, ...kept } = was ?? { space: placed.space };
-  npcs[actor as string] = { ...kept, goal: to };
+  const { arrived: _left, ...kept } = was;
+  npcs[actor] = { ...kept, goal: to };
+}
+
+/** The metres a follower keeps from the player when the effect gives none. */
+export const FOLLOW_M = 2;
+
+export function follow(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { distance = FOLLOW_M } = effect as Effect & { distance?: unknown };
+  if (typeof distance !== 'number' || !Number.isFinite(distance) || distance <= 0)
+    throw new Error(`follow: a distance is metres, more than 0: ${JSON.stringify(distance)}`);
+  const { npcs, actor, was } = stillOf(world, ctx, effect, 'follow');
+  const { arrived: _left, ...kept } = was;
+  npcs[actor] = { ...kept, follow: cm(distance) };
+}
+
+/** Stops it where it is: where it last arrived it still last arrived. */
+export function stand(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { facing } = effect as Effect & { facing?: unknown };
+  if (facing !== undefined && facing !== 'player') throw new Error(`stand: it faces only "player": ${facing}`);
+  const { npcs, actor, was } = stillOf(world, ctx, effect, 'stand');
+  npcs[actor] = { ...was, ...(facing === 'player' ? { facing } : {}) };
 }
 
 /** To the centimetre and the tenth of a degree, as world/at keeps the player's. */

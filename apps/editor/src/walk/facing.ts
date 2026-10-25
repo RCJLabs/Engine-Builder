@@ -44,23 +44,30 @@ export interface Facing {
   back(now: number): void;
   /** The turn under way, or null: what the view lays on the NPC's node this frame. */
   turn(now: number): { readonly path: string; readonly yaw: number } | null;
-  /** Whether anything is still turning: the stage draws while it is, paused or not. */
+  /**
+   * Whether anything is still turning: the stage draws while it is, paused or not. A turn whose time
+   * is up is still turning for one call more, so the frame that lays its end on the node is drawn:
+   * paused under a talk, a frame past the end that wasn't drawn left the NPC part of the way round.
+   */
   turning(now: number): boolean;
 }
 
 export function createFacing(): Facing {
   let turn: Turn | null = null;
   let faced: { path: string; placed: number } | null = null;
+  let ended = false;
   return {
     face(path, now, placed, current, toward) {
       faced = { path, placed };
       turn = { path, from: current, to: toward, start: now, ms: FACE_MS };
+      ended = false;
     },
     back(now) {
       if (!faced) return;
       const from = turn && turn.path === faced.path ? yawAt(turn, now) : faced.placed;
       turn = { path: faced.path, from, to: faced.placed, start: now, ms: BACK_MS };
       faced = null;
+      ended = false;
     },
     turn(now) {
       return turn ? { path: turn.path, yaw: yawAt(turn, now) } : null;
@@ -68,6 +75,10 @@ export function createFacing(): Facing {
     turning(now) {
       if (!turn) return false;
       if (now - turn.start <= turn.ms) return true;
+      if (!ended) {
+        ended = true;
+        return true;
+      }
       // Its last frame drawn, a turn back is over: an NPC still facing the player keeps its turn.
       if (!faced) turn = null;
       return false;

@@ -11,6 +11,7 @@ import type { Said } from '../format/feedback.ts';
 import type { Sent } from '../render/spaceHost.ts';
 import type { View } from '../session/types.ts';
 import { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, type SlotInfo, slotInfo, slotName } from './slots.ts';
+import { createStepLine } from './stepLine.ts';
 import type { ShellProps } from './types.ts';
 
 export type ShellScreenName = 'title' | 'new' | 'saves' | 'settings' | 'pause' | 'stopped';
@@ -44,6 +45,8 @@ export function useShell(props: ShellProps) {
   const [slots, setSlots] = useState<readonly SlotInfo[] | undefined>(undefined);
   const [play, setPlay] = useState<InPlay | undefined>(undefined);
   const [busy, setBusy] = useState(false);
+  // A press of the player's on its way or waiting (M6.3): what disables the screens' buttons.
+  const [acting, setActing] = useState(false);
   const [notice, setNotice] = useState<string | undefined>(undefined);
   const [stopped, setStopped] = useState<string | undefined>(undefined);
   const persisted = useRef(false);
@@ -105,9 +108,9 @@ export function useShell(props: ShellProps) {
       setScreen(undefined);
     });
 
-  /** One step of the game, and what the sim made of it: a step already on its way drops this one. */
-  const step = (action: Action): Promise<Sent> => {
-    if (!play || busy) return Promise.resolve('dropped');
+  /** One step of the game, and what the sim made of it; the step line keeps them one at a time. */
+  const step = (action: Action, landing?: () => void): Promise<Sent> => {
+    if (!play) return Promise.resolve('dropped');
     let sent: Sent = 'dropped';
     return run(async () => {
       const reply = await send({ kind: 'act', action, at: now().getTime() });
@@ -115,11 +118,15 @@ export function useShell(props: ShellProps) {
       if (reply.save) await keep(play.slot, reply.save);
       sent = reply.accepted ? 'accepted' : 'refused';
       // In the one render with the view, so the buttons it draws are enabled as focus comes back to one.
+      landing?.();
       setBusy(false);
       setPlay({ ...play, view: reply.view, said: reply.said, cues: reply.cues });
     }).then(() => sent);
   };
-  const act = (action: Action) => void step(action);
+  // The step this render draws, for the line made once: its play is this render's.
+  const stepNow = useRef(step);
+  stepNow.current = step;
+  const line = useMemo(() => createStepLine((action, landing) => stepNow.current(action, landing), setActing), []);
 
   // The editor's debug tools moved the game (M4.9): shown, and kept in the slot, as a step is.
   const { moved, onPlay } = props;
@@ -158,6 +165,7 @@ export function useShell(props: ShellProps) {
     slots,
     play,
     busy,
+    acting,
     notice,
     setNotice,
     stopped,
@@ -165,9 +173,9 @@ export function useShell(props: ShellProps) {
     continueSlot: slots ? continueSlot(slots) : undefined,
     begin,
     resume,
-    act,
+    act: line.player,
     // The stage's triggers (M5.8), which need to know whether the sim took them.
-    send: step,
+    send: line.stage,
     daily,
     dailyToday: () => dailyNumber(now()),
     quit,

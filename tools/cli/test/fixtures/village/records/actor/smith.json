@@ -1,0 +1,11 @@
+{
+  "name": "Ada the smith",
+  "description": "Works the forge by day and sleeps in the cottage.",
+  "behaviour": "smiths-day",
+  "figure": {
+    "height": 1.7,
+    "clothes": "#6a4a3a",
+    "trim": "#2f2f2f",
+    "skin": "#c99a76"
+  }
+}

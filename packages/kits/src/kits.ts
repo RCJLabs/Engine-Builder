@@ -4,6 +4,7 @@
  * holds no module, so what only reads the list, project.json's checks and the editor's kit boxes,
  * doesn't bring the kits' sim code with it (modules.ts has that).
  */
+import { AI } from './ai/types.ts';
 import { DIALOGUE } from './dialogue/types.ts';
 import { ECONOMY } from './economy/types.ts';
 import { ENCOUNTERS } from './encounters/types.ts';
@@ -36,6 +37,8 @@ export const KITS: readonly Kit[] = Object.freeze([
   { id: QUESTS, needs: [] },
   { id: MAPS, needs: [] },
   { id: ENCOUNTERS, needs: [STATS] },
+  // Actors are the stats kit's; schedules are hours (M6.3, D75).
+  { id: AI, needs: [STATS, TIME] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));

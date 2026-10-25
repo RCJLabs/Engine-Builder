@@ -38,10 +38,10 @@
       "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2"
     },
     "space-wrecked-web": {
-      "budget": 540000,
-      "reading": 520046,
-      "read": "2026-10-23",
-      "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content"
+      "budget": 568000,
+      "reading": 546460,
+      "read": "2026-10-25",
+      "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content; re-read at M6.3, whose ai kit every export's runtime carries"
     },
     "trail-web": {
       "budget": 7553716,

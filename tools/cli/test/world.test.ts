@@ -117,7 +117,7 @@ describe('eb with the trail', () => {
     const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/trail-world-v1.json'), 'utf8');
     const resumed = resumeFrom(opened.opened, raw);
     if (!resumed.ok) throw new Error(resumed.message);
-    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 1, to: 3 }]);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 1, to: 4 }]);
     expect(resumed.report).toMatchObject({ replayed: 1, skipped: 0 });
     const { play } = resumed;
     // Where it was: the cairn's zone fired and its flag set, nothing taken, in the start, no NPC walking.

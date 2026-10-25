@@ -126,3 +126,21 @@ export async function calendarChange(
   );
   return after === before ? [] : [{ path: MANIFEST_FILE, before, after }];
 }
+
+/**
+ * The change `change` makes to project.json's clock (M6.3, D75), a clock left out read as an empty
+ * one: one with nothing left in it is taken out, so an emptied Rate means the default again.
+ */
+export async function clockChange(source: ProjectSource, change: (clock: unknown) => unknown): Promise<FileChange[]> {
+  const before = await source.read(MANIFEST_FILE);
+  if (before === undefined) return [];
+  const after = editJson(before, (manifest) => {
+    if (!isObject(manifest)) return manifest;
+    const next = change(manifest.clock ?? {});
+    const { clock: _, ...rest } = manifest;
+    return next === undefined || (isObject(next) && Object.keys(next).length === 0)
+      ? rest
+      : { ...manifest, clock: next };
+  });
+  return after === before ? [] : [{ path: MANIFEST_FILE, before, after }];
+}

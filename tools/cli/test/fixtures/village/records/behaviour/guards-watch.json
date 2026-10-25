@@ -1,0 +1,49 @@
+{
+  "name": "The guard's watch",
+  "description": "Halts a player they are alerted to, faces one they are suspicious of, walks the walls by night and keeps the gate by day.",
+  "do": {
+    "first": [
+      {
+        "if": "ai.level(actor: @self) == alerted",
+        "cooldown": {
+          "minutes": 30
+        },
+        "do": {
+          "in-order": [
+            {
+              "face": "player"
+            },
+            {
+              "effects": [
+                {
+                  "effect": "open-talk",
+                  "talk": "halt"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "if": "ai.level(actor: @self) == suspicious",
+        "do": {
+          "face": "player"
+        }
+      },
+      {
+        "hours": [20, 6],
+        "do": {
+          "patrol": ["wall-ne", "wall-se", "wall-sw", "wall-nw"],
+          "dwell": {
+            "minutes": 5
+          }
+        }
+      },
+      {
+        "do": {
+          "work": "gate"
+        }
+      }
+    ]
+  }
+}

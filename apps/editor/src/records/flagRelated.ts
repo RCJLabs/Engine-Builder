@@ -1,6 +1,8 @@
 import { FLAG } from '@eb/core';
 import {
   ACTOR,
+  AI,
+  BEHAVIOUR,
   DIALOGUE,
   ENCOUNTER,
   ENCOUNTERS,
@@ -122,6 +124,13 @@ export const mapRelated = (record: IndexedRecord | undefined): boolean =>
 export const encounterRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === ENCOUNTER || record.refs.some((ref) => ref.to.startsWith(`${ENCOUNTER}:`)));
 
+/**
+ * A behaviour or an actor (M6.3): a behaviour is warned of when no actor has it (W148) and checked
+ * against the space each actor using it stands in (E081), so a change to either checks both again.
+ */
+export const behaviourRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === BEHAVIOUR || record.type === ACTOR);
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -135,4 +144,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(QUESTS) ? [questRelated] : []),
   ...(kits.includes(MAPS) ? [mapRelated] : []),
   ...(kits.includes(ENCOUNTERS) ? [encounterRelated] : []),
+  ...(kits.includes(AI) ? [behaviourRelated] : []),
 ];

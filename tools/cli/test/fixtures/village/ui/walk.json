@@ -1,0 +1,37 @@
+{
+  "title": "The village",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{time.clock}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Ada: {ai.doing(actor: smith)} · Bram: {ai.doing(actor: guard)}, {ai.level(actor: guard)}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Wait 12 hours",
+        "action": {
+          "take": "village/wait"
+        }
+      }
+    ]
+  }
+}

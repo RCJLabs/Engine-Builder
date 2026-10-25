@@ -54,6 +54,10 @@ export function effectText(effect: unknown): string {
     }
     case 'walk-to':
       return `walk ${named(effect.actor, 'an actor')} to ${named(effect.to, 'a place')}`;
+    case 'follow':
+      return `have ${named(effect.actor, 'an actor')} follow the player${typeof effect.distance === 'number' ? `, ${effect.distance} m behind` : ''}`;
+    case 'stand':
+      return `stop ${named(effect.actor, 'an actor')}${effect.facing === 'player' ? ', facing the player' : ''}`;
     default:
       return kitEffectText(effect) ?? effect.effect;
   }

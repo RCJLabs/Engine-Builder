@@ -36,15 +36,23 @@ export interface Walker {
 /** Each placed actor's walker, by its id. */
 export type Walkers = ReadonlyMap<string, Walker>;
 
-/** An effect whose schema passed, at `path`: E079 when it is a walk-to the spaces can't walk. */
+/** The world module's effects that move an NPC (M6.2, M6.3), and whether each walks it. */
+const MOVES: Readonly<Record<string, boolean>> = { 'walk-to': true, follow: true, stand: false };
+
+/**
+ * An effect whose schema passed, at `path`: E079 when it is a walk-to, a follow or a stand (M6.3)
+ * the spaces can't carry out: an actor placed nowhere, an object its space lacks, or walking in a
+ * space with no navmesh.
+ */
 export function checkWalkTo(effect: Effect, walkers: Walkers, report: Report, path: string): void {
-  if (effect.effect !== 'walk-to' || typeof effect.actor !== 'string' || typeof effect.to !== 'string') return;
+  if (!Object.hasOwn(MOVES, effect.effect) || typeof effect.actor !== 'string') return;
+  const walks = MOVES[effect.effect];
   const walker = walkers.get(effect.actor);
   if (!walker) {
     report('E079', `${path}/actor`, `The actor "${effect.actor}" stands in no space: place it in one to walk it`);
     return;
   }
-  if (!walker.objects.has(effect.to)) {
+  if (typeof effect.to === 'string' && !walker.objects.has(effect.to)) {
     report(
       'E079',
       `${path}/to`,
@@ -52,7 +60,7 @@ export function checkWalkTo(effect: Effect, walkers: Walkers, report: Report, pa
     );
     return;
   }
-  if (!walker.navmesh) {
+  if (walks && !walker.navmesh) {
     report('E079', path, `The space "${walker.space}" has no navmesh: open it and press Bake navigation`);
   }
 }

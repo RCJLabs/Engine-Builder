@@ -9,6 +9,7 @@ import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { ViewKind } from './cameras.ts';
 import type { WalkNav } from './navStage.ts';
 import type { NpcSeen } from './npcView.ts';
+import type { WalkSenses } from './walkSenses.ts';
 
 /** What the walk has built and drawn of its space (M5.10, docs/specs/streaming.md#the-hook). */
 export interface WalkCells {
@@ -70,6 +71,13 @@ export interface WalkHook {
   nav(): WalkNav | null;
   /** Where a point of the space is drawn now (M6.2), in CSS pixels from the view's top left, for a tap. */
   screenOf(point: Vec3): readonly [number, number] | null;
+  /** The game's clock (M6.3): the real milliseconds owed to the sim, and each time/elapse sent. */
+  clock(): {
+    readonly owed: number;
+    readonly sent: readonly { readonly ms: number; readonly sent: Sent | 'waiting' }[];
+  };
+  /** What the NPCs sensed (M6.3): each ai/sensed sent and what the sim made of it, and the last report's sightings; null with none that sense. */
+  senses(): ReturnType<WalkSenses['hook']> | null;
 }
 
 declare global {

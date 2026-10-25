@@ -1,0 +1,78 @@
+{
+  "format": 1,
+  "game": "square",
+  "edition": "test",
+  "build": "f7ef7bb398149b74",
+  "savedAt": 1000,
+  "summary": {
+    "turn": 2,
+    "line": "no"
+  },
+  "snapshot": {
+    "kernel": {
+      "seed": "square",
+      "step": 0,
+      "modes": [
+        {
+          "id": "out"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "dialogue": 1,
+        "flag": 1,
+        "logic": 1,
+        "sheet": 1,
+        "square": 1,
+        "stats": 1,
+        "world": 3
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {}
+    },
+    "sheet": {
+      "fired": []
+    },
+    "stats": {
+      "actors": {}
+    },
+    "dialogue": {
+      "waiting": [],
+      "talked": {},
+      "heard": {},
+      "said": {}
+    },
+    "world": {
+      "fired": [],
+      "taken": [],
+      "space": "square",
+      "npcs": {}
+    },
+    "square": {}
+  },
+  "log": [
+    {
+      "type": "world/trigger",
+      "space": "square",
+      "object": "market"
+    },
+    {
+      "type": "world/npcs-at",
+      "space": "square",
+      "npcs": {
+        "ash": {
+          "feet": [3.25, 0, 1.5],
+          "yaw": 120
+        },
+        "carter": {
+          "feet": [-6, 0, 2],
+          "yaw": 90
+        }
+      }
+    }
+  ],
+  "hash": "2ac5cd5bea83b056",
+  "check": "5739b1318867554f"
+}

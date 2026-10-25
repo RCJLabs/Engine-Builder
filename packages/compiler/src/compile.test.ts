@@ -794,6 +794,45 @@ describe('the code table', () => {
         message: 'Not a navmesh this engine reads: open its space and press Bake navigation',
       },
     ]);
+    // M6.3: a clock at a rate a tick a minute can't be split by, and a calendar that can't run at 20x
+    // with no clock given, so the clock stays still.
+    const green = { 'spaces/green.json': JSON.stringify({ name: 'Green', objects: [] }) };
+    const odd = await kitted(['time'], green, { calendar: { ticksPerDay: 1440 }, clock: { rate: 7 } });
+    expect(brief(odd.diagnostics)).toEqual([
+      {
+        code: 'E080',
+        file: 'project.json',
+        path: '/clock/rate',
+        message:
+          "At 7x a tick of 1440 a day isn't a whole number of real milliseconds: pick a rate that splits 86,400,000 ms by 1440 ticks",
+      },
+    ]);
+    const still = await kitted(['time'], green, { calendar: { ticksPerDay: 7 } });
+    expect(brief(still.diagnostics)).toEqual([
+      {
+        code: 'W149',
+        file: 'project.json',
+        path: '',
+        message:
+          "At 20x, a tick of 7 a day isn't a whole number of real milliseconds, so the clock stays still while walking: give project.json a clock whose rate splits them, or 0",
+      },
+    ]);
+    // M6.3: an actor whose behaviour walks to a point its space lacks, and a behaviour nobody has.
+    const behaved = await kitted(
+      ['stats', 'time', 'ai'],
+      {
+        ...green,
+        'records/actor/smith.json': '{ "name": "Ada", "behaviour": "day" }',
+        'records/behaviour/day.json': '{ "do": { "face": "player" } }',
+        'records/behaviour/night.json': '{ "do": { "wait": { "weeks": 1 } } }',
+      },
+      { calendar: { ticksPerDay: 1440 } },
+    );
+    expect(brief(behaved.diagnostics).map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'E081 records/actor/smith.json /behaviour',
+      'W148 records/behaviour/night.json ',
+      'E081 records/behaviour/night.json /do/wait/weeks',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -818,6 +857,9 @@ describe('the code table', () => {
       doors,
       twice,
       walked,
+      odd,
+      still,
+      behaved,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

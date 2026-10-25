@@ -16,6 +16,7 @@ import {
   kitClash,
   kitOf,
   kitTypeFiles,
+  kitTypeFrom,
   type RecordType,
   readTypeFile,
   type TypeFile,
@@ -92,7 +93,7 @@ export async function readTypes(
 /** A kit's type, its own fields marked so the type designer keeps them as they are. */
 function kitType(type: string, file: TypeFile, kits: readonly string[]): DataType {
   const fields = Object.keys(kitTypeFiles(kits).get(type)?.fields ?? {});
-  return { ...typeFromFile(type, file), kit: { id: kitOf(type, kits) as string, fields } };
+  return { ...kitTypeFrom(type, file), kit: { id: kitOf(type, kits) as string, fields } };
 }
 
 interface Taken {

@@ -5,6 +5,7 @@
 import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
+import { type ClockDef, MAX_RATE, msPerTickAt } from './time/clock.ts';
 import { asFormat9, asFormat10, type PackWorld, worldProblem } from './world/packWorld.ts';
 
 export type { PackWorld } from './world/packWorld.ts';
@@ -17,11 +18,12 @@ export type { PackWorld } from './world/packWorld.ts';
  * feedback or none; format 7 (M4.4) its assets' credits, from the provenance log, ui or none;
  * format 8 (M4.8) the audio files its music names, as base64, credits or none; format 9 (M5.8) its
  * spaces and what they draw from, audio or none; format 10 (M5.9) its uses, spawn points and start;
- * format 11 (M6.2) its navmeshes and where each actor is placed. A pack is written in the lowest format that holds it,
+ * format 11 (M6.2) its navmeshes and where each actor is placed; format 12 (M6.3) the clock that runs
+ * while its spaces are walked, navmeshes or none. A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 11;
+export const PACK_FORMAT = 12;
 
 export interface PackProject {
   readonly id: string;
@@ -31,6 +33,8 @@ export interface PackProject {
   readonly kits?: readonly string[];
   /** Format 3 and up, with the time kit: the calendar project.json gives (M3.5, D43). */
   readonly calendar?: CalendarDef;
+  /** Format 12, with the time kit and spaces: the clock as it runs while walking, never one stopped (M6.3, D75). */
+  readonly clock?: ClockDef;
 }
 
 /**
@@ -62,7 +66,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -96,7 +100,7 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
  * lists any (format 3), the screens when there are any (format 4), the feedback when there is
  * any (format 5), the shell's settings when there are any (format 6), the assets' credits
  * when there are any (format 7), the music's files (format 8) and the spaces (format 9), with
- * their uses, spawn points and start (format 10).
+ * their uses, spawn points and start (format 10), their navmeshes (format 11) and the clock (format 12).
  */
 export function createPack(
   project: PackProject,
@@ -108,24 +112,29 @@ export function createPack(
   world?: PackWorld,
 ): Pack {
   const scripted = scripts !== undefined && Object.keys(scripts).length > 0;
-  // The calendar travels only with the kits: it is the time kit's.
-  const { kits, calendar, ...plain } = project;
+  // The calendar travels only with the kits: it is the time kit's. So does the clock, which only a walk runs.
+  const { kits, calendar, clock, ...plain } = project;
   const hasKits = kits !== undefined && kits.length > 0;
-  const kitted = hasKits ? { ...plain, kits, ...(calendar !== undefined ? { calendar } : {}) } : plain;
+  const walked = world !== undefined && Object.keys(world.spaces).length > 0;
+  const clocked = walked && clock !== undefined && hasKits && kits.includes('time');
+  const kitted = hasKits
+    ? { ...plain, kits, ...(calendar !== undefined ? { calendar } : {}), ...(clocked ? { clock } : {}) }
+    : plain;
   const screened = ui !== undefined && Object.keys(ui.screens).length > 0;
   const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
-  const walked = world !== undefined && Object.keys(world.spaces).length > 0;
-  const ten = walked ? asFormat10(world) : undefined;
+  const ten = walked && !clocked ? asFormat10(world) : undefined;
   const nine = ten !== undefined ? asFormat9(ten) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
   const format = walked
-    ? ten === undefined
-      ? 11
-      : nine === undefined
-        ? 10
-        : 9
+    ? clocked
+      ? 12
+      : ten === undefined
+        ? 11
+        : nine === undefined
+          ? 10
+          : 9
     : sounded
       ? 8
       : credited
@@ -149,10 +158,17 @@ export function createPack(
     ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
     ...(credited ? { credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)) } : {}),
     ...(sounded ? { audio } : {}),
-    ...(walked ? { world: nine ?? ten ?? world } : {}),
+    ...(walked ? { world: clocked ? walkersOf(world) : (nine ?? ten ?? world) } : {}),
   } as const;
   return { ...content, hash: packHash(content) };
 }
+
+// Format 12 keeps format 11's navmeshes and actors, none or not, so a clocked pack has one world shape.
+const walkersOf = (world: PackWorld): PackWorld => ({
+  ...world,
+  navmeshes: world.navmeshes ?? {},
+  actors: world.actors ?? {},
+});
 
 const uiOf = ({ screens, theme, feedback, shell }: PackUi): PackUi => ({
   screens,
@@ -177,7 +193,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
@@ -222,25 +238,47 @@ function checkKeys(value: Readonly<Record<string, unknown>>, allowed: readonly s
 
 function checkProject(project: unknown, format: number): void {
   if (!isObject(project)) throw new PackError('The pack has no project');
-  checkKeys(project, ['id', 'name', 'version', ...(format >= 3 ? ['kits', 'calendar'] : [])], 'pack project');
+  const kitted = format >= 3 ? ['kits', 'calendar', ...(format >= 12 ? ['clock'] : [])] : [];
+  checkKeys(project, ['id', 'name', 'version', ...kitted], 'pack project');
   if (!isRecordId(project.id)) throw new PackError('The pack project has no valid id');
   for (const key of ['name', 'version'] as const) {
     if (typeof project[key] !== 'string') throw new PackError(`The pack project has no ${key}`);
   }
   // Formats 4 and 5 list kits only when the project has some; format 3 is the format for kits.
+  if (format === 12 && project.clock === undefined) throw new PackError('A format 12 pack has a clock');
   if (format < 3 || (format >= 4 && project.kits === undefined && project.calendar === undefined)) return;
-  const { kits, calendar } = project;
+  const { kits, calendar, clock } = project;
   if (!Array.isArray(kits) || kits.length === 0 || !kits.every(isRecordId)) {
     throw new PackError(
       format === 3 ? 'A format 3 pack lists its kits' : `A format ${format} pack with kits lists them`,
     );
   }
-  if (calendar === undefined) return;
-  if (!kits.includes('time')) throw new PackError("A pack's calendar is the time kit's, which it doesn't list");
-  try {
-    calendarOf(calendar as CalendarDef);
-  } catch (error) {
-    throw new PackError(`The pack's calendar: ${error instanceof Error ? error.message : String(error)}`);
+  if (calendar === undefined && clock === undefined) return;
+  if (!kits.includes('time')) {
+    throw new PackError(
+      `A pack's ${calendar !== undefined ? 'calendar' : 'clock'} is the time kit's, which it doesn't list`,
+    );
+  }
+  if (calendar !== undefined) {
+    try {
+      calendarOf(calendar as CalendarDef);
+    } catch (error) {
+      throw new PackError(`The pack's calendar: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  if (clock !== undefined) checkClock(clock, (calendar as CalendarDef | undefined)?.ticksPerDay ?? 1);
+}
+
+/** Format 12's clock: a rate that runs, its ticks whole real milliseconds (E080 keeps any other from a project). */
+function checkClock(clock: unknown, ticksPerDay: number): void {
+  if (!isObject(clock)) throw new PackError("The pack's clock is not an object");
+  checkKeys(clock, ['rate'], 'pack clock');
+  const { rate } = clock;
+  if (typeof rate !== 'number' || !Number.isSafeInteger(rate) || rate < 1 || rate > MAX_RATE) {
+    throw new PackError(`The pack's clock runs at a whole number of game seconds a second, from 1 to ${MAX_RATE}`);
+  }
+  if (msPerTickAt(ticksPerDay, rate) === undefined) {
+    throw new PackError(`At ${rate}x, the pack's calendar's ticks aren't whole real milliseconds`);
   }
 }
 

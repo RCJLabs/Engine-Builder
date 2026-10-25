@@ -35,6 +35,7 @@ export function gameOf(scripts: ScriptsRead, settings: KitSettings = { kits: [] 
     settings.kits,
     settings.calendar,
     settings.spaces ? EMPTY_WORLD : undefined,
+    settings.clock,
   );
   if (loaded.ok) return { kind: 'loaded', game: loaded.game, catalog: loaded.catalog };
   const { code, message, script = 'game', line } = loaded.problem;

@@ -4,6 +4,7 @@
  * decide them, as it lets no other unoffered action by.
  */
 import { createGame, createRecordStore, defineModule, flagModule, sheetModule, worldModule } from '@eb/core';
+import { timeKit } from '@eb/kits';
 import { describe, expect, it } from 'vitest';
 import { startPlay } from './play.ts';
 
@@ -68,5 +69,30 @@ describe('the stage’s trigger in a play', () => {
 
   it('lets no other unoffered action by', () => {
     expect(play().act({ type: 'trail/unknown' }).accepted).toBe(false);
+  });
+});
+
+describe('the clock while walking (M6.3)', () => {
+  const ticking = (actions: string[]) => {
+    const walk = defineModule<object>({ id: 'walk', init: () => ({}), modes: { out: { actions } } });
+    const world = worldModule({ triggers: {}, uses: {}, spawns: { green: [] }, start: 'green', actors: {} });
+    const time = timeKit({ ticksPerDay: 1440 }, { rate: 60 });
+    const game = createGame({ modules: [time, world, walk], start: 'out' });
+    return startPlay(
+      { game, sim: { content: createRecordStore({}) }, kits: ['time'], wants: { facts: [], conditions: [] } },
+      's',
+    );
+  };
+
+  it('tells the stage to send time/elapse while the mode allows it, which it lets by', () => {
+    const p = ticking(['world/*', 'time/*']);
+    expect(p.view.world).toEqual({ space: 'green', taken: [], clock: true });
+    expect(p.view.offered).toEqual([{ type: 'time/advance' }]);
+    expect(p.act({ type: 'time/elapse', ms: 1000 }).accepted).toBe(true);
+    expect((p.state.time as { tick: number }).tick).toBe(1);
+  });
+
+  it('says nothing of a clock the mode doesn’t run', () => {
+    expect(ticking(['world/*']).view.world).toEqual({ space: 'green', taken: [] });
   });
 });

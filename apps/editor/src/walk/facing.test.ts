@@ -33,13 +33,16 @@ describe('facing', () => {
     facing.face('smith', 1000, 30, 30, -60);
     expect(facing.turning(1000 + FACE_MS / 2)).toBe(true);
     expect(facing.turn(1000 + FACE_MS)).toEqual({ path: 'smith', yaw: -60 });
+    // Its time up, one frame more lays its end on the node (M6.3: paused, that frame was lost).
+    expect(facing.turning(5000)).toBe(true);
     // Held facing the player while the talk is open: the turn stays, nothing more to draw.
-    expect(facing.turning(5000)).toBe(false);
+    expect(facing.turning(5001)).toBe(false);
     expect(facing.turn(5000)).toEqual({ path: 'smith', yaw: -60 });
     facing.back(6000);
     expect(facing.turning(6000 + BACK_MS / 2)).toBe(true);
     expect(facing.turn(6000 + BACK_MS)).toEqual({ path: 'smith', yaw: 30 });
-    expect(facing.turning(6000 + BACK_MS + 1)).toBe(false);
+    expect(facing.turning(6000 + BACK_MS + 1)).toBe(true);
+    expect(facing.turning(6000 + BACK_MS + 2)).toBe(false);
     expect(facing.turn(9000)).toBeNull();
     // A walk going on with nobody faced turns nobody.
     facing.back(9500);

@@ -5,6 +5,7 @@
  * (docs/specs/time.md) is written in project.json by hand: its box shows it as written.
  */
 import { MANIFEST_FILE } from '@eb/compiler';
+import { MAX_RATE } from '@eb/core';
 import type { Diagnostic, TypeFile } from '@eb/schema';
 
 const name = { kind: 'text', label: 'Name' } as const;
@@ -86,4 +87,29 @@ export function calendarProblems(problems: readonly Diagnostic[]): Diagnostic[] 
   return problems
     .filter((d) => d.file === MANIFEST_FILE && (d.path === AT || d.path.startsWith(`${AT}/`)))
     .map((d) => ({ ...d, path: d.path.slice(AT.length) }));
+}
+
+/** project.json's clock (M6.3, D75) as a form sees it: its one field, the rate it runs at while a space is walked. */
+export const CLOCK_FILE: TypeFile = {
+  title: 'Clock',
+  fields: {
+    rate: {
+      kind: 'int',
+      min: 0,
+      max: MAX_RATE,
+      optional: true,
+      label: 'Clock rate',
+      description:
+        'Game seconds a real second while a space is walked: 20 makes a day 72 real minutes, 600 an hour 6 real seconds. 0 stops it. Left empty, 20.',
+    },
+  },
+};
+
+/** project.json's problems with its clock, at its place in the clock: W149, of a clock left out, at its rate. */
+export function clockProblems(problems: readonly Diagnostic[]): Diagnostic[] {
+  return problems.flatMap((d) => {
+    if (d.file !== MANIFEST_FILE) return [];
+    if (d.code === 'W149') return [{ ...d, path: '/rate' }];
+    return d.path === '/clock' || d.path.startsWith('/clock/') ? [{ ...d, path: d.path.slice('/clock'.length) }] : [];
+  });
 }

@@ -3,7 +3,7 @@
  * made once, and its catalogue taken. What goes wrong comes back as one problem, at a script and
  * line when it can be said.
  */
-import type { CalendarDef, WorldData } from '@eb/core';
+import type { CalendarDef, ClockDef, WorldData } from '@eb/core';
 import { type GameCatalog, gameCatalog } from './catalog.ts';
 import { GAME_SCRIPT } from './files.ts';
 import { type GameProblem, type ProjectGame, readGame } from './game.ts';
@@ -22,6 +22,7 @@ export function loadProjectGame(
   kits: readonly string[] = [],
   calendar?: CalendarDef,
   world?: WorldData,
+  clock?: ClockDef,
 ): LoadedGame {
   let exports: Readonly<Record<string, unknown>>;
   try {
@@ -38,7 +39,7 @@ export function loadProjectGame(
       },
     };
   }
-  const read = readGame(exports, kits, calendar, world);
+  const read = readGame(exports, kits, calendar, world, clock);
   if (!read.ok) return read;
   return { ok: true, game: read.game, catalog: gameCatalog(read.game) };
 }

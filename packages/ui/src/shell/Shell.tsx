@@ -85,7 +85,7 @@ export function Shell(props: ShellProps) {
             said={play.said}
             audio={audio}
             cues={play.cues}
-            busy={state.busy}
+            busy={state.acting}
             act={state.act}
             send={state.send}
             spaces={props.spaces}

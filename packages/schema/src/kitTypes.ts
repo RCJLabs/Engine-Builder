@@ -6,6 +6,8 @@
 import { pointerSegment } from '@eb/core';
 import {
   ACTOR,
+  AI,
+  BEHAVIOUR,
   COMBAT,
   DECK,
   DIALOGUE,
@@ -38,6 +40,7 @@ import {
   STATUS,
   TALK,
 } from '@eb/kits';
+import { BEHAVIOUR_TYPE_FILE, behaviourData } from './aiTypes.ts';
 import { SPEAKER_TYPE_FILE, talkTypeFile } from './dialogueTypes.ts';
 import { COMBAT_TYPE_FILE, ENCOUNTER_TYPE_FILE } from './encounterTypes.ts';
 import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
@@ -261,6 +264,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   [QUESTS]: () => ({ [QUEST]: QUEST_TYPE_FILE }),
   [MAPS]: (on) => ({ [NODE_KIND]: NODE_KIND_TYPE_FILE, [MAP]: mapTypeFile(on.includes(ECONOMY)) }),
   [ENCOUNTERS]: () => ({ [COMBAT]: COMBAT_TYPE_FILE, [ENCOUNTER]: ENCOUNTER_TYPE_FILE }),
+  [AI]: () => ({ [BEHAVIOUR]: BEHAVIOUR_TYPE_FILE }),
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */
@@ -278,9 +282,16 @@ export function kitOf(name: string, on: readonly string[]): string | undefined {
   return on.find((kit) => Object.hasOwn(OWN_TYPES[kit]?.(on) ?? {}, name));
 }
 
+/**
+ * A kit's type from its file, joined or not: from the file alone, but a behaviour's (M6.3), whose
+ * `do` is a tree a type file can't say and zod checks as a node.
+ */
+export const kitTypeFrom = (type: string, file: TypeFile): DataType =>
+  type === BEHAVIOUR ? behaviourData(file) : typeFromFile(type, file);
+
 /** The kits' types with the kits on, without fields of a project's own. */
 export function kitDataTypes(on: readonly string[]): DataType[] {
-  return [...kitTypeFiles(on)].map(([type, file]) => typeFromFile(type, file));
+  return [...kitTypeFiles(on)].map(([type, file]) => kitTypeFrom(type, file));
 }
 
 /**
