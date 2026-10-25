@@ -27,6 +27,7 @@ const WORLD: WorldData = {
   },
   spawns: { glen: ['gate-spawn', 'start'], bothy: ['door'], shed: [] },
   start: 'glen',
+  actors: {},
 };
 
 const FLAGS = { read: {}, ropes: { number: { min: 0, max: 9 } } };
@@ -160,7 +161,7 @@ describe('enter-space', () => {
       { type: 'world/entered', space: 'glen', object: 'bothy-door' },
       { type: 'world/arrived', space: 'bothy' },
     ]);
-    expect(p.world).toEqual({ fired: [], taken: [], space: 'bothy', arrive: 'door' });
+    expect(p.world).toEqual({ fired: [], taken: [], space: 'bothy', arrive: 'door', npcs: {} });
     expect(p.fact('world.in', { space: 'bothy' })).toBe(true);
     expect(p.fact('world.in', { space: 'glen' })).toBe(false);
   });
@@ -169,7 +170,7 @@ describe('enter-space', () => {
     const p = play();
     p.enter('glen', 'bothy-door');
     p.use('glen', 'shed/door');
-    expect(p.world).toEqual({ fired: [], taken: [], space: 'shed' });
+    expect(p.world).toEqual({ fired: [], taken: [], space: 'shed', npcs: {} });
   });
 
   it('throws for a space or a spawn point the pack lacks: E076 keeps these from content', () => {

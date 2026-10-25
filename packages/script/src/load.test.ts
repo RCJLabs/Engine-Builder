@@ -173,6 +173,7 @@ describe("a project's game", () => {
       uses: {},
       spawns: { trailhead: [] },
       start: 'trailhead',
+      actors: {},
     };
     const loaded = loadProjectGame(compiled({ game: walker("'walk/*', 'world/*'") }), [], undefined, zones);
     expect(loaded.ok && loaded.catalog.modules).toEqual(['logic', 'flag', 'sheet', 'world', 'walk']);

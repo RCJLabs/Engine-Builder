@@ -26,6 +26,7 @@ function play() {
         uses: { trailhead: { rope: { label: 'Take', effects: [], takes: true } } },
         spawns: { trailhead: [] },
         start: 'trailhead',
+        actors: {},
       }),
       trail,
     ],

@@ -34,6 +34,7 @@
     "@preact/signals": "2.11.3",
     "dockview": "8.5.1",
     "preact": "11.0.1",
+    "recast-navigation": "0.43.1",
     "three": "0.186.1"
   },
   "devDependencies": {
