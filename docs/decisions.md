@@ -1950,6 +1950,35 @@ Evan chose on 2026-10-24, from these options:
 - **Sideways in the editor,** the Play panel shows part of the view and scrolls to the rest; an exported game fills its page.
 - **Untested for feel and on a phone:** no phone has walked the trail. In the cloud container's software WebGL the walk drew at Low at about 13 frames a second (Readings).
 
+### D71. M5.9 is doors, loading screens, positions in saves and pickups that stay taken, M5.10 streamed exteriors and snapping; a door is an effect anything can run; the player takes and opens things with Interact; a save keeps where the player stood. LOCKED, 2026-10-25 (Evan's calls, M5.9)
+
+Evan chose on 2026-10-25, from these options:
+- **Scope:**
+  - split: M5.9 is doors between spaces with a loading screen, positions in saves and pickups that stay taken, gated as written; streamed exteriors and snapping become M5.10;
+  - all three in M5.9;
+  - split three ways (M5.9, M5.10 streaming, M5.11 snapping).
+- **Doors:** an effect, `enter-space`, that a zone, a talk, an event or a quest stage can run; or a door component kind that alone moves the player.
+- **Taking and opening:** Interact (E, a pad button, and a touch button shown when the player faces something near); or walking into it.
+- **What a save remembers:** where the player stood, in which space, facing which way, with pickups taken kept as changes against the authored space and moving bodies back at their authored places; only the last door or checkpoint passed; or everything, moving bodies too.
+
+**Decision.**
+- **M5.9 and M5.10.** M5.9 holds doors, loading screens, positions and pickups. Chunked exteriors that stream around the player, and snapping for modular kits, are M5.10's.
+- **`enter-space`.** An effect any effect list can hold moves the player to a space, at one of its spawn points or at its start. The sim keeps which space the player is in; a Space widget that names no space draws that one, with a loading screen between.
+- **Interact.** A new component kind, `interact`, gives an object a label, a condition, effects, `once` and `takes`. The prompt shows for the nearest one in reach that the player faces; E, the pad's X or a touch button beside Jump uses it, sending `world/use`, checked and run by the sim. A pickup is an interact that takes its object and gives an item.
+- **Where you stood.** The world module's slice keeps the space, where the player stood and which way they faced, and the objects taken. The stage tells the sim with `world/at` as the shell pauses, as the page hides, before each use and every few seconds of walking; a load puts the player back there. Moving bodies go back to their authored places.
+- **The start space** (my call, put to Evan in the PR): a game with more than one space starts in project.json's `start-space`, or in its only space.
+
+**Why.**
+- **The split:** the gate needs only doors, pickups, a trigger's quest step and positions; streaming needs a far bigger exterior and its own readings on a phone, and snapping is the editor's alone.
+- **An effect:** content is data, and a quest, a talk or an event moving the player is the same move as a door's.
+- **Interact:** a player can leave a thing where it lies, a door doesn't fire when brushed past, and Phase 6's NPCs will talk through the same button.
+- **Where you stood:** a load that puts the player back elsewhere feels like a lost save.
+
+**Cost.**
+- **The world's slice grows** to version 2, with a migration and a version 1 fixture that must still load; packs go to format 10.
+- **Each `world/at` is a step,** so a save is written every few seconds of walking.
+- **A load can put the player where they shouldn't stand,** such as inside a body that moved; the stage stands them on whatever is under them, and question 1 of the spec asks whether moving bodies should be saved.
+
 ---
 
 ## Open
