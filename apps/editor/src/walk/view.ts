@@ -2,6 +2,8 @@
  * The walk's view (M5.8, D70, docs/specs/movement.md#the-stage): a space drawn as the Scene panel
  * draws it (build.ts, the terrain, environment, foliage and models views), at a quality tier, with
  * no grid, gizmo or labels, from wherever the stage's camera stands. The stage asks for every frame.
+ * M5.10 (D72, docs/specs/streaming.md): it draws the objects near, built a few a frame, and the
+ * models of those far, instanced at their coarsest level; fog closes at the tier's view distance.
  */
 
 import * as THREE from 'three/webgpu';
@@ -11,19 +13,21 @@ import { pixelRatioOf, type TierSettings } from '../perf/tiers.ts';
 import { createBuilder } from '../spaces/build.ts';
 import { createEnvironmentView } from '../spaces/environmentView.ts';
 import { createFoliageView } from '../spaces/foliageView.ts';
-import { lodsOf } from '../spaces/meshes.ts';
 import { perfSummary } from '../spaces/perfSummary.ts';
-import { castShadows, fitShadowsTo, sunShadows } from '../spaces/shadows.ts';
+import { fitShadowsTo, sunShadows } from '../spaces/shadows.ts';
 import { createTerrainView } from '../spaces/terrainView.ts';
 import type { Quat, Vec3 } from '../spaces/vec.ts';
 import { createViewModels } from '../spaces/viewModels.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { Shot } from './cameras.ts';
-import { BODY } from './physics.ts';
+import { createFarModels } from './farModels.ts';
+import { closeFog, DAYLIGHT } from './fog.ts';
+import type { Placement } from './footprints.ts';
+import { createNearObjects, nodeAt } from './nearObjects.ts';
+import { BODY, topOf } from './physics.ts';
+import type { Solid } from './solids.ts';
 import type { WalkSpace } from './world.ts';
 
-/** A game's sky when its space names no environment: daylight, not the editor's dark. */
-const DAYLIGHT = '#a9c6db';
 const FOV = 70;
 
 export interface WalkView {
@@ -41,16 +45,20 @@ export interface WalkView {
   hide(taken: ReadonlySet<string>): void;
   /** The taken objects the scene has and doesn't draw, as three holds them: the hook's check. */
   hidden(): string[];
+  /** The objects near (M5.10): those not built yet are built, in this order, a few a frame. */
+  near(ids: ReadonlySet<string>, order: readonly string[]): void;
+  /** Builds all that waits now: the walk's start and a respawn, under the loading screen. */
+  settle(): void;
+  /** Draws these placements' models far, and these water objects. */
+  far(placements: readonly Placement[], water: readonly string[]): void;
+  streaming(): {
+    readonly built: string[];
+    readonly waiting: number;
+    readonly slowest: number;
+    readonly far: { readonly models: number; readonly meshes: number; readonly levels: readonly number[] };
+  };
   readonly frames: number;
   dispose(): void;
-}
-
-/** The object at a path of ids, as the builder tags them: "placement/inner". */
-function nodeAt(root: THREE.Object3D, path: string): THREE.Object3D | undefined {
-  const [first, ...rest] = path.split('/');
-  let node = root.children.find((c) => c.userData.objectId === first);
-  for (const id of rest) node = node?.children.find((c) => c.userData.innerId === id);
-  return node;
 }
 
 /** The character: a capsule its own height, a little nose to show which way it faces. */
@@ -69,6 +77,16 @@ function bodyMesh(): THREE.Group {
   return group;
 }
 
+/** Where a moving solid's body stood as authored: its node follows the body's moves from there. */
+function authoredBody(solid: Solid): THREE.Matrix4 {
+  if (solid.kind === 'hull') return new THREE.Matrix4();
+  return new THREE.Matrix4().compose(
+    new THREE.Vector3(...solid.center),
+    new THREE.Quaternion(...solid.turn),
+    new THREE.Vector3(1, 1, 1),
+  );
+}
+
 export async function createWalkView(
   host: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -85,6 +103,7 @@ export async function createWalkView(
   sun.position.set(6, 12, 8);
   scene.add(skyLight, sun);
   sunShadows(renderer, sun, tier.shadowMap);
+  const shadows = tier.shadowMap > 0;
   const environment = createEnvironmentView(
     scene,
     { sky: skyLight, sun },
@@ -98,7 +117,7 @@ export async function createWalkView(
   const foliage = createFoliageView(() => {}, terrain.grid, {
     reach: tier.foliageReach,
     share: tier.foliageShare,
-    shadows: tier.foliageShadows && tier.shadowMap > 0,
+    shadows: tier.foliageShadows && shadows,
   });
   scene.add(terrain.root, foliage.root);
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 2000);
@@ -106,51 +125,53 @@ export async function createWalkView(
   const character = bodyMesh();
   scene.add(character);
 
-  let built: ReturnType<typeof builder.build> | null = null;
   let hidden: ReadonlySet<string> = new Set();
-  const hideIn = (root: THREE.Object3D) => {
-    for (const path of hidden) {
-      const node = nodeAt(root, path);
-      if (node) node.visible = false;
-    }
-  };
-  let lods: THREE.LOD[] = [];
-  /** Each moving solid's node, and its world matrix and its body's when the space was built. */
-  let movers = new Map<string, { node: THREE.Object3D; meshAt: THREE.Matrix4; bodyAt: THREE.Matrix4 | null }>();
-  // rebuild is hoisted: a model whose file finishes decoding builds the space again.
+  /** Each moving solid's node, its world matrix when built, and its body's authored place inverted. */
+  const movers = new Map<string, { node: THREE.Object3D; meshAt: THREE.Matrix4; bodyFrom: THREE.Matrix4 }>();
+  const moving = space.parts.solids.filter((s) => s.moves);
+  // Hoisted: a model whose file finishes decoding builds what is drawn again.
   const models = createViewModels(
     renderer,
-    () => rebuild(),
+    () => {
+      near.rebuild();
+      showFar();
+      foliage.models(draw());
+    },
     (message) => console.warn(message),
   );
-
-  function rebuild() {
-    if (built) {
-      scene.remove(built.root);
-      built.dispose();
-    }
-    const draw = models.use(space.models);
-    built = builder.build(space.space, space.prefabs, undefined, draw, true);
-    if (tier.shadowMap > 0) castShadows(built.root);
-    lods = lodsOf(built.root);
-    foliage.models(draw);
-    hideIn(built.root);
-    scene.add(built.root);
-    built.root.updateMatrixWorld(true);
-    const moving = space.parts.solids.filter((s) => s.moves).map((s) => s.path);
-    movers = new Map(
-      moving.flatMap((path) => {
-        const node = built ? nodeAt(built.root, path) : undefined;
-        return node ? [[path, { node, meshAt: node.matrixWorld.clone(), bodyAt: null }] as const] : [];
-      }),
-    );
-    if (tier.shadowMap > 0) fitShadowsTo(sun, terrain.grid(), built.root);
-  }
+  const draw = () => models.use(space.models);
+  const near = createNearObjects(
+    space.space,
+    space.prefabs,
+    builder,
+    draw,
+    (node) => {
+      node.updateMatrixWorld(true);
+      const id = String(node.userData.objectId);
+      for (const solid of moving) {
+        if (topOf(solid.path) !== id) continue;
+        const at = nodeAt(near.root, solid.path);
+        if (at)
+          movers.set(solid.path, { node: at, meshAt: at.matrixWorld.clone(), bodyFrom: authoredBody(solid).invert() });
+      }
+      for (const path of hidden) {
+        const taken = topOf(path) === id ? nodeAt(near.root, path) : undefined;
+        if (taken) taken.visible = false;
+      }
+    },
+    shadows,
+  );
+  const farOnes = createFarModels(space.space, space.prefabs, builder, draw, shadows);
+  let lastFar: { placements: readonly Placement[]; water: readonly string[] } = { placements: [], water: [] };
+  const showFar = () => farOnes.show(lastFar.placements, lastFar.water);
+  scene.add(near.root, farOnes.root);
 
   terrain.show(space.space.terrain ?? null, space.terrain);
   foliage.show(space.foliage);
+  foliage.models(draw());
   environment.show(space.environment ? environmentLook(space.environment) : null);
-  rebuild();
+  closeFog(scene, tier.viewDistance);
+  if (shadows) fitShadowsTo(sun, terrain.grid(), undefined);
 
   let size = { w: 1, h: 1 };
   const resize = () => {
@@ -169,32 +190,37 @@ export async function createWalkView(
   const parent = new THREE.Matrix4();
   let frames = 0;
 
-  /** A moving solid's node where its body is: the body's move since the build, laid on the node's matrix then. */
+  /** A moving solid's node where its body is: the body's move from where it was authored, laid on the node as built. */
   const follow = (path: string, at: Vec3, turn: Quat) => {
     const mover = movers.get(path);
-    if (!mover) return;
+    if (!mover?.node.parent) return;
     body.compose(new THREE.Vector3(...at), new THREE.Quaternion(...turn), new THREE.Vector3(1, 1, 1));
-    mover.bodyAt ??= body.clone().invert();
-    world.multiplyMatrices(body, mover.bodyAt).multiply(mover.meshAt);
-    const up = mover.node.parent;
-    parent.copy(up ? up.matrixWorld : new THREE.Matrix4()).invert();
+    world.multiplyMatrices(body, mover.bodyFrom).multiply(mover.meshAt);
+    parent.copy(mover.node.parent.matrixWorld).invert();
     world.premultiply(parent).decompose(mover.node.position, mover.node.quaternion, mover.node.scale);
+  };
+  const hideIn = () => {
+    for (const path of hidden) {
+      const node = nodeAt(near.root, path);
+      if (node) node.visible = false;
+    }
   };
 
   return {
     canvas,
-    frame(shot, feet, yaw, drawBody, moving) {
+    frame(shot, feet, yaw, drawBody, moved) {
+      if (near.build(false) && shadows) fitShadowsTo(sun, terrain.grid(), near.root);
       camera.position.set(...shot.at);
       camera.lookAt(...shot.target);
       camera.updateMatrixWorld();
       character.visible = drawBody;
       character.position.set(...feet);
       character.rotation.set(0, (yaw * Math.PI) / 180, 0);
-      for (const m of moving) follow(m.path, m.at, m.turn);
+      for (const m of moved) follow(m.path, m.at, m.turn);
       const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
       terrain.levels(eye);
       foliage.levels(eye);
-      for (const lod of lods) {
+      for (const lod of near.lods()) {
         lod.updateWorldMatrix(true, false);
         lod.update(camera);
       }
@@ -208,7 +234,7 @@ export async function createWalkView(
         backend,
         renderer,
         sun,
-        objects: built?.root,
+        objects: near.root,
         ground: terrain.chunks,
         foliageShadows: foliage.summary().some((f) => f.shadows),
         sky: environment.summary()?.sky ?? null,
@@ -217,18 +243,35 @@ export async function createWalkView(
     },
     hide(taken) {
       hidden = taken;
-      if (built) hideIn(built.root);
+      hideIn();
     },
     hidden() {
-      const root = built?.root;
-      return root ? [...hidden].filter((path) => nodeAt(root, path)?.visible === false).sort() : [];
+      return [...hidden].filter((path) => nodeAt(near.root, path)?.visible === false).sort();
     },
+    near(ids, order) {
+      near.want(ids, order);
+      for (const path of [...movers.keys()]) if (!ids.has(topOf(path))) movers.delete(path);
+    },
+    settle() {
+      if (near.build(true) && shadows) fitShadowsTo(sun, terrain.grid(), near.root);
+    },
+    far(placements, water) {
+      lastFar = { placements, water };
+      showFar();
+    },
+    streaming: () => ({
+      built: near.built(),
+      waiting: near.waiting,
+      slowest: near.slowest,
+      far: farOnes.summary(),
+    }),
     get frames() {
       return frames;
     },
     dispose() {
       watcher.disconnect();
-      built?.dispose();
+      near.dispose();
+      farOnes.dispose();
       builder.dispose();
       terrain.dispose();
       foliage.dispose();

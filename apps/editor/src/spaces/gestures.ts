@@ -17,6 +17,8 @@ import type { View } from './viewport.ts';
 
 export interface Wants {
   snap(): boolean;
+  /** The grid's step for a move, in metres (M5.10). */
+  step(): number;
   /** Whether a tap adds and takes away, as Select more makes it. */
   many(): boolean;
   choose(id: string | null, many: boolean): void;
@@ -107,7 +109,7 @@ export function attachGestures(view: View, focusable: HTMLElement, wants: Wants)
       return;
     }
     const handle = event.button === 0 && !brush ? view.handleAt(point) : null;
-    const grabbed = handle ? view.grab(handle, point) : null;
+    const grabbed = handle ? view.grab(handle, point, wants.step()) : null;
     if (handle && grabbed) {
       view.light(handle);
       const label = labelOf(handle.kind, grabbed.objects);
@@ -146,6 +148,7 @@ export function attachGestures(view: View, focusable: HTMLElement, wants: Wants)
       const placed = g.drag.update(view.rayAt(point), point, snaps(wants.snap(), event.ctrlKey || event.metaKey));
       if (!placed) return;
       g.last = placed;
+      view.latched(g.drag.latched());
       view.preview(placed);
     } else if (g.kind === 'stroke' && g.id === event.pointerId) {
       const ray = view.rayAt(point);
@@ -172,6 +175,7 @@ export function attachGestures(view: View, focusable: HTMLElement, wants: Wants)
     }
     if (g.kind === 'drag') {
       view.light(null);
+      view.latched([]);
       // One drag, one step: written as the pointer lifts. The view keeps the drag's places until the file has them.
       if (event.type === 'pointerup' && g.last && !same(g.last, g.start)) {
         wants.place(new Map(g.last.map((p) => [p.id, { at: p.at, turn: p.turn, scale: p.scale }])), g.label);

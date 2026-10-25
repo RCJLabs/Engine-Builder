@@ -4,6 +4,8 @@
  * each step the zones it entered send world/trigger; the camera follows; the shell's pause holds it.
  * M5.9 (D71, docs/specs/worldspaces.md): it starts where a load stood the player, or at the spawn
  * point they arrive at; Interact uses what they face; it says where they stand; what is taken goes.
+ * M5.10 (D72, docs/specs/streaming.md): it builds what is near the player and draws the models of
+ * what is far, the ring around them worked out again as they cross into another cell.
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
@@ -12,7 +14,7 @@ import type { PackWorld } from '@eb/core';
 import type { SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
 import { tierFromHints } from '../perf/hints.ts';
 import { readHints } from '../perf/readHints.ts';
-import { lowerTier } from '../perf/tiers.ts';
+import { lowerTier, TIERS } from '../perf/tiers.ts';
 import type { Vec3 } from '../spaces/vec.ts';
 import { type Acts, createActs, type InputBy } from './acts.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
@@ -24,6 +26,8 @@ import { createWalker, type Walker } from './physics.ts';
 import { createPrompt } from './prompt.ts';
 import { createSender, type Sender } from './sender.ts';
 import { spawnOf } from './solids.ts';
+import { createStreamer, type Ring } from './streamer.ts';
+import { createStreaming, type Streaming } from './streaming.ts';
 import { createSurface, type Surface, type Tier } from './surface.ts';
 import { createTouches } from './touch.ts';
 import { walkSpace } from './world.ts';
@@ -45,11 +49,12 @@ interface Walking {
   readonly sender: Sender;
   readonly acts: Acts;
   readonly surface: Surface;
+  readonly streaming: Streaming;
   gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
 
-const hookOf = ({ space, kind, began, walker, sender, acts, surface, gone, look }: Walking): WalkHook => ({
+const hookOf = ({ space, kind, began, walker, sender, acts, surface, streaming, gone, look }: Walking): WalkHook => ({
   space,
   began,
   character: () => ({
@@ -76,6 +81,7 @@ const hookOf = ({ space, kind, began, walker, sender, acts, surface, gone, look 
     return look().paused;
   },
   perf: () => surface.view.perf(surface.clock.intervals()),
+  cells: () => streaming.cells(),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -99,19 +105,32 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   await loadRapier();
   const spawn = spawnOf(space.parts.spawns, ask.arrive);
   const at: Vec3 | undefined = ask.at ? [ask.at.feet[0], ask.at.feet[1], ask.at.feet[2]] : undefined;
-  const walker = createWalker(RAPIER, { solids: space.parts.solids, spawn, ...(at ? { at } : {}) }, space.ground);
+  const tier = await tierFor(ask.quality);
+  // The ring around where the player starts is built before the walk does (M5.10): its solids first.
+  const streamer = createStreamer(space.parts, space.streamed.footprints, TIERS[tier.name].viewDistance);
+  const begin = at ?? spawn?.at ?? [0, 0, 0];
+  const first = streamer.at(begin[0], begin[2], new Set(ask.taken)) as Ring;
+  const walker = createWalker(RAPIER, { solids: first.solids, spawn, ...(at ? { at } : {}) }, space.ground);
   const kind: ViewKind = spawn?.view ?? 'third';
-  const surface = await createSurface(box, space, await tierFor(ask.quality));
+  const surface = await createSurface(box, space, tier);
   const touches = createTouches(box);
   const prompt = createPrompt(box);
   // Every step the walk asks for goes one at a time, zones' triggers too: the shell drops one sent
   // while another is on its way.
   const outbox = createOutbox(ask.send);
-  const sender = createSender(ask.space, outbox, space.parts.zones);
-  const acts = createActs(ask, outbox, space.parts.uses, prompt, { feet: walker.feet(), time: performance.now() });
+  const sender = createSender(ask.space, outbox, first.zones);
+  const acts = createActs(ask, outbox, first.uses, prompt, { feet: walker.feet(), time: performance.now() });
   let gone = acts.taken(ask.taken);
-  walker.remove(gone);
   surface.view.hide(gone);
+  const view = () => surface.view;
+  const streaming = createStreaming(
+    space,
+    streamer,
+    first,
+    { walker, sender, acts, view },
+    TIERS[tier.name].viewDistance,
+    gone,
+  );
   const began: WalkHook['began'] = at
     ? { from: 'at' }
     : spawn && spawn.path === ask.arrive
@@ -121,7 +140,12 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   let shot: Shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
   let [stopped, paused, carried, jumpWaiting, last, frame] = [false, false, 0, false, performance.now(), 0];
   let by: InputBy = coarse() ? 'touch' : 'keys';
-  const retier = (tier: Tier) => surface.retier(tier).then(() => surface.view.hide(gone));
+  const retier = (next: Tier) =>
+    surface.retier(next).then(() => {
+      surface.view.hide(gone);
+      const [x, , z] = walker.feet();
+      streaming.redraw(TIERS[next.name].viewDistance, x, z, gone);
+    });
 
   const draw = () => {
     shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
@@ -145,7 +169,9 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     jumpWaiting = waiting;
     for (let i = 0; i < steps.steps; i++) {
       walker.step({ ...intent, jump }, yaw);
-      sender.step(walker.feet());
+      const feet = walker.feet();
+      streaming.step(feet[0], feet[2], gone);
+      sender.step(feet);
     }
     acts.frame(walker.feet(), yaw, intent.use, by, time);
     draw();
@@ -169,6 +195,7 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     sender,
     acts,
     surface,
+    streaming,
     gone: () => gone,
     look: () => ({ yaw, pitch, shot, paused }),
   });

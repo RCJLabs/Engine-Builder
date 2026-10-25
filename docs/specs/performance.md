@@ -15,6 +15,7 @@ Nothing here runs in a game yet: the editor's Scene panel is the only 3D view un
 | Foliage drawn to | half its reach | three quarters | its reach |
 | Foliage thinned to | half | three quarters | all |
 | Weather's drops | a quarter | a half | all |
+| The walk's view distance (M5.10, [streaming.md](streaming.md)) | 250 m | 400 m | 600 m |
 
 - **Nothing a tier changes moves anything.** A plant stands at a lower tier only where its draw is below the density times the tier's share, so a lower tier's plants are a subset of a higher's. Drops are taken from the first of the same seeded list.
 - **Never the sim's:** a tier changes how the view draws, not the space's files, the records or what a game's sim reads.

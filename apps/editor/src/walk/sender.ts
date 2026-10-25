@@ -23,9 +23,14 @@ export interface Sender {
   readonly inside: readonly string[];
   /** Each trigger sent, in order, and its answer once it came. */
   sent(): SentTrigger[];
+  /** The zones heard from now on (M5.10): those of the objects built. */
+  zones(next: readonly Zone[]): void;
+  /** How many zones are heard. */
+  readonly heard: number;
 }
 
-export function createSender(space: string, outbox: Outbox, zones: readonly Zone[]): Sender {
+export function createSender(space: string, outbox: Outbox, first: readonly Zone[]): Sender {
+  let zones = first;
   let states: ReadonlyMap<string, ZoneState> = new Map();
   let inside: string[] = [];
   const sent: { object: string; sent: Sent | 'waiting' }[] = [];
@@ -49,5 +54,11 @@ export function createSender(space: string, outbox: Outbox, zones: readonly Zone
       return inside;
     },
     sent: () => sent.map((s) => ({ ...s })),
+    zones(next) {
+      zones = next;
+    },
+    get heard() {
+      return zones.length;
+    },
   };
 }

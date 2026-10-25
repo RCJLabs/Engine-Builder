@@ -17,6 +17,7 @@ describe('the tiers', () => {
       expect(b?.foliageReach).toBeGreaterThan(a?.foliageReach ?? 0);
       expect(b?.foliageShare).toBeGreaterThan(a?.foliageShare ?? 0);
       expect(b?.weatherShare).toBeGreaterThan(a?.weatherShare ?? 0);
+      expect(b?.viewDistance).toBeGreaterThan(a?.viewDistance ?? 0);
     }
     expect(high).toMatchObject({ antialias: true, foliageShadows: true, physicalSky: true, foliageShare: 1 });
     expect(low).toMatchObject({ antialias: false, shadowMap: 0, physicalSky: false });

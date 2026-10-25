@@ -87,17 +87,25 @@ export function pivotOf(objects: readonly Transform[]): Vec3 {
 const tidied = (v: Vec3): Vec3 => [tidy(v[0]), tidy(v[1]), tidy(v[2])];
 
 /**
- * The objects moved by `delta` along `axes`. Snapped, one object lands on the steps; several
- * move by whole steps, so each keeps its place beside the others.
+ * The objects moved by `delta` along `axes`. Snapped, one object lands on the grid's steps; several
+ * move by whole steps, so each keeps its place beside the others. An axis `latched` onto another
+ * object's box (M5.10) moves by its delta as it is.
  */
-export function moved(objects: readonly Placed[], delta: Vec3, axes: readonly Axis[], snap: boolean): Placed[] {
+export function moved(
+  objects: readonly Placed[],
+  delta: Vec3,
+  axes: readonly Axis[],
+  snap: boolean,
+  grid: number = STEPS.move,
+  latched: readonly Axis[] = [],
+): Placed[] {
   const only = objects.length === 1 ? objects[0] : undefined;
   const step = delta.map((d, i) => {
     if (!axes.includes(i as Axis)) return 0;
-    if (!snap) return d;
-    if (!only) return snapTo(d, STEPS.move);
+    if (!snap || latched.includes(i as Axis)) return d;
+    if (!only) return snapTo(d, grid);
     const from = only.at[i] as number;
-    return snapTo(from + d, STEPS.move) - from;
+    return snapTo(from + d, grid) - from;
   }) as unknown as Vec3;
   return objects.map((o) => ({ ...o, at: tidied(add(o.at, step)) }));
 }

@@ -15,12 +15,13 @@ import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
 import { TerrainTools } from '../terrain/TerrainTools.tsx';
-import { addHere, deleteChosen, groupChosen } from './actions.ts';
+import { addHere, deleteChosen, dropChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
+import { isMoveStep, MOVE_STEPS } from './snap.ts';
 import { places } from './spaceEdits.ts';
 import { nameOf } from './spaceFile.ts';
-import { frameAsked, gizmoMode, openSpace, picked, selectMore, snapOn } from './state.ts';
+import { chooseStep, frameAsked, gizmoMode, moveStep, openSpace, picked, selectMore, snapOn } from './state.ts';
 
 const MODES: readonly { mode: Mode; label: string }[] = [
   { mode: 'move', label: 'Move' },
@@ -69,6 +70,22 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
         >
           Snap
         </button>
+        <label class="scene-step">
+          <span>Grid</span>
+          <select
+            value={String(moveStep.value)}
+            onChange={(event) => {
+              const next = Number((event.target as HTMLSelectElement).value);
+              if (isMoveStep(next)) chooseStep(next);
+            }}
+          >
+            {MOVE_STEPS.map((step) => (
+              <option key={step} value={String(step)}>
+                {step} m
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="button"
           class="button"
@@ -96,6 +113,9 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
           onClick={() => toggle('group')}
         >
           Group into prefab
+        </button>
+        <button type="button" class="button" disabled={!canEdit || chosen === 0} onClick={() => void dropChosen()}>
+          Drop
         </button>
         <button type="button" class="button" disabled={!canEdit || chosen === 0} onClick={() => void deleteChosen()}>
           Delete
