@@ -16,8 +16,8 @@ The world module's slice, version 2, holds:
 | `arrive` | the spawn point they arrive at, when `at` is left out |
 | `taken` | the objects taken, as "space/object", sorted |
 
-- **The start:** a game starts in project.json's `"start-space"`, or in its one space when it has
-  only one. Two or more spaces and no start, or a start that names no space, is E075.
+- **The start:** a game starts in project.json's `"start-space"`, or in its first space by id. A
+  start that names no space is E075. A game whose screens name each space never needs one.
 - **Version 1 saves** load with `space` the start, no `at`, and nothing taken.
 
 ## enter-space

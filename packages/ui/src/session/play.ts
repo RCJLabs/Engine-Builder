@@ -30,8 +30,8 @@ import type { Entry, Shown, View, Wants } from './types.ts';
 import { bagEntries, eventShows, frameOf, journalEntries, type Reading, shelfShows, talkShows } from './views.ts';
 import { actionLabel } from './words.ts';
 
-/** What the stage sends as the character walks into a zone (M5.8). */
-const WALKED = `${WORLD}/trigger`;
+/** What the stage sends as the character walks into a zone (M5.8), uses what it faces and stands (M5.9). */
+const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`]);
 
 export interface Play {
   readonly view: View;
@@ -164,7 +164,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     compact: () => session.compact(),
     look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
-      const walked = action.type === WALKED;
+      const walked = WALKED.has(action.type);
       if (!walked && !view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], cues: [], accepted: false };
       }

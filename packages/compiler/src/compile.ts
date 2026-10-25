@@ -9,6 +9,7 @@ import {
   type RecordInput,
   type RecordType,
   recordFieldsOf,
+  type SpaceSpawns,
   type Usage,
   type ValidateOptions,
   validateRecords,
@@ -21,6 +22,7 @@ import { checkExport } from './exportCheck.ts';
 import { EXPORT_FILE } from './exportFile.ts';
 import { screenReads, withScreens } from './flagUses.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
+import { MANIFEST_FILE } from './layout.ts';
 import { checkModels } from './models.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { projectFiles } from './projectZip.ts';
@@ -30,7 +32,7 @@ import type { ProjectSource } from './source.ts';
 import { checkProjectSpaceParts } from './spaceParts.ts';
 import { checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
-import { packWorld } from './world.ts';
+import { packWorld, spaceSpawns } from './world.ts';
 
 export interface CompileResult {
   /** Sorted by compareDiagnostics. */
@@ -93,6 +95,9 @@ export async function compileProject(
     ...scenes.records.map((scene) => (talks.has(scene.id) ? { ...scene, unreadable: true } : scene)),
   ].map((record) => (known.unchecked.has(record.type) ? { ...record, unreadable: true } : record));
   const index = indexOf(records);
+  // Each space's spawn points, for enter-space's names (E076), and the space a game starts in (E075).
+  const spawns = spaceSpawns(spaces.files);
+  const start = startOf(files.startSpace, spawns, diagnostics);
   // Before the records: a trigger zone's flags and a screen's count for the flags' lint (M5.8).
   const parts = checkProjectSpaceParts(spaces.files, {
     types: new Map(known.types.map((t) => [t.type, t])),
@@ -102,6 +107,7 @@ export async function compileProject(
     kinds: components.kinds,
     uncheckedKinds: components.unchecked,
     assets: files.assets,
+    spaces: spawns,
   });
   const screens = screenReads(grounds.facts);
   const uiDiagnostics = checkProjectUi(ui, {
@@ -121,6 +127,7 @@ export async function compileProject(
     ...kitted,
     assets: files.assets,
     flagsElsewhere: withScreens(parts.flags, screens.found),
+    spaces: spawns,
   });
   diagnostics.push(...validation.diagnostics.map((d) => atSceneLine(d, scenes.maps)));
   // A placed record, and every reference in a component or an override, names one (M5.2).
@@ -159,6 +166,7 @@ export async function compileProject(
         types: known.data,
         kinds: components.kinds,
         known: kitted,
+        start,
       });
   return {
     diagnostics,
@@ -179,6 +187,18 @@ export async function compileProject(
     records: records.length,
     dataTypes: known.data,
   };
+}
+
+/**
+ * The space a new game starts in (M5.9, D71): project.json's start-space, which must be one of the
+ * spaces (E075), or the first by id. A game whose screens name each space never needs one.
+ */
+function startOf(named: string | undefined, spawns: SpaceSpawns, diagnostics: Diagnostic[]): string {
+  const ids = [...spawns.keys()].sort();
+  if (named === undefined || spawns.has(named)) return named ?? ids[0] ?? '';
+  const message = `No space "${named}": spaces/${named}.json isn't there`;
+  diagnostics.push({ code: 'E075', severity: 'error', message, file: MANIFEST_FILE, path: '/start-space' });
+  return ids[0] ?? '';
 }
 
 /** export.json's (M4.10) or guide.json's (M4.11) value, or undefined when there is none or it isn't JSON (E007). */

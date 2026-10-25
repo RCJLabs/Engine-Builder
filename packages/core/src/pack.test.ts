@@ -171,7 +171,7 @@ describe('createPack', () => {
       fields: { prop: 'model' },
     };
     const walked = createPack(project, records, undefined, undefined, undefined, undefined, world);
-    expect(walked.format).toBe(PACK_FORMAT);
+    expect(walked.format).toBe(9);
     expect(walked.world).toEqual(world);
     expect(walked).not.toHaveProperty('audio');
     expect(readPack(reloaded(walked))).toEqual(walked);
@@ -208,8 +208,59 @@ describe('createPack', () => {
     expect(broken({ sky: {} })).toThrow('Unknown pack world fields: sky');
     expect(broken({ records: { crate: {} } })).toThrow('"crate" is not a record\'s type and id');
     expect(broken({ fields: { prop: 3 } })).toThrow("The pack's model fields are not text");
-    // Before format 9 there is no world to carry.
+    // Before format 9 there is no world to carry, and before format 10 no uses, spawns or start.
     expect(() => readPack({ ...reloaded(createPack(project, records)), world })).toThrow('Unknown pack fields: world');
+    expect(broken({ start: 'trailhead' })).toThrow('Unknown pack world fields: start');
+  });
+
+  it('carries the uses, spawn points and start as format 10 (M5.9)', () => {
+    const world = {
+      spaces: { trailhead: { name: 'Trailhead', objects: [] }, bothy: { name: 'Bothy', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+      uses: { trailhead: { 'bothy/door': { label: 'Open', effects: [{ effect: 'enter-space', space: 'bothy' }] } } },
+      spawns: { trailhead: ['car-park'], bothy: [] },
+      start: 'trailhead',
+    };
+    const placed = createPack(project, records, undefined, undefined, undefined, undefined, world);
+    expect(placed.format).toBe(PACK_FORMAT);
+    expect(readPack(reloaded(placed))).toEqual(placed);
+    const moved = { ...world, start: 'bothy' };
+    expect(createPack(project, records, undefined, undefined, undefined, undefined, moved).hash).not.toBe(placed.hash);
+    // No uses, no spawn points and the first space the start: format 9 holds it, and it stays format 9.
+    const plain = { ...world, uses: { trailhead: {} }, spawns: { trailhead: [], bothy: [] }, start: 'bothy' };
+    const nine = createPack(project, records, undefined, undefined, undefined, undefined, plain);
+    expect(nine.format).toBe(9);
+    expect(nine.world).not.toHaveProperty('start');
+    expect(
+      createPack(project, records, undefined, undefined, undefined, undefined, { ...plain, start: 'trailhead' }).format,
+    ).toBe(10);
+    expect(
+      createPack(project, records, undefined, undefined, undefined, undefined, { ...plain, spawns: world.spawns })
+        .format,
+    ).toBe(10);
+    const broken = (change: Record<string, unknown>) => () =>
+      readPack({ ...reloaded(placed), world: { ...world, ...change } });
+    const door = world.uses.trailhead['bothy/door'];
+    expect(broken({ uses: { trailhead: 'a door' } })).toThrow("The pack's uses are not objects");
+    expect(broken({ uses: { moor: {} } })).toThrow('Uses of a space the pack lacks: "moor"');
+    expect(broken({ uses: { trailhead: { 'Bothy/door': door } } })).toThrow('"Bothy/door" is not an object\'s path');
+    expect(broken({ uses: { trailhead: { door: { effects: [] } } } })).toThrow(
+      'The use "trailhead/door" has no label or no effects',
+    );
+    expect(broken({ uses: { trailhead: { door: { ...door, reach: 2 } } } })).toThrow('Unknown use fields: reach');
+    expect(broken({ uses: { trailhead: { door: { ...door, takes: 1 } } } })).toThrow(
+      'The use "trailhead/door"\'s takes is not true or false',
+    );
+    expect(broken({ spawns: { trailhead: ['car park'], bothy: [] } })).toThrow(
+      "The pack's spawn points are not lists of object paths",
+    );
+    expect(broken({ spawns: { trailhead: [] } })).toThrow('The pack lists no spawn points for "bothy"');
+    expect(broken({ start: 'moor' })).toThrow("The pack's start is not one of its spaces");
+    expect(broken({ start: undefined })).toThrow("The pack's start is not one of its spaces");
   });
 });
 
@@ -363,8 +414,8 @@ describe('readPack', () => {
   });
 
   it('asks for a newer engine when the format is newer', () => {
-    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 10 })).toThrow(
-      'This pack is format 10; this engine reads formats 1 to 9. Update the engine.',
+    expect(() => readPack({ ...reloaded(createPack(project, records)), format: 11 })).toThrow(
+      'This pack is format 11; this engine reads formats 1 to 10. Update the engine.',
     );
   });
 

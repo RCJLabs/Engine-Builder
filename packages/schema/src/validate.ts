@@ -24,6 +24,7 @@ import { checkModel, MODEL, type ModelRecord } from './modelTypes.ts';
 import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
+import { checkEnterSpace, type SpaceSpawns } from './worldCheck.ts';
 
 export interface RecordInput {
   readonly type: string;
@@ -87,6 +88,11 @@ export interface ValidateOptions {
   readonly kits?: readonly string[];
   /** project.json's calendar (M3.5, D43): the time kit's facts, events and effects follow it. */
   readonly calendar?: CalendarDef;
+  /**
+   * The project's spaces and each one's spawn points (M5.9), for enter-space's names (E076).
+   * Without it, enter-space gets only the shape check.
+   */
+  readonly spaces?: SpaceSpawns;
   /** Flags set and read by spaces' trigger zones and by screens (M5.8), for the flags' lint. */
   readonly flagsElsewhere?: FlagUses;
 }
@@ -155,6 +161,7 @@ export function validateRecords(
         flags.effect({ from, path, report }, value);
         for (const flag of kits.flagsReadBy(value)) flags.heard(flag, from);
         kits.effect(report, path, value);
+        if (options.spaces) checkEnterSpace(value, options.spaces, report, path);
       },
     };
     const slotsAt = kits.slotsOf(record.type, record.value);

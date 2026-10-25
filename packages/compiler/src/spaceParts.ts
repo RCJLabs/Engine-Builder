@@ -8,6 +8,7 @@
  */
 import { conditionRefs, FLAG, formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import {
+  checkEnterSpace,
   checkPart,
   type DataType,
   type Diagnostic,
@@ -18,6 +19,7 @@ import {
   type Known,
   type PartContext,
   type RecordType,
+  type SpaceSpawns,
   schemaIssues,
   severityOf,
   z,
@@ -39,6 +41,8 @@ export interface SpacePartsContext {
   readonly uncheckedKinds: ReadonlySet<string>;
   /** The files under assets/, for an asset field's E018. Without it, unchecked. */
   readonly assets?: ReadonlySet<string>;
+  /** Each space's spawn points (M5.9), for an enter-space in a zone's or a use's effects (E076). */
+  readonly spaces?: SpaceSpawns;
 }
 
 /** A reference a space or prefab holds: a placed record, or a ref inside a component or an override. */
@@ -257,9 +261,12 @@ function partContext(
         if (ref.type === FLAG) listFlag(walk.flags.read, ref.id, walk.file);
       }
     },
-    effect: (_path, effect) => {
+    effect: (path, effect) => {
       const sets = effect.effect === 'set-flag' || effect.effect === 'add-to-flag';
       if (sets && typeof effect.flag === 'string') listFlag(walk.flags.set, effect.flag, walk.file);
+      const spaces = walk.ctx.spaces;
+      if (spaces && kept(path))
+        checkEnterSpace(effect, spaces, (code, at, message) => report(walk, code, at, message), path);
     },
   };
 }

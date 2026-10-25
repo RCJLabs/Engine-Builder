@@ -1966,7 +1966,7 @@ Evan chose on 2026-10-25, from these options:
 - **`enter-space`.** An effect any effect list can hold moves the player to a space, at one of its spawn points or at its start. The sim keeps which space the player is in; a Space widget that names no space draws that one, with a loading screen between.
 - **Interact.** A new component kind, `interact`, gives an object a label, a condition, effects, `once` and `takes`. The prompt shows for the nearest one in reach that the player faces; E, the pad's X or a touch button beside Jump uses it, sending `world/use`, checked and run by the sim. A pickup is an interact that takes its object and gives an item.
 - **Where you stood.** The world module's slice keeps the space, where the player stood and which way they faced, and the objects taken. The stage tells the sim with `world/at` as the shell pauses, as the page hides, before each use and every few seconds of walking; a load puts the player back there. Moving bodies go back to their authored places.
-- **The start space** (my call, put to Evan in the PR): a game with more than one space starts in project.json's `start-space`, or in its only space.
+- **The start space** (my call, put to Evan in the PR): a game starts in project.json's `start-space`, or in its first space by id; a game whose screens name each space, as the trail's do, never needs one.
 
 **Why.**
 - **The split:** the gate needs only doors, pickups, a trigger's quest step and positions; streaming needs a far bigger exterior and its own readings on a phone, and snapping is the editor's alone.

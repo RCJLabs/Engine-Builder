@@ -3,17 +3,22 @@ import { createRecordStore } from '../records.ts';
 import { flagModule } from '../sheets/flags.ts';
 import { sheetModule } from '../sheets/sheets.ts';
 import { createGame, defineModule, type GameState } from '../sim/index.ts';
-import { type Triggers, worldModule } from './world.ts';
+import { type WorldData, worldModule } from './world.ts';
 
 const on = (flag: string) => ({ fact: 'flag.on', args: { flag } });
 
-const TRIGGERS: Triggers = {
-  trailhead: {
-    'cairn/zone': { effects: [{ effect: 'set-flag', flag: 'cairn-seen', to: true }], once: true },
-    gate: { when: on('cairn-seen'), effects: [{ effect: 'add-to-flag', flag: 'gates', by: 1 }] },
-    bog: { effects: [{ effect: 'add-to-flag', flag: 'gates', by: 1 }, { effect: 'toll' }], once: true },
-    'a-stile': { effects: [], once: true },
+const WORLD: WorldData = {
+  triggers: {
+    trailhead: {
+      'cairn/zone': { effects: [{ effect: 'set-flag', flag: 'cairn-seen', to: true }], once: true },
+      gate: { when: on('cairn-seen'), effects: [{ effect: 'add-to-flag', flag: 'gates', by: 1 }] },
+      bog: { effects: [{ effect: 'add-to-flag', flag: 'gates', by: 1 }, { effect: 'toll' }], once: true },
+      'a-stile': { effects: [], once: true },
+    },
   },
+  uses: {},
+  spawns: { trailhead: [], bothy: [] },
+  start: 'trailhead',
 };
 
 const FLAGS = { 'cairn-seen': {}, gates: { number: { min: 0, max: 5 } } };
@@ -27,8 +32,7 @@ const trail = defineModule<object>({
   modes: { out: { actions: ['world/*', 'trail/*'] }, over: { actions: [] } },
 });
 
-const gameOf = (start = 'out') =>
-  createGame({ modules: [flagModule, sheetModule, worldModule(TRIGGERS), trail], start });
+const gameOf = (start = 'out') => createGame({ modules: [flagModule, sheetModule, worldModule(WORLD), trail], start });
 
 function walk(sheets = {}, start = 'out') {
   const game = gameOf(start);
@@ -64,13 +68,13 @@ describe('world/trigger', () => {
     const w = walk();
     expect(w.fact('world.fired', { space: 'trailhead', object: 'cairn/zone' })).toBe(false);
     w.enter('trailhead', 'cairn/zone');
-    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'] });
+    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [] });
     expect(w.fact('world.fired', { space: 'trailhead', object: 'cairn/zone' })).toBe(true);
     const again = w.enter('trailhead', 'cairn/zone');
     expect(again.accepted).toBe(false);
     expect(again.beats).toEqual([{ type: 'rejected', action: 'world/trigger', reason: 'spent' }]);
     w.enter('trailhead', 'a-stile');
-    expect(w.state.world).toEqual({ fired: ['trailhead/a-stile', 'trailhead/cairn/zone'] });
+    expect(w.state.world).toEqual({ fired: ['trailhead/a-stile', 'trailhead/cairn/zone'], taken: [] });
   });
 
   it('runs a zone every time while its condition holds, and never while it doesn’t', () => {
@@ -83,7 +87,7 @@ describe('world/trigger', () => {
     w.enter('trailhead', 'gate');
     expect(w.fact('flag.number', { flag: 'gates' })).toBe(2);
     // Not remembered: only once zones are.
-    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'] });
+    expect(w.state.world).toEqual({ fired: ['trailhead/cairn/zone'], taken: [] });
   });
 
   it('refuses a zone the pack lacks, own keys only, and a trigger without its names', () => {
@@ -110,7 +114,7 @@ describe('world/trigger', () => {
     const step = w.enter('trailhead', 'bog');
     expect(step.accepted).toBe(false);
     expect(w.fact('flag.number', { flag: 'gates' })).toBe(0);
-    expect(w.state.world).toEqual({ fired: [] });
+    expect(w.state.world).toEqual({ fired: [], taken: [] });
   });
 
   it('is never offered: only the stage sends it', () => {

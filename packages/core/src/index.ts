@@ -44,4 +44,18 @@ export * from './sheets/index.ts';
 export * from './sim/index.ts';
 export { type Difference, type FacetReading, firstDifference, readFacets, stateHash } from './stateHash.ts';
 export * from './time/index.ts';
-export { type Triggers, type TriggerZone, WORLD, type WorldSlice, worldModule } from './world/world.ts';
+export { worldDataOf } from './world/packWorld.ts';
+export {
+  EMPTY_WORLD,
+  placeKey,
+  type StoodAt,
+  type Triggers,
+  type TriggerZone,
+  type Uses,
+  WORLD,
+  WORLD_VERSION,
+  type WorldData,
+  type WorldSlice,
+  type WorldUse,
+  worldModule,
+} from './world/world.ts';

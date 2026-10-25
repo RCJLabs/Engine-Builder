@@ -45,6 +45,7 @@ export {
   effect,
   effectCatalog,
   effectMark,
+  enterSpaceEffect,
   isEffectShape,
   rollEffect,
   setFlagEffect,
@@ -191,3 +192,4 @@ export {
   type FoundRef,
   scanRecord,
 } from './walk.ts';
+export { checkEnterSpace, type SpaceSpawns } from './worldCheck.ts';

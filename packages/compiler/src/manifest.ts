@@ -13,8 +13,8 @@ export const PROJECT_FORMAT = 1;
 const VERSION = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 /**
- * project.json, format 1. `kits` (M3.3, D41) and `calendar` (M3.5, D43) need no new format: a
- * project without them reads as before. Kits' ids are checked beyond the schema (E033, E034), and
+ * project.json, format 1. `kits` (M3.3, D41), `calendar` (M3.5, D43) and `start-space` (M5.9, D71)
+ * need no new format: a project without them reads as before. Kits' ids are checked beyond the schema (E033, E034), and
  * a calendar's sense too (E038), so neither stops the project being read.
  */
 export const projectSchema = z.strictObject({
@@ -27,6 +27,8 @@ export const projectSchema = z.strictObject({
     .optional(),
   // Checked apart (E038), so a calendar half filled in never stops project.json being read.
   calendar: z.unknown().optional(),
+  // The space a game of two or more starts in (M5.9): checked against the spaces once they are read (E075).
+  'start-space': z.string().regex(RECORD_ID_PATTERN, { error: "Not a valid space id: use its file's name" }).optional(),
 });
 
 export interface ManifestProblem extends SchemaIssue {
@@ -64,7 +66,11 @@ function calendarFor(given: unknown, on: readonly string[]): { calendar?: Calend
  * The project's id, name, version and the kits on, in the engine's order, or the problems that
  * stop project.json being read. A kit's problems don't stop it: that kit is off.
  */
-export function checkManifest(value: unknown): { project: PackProject | null; problems: ManifestProblem[] } {
+export function checkManifest(value: unknown): {
+  project: PackProject | null;
+  problems: ManifestProblem[];
+  startSpace?: string;
+} {
   const format = typeof value === 'object' && value !== null ? (value as { format?: unknown }).format : undefined;
   if (typeof format === 'number' && Number.isInteger(format) && format > PROJECT_FORMAT) {
     const message = `This project is format ${format}; this engine reads formats up to ${PROJECT_FORMAT}. Update the engine.`;
@@ -72,7 +78,7 @@ export function checkManifest(value: unknown): { project: PackProject | null; pr
   }
   const issues = schemaIssues(projectSchema, value);
   if (issues.length > 0) return { project: null, problems: issues.map((issue) => ({ code: 'E008', ...issue })) };
-  const { id, name, version, kits = [], calendar } = value as z.infer<typeof projectSchema>;
+  const { id, name, version, kits = [], calendar, 'start-space': startSpace } = value as z.infer<typeof projectSchema>;
   const { on, problems } = kitsOn(kits);
   const listed: ManifestProblem[] = problems.map(({ code, index, message }) => ({
     code,
@@ -81,5 +87,9 @@ export function checkManifest(value: unknown): { project: PackProject | null; pr
   }));
   const timed = calendarFor(calendar, on);
   const kitted = { id, name, version, kits: on, ...(timed.calendar ? { calendar: timed.calendar } : {}) };
-  return { project: on.length > 0 ? kitted : { id, name, version }, problems: [...listed, ...timed.problems] };
+  return {
+    project: on.length > 0 ? kitted : { id, name, version },
+    problems: [...listed, ...timed.problems],
+    ...(startSpace !== undefined ? { startSpace } : {}),
+  };
 }

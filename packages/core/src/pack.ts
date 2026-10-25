@@ -5,7 +5,7 @@
 import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
-import { type PackWorld, worldProblem } from './world/packWorld.ts';
+import { asFormat9, type PackWorld, worldProblem } from './world/packWorld.ts';
 
 export type { PackWorld } from './world/packWorld.ts';
 
@@ -20,7 +20,7 @@ export type { PackWorld } from './world/packWorld.ts';
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 9;
+export const PACK_FORMAT = 10;
 
 export interface PackProject {
   readonly id: string;
@@ -61,7 +61,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -72,7 +72,7 @@ export interface Pack {
   readonly credits?: readonly PackCredit[];
   /** Format 8: the audio files the music records name, base64 by their path inside assets/, at least one (M4.8). Format 9: audio or none. */
   readonly audio?: Readonly<Record<string, string>>;
-  /** Format 9: the spaces walked in play (M5.8). */
+  /** Format 9: the spaces walked in play (M5.8). Format 10: their uses, spawn points and start too (M5.9). */
   readonly world?: PackWorld;
   /** FNV-1a 64 of the canonical JSON of the rest of the pack: the same content gives the same hash anywhere. */
   readonly hash: string;
@@ -94,7 +94,8 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
  * A pack of the records, with the scripts when there are any (format 2), the kits when the project
  * lists any (format 3), the screens when there are any (format 4), the feedback when there is
  * any (format 5), the shell's settings when there are any (format 6), the assets' credits
- * when there are any (format 7), the music's files (format 8) and the spaces (format 9).
+ * when there are any (format 7), the music's files (format 8) and the spaces (format 9), with
+ * their uses, spawn points and start (format 10).
  */
 export function createPack(
   project: PackProject,
@@ -115,9 +116,12 @@ export function createPack(
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
   const walked = world !== undefined && Object.keys(world.spaces).length > 0;
+  const nine = walked ? asFormat9(world) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
   const format = walked
-    ? 9
+    ? nine === undefined
+      ? 10
+      : 9
     : sounded
       ? 8
       : credited
@@ -141,7 +145,7 @@ export function createPack(
     ...(hasUi ? { ui: uiOf(ui as PackUi) } : {}),
     ...(credited ? { credits: [...credits].sort((a, b) => (a.asset < b.asset ? -1 : a.asset > b.asset ? 1 : 0)) } : {}),
     ...(sounded ? { audio } : {}),
-    ...(walked ? { world } : {}),
+    ...(walked ? { world: nine ?? world } : {}),
   } as const;
   return { ...content, hash: packHash(content) };
 }
@@ -169,7 +173,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
@@ -197,7 +201,7 @@ export function readPack(value: unknown): Pack {
   if (format === 7 || (format >= 8 && value.credits !== undefined)) checkCredits(value.credits);
   // Format 9 is the format for spaces, which a game without music may carry.
   if (format === 8 || (format >= 9 && value.audio !== undefined)) checkAudio(value.audio);
-  const world = format >= 9 ? worldProblem(value.world) : undefined;
+  const world = format >= 9 ? worldProblem(value.world, format) : undefined;
   if (world !== undefined) throw new PackError(world);
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;

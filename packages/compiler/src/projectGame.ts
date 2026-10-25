@@ -5,6 +5,7 @@
  * that never returns hangs its caller here, as a --game module's would; the editor stops its worker
  * from outside.
  */
+import { EMPTY_WORLD } from '@eb/core';
 import { compareDiagnostics, type Diagnostic, severityOf } from '@eb/schema';
 import { type GameCatalog, loadProjectGame, type ProjectGame, scriptPath } from '@eb/script';
 import { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
@@ -29,7 +30,12 @@ export type ScriptedGame =
 export function gameOf(scripts: ScriptsRead, settings: KitSettings = { kits: [] }): ScriptedGame {
   if (!scripts.hasGame) return { kind: 'none' };
   if (scripts.compiled.size === 0) return { kind: 'broken' };
-  const loaded = loadProjectGame(scripts.compiled, settings.kits, settings.calendar, settings.spaces ? {} : undefined);
+  const loaded = loadProjectGame(
+    scripts.compiled,
+    settings.kits,
+    settings.calendar,
+    settings.spaces ? EMPTY_WORLD : undefined,
+  );
   if (loaded.ok) return { kind: 'loaded', game: loaded.game, catalog: loaded.catalog };
   const { code, message, script = 'game', line } = loaded.problem;
   const diagnostic: Diagnostic = {
