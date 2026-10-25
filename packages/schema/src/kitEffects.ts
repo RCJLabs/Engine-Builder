@@ -48,6 +48,13 @@ export interface EffectFile {
 
 const COUNT = { kind: 'int', min: 1, optional: true, label: 'Count', description: '1 when left out' } as const;
 const WHO = { kind: 'ref', to: ACTOR, label: 'Actor' } as const;
+/** Whose bag (M6.1, D73): an actor's, or the party's when left out. */
+const WHOSE_BAG = {
+  ...WHO,
+  optional: true,
+  label: 'Whose bag',
+  description: 'An actor’s: the party’s when left out',
+} as const;
 const WHICH_STAT = { kind: 'ref', to: STAT, label: 'Stat' } as const;
 const WHICH_STATUS = { kind: 'ref', to: STATUS, label: 'Status' } as const;
 
@@ -59,6 +66,7 @@ const FILES: EffectFile[] = [
     fields: {
       item: { kind: 'ref', to: ITEM, label: 'Item' },
       count: { ...COUNT, description: '1 when left out; past the item’s Most carried, the rest is lost' },
+      actor: WHOSE_BAG,
     },
   },
   {
@@ -68,13 +76,20 @@ const FILES: EffectFile[] = [
     fields: {
       item: { kind: 'ref', to: ITEM, label: 'Item' },
       count: { ...COUNT, description: '1 when left out; it refuses when the bag holds fewer' },
+      actor: WHOSE_BAG,
     },
   },
   {
     effect: 'roll-loot',
     kit: INVENTORY,
     label: 'Roll a loot table',
-    fields: { table: { kind: 'ref', to: LOOT_TABLE, label: 'Table' } },
+    fields: {
+      table: { kind: 'ref', to: LOOT_TABLE, label: 'Table' },
+      actor: {
+        ...WHOSE_BAG,
+        description: 'Its items into an actor’s bag, the party’s when left out; resources are the party’s',
+      },
+    },
   },
   {
     effect: 'add-resource',

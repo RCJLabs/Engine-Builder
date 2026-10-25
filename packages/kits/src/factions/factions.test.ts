@@ -191,3 +191,22 @@ describe('prices by band', () => {
     expect(fact(bought.state, 'economy.amount', { resource: 'silver' })).toBe(RECORDS.resource.silver.start - 90);
   });
 });
+
+describe('an actor’s faction (M6.1, D73)', () => {
+  const people = embassyWith({
+    ...RECORDS,
+    actor: { envoy: { name: 'Envoy', faction: 'traders' }, hermit: { name: 'Hermit' } },
+  });
+  const bandOf = (state: GameState, actor: string) => people.fact(state, 'factions.band-of', { actor });
+
+  it('reads the party’s band with the faction an actor belongs to, as it moves', () => {
+    const state = people.start();
+    expect(bandOf(state, 'envoy')).toBe('neutral');
+    expect(bandOf(people.apply(state, change('traders', 10)), 'envoy')).toBe('trusted');
+  });
+
+  it('reads as nothing for an actor with no faction, and throws for one content hasn’t', () => {
+    expect(bandOf(people.start(), 'hermit')).toBeUndefined();
+    expect(() => bandOf(people.start(), 'nobody')).toThrow('No actor "nobody"');
+  });
+});

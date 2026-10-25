@@ -55,6 +55,8 @@ export interface LootTableRecord {
 export interface InventorySlice {
   /** The party's items by id, each count 1 or more. */
   readonly bag: Readonly<Record<string, number>>;
+  /** Version 2 (M6.1): by actor, its whole bag once anything in it has changed; its `carries` until then. */
+  readonly bags: Readonly<Record<string, Readonly<Record<string, number>>>>;
 }
 
 /** A range's ends, with the defaults filled in. */

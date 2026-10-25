@@ -3,11 +3,19 @@
  * faction, its band, the share of a shop's prices the band sets, and drift as each day starts.
  * Drift hears every event and picks out `time/day-started`, since a game may have no time module.
  */
-import { defineModule, type FactTest, OP_WORDS } from '@eb/core';
+import { defineModule, type FactTest, OP_WORDS, type RecordStore } from '@eb/core';
+import { ACTOR } from '../stats/types.ts';
 import { bandOf, changeStanding, drift, factionRecord, priceOf, reached, standingOf, within } from './standing.ts';
 import { FACTION, FACTIONS, type FactionsSlice } from './types.ts';
 
 const FACTION_ARG = { faction: { type: 'ref', to: FACTION } } as const;
+
+/** The faction an actor belongs to (M6.1, D73), or undefined for one with none. */
+function factionOfActor(content: RecordStore, actor: unknown): string | undefined {
+  if (typeof actor !== 'string' || !content.has(ACTOR, actor)) throw new Error(`No actor "${String(actor)}"`);
+  const faction = (content.get(ACTOR, actor) as { readonly faction?: string }).faction;
+  return typeof faction === 'string' ? faction : undefined;
+}
 
 // "grimsgarth’s standing is at least 10": a test in words by the faction's id, as a flag's are.
 const whose = (what: string) => (test: FactTest) =>
@@ -33,6 +41,18 @@ export const factionsKit = defineModule<FactionsSlice>({
       describe: whose('band'),
       read: ({ content, state }, { faction }) =>
         bandOf(factionRecord(content, faction), standingOf(content, state, faction as string))?.id,
+    },
+    'band-of': {
+      args: { actor: { type: 'ref', to: ACTOR } },
+      domain: { type: 'text' },
+      label: 'the band with the faction of',
+      // The party's standing with the actor's faction: an NPC's mood, as M6.3's hostility will read it.
+      read: ({ content, state }, { actor }) => {
+        const faction = factionOfActor(content, actor);
+        return faction === undefined
+          ? undefined
+          : bandOf(factionRecord(content, faction), standingOf(content, state, faction))?.id;
+      },
     },
     reached: {
       args: { ...FACTION_ARG, band: { type: 'text' } },

@@ -3,8 +3,9 @@
  * actors, statuses and slots, and the fields the gear kit adds to the inventory kit's items and
  * to actors.
  */
-import { ITEM, SLOT, STAT, STATUS } from '@eb/kits';
+import { GEAR, ITEM, SLOT, STAT, STATUS } from '@eb/kits';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
+import { npcFields } from './npcFields.ts';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
 
 /** What a status, or a worn item, does to stats: a list, each adding, then taking a percent. */
@@ -69,8 +70,12 @@ export const STATUS_TYPE_FILE: TypeFile = {
   },
 };
 
-/** An actor: with the gear kit on, its slots and what it starts wearing too. */
-export function actorTypeFile(gear: boolean): TypeFile {
+/**
+ * An actor: with the gear kit on, its slots and what it starts wearing too; and since M6.1 (D73), how
+ * it looks placed in a space, its talk, faction and bag with their kits on (npcFields.ts).
+ */
+export function actorTypeFile(on: readonly string[]): TypeFile {
+  const gear = on.includes(GEAR);
   const worn: Fields = {
     slots: {
       kind: 'list',
@@ -112,6 +117,7 @@ export function actorTypeFile(gear: boolean): TypeFile {
         description: 'Statuses it has from the start, a stack each, until removed',
       },
       ...(gear ? worn : {}),
+      ...npcFields(on),
     },
   };
 }

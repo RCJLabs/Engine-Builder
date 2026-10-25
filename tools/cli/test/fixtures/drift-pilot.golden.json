@@ -6,15 +6,15 @@
   "maxTurns": 1000,
   "runs": {
     "seed-0": {
-      "hash": "c09cd2c1261ccde9",
+      "hash": "53356c91b2329ac7",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "2b88b48bc32661a8",
         "encounters": "2a0c0eead5d82996",
         "events": "2f037a034657e6b9",
         "flag": "f4356a80005faa70",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "6f1da12f3ceec1c4",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e74408c8d5ca63bf",
         "logic": "08f44b07b5901a25",
         "maps": "60cbae7df722aa2a",
         "sheet": "da9d0cae103b40df",
@@ -24,15 +24,15 @@
       "end": "ended"
     },
     "seed-1": {
-      "hash": "f1e112441816731e",
+      "hash": "e5b9041f72e08a8e",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "f242d4714ae27b41",
         "encounters": "1e13654fc6bee9fe",
         "events": "7773f6185d3fe1f5",
         "flag": "68bbfd3846610ebd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "1e04074f76e6bd1d",
+        "inventory": "028abe56d9d59772",
+        "kernel": "6853f24aa0ab379e",
         "logic": "08f44b07b5901a25",
         "maps": "72bc21b0ec35e3cf",
         "sheet": "da9d0cae103b40df",
@@ -42,15 +42,15 @@
       "end": "ended"
     },
     "seed-2": {
-      "hash": "3657e0a7209376a9",
+      "hash": "e88f4bcc7d699a07",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "9c5dc47d09e07037",
         "encounters": "1e13654fc6bee9fe",
         "events": "d66e2b39d73be73b",
         "flag": "16ff3a55e672ffb5",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "34cf1dcb3f98c8ae",
+        "inventory": "028abe56d9d59772",
+        "kernel": "0491ee797114222d",
         "logic": "08f44b07b5901a25",
         "maps": "4764a86ba7df738d",
         "sheet": "da9d0cae103b40df",
@@ -60,15 +60,15 @@
       "end": "ended"
     },
     "seed-3": {
-      "hash": "cc0789274916a8d7",
+      "hash": "24c83130ae47917f",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "cddfb31e0b4a1157",
         "encounters": "42b15582270dcc4e",
         "events": "07f1be1f50ccd998",
         "flag": "379fde55f85ae161",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "a09bd7536ae7e6d8",
+        "inventory": "028abe56d9d59772",
+        "kernel": "552c1376a50b5c03",
         "logic": "08f44b07b5901a25",
         "maps": "77a74d6a1018f60e",
         "sheet": "da9d0cae103b40df",
@@ -78,15 +78,15 @@
       "end": "ended"
     },
     "seed-4": {
-      "hash": "87b5ef0589889979",
+      "hash": "5919dd12c184ff09",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e9cb2c3fd85a4220",
         "encounters": "42b15582270dcc4e",
         "events": "267d1c83a01ce019",
         "flag": "16ff3a55e672ffb5",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "a5a6fd21bde2f458",
+        "inventory": "028abe56d9d59772",
+        "kernel": "5a373944f8066983",
         "logic": "08f44b07b5901a25",
         "maps": "dfa5110ab3a21af8",
         "sheet": "da9d0cae103b40df",
@@ -96,15 +96,15 @@
       "end": "ended"
     },
     "seed-5": {
-      "hash": "abdd18eb92e66867",
+      "hash": "43ef4ce1f5f7dd5d",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "d3724dcf82b7776c",
         "encounters": "42b15582270dcc4e",
         "events": "e1fc4ef28636ed22",
         "flag": "379fde55f85ae161",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "26e53b63be2fceb7",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e23815855d00f95c",
         "logic": "08f44b07b5901a25",
         "maps": "29dc5f65bde9656d",
         "sheet": "da9d0cae103b40df",
@@ -114,15 +114,15 @@
       "end": "ended"
     },
     "seed-6": {
-      "hash": "7242e72ef3fe9a7d",
+      "hash": "a56e1eac56a65af9",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "c4fcb3ca00ad77ad",
         "encounters": "42b15582270dcc4e",
         "events": "6e450b5ee0066317",
         "flag": "16ff3a55e672ffb5",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "80c7686f29d34669",
+        "inventory": "028abe56d9d59772",
+        "kernel": "6f6b47c09d47a11a",
         "logic": "08f44b07b5901a25",
         "maps": "627896611b7a82a6",
         "sheet": "da9d0cae103b40df",
@@ -132,15 +132,15 @@
       "end": "ended"
     },
     "seed-7": {
-      "hash": "d737c8516b8e5582",
+      "hash": "efac098987ad7bbe",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "abc6ac52989cae54",
         "encounters": "329d2c4e858d99b8",
         "events": "437aced7ff93b6ce",
         "flag": "3043b555f48e4f5a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "5e22a58d4f5df384",
+        "inventory": "028abe56d9d59772",
+        "kernel": "3f67968c0324cf7f",
         "logic": "08f44b07b5901a25",
         "maps": "28cfece7159fc3e6",
         "sheet": "da9d0cae103b40df",
@@ -150,15 +150,15 @@
       "end": "ended"
     },
     "seed-8": {
-      "hash": "bb9961d584b6f706",
+      "hash": "637a7e183163c59a",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "849b6ab22807dd66",
         "encounters": "42b15582270dcc4e",
         "events": "03c6c711f90a02aa",
         "flag": "481a593834777a11",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "5dd19281a12e9339",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d6b77c318bb76bea",
         "logic": "08f44b07b5901a25",
         "maps": "4441cb16f54cc893",
         "sheet": "da9d0cae103b40df",
@@ -168,15 +168,15 @@
       "end": "ended"
     },
     "seed-9": {
-      "hash": "abe2736922d71520",
+      "hash": "4242a10e122ee1b8",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "0856dfd0687289a3",
         "encounters": "42b15582270dcc4e",
         "events": "a32e55c67c1f8491",
         "flag": "0fa21155e2a4baae",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "dcf3607183c51a6e",
+        "inventory": "028abe56d9d59772",
+        "kernel": "1e50545b9cb145ed",
         "logic": "08f44b07b5901a25",
         "maps": "0649091873409ce5",
         "sheet": "da9d0cae103b40df",
@@ -186,15 +186,15 @@
       "end": "ended"
     },
     "seed-10": {
-      "hash": "398ced6d0ae108a3",
+      "hash": "9722faafbbd2d0a9",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "92cc25bbde47f724",
         "encounters": "42b15582270dcc4e",
         "events": "ccdcb838fa6be738",
         "flag": "3043b555f48e4f5a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "1448560f9b42609e",
+        "inventory": "028abe56d9d59772",
+        "kernel": "c9f86b14717de61d",
         "logic": "08f44b07b5901a25",
         "maps": "e4fe421e20b9b9d1",
         "sheet": "da9d0cae103b40df",
@@ -204,15 +204,15 @@
       "end": "ended"
     },
     "seed-11": {
-      "hash": "7952284951d7e247",
+      "hash": "6ac1c78d83d9ff5b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "c1ed11ef232239c3",
         "encounters": "70f3b5f6c84e9afe",
         "events": "64498dc0d60d45b4",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "7d00147de022ac72",
+        "inventory": "028abe56d9d59772",
+        "kernel": "91c1e1732be51801",
         "logic": "08f44b07b5901a25",
         "maps": "abf51decb3ba806c",
         "sheet": "da9d0cae103b40df",
@@ -222,15 +222,15 @@
       "end": "ended"
     },
     "seed-12": {
-      "hash": "1df30787ee236571",
+      "hash": "d6e5e19e4964e65b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "20a06b6018119823",
         "encounters": "42b15582270dcc4e",
         "events": "e7185732f079919b",
         "flag": "16ff3a55e672ffb5",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "7ace4b109e5972c9",
+        "inventory": "028abe56d9d59772",
+        "kernel": "70743855eb5a0ffa",
         "logic": "08f44b07b5901a25",
         "maps": "5ccdb6f8443e8e46",
         "sheet": "da9d0cae103b40df",
@@ -240,15 +240,15 @@
       "end": "ended"
     },
     "seed-13": {
-      "hash": "08e0c49aedf81804",
+      "hash": "1caea33858d5ba5e",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "15687c9262a6569b",
         "encounters": "42b15582270dcc4e",
         "events": "ec87629021ea130d",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "504658b519aedeb3",
+        "inventory": "028abe56d9d59772",
+        "kernel": "c0ab2c51d8dad848",
         "logic": "08f44b07b5901a25",
         "maps": "323f6d4459fb31ae",
         "sheet": "da9d0cae103b40df",
@@ -258,15 +258,15 @@
       "end": "ended"
     },
     "seed-14": {
-      "hash": "2ccfa31f55e1a112",
+      "hash": "a437e040efc13d0c",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "f399baec62b2c302",
         "encounters": "70f3b5f6c84e9afe",
         "events": "0dfc95dc03c9a1fd",
         "flag": "4f181770cd9eee89",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "ad98f851413295fd",
+        "inventory": "028abe56d9d59772",
+        "kernel": "1beb5a60d85c127e",
         "logic": "08f44b07b5901a25",
         "maps": "5e332bc9cee7fdd3",
         "sheet": "da9d0cae103b40df",
@@ -276,15 +276,15 @@
       "end": "ended"
     },
     "seed-15": {
-      "hash": "5cdd10d4b7c1d68f",
+      "hash": "b0c852c073b20e4f",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "214e1ea5ab14faf5",
         "encounters": "1e13654fc6bee9fe",
         "events": "238f90039727d5a0",
         "flag": "615fd43842947cb6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "19d90dcdb256ac7f",
+        "inventory": "028abe56d9d59772",
+        "kernel": "38941ccefe8fd084",
         "logic": "08f44b07b5901a25",
         "maps": "79e25726f51314c0",
         "sheet": "da9d0cae103b40df",
@@ -294,15 +294,15 @@
       "end": "ended"
     },
     "seed-16": {
-      "hash": "d9022ef39e6f1329",
+      "hash": "16ea41e8f42ae97d",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "a6545187182d7e39",
         "encounters": "1e13654fc6bee9fe",
         "events": "34f08cc8be421471",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "a30777d8860da440",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d2eb83632dd1c68b",
         "logic": "08f44b07b5901a25",
         "maps": "a7379d7c701b3b01",
         "sheet": "da9d0cae103b40df",
@@ -312,15 +312,15 @@
       "end": "ended"
     },
     "seed-17": {
-      "hash": "3360d8fa35f43a92",
+      "hash": "67b6cac17688bc76",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "6703732b35b2aa25",
         "encounters": "1e13654fc6bee9fe",
         "events": "d3d42f29d2b2cfc8",
         "flag": "2ec7da38264fe644",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "ee67c7c0225948b6",
+        "inventory": "028abe56d9d59772",
+        "kernel": "8e6bbd08ddcb7995",
         "logic": "08f44b07b5901a25",
         "maps": "5da2baabc227d142",
         "sheet": "da9d0cae103b40df",
@@ -330,15 +330,15 @@
       "end": "ended"
     },
     "seed-18": {
-      "hash": "31e19ca748ab9dd0",
+      "hash": "60a8be96a348aab4",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "4fa5f5809b809bde",
         "encounters": "eca325440261821d",
         "events": "a020602bbc41b179",
         "flag": "47bbee70c9d25c82",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c17b25341cfdcdf1",
+        "inventory": "028abe56d9d59772",
+        "kernel": "9dc8b1d2edf30822",
         "logic": "08f44b07b5901a25",
         "maps": "81071e6fef10fdd6",
         "sheet": "da9d0cae103b40df",
@@ -348,15 +348,15 @@
       "end": "ended"
     },
     "seed-19": {
-      "hash": "6da7ccf18dcee943",
+      "hash": "336f52e417920e95",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "9deeb07536ebbc46",
         "encounters": "1e13654fc6bee9fe",
         "events": "027dae975b5795b1",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "e4e22c2e7e6a09a3",
+        "inventory": "028abe56d9d59772",
+        "kernel": "13741942e49b4878",
         "logic": "08f44b07b5901a25",
         "maps": "3f83f9f8ad804e61",
         "sheet": "da9d0cae103b40df",
@@ -366,15 +366,15 @@
       "end": "ended"
     },
     "seed-20": {
-      "hash": "bb35d8a1486f72c2",
+      "hash": "a86abcd4b0dd5f8c",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e1274a92e8a5cc23",
         "encounters": "1e13654fc6bee9fe",
         "events": "a409dd661bec43b7",
         "flag": "68bbfd3846610ebd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "b59e300c4a257640",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e5823b96f1e9988b",
         "logic": "08f44b07b5901a25",
         "maps": "de0a792715b9b262",
         "sheet": "da9d0cae103b40df",
@@ -384,15 +384,15 @@
       "end": "ended"
     },
     "seed-21": {
-      "hash": "3652ab296f028e95",
+      "hash": "7ff14045e89d8123",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e34c11bbc431f7e8",
         "encounters": "5474ef62c0e4ab35",
         "events": "de93f8cae89f0be3",
         "flag": "43710767a975f48e",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "d0b9d1effafc419c",
+        "inventory": "028abe56d9d59772",
+        "kernel": "c6fbcd9ab6f5caf7",
         "logic": "08f44b07b5901a25",
         "maps": "7e733ccb4a31b3d4",
         "sheet": "da9d0cae103b40df",
@@ -402,15 +402,15 @@
       "end": "ended"
     },
     "seed-22": {
-      "hash": "84c66cf24ff7a5d0",
+      "hash": "7391281c5a085bac",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "026c48446ba3ef91",
         "encounters": "42b15582270dcc4e",
         "events": "5a0464ef8c584cb6",
         "flag": "4f697e3838397af0",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "14db974ac9cac2a2",
+        "inventory": "028abe56d9d59772",
+        "kernel": "388e0aabf8d58871",
         "logic": "08f44b07b5901a25",
         "maps": "af87e0c00c111dda",
         "sheet": "da9d0cae103b40df",
@@ -420,15 +420,15 @@
       "end": "ended"
     },
     "seed-23": {
-      "hash": "25fb2948ab75a383",
+      "hash": "6be10581ccfc9f97",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "316f7900aef2962a",
         "encounters": "b22e4b076590f454",
         "events": "7f70da267821f70e",
         "flag": "a7eae07748d3e527",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "fca45956ee755c5c",
+        "inventory": "028abe56d9d59772",
+        "kernel": "41517f354fa431b7",
         "logic": "08f44b07b5901a25",
         "maps": "086b85e8caeb44b1",
         "sheet": "da9d0cae103b40df",
@@ -438,15 +438,15 @@
       "end": "ended"
     },
     "seed-24": {
-      "hash": "13578835dd9b6591",
+      "hash": "1be44e2f492b416d",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "7123fa8aaf4f4ce1",
         "encounters": "8a462cf6d6762133",
         "events": "4f69e91ed7157619",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "783cededf69d5a91",
+        "inventory": "028abe56d9d59772",
+        "kernel": "ad1814187dd733c2",
         "logic": "08f44b07b5901a25",
         "maps": "daef66df550dbc39",
         "sheet": "da9d0cae103b40df",
@@ -456,15 +456,15 @@
       "end": "ended"
     },
     "seed-25": {
-      "hash": "39567e1b6db8e38b",
+      "hash": "be856dbc2913a13b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "f8f07b175d1de076",
         "encounters": "42b15582270dcc4e",
         "events": "88a875e4e7341a10",
         "flag": "2ec7da38264fe644",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "b234c012b5631a66",
+        "inventory": "028abe56d9d59772",
+        "kernel": "3d232a02f2253d05",
         "logic": "08f44b07b5901a25",
         "maps": "21ab65d8c159508c",
         "sheet": "da9d0cae103b40df",
@@ -474,15 +474,15 @@
       "end": "ended"
     },
     "seed-26": {
-      "hash": "d03b8d1a1f8a92ad",
+      "hash": "20bc6c32d3d30fe3",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "099973ccd90153f1",
         "encounters": "1e13654fc6bee9fe",
         "events": "2282722b9ac05cb8",
         "flag": "5ba782560d279f0d",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "87da94ac473f987d",
+        "inventory": "028abe56d9d59772",
+        "kernel": "f62cf6bbde6914fe",
         "logic": "08f44b07b5901a25",
         "maps": "9f9b50cc3ac94f33",
         "sheet": "da9d0cae103b40df",
@@ -492,15 +492,15 @@
       "end": "ended"
     },
     "seed-27": {
-      "hash": "67bc8a1905180055",
+      "hash": "ed8878eca1912825",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "84fec371539f23d9",
         "encounters": "42b15582270dcc4e",
         "events": "c62a561a4954ab0a",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "838aedff943ed7b9",
+        "inventory": "028abe56d9d59772",
+        "kernel": "fc70d7af7ec7b06a",
         "logic": "08f44b07b5901a25",
         "maps": "4e888d6c49a76145",
         "sheet": "da9d0cae103b40df",
@@ -510,15 +510,15 @@
       "end": "ended"
     },
     "seed-28": {
-      "hash": "f09ba012f43018f5",
+      "hash": "3bdc5e93d1d96811",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "7413136ae888f256",
         "encounters": "1e13654fc6bee9fe",
         "events": "23ab46ca8a755989",
         "flag": "df0b02708e4f4c7e",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "600dc26953d69447",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e0a340443763bb6c",
         "logic": "08f44b07b5901a25",
         "maps": "7c645f51965e0a1e",
         "sheet": "da9d0cae103b40df",
@@ -528,15 +528,15 @@
       "end": "ended"
     },
     "seed-29": {
-      "hash": "86f01a8a9479c10b",
+      "hash": "64411a807cdf7f7b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "5a4918819ad0e147",
         "encounters": "1e13654fc6bee9fe",
         "events": "2213ffa3bc02d746",
         "flag": "6ed4d467c20f4441",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "25c7a816e5adbcb0",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e71dab84f42cf9fb",
         "logic": "08f44b07b5901a25",
         "maps": "23ca1a4df5ed0da4",
         "sheet": "da9d0cae103b40df",
@@ -546,15 +546,15 @@
       "end": "ended"
     },
     "seed-30": {
-      "hash": "e483c5841c70e85c",
+      "hash": "4742e837170d35e0",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "c401de267fd957c4",
         "encounters": "70f3b5f6c84e9afe",
         "events": "04fca76e6467a14d",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "9632c0d753de7e45",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d4302826cbc38da6",
         "logic": "08f44b07b5901a25",
         "maps": "57da3be17ba01400",
         "sheet": "da9d0cae103b40df",
@@ -564,15 +564,15 @@
       "end": "ended"
     },
     "seed-31": {
-      "hash": "cc1833a804355293",
+      "hash": "20c06e93b0fb1239",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "1d7483b3fa45eb2f",
         "encounters": "42b15582270dcc4e",
         "events": "f57c45163c352f42",
         "flag": "23b44a70b5059ed6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "7ce2661bbd4a3570",
+        "inventory": "028abe56d9d59772",
+        "kernel": "14715b5ac59592bb",
         "logic": "08f44b07b5901a25",
         "maps": "9cbd913570a34b1c",
         "sheet": "da9d0cae103b40df",
@@ -582,15 +582,15 @@
       "end": "ended"
     },
     "seed-32": {
-      "hash": "916f4e449a689bdc",
+      "hash": "706ce1e3f3b1fa48",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "007bf6152f729b8b",
         "encounters": "1e13654fc6bee9fe",
         "events": "0a60f5528a5aea53",
         "flag": "55825567b3e7b074",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "efa41cb20d45a490",
+        "inventory": "028abe56d9d59772",
+        "kernel": "2c49cceb0fe64cdb",
         "logic": "08f44b07b5901a25",
         "maps": "681e8113602ba0ef",
         "sheet": "da9d0cae103b40df",
@@ -600,15 +600,15 @@
       "end": "ended"
     },
     "seed-33": {
-      "hash": "6b3cea0410774515",
+      "hash": "08e4f3b6a4fc2d61",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "f46fce69f6a7e352",
         "encounters": "eca325440261821d",
         "events": "9ed3918b25980d6b",
         "flag": "379fde55f85ae161",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "f3895f33974ba42b",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d57d4b512fe21560",
         "logic": "08f44b07b5901a25",
         "maps": "30bf84b99b97953a",
         "sheet": "da9d0cae103b40df",
@@ -618,15 +618,15 @@
       "end": "ended"
     },
     "seed-34": {
-      "hash": "9f2d36c6f07bd87c",
+      "hash": "11ebe9fdff503ba2",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "3acba50b0d158e38",
         "encounters": "329d2c4e858d99b8",
         "events": "f6721aa121004b3f",
         "flag": "3d5830382dc7bf0a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "1571dada78be8eac",
+        "inventory": "028abe56d9d59772",
+        "kernel": "a396cf8fc5130287",
         "logic": "08f44b07b5901a25",
         "maps": "62bcbf1bac57402e",
         "sheet": "da9d0cae103b40df",
@@ -636,15 +636,15 @@
       "end": "ended"
     },
     "seed-35": {
-      "hash": "3850a29fcbb6a156",
+      "hash": "9717415972741b66",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ca4bdedca8afa2b9",
         "encounters": "42b15582270dcc4e",
         "events": "943ccdeac2c6c760",
         "flag": "4f181770cd9eee89",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "e5e5d5b926d7249b",
+        "inventory": "028abe56d9d59772",
+        "kernel": "c0f525e773993950",
         "logic": "08f44b07b5901a25",
         "maps": "db2ae4aa0655dedd",
         "sheet": "da9d0cae103b40df",
@@ -654,15 +654,15 @@
       "end": "ended"
     },
     "seed-36": {
-      "hash": "31d10c20ddd2c4a2",
+      "hash": "e557690c82d6cca2",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "d59195f9e598eaf2",
         "encounters": "1e13654fc6bee9fe",
         "events": "3cefbbbc0a1e017f",
         "flag": "615fd43842947cb6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "74d0d6b492e486fa",
+        "inventory": "028abe56d9d59772",
+        "kernel": "7f2ae96f45e3e9c9",
         "logic": "08f44b07b5901a25",
         "maps": "ac7242bdd219768a",
         "sheet": "da9d0cae103b40df",
@@ -672,15 +672,15 @@
       "end": "ended"
     },
     "seed-37": {
-      "hash": "6984eeb4d9a7b626",
+      "hash": "39cf77bbd1f994ee",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ffdf2ba9ff7f5137",
         "encounters": "1e13654fc6bee9fe",
         "events": "3266d6c8f628f707",
         "flag": "68bbfd3846610ebd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "6b64a4413321b4c3",
+        "inventory": "028abe56d9d59772",
+        "kernel": "effc17fa1ee10598",
         "logic": "08f44b07b5901a25",
         "maps": "11980e9e8756fd91",
         "sheet": "da9d0cae103b40df",
@@ -690,15 +690,15 @@
       "end": "ended"
     },
     "seed-38": {
-      "hash": "145ce9bbd52fc42f",
+      "hash": "88fbbf18868437c1",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "80d829e5407e0c54",
         "encounters": "70f3b5f6c84e9afe",
         "events": "3e8861d4c3c431eb",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "7dd9d70378a02cc6",
+        "inventory": "028abe56d9d59772",
+        "kernel": "af1f4dc1f72eab65",
         "logic": "08f44b07b5901a25",
         "maps": "6cb36ad9b63c6bc9",
         "sheet": "da9d0cae103b40df",
@@ -708,15 +708,15 @@
       "end": "ended"
     },
     "seed-39": {
-      "hash": "f53b13040ce2bf00",
+      "hash": "a96b6cfafe63297e",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ddea9d2bccb179b1",
         "encounters": "eca325440261821d",
         "events": "d56ff1d74f14e9bb",
         "flag": "28f48855f0cc40e3",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "749db8b25b88295d",
+        "inventory": "028abe56d9d59772",
+        "kernel": "389153c67d8f68de",
         "logic": "08f44b07b5901a25",
         "maps": "25752e8ca4060246",
         "sheet": "da9d0cae103b40df",
@@ -726,15 +726,15 @@
       "end": "ended"
     },
     "seed-40": {
-      "hash": "a23c64a533992592",
+      "hash": "911f4a555bbe914e",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "026c48446ba3ef91",
         "encounters": "2a0c0eead5d82996",
         "events": "667e9a7ef2c85afd",
         "flag": "5ba782560d279f0d",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "aea158f7e10de950",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d39208c9944bd49b",
         "logic": "08f44b07b5901a25",
         "maps": "238fd3a9c6158be8",
         "sheet": "da9d0cae103b40df",
@@ -744,15 +744,15 @@
       "end": "ended"
     },
     "seed-41": {
-      "hash": "b4cf81746d235c1f",
+      "hash": "a8b4536fd2b78531",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ca5d736a326da787",
         "encounters": "1e13654fc6bee9fe",
         "events": "5253306f6d72d1a7",
         "flag": "481a593834777a11",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "230cb8190d385852",
+        "inventory": "028abe56d9d59772",
+        "kernel": "045a53e1c4667ee1",
         "logic": "08f44b07b5901a25",
         "maps": "9799ac26683f59fb",
         "sheet": "da9d0cae103b40df",
@@ -762,15 +762,15 @@
       "end": "ended"
     },
     "seed-42": {
-      "hash": "59ae8a04da98a57a",
+      "hash": "40b0299406ab8ea6",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "fe54dc1546da81d2",
         "encounters": "42b15582270dcc4e",
         "events": "a930595b481e26d6",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "e86607ef4ba511c1",
+        "inventory": "028abe56d9d59772",
+        "kernel": "9ce511bb05605c32",
         "logic": "08f44b07b5901a25",
         "maps": "3e8bdf7c779cc237",
         "sheet": "da9d0cae103b40df",
@@ -780,15 +780,15 @@
       "end": "ended"
     },
     "seed-43": {
-      "hash": "a9c49a7775502e01",
+      "hash": "67f20fc34d71f9fd",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "51c662379f27d3b5",
         "encounters": "1e13654fc6bee9fe",
         "events": "1a42efdeb98745e2",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "00c79b3610ccf08a",
+        "inventory": "028abe56d9d59772",
+        "kernel": "b450499ee5741d59",
         "logic": "08f44b07b5901a25",
         "maps": "e2b169bc0d5bf476",
         "sheet": "da9d0cae103b40df",
@@ -798,15 +798,15 @@
       "end": "ended"
     },
     "seed-44": {
-      "hash": "50808a1f9d3ec0e0",
+      "hash": "f0627f92cb21216c",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "88c818cb0726c63e",
         "encounters": "1e13654fc6bee9fe",
         "events": "0bd3e386a842e9de",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "6665a1d558c74169",
+        "inventory": "028abe56d9d59772",
+        "kernel": "55098126cc3b9c1a",
         "logic": "08f44b07b5901a25",
         "maps": "b5204ca906d493f1",
         "sheet": "da9d0cae103b40df",
@@ -816,15 +816,15 @@
       "end": "ended"
     },
     "seed-45": {
-      "hash": "abc3747a2cf4e9d5",
+      "hash": "75cc44890e2d020f",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "cf10d18e78e08222",
         "encounters": "42b15582270dcc4e",
         "events": "99210b749849d4c8",
         "flag": "379fde55f85ae161",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "9e1bbe4660d234c8",
+        "inventory": "028abe56d9d59772",
+        "kernel": "2db6eaa9a1a63b33",
         "logic": "08f44b07b5901a25",
         "maps": "4bb05eebe9ad521b",
         "sheet": "da9d0cae103b40df",
@@ -834,15 +834,15 @@
       "end": "ended"
     },
     "seed-46": {
-      "hash": "b670294c95aa1e18",
+      "hash": "0e195dc4aea39796",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "d4f08326c3444095",
         "encounters": "1e13654fc6bee9fe",
         "events": "38778f26ede9ab60",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "24d84bbb359f239a",
+        "inventory": "028abe56d9d59772",
+        "kernel": "36346c69c22ac8e9",
         "logic": "08f44b07b5901a25",
         "maps": "353416e422796429",
         "sheet": "da9d0cae103b40df",
@@ -852,15 +852,15 @@
       "end": "ended"
     },
     "seed-47": {
-      "hash": "aaa94bfd444d99dc",
+      "hash": "fee9e9d14eb195f2",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e9c1a0808f5fa864",
         "encounters": "1e13654fc6bee9fe",
         "events": "9ec72be75ef8ff53",
         "flag": "4f697e3838397af0",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "0402dd2b6a4a4f7f",
+        "inventory": "028abe56d9d59772",
+        "kernel": "22bdec2cb6837384",
         "logic": "08f44b07b5901a25",
         "maps": "d7b6e5b764d23cbb",
         "sheet": "da9d0cae103b40df",
@@ -870,15 +870,15 @@
       "end": "ended"
     },
     "seed-48": {
-      "hash": "04606bbeae08fa37",
+      "hash": "3d432e25d521584f",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "f708cbb2b4497e7a",
         "encounters": "329d2c4e858d99b8",
         "events": "618266ad850f0b06",
         "flag": "3043b555f48e4f5a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "38ec9b6ac1d3bdd6",
+        "inventory": "028abe56d9d59772",
+        "kernel": "fbb7e9066323abb5",
         "logic": "08f44b07b5901a25",
         "maps": "8bbd39b29a818853",
         "sheet": "da9d0cae103b40df",
@@ -888,15 +888,15 @@
       "end": "ended"
     },
     "seed-49": {
-      "hash": "374b3fa09726e53c",
+      "hash": "f11a3cb50aeeba12",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "139c0fcd8d48d0b8",
         "encounters": "1e13654fc6bee9fe",
         "events": "652fd7171208b5d9",
         "flag": "28f48855f0cc40e3",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "a319ade1512d4295",
+        "inventory": "028abe56d9d59772",
+        "kernel": "0315b89895bb11b6",
         "logic": "08f44b07b5901a25",
         "maps": "e59f90b108e41594",
         "sheet": "da9d0cae103b40df",
@@ -906,15 +906,15 @@
       "end": "ended"
     },
     "seed-50": {
-      "hash": "5bc06b35b81d1cae",
+      "hash": "b6b5d5a77615d856",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "85c0ef4da8eab378",
         "encounters": "42b15582270dcc4e",
         "events": "8debbcd03588e9da",
         "flag": "59cd3c70d4441868",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "18abab1e13004c6e",
+        "inventory": "028abe56d9d59772",
+        "kernel": "5a089f082bec77ed",
         "logic": "08f44b07b5901a25",
         "maps": "f3c71396917ad7db",
         "sheet": "da9d0cae103b40df",
@@ -924,15 +924,15 @@
       "end": "ended"
     },
     "seed-51": {
-      "hash": "54807fad17793d0d",
+      "hash": "8a97283336a8fb45",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e7a7fafc6207c687",
         "encounters": "0a1a716667ed7235",
         "events": "6ebcf2590fecb119",
         "flag": "59cd3c70d4441868",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "1a17abfa7d2218f0",
+        "inventory": "028abe56d9d59772",
+        "kernel": "b1a6a139856d763b",
         "logic": "08f44b07b5901a25",
         "maps": "2e8dab1963608fda",
         "sheet": "da9d0cae103b40df",
@@ -942,15 +942,15 @@
       "end": "ended"
     },
     "seed-52": {
-      "hash": "656f514eb037b20c",
+      "hash": "445781fbd10d57f0",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "aff7ae0886f383be",
         "encounters": "1e13654fc6bee9fe",
         "events": "863ba636c54a278a",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "5db104b643c5d59a",
+        "inventory": "028abe56d9d59772",
+        "kernel": "6f0d2564d0517ae9",
         "logic": "08f44b07b5901a25",
         "maps": "2b53df9b5aa05338",
         "sheet": "da9d0cae103b40df",
@@ -960,15 +960,15 @@
       "end": "ended"
     },
     "seed-53": {
-      "hash": "c41879642c1508eb",
+      "hash": "143c66816029cead",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "0e6bf98e45f5227a",
         "encounters": "1e13654fc6bee9fe",
         "events": "04932e9d775d5b0a",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "23d41160d5f40b65",
+        "inventory": "028abe56d9d59772",
+        "kernel": "f28e9aa257658cc6",
         "logic": "08f44b07b5901a25",
         "maps": "50f8fa2ca7c22c8c",
         "sheet": "da9d0cae103b40df",
@@ -978,15 +978,15 @@
       "end": "ended"
     },
     "seed-54": {
-      "hash": "0aeee2beebd0c39d",
+      "hash": "3ba67a2c3fefbc91",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "5a4918819ad0e147",
         "encounters": "1e13654fc6bee9fe",
         "events": "64226fdacb894bea",
         "flag": "481a593834777a11",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "0533f6d5fad9408a",
+        "inventory": "028abe56d9d59772",
+        "kernel": "b8bca53ecf806d59",
         "logic": "08f44b07b5901a25",
         "maps": "a502bf0bd86b4af2",
         "sheet": "da9d0cae103b40df",
@@ -996,15 +996,15 @@
       "end": "ended"
     },
     "seed-55": {
-      "hash": "ec6927e1c62115cd",
+      "hash": "f38f1eb9511ff9bd",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "88c818cb0726c63e",
         "encounters": "1e13654fc6bee9fe",
         "events": "f52f102fd504a2a9",
         "flag": "2e767370bbb559dd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "5843d35ccd4173a1",
+        "inventory": "028abe56d9d59772",
+        "kernel": "4e0d38529e771c12",
         "logic": "08f44b07b5901a25",
         "maps": "7bfe2afa89251f51",
         "sheet": "da9d0cae103b40df",
@@ -1014,15 +1014,15 @@
       "end": "ended"
     },
     "seed-56": {
-      "hash": "225cd75ee8e8b51b",
+      "hash": "64e510a09194f24b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "853dd8b05f4c0809",
         "encounters": "8a462cf6d6762133",
         "events": "5614d4a261b4d2fd",
         "flag": "4f181770cd9eee89",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "b0613e3b2bb2a1e9",
+        "inventory": "028abe56d9d59772",
+        "kernel": "9f051d8c9f26fc9a",
         "logic": "08f44b07b5901a25",
         "maps": "c4f6f4cc9b685f5e",
         "sheet": "da9d0cae103b40df",
@@ -1032,15 +1032,15 @@
       "end": "ended"
     },
     "seed-57": {
-      "hash": "50fdbbf38b403c1f",
+      "hash": "ee5a053d280167cb",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "c1a6fea3b7b1ea16",
         "encounters": "1e13654fc6bee9fe",
         "events": "1a91917d215b2e4b",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "f517ff069370b1a9",
+        "inventory": "028abe56d9d59772",
+        "kernel": "bed411d877f4605a",
         "logic": "08f44b07b5901a25",
         "maps": "6c75722f98ec49f1",
         "sheet": "da9d0cae103b40df",
@@ -1050,15 +1050,15 @@
       "end": "ended"
     },
     "seed-58": {
-      "hash": "4d246044d6ab0109",
+      "hash": "8adbe373db3ec135",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "849b6ab22807dd66",
         "encounters": "e19a078e1d70c865",
         "events": "36bade63b87f8432",
         "flag": "e9ce2b709500ba85",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "f5ace4e637dfc7ac",
+        "inventory": "028abe56d9d59772",
+        "kernel": "83d1d99b84343b87",
         "logic": "08f44b07b5901a25",
         "maps": "9f864fbe7a18b68a",
         "sheet": "da9d0cae103b40df",
@@ -1068,15 +1068,15 @@
       "end": "ended"
     },
     "seed-59": {
-      "hash": "e38e27b66640a291",
+      "hash": "aa8e0e90f022c339",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "57bb7bdc37362079",
         "encounters": "70f3b5f6c84e9afe",
         "events": "e759b13dcfb9b0af",
         "flag": "4f181770cd9eee89",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "55c7c789a968e1d2",
+        "inventory": "028abe56d9d59772",
+        "kernel": "3715635260970861",
         "logic": "08f44b07b5901a25",
         "maps": "0d98e3a14630ea7a",
         "sheet": "da9d0cae103b40df",
@@ -1086,15 +1086,15 @@
       "end": "ended"
     },
     "seed-60": {
-      "hash": "b93477585d48697c",
+      "hash": "bedaefb4a75dcf30",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "fd6609db73fd146f",
         "encounters": "42b15582270dcc4e",
         "events": "8c4e666a76387c24",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "592f16f332dc146e",
+        "inventory": "028abe56d9d59772",
+        "kernel": "9a8c0add4bc83fed",
         "logic": "08f44b07b5901a25",
         "maps": "064c686d443bf366",
         "sheet": "da9d0cae103b40df",
@@ -1104,15 +1104,15 @@
       "end": "ended"
     },
     "seed-61": {
-      "hash": "138d0bd566ad4eae",
+      "hash": "00984f81398ff602",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "72cd0d692b1a63b9",
         "encounters": "1e13654fc6bee9fe",
         "events": "024703f0539638e0",
         "flag": "3d5830382dc7bf0a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "ebc0876cb35bf5f0",
+        "inventory": "028abe56d9d59772",
+        "kernel": "834f7cabbba7533b",
         "logic": "08f44b07b5901a25",
         "maps": "5ece4f9e3d95dd7c",
         "sheet": "da9d0cae103b40df",
@@ -1122,15 +1122,15 @@
       "end": "ended"
     },
     "seed-62": {
-      "hash": "1f038ae9fe1a0eaf",
+      "hash": "55d8365d4dd2ba07",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "0f2cf71d79e320a5",
         "encounters": "5474ef62c0e4ab35",
         "events": "7d3e470c54001d15",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "ff00bdd52f58be00",
+        "inventory": "028abe56d9d59772",
+        "kernel": "228aab183bc4484b",
         "logic": "08f44b07b5901a25",
         "maps": "1b970a29bd6fee4d",
         "sheet": "da9d0cae103b40df",
@@ -1140,15 +1140,15 @@
       "end": "ended"
     },
     "seed-63": {
-      "hash": "52b64092c16261e4",
+      "hash": "0508bf043c2e55d6",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "26635179f0d8498b",
         "encounters": "1e13654fc6bee9fe",
         "events": "130c869618c8f3bc",
         "flag": "49962c5602b5d58f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "4ac2d1e29e9fc610",
+        "inventory": "028abe56d9d59772",
+        "kernel": "8768821ba1406e5b",
         "logic": "08f44b07b5901a25",
         "maps": "91f141da74ec3973",
         "sheet": "da9d0cae103b40df",
@@ -1158,15 +1158,15 @@
       "end": "ended"
     },
     "seed-64": {
-      "hash": "0e0cf79b4b181d1c",
+      "hash": "8a784f3c1f7672ee",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "b736069a8ab46559",
         "encounters": "1e13654fc6bee9fe",
         "events": "534b933dfd21172c",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "153d4127e0320da1",
+        "inventory": "028abe56d9d59772",
+        "kernel": "0b06a61db167b612",
         "logic": "08f44b07b5901a25",
         "maps": "aae41e3291e4e08a",
         "sheet": "da9d0cae103b40df",
@@ -1176,15 +1176,15 @@
       "end": "ended"
     },
     "seed-65": {
-      "hash": "a3e8cb2812fade3e",
+      "hash": "f7b4c7a519f0f396",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "25710716fa873c06",
         "encounters": "9151d47e697312da",
         "events": "fd201095256d3cf4",
         "flag": "2e767370bbb559dd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c21c0b3893df9a56",
+        "inventory": "028abe56d9d59772",
+        "kernel": "84e758d4352f8835",
         "logic": "08f44b07b5901a25",
         "maps": "95a5dd6be2f6a5c0",
         "sheet": "da9d0cae103b40df",
@@ -1194,15 +1194,15 @@
       "end": "ended"
     },
     "seed-66": {
-      "hash": "a369df108f6a4899",
+      "hash": "26e2467bc06f3cbf",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "afc33ddcb66d32a8",
         "encounters": "1e13654fc6bee9fe",
         "events": "538cca1e9cc1fec5",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "6ea814eefbef7f44",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e6ce7c8894cb213f",
         "logic": "08f44b07b5901a25",
         "maps": "a6d61090cb190c06",
         "sheet": "da9d0cae103b40df",
@@ -1212,15 +1212,15 @@
       "end": "ended"
     },
     "seed-67": {
-      "hash": "50c6d4cb7e874fb1",
+      "hash": "b9011b5d9131fd75",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "b6da3d7438b7a4de",
         "encounters": "9151d47e697312da",
         "events": "b65a78e927f72788",
         "flag": "f46c87888d5c54ca",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "aaec54cf7dcecf7a",
+        "inventory": "028abe56d9d59772",
+        "kernel": "b546678a30ce3249",
         "logic": "08f44b07b5901a25",
         "maps": "5eac34ace62e82ce",
         "sheet": "da9d0cae103b40df",
@@ -1230,15 +1230,15 @@
       "end": "ended"
     },
     "seed-68": {
-      "hash": "21e5c83ab60f5ede",
+      "hash": "4a04f708197f8b7c",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "397531a6ceb7527c",
         "encounters": "1e13654fc6bee9fe",
         "events": "d3b826850735d449",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "94df643c9837b921",
+        "inventory": "028abe56d9d59772",
+        "kernel": "8aa8c932696d6192",
         "logic": "08f44b07b5901a25",
         "maps": "c371602b7dd6500e",
         "sheet": "da9d0cae103b40df",
@@ -1248,15 +1248,15 @@
       "end": "ended"
     },
     "seed-69": {
-      "hash": "65fba18120d3660c",
+      "hash": "145df2e13767b36a",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "e34c11bbc431f7e8",
         "encounters": "1e13654fc6bee9fe",
         "events": "78d26984c0e4ea72",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "59a5cca2b7865a5d",
+        "inventory": "028abe56d9d59772",
+        "kernel": "1d9967b6d98d99de",
         "logic": "08f44b07b5901a25",
         "maps": "c66def931a85f86d",
         "sheet": "da9d0cae103b40df",
@@ -1266,15 +1266,15 @@
       "end": "ended"
     },
     "seed-70": {
-      "hash": "96cdda2c20c75930",
+      "hash": "87a4ca706dba1e1a",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "aeb10ea66143b3f5",
         "encounters": "329d2c4e858d99b8",
         "events": "354a67c03a485535",
         "flag": "38ddb280271449c8",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "d6f654af86368a57",
+        "inventory": "028abe56d9d59772",
+        "kernel": "dc5b8af7052d33fc",
         "logic": "08f44b07b5901a25",
         "maps": "9cec8694ad479ea8",
         "sheet": "da9d0cae103b40df",
@@ -1284,15 +1284,15 @@
       "end": "ended"
     },
     "seed-71": {
-      "hash": "62e3dc28a20fb6fe",
+      "hash": "8973659de86d77fe",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "2ff49ee04299917f",
         "encounters": "1e13654fc6bee9fe",
         "events": "a057272f38eab60e",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "527195de3b66cb49",
+        "inventory": "028abe56d9d59772",
+        "kernel": "481783238867687a",
         "logic": "08f44b07b5901a25",
         "maps": "853e48e5b1b4d878",
         "sheet": "da9d0cae103b40df",
@@ -1302,15 +1302,15 @@
       "end": "ended"
     },
     "seed-72": {
-      "hash": "9c84d444eb4db72a",
+      "hash": "aea1bceb5012d1b2",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "886b756805ce4a75",
         "encounters": "eca325440261821d",
         "events": "56f96ecf6504f91c",
         "flag": "544b5956095b0d06",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "9fa0050f8a80ddbe",
+        "inventory": "028abe56d9d59772",
+        "kernel": "1205424f5f89cf3d",
         "logic": "08f44b07b5901a25",
         "maps": "f54f37d792769bd9",
         "sheet": "da9d0cae103b40df",
@@ -1320,15 +1320,15 @@
       "end": "ended"
     },
     "seed-73": {
-      "hash": "e973f7e53d621456",
+      "hash": "6331cde87d975b1c",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "6acfd945e4c8ab93",
         "encounters": "1e13654fc6bee9fe",
         "events": "a0ea2937b2ad5725",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "517d64c816b78484",
+        "inventory": "028abe56d9d59772",
+        "kernel": "32c255c6ca7e607f",
         "logic": "08f44b07b5901a25",
         "maps": "0e1513553930f874",
         "sheet": "da9d0cae103b40df",
@@ -1338,15 +1338,15 @@
       "end": "ended"
     },
     "seed-74": {
-      "hash": "8d9bffee6084cc70",
+      "hash": "99175813a007bae0",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "5403ce55d93239d7",
         "encounters": "1e13654fc6bee9fe",
         "events": "ab5d16601b91dcb5",
         "flag": "481a593834777a11",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "074fae00a4d7d3bd",
+        "inventory": "028abe56d9d59772",
+        "kernel": "94ea70c0cfcee23e",
         "logic": "08f44b07b5901a25",
         "maps": "4a53bb4312297733",
         "sheet": "da9d0cae103b40df",
@@ -1356,15 +1356,15 @@
       "end": "ended"
     },
     "seed-75": {
-      "hash": "d3a29e12ed3d207b",
+      "hash": "6236fcb271bf4e13",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "1f29e7de2cb32a16",
         "encounters": "2a0c0eead5d82996",
         "events": "cdccf6ec7322acf5",
         "flag": "23b44a70b5059ed6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c697250219fa1ce4",
+        "inventory": "028abe56d9d59772",
+        "kernel": "0d26b699d3f4c85f",
         "logic": "08f44b07b5901a25",
         "maps": "3ca77f59e88d9e12",
         "sheet": "da9d0cae103b40df",
@@ -1374,15 +1374,15 @@
       "end": "ended"
     },
     "seed-76": {
-      "hash": "82f345e8c045995f",
+      "hash": "ff9858d16083c73d",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "9fa16910be1b4db8",
         "encounters": "70f3b5f6c84e9afe",
         "events": "bacaeb720151bead",
         "flag": "49962c5602b5d58f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "e22f6d81834eabc7",
+        "inventory": "028abe56d9d59772",
+        "kernel": "62c4eb5c66dbd2ec",
         "logic": "08f44b07b5901a25",
         "maps": "ecf77b2d369023af",
         "sheet": "da9d0cae103b40df",
@@ -1392,15 +1392,15 @@
       "end": "ended"
     },
     "seed-77": {
-      "hash": "180c0020f86aa0d5",
+      "hash": "077ed5ee01e69a97",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "da0d96f3e829fe5e",
         "encounters": "1e13654fc6bee9fe",
         "events": "3307fc51da23c82a",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "3151df0e1656a693",
+        "inventory": "028abe56d9d59772",
+        "kernel": "4f55c9710c220fa8",
         "logic": "08f44b07b5901a25",
         "maps": "e7d0c24cdc286d3c",
         "sheet": "da9d0cae103b40df",
@@ -1410,15 +1410,15 @@
       "end": "ended"
     },
     "seed-78": {
-      "hash": "5384d033251de8e5",
+      "hash": "83bc058467ea01cb",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "96bafa7cd96d363b",
         "encounters": "1e13654fc6bee9fe",
         "events": "92347364770e7666",
         "flag": "e9ce2b709500ba85",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "079f42d858cf44cd",
+        "inventory": "028abe56d9d59772",
+        "kernel": "dfab727c5cad58ce",
         "logic": "08f44b07b5901a25",
         "maps": "d14aee07e584c4af",
         "sheet": "da9d0cae103b40df",
@@ -1428,15 +1428,15 @@
       "end": "ended"
     },
     "seed-79": {
-      "hash": "3e793df64f600217",
+      "hash": "e429a8b6523deb53",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "be172c1ed3cc7ed3",
         "encounters": "329d2c4e858d99b8",
         "events": "46d3a0379f680d16",
         "flag": "e9ce2b709500ba85",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "b7ab8a9fd5da3b2c",
+        "inventory": "028abe56d9d59772",
+        "kernel": "45d07f55222eaf07",
         "logic": "08f44b07b5901a25",
         "maps": "fffc13718b27e7c2",
         "sheet": "da9d0cae103b40df",
@@ -1446,15 +1446,15 @@
       "end": "ended"
     },
     "seed-80": {
-      "hash": "a3a0a412691ddd24",
+      "hash": "10ccaace6f0fa964",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "56c98527c6cec710",
         "encounters": "42b15582270dcc4e",
         "events": "5337e2ad6fff2c7f",
         "flag": "49962c5602b5d58f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c2106159cfd7e5d6",
+        "inventory": "028abe56d9d59772",
+        "kernel": "84dbaef57127d3b5",
         "logic": "08f44b07b5901a25",
         "maps": "ed1939a3481851c1",
         "sheet": "da9d0cae103b40df",
@@ -1464,15 +1464,15 @@
       "end": "ended"
     },
     "seed-81": {
-      "hash": "3425df34a2ae26ba",
+      "hash": "d735e8b01d1d266a",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "68900a9e2c4f6cfb",
         "encounters": "70f3b5f6c84e9afe",
         "events": "80fc2ca9d8cca2ea",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "671a2355f9158871",
+        "inventory": "028abe56d9d59772",
+        "kernel": "4367aff4ca0ac2a2",
         "logic": "08f44b07b5901a25",
         "maps": "c04979fabe1fc813",
         "sheet": "da9d0cae103b40df",
@@ -1482,15 +1482,15 @@
       "end": "ended"
     },
     "seed-82": {
-      "hash": "51d76a1ab8d86db8",
+      "hash": "db0b9e59e42543ae",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "3acba50b0d158e38",
         "encounters": "1e13654fc6bee9fe",
         "events": "7ace06e99d756946",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "10e253b1d5dedab4",
+        "inventory": "028abe56d9d59772",
+        "kernel": "dc73975436978eaf",
         "logic": "08f44b07b5901a25",
         "maps": "5ea38dcc528b02de",
         "sheet": "da9d0cae103b40df",
@@ -1500,15 +1500,15 @@
       "end": "ended"
     },
     "seed-83": {
-      "hash": "562c02feff2db13e",
+      "hash": "2cad93c32057475e",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "88c818cb0726c63e",
         "encounters": "1e13654fc6bee9fe",
         "events": "ac443536a83cb345",
         "flag": "615fd43842947cb6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "e8e9058c5f87303f",
+        "inventory": "028abe56d9d59772",
+        "kernel": "70c29df2c6ab8e44",
         "logic": "08f44b07b5901a25",
         "maps": "d64a212a4fc74ec9",
         "sheet": "da9d0cae103b40df",
@@ -1518,15 +1518,15 @@
       "end": "ended"
     },
     "seed-84": {
-      "hash": "759cec309e5b7f15",
+      "hash": "bd1f50e0ef4a5ce5",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "0e6bf98e45f5227a",
         "encounters": "8a462cf6d6762133",
         "events": "8f8d0b1859d96e7f",
         "flag": "67c9cba0c14735a3",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c2020013f8ea22c1",
+        "inventory": "028abe56d9d59772",
+        "kernel": "768109dfb2a56d32",
         "logic": "08f44b07b5901a25",
         "maps": "c9337f43f3e89ad9",
         "sheet": "da9d0cae103b40df",
@@ -1536,15 +1536,15 @@
       "end": "ended"
     },
     "seed-85": {
-      "hash": "6a3bd23da661afcc",
+      "hash": "9958b82aa7085b5a",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "46452d2d2e210358",
         "encounters": "2a0c0eead5d82996",
         "events": "3ec0b98744ce7a4c",
         "flag": "3043b555f48e4f5a",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "57e5a2910418a54c",
+        "inventory": "028abe56d9d59772",
+        "kernel": "60a96a63c222a4a7",
         "logic": "08f44b07b5901a25",
         "maps": "317375af19ee4129",
         "sheet": "da9d0cae103b40df",
@@ -1554,15 +1554,15 @@
       "end": "ended"
     },
     "seed-86": {
-      "hash": "9abccb74d4cc040f",
+      "hash": "8f99644e03f7c357",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "268eb1573394bea0",
         "encounters": "70f3b5f6c84e9afe",
         "events": "1efabe212a0d0e92",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "57d1629b041aeeff",
+        "inventory": "028abe56d9d59772",
+        "kernel": "768c719c50541304",
         "logic": "08f44b07b5901a25",
         "maps": "0175b3a5a303090e",
         "sheet": "da9d0cae103b40df",
@@ -1572,15 +1572,15 @@
       "end": "ended"
     },
     "seed-87": {
-      "hash": "4f62dea8dbbce267",
+      "hash": "4308e7c78e32f63d",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "04f633ce9fcf5995",
         "encounters": "2a0c0eead5d82996",
         "events": "5ab6f654fa3c750d",
         "flag": "4f697e3838397af0",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "2d634f8fe692f7d5",
+        "inventory": "028abe56d9d59772",
+        "kernel": "825907aeca3c94f6",
         "logic": "08f44b07b5901a25",
         "maps": "163156fb2c5a9309",
         "sheet": "da9d0cae103b40df",
@@ -1590,15 +1590,15 @@
       "end": "ended"
     },
     "seed-88": {
-      "hash": "ac5da58e40d48b76",
+      "hash": "bf1ca5c2952bd4ec",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "389bd6121218b01b",
         "encounters": "42b15582270dcc4e",
         "events": "2b3c70043d9324ff",
         "flag": "16ff3a55e672ffb5",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "feb938bd3e810e44",
+        "inventory": "028abe56d9d59772",
+        "kernel": "76dfa056d75cb03f",
         "logic": "08f44b07b5901a25",
         "maps": "7cee5d20f73fff92",
         "sheet": "da9d0cae103b40df",
@@ -1608,15 +1608,15 @@
       "end": "ended"
     },
     "seed-89": {
-      "hash": "77f420c152d10682",
+      "hash": "cf3caee8d3e6b700",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "4e5f0f24a7ee2b4f",
         "encounters": "1e13654fc6bee9fe",
         "events": "b6838609e3e64566",
         "flag": "481a593834777a11",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "c488ed3704399884",
+        "inventory": "028abe56d9d59772",
+        "kernel": "a5cdde35b800747f",
         "logic": "08f44b07b5901a25",
         "maps": "ece1d5f02e4cf2ff",
         "sheet": "da9d0cae103b40df",
@@ -1626,15 +1626,15 @@
       "end": "ended"
     },
     "seed-90": {
-      "hash": "9cea364a63cec340",
+      "hash": "4e52a4404d5921a2",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "8178adbf1a9d9ec7",
         "encounters": "1e13654fc6bee9fe",
         "events": "b187269174e82c89",
         "flag": "df0b02708e4f4c7e",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "4b73c888692522fa",
+        "inventory": "028abe56d9d59772",
+        "kernel": "55cddb431c2485c9",
         "logic": "08f44b07b5901a25",
         "maps": "0cdf14e4a8b7d7dd",
         "sheet": "da9d0cae103b40df",
@@ -1644,15 +1644,15 @@
       "end": "ended"
     },
     "seed-91": {
-      "hash": "a9c3354038b9deff",
+      "hash": "2ef2d4f5fd6cb4ab",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "bfef8332045d84a5",
         "encounters": "42b15582270dcc4e",
         "events": "e7ae987147fd6f0e",
         "flag": "42550355ff000b40",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "0fa01b91c47f8426",
+        "inventory": "028abe56d9d59772",
+        "kernel": "d1a2b4424c9a74c5",
         "logic": "08f44b07b5901a25",
         "maps": "ef393140f16be34b",
         "sheet": "da9d0cae103b40df",
@@ -1662,15 +1662,15 @@
       "end": "ended"
     },
     "seed-92": {
-      "hash": "2bf8e8f002bac603",
+      "hash": "59d27bb632634d5b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ed0b63d90483a657",
         "encounters": "5474ef62c0e4ab35",
         "events": "fb624c5e3d71d669",
         "flag": "183d0e80152c681c",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "3ed3028f0d5beb04",
+        "inventory": "028abe56d9d59772",
+        "kernel": "2017f38dc122c6ff",
         "logic": "08f44b07b5901a25",
         "maps": "cd293cf3b4f28077",
         "sheet": "da9d0cae103b40df",
@@ -1680,15 +1680,15 @@
       "end": "ended"
     },
     "seed-93": {
-      "hash": "68569f63d8e573f9",
+      "hash": "09917d70f986199b",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "7c22f2a6ac62dc34",
         "encounters": "1e13654fc6bee9fe",
         "events": "ad7ce150f5938970",
         "flag": "5a10a7383ed26e3f",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "56509e549b6f1338",
+        "inventory": "028abe56d9d59772",
+        "kernel": "c6cb4a27c138dc63",
         "logic": "08f44b07b5901a25",
         "maps": "3b5a628342ca8eeb",
         "sheet": "da9d0cae103b40df",
@@ -1698,15 +1698,15 @@
       "end": "ended"
     },
     "seed-94": {
-      "hash": "59446a5273e35126",
+      "hash": "915296509bf75fa6",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "39ae5ad7ea4d876c",
         "encounters": "1e13654fc6bee9fe",
         "events": "217d1144191d689e",
         "flag": "28f48855f0cc40e3",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "f30395e844fc0557",
+        "inventory": "028abe56d9d59772",
+        "kernel": "f868cc2fc3f2aefc",
         "logic": "08f44b07b5901a25",
         "maps": "a4551b26a32d3a21",
         "sheet": "da9d0cae103b40df",
@@ -1716,15 +1716,15 @@
       "end": "ended"
     },
     "seed-95": {
-      "hash": "d3b141b5018a6887",
+      "hash": "2f88b0f11bb6b431",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "a716aaea5d039a2d",
         "encounters": "1e13654fc6bee9fe",
         "events": "3ef85eef4af4da77",
         "flag": "360903382a05b093",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "b827c143e7b5098c",
+        "inventory": "028abe56d9d59772",
+        "kernel": "68b7a5205e53b1e7",
         "logic": "08f44b07b5901a25",
         "maps": "5aff0be4554cacfd",
         "sheet": "da9d0cae103b40df",
@@ -1734,15 +1734,15 @@
       "end": "ended"
     },
     "seed-96": {
-      "hash": "a81dda98f8e676fd",
+      "hash": "b68c87d57a154b69",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "ec97b9fdbe9fdcf6",
         "encounters": "42b15582270dcc4e",
         "events": "9ae6e124f70fc7d1",
         "flag": "2e767370bbb559dd",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "d85f4c3b60384050",
+        "inventory": "028abe56d9d59772",
+        "kernel": "fd4ffc0d13762b9b",
         "logic": "08f44b07b5901a25",
         "maps": "c659c04423b2d1f1",
         "sheet": "da9d0cae103b40df",
@@ -1752,15 +1752,15 @@
       "end": "ended"
     },
     "seed-97": {
-      "hash": "954963b543084488",
+      "hash": "184bedaa78dc1178",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "447fb64f62c9d5c5",
         "encounters": "42b15582270dcc4e",
         "events": "10fae6d76658ddee",
         "flag": "23b44a70b5059ed6",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "1ad9fde6feba7542",
+        "inventory": "028abe56d9d59772",
+        "kernel": "e5fed7bc77809c11",
         "logic": "08f44b07b5901a25",
         "maps": "72ca365801276fb6",
         "sheet": "da9d0cae103b40df",
@@ -1770,15 +1770,15 @@
       "end": "ended"
     },
     "seed-98": {
-      "hash": "f95c6a66e205e043",
+      "hash": "63a9c5e089f1fead",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "73f49c6c9aec7654",
         "encounters": "2a0c0eead5d82996",
         "events": "33e0de64c7a7805e",
         "flag": "55825567b3e7b074",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "a8380d686841bf76",
+        "inventory": "028abe56d9d59772",
+        "kernel": "5342554984982255",
         "logic": "08f44b07b5901a25",
         "maps": "2ebd54a412b794dd",
         "sheet": "da9d0cae103b40df",
@@ -1788,15 +1788,15 @@
       "end": "ended"
     },
     "seed-99": {
-      "hash": "f86252a9d2a71918",
+      "hash": "2c383592e174c1b6",
       "facets": {
         "drift": "08f44b07b5901a25",
         "economy": "28177867acaae3ed",
         "encounters": "42b15582270dcc4e",
         "events": "a0ea580149167d43",
         "flag": "318f8d802353fbe9",
-        "inventory": "29d60a97bf6d4605",
-        "kernel": "55d2cdca23807026",
+        "inventory": "028abe56d9d59772",
+        "kernel": "17d5667aab9b60c5",
         "logic": "08f44b07b5901a25",
         "maps": "0497e990c11fc553",
         "sheet": "da9d0cae103b40df",
