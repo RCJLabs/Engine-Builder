@@ -68,6 +68,8 @@ export function createTouches(box: HTMLElement): Touches {
   let look: { id: number; x: number; y: number } | null = null;
   let drag = { x: 0, y: 0 };
   let jumping = false;
+  // A tap shorter than a frame still jumps: the press counts until the next frame takes it.
+  let tapped = false;
   // Shown once the device is touched, or a coarse pointer says it will be.
   const show = () => {
     jump.style.display = 'block';
@@ -111,6 +113,7 @@ export function createTouches(box: HTMLElement): Touches {
   };
   const press = (event: PointerEvent) => {
     jumping = true;
+    tapped = true;
     jump.setPointerCapture?.(event.pointerId);
     event.preventDefault();
   };
@@ -129,9 +132,11 @@ export function createTouches(box: HTMLElement): Touches {
     take() {
       const moved = drag;
       drag = { x: 0, y: 0 };
+      const jump = jumping || tapped;
+      tapped = false;
       return {
         stick: stick ? pushOf(stick.from, stick.at) : NO_PUSH,
-        jumpButton: jumping,
+        jumpButton: jump,
         ...(moved.x !== 0 || moved.y !== 0 ? { drag: { ...moved, by: 'touch' as const } } : {}),
       };
     },
@@ -139,6 +144,7 @@ export function createTouches(box: HTMLElement): Touches {
       stick = null;
       look = null;
       jumping = false;
+      tapped = false;
       drag = { x: 0, y: 0 };
       base.style.display = 'none';
     },

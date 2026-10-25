@@ -174,12 +174,32 @@ export async function finger(page: Page, id: number) {
   };
 }
 
+/**
+ * A point on the part of the view a finger can reach, `fx` across it: the view scrolled into sight,
+ * then down its middle line, a little below the middle of what shows. Sideways, the Play panel shows
+ * only part of the view.
+ */
+async function pointOn(box: Locator, fx: number): Promise<{ x: number; y: number }> {
+  await box.scrollIntoViewIfNeeded();
+  return box.evaluate((view, across) => {
+    const rect = view.getBoundingClientRect();
+    const x = rect.left + rect.width * across;
+    const shown: number[] = [];
+    for (let y = rect.top + 2; y < rect.bottom - 2; y += 4) {
+      const hit = document.elementFromPoint(x, y);
+      if (hit && view.contains(hit)) shown.push(y);
+    }
+    const y = shown[Math.floor(shown.length * 0.6)];
+    if (y === undefined) throw new Error('No part of the view is on the screen');
+    return { x, y };
+  }, fx);
+}
+
 /** The stick pushed `px` up from where a thumb lands on the view's left half, held until `done`. */
 export async function stickUntil(page: Page, box: Locator, px: number, done: (w: Walked) => boolean): Promise<Walked> {
-  const area = await box.boundingBox();
-  if (!area) throw new Error('No view to touch');
+  const at = await pointOn(box, 0.25);
   const thumb = await finger(page, 1);
-  await thumb.down(area.x + area.width * 0.25, area.y + area.height * 0.7);
+  await thumb.down(at.x, at.y);
   await thumb.move(0, -px);
   try {
     await expect.poll(async () => done(await walked(page)), { timeout: 60_000, intervals: [50] }).toBe(true);
@@ -191,10 +211,9 @@ export async function stickUntil(page: Page, box: Locator, px: number, done: (w:
 
 /** A drag by one finger on the view's right half, `dx` and `dy` pixels: a look. */
 export async function lookByTouch(page: Page, box: Locator, dx: number, dy: number): Promise<void> {
-  const area = await box.boundingBox();
-  if (!area) throw new Error('No view to touch');
+  const at = await pointOn(box, 0.7);
   const look = await finger(page, 2);
-  await look.down(area.x + area.width * 0.7, area.y + area.height * 0.5);
+  await look.down(at.x, at.y);
   await look.move(dx, dy);
   await look.up();
 }

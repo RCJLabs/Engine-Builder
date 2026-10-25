@@ -6,30 +6,61 @@
  */
 import RAPIER from '@dimforge/rapier3d-compat';
 import type { PackWorld } from '@eb/core';
-import type { Sent, SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
+import type { SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
 import { tierFromHints } from '../perf/hints.ts';
 import { readHints } from '../perf/readHints.ts';
-import { createFrameClock } from '../perf/stepDown.ts';
-import { lowerTier, TIERS, type TierName } from '../perf/tiers.ts';
+import { lowerTier } from '../perf/tiers.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { intentOf } from './controls.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
-import { createInputs } from './inputs.ts';
 import { stepsFor } from './motion.ts';
-import { BODY, createWalker } from './physics.ts';
+import { createWalker, type Walker } from './physics.ts';
+import { createSender, type Sender } from './sender.ts';
 import { spawnOf } from './solids.ts';
+import { createSurface, type Surface, type Tier } from './surface.ts';
 import { createTouches } from './touch.ts';
-import { createWalkView, type WalkView } from './view.ts';
 import { walkSpace } from './world.ts';
-import { answered, inZone, stepZones, type ZoneState } from './zones.ts';
 
 let rapierReady: Promise<void> | null = null;
 const loadRapier = () => (rapierReady ??= RAPIER.init());
 
-async function tierFor(quality: WalkQuality): Promise<{ name: TierName; auto: boolean }> {
+async function tierFor(quality: WalkQuality): Promise<Tier> {
   if (quality !== 'auto') return { name: quality, auto: false };
   return { name: tierFromHints(await readHints()).tier, auto: true };
 }
+
+/** What the hook reads of a walk, as the stage holds it. */
+interface Walking {
+  readonly space: string;
+  readonly kind: ViewKind;
+  readonly walker: Walker;
+  readonly sender: Sender;
+  readonly surface: Surface;
+  look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
+}
+
+const hookOf = ({ space, kind, walker, sender, surface, look }: Walking): WalkHook => ({
+  space,
+  character: () => ({
+    feet: walker.feet(),
+    velocity: walker.velocity(),
+    grounded: walker.grounded(),
+    view: kind,
+    yaw: look().yaw,
+    pitch: look().pitch,
+  }),
+  camera: () => ({ at: look().shot.at, distance: look().shot.distance }),
+  zones: () => [...sender.inside],
+  sent: () => sender.sent(),
+  moving: () => walker.moving().map(({ path, at }) => ({ path, at })),
+  get frames() {
+    return surface.view.frames;
+  },
+  get paused() {
+    return look().paused;
+  },
+  perf: () => surface.view.perf(surface.clock.intervals()),
+});
 
 export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn> {
   const space = walkSpace(world, ask.space);
@@ -41,61 +72,13 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   const spawn = spawnOf(space.parts.spawns);
   const walker = createWalker(RAPIER, { solids: space.parts.solids, spawn }, space.ground);
   const kind: ViewKind = spawn?.view ?? 'third';
-  let yaw = spawn?.yaw ?? 0;
-  let pitch = kind === 'third' ? THIRD.pitch : 0;
-  let tier = await tierFor(ask.quality);
-  let gone = false;
-  let paused = false;
-
-  box.style.position = 'absolute';
-  const makeCanvas = () => {
-    const canvas = document.createElement('canvas');
-    Object.assign(canvas.style, {
-      position: 'absolute',
-      inset: '0',
-      width: '100%',
-      height: '100%',
-      display: 'block',
-      touchAction: 'none',
-    });
-    box.prepend(canvas);
-    return canvas;
-  };
-  let canvas = makeCanvas();
-  let view: WalkView = await createWalkView(box, canvas, TIERS[tier.name], space);
-  let inputs = createInputs(box, canvas);
+  const surface = await createSurface(box, space, await tierFor(ask.quality));
   const touches = createTouches(box);
-  let clock = createFrameClock();
-
-  /** A new tier is a new view on a new canvas (D69): the walk, the character and the zones are kept. */
-  const retier = async (name: TierName, auto: boolean) => {
-    tier = { name, auto };
-    const old = { view, canvas, inputs };
-    canvas = makeCanvas();
-    view = await createWalkView(box, canvas, TIERS[name], space);
-    inputs = createInputs(box, canvas);
-    clock = createFrameClock();
-    old.inputs.dispose();
-    old.view.dispose();
-    old.canvas.remove();
-  };
-
-  let states: ReadonlyMap<string, ZoneState> = new Map();
-  const sent: { object: string; sent: Sent | 'waiting' }[] = [];
-  let inside: string[] = [];
-  const send = (object: string) => {
-    const entry: (typeof sent)[number] = { object, sent: 'waiting' };
-    sent.push(entry);
-    void ask.send({ type: 'world/trigger', space: ask.space, object }).then((answer) => {
-      entry.sent = answer;
-      states = answered(states, object, answer);
-    });
-  };
-
+  const sender = createSender(ask, space.parts.zones);
+  let [yaw, pitch] = [spawn?.yaw ?? 0, kind === 'third' ? THIRD.pitch : 0];
   let shot: Shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
-  let carried = 0;
-  let last = performance.now();
-  let frame = 0;
+  let [gone, paused, carried, jumpWaiting, last, frame] = [false, false, 0, false, performance.now(), 0];
+
   const tick = (time: number) => {
     if (gone) return;
     frame = requestAnimationFrame(tick);
@@ -103,74 +86,47 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
     last = time;
     // Paused, nothing moves and the frame is held.
     if (paused) return;
-    const intent = intentOf({ ...inputs.take(), ...touches.take() }, elapsed);
+    const intent = intentOf({ ...surface.inputs.take(), ...touches.take() }, elapsed);
     yaw += intent.look[0];
     pitch = heldPitch(kind, pitch + intent.look[1]);
     const steps = stepsFor(carried, elapsed);
     carried = steps.carried;
+    // A jump pressed on a frame too short for a step (a screen faster than 60 Hz) waits for one.
+    const jump = intent.jump || jumpWaiting;
+    jumpWaiting = steps.steps === 0 && jump;
     for (let i = 0; i < steps.steps; i++) {
-      walker.step(intent, yaw);
-      const body = { feet: walker.feet(), height: BODY.height, radius: BODY.radius };
-      inside = space.parts.zones.filter((zone) => inZone(zone, body)).map((zone) => zone.path);
-      const step = stepZones(states, new Set(inside));
-      states = step.states;
-      for (const object of step.send) send(object);
+      walker.step({ ...intent, jump }, yaw);
+      sender.step(walker.feet());
     }
     shot = shotOf(kind, walker.feet(), yaw, pitch, walker.clear);
-    view.frame(shot, walker.feet(), yaw, kind === 'third', walker.moving());
+    surface.view.frame(shot, walker.feet(), yaw, kind === 'third', walker.moving());
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
-    if (clock.frame(time, true) && tier.auto) {
-      const lower = lowerTier(tier.name);
-      if (lower) void retier(lower, true);
-    }
+    const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
+    if (lower) void surface.retier({ name: lower, auto: true });
   };
   frame = requestAnimationFrame(tick);
 
-  const hook: WalkHook = {
-    space: ask.space,
-    character: () => ({
-      feet: walker.feet(),
-      velocity: walker.velocity(),
-      grounded: walker.grounded(),
-      view: kind,
-      yaw,
-      pitch,
-    }),
-    camera: () => ({ at: shot.at, distance: shot.distance }),
-    zones: () => inside,
-    sent: () => sent.map((s) => ({ ...s })),
-    moving: () => walker.moving().map(({ path, at }) => ({ path, at })),
-    get frames() {
-      return view.frames;
-    },
-    get paused() {
-      return paused;
-    },
-    perf: () => view.perf(clock.intervals()),
-  };
+  const hook = hookOf({ space: ask.space, kind, walker, sender, surface, look: () => ({ yaw, pitch, shot, paused }) });
   setWalkHook(hook);
-
   return {
     pause(on) {
       paused = on;
-      if (on) {
-        inputs.clear();
-        touches.clear();
-      }
+      if (!on) return;
+      surface.inputs.clear();
+      touches.clear();
     },
     quality(next) {
       void tierFor(next).then((picked) => {
-        if (!gone && (picked.name !== tier.name || picked.auto !== tier.auto)) void retier(picked.name, picked.auto);
+        const now = surface.tier;
+        if (!gone && (picked.name !== now.name || picked.auto !== now.auto)) void surface.retier(picked);
       });
     },
     stop() {
       gone = true;
       cancelAnimationFrame(frame);
       clearWalkHook(hook);
-      inputs.dispose();
+      surface.dispose();
       touches.dispose();
-      view.dispose();
-      canvas.remove();
       walker.free();
     },
   };

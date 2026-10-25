@@ -19,6 +19,8 @@ const CLICK = 4;
 
 export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Inputs {
   const keys = new Set<string>();
+  // A key pressed and let go between two frames still counts, once: a tap of Space jumps.
+  const tapped = new Set<string>();
   let drag = { x: 0, y: 0 };
   let pressed: { x: number; y: number; moved: number } | null = null;
 
@@ -27,6 +29,7 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
     // The page's own use of them waits: no scrolling, no spatial focus, no button pressed by Space.
     event.preventDefault();
     keys.add(event.code);
+    tapped.add(event.code);
   };
   const keyup = (event: KeyboardEvent) => keys.delete(event.code);
   const blur = () => keys.clear();
@@ -75,14 +78,17 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
       const moved = drag;
       drag = { x: 0, y: 0 };
       const held = pad();
+      const down = new Set([...keys, ...tapped]);
+      tapped.clear();
       return {
-        keys: new Set(keys),
+        keys: down,
         ...(held ? { pad: held } : {}),
         ...(moved.x !== 0 || moved.y !== 0 ? { drag: { ...moved, by: 'mouse' as const } } : {}),
       };
     },
     clear() {
       keys.clear();
+      tapped.clear();
       drag = { x: 0, y: 0 };
       pressed = null;
     },
