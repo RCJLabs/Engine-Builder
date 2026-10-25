@@ -219,6 +219,12 @@ describe('the crowd’s walk, through Recast in Node', () => {
     expect(near(miller?.at ?? [], [5, 0, 5], 0.2)).toBe(true);
     walk.present(new Set(['carter']));
     expect(walk.list().find((n) => n.actor === 'miller')?.state).toBe('away');
+    // The carter, no longer built, keeps where it walked to, not where it was placed.
+    const there = walk.list().find((n) => n.actor === 'carter')?.at ?? [];
+    walk.present(new Set(['miller']));
+    const away = walk.list().find((n) => n.actor === 'carter');
+    expect(away?.state).toBe('away');
+    expect(near(away?.at ?? [], there, 1e-6)).toBe(true);
     walk.free();
     nav.free();
   });

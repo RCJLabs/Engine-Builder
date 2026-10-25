@@ -2119,6 +2119,10 @@ Evan chose on 2026-10-25, from these options:
 - **Tap to move by touch only:** on a computer, a click already locks the pointer to look; a click to walk would fight it.
 - **Navigation loads apart from walk.js:** recast's wasm is 338,824 bytes and its glue 559,543, and walk.js has about 117 KB of gzip left in its budget. A space with a navmesh loads `nav.js` beside it.
 - **A cell of 0.15 m by 0.1 m,** a space up to 128 m across baked as one tile and a bigger one in tiles: in Node, a 40 m square with three stalls bakes in 37 ms to 17,976 bytes, the same bytes each time (the M6.2 spike).
+- **E079 covers a space with no `.nav` too,** as well as an actor in no space and an object its space lacks, so a walk-to that can't walk is an error before play. A `.nav` that won't read counts as there for E079: one bad file is E078 alone, not an E079 at every walk-to besides.
+- **Format 11 only where needed:** a pack's actors and navmeshes go in only when a space has a navmesh, so every pack without one keeps format 10 and the hash its golden files hold.
+- **The editor bakes with the walk's own Recast:** Bake navigation's worker runs the `nav.js` the editor keeps in runtime/, which the service worker precaches, so the editor bakes offline. The precache grows to 13,769,049 bytes (nav.js is 775,803 of them; 230,390 gzipped).
+- **`world/npcs-at` is never on offer,** like the stage's other world actions, so the session's guard on offered actions passes it to the sim. The gate's e2e found it refused there; the headless tests now send through the same guard.
 
 **Why.**
 - **The sim sets goals:** quests and talks need to send people places and hear that they got there, and a save must put them back; the sim can't run Detour itself, as pure packages import only pure ones.

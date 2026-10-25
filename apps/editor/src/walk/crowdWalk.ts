@@ -123,7 +123,7 @@ export function createCrowdWalk(
           w.agent = crowd.add(w.at, w.npc.radius, w.npc.height);
           send(w);
         } else if (!here && w.agent) {
-          w.at = w.agent.at();
+          // Where it stands is w.at already: step keeps it after each of the crowd's steps.
           crowd.remove(w.agent);
           w.agent = null;
         }

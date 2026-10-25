@@ -39,6 +39,18 @@ const files = (): Record<string, string> => ({
   }),
 });
 
+/** The open project's checks, as projects/opened.ts runs them: the index, the spaces', the records again. */
+async function checked(all: Record<string, string>) {
+  const source = memorySource(all);
+  const catalog = await readCatalog(source);
+  const first = await updateIndex(EMPTY_INDEX, source, catalog, null);
+  const spaced = await spaceProblems(source, catalog, first, NO_SCRIPTS);
+  const flags = withScreens(spaced.flags, new Map());
+  const index = await updateIndex(first, source, catalog, [], {}, flags);
+  const problems = (at: typeof index) => projectProblems(catalog, { ...at, spaces: spaced.problems });
+  return { source, catalog, flags, index, problems };
+}
+
 const brief = (list: readonly { code: string; file?: string; path?: string }[]) =>
   list
     .filter((d) => ['E076', 'E078', 'E079', 'W147'].includes(d.code))
@@ -47,12 +59,8 @@ const brief = (list: readonly { code: string; file?: string; path?: string }[]) 
 
 describe('the navmesh checks in the editor', () => {
   it('are eb validate’s: the records’ walk-to and enter-space heard against the spaces, and the .nav files', async () => {
-    const source = memorySource(files());
-    const catalog = await readCatalog(source);
-    const first = await updateIndex(EMPTY_INDEX, source, catalog, null);
-    const spaced = await spaceProblems(source, catalog, first, NO_SCRIPTS);
-    const index = await updateIndex(first, source, catalog, [], {}, withScreens(spaced.flags, new Map()));
-    const editor = projectProblems(catalog, { ...index, spaces: spaced.problems });
+    const { source, index, problems } = await checked(files());
+    const editor = problems(index);
     const compiler = (await compileProject(source, [])).diagnostics;
     expect(brief(editor)).toEqual(brief(compiler));
     expect(brief(editor)).toEqual([
@@ -62,5 +70,28 @@ describe('the navmesh checks in the editor', () => {
       'E079 records/sheet/walks.json /rows/0/do/1',
       'W147 spaces/square.nav ',
     ]);
+  });
+
+  it('give a .nav that won’t read as E078 alone, not an E079 at each walk-to into its space as well', async () => {
+    // The carter to the well, an object the square has: only its navmesh is left to check.
+    const all = {
+      ...files(),
+      'spaces/square.nav': 'EBNV\u0001 not a navmesh',
+      'records/sheet/walks.json': json({
+        rows: [{ id: 'go', when: { event: 'world/arrived' }, do: [walk('carter', 'well')] }],
+      }),
+    };
+    const { source, index, problems } = await checked(all);
+    const compiler = (await compileProject(source, [])).diagnostics;
+    expect(brief(problems(index))).toEqual(brief(compiler));
+    expect(brief(problems(index)).filter((line) => line.includes('square'))).toEqual(['E078 spaces/square.nav ']);
+  });
+
+  it('check the records again when only where the actors stand has changed: a navmesh baked for the inn', async () => {
+    const { source, catalog, flags, index, problems } = await checked(files());
+    expect(brief(problems(index))).toContain('E079 records/sheet/walks.json /rows/0/do/1');
+    const walkers = new Map([...(flags.walkers ?? [])].map(([actor, w]) => [actor, { ...w, navmesh: true }]));
+    const baked = await updateIndex(index, source, catalog, [], {}, { ...flags, walkers });
+    expect(brief(problems(baked))).not.toContain('E079 records/sheet/walks.json /rows/0/do/1');
   });
 });
