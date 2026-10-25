@@ -90,9 +90,9 @@ A new component kind, `interact`:
 - **What is taken** is hidden, with everything inside it, and its solids leave the physics, as the
   sim says so after each step, without drawing the space again.
 - **The outbox:** the shell drops a step asked for while another is on its way, so the stage's
-  `world/at` and `world/use` go one at a time (`walk/outbox.ts`). A dropped one is tried again 50
-  ms later, up to 60 times, by a timer, so a hidden page still sends it; a newer `world/at` takes
-  the place of one still waiting.
+  `world/at`, `world/use` and the zones' `world/trigger` go one at a time (`walk/outbox.ts`). A
+  dropped one is tried again 50 ms later, up to 60 times, by a timer, so a hidden page still sends
+  it; a newer `world/at` takes the place of one still waiting.
 - **A stage a step behind** says nothing of where the player stands in a space the sim hasn't them
   in; a `world/at` that arrives anyway is refused `elsewhere`.
 

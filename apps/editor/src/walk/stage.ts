@@ -19,6 +19,7 @@ import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts
 import { type Held, intentOf, PAD_DEAD } from './controls.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import { jumpOf, stepsFor } from './motion.ts';
+import { createOutbox } from './outbox.ts';
 import { createWalker, type Walker } from './physics.ts';
 import { createPrompt } from './prompt.ts';
 import { createSender, type Sender } from './sender.ts';
@@ -103,8 +104,11 @@ export async function startStage(box: HTMLElement, ask: SpaceAsk, world: PackWor
   const surface = await createSurface(box, space, await tierFor(ask.quality));
   const touches = createTouches(box);
   const prompt = createPrompt(box);
-  const sender = createSender(ask, space.parts.zones);
-  const acts = createActs(ask, space.parts.uses, prompt, { feet: walker.feet(), time: performance.now() });
+  // Every step the walk asks for goes one at a time, zones' triggers too: the shell drops one sent
+  // while another is on its way.
+  const outbox = createOutbox(ask.send);
+  const sender = createSender(ask.space, outbox, space.parts.zones);
+  const acts = createActs(ask, outbox, space.parts.uses, prompt, { feet: walker.feet(), time: performance.now() });
   let gone = acts.taken(ask.taken);
   walker.remove(gone);
   surface.view.hide(gone);
