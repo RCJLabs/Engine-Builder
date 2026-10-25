@@ -10,6 +10,7 @@ import { createActs } from './acts.ts';
 import { CONE, facing, forwardOf, REACH } from './interact.ts';
 import { createOutbox, RETRY_MS, TRIES } from './outbox.ts';
 import type { Prompt } from './prompt.ts';
+import { createSender } from './sender.ts';
 import { isTaken, type Spawn, spawnOf, type UsePoint } from './solids.ts';
 import { dueAt, EVERY_MS, MOVED_M, standing } from './stood.ts';
 
@@ -202,7 +203,7 @@ describe('the acts', () => {
   it('uses what the player faces once a press, after saying where they stand', async () => {
     const { ask, sent } = asked();
     const p = prompt();
-    const acts = createActs(ask, [use('rope', [0, -1])], p, { feet: [0, 0, 0], time: 0 });
+    const acts = createActs(ask, createOutbox(ask.send), [use('rope', [0, -1])], p, { feet: [0, 0, 0], time: 0 });
     acts.frame([0, 0, 0], 0, true, 'keys', 10);
     acts.frame([0, 0, 0], 0, true, 'keys', 20);
     for (let i = 0; i < 4; i++) {
@@ -224,7 +225,7 @@ describe('the acts', () => {
   it('uses by the prompt pressed, as a tap on a phone', async () => {
     const { ask, sent } = asked();
     const p = prompt();
-    const acts = createActs(ask, [use('rope', [0, -1])], p, { feet: [0, 0, 0], time: 0 });
+    const acts = createActs(ask, createOutbox(ask.send), [use('rope', [0, -1])], p, { feet: [0, 0, 0], time: 0 });
     acts.frame([0, 0, 0], 0, false, 'touch', 10);
     p.press();
     acts.frame([0, 0, 0], 0, false, 'touch', 20);
@@ -237,16 +238,54 @@ describe('the acts', () => {
 
   it('says where the player stands when due, and nothing in a space the sim hasn’t them in', async () => {
     const here = asked();
-    const acts = createActs(here.ask, [], prompt(), { feet: [0, 0, 0], time: 0 });
+    const acts = createActs(here.ask, createOutbox(here.ask.send), [], prompt(), { feet: [0, 0, 0], time: 0 });
     acts.frame([0.2, 0, 0], 0, false, 'keys', EVERY_MS);
     acts.frame([1, 0, 0], 0, false, 'keys', EVERY_MS);
     await flush();
     expect(here.sent).toEqual([{ type: 'world/at', space: 'glen', feet: [1, 0, 0], yaw: 0 }]);
     const elsewhere = asked(false);
-    const away = createActs(elsewhere.ask, [], prompt(), { feet: [0, 0, 0], time: 0 });
+    const away = createActs(elsewhere.ask, createOutbox(elsewhere.ask.send), [], prompt(), {
+      feet: [0, 0, 0],
+      time: 0,
+    });
     away.frame([3, 0, 0], 0, false, 'keys', EVERY_MS);
     away.stand([3, 0, 0], 0, EVERY_MS);
     await flush();
     expect(elsewhere.sent).toEqual([]);
+  });
+});
+
+describe('the zones and the stands together', () => {
+  it('sends a zone entered behind a world/at on its way, once, as the shell drops one sent beside another', async () => {
+    // The shell as it is: a step asked for while one is on its way is dropped.
+    const asked: { action: Action; answer: (sent: Sent) => void }[] = [];
+    let busy = false;
+    const send = (action: Action) => {
+      if (busy) return Promise.resolve<Sent>('dropped');
+      busy = true;
+      return new Promise<Sent>((answer) =>
+        asked.push({
+          action,
+          answer: (sent) => {
+            busy = false;
+            answer(sent);
+          },
+        }),
+      );
+    };
+    const outbox = createOutbox(send);
+    const zone = { kind: 'ball', path: 'cairn/zone', center: [0, 1, 0], radius: 2 } as const;
+    const sender = createSender('trail', outbox, [zone]);
+    void outbox.post({ type: 'world/at', space: 'trail', feet: [0, 0, 0], yaw: 0 });
+    outbox.pump();
+    sender.step([0, 0, 0]);
+    outbox.pump();
+    await new Promise((r) => setTimeout(r, 0));
+    asked[0]?.answer('accepted');
+    await new Promise((r) => setTimeout(r, 0));
+    asked[1]?.answer('accepted');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(asked.map((a) => a.action.type)).toEqual(['world/at', 'world/trigger']);
+    expect(sender.sent()).toEqual([{ object: 'cairn/zone', sent: 'accepted' }]);
   });
 });

@@ -1,10 +1,12 @@
 /**
  * The zones' triggers as the walk sends them (M5.8, D70, docs/specs/movement.md#the-stage): each
  * fixed step, the zones the capsule is in; a zone entered sends world/trigger, and what the sim made
- * of it comes back to decide whether it is sent again (zones.ts).
+ * of it comes back to decide whether it is sent again (zones.ts). It goes through the walk's outbox
+ * (M5.9), behind any world/at on its way: sent beside one, the shell would drop it.
  */
-import type { Sent, SpaceAsk } from '@eb/ui';
+import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
+import type { Outbox } from './outbox.ts';
 import { BODY } from './physics.ts';
 import type { Zone } from './solids.ts';
 import { answered, inZone, stepZones, type ZoneState } from './zones.ts';
@@ -23,14 +25,14 @@ export interface Sender {
   sent(): SentTrigger[];
 }
 
-export function createSender(ask: SpaceAsk, zones: readonly Zone[]): Sender {
+export function createSender(space: string, outbox: Outbox, zones: readonly Zone[]): Sender {
   let states: ReadonlyMap<string, ZoneState> = new Map();
   let inside: string[] = [];
   const sent: { object: string; sent: Sent | 'waiting' }[] = [];
   const send = (object: string) => {
     const entry: { object: string; sent: Sent | 'waiting' } = { object, sent: 'waiting' };
     sent.push(entry);
-    void ask.send({ type: 'world/trigger', space: ask.space, object }).then((answer) => {
+    void outbox.post({ type: 'world/trigger', space, object }).then((answer) => {
       entry.sent = answer;
       states = answered(states, object, answer);
     });

@@ -1113,6 +1113,7 @@ How to read this file:
       - **The shell drops a step asked for while one is on its way,** so the stage's `world/at` and `world/use` sent back to back lost the use: hence the outbox.
       - **A drag from half a pixel** lost one pixel's turn as the browser moved by whole pixels; `faceTowards` starts on a whole pixel and allows one.
       - **The pad's stick let go late on a loaded box** walked past the bothy's door to the wall, out of the prompt's cone: the pad spec lets go in the page, as M5.8's keys do.
+      - **After the merge, main's run found the zones outside the outbox:** the trail's web export reached the cairn while a `world/at` was on its way, and the shell dropped its trigger twice before one got through. The zones' triggers now go through the same outbox; `acts.test.ts` holds it, seen failing with the old wiring and with triggers let past the queue.
     - **Logged for later:** questions 1 to 5 in [specs/worldspaces.md](docs/specs/worldspaces.md#open-questions): moving bodies in saves, uses held down, the prompt's reach and cone, `enter-space` to the space the player is in, and triggers and uses from a space the player isn't in.
     - **Untested for feel and on a phone:** the prompt's reach and cone, the loading screen's length on a phone, and how often a save is written as the player walks.
     - **47 planted bugs**, each command first seen passing on the clean tree; 44 caught as first planted, and the other three caught once each was mended.

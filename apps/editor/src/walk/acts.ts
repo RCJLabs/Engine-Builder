@@ -2,12 +2,12 @@
  * What the walk tells the sim besides its zones (M5.9, D71, docs/specs/worldspaces.md): Interact on
  * what the player faces, sent as world/use after a world/at, and where the player stands, as the
  * shell pauses, the page hides and every 5 s once they have moved. Both go through the outbox, one at
- * a time. What the sim says is taken is hidden and loses its solids.
+ * a time, with the zones' triggers. What the sim says is taken is hidden and loses its solids.
  */
 import type { Sent, SpaceAsk } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import { facing } from './interact.ts';
-import { createOutbox } from './outbox.ts';
+import type { Outbox } from './outbox.ts';
 import type { Prompt } from './prompt.ts';
 import type { UsePoint } from './solids.ts';
 import { dueAt, standing, type Told } from './stood.ts';
@@ -30,8 +30,13 @@ export interface Acts {
 
 const KEYS: Readonly<Record<InputBy, string | null>> = { keys: 'E', pad: 'X', touch: null };
 
-export function createActs(ask: SpaceAsk, uses: readonly UsePoint[], prompt: Prompt, start: Told): Acts {
-  const outbox = createOutbox(ask.send);
+export function createActs(
+  ask: SpaceAsk,
+  outbox: Outbox,
+  uses: readonly UsePoint[],
+  prompt: Prompt,
+  start: Told,
+): Acts {
   let gone: ReadonlySet<string> = new Set(ask.taken);
   let faced: UsePoint | undefined;
   let held = false;
