@@ -229,7 +229,36 @@ describe('the crowd’s walk, through Recast in Node', () => {
     nav.free();
   });
 
-  it('moves an NPC’s kinematic body by its shift, which the camera’s rays then meet there', () => {
+  it('lets a character that starts inside an NPC’s capsule walk out of it, as out of any still solid', () => {
+    const walker = createWalker(
+      RAPIER,
+      {
+        solids: [
+          { kind: 'box', path: 'ground', center: [0, -0.1, 0], turn: [0, 0, 0, 1], half: [10, 0.1, 10], moves: false },
+          {
+            kind: 'capsule',
+            path: 'ada',
+            center: [1.5, 0.875, 0],
+            turn: [0, 0, 0, 1],
+            radius: 0.3,
+            halfHeight: 0.575,
+            moves: false,
+            npc: true,
+          },
+        ],
+        spawn: { path: 'spawn', at: [1.5, 0, 0], yaw: 0, start: true, view: 'third' },
+        at: undefined,
+      },
+      null,
+    );
+    // A second standing, as a walk begins while its first frames draw, then a second at a walk along −z.
+    for (let i = 0; i < 60; i++) walker.step(still, 0);
+    for (let i = 0; i < 60; i++) walker.step({ ...still, move: [0, 1] }, 0);
+    expect(walker.feet()[2]).toBeLessThan(-1);
+    walker.free();
+  });
+
+  it('moves an NPC’s body by its shift, which the camera’s rays then meet there', () => {
     const walker = createWalker(
       RAPIER,
       {

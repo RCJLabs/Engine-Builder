@@ -91,14 +91,16 @@ function colliderOf(rapier: Rapier, solid: Solid): RAPIER_NS.ColliderDesc | null
 }
 
 /**
- * The solid's body: still ones fixed where they stand, moving ones dynamic, an NPC's kinematic (M6.2)
- * so the crowd moves it, each shape about its centre.
+ * The solid's body: still ones fixed where they stand, moving ones dynamic, an NPC's fixed too and
+ * set where its agent is each step (M6.2), each shape about its centre. Not kinematic: a character
+ * that starts inside a kinematic body never gets out, where it does out of a fixed one (measured in
+ * Rapier 0.21 when M6.2's CI found the forge's player stuck inside Ada).
  */
 function addSolid(rapier: Rapier, world: RAPIER_NS.World, solid: Solid) {
   const desc = colliderOf(rapier, solid);
   if (!desc) return null;
   if (solid.npc && solid.kind !== 'hull') {
-    const kind = rapier.RigidBodyDesc.kinematicPositionBased();
+    const kind = rapier.RigidBodyDesc.fixed();
     const body = world.createRigidBody(kind.setTranslation(...solid.center).setRotation(quat(solid.turn)));
     world.createCollider(desc, body);
     return body;
@@ -241,7 +243,7 @@ export function createWalker(
       const npc = npcs.get(path);
       if (!npc) return;
       const [x, y, z] = npc.from;
-      npc.body.setNextKinematicTranslation({ x: x + shift[0], y: y + shift[1], z: z + shift[2] });
+      npc.body.setTranslation({ x: x + shift[0], y: y + shift[1], z: z + shift[2] }, false);
     },
     drop(tops) {
       if (tops.size > 0) takeOut((path) => tops.has(topOf(path)));

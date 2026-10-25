@@ -58,7 +58,7 @@ ground walks the player there too.
   Bake navigation's worker fetches the editor's copy in runtime/ and runs it, so the editor bakes
   offline with the same Recast the walk uses.
 - **The crowd:** one agent for each NPC built in the rings around the player (M5.10), stepping on the
-  walk's fixed 1/60 s steps, 1.4 m/s at most. An NPC's solid follows its agent, kinematic. An NPC
+  walk's fixed 1/60 s steps, 1.4 m/s at most. An NPC's solid is set where its agent is each step: a fixed body, since a character that starts inside a kinematic one can't get out. An NPC
   turns to face where it walks; one being talked to stops, faces the player (M6.1) and walks on after.
 - **An NPC farther off** waits where it last stood, its goal kept, until its cell comes near.
 - **Tap to move:** a touch that lifts within 300 ms and 10 px, not on a button, is a tap. On the

@@ -27,7 +27,7 @@ export interface Frame {
 
 export const WORLD_FRAME: Frame = { at: [0, 0, 0], turn: [0, 0, 0, 1], scale: [1, 1, 1] };
 
-/** `npc`: a placed actor's (M6.2), which the crowd walks: kinematic, moved to where its agent is. */
+/** `npc`: a placed actor's (M6.2), which the crowd walks: fixed, set where its agent is each step. */
 export type Solid = (
   | {
       readonly kind: 'box';
