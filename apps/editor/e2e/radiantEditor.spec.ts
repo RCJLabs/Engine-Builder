@@ -10,7 +10,7 @@ import { cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync }
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
-import { watchErrors } from './checks.ts';
+import { expectNoAxeIssues, expectNothingOffscreen, smallTargets, watchErrors } from './checks.ts';
 import { press, showInspector, showOutliner } from './componentHelpers.ts';
 import { offered, promptButton } from './glenHelpers.ts';
 import { HOLLOWS, importZip, marksAt, playHollows } from './hollowsHelpers.ts';
@@ -137,6 +137,12 @@ async function tagCaves(page: Page, touch: boolean): Promise<void> {
     await addTag(form, 'Old chest', 'empty', touch);
     await expect(form.getByRole('button', { name: 'Revert tags' })).toBeVisible();
     await expect.poll(() => stored(page, FOLDER, 'spaces/mine.json')).toEqual(fixture('spaces/mine.json'));
+    if (touch) {
+      // The Tags field in reach on a phone: nothing off the screen, every target 44 px, nothing axe finds.
+      await expectNothingOffscreen(page);
+      expect(await smallTargets(page, '[data-panel="inspector"]')).toEqual([]);
+      await expectNoAxeIssues(page);
+    }
   });
 }
 

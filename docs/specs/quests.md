@@ -147,6 +147,8 @@ Success comes before failure: a stage whose objectives are done in the check its
 
 A quest's slots (Bethesda's aliases) are records it picks as it starts, so one quest can be about a different member, item or place each time it runs (M3.10, [D48](../decisions.md)). In the quest's own fields, `@mark` stands for the record in the slot `mark` wherever a record's id goes: a fact's argument or the value it is compared with (`roster.member(@mark)`), an effect's field (`{ "effect": "leave", "actor": "@mark", "why": "dead" }`), a count's argument. `{mark}` in a stage's `log` or `why`, an objective's `text`, a job outcome's `text` or a slot's `why` shows the record's name, read as the journal is: the record's `name`, or its id when it has none. A `{x}` naming no slot is left as written (W128).
 
+Since M6.7 a slot can also find a space by its tags, and an object or a placed actor in it, taking the nearest by doors: [radiant.md](radiant.md) ([D79](../decisions.md)).
+
 ```json
 "slots": [
   {

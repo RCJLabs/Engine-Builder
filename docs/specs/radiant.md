@@ -165,9 +165,27 @@ It is checked four ways:
 - **By touch** at 360, 390 and sideways: the board read by a tap, the compass on the barrow's door, the journal naming the barrow, and the Map's pin at the door.
 - **In the editor alone** at 1280 and 390, from the hollows with no tags and no Supplies:
   - the caves tagged in the space's form;
-  - the mine's cache tagged through the prefab;
+  - the mine's cache tagged through the prefab, and its empty chest told apart by an override;
   - Supplies' two slots made with forms, E088 shown and gone;
   - and played to the barrow's door.
+
+## As built (2026-10-26)
+
+- **Where it lives.**
+  - *The sim:* the quests kit's `finding.ts` (what a world slot can hold, its space, whether it is still there, its name) and `slots.ts` (filling with Nearest, the last pick tried last, and a space slot trying again). The kit is `questsModule(places)`, built with the pack's places as the time kit is with the calendar. `kitsInWorld` swaps it in for a game made before its pack was read, as `eb sim` and the editor's Run make theirs. `world.doors` is in core's world module, over M6.6's `doorsBetween`.
+  - *The pack:* core's `places.ts` (format 15, `worldPlacesOf`, its checks, `hasTags`) and the compiler's `places.ts` (`placesOf` through prefabs and overrides, `spaceTagsOf` for the checks).
+  - *The checks:* `packages/schema`'s `worldSlots.ts` (E088, W127), joined to M3.10's slot checks; E086's slots in `targetCheck.ts`; E058's tags in `spaceShape.ts` and `spaces.ts`.
+  - *The editor:* `spaces/tags.ts` and `TagsField.tsx` (the space's form, an object's, and an object inside a placement, written as an override); `quests/targetChoices.ts` (a slot's In, a target's slots).
+- **A slot's form isn't quite as specified:**
+  - Type stays the text box M3.10 gave it, not a choice of `space`, `object` and the record types. M3.10's specs type a type nothing has to see W127, and a choice would take that away.
+  - A slot's Tags are a list of text boxes. They don't offer the project's tags; the inspector's Tags field does.
+  - In and Pick are as specified.
+- **A quest is checked for its world slots only once its type takes it.** A quest with no stage yet fails its type (E001), and a record its type refuses is checked no further, so its slots show no E088 until it has a stage. `radiantEditor.spec.ts` gives Supplies its stage first.
+- **The refusal names the slot In the space.** When every cave was tried and none had a cache left, the start is refused `unfilled` naming the cache's slot, not the cave's: the slot that couldn't be filled.
+- **A slot of records keeps M3.10's ways.** It takes the same pick each run of a repeat, and doesn't try its next match when a later slot can't be filled. Only a space slot that a later slot is In tries again, and E088 refuses In naming anything but a space slot, so no other slot ever does.
+- **The board's third read** is refused as the walk sends it, and the hollows says nothing on screen about it. Whether a feedback line on `rejected` can say it is untested (open question 5).
+- **The hollows** is the gate's fixture: the green, the barrow, the hall and the mine; Supplies and the bounty; Map and Journal screens. Its green has the tag `village` and Wick the tag `chief`, which nothing in it asks for, so the pack and the checks carry tags no slot reads.
+- **Untested for feel:** ties drawn at random among caves equally near, and a bounty that runs out once every den is cleared, wait for your phone (D79's cost).
 
 ## Open questions
 
@@ -175,3 +193,4 @@ It is checked four ways:
 2. **Making a thing at a found place,** Bethesda's "create a reference": a bandit chief put in the chosen den, or an heirloom in its chest once containers come (M6.8).
 3. **NPCs that travel between spaces:** an actor slot's space is where the actor is placed, which holds only while NPCs stay in their space ([ai.md](ai.md#open-questions), 1).
 4. **Nearest in metres** within one space, from where the player stands: the pack would carry each tagged object's place.
+5. **Saying why the board has nothing:** a quest that can't start is refused `unfilled`, and nothing on screen says so. A feedback line on the refusal, or the stage saying a use was refused, would tell the player.

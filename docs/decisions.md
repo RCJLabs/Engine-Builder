@@ -2358,6 +2358,12 @@ Evan chose on 2026-10-26, from these options:
 - **`world.doors(space)`** is the fewest doors from the player's space, which `nearest` reads. **`factions.faction-of(actor)`** is an actor's faction, for "an NPC of the bandits".
 - **E088** for a slot that finds in the world and can't be read.
 
+**As built** (2026-10-26, [specs/radiant.md](specs/radiant.md#as-built-2026-10-26)):
+- **A slot's Type stays a text box**, not a choice of `space`, `object` and the record types, so a type nothing has can still be typed to see W127 (M3.10). Its Tags are text boxes; the inspector's Tags field is the one that offers the project's tags.
+- **Only a space slot tries its next match.** A slot of records keeps M3.10's ways: the same pick each run, no next match tried.
+- **A refused start names the slot that couldn't be filled**, the cache's rather than the cave's, and nothing on screen says it yet (radiant.md's open question 5).
+- **A quest shows its world slots' problems once its type takes it:** with no stage yet it fails its type first.
+
 The spec is [specs/radiant.md](specs/radiant.md).
 
 ---
