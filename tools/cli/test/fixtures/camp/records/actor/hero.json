@@ -1,7 +1,7 @@
 {
   "name": "The hero",
   "stats": {
-    "health": 30,
+    "health": 50,
     "might": 2,
     "armour": 1
   },

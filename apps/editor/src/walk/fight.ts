@@ -48,6 +48,8 @@ export interface WalkFight {
   readonly weapon: string;
   readonly swing: Swing['phase'] | null;
   readonly aimed: string | null;
+  /** The NPCs the sim has fighting the player now, by turn: at most two. */
+  readonly engaged: readonly string[];
   readonly npcs: readonly { readonly actor: string; readonly swing: Swing['phase'] | null; readonly down: boolean }[];
   readonly arrows: readonly { readonly by: string; readonly at: Vec3 }[];
   readonly sent: readonly { readonly action: Action; readonly sent: Sent | 'waiting' }[];
@@ -197,7 +199,9 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       return actor === undefined || fallen(actor) ? { toi: met.toi } : { toi: met.toi, actor };
     });
     arrows = stepped.flying;
-    for (const h of stepped.hits) hit(h.by, h.on, h.weapon);
+    // An NPC's arrow landing after it fell or left the fight hurts no one: the sim would refuse it.
+    const fighting = new Set(view()?.engaged ?? []);
+    for (const h of stepped.hits) if (h.by === me || (fighting.has(h.by) && !fallen(h.by))) hit(h.by, h.on, h.weapon);
   };
 
   return {
@@ -222,9 +226,15 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
         const phase = npcSwings.get(n.actor)?.phase;
         to.pose(n.path, down ? 'down' : phase === 'windup' ? 'windup' : phase === 'strike' ? 'strike' : 'stand');
         if (!down || !n.here) continue;
-        const label = now?.searched.includes(n.actor) ? 'Nothing left' : 'Search';
+        const searched = now?.searched.includes(n.actor) === true;
         const at: Vec3 = [n.at[0], n.at[1] + 0.3, n.at[2]];
-        uses.push({ path: n.path, center: at, label, send: { type: 'fighting/search', actor: n.actor } });
+        const send = { type: 'fighting/search', actor: n.actor };
+        uses.push({
+          path: n.path,
+          center: at,
+          send,
+          ...(searched ? { label: 'Nothing left', spent: true } : { label: 'Search' }),
+        });
       }
       to.bodies(uses);
     },
@@ -240,6 +250,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       weapon: weaponOf(view()?.player ?? '')?.item ?? '',
       swing: swing?.phase ?? null,
       aimed: aim?.foe.actor ?? null,
+      engaged: [...(view()?.engaged ?? [])],
       npcs: to.npcs().map((n) => ({
         actor: n.actor,
         swing: npcSwings.get(n.actor)?.phase ?? null,

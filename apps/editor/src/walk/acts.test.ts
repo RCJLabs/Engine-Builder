@@ -33,6 +33,15 @@ describe('facing', () => {
     expect(facing([use('far', [0, -REACH - 0.1])], [0, 0, 0], 0, new Set())).toBeUndefined();
   });
 
+  it('puts one spent behind any other in reach, nearest first among each (M6.4)', () => {
+    const searched = { ...use('rook', [0, -0.5]), spent: true as const };
+    const crow = use('crow', [0, -1.5]);
+    expect(facing([searched, crow], [0, 0, 0], 0, new Set())?.path).toBe('crow');
+    expect(facing([crow, searched], [0, 0, 0], 0, new Set())?.path).toBe('crow');
+    expect(facing([searched, { ...crow, spent: true }], [0, 0, 0], 0, new Set())?.path).toBe('rook');
+    expect(facing([searched], [0, 0, 0], 0, new Set())?.path).toBe('rook');
+  });
+
   it('keeps the cone to CONE degrees either side', () => {
     const at = (deg: number): UsePoint => {
       const r = (deg * Math.PI) / 180;

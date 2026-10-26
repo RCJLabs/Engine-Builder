@@ -83,6 +83,17 @@ describe('fighting’s checks in the editor', () => {
       expect(brief(problems)).toEqual(expected);
     });
 
+  it('include W150 for a bandit that attacks with nothing worn, as eb validate gives it', async () => {
+    const files = withProject(() => {});
+    const crow = JSON.parse(decode(files['records/actor/crow.json'] as Uint8Array) as string);
+    delete crow.wears;
+    const { source, problems } = await checked({ ...files, 'records/actor/crow.json': JSON.stringify(crow) });
+    const w150 = (list: readonly { code: string; file?: string; path?: string }[]) =>
+      list.filter((d) => d.code === 'W150').map((d) => `${d.file} ${d.path}`);
+    expect(w150(problems)).toEqual(w150((await compileProject(source, [])).diagnostics));
+    expect(w150(problems)).toEqual(['records/actor/crow.json /behaviour']);
+  });
+
   it('go to the form’s fields, the one that says it is missing to the whole form', async () => {
     const placed = await checked(
       withProject((p) => Object.assign(p, { fighting: { player: 'rook', combat: 'fists' } })),

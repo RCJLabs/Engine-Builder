@@ -80,6 +80,8 @@ export interface UsePoint {
   readonly label: string;
   /** What using it sends, when it isn't world/use: a body's fighting/search (M6.4). */
   readonly send?: Action;
+  /** Nothing comes of using it (a body searched): another in reach and in the cone comes first. */
+  readonly spent?: true;
 }
 
 export interface Parts {

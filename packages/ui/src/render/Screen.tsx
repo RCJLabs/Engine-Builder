@@ -105,13 +105,18 @@ function Regions({ screen, drawing }: { readonly screen: Screen; readonly drawin
   );
 }
 
-/** A mode no screen shows: every action on offer as a button, so the game can still be played. */
+/**
+ * A mode no screen shows: every action on offer as a button, so the game can still be played. With
+ * none and the game not over, a mode the shell draws over it (fallen, M6.4): nothing to say here.
+ */
 function Fallback({ drawing }: { readonly drawing: Drawing }) {
   const offered = drawing.view.lists.offered ?? [];
   return (
     <div class="eb-region eb-main">
       {offered.length === 0 ? (
-        <p class="eb-text eb-empty">Nothing to do: the game is over.</p>
+        drawing.view.ended ? (
+          <p class="eb-text eb-empty">Nothing to do: the game is over.</p>
+        ) : null
       ) : (
         <ul class="eb-list">
           {offered.map((entry) => (
