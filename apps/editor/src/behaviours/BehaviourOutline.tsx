@@ -6,15 +6,15 @@
  * actors stand in. A graph editor waits for Phase 8.
  */
 import { calendarOf, formatRef, parseRef } from '@eb/core';
-import { ACTOR, BEHAVIOUR, type NodeKind } from '@eb/kits';
+import { ACTOR, BEHAVIOUR, FIGHTING, type NodeKind } from '@eb/kits';
 import { useMemo, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { useForm } from '../forms/formContext.ts';
 import { walkersNow } from '../logic/WalkToFields.tsx';
 import type { OpenProject } from '../projects/opened.ts';
-import { KINDS, NodeForm } from './NodeForm.tsx';
+import { NodeForm } from './NodeForm.tsx';
 import { type NodeSettings, rowPointers } from './nodeFields.ts';
-import { KIND_WORDS, nodeText } from './nodeWords.ts';
+import { KIND_WORDS, kindsFor, nodeText } from './nodeWords.ts';
 import {
   addAfter,
   addInside,
@@ -51,7 +51,12 @@ export function settingsFor(project: OpenProject, id: string): NodeSettings {
   const points = new Set(
     actors.flatMap((actor) => [...(walkers.get(actor)?.objects ?? [])].filter((p) => p !== actor)),
   );
-  return { units, ...(calendar?.weekdays ? { weekdays: calendar.weekdays } : {}), points: [...points].sort() };
+  return {
+    units,
+    ...(calendar?.weekdays ? { weekdays: calendar.weekdays } : {}),
+    points: [...points].sort(),
+    kinds: kindsFor(project.catalog.kits.includes(FIGHTING)),
+  };
 }
 
 type Apply = (said: string, make: (tree: unknown) => { root: unknown; path: string }) => void;
@@ -100,7 +105,7 @@ export function BehaviourOutline({ project, id, value }: { project: OpenProject;
           );
         })}
       </ul>
-      <OutlineBar tree={value} row={row} start={start} apply={apply} />
+      <OutlineBar tree={value} row={row} start={start} apply={apply} kinds={settings.kinds ?? kindsFor(false)} />
       <NodeForm
         row={row}
         settings={settings}
@@ -111,7 +116,15 @@ export function BehaviourOutline({ project, id, value }: { project: OpenProject;
   );
 }
 
-function OutlineBar({ tree, row, start, apply }: { tree: unknown; row: OutlineRow; start: Start; apply: Apply }) {
+interface BarProps {
+  readonly tree: unknown;
+  readonly row: OutlineRow;
+  readonly start: Start;
+  readonly apply: Apply;
+  readonly kinds: readonly NodeKind[];
+}
+
+function OutlineBar({ tree, row, start, apply, kinds }: BarProps) {
   const form = useForm();
   const addId = useUniqueId();
   const wrapId = useUniqueId();
@@ -136,7 +149,7 @@ function OutlineBar({ tree, row, start, apply }: { tree: unknown; row: OutlineRo
           value={kind}
           onChange={(e) => setKind(e.currentTarget.value as NodeKind)}
         >
-          {KINDS.map((each) => (
+          {kinds.map((each) => (
             <option key={each} value={each}>
               {KIND_WORDS[each]}
             </option>

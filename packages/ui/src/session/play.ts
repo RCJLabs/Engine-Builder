@@ -3,8 +3,8 @@
  * after each step the view the page draws from. It runs where the game's scripts run, in a worker,
  * and gives back only JSON. A button can only ask for an action the game offers: one it doesn't is
  * refused here before the sim sees it, as the sim would refuse it. The one action no button asks
- * for are the stage's (world/trigger since M5.8, world/npcs-at since M6.2, time/elapse since M6.3),
- * never on offer, which the sim's own checks decide.
+ * for are the stage's (world/trigger since M5.8, world/npcs-at since M6.2, time/elapse since M6.3, the
+ * fighting kit's hits, shots and searches since M6.4), never on offer, which the sim's own checks decide.
  */
 import {
   type Action,
@@ -16,14 +16,17 @@ import {
   type Game,
   type GameState,
   type PackCredit,
+  type PackFighting,
   type RecordStore,
   type Session,
   type SimContext,
   WORLD,
   type WorldSlice,
 } from '@eb/core';
+import { FALLEN } from '@eb/kits';
 import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
+import { type FightView, fightOf } from './fighting.ts';
 import { mapShows } from './mapView.ts';
 import { codexEntries, creditEntries, parseCodex } from './records.ts';
 import { feedbackSayer } from './say.ts';
@@ -37,7 +40,17 @@ import { actionLabel } from './words.ts';
  * (M5.9), as its NPCs walk and arrive (M6.2), and as the clock runs and its NPCs sense the player (M6.3).
  */
 const ELAPSE = 'time/elapse';
-const WALKED = new Set([`${WORLD}/trigger`, `${WORLD}/use`, `${WORLD}/at`, `${WORLD}/npcs-at`, ELAPSE, 'ai/sensed']);
+const WALKED = new Set([
+  `${WORLD}/trigger`,
+  `${WORLD}/use`,
+  `${WORLD}/at`,
+  `${WORLD}/npcs-at`,
+  ELAPSE,
+  'ai/sensed',
+  'fighting/hit',
+  'fighting/loosed',
+  'fighting/search',
+]);
 
 export interface Play {
   readonly view: View;
@@ -76,6 +89,8 @@ export interface PlaySetup {
   readonly feedback?: Feedback;
   /** The assets' credits the pack carries (M4.4), for a credits list. */
   readonly credits?: readonly PackCredit[];
+  /** project.json's fighting (M6.4), in a game with spaces: the stage's view of the fights reads it. */
+  readonly fighting?: PackFighting;
 }
 
 interface Read {
@@ -135,7 +150,8 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       action,
       enabled: true,
     }));
-    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE));
+    const fight = fightOf(state, content, reading.fact, setup.fighting);
+    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE), fight);
     return {
       modes: state.kernel.modes.map((frame) => frame.id),
       offered,
@@ -146,7 +162,8 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       ...(map ? { map } : {}),
       ...(world ? { world } : {}),
       turn: state.kernel.step,
-      ended: offered.length === 0,
+      // A fallen player's game has nothing on offer but isn't over: the shell offers its checkpoint (M6.4).
+      ended: offered.length === 0 && !state.kernel.modes.some((frame) => frame.id === FALLEN),
     };
   }
 
@@ -186,7 +203,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
  * The world module's slice, as the stage reads it: only what it says, in a game with spaces. `clocked`
  * when the walk should send time/elapse now: the game follows real time and its mode allows it (M6.3).
  */
-function worldOf(state: GameState, clocked: boolean): WorldView | undefined {
+function worldOf(state: GameState, clocked: boolean, fight: FightView | undefined): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
   const { space, at, arrive, taken, npcs } = slice;
@@ -198,6 +215,7 @@ function worldOf(state: GameState, clocked: boolean): WorldView | undefined {
     taken,
     ...walking,
     ...(clocked ? { clock: true as const } : {}),
+    ...(fight ? { fight } : {}),
   };
 }
 

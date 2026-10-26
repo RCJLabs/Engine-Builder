@@ -23,7 +23,12 @@ export const KIND_WORDS: Readonly<Record<NodeKind, string>> = {
   wait: 'Wait',
   face: 'Face the player',
   effects: 'Do effects',
+  attack: 'Attack the player',
 };
+
+/** The kinds a step can be made: an attack only with the fighting kit on (M6.4), E081's otherwise. */
+export const kindsFor = (fighting: boolean): NodeKind[] =>
+  (Object.keys(KIND_WORDS) as NodeKind[]).filter((kind) => fighting || kind !== 'attack');
 
 /** "10 minutes", "1 hour and 30 minutes": a length in the calendar's units, a unit of one said as one. */
 export function lengthText(length: unknown): string {
@@ -81,5 +86,7 @@ export function nodeText(node: unknown): string {
       const effects = Array.isArray(node.effects) ? node.effects : [];
       return effects.length === 0 ? 'Do effects not yet added' : `Do: ${effects.map(effectText).join(', then ')}`;
     }
+    case 'attack':
+      return 'Attack the player';
   }
 }

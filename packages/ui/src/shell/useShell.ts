@@ -1,7 +1,9 @@
 /**
  * The shell's state and what it does (M4.3, D53, docs/specs/shell.md): which of its screens shows,
  * the slots, and the game in play. The worker makes a save after each step and this keeps it in the
- * slot in play before the next step can go, so a reload never rolls a step again.
+ * slot in play before the next step can go, so a reload never rolls a step again. Beside it, the
+ * save made as the player arrived in a space, or began or loaded, is kept as the slot's checkpoint
+ * (M6.4, D76), which a fallen player goes back to.
  */
 import type { Action, LoadReport, SaveFile } from '@eb/core';
 import { createSaves, requestPersistence } from '@eb/platform';
@@ -14,7 +16,11 @@ import { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, type SlotInfo, slotIn
 import { createStepLine } from './stepLine.ts';
 import type { ShellProps } from './types.ts';
 
-export type ShellScreenName = 'title' | 'new' | 'saves' | 'settings' | 'pause' | 'stopped';
+export type ShellScreenName = 'title' | 'new' | 'saves' | 'settings' | 'pause' | 'stopped' | 'fallen';
+
+/** The fighting kit's mode a fallen player's game stops in (M6.4). */
+const FALLEN = 'fallen';
+const fallenIn = (view: View) => view.modes.includes(FALLEN);
 
 export interface InPlay {
   readonly slot: string;
@@ -49,6 +55,8 @@ export function useShell(props: ShellProps) {
   const [acting, setActing] = useState(false);
   const [notice, setNotice] = useState<string | undefined>(undefined);
   const [stopped, setStopped] = useState<string | undefined>(undefined);
+  // The space the slot's checkpoint was made in, read as the player falls (M6.4).
+  const [checkpoint, setCheckpoint] = useState<{ readonly space?: string } | null | undefined>(undefined);
   const persisted = useRef(false);
   const saves = useMemo(() => createSaves({ store, game: opened.game, edition }), [store, opened.game, edition]);
   const refresh = async () => setSlots((await saves.list()).map(slotInfo));
@@ -65,6 +73,17 @@ export function useShell(props: ShellProps) {
       persisted.current = true;
       void requestPersistence();
     }
+  };
+  // Never the fatal step's: a fallen game is no place to come back to.
+  const keepPoint = async (slot: string, save: SaveFile, view: View) => {
+    if (fallenIn(view)) return;
+    const space = view.world?.space;
+    await saves.keepCheckpoint(slot, save, space);
+  };
+  const fall = async (slot: string) => {
+    const kept = await saves.checkpointOf(slot);
+    setCheckpoint(kept ? (kept.space !== undefined ? { space: kept.space } : {}) : null);
+    setScreen('fallen');
   };
   const stop = (message: string) => {
     setStopped(message);
@@ -87,6 +106,7 @@ export function useShell(props: ShellProps) {
       const reply = await send({ kind: 'start', seed, saving: { edition, daily }, at: now().getTime() });
       if (reply.kind !== 'started') return stop(reply.kind === 'failed' ? reply.message : 'The game didn’t start');
       await keep(slot, reply.save);
+      await keepPoint(slot, reply.save, reply.view);
       setPlay({ slot, daily, view: reply.view, said: [], cues: [] });
       setScreen(undefined);
     });
@@ -106,6 +126,29 @@ export function useShell(props: ShellProps) {
       setPlay({ slot, daily, view: loaded.view, said: [], cues: [] });
       setNotice(loadNotice(loaded));
       setScreen(undefined);
+      await keepPoint(slot, loaded.file, loaded.view);
+      if (fallenIn(loaded.view)) await fall(slot);
+    });
+
+  /** Back to the slot's checkpoint (M6.4): it is loaded, and becomes the slot's save. */
+  const rise = () =>
+    run(async () => {
+      if (!play) return;
+      const kept = await saves.checkpointOf(play.slot);
+      if (!kept) return;
+      const reply = await send({
+        kind: 'load',
+        raw: kept.raw,
+        saving: { edition, daily: play.daily },
+        at: now().getTime(),
+      });
+      if (reply.kind !== 'loaded' || !reply.ok) {
+        setNotice('The checkpoint couldn’t be loaded. It is kept as it was.');
+        return;
+      }
+      await keep(play.slot, reply.file);
+      setPlay({ ...play, view: reply.view, said: [], cues: [] });
+      setScreen(undefined);
     });
 
   /** One step of the game, and what the sim made of it; the step line keeps them one at a time. */
@@ -116,11 +159,14 @@ export function useShell(props: ShellProps) {
       const reply = await send({ kind: 'act', action, at: now().getTime() });
       if (reply.kind !== 'stepped') return stop(reply.kind === 'failed' ? reply.message : 'The game stopped');
       if (reply.save) await keep(play.slot, reply.save);
+      if (reply.save && reply.beats.some((beat) => beat.type === 'world/arrived'))
+        await keepPoint(play.slot, reply.save, reply.view);
       sent = reply.accepted ? 'accepted' : 'refused';
       // In the one render with the view, so the buttons it draws are enabled as focus comes back to one.
       landing?.();
       setBusy(false);
       setPlay({ ...play, view: reply.view, said: reply.said, cues: reply.cues });
+      if (fallenIn(reply.view) && !fallenIn(play.view)) await fall(play.slot);
     }).then(() => sent);
   };
   // The step this render draws, for the line made once: its play is this render's.
@@ -169,6 +215,8 @@ export function useShell(props: ShellProps) {
     notice,
     setNotice,
     stopped,
+    checkpoint,
+    rise,
     refresh,
     continueSlot: slots ? continueSlot(slots) : undefined,
     begin,

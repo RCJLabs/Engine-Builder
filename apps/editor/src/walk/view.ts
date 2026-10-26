@@ -19,6 +19,7 @@ import { createTerrainView } from '../spaces/terrainView.ts';
 import type { Quat, Vec3 } from '../spaces/vec.ts';
 import { createViewModels } from '../spaces/viewModels.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
+import { createArrowView } from './arrowView.ts';
 import type { Shot } from './cameras.ts';
 import { createFarModels } from './farModels.ts';
 import { closeFog, DAYLIGHT } from './fog.ts';
@@ -56,8 +57,11 @@ export interface WalkView {
   /** The NPCs (M6.1): one turned to face the player as its Talk is used, and back as the walk goes on. */
   readonly npcs: Pick<
     ReturnType<typeof createNpcView>,
-    'isNpc' | 'face' | 'back' | 'turning' | 'list' | 'built' | 'place'
+    'isNpc' | 'face' | 'back' | 'turning' | 'list' | 'built' | 'place' | 'pose' | 'poseOf'
   >;
+  /** Fights (M6.4): the arrows in flight, and the character leaning in degrees as it winds up and strikes. */
+  readonly arrows: ReturnType<typeof createArrowView>;
+  lean(degrees: number): void;
   /** Tap to move (M6.2): the ray through a point of the view, and the ring where the player is going. */
   ray(x: number, y: number): { from: Vec3; dir: Vec3 };
   screenOf(p: Vec3): [number, number] | null;
@@ -135,6 +139,8 @@ export async function createWalkView(
   const builder = createBuilder();
   const character = bodyMesh();
   scene.add(character);
+  const arrows = createArrowView(scene);
+  let lean = 0;
   const marker = createTapMarker(scene);
 
   let hidden: ReadonlySet<string> = new Set();
@@ -229,7 +235,7 @@ export async function createWalkView(
       camera.updateMatrixWorld();
       character.visible = drawBody;
       character.position.set(...feet);
-      character.rotation.set(0, (yaw * Math.PI) / 180, 0);
+      character.rotation.set((lean * Math.PI) / 180, (yaw * Math.PI) / 180, 0, 'YXZ');
       for (const m of moved) follow(m.path, m.at, m.turn);
       npcs.apply(performance.now());
       const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
@@ -275,6 +281,10 @@ export async function createWalkView(
       showFar();
     },
     npcs,
+    arrows,
+    lean(degrees) {
+      lean = degrees;
+    },
     ray: (x, y) => rayFrom(camera, x, y, size.w, size.h),
     screenOf: (p) => screenFrom(camera, p, size.w, size.h),
     marker,
@@ -295,6 +305,7 @@ export async function createWalkView(
       terrain.dispose();
       foliage.dispose();
       environment.dispose();
+      arrows.dispose();
       models.dispose();
       renderer.dispose();
     },

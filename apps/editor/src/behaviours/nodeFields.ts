@@ -15,6 +15,8 @@ export interface NodeSettings {
   readonly weekdays?: readonly string[];
   /** Objects of the spaces where the behaviour's actors stand; none known, a point is typed. */
   readonly points: readonly string[];
+  /** The kinds a step can be made (M6.4): every kind but an attack when left out. */
+  readonly kinds?: readonly NodeKind[];
 }
 
 const label = (unit: string) => `${unit.charAt(0).toUpperCase()}${unit.slice(1)}`;

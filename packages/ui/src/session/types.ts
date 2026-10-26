@@ -5,6 +5,7 @@
  */
 import type { Action } from '@eb/core';
 import type { RecordsWant } from '../format/bindings.ts';
+import type { FightView } from './fighting.ts';
 
 /** A value a template shows: a fact's, an entry's field, a view's field. Null is "no value", shown as —. */
 export type Shown = string | number | boolean | null;
@@ -107,6 +108,8 @@ export interface WorldView {
   readonly npcs?: Readonly<Record<string, NpcView>>;
   /** The game's clock runs while walking (M6.3, D75): the time kit follows real time and the mode allows time/elapse. */
   readonly clock?: true;
+  /** The fights (M6.4, D76): with the fighting kit on and project.json's fighting given. */
+  readonly fight?: FightView;
 }
 
 /** An NPC as the world module keeps it (M6.2, D74). */
@@ -119,6 +122,9 @@ export interface NpcView {
   /** M6.3 (D75): the metres it keeps from the player it follows, or that it stands turned to them. */
   readonly follow?: number;
   readonly facing?: 'player';
+  /** M6.4 (D76): its turn among those sent to attack the player, and fallen. */
+  readonly fight?: number;
+  readonly down?: true;
 }
 
 /** What the page's screens name, sent once as a session starts: the facts and conditions to read after each step. */

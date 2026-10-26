@@ -18,7 +18,7 @@ import { createOutbox } from './outbox.ts';
 import { createWalker } from './physics.ts';
 import { ARRIVE_M, pushAlong, pushedElsewhere, tapPathOf, targetOf } from './tapPath.ts';
 
-const still: Intent = { move: [0, 0], run: false, jump: false, use: false, look: [0, 0] };
+const still: Intent = { move: [0, 0], run: false, jump: false, use: false, attack: false, look: [0, 0] };
 const near = (a: readonly number[], b: readonly number[], by = 1e-9) =>
   a.every((v, i) => Math.abs(v - (b[i] ?? 0)) < by);
 

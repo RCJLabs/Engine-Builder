@@ -3,6 +3,7 @@
  * what the player faces, sent as world/use after a world/at, and where the player stands, as the
  * shell pauses, the page hides and every 5 s once they have moved. Both go through the outbox, one at
  * a time, with the zones' triggers. What the sim says is taken is hidden and loses its solids.
+ * Bodies (M6.4) are uses too, given apart, whose Search sends fighting/search.
  */
 import type { Sent, SpaceAsk } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
@@ -24,6 +25,8 @@ export interface Acts {
   prompt(): { readonly object: string; readonly label: string } | null;
   /** The uses offered from now on (M5.10): those of the objects built. */
   uses(next: readonly UsePoint[]): void;
+  /** The bodies to search now (M6.4), offered beside the uses. */
+  bodies(next: readonly UsePoint[]): void;
   /** How many uses are offered. */
   readonly offered: number;
   /** The walk is stopped: nothing waiting is sent. */
@@ -44,6 +47,7 @@ export function createActs(
   onUse: (path: string, feet: Vec3) => void = () => {},
 ): Acts {
   let uses = first;
+  let bodies: readonly UsePoint[] = [];
   let gone: ReadonlySet<string> = new Set(ask.taken);
   let faced: UsePoint | undefined;
   let held = false;
@@ -72,7 +76,7 @@ export function createActs(
     stand(feet, yaw, now);
     const entry: { object: string; sent: Sent | 'waiting' } = { object: target.path, sent: 'waiting' };
     used.push(entry);
-    void outbox.post({ type: 'world/use', space: ask.space, object: target.path }).then((sent) => {
+    void outbox.post(target.send ?? { type: 'world/use', space: ask.space, object: target.path }).then((sent) => {
       entry.sent = sent;
     });
     onUse(target.path, feet);
@@ -80,7 +84,7 @@ export function createActs(
 
   return {
     frame(feet, yaw, pressing, by, now) {
-      faced = facing(uses, feet, yaw, gone);
+      faced = facing(bodies.length > 0 ? [...uses, ...bodies] : uses, feet, yaw, gone);
       prompt.show(faced?.label, KEYS[by]);
       // A press, not a hold: one use each time Interact goes down, or the prompt is tapped.
       const pressed = (pressing && !held) || prompt.take();
@@ -102,6 +106,9 @@ export function createActs(
     prompt: () => (faced ? { object: faced.path, label: faced.label } : null),
     uses(next) {
       uses = next;
+    },
+    bodies(next) {
+      bodies = next;
     },
     get offered() {
       return uses.length;

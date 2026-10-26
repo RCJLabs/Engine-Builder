@@ -10,6 +10,8 @@
  * sim sends them and a tap walks the player (navStage.ts).
  * M6.3 (D75, docs/specs/ai.md): the time walked runs the game's clock (gameClock.ts), and the NPCs
  * near the player see and hear them (walkSenses.ts).
+ * M6.4 (D76, docs/specs/combat.md): in a game with fights, Attack swings and NPCs sent to attack
+ * strike back, every hit found on the fixed steps and decided by the sim (fight.ts).
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
@@ -19,16 +21,18 @@ import type { SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
 import { tierFromHints } from '../perf/hints.ts';
 import { readHints } from '../perf/readHints.ts';
 import { lowerTier, TIERS } from '../perf/tiers.ts';
+import { FIGURE } from '../spaces/figureLook.ts';
 import type { Vec3 } from '../spaces/vec.ts';
 import { type Acts, createActs, type InputBy } from './acts.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { type Held, intentOf, PAD_DEAD } from './controls.ts';
+import { createFight, type FightNpc, type FightStage, WAITING_M } from './fight.ts';
 import { createGameClock, type GameClock } from './gameClock.ts';
 import { objectPlaces } from './goals.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import type { LoadNav } from './host.ts';
 import { jumpOf, stepsFor } from './motion.ts';
-import { createNavStage, type NavStage } from './navStage.ts';
+import { createNavStage, type NavStage, npcsOf } from './navStage.ts';
 import { createOutbox } from './outbox.ts';
 import { createWalker, type Walker } from './physics.ts';
 import { createPrompt } from './prompt.ts';
@@ -62,6 +66,7 @@ interface Walking {
   readonly nav: NavStage | null;
   readonly clock: GameClock;
   readonly senses: WalkSenses | null;
+  readonly fight: FightStage | null;
   gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
@@ -78,6 +83,7 @@ const hookOf = ({
   nav,
   clock,
   senses,
+  fight,
   gone,
   look,
 }: Walking): WalkHook => ({
@@ -113,14 +119,20 @@ const hookOf = ({
   screenOf: (point) => surface.view.screenOf(point),
   clock: () => clock.hook(),
   senses: () => senses?.hook() ?? null,
+  fight: () => fight?.hook() ?? null,
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
 function inputBy(held: Held, was: InputBy): InputBy {
   const pad = held.pad;
-  if (pad && (pad.a || pad.x === true || pad.axes.some((v) => Math.abs(v) > PAD_DEAD))) return 'pad';
-  if (held.keys.size > 0 || held.drag?.by === 'mouse') return 'keys';
-  if (held.jumpButton || held.drag?.by === 'touch' || (held.stick && (held.stick.x !== 0 || held.stick.y !== 0)))
+  if (pad && (pad.a || pad.x === true || pad.rt === true || pad.axes.some((v) => Math.abs(v) > PAD_DEAD))) return 'pad';
+  if (held.keys.size > 0 || held.drag?.by === 'mouse' || held.click) return 'keys';
+  if (
+    held.jumpButton ||
+    held.attackButton ||
+    held.drag?.by === 'touch' ||
+    (held.stick && (held.stick.x !== 0 || held.stick.y !== 0))
+  )
     return 'touch';
   return was;
 }
@@ -149,7 +161,7 @@ export async function startStage(
   const walker = createWalker(RAPIER, { solids: first.solids, spawn, ...(at ? { at } : {}) }, space.ground);
   const kind: ViewKind = spawn?.view ?? 'third';
   const surface = await createSurface(box, space, tier);
-  const touches = createTouches(box);
+  const touches = createTouches(box, ask.fight?.() !== undefined);
   const prompt = createPrompt(box);
   // Every step the walk asks for goes one at a time, zones' triggers too: the shell drops one sent
   // while another is on its way.
@@ -166,15 +178,23 @@ export async function startStage(
   let gone = acts.taken(ask.taken);
   surface.view.hide(gone);
   const view = () => surface.view;
+  // A fallen NPC's body stays out of the world when its cell is built again (M6.4).
+  let fight: FightStage | null = null;
+  const streamWalker: Walker = { ...walker, add: (solids) => walker.add(solids.filter((s) => !fight?.fell(s.path))) };
   const streaming = createStreaming(
     space,
     streamer,
     first,
-    { walker, sender, acts, view },
+    { walker: streamWalker, sender, acts, view },
     TIERS[tier.name].viewDistance,
     gone,
   );
-  const nav = await createNavStage(space, world, ask, outbox, loadNav, { walker, view, begun: first.near });
+  const nav = await createNavStage(space, world, ask, outbox, loadNav, {
+    walker,
+    view,
+    begun: first.near,
+    keep: (actor) => fight?.keep(actor) ?? WAITING_M,
+  });
   const clock = createGameClock(() => ask.clocked?.() === true, outbox);
   const placed = objectPlaces(space.space, space.prefabs);
   const senses = createWalkSenses(
@@ -191,6 +211,19 @@ export async function startStage(
     },
     walker.clear,
   );
+  const placedNpcs = npcsOf(space, world, placed);
+  const heightOf = (actor: string) => space.npcs(`actor:${actor}`, [])?.height ?? FIGURE.height;
+  fight = createFight(ask, outbox, {
+    walker,
+    npcs: (): FightNpc[] => {
+      const built = surface.view.npcs.built();
+      const agents = nav?.hook().agents;
+      if (agents) return agents.map((a) => ({ ...a, height: heightOf(a.actor), here: a.state !== 'away' }));
+      return placedNpcs.map((n) => ({ ...n, at: n.placed, here: built.has(n.path) }));
+    },
+    pose: (path, pose) => surface.view.npcs.pose(path, pose),
+    bodies: (uses) => acts.bodies(uses),
+  });
   const began: WalkHook['began'] = at
     ? { from: 'at' }
     : spawn && spawn.path === ask.arrive
@@ -234,6 +267,7 @@ export async function startStage(
     for (let i = 0; i < steps.steps; i++) {
       walker.step({ ...intent, jump }, yaw);
       const feet = walker.feet();
+      if (fight) yaw = fight.step(intent.attack, feet, yaw);
       nav?.step(feet);
       streaming.step(feet[0], feet[2], gone);
       sender.step(feet);
@@ -242,6 +276,11 @@ export async function startStage(
     nav?.frame(time);
     clock.frame(elapsed * 1000);
     senses?.frame(elapsed * 1000, walker.feet(), intent, walker.grounded());
+    if (fight) {
+      fight.frame();
+      surface.view.lean(fight.lean());
+      surface.view.arrows.draw(fight.arrows());
+    }
     draw();
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
@@ -270,6 +309,7 @@ export async function startStage(
     nav,
     clock,
     senses,
+    fight,
     gone: () => gone,
     look: () => ({ yaw, pitch, shot, paused }),
   });

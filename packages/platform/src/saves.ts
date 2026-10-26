@@ -101,6 +101,13 @@ export interface Saves {
   quarantined(): Promise<Quarantined[]>;
   /** Removes a quarantined copy, which only the player does, once they have saved it out. */
   forget(key: string): Promise<WriteResult>;
+  /**
+   * The slot's arrival checkpoint (M6.4, D76): a save kept beside the slot's under its own key,
+   * checkpoint/<slot>, with the space it was made in, which a fallen player goes back to.
+   */
+  keepCheckpoint(slot: string, file: SaveFile, space?: string): Promise<WriteResult>;
+  /** The checkpoint's save as stored and its space, or none kept. */
+  checkpointOf(slot: string): Promise<{ readonly raw: string; readonly space?: string } | undefined>;
 }
 
 // The problems that mean the slot's save is broken, so the one before it is worth trying. A
@@ -118,7 +125,7 @@ export function createSaves(options: SavesOptions): Saves {
   if (!isRecordId(game) || !isRecordId(edition))
     throw new RangeError('createSaves(): game and edition are kebab-case ids');
   const prefix = `eb/${game}/${edition}/`;
-  const keyOf = (kind: 'slot' | 'summary' | 'backup', slot: string) => {
+  const keyOf = (kind: 'slot' | 'summary' | 'backup' | 'checkpoint', slot: string) => {
     if (!isRecordId(slot)) throw new RangeError(`"${slot}" is not a valid slot name: use kebab-case`);
     return `${prefix}${kind}/${slot}`;
   };
@@ -252,8 +259,23 @@ export function createSaves(options: SavesOptions): Saves {
         return { ok: true };
       }),
 
+    keepCheckpoint: (slot, file, space) =>
+      guarded(slot, async () => {
+        const verified = verifySaveFile(file, game);
+        if (!verified.ok) throw new RangeError(`keepCheckpoint(): not a save to keep: ${verified.message}`);
+        await store.write({ [keyOf('checkpoint', slot)]: JSON.stringify({ ...(space ? { space } : {}), save: file }) });
+        return { ok: true };
+      }),
+
+    async checkpointOf(slot) {
+      const kept = parse(await store.get(keyOf('checkpoint', slot)));
+      if (typeof kept !== 'object' || kept === null || !('save' in kept)) return undefined;
+      const { space, save } = kept as { space?: unknown; save: unknown };
+      return { raw: JSON.stringify(save), ...(typeof space === 'string' ? { space } : {}) };
+    },
+
     async remove(slot) {
-      const keys = [keyOf('slot', slot), keyOf('summary', slot), keyOf('backup', slot)];
+      const keys = [keyOf('slot', slot), keyOf('summary', slot), keyOf('backup', slot), keyOf('checkpoint', slot)];
       return guarded(slot, async () => {
         await store.write(Object.fromEntries(keys.map((key) => [key, undefined])));
         seen.delete(slot);

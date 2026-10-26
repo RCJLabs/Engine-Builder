@@ -13,6 +13,7 @@ import {
   type SpaceJson,
   type SpaceObject,
 } from '@eb/compiler';
+import type { Action } from '@eb/core';
 import type { ModelCollider } from '@eb/schema';
 import { chestOf, FIGURE, type NpcOf } from '../spaces/figureLook.ts';
 import { transformOf } from '../spaces/spaceFile.ts';
@@ -77,6 +78,8 @@ export interface UsePoint {
   readonly path: string;
   readonly center: Vec3;
   readonly label: string;
+  /** What using it sends, when it isn't world/use: a body's fighting/search (M6.4). */
+  readonly send?: Action;
 }
 
 export interface Parts {

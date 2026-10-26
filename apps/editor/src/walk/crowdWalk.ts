@@ -7,6 +7,9 @@
  * the player, one standing with `facing` turns to them, and one built after the walk began (it came
  * into the rings, or went and came back) starts at its goal, its arrival said at once, or beside
  * the player it follows: a far NPC is wherever its schedule says.
+ * M6.4 (D76, docs/specs/combat.md#an-npc-fighting): one sent to attack keeps the distance `keep` gives
+ * it from the player, as a follower keeps its own, and faces them; one fallen leaves the crowd and lies
+ * where it fell.
  * Plain logic over nav/lib.ts, so Node's tests walk the crowd the page does.
  */
 import type { Agent, NavCrowd, NavWorld } from '../nav/lib.ts';
@@ -40,6 +43,9 @@ export interface NpcTold {
   readonly follow?: number;
   /** M6.3: standing, turned to the player. */
   readonly facing?: 'player';
+  /** M6.4: its turn among those sent to attack the player, and fallen. */
+  readonly fight?: number;
+  readonly down?: true;
 }
 
 export interface WalkingNpc {
@@ -52,10 +58,11 @@ export interface WalkingNpc {
   readonly goal?: string;
   /** The navmesh's point it walks to. */
   readonly target?: Vec3;
-  /** Walking to a goal or after the player, standing, or not built and so not walked. */
-  readonly state: 'walking' | 'standing' | 'away';
+  /** Walking to a goal or after the player, standing, not built and so not walked, or fallen. */
+  readonly state: 'walking' | 'standing' | 'away' | 'down';
   readonly follow?: number;
   readonly facing?: true;
+  readonly fight?: number;
 }
 
 export interface CrowdWalk {
@@ -83,6 +90,8 @@ interface Walking {
   reached: string | undefined;
   follow: number | undefined;
   facing: boolean;
+  fight: number | undefined;
+  down: boolean;
   /** Built as the walk began, where it stood: any other is built at its goal. */
   stood: boolean;
 }
@@ -95,6 +104,8 @@ export function createCrowdWalk(
   places: (path: string) => Vec3 | undefined,
   told: Readonly<Record<string, NpcTold>>,
   begun: (path: string) => boolean = () => true,
+  /** The metres an NPC sent to attack keeps from the player (M6.4): its reach when engaged, else farther off. */
+  keep: (actor: string) => number = () => 1,
 ): CrowdWalk {
   const crowd: NavCrowd = nav.crowd();
   const arrivals = new Map<string, string>();
@@ -114,6 +125,8 @@ export function createCrowdWalk(
         reached: undefined,
         follow: undefined,
         facing: false,
+        fight: undefined,
+        down: was?.down === true,
         stood: begun(npc.path),
       };
       return [npc.actor, state];
@@ -127,7 +140,10 @@ export function createCrowdWalk(
   const goalsFrom = (next: Readonly<Record<string, NpcTold>>) => {
     for (const w of walking.values()) {
       const said = Object.hasOwn(next, w.npc.actor) ? next[w.npc.actor] : undefined;
+      if (said?.down === true && !w.down) fell(w);
+      if (w.down) continue;
       w.facing = said?.facing === 'player';
+      w.fight = said?.fight;
       if (said?.follow !== w.follow) {
         w.follow = said?.follow;
         w.target = undefined;
@@ -150,16 +166,30 @@ export function createCrowdWalk(
       arrivals.set(w.npc.actor, w.goal);
     }
   };
-  /** A follower walks to the player while past its distance and slack, and stands once within it. */
+  /** A follower, or a fighter, walks to the player while past its distance and slack, and stands once within it. */
   const follow = (w: Walking, feet: Vec3) => {
-    if (w.follow === undefined || !w.agent) return;
+    const distance = w.follow ?? (w.fight !== undefined ? keep(w.npc.actor) : undefined);
+    if (distance === undefined || !w.agent) return;
     const off = across(w.at, feet);
-    if (off <= w.follow) {
+    if (off <= distance) {
       if (w.target) w.agent.stop();
       w.target = undefined;
-    } else if (off > w.follow + FOLLOW_SLACK_M && (!w.target || across(w.target, feet) > FOLLOW_SLACK_M)) {
+    } else if (off > distance + FOLLOW_SLACK_M && (!w.target || across(w.target, feet) > FOLLOW_SLACK_M)) {
       w.target = w.agent.walkTo(feet) ?? undefined;
     }
+  };
+  /** Fallen: out of the crowd, where it stands now, never walked again. */
+  const fell = (w: Walking) => {
+    w.down = true;
+    if (w.agent) {
+      w.at = w.agent.at();
+      crowd.remove(w.agent);
+      w.agent = null;
+    }
+    w.target = undefined;
+    w.goal = undefined;
+    w.follow = undefined;
+    w.fight = undefined;
   };
   goalsFrom(told);
 
@@ -167,7 +197,7 @@ export function createCrowdWalk(
     told: goalsFrom,
     present(paths) {
       for (const w of walking.values()) {
-        const here = paths.has(w.npc.path);
+        const here = paths.has(w.npc.path) && !w.down;
         if (here && !w.agent) {
           if (!w.stood) builtLate(w);
           w.agent = crowd.add(w.at, w.npc.radius, w.npc.height);
@@ -192,7 +222,7 @@ export function createCrowdWalk(
         w.at = w.agent.at();
         const v = w.agent.velocity();
         if (Math.hypot(v[0], v[2]) > TURNING) w.yaw = yawToward(w.at, [w.at[0] + v[0], w.at[1], w.at[2] + v[2]]);
-        else if (w.facing) w.yaw = yawToward(w.at, feet);
+        else if (w.facing || w.fight !== undefined) w.yaw = yawToward(w.at, feet);
         if (w.goal !== undefined && w.target && w.reached !== w.goal && across(w.at, w.target) < ARRIVED_M) {
           w.reached = w.goal;
           arrivals.set(w.npc.actor, w.goal);
@@ -214,9 +244,10 @@ export function createCrowdWalk(
         yaw: w.yaw,
         ...(w.goal !== undefined ? { goal: w.goal } : {}),
         ...(w.target ? { target: w.target } : {}),
-        state: !w.agent ? 'away' : w.target ? 'walking' : 'standing',
+        state: w.down ? 'down' : !w.agent ? 'away' : w.target ? 'walking' : 'standing',
         ...(w.follow !== undefined ? { follow: w.follow } : {}),
         ...(w.facing ? { facing: true as const } : {}),
+        ...(w.fight !== undefined ? { fight: w.fight } : {}),
       })),
     free: () => crowd.free(),
   };
