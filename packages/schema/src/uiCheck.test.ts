@@ -188,7 +188,7 @@ describe('checkUi', () => {
         { widget: 'button', label: 'Sail', action: { take: 'hut/sail' } },
         { widget: 'button', label: 'Map', action: { open: 'map' } },
         { widget: 'button', label: 'Go', action: { take: 'entry' } },
-        { widget: 'list', of: 'journal', item: { widget: 'button', label: 'x', action: { take: 'entry' } } },
+        { widget: 'list', of: 'credits', item: { widget: 'button', label: 'x', action: { take: 'entry' } } },
         {
           widget: 'list',
           of: 'talk',
@@ -202,8 +202,7 @@ describe('checkUi', () => {
       at('/main/children/0/action/take', 'The game has no action "hut/sail"'),
       at('/main/children/1/action/open', 'No screen "map" in ui/'),
       at('/main/children/2/action/take', 'Only a list’s item takes its entry’s action'),
-      at('/main/children/3/item/action/take', 'A journal’s entries come with no action'),
-      at('/main/children/3/of', 'A list of journal needs the quests kit: turn it on in project.json'),
+      at('/main/children/3/item/action/take', 'A credits list’s entries come with no action'),
       at('/main/children/4/item/action/args', 'An entry’s action comes with its arguments'),
       at('/main/children/5/item/text', '{event.text} needs the events kit: turn it on in project.json'),
       at('/main/children/5/of', 'A list of event needs the events kit: turn it on in project.json'),

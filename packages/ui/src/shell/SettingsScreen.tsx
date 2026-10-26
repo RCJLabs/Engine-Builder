@@ -159,6 +159,16 @@ export function SettingsScreen({ settings, change, memory, back, walks = false }
           choose={(quality) => change({ ...settings, quality })}
         />
       ) : null}
+      {walks ? (
+        <Choices
+          legend="Quest markers"
+          name="markers"
+          values={VIBRATION}
+          words={VIBRATION_WORDS}
+          chosen={settings.markers ? 'on' : 'off'}
+          choose={(on) => change({ ...settings, markers: on === 'on' })}
+        />
+      ) : null}
       {canVibrate() ? (
         <Choices
           legend="Vibration"

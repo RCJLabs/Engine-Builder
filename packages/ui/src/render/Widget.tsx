@@ -9,6 +9,7 @@ import { actionFor, amount, fill, fillSome, holds } from './fill.ts';
 import { LogView } from './LogView.tsx';
 import { layoutStyle } from './layout.ts';
 import { MapWidgetView } from './MapWidget.tsx';
+import { SpaceMapWidgetView } from './SpaceMapWidget.tsx';
 import { SpaceWidgetView } from './SpaceWidget.tsx';
 import { Tabs } from './Tabs.tsx';
 
@@ -89,6 +90,8 @@ function WidgetBody({ widget, drawing, entry, at }: Props) {
       return <MapWidgetView widget={widget} drawing={drawing} />;
     case 'space':
       return <SpaceWidgetView widget={widget} drawing={drawing} />;
+    case 'space-map':
+      return <SpaceMapWidgetView widget={widget} drawing={drawing} />;
   }
 }
 

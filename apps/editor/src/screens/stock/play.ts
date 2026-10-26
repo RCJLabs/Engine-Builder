@@ -9,6 +9,7 @@ import { bar, button, column, numbers, row, text } from './parts.ts';
 
 /** The stock pages a button opens, where a screen of that id exists: what the HUD and the ending lead to. */
 const PAGES = [
+  ['space-map', 'Map'],
   ['inventory', 'Inventory'],
   ['journal', 'Journal'],
   ['codex', 'Codex'],
@@ -73,23 +74,26 @@ export function hudScreen(ctx: StockContext): Screen {
 /**
  * A space walked (M5.8, D70, docs/specs/movement.md#the-space-widget): the live numbers at the top,
  * the space the player is in filling the screen, the next as a door takes them there (M5.9), and the
- * actions on offer under it, for the start mode when no screen shows it yet.
+ * actions on offer under it, for the start mode when no screen shows it yet. Since M6.6, the Map and
+ * the Journal under them, where those screens exist.
  */
 export function spaceScreen(ctx: StockContext): Screen {
   const spaces = ctx.spaces ?? [];
   const start = ctx.modes?.start;
   const shown = numbers(ctx);
+  const offered: Widget = {
+    widget: 'list',
+    of: 'offered',
+    empty: 'Nothing to do here.',
+    item: button('{.label}', { take: 'entry' }),
+  };
+  const ways = opens(ctx, ['space-map', 'journal', 'inventory']);
   return {
     title: spaces.length === 1 ? (spaces[0]?.name ?? 'Walk') : 'Walk',
     shows: start !== undefined && !ctx.shown.has(start) ? [start] : [],
     ...(shown.length > 0 ? { top: row(shown) } : {}),
     main: { widget: 'space' },
-    bottom: {
-      widget: 'list',
-      of: 'offered',
-      empty: 'Nothing to do here.',
-      item: button('{.label}', { take: 'entry' }),
-    },
+    bottom: ways.length > 0 ? column([offered, bar(ways)]) : offered,
   };
 }
 

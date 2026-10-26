@@ -6,6 +6,7 @@
 import type { Action } from '@eb/core';
 import type { RecordsWant } from '../format/bindings.ts';
 import type { FightView } from './fighting.ts';
+import type { QuestMarker } from './markers.ts';
 
 /** A value a template shows: a fact's, an entry's field, a view's field. Null is "no value", shown as —. */
 export type Shown = string | number | boolean | null;
@@ -110,6 +111,8 @@ export interface WorldView {
   readonly clock?: true;
   /** The fights (M6.4, D76): with the fighting kit on and project.json's fighting given. */
   readonly fight?: FightView;
+  /** The tracked quest's open objectives with a target (M6.6, D78): where the compass and markers point. */
+  readonly markers?: readonly QuestMarker[];
 }
 
 /** An NPC as the world module keeps it (M6.2, D74). */

@@ -91,6 +91,7 @@ export function Shell(props: ShellProps) {
             send={state.send}
             spaces={props.spaces}
             quality={settings.quality}
+            markers={settings.markers}
             history={props.history === true && screen === undefined}
             onPause={() => state.show('pause')}
             paused={screen !== undefined}

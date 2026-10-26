@@ -5,7 +5,7 @@
 import type { Screen } from '@eb/ui/format';
 import { hasKits, type StockContext } from './context.ts';
 import { dialogueScreen, eventScreen, hallScreen, shopScreen } from './modal.ts';
-import { codexScreen, codexTabs, creditsScreen, inventoryScreen, journalScreen } from './pages.ts';
+import { codexScreen, codexTabs, creditsScreen, inventoryScreen, journalScreen, spaceMapScreen } from './pages.ts';
 import { endingScreen, hudScreen, mapScreen, spaceScreen, startsOnMap } from './play.ts';
 
 export interface Stock {
@@ -46,6 +46,13 @@ export const STOCK: readonly Stock[] = [
     about: 'A space walked, the numbers over it and the actions under it',
     offered: (ctx) => (ctx.spaces ?? []).length > 0,
     build: spaceScreen,
+  },
+  {
+    id: 'space-map',
+    name: 'Space map',
+    about: 'The space walked from above, with the player and the tracked quest’s markers',
+    offered: (ctx) => (ctx.spaces ?? []).length > 0,
+    build: spaceMapScreen,
   },
   {
     id: 'dialogue',

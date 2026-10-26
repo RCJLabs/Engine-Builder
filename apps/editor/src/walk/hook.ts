@@ -9,6 +9,7 @@ import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { AnimSeen } from './anims.ts';
 import type { ViewKind } from './cameras.ts';
 import type { WalkFight } from './fight.ts';
+import type { WalkMarker } from './markerView.ts';
 import type { WalkNav } from './navStage.ts';
 import type { NpcSeen } from './npcView.ts';
 import type { WalkSenses } from './walkSenses.ts';
@@ -84,6 +85,8 @@ export interface WalkHook {
   fight(): WalkFight | null;
   /** The animated bodies (M6.5): the player ("@player") and each NPC built, read back from the mixer and the skeleton. */
   anims(): AnimSeen[];
+  /** The quest markers shown (M6.6): each one's point or the door it stands in at, bearing, distance and place on screen. */
+  markers(): readonly WalkMarker[];
 }
 
 declare global {

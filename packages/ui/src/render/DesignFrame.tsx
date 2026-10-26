@@ -12,6 +12,7 @@ import { breakpointOf, themeVars } from './layout.ts';
 import { ScreenView } from './Screen.tsx';
 import './screens.css';
 import './map.css';
+import './spaceMap.css';
 
 export interface DesignFrameProps {
   readonly id: string;

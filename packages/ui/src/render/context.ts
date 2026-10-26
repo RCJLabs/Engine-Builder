@@ -36,6 +36,8 @@ export interface Drawing {
   readonly send?: ((action: Action) => Promise<Sent>) | undefined;
   /** The shell's Quality setting, for the stage (M5.8). */
   readonly quality?: WalkQuality;
+  /** False when the shell's Quest markers setting is off (M6.6): the stage shows no compass or marker. */
+  readonly markers?: boolean;
 }
 
 /** In a frame being designed, the tab of the tabs widget at `at` that holds the selection, if one does. */

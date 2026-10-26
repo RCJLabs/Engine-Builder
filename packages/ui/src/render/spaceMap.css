@@ -1,0 +1,90 @@
+/* M6.6: the space-map widget, a space from above with its pins (SpaceMapWidget.tsx). */
+.eb-space-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--eb-space);
+  margin: 0;
+  min-height: 0;
+}
+
+.eb-space-map-ground {
+  position: relative;
+  width: min(100%, 60vh);
+  border: 1px solid var(--eb-muted);
+  border-radius: var(--eb-radius);
+  overflow: hidden;
+  background: var(--eb-surface);
+}
+
+/* No map baked: plain ground, a grid every tenth so distances still read. */
+.eb-space-map-plain {
+  background-image:
+    linear-gradient(to right, var(--eb-muted) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--eb-muted) 1px, transparent 1px);
+  background-size: 10% 10%;
+}
+
+.eb-space-map-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.eb-space-map-none {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  padding: var(--eb-space);
+  text-align: center;
+  border: 2px dashed var(--eb-muted, currentColor);
+}
+
+/* A pin stands centred on its place; a target's is a 44 px button round a small diamond. */
+.eb-pin {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eb-pin-mark {
+  width: 14px;
+  height: 14px;
+  background: #ffd75e;
+  border: 2px solid #1a1a1a;
+  transform: rotate(45deg);
+}
+
+.eb-pin-door .eb-pin-mark {
+  background: #ffffff;
+}
+
+.eb-pin:focus-visible {
+  outline: 3px solid var(--eb-accent);
+  outline-offset: -6px;
+  border-radius: 50%;
+}
+
+/* The player: an arrow the way they face, north up. */
+.eb-pin-player {
+  pointer-events: none;
+}
+
+.eb-pin-arrow {
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 20px solid var(--eb-accent);
+  filter: drop-shadow(0 0 1px #000);
+}

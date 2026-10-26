@@ -10,7 +10,13 @@ import { hostFor, loadNavScript, loadWalkScript } from './hosts.ts';
 export const editorWalk = (world: PackWorld | undefined): SpaceHost | undefined =>
   hostFor(
     world,
-    () => (import.meta.env.DEV ? import('./stage.ts') : loadWalkScript(`${import.meta.env.BASE_URL}runtime/walk.js`)),
+    () =>
+      import.meta.env.DEV
+        ? Promise.all([import('./stage.ts'), import('./mapPins.ts')]).then(([stage, pins]) => ({
+            startStage: stage.startStage,
+            mapOf: pins.mapOf,
+          }))
+        : loadWalkScript(`${import.meta.env.BASE_URL}runtime/walk.js`),
     () =>
       import.meta.env.DEV
         ? import('../nav/lib.ts').then((m) => m.NAV_LIB)

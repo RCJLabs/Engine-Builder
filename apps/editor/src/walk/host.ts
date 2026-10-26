@@ -7,7 +7,7 @@
  * the space's name and Loading… (M5.9, docs/specs/worldspaces.md#the-space-widget).
  */
 import type { PackWorld } from '@eb/core';
-import type { SpaceAsk, SpaceDrawn, SpaceHost, WalkQuality } from '@eb/ui';
+import type { MapAsk, SpaceAsk, SpaceDrawn, SpaceHost, SpaceMapShown, WalkQuality } from '@eb/ui';
 import type { NavLib } from '../nav/lib.ts';
 
 /** nav.js, loaded by the stage once it walks a space with a navmesh (M6.2). */
@@ -15,6 +15,8 @@ export type LoadNav = () => Promise<NavLib>;
 
 export interface WalkStage {
   startStage(box: HTMLElement, ask: SpaceAsk, world: PackWorld, nav?: LoadNav): Promise<SpaceDrawn>;
+  /** A space's map and its pins (M6.6): walk.js works out where everything is, as the walk does. */
+  mapOf(world: PackWorld, ask: MapAsk): SpaceMapShown;
 }
 
 export type LoadStage = () => Promise<WalkStage>;
@@ -43,6 +45,7 @@ function loadingIn(box: HTMLElement, name: string): HTMLElement {
 export function walkHost(world: PackWorld, load: LoadStage, nav?: LoadNav): SpaceHost {
   return {
     name: (space) => spaceName(world, space),
+    map: (ask) => load().then((stage) => stage.mapOf(world, ask)),
     draw(box, ask) {
       let drawn: SpaceDrawn | null = null;
       let stopped = false;

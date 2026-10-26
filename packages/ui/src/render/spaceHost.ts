@@ -5,6 +5,7 @@
  */
 import type { Action } from '@eb/core';
 import type { FightView } from '../session/fighting.ts';
+import type { QuestMarker } from '../session/markers.ts';
 
 /** What came of a trigger the stage sent: the sim took it, refused it, or it waited on a step and was never sent. */
 export type Sent = 'accepted' | 'refused' | 'dropped';
@@ -50,6 +51,11 @@ export interface SpaceAsk {
   clocked?(): boolean;
   /** The fights as the sim has them now (M6.4, D76): none in a game without the fighting kit. */
   fight?(): FightView | undefined;
+  /**
+   * The tracked quest's open targets as the sim has them now (M6.6, D78), read each frame: none when
+   * the shell's Quest markers setting is off.
+   */
+  markers?(): readonly QuestMarker[];
   /** Sends `world/trigger`, `world/use` and `world/at` as the character walks, as a button's action is sent. */
   send(action: Action): Promise<Sent>;
 }
@@ -65,9 +71,41 @@ export interface SpaceDrawn {
   stop(): void;
 }
 
+/** A pin on a space's map (M6.6, D78): metres across the ground, x and z as the space has them. */
+export interface MapPin {
+  readonly kind: 'player' | 'target' | 'door';
+  readonly at: readonly [number, number];
+  /** The way the player faces, in degrees: 0 is north, -z. */
+  readonly yaw?: number;
+  /** A target's, or a door's that stands in for one: its quest, objective and text. */
+  readonly quest?: string;
+  readonly objective?: string;
+  readonly text?: string;
+}
+
+/** What a space-map widget draws (M6.6): the ground it covers in metres, its baked image if any, the pins. */
+export interface SpaceMapShown {
+  readonly space: string;
+  /** [least x, least z, most x, most z]. */
+  readonly bounds: readonly [number, number, number, number];
+  readonly image?: string;
+  readonly pins: readonly MapPin[];
+}
+
+/** What a space-map widget asks of the host: the space, the sim's markers and where it last heard everyone stood. */
+export interface MapAsk {
+  readonly space: string;
+  readonly markers: readonly QuestMarker[];
+  readonly at?: StandAt;
+  readonly arrive?: string;
+  readonly npcs?: Readonly<Record<string, NpcGoal>>;
+}
+
 export interface SpaceHost {
   /** A space's name, for a widget with no label of its own. */
   name(space: string): string | undefined;
   /** Draws the space into `box`, walked, until stopped. */
   draw(box: HTMLElement, ask: SpaceAsk): SpaceDrawn;
+  /** The space's map with its pins (M6.6): the baked image, or plain ground. */
+  map?(ask: MapAsk): Promise<SpaceMapShown>;
 }

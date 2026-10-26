@@ -154,21 +154,26 @@ interface QuestShown {
   readonly objectives?: readonly { readonly text: string; readonly done: boolean; count?: number; to?: number }[];
 }
 
-/** Every quest started, in id order, as the quests kit's journal shows it. */
+/**
+ * Every quest started, in id order, as the quests kit's journal shows it. Each takes quests/track
+ * (M6.6): only an active quest not tracked already can, and no mode offers it, so it is enabled here.
+ */
 export function journalEntries(reading: Reading): Entry[] {
+  const tracked = reading.fact('quests.tracked');
   return reading.content.ids('quest').flatMap((quest) => {
     const view = reading.preview({ effect: 'start-quest', quest }) as unknown as QuestShown;
     if (view.state === 'waiting') return [];
     const open = (view.objectives ?? []).filter((o) => !o.done);
     const objectives = open.map((o) => (o.to === undefined ? o.text : `${o.text} (${o.count ?? 0}/${o.to})`));
-    return [
-      entry(reading, quest, {
-        quest,
-        name: view.name,
-        state: view.state,
-        log: view.log?.at(-1) ?? null,
-        objectives: objectives.length === 0 ? null : objectives.join('; '),
-      }),
-    ];
+    const fields = {
+      quest,
+      name: view.name,
+      state: view.state,
+      log: view.log?.at(-1) ?? null,
+      objectives: objectives.length === 0 ? null : objectives.join('; '),
+      tracked: quest === tracked ? 'Tracked' : null,
+    };
+    const action = { type: 'quests/track', quest };
+    return [{ key: quest, fields, action, enabled: view.state === 'active' && quest !== tracked }];
   });
 }
