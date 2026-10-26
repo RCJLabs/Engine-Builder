@@ -132,7 +132,7 @@ describe('the facts', () => {
   });
 
   it('say their tests in words', () => {
-    const words = (condition: object) => describeCondition(condition as never, factCatalog([questsModule]));
+    const words = (condition: object) => describeCondition(condition as never, factCatalog([questsModule()]));
     expect(words({ fact: 'quests.state', args: { quest: 'debt' }, op: '==', value: 'done' })).toBe('Debt is done');
     expect(words({ not: { fact: 'quests.state', args: { quest: 'debt' }, op: '==', value: 'failed' } })).toBe(
       'Debt is not failed',

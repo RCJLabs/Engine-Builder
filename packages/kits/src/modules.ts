@@ -1,5 +1,5 @@
 /** The kits' modules (M3.3, D41), apart from the list of kits so that reading the list costs no sim code. */
-import type { CalendarDef, ClockDef, Module } from '@eb/core';
+import { type CalendarDef, type ClockDef, type Module, type PackWorld, type WorldPlaces, worldDataOf } from '@eb/core';
 import { aiModule } from './ai/module.ts';
 import { AI } from './ai/types.ts';
 import { dialogueModule } from './dialogue/module.ts';
@@ -20,6 +20,7 @@ import { KITS } from './kits.ts';
 import { mapsModule } from './maps/module.ts';
 import { MAPS } from './maps/types.ts';
 import { questsModule } from './quests/module.ts';
+import { QUESTS } from './quests/types.ts';
 import { rosterModule } from './roster/module.ts';
 import { ROSTER } from './roster/types.ts';
 import { statsModule } from './stats/module.ts';
@@ -28,8 +29,10 @@ import { timeKit } from './time/module.ts';
 import { DEFAULT_CALENDAR, TIME } from './time/types.ts';
 
 const MODULES: ReadonlyMap<string, Module> = new Map(
-  [inventoryKit, economyKit, gearKit, factionsKit, questsModule].map((module) => [module.id, module]),
+  [inventoryKit, economyKit, gearKit, factionsKit].map((module) => [module.id, module]),
 );
+// The quests kit finds in the world only in a game with spaces (M6.7).
+const QUESTS_ALONE = questsModule();
 // The stats module reads the gear kit's sums when gear is on (D42), so it comes in two builds.
 const STATS_ALONE = statsModule(false);
 const STATS_WITH_GEAR = statsModule(true);
@@ -52,13 +55,15 @@ const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
 /**
  * The modules of the kits on, in the engine's order; the time kit's with the project's calendar
  * (M3.5), and its clock when its spaces are walked (M6.3); the fighting kit's with project.json's
- * fighting when it has a world (M6.4), and the ai kit's hearing its hits when it is on.
+ * fighting when it has a world (M6.4), and the ai kit's hearing its hits when it is on; the quests
+ * kit's with the world's places, where its slots find spaces and what is in them (M6.7).
  */
 export function kitModules(
   on: readonly string[],
   calendar?: CalendarDef,
   clock?: ClockDef,
   fighting?: FightingDef,
+  places?: WorldPlaces,
 ): Module[] {
   return KITS.filter((kit) => on.includes(kit.id)).map((kit) => {
     if (kit.id === STATS) return on.includes(GEAR) ? STATS_WITH_GEAR : STATS_ALONE;
@@ -73,6 +78,18 @@ export function kitModules(
     if (kit.id === ENCOUNTERS) return on.includes(ROSTER) ? ENCOUNTERS_WITH_ROSTER : ENCOUNTERS_ALONE;
     if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR, on.includes(FIGHTING));
     if (kit.id === FIGHTING) return fightingModule(fighting);
+    if (kit.id === QUESTS) return places === undefined ? QUESTS_ALONE : questsModule(places);
     return MODULES.get(kit.id) as Module;
   });
+}
+
+/**
+ * The game's modules with the quests kit's built with the pack's places (M6.7): for a game read before
+ * its world was known, as eb sim's and the editor's Run are, beside core's withPackWorld. A game's own
+ * module of the kit's id is left as it is.
+ */
+export function kitsInWorld(modules: readonly Module[], world: PackWorld | undefined): readonly Module[] {
+  if (world === undefined) return modules;
+  const { places } = worldDataOf(world);
+  return modules.map((m) => (m === QUESTS_ALONE && places !== undefined ? questsModule(places) : m));
 }

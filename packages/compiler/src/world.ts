@@ -16,6 +16,7 @@ import type { NavFileRead } from './navFiles.ts';
 import { actorPlaces } from './npcPlaces.ts';
 import { eachPlaced, type Fields, isFields, recordHere } from './overrides.ts';
 import { eachPlacedRecord, type ModelSources, modelFieldOf, modelHere, modelNeeds } from './placedModels.ts';
+import { placesOf } from './places.ts';
 import type { ProjectSource } from './source.ts';
 import { SPACES_DIR } from './spaceFiles.ts';
 import type { SpaceJson } from './spaceShape.ts';
@@ -201,6 +202,8 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     actors,
     // Format 14 only with a map (M6.6).
     ...(Object.keys(maps).length > 0 ? { maps } : {}),
+    // Format 15 only once a space or an object has a tag (M6.7): createPack leaves them out otherwise.
+    places: placesOf(spaces, prefabs, sources.record),
   };
 }
 

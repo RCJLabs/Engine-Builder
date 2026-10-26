@@ -3,7 +3,7 @@
  * zones whose effects enter another space, and the way toward a space over the fewest of them.
  */
 import { describe, expect, it } from 'vitest';
-import { doorsOf, doorToward } from './doors.ts';
+import { doorsBetween, doorsOf, doorToward } from './doors.ts';
 
 const enter = (space: string) => ({ effect: 'enter-space', space });
 // A glen with a bothy behind a door, a shed through a zone, and a loft only the bothy reaches; the
@@ -53,5 +53,16 @@ describe('the doors', () => {
   it('go to the first by path when two are as near', () => {
     const doors = { a: { 'z-door': 'c', 'b-door': 'b' }, b: { x: 'd' }, c: { y: 'd' } };
     expect(doorToward(doors, 'a', 'd')).toBe('b-door');
+  });
+
+  it('count the fewest of them between two spaces (M6.7): none to itself, unknown where none leads', () => {
+    const doors = doorsOf(WORLD);
+    expect(doorsBetween(doors, 'glen', 'glen')).toBe(0);
+    expect(doorsBetween(doors, 'glen', 'bothy')).toBe(1);
+    expect(doorsBetween(doors, 'glen', 'shed')).toBe(1);
+    expect(doorsBetween(doors, 'glen', 'loft')).toBe(2);
+    expect(doorsBetween(doors, 'loft', 'shed')).toBe(2);
+    expect(doorsBetween(doors, 'shed', 'glen')).toBeUndefined();
+    expect(doorsBetween(doors, 'glen', 'moor')).toBeUndefined();
   });
 });

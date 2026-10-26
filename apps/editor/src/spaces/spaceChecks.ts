@@ -20,6 +20,7 @@ import {
   type SpaceUse,
   spaceObjectsOf,
   spaceSpawns,
+  spaceTagsOf,
   walkersOf,
 } from '@eb/compiler';
 import { checkFightingNames, compareText, type Diagnostic, type FlagUses, knownFrom, type Walkers } from '@eb/schema';
@@ -108,9 +109,10 @@ export async function spaceProblems(
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
   const fought = fightingProblems(catalog, index, walkers);
   const objects = spaceObjectsOf(read.files, prefabs);
+  const tags = spaceTagsOf(read.files, prefabs);
   return {
     problems: [...found.diagnostics, ...navs, ...maps, ...fought],
     users,
-    flags: { ...found.flags, spawns, walkers, objects },
+    flags: { ...found.flags, spawns, walkers, objects, tags },
   };
 }

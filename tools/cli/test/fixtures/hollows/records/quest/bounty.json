@@ -1,0 +1,34 @@
+{
+  "name": "Bounty",
+  "repeats": true,
+  "slots": [
+    {
+      "id": "den",
+      "type": "space",
+      "tags": ["cave"],
+      "pick": "nearest"
+    },
+    {
+      "id": "bandit",
+      "type": "actor",
+      "in": "@den",
+      "where": "factions.faction-of(actor: @bandit) == bandits"
+    }
+  ],
+  "stages": [
+    {
+      "id": "hunt",
+      "log": "The post names {bandit}, a bandit in {den}.",
+      "objectives": [
+        {
+          "id": "bandit",
+          "text": "Deal with {bandit} in {den}",
+          "done-when": "world.npc-down(actor: @bandit)",
+          "target": {
+            "actor": "@bandit"
+          }
+        }
+      ]
+    }
+  ]
+}

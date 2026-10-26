@@ -4,15 +4,15 @@
  * filled as it starts (M3.10): one whose slots can't be filled doesn't start. A quest that repeats
  * runs again once it has ended, fresh, its past runs counted.
  */
-import type { Beat, ModuleContext } from '@eb/core';
+import type { Beat } from '@eb/core';
 import { own } from '../own.ts';
 import { namedStage, questRecord } from './records.ts';
 import { checkQuest, enter, entryOf, writeEntry } from './run.ts';
 import { fillSlots } from './slots.ts';
 import { trackStarted } from './tracking.ts';
-import { QUEST, type QuestEntry, type QuestsSlice } from './types.ts';
+import { QUEST, type QuestEntry, type QuestsContext } from './types.ts';
 
-type Ctx = ModuleContext<QuestsSlice>;
+type Ctx = QuestsContext;
 
 /**
  * Starts a waiting quest at its first stage, or `at`, or one that repeats and has ended; one
@@ -24,7 +24,8 @@ export function startQuest(ctx: Ctx, id: string, at?: string): string | undefine
   const before = entryOf(ctx, id);
   if (before !== undefined && (before.state === 'active' || quest.repeats !== true)) return undefined;
   const stage = namedStage(ctx.content, id, at ?? quest.stages[0]?.id).id;
-  const fill = fillSlots(ctx, quest, (n) => ctx.rng('slots').int(0, n - 1));
+  // A run of a quest that repeats tries its world slots' last picks last (M6.7, D79).
+  const fill = fillSlots(ctx, quest, (n) => ctx.rng('slots').int(0, n - 1), before?.slots);
   if ('unfilled' in fill) return fill.unfilled;
   const entry: QuestEntry = { state: 'active', stage, log: [], done: [], counts: {}, days: 0 };
   if (quest.slots !== undefined) entry.slots = fill.slots;

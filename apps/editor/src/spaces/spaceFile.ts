@@ -68,7 +68,7 @@ export function readSpace(text: string): ReadSpace {
 }
 
 /** An object's fields in the order a file lists them; any the editor doesn't know follow. */
-const ORDER = ['id', 'name', 'shape', 'prefab', 'at', 'turn', 'scale', 'color'];
+const ORDER = ['id', 'name', 'tags', 'shape', 'prefab', 'at', 'turn', 'scale', 'color'];
 
 function objectLine(object: SpaceObject): string {
   const keys = [...ORDER.filter((key) => key in object), ...Object.keys(object).filter((key) => !ORDER.includes(key))];
@@ -81,7 +81,7 @@ function objectLine(object: SpaceObject): string {
 }
 
 /** The space's keys written in their places; any others follow the objects. */
-const PLACED_KEYS: ReadonlySet<string> = new Set(['name', 'environment', 'terrain', 'objects']);
+const PLACED_KEYS: ReadonlySet<string> = new Set(['name', 'tags', 'environment', 'terrain', 'objects']);
 
 const FRESH: JsonLayout = { bom: false, eol: '\n', indent: '  ', finalNewline: true };
 
@@ -97,11 +97,11 @@ export function spaceText(space: SpaceJson, layout: JsonLayout = FRESH): string 
     .filter(([key]) => !PLACED_KEYS.has(key))
     .map(([key, value]) => `,${eol}${indent}${JSON.stringify(key)}: ${JSON.stringify(value)}`)
     .join('');
-  // The environment (M5.4) and the terrain's settings (M5.3) each on a line of their own, between
-  // the name and the objects.
-  const line = (key: 'environment' | 'terrain') =>
+  // The tags (M6.7), the environment (M5.4) and the terrain's settings (M5.3) each on a line of their
+  // own, between the name and the objects.
+  const line = (key: 'tags' | 'environment' | 'terrain') =>
     space[key] === undefined ? '' : `${eol}${indent}"${key}": ${JSON.stringify(space[key])},`;
-  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${line('environment')}${line('terrain')}${eol}${indent}"objects": ${objects}${others}${eol}}`;
+  const body = `{${eol}${indent}"name": ${JSON.stringify(space.name)},${line('tags')}${line('environment')}${line('terrain')}${eol}${indent}"objects": ${objects}${others}${eol}}`;
   return `${layout.bom ? BOM : ''}${body}${layout.finalNewline ? eol : ''}`;
 }
 

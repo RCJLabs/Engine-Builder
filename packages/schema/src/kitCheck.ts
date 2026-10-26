@@ -5,6 +5,7 @@
  * every loot table waits for finish(). The stats, factions, roster, events and dialogue kits' are
  * in their own files, as are the quests', the maps' and the encounters' kits'.
  */
+
 import type { Effect, RecordIndex } from '@eb/core';
 import {
   ACTOR,
@@ -42,6 +43,7 @@ import { QuestChecks } from './questCheck.ts';
 import { slotScope } from './questSlots.ts';
 import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
+import type { SpaceTags } from './worldSlots.ts';
 
 /** What a behaviour's fields can name as @slot: @self, the actor running it (M6.3). */
 const SELF: Readonly<Record<string, string>> = Object.freeze({ self: ACTOR });
@@ -118,7 +120,7 @@ export class KitChecks {
   private readonly maps: MapChecks | undefined;
   private readonly encounters: EncounterChecks | undefined;
 
-  constructor(on: readonly string[], known: Known, records: RecordIndex) {
+  constructor(on: readonly string[], known: Known, records: RecordIndex, tags?: SpaceTags) {
     this.on = on;
     this.known = known;
     this.stats = new StatChecks(on, known);
@@ -126,7 +128,9 @@ export class KitChecks {
     this.roster = on.includes(ROSTER) ? new RosterChecks(on) : undefined;
     this.events = on.includes(EVENTS) ? new EventChecks(on, known) : undefined;
     this.dialogue = on.includes(DIALOGUE) ? new DialogueChecks(on, known.facts) : undefined;
-    this.quests = on.includes(QUESTS) ? new QuestChecks(known, { records, made: madeTypes(on) }) : undefined;
+    this.quests = on.includes(QUESTS)
+      ? new QuestChecks(known, { records, made: madeTypes(on), ...(tags ? { tags } : {}) })
+      : undefined;
     this.maps = on.includes(MAPS) ? new MapChecks(on) : undefined;
     this.encounters = on.includes(ENCOUNTERS) ? new EncounterChecks(on) : undefined;
   }

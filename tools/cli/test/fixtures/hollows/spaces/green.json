@@ -1,0 +1,130 @@
+{
+  "name": "The green",
+  "tags": ["village"],
+  "objects": [
+    {
+      "id": "start",
+      "name": "Start",
+      "shape": "box",
+      "at": [0, 0, 8],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [40, 0.2, 40],
+      "color": "#6f8f4e",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "board",
+      "name": "Notice board",
+      "shape": "box",
+      "at": [0, 0, 6.5],
+      "scale": [1.2, 1.6, 0.2],
+      "color": "#9a7b4f",
+      "components": {
+        "interact": {
+          "label": "Read the board",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "supplies"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "post",
+      "name": "Bounty post",
+      "shape": "box",
+      "at": [-4, 0, 6.5],
+      "scale": [0.3, 2, 0.3],
+      "color": "#7a5530",
+      "components": {
+        "interact": {
+          "label": "Read the post",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "bounty"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "barrow-mound",
+      "name": "Barrow",
+      "shape": "box",
+      "at": [-6, 0, -1],
+      "scale": [5, 3, 4],
+      "color": "#7d8a6a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "barrow-door",
+      "name": "Barrow door",
+      "shape": "box",
+      "at": [-6, 0, 1.1],
+      "scale": [1.4, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go in",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "barrow",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hall-house",
+      "name": "Hall",
+      "shape": "box",
+      "at": [6, 0, -1],
+      "scale": [5, 3, 4],
+      "color": "#a39a8c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "hall-door",
+      "name": "Hall door",
+      "shape": "box",
+      "at": [6, 0, 1.1],
+      "scale": [1.4, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go in",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "hall",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

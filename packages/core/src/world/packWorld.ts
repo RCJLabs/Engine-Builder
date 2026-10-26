@@ -1,5 +1,6 @@
 import { isRecordId } from '../records.ts';
 import { mapsProblem, type PackMap } from './packMaps.ts';
+import { type PackPlaces, packPlacesProblem, worldPlacesOf } from './places.ts';
 import type { Placed, Triggers, Uses, WorldData } from './types.ts';
 
 /**
@@ -36,6 +37,8 @@ export interface PackWorld {
   readonly actors?: Readonly<Record<string, Placed>>;
   /** Format 14 (M6.6): each baked space's map, its image among the files. */
   readonly maps?: Readonly<Record<string, PackMap>>;
+  /** Format 15 (M6.7): every space's tags and each tagged object's, through prefabs and overrides. */
+  readonly places?: PackPlaces;
 }
 
 /** What the world module is built from. A format 9 pack has no uses, and starts in its first space. */
@@ -47,6 +50,7 @@ export function worldDataOf(world: PackWorld): WorldData {
     spawns: world.spawns ?? Object.fromEntries(spaces.map((id) => [id, []])),
     start: world.start ?? (spaces[0] as string),
     actors: world.actors ?? {},
+    places: worldPlacesOf(world.spaces, world.places, world.actors),
   };
 }
 
@@ -96,6 +100,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
     ...(format >= 10 ? ['uses', 'spawns', 'start'] : []),
     ...(format >= 11 ? ['navmeshes', 'actors'] : []),
     ...(format >= 14 ? ['maps'] : []),
+    ...(format >= 15 ? ['places'] : []),
   ];
   const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields', ...placed]);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
@@ -122,7 +127,9 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   return (
     (format >= 10 ? placesProblem(world) : undefined) ??
     (format >= 11 ? walkersProblem(world, format) : undefined) ??
-    (format >= 14 ? mapsProblem(world) : undefined)
+    // Format 15 is the format for tags, which a world without a map may carry.
+    (format === 14 || (format >= 15 && world.maps !== undefined) ? mapsProblem(world) : undefined) ??
+    (format >= 15 ? packPlacesProblem(world) : undefined)
   );
 }
 

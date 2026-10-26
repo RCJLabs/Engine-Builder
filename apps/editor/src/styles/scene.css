@@ -354,3 +354,62 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* A space's or an object's tags (M6.7): chips that wrap, each with a 44 px remove button. */
+.tags-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 10px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.tags-field p {
+  margin: 0;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-list:empty {
+  display: none;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding-left: 10px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.tag-remove {
+  padding: 0;
+  border-radius: 999px;
+}
+
+.tag-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tag-add input {
+  flex: 1 1 8rem;
+  min-width: 0;
+  min-height: var(--tap);
+}

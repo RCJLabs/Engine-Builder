@@ -29,6 +29,7 @@ import {
   knownFrom,
   type RecordInput,
   type SpaceSpawns,
+  type SpaceTags,
   severityOf,
   type Usage,
   validateRecords,
@@ -269,6 +270,8 @@ export async function updateIndex(
     ...(flagsElsewhere?.walkers ? { walkers: flagsElsewhere.walkers } : {}),
     // A quest's targets name spaces' objects (E086, M6.6).
     ...(flagsElsewhere?.objects ? { objects: flagsElsewhere.objects } : {}),
+    // A quest's world slots find spaces and objects by their tags (E088, W127, M6.7).
+    ...(flagsElsewhere?.tags ? { tags: flagsElsewhere.tags } : {}),
   };
   const checks = flagsElsewhere ? { ...game, flagsElsewhere, ...spawned } : game;
   check(records, checking, catalog, checks);
@@ -318,7 +321,14 @@ const heldKey = (uses: FlagUses | undefined): string => {
   const objects = [...(uses.objects ?? [])]
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([space, paths]) => [space, [...paths].sort()]);
-  return JSON.stringify([effects, conditions, spawns, walkers, objects]);
+  // The spaces' tags (M6.7): a tag added or taken off checks the quests' world slots again.
+  const tags = uses.tags
+    ? [uses.tags.spaces, uses.tags.actors, ...uses.tags.objects.values()].map((map) =>
+        [...map].sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+      )
+    : [];
+  const tagged = [...(uses.tags?.objects.keys() ?? [])].sort();
+  return JSON.stringify([effects, conditions, spawns, walkers, objects, tagged, tags]);
 };
 
 function check(
@@ -330,6 +340,7 @@ function check(
     readonly spaces?: SpaceSpawns;
     readonly walkers?: Walkers;
     readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
+    readonly tags?: SpaceTags;
   },
 ): void {
   if (dirty.size === 0) return;

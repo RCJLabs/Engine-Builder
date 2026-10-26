@@ -1,0 +1,14 @@
+{
+  "name": "The hollows folk",
+  "description": "Those who keep to the green, and a hermit or two.",
+  "min": -20,
+  "max": 20,
+  "start": 0,
+  "bands": [
+    {
+      "id": "neutral",
+      "name": "Neutral",
+      "description": "They keep to themselves."
+    }
+  ]
+}

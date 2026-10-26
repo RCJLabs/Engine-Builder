@@ -9,7 +9,7 @@ import type { FactArgs } from '@eb/core';
 import { own } from '../own.ts';
 import { jobTable, jobTimer } from './jobs.ts';
 import { questRecord, stageOf } from './records.ts';
-import { bind, fillSlots, nameOf, type Reader, slotText } from './slots.ts';
+import { bind, fillSlots, type Reader, slotName, slotText } from './slots.ts';
 import { targetOf } from './targets.ts';
 import type { QuestRecord, Stage, Target } from './types.ts';
 
@@ -55,7 +55,7 @@ function jobShown(
     const text = stage.job?.outcomes[index]?.text;
     return {
       chance: outcome.chance,
-      ...(text === undefined ? {} : { text: slotText(reader.content, quest, slots, text) }),
+      ...(text === undefined ? {} : { text: slotText(reader.content, quest, slots, text, reader.places) }),
     };
   });
   const left = reader.fact('time.left', { timer: jobTimer(id) } as FactArgs);
@@ -72,7 +72,7 @@ export function questShown(reader: Reader, id: string): QuestShown {
     return 'unfilled' in fill ? { ...waiting, unfilled: fill.unfilled } : waiting;
   }
   const slots = entry.slots as Record<string, string> | undefined;
-  const text = (written: string) => slotText(reader.content, quest, slots, written);
+  const text = (written: string) => slotText(reader.content, quest, slots, written, reader.places);
   const log = entry.log.flatMap((reached) => {
     const line = stageOf(quest, reached)?.log;
     return line === undefined ? [] : [text(line)];
@@ -122,6 +122,8 @@ const slotsShown = (reader: Reader, quest: QuestRecord, slots: Record<string, st
   Object.fromEntries(
     (quest.slots ?? []).flatMap((slot) => {
       const record = own(slots, slot.id);
-      return record === undefined ? [] : [[slot.id, { id: record, name: nameOf(reader.content, slot.type, record) }]];
+      return record === undefined
+        ? []
+        : [[slot.id, { id: record, name: slotName(reader.content, reader.places, slot, slots) }]];
     }),
   );

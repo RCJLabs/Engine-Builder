@@ -2326,6 +2326,46 @@ Evan chose on 2026-10-26, from these options ([research/quest-ux.md](research/qu
 - **A map is what a player sees.** The bake leaves out the editor's marks, zones and spawn points, and characters, which move. It is lit from high in the north-west, its shadows short.
 - **Its cost:** the glen's map, 38 m across, is 1024 px of WebP at 4 to 5 kB; a bake takes 0.8 to 1.3 s in the cloud container's headless Chromium, with no GPU (ROADMAP's Readings).
 
+### D79. Radiant slots find a space by its tags and a thing in it; the nearest by doors; nothing comes back in M6.7. LOCKED, 2026-10-26 (Evan's calls, M6.7)
+
+Evan chose on 2026-10-26, from these options:
+- **What a slot can find:** spaces and the things in them, Bethesda's location and reference pair; placed things only, a space read from them; or actors only until containers.
+- **How a thing says what it is:** tags on spaces and objects, plus conditions; the records and prefabs they place; or conditions alone.
+- **Which match:** today's picks with nearest by doors, a repeat skipping its last run's pick; today's picks alone; or nearest in metres, the pack carrying where each object stands.
+- **Coming back:** no reset in M6.7, a quest with nothing left to find waiting; spaces resetting after days away; or an effect that resets a space.
+
+**Decision.**
+- **Spaces and the things in them.** A quest's slot can hold a space, found by its tags (a cave), and a later slot an object in that space (its chest) or an actor standing there, found by theirs. `@cave` and `@chest` name them wherever a space or an object goes: an objective's target, a count's arguments, an effect's fields. So M6.6's markers and doors point at whatever a run found.
+- **Tags, plus conditions.** A space and any object take a list of tags, words like `cave`, `bandit-den` or `cache`, as Bethesda's keywords; an object's tags are kept through prefabs and overrides like its other fields. A slot asks for every tag it lists, and its Where still narrows the matches with any condition.
+- **Nearest by doors.** A slot takes the first, one at random, the most or least of a fact, as M3.10's do, or the nearest: the fewest doors from the space the player is in, ties at random. A run of a quest that repeats tries its last run's pick last. The sim still never learns metres (D78).
+- **Nothing comes back in M6.7.** A fallen NPC stays down and a taken object stays taken, and a slot finds neither. A quest whose slots nothing fills waits, as M3.10's does. Resetting spaces is logged for later.
+
+**Why.**
+- **The pair:** a location and a thing in it is how Bethesda's radiant quests are written, and both are what M6.6 points at. "The cave" can then be named in the journal apart from its chest.
+- **Tags:** the world is built from shapes, prefabs and placed records, and none of those says "cave". A tag says what a thing is for the quests that look for it, whatever it is made of.
+- **Doors:** the sim already finds the fewest doors for markers (D78). Metres would mean packing every object's place, and across spaces "closest" falls back to doors anyway.
+- **No reset:** each kit keeps an actor's state its own way (health, bags, awareness, a fall), so a reset touches every kit and every save. It is a milestone of its own.
+
+**Cost.**
+- **A bounty runs out** once every den is cleared. A fetch whose cache isn't taken repeats forever.
+- **Ties at random are the common case** in a small world: three caves each one door from the green are equally near.
+- **Tags are free words:** a misspelt tag finds nothing. W127 says so when no space or object in the project carries a slot's tags.
+
+**Also settled, as the session's calls** (2026-10-26):
+- **Two slot types, `space` and `object`,** beside the record types. An object slot names its space in `in`: a space's id or an earlier space slot. An actor slot with `in` or `tags` finds placed actors only.
+- **A space slot tries its next match** when a slot `in` it can't be filled. "A cave with a cache left" is then one quest, not a condition the author writes.
+- **The pack is format 15** when any space or object has tags. It carries every space's and tagged object's tags and names, and the actors' places with them. Every older pack keeps its format and hash.
+- **`world.doors(space)`** is the fewest doors from the player's space, which `nearest` reads. **`factions.faction-of(actor)`** is an actor's faction, for "an NPC of the bandits".
+- **E088** for a slot that finds in the world and can't be read.
+
+**As built** (2026-10-26, [specs/radiant.md](specs/radiant.md#as-built-2026-10-26)):
+- **A slot's Type stays a text box**, not a choice of `space`, `object` and the record types, so a type nothing has can still be typed to see W127 (M3.10). Its Tags are text boxes; the inspector's Tags field is the one that offers the project's tags.
+- **Only a space slot tries its next match.** A slot of records keeps M3.10's ways: the same pick each run, no next match tried.
+- **A refused start names the slot that couldn't be filled**, the cache's rather than the cave's, and nothing on screen says it yet (radiant.md's open question 5).
+- **A quest shows its world slots' problems once its type takes it:** with no stage yet it fails its type first.
+
+The spec is [specs/radiant.md](specs/radiant.md).
+
 ---
 
 ## Open

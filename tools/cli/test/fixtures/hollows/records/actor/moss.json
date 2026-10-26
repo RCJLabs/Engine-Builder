@@ -1,0 +1,8 @@
+{
+  "name": "Moss",
+  "description": "A hermit in the barrow, nobody's bandit.",
+  "faction": "hollows-folk",
+  "figure": {
+    "clothes": "#4a6a3a"
+  }
+}

@@ -39,6 +39,29 @@ export function doorsOf(world: { readonly uses: Uses; readonly triggers: Trigger
 }
 
 /**
+ * The fewest doors from `from` to `to` (M6.7, D79): 0 when they are one space, undefined when no door
+ * leads there. What a slot's Nearest reads, over the same doors the markers follow.
+ */
+export function doorsBetween(doors: Doors, from: string, to: string): number | undefined {
+  if (from === to) return 0;
+  const seen = new Set([from]);
+  let frontier = [from];
+  for (let steps = 1; frontier.length > 0; steps++) {
+    const next: string[] = [];
+    for (const space of frontier) {
+      for (const lead of Object.values(doors[space] ?? {})) {
+        if (lead === to) return steps;
+        if (seen.has(lead)) continue;
+        seen.add(lead);
+        next.push(lead);
+      }
+    }
+    frontier = next;
+  }
+  return undefined;
+}
+
+/**
  * The door out of `from` on the fewest doors to `to`, ties to the first by path, or none when
  * `from` is `to` or no door leads there.
  */

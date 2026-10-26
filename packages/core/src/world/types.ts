@@ -4,6 +4,7 @@
  */
 import type { Condition } from '../logic/types.ts';
 import type { Effect } from '../sim/types.ts';
+import type { WorldPlaces } from './places.ts';
 
 /** The world module's id, and its slice's key. */
 export const WORLD = 'world';
@@ -45,6 +46,11 @@ export interface WorldData {
   readonly start: string;
   /** Format 11 (M6.2): each placed actor's space and path, so walk-to knows where it walks. */
   readonly actors: Readonly<Record<string, Placed>>;
+  /**
+   * M6.7 (D79): each space's name and tags, each tagged object's, and where each actor stands, which
+   * a quest's slot can find. A world made by hand, as a test's, may leave them out.
+   */
+  readonly places?: WorldPlaces;
 }
 
 /** Where the player stood as the stage last said: in a space, the feet's place and the way they faced. */
@@ -101,6 +107,12 @@ export interface WorldSlice {
 export const WORLD_VERSION = 5;
 
 /** A world with no spaces' data: what a check builds the module from when only its names matter. */
-export const EMPTY_WORLD: WorldData = { triggers: {}, uses: {}, spawns: {}, start: '', actors: {} };
+export const EMPTY_WORLD: WorldData = {
+  triggers: {},
+  uses: {},
+  spawns: {},
+  start: '',
+  actors: {},
+};
 
 export const placeKey = (space: string, object: string) => `${space}/${object}`;

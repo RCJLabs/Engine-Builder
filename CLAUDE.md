@@ -115,7 +115,9 @@ apps/editor/           the editor PWA
                        leads and how it ends, over the kit's quests/graph.ts; a job's outcomes and gone lines, M3.10)
                        and QuestMap.tsx, above a quest's form; forms/refChoices.ts offers a quest's slots (M3.10);
                        targetChoices.ts, what an objective's target offers (actors and actor slots, the spaces, the
-                       objects of the space it names, M6.6) and targetChecks.test.ts (E086 and W155 in the editor)
+                       objects of the space it names, M6.6; a slot's In and a target's space and object slots, M6.7)
+                       and targetChecks.test.ts (E086 and W155 in the editor); radiantChecks.test.ts (E088, W127 and
+                       E086's slots in the editor, as eb validate gives them, and again when only tags change, M6.7)
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
@@ -213,7 +215,9 @@ apps/editor/           the editor PWA
                        plain values: its figure, height and chest), figureView.ts (the figure in three; figuresIn, the
                        hook's figures()); M6.2 (D74): navOverlay.ts (Show navigation's lines, the hook's nav()); M6.6
                        (D78): fromAbove.ts (a space drawn from straight above for Bake map; leftOut, what it hides),
-                       build.ts's OFF_MAP (marks, zones, spawn points and characters left off a map)
+                       build.ts's OFF_MAP (marks, zones, spawn points and characters left off a map); M6.7 (D79):
+                       tags.ts (a typed tag tidied, whether it can be added, the project's tags) and TagsField.tsx (a
+                       space's, an object's and, as an override, an object's inside a placement)
   src/nav/             navmeshes in the editor (M6.2, D74): geometry.ts (the solids and the terrain as Recast's soup of
                        triangles), lib.ts (Recast and Detour: a soup baked, a navmesh opened, paths, closest points, the
                        crowd), entry.ts (nav.js's, built by vite.nav.config.ts beside walk.js); bake.worker.ts,
@@ -426,7 +430,11 @@ apps/editor/           the editor PWA
                        markerHelpers.ts, markers.spec.ts, markersPhone.spec.ts and markersEditor.spec.ts are M6.6's, the
                        glen's quests followed by the compass and the markers by keys and by touch at 360, 390 and
                        sideways, Track from the journal, the Map screen's pins and the setting; and the glen's map baked,
-                       W154 after a move and a target set with forms at 1280 and 390
+                       W154 after a move and a target set with forms at 1280 and 390; hollowsHelpers.ts, radiant.spec.ts,
+                       radiantPhone.spec.ts and radiantEditor.spec.ts are M6.7's, the hollows' Supplies read from the board
+                       by keys (the barrow's cache, then the mine's, then no third run) and by touch at 360, 390 and
+                       sideways (the compass, the journal, the Map's pin), and the hollows tagged and Supplies made with
+                       forms alone at 1280 and 390, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -451,7 +459,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        M6.3 (D75): follow and stand (npcs.ts), the slice at version 4;
                        M6.4 (D76): attack and fall (npcs.ts), the slice at version 5, format 13's fighting (PackFighting);
                        M6.6 (D78): doors.ts (doorsOf, doorToward: the fewest doors between spaces), packMaps.ts (format
-                       14's maps)
+                       14's maps); M6.7 (D79): places.ts (format 15's places: every space's tags and each tagged
+                       object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -504,7 +513,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        a node's units, hours, days and points, W148; W150, M6.4); M6.4: fightingTypes.ts (an item's
                        weapon, an actor's drops and on-fall, W151, checkFightingNames: E082); M6.5: animatorTypes.ts
                        (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; M6.6: questTypes.ts's target, targetCheck.ts (E086,
-                       W155); not pure
+                       W155); M6.7: worldSlots.ts (slots that find in the world: E088, W127), targetCheck.ts's @slot
+                       space and object, spaceShape's tags (E058); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -545,6 +555,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        packed as format 13 with the kit and a space; M6.5: world.ts packs an actor's animator and the
                        models its clips come from (worldAnimators.test.ts), models.ts's W152; M6.6: mapFiles.ts (spaces/<id>.map.json read:
                        E087, W154), mapInputs.ts (what a bake draws and its hash), world.ts packs the maps as format 14;
+                       M6.7: places.ts (placesOf: the tags through prefabs and overrides, and `{slot}`'s names, packed
+                       as format 15; spaceTagsOf, what the checks read), tags in spaceShape.ts and spaces.ts (E058);
                        not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
@@ -570,7 +582,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        rolled and kept as timers (M3.10); journal.ts: what a quest shows, start-quest's preview;
                        facts.ts; graph.ts: where stages lead, for the checks and the map; metrics.ts: kitMetrics,
                        each quest's state for sweeps; module.ts; tracking.ts and targets.ts, the tracked quest and its
-                       targets, slice v3, M6.6); M4.6 (D56): maps/ (layered.ts: maps made from
+                       targets, slice v3, M6.6; finding.ts, what a slot finds in the world, slots.ts's Nearest and a
+                       space slot trying again, the kit built with the pack's places, M6.7); M4.6 (D56): maps/ (layered.ts: maps made from
                        a seed by rules; roads.ts: reach and the quickest road; travel.ts: travelOf, one price for
                        the action, its options and the widget; arrive.ts; sweep.ts: rules over 300 seeds; view.ts:
                        enter-map's preview, the map as the party sees it; facts.ts; module.ts, built knowing
@@ -584,7 +597,7 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        weapons.ts: what an actor wields; hits.ts: a hit and its hurt; falls.ts: a fall, its drops and on-fall,
                        a body searched; module.ts, built with the project's fighting); kits.ts (KITS,
                        kitsOn: what project.json's kits
-                       turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code)
+                       turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code; kitsInWorld, M6.7)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
@@ -719,7 +732,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        saves/glen-world-v2.json, a save by the world module's version 2 that must keep loading; camp/,
                        M6.4's gate: a clearing where three bandits wander until alerted and fight a hero with a sword, a bow
                        and ten arrows, its navmesh baked by `pnpm bake`, which camp.test.ts fights through the session and
-                       breaks once each for E082 and W150
+                       breaks once each for E082 and W150; hollows/, M6.7's gate: a green with a board and a post, the
+                       barrow a door away and the mine two through the hall, each cave tagged with a cache (the mine's
+                       through the cache prefab) and a bandit, Supplies and the bounty repeating on the nearest, which
+                       hollows.test.ts plays through the session and breaks once each for E088, W127 and E086
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json

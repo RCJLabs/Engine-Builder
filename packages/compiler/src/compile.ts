@@ -31,6 +31,7 @@ import { checkNavFiles } from './navFiles.ts';
 import { navHashes, navModelsOf } from './navInputs.ts';
 import { spaceObjectsOf, walkersOf } from './npcPlaces.ts';
 import { modelFieldOf } from './placedModels.ts';
+import { spaceTagsOf } from './places.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { projectFiles } from './projectZip.ts';
 import { atSceneLine, readScenes } from './scenes.ts';
@@ -146,6 +147,7 @@ export async function compileProject(
     spaces: spawns,
     walkers,
     objects: spaceObjectsOf(spaces.files, prefabs),
+    tags: spaceTagsOf(spaces.files, prefabs),
   });
   // What a zone or an interact holds is reported at its space's line (M5.9), a scene's at its own.
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));

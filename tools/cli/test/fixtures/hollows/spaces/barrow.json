@@ -1,0 +1,81 @@
+{
+  "name": "The barrow",
+  "tags": ["cave"],
+  "objects": [
+    {
+      "id": "door",
+      "name": "Door",
+      "shape": "box",
+      "at": [0, 0, 2],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [8, 0.2, 8],
+      "color": "#5a5348",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 3.6],
+      "scale": [2.4, 2, 0.6],
+      "color": "#3b2a1c",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "green",
+              "spawn": "start"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "cache",
+      "name": "Crate",
+      "shape": "box",
+      "at": [0, 0, 0.5],
+      "scale": [0.6, 0.5, 0.6],
+      "color": "#c8a165",
+      "tags": ["cache"],
+      "components": {
+        "interact": {
+          "label": "Take the supplies",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "supplies"
+            }
+          ],
+          "takes": true
+        }
+      }
+    },
+    {
+      "id": "wick",
+      "record": "actor:wick",
+      "at": [2.5, 0, -2],
+      "tags": ["chief"]
+    },
+    {
+      "id": "moss",
+      "record": "actor:moss",
+      "at": [-2.5, 0, -2]
+    }
+  ]
+}
