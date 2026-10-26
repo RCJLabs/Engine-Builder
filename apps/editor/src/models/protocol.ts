@@ -30,6 +30,16 @@ export interface Packed {
   readonly collider: ModelCollider;
   /** How long the packing took, in milliseconds: a reading. */
   readonly ms: number;
+  /**
+   * Its skeleton on the engine's rig (M6.5): the bones found, by the joints' names in the file, and
+   * its clips played in place with their paces; null for a model with no skin and no clips.
+   */
+  readonly rig: {
+    readonly rigged: boolean;
+    readonly bones: Readonly<Record<string, string>>;
+    readonly missing: readonly string[];
+    readonly clips: readonly { readonly name: string; readonly length: number; readonly pace: number }[];
+  } | null;
 }
 
 export type ModelReply =

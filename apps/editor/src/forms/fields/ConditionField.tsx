@@ -30,8 +30,9 @@ export function ConditionField({ label, info, path, value, quietLabel }: FieldPr
   const form = useForm();
   const id = useUniqueId();
   // The facts validation reads conditions with (D36): the game's once its scripts have run, else
-  // the engine's own, so "flag.on(met-trader)" parses, prints and reads as it does in eb validate.
-  const facts = factsOf(openGame());
+  // the engine's own, so "flag.on(met-trader)" parses, prints and reads as it does in eb validate;
+  // an animator's, the stage's anim.* alone.
+  const facts = form.facts ?? factsOf(openGame());
   const tree = isTree(value);
   const draft = useDraft(asText(value, facts));
   const text = draft.shown;

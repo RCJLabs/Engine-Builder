@@ -77,23 +77,33 @@ export async function importPickAction(
   return true;
 }
 
-/**
- * The starter kit added to the open project as one step, files it has already kept as they are.
- * Resolves to whether anything was added.
- */
-export async function addStarterKitAction(): Promise<boolean> {
-  const { kitFiles } = await import('./starterKit.ts');
-  const kit = kitFiles();
+/** A bundle's files added to the open project as one step, files it has already kept as they are. */
+async function addBundle(name: string, files: ReadonlyMap<string, Uint8Array>): Promise<boolean> {
   let said = '';
-  const made = await step('Add starter kit', async (copy) => {
-    const { changes, added, kept } = await addStarterKit(copy, kit);
+  const made = await step(`Add ${name}`, async (copy) => {
+    const { changes, added, kept } = await addStarterKit(copy, files);
     said =
       kept === 0
-        ? `Added the starter kit: ${count(added, 'file', 'files')}.`
-        : `Added ${count(added, 'file', 'files')} of the starter kit; the project had ${kept} of them already.`;
+        ? `Added the ${name}: ${count(added, 'file', 'files')}.`
+        : `Added ${count(added, 'file', 'files')} of the ${name}; the project had ${kept} of them already.`;
     if (changes.length === 0) throw new Error('every file of it is in the project already');
     return changes;
   });
   if (made) note(said);
   return made;
+}
+
+/** The starter kit added to the open project. Resolves to whether anything was added. */
+export async function addStarterKitAction(): Promise<boolean> {
+  const { kitFiles } = await import('./starterKit.ts');
+  return addBundle('starter kit', kitFiles());
+}
+
+/**
+ * The starter character added (M6.5, D77): its GLB, its model, materials and stock animator, for
+ * a project to change or replace. Resolves to whether anything was added.
+ */
+export async function addStarterCharacterAction(): Promise<boolean> {
+  const { characterFiles } = await import('./starterCharacter.ts');
+  return addBundle('starter character', characterFiles());
 }

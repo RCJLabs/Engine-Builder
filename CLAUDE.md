@@ -57,6 +57,7 @@ pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the
 pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
+pnpm make:starter-character                            # starter-character/ from tools/starter-kit/src/character (M6.5)
 pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
 pnpm bake <project> <space>                            # spaces/<space>.nav baked in Node, as Bake navigation bakes it (M6.2);
                                                        # give the project as an absolute path under pnpm -C
@@ -128,10 +129,12 @@ apps/editor/           the editor PWA
                        their GLBs' paths, a model's first record) and modelEdits.ts (the import's file changes) as
                        plain functions; the model worker (model.worker.ts, protocol.ts, modelWorker.ts: packing with
                        @eb/models and Fit collider off the page, Draco from three's own copy); actions.ts (the import,
-                       Add starter kit); placedModels.ts (which placements draw as models, through prefabs and
+                       Add starter kit, Add starter character since M6.5); placedModels.ts (which placements draw as models, through prefabs and
                        overrides) and liveModels.ts (what they need, read and hashed for the space's live copy);
                        modelForm.ts, ModelHead and FitCollider above a model's form, MaterialStart above a
-                       material's; kitEdits.ts and starterKit.ts (the kit, bundled as a lazy chunk);
+                       material's; kitEdits.ts and starterKit.ts (the kit, bundled as a lazy chunk); M6.5: the worker puts
+                       a skinned model on the rig before packing it (modelImport.ts's rigOf: its record's rig and clips),
+                       starterCharacter.ts and bundled.ts (the starter character as a lazy chunk, as the kit is);
                        fileProblems.ts and modelChecks.ts (E070 and W146 in the editor)
   src/play/            the Play panel (M4.1, D51): PlayPanel, and the lazy PlayView (the game played inside @eb/ui's
                        play shell, its saves under edition "playtest", M4.3) and ScreensList (New screen, its
@@ -152,6 +155,16 @@ apps/editor/           the editor PWA
                        nodeFields.ts (each kind's fields, and where each step's problems go); BehaviourOutline.tsx
                        (the outline and its bar, in a behaviour's form) and NodeForm.tsx (the chosen step's form);
                        aiChecks.test.ts (E080, W149, E081 and W148 in the editor, as eb validate gives them)
+  src/anim/            animation (M6.5, D77): animator.ts (an animator run as plain functions: transitions read in order,
+                       blends, rates by speed, pace or phase), mixer.ts (a body's clips laid on three's mixer three ways:
+                       the legs, the upper body under the upper layer, the upper layer), character.ts (the starter
+                       character copied on bones of its own for a figure, the stock animator) and characterLoad.ts (its
+                       GLB decoded, a chunk of its own)
+  src/animators/       an animator in the editor (M6.5, D77): outline.ts (its rows and edits as plain functions: add,
+                       move, remove, rename), AnimatorOutline.tsx (a layer's outline and its bar) and AnimRowForm.tsx (the
+                       chosen row's form, a clip from its model's clips); AnimatorPreview.tsx (the facts set by hand) and
+                       the lazy AnimatorView.tsx (the starter character playing it, window.__ebAnimPreview) with
+                       previewClips.ts (a project model's clips decoded)
   src/encounters/      the fight above an encounter's form (M4.7, D57): fightPreview.ts (the kit's own table from
                        the records at full health, against its fighters, the roster's start or one actor picked;
                        a result in words) and FightPreview.tsx; its styles, styles/encounters.css
@@ -260,7 +273,9 @@ apps/editor/           the editor PWA
                        steps), strike.ts (what a swing reaches), aim.ts (soft aim), arrows.ts (arrows under gravity) and
                        arrowView.ts, fight.ts (the player's and the NPCs' swings and arrows, hits sent, bodies to search, the
                        distance the crowd keeps, the hook's fight()); fight.test.ts, and camp.test.ts, the camp fought through
-                       Rapier and Recast
+                       Rapier and Recast; M6.5 (D77): anims.ts (each body's animator and mixer, stepped every frame within
+                       30 m, every other frame to 60 m and not beyond, by the motion's time; an NPC's speed from how far it
+                       moved; the hook's anims()), anims.test.ts
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -315,7 +330,8 @@ apps/editor/           the editor PWA
                        is the save journal with big files; loot-, stats-, factions-, roster-, events- and dialogue-bench.ts
                        the index with kits; scenes-bench.ts, with ink scenes; debug-bench.ts, the debug tools, M4.9;
                        terrain-bench.ts, dabs, the files, chunks and the ray at 257 and 513, M5.3; environment-bench.ts,
-                       a look worked out and a frame of weather placed, M5.4)
+                       a look worked out and a frame of weather placed, M5.4); anim.bench.ts, a frame of the walk's
+                       animation for the square's thirteen, run by bench.config.ts (M6.5)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share;
@@ -392,7 +408,11 @@ apps/editor/           the editor PWA
                        seeing and halting the player; aiEditor.spec.ts, a watch made for the guard in the outline alone
                        at 1280 and 390 and played; campHelpers.ts, camp.spec.ts, campPhone.spec.ts and campEditor.spec.ts are
                        M6.4's, the camp fought by keys and the mouse, by a stand-in pad and by touch at 360, 390 and sideways,
-                       the hero falling and Back to the camp, and a bandit armed with forms alone at 1280 and 390
+                       the hero falling and Back to the camp, and a bandit armed with forms alone at 1280 and 390;
+                       animHelpers.ts, anim.spec.ts and animPhone.spec.ts are M6.5's, the camp's every frame read through
+                       window.__ebWalk.anims() by keys and by touch at 360, 390 and sideways: idle, walk and run at their
+                       paces, the air, a swing's phases, a bandit down; animEditor.spec.ts, a foreign rig's walk imported,
+                       an animator made in its outline and preview at 1280 and 390, and Ada playing it as her talk opens
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 13)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -466,7 +486,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        walk-to in effect.ts, worldCheck.ts's checkWalkTo (E079); M6.3: follow and stand in effect.ts,
                        aiTypes.ts (behaviour, and an actor's behaviour, sight, cone and hearing), aiCheck.ts (E081 for
                        a node's units, hours, days and points, W148; W150, M6.4); M6.4: fightingTypes.ts (an item's
-                       weapon, an actor's drops and on-fall, W151, checkFightingNames: E082); not pure
+                       weapon, an actor's drops and on-fall, W151, checkFightingNames: E082); M6.5: animatorTypes.ts
+                       (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -504,7 +525,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        npcPlaces.ts's walkersOf (E079's names), world.ts's navmeshes and actors; M6.3: project.json's
                        clock (manifest.ts, projectCheck.ts: E080, W149), packed as format 12, and E081 for a behaviour's
                        points and walking against its actor's space; M6.4: project.json's fighting (manifest.ts: E082),
-                       packed as format 13 with the kit and a space; not pure
+                       packed as format 13 with the kit and a space; M6.5: world.ts packs an actor's animator and the
+                       models its clips come from (worldAnimators.test.ts), models.ts's W152; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -584,8 +606,11 @@ packages/models/       3D models (M5.5, D67), not pure, in the browser and in No
                        writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
                        (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
                        quantize.ts, Meshopt), colliders.ts (box, sphere, capsule as arithmetic), hull.ts (three's
-                       ConvexHull, at most 64 points), lod.ts (meshoptimizer's simplifier); test/shapes.ts (models
-                       made in code, Draco, Meshopt and a KTX2 sign), models-bench.ts
+                       ConvexHull, at most 64 points), lod.ts (meshoptimizer's simplifier); M6.5 (D77): humanoid.ts
+                       (VRM's bones), rigMap.ts (joints mapped by name and held to the hierarchy), normalise.ts (the rest a
+                       T-pose on the world's axes, the binds and keys carried), inPlace.ts (the hips' drift out, the pace
+                       kept), rig.ts (rigModel); test/shapes.ts (models made in code, Draco, Meshopt and a KTX2 sign),
+                       test/rigs.ts (a foreign rig and the engine's, made in code), models-bench.ts
 packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the web build, the single file, the
                        itch.io zip, the repository), html.ts (the page, its boot JSON escaped), sw.ts (the service
                        worker, written for each build), site.ts (manifest, version.json, assetlinks), png.ts and
@@ -686,9 +711,14 @@ tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes
                        pieces.ts (the 21 pieces, the grass since M5.6, their parts by material and their colliders'
                        shapes), kit.ts (the
                        files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
-                       starter-kit/ to it byte for byte and to eb validate
+                       starter-kit/ to it byte for byte and to eb validate; src/character/ and test/character.test.ts
+                       the same for starter-character/ (M6.5)
 starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: 21 pieces dedicated
                        by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
+starter-character/     the starter character (M6.5, D77), written only by `pnpm make:starter-character` from
+                       tools/starter-kit/src/character (skeleton, body, poses, clips, ground, the stock animator):
+                       372 triangles on the rig, 16 clips, its model, materials and stock animator, dedicated by RCJLabs
+                       to CC0; walk.js and the editor carry it, Add starter character copies it in
 tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/records/ from source/, one file per
                        family (ship.ts: parts, the hull and shops; crew.ts; fights.ts; events.ts; quests.ts; board.ts;
                        run.ts), importAll.ts and records.ts (the files as written); test/import.test.ts holds the

@@ -10,6 +10,7 @@ import { fileName, freePath, KIND_FOLDERS } from '../assets/assetPaths.ts';
 import { type Chosen, type Planned, planImport } from '../assets/importPlan.ts';
 import { LIMITS, sizeText } from '../assets/media.ts';
 import { freeId } from '../spaces/spaceFile.ts';
+import type { Packed } from './protocol.ts';
 
 const MODEL_FILE = /\.(glb|gltf)$/i;
 
@@ -127,12 +128,25 @@ export const LOD_START: readonly LodLevel[] = Object.freeze([
 export function modelRecordOf(
   source: string,
   path: string,
-  packed: { readonly triangles: number; readonly collider: ModelCollider },
+  packed: { readonly triangles: number; readonly collider: ModelCollider; readonly rig?: Packed['rig'] },
   taken: ReadonlySet<string>,
 ): { readonly id: string; readonly value: ModelRecord } {
   const name = stemOf(source);
   // idFromName gives "project" for a name with no letter or digit; a model is "model" then.
   const id = freeId(taken, /[\p{L}\p{N}]/u.test(name) ? idFromName(name) : 'model');
-  const lod = packed.triangles > LOD_OVER ? { lod: LOD_START.map((level) => ({ ...level })) } : {};
-  return { id, value: { name, file: path, ...lod, collider: packed.collider } };
+  // A skinned model's LOD levels would each need a skeleton of their own (M6.5): it starts with none.
+  const skinned = packed.rig !== undefined && packed.rig !== null;
+  const lod = packed.triangles > LOD_OVER && !skinned ? { lod: LOD_START.map((level) => ({ ...level })) } : {};
+  return { id, value: { name, file: path, ...lod, collider: packed.collider, ...rigOf(packed.rig ?? null) } };
+}
+
+/**
+ * What a model put on the rig starts with (M6.5, D77): the map from each humanoid bone to its
+ * joint, and its clips with their paces. One whose required bones weren't all found gets neither,
+ * and its record is W152's.
+ */
+export function rigOf(rig: Packed['rig']): Pick<ModelRecord, 'rig' | 'clips'> {
+  if (!rig?.rigged) return {};
+  const clips = rig.clips.map(({ name, length, pace }) => ({ name, length, ...(pace > 0 ? { pace } : {}) }));
+  return { rig: { bones: { ...rig.bones } }, ...(clips.length > 0 ? { clips } : {}) };
 }

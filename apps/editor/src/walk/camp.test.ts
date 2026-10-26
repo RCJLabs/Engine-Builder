@@ -100,7 +100,6 @@ function camp(at: Vec3) {
   fight = createFight(ask, outbox, {
     walker,
     npcs: list,
-    pose: () => {},
     bodies: (uses) => {
       bodies = uses;
     },

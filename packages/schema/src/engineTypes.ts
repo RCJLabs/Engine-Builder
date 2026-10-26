@@ -13,6 +13,7 @@ import {
   type SheetRow,
 } from '@eb/core';
 import { z } from 'zod';
+import { ANIMATOR_DATA } from './animatorTypes.ts';
 import { AUDIO_DATA } from './audioTypes.ts';
 import { condition, valueSchema } from './condition.ts';
 import { effect } from './effect.ts';
@@ -129,7 +130,7 @@ export const SHEET_DATA: DataType = Object.freeze({
 
 /**
  * The engine's own types' forms and checks: flags and sheets (M3.1), sound, ambience and music
- * (M4.8), environments (M5.4), materials and models (M5.5), and foliage (M5.6).
+ * (M4.8), environments (M5.4), materials and models (M5.5), foliage (M5.6) and animators (M6.5).
  */
 export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   FLAG_TYPE,
@@ -139,6 +140,7 @@ export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   MATERIAL_DATA,
   MODEL_DATA,
   FOLIAGE_DATA,
+  ANIMATOR_DATA,
 ]);
 
 export const ENGINE_TYPES: readonly RecordType[] = Object.freeze(ENGINE_DATA.map((d) => d.recordType));

@@ -8,6 +8,7 @@ import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { game, topScreen } from './hutScreens.ts';
 import { fakePad } from './inputHelpers.ts';
+import { jumpHolding, watchHeight } from './jumpHelpers.ts';
 import {
   across,
   dragMouse,
@@ -66,13 +67,10 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
     await holdUntilPast(page, ['KeyD'], 'x', { atLeast: 4 });
     const below = await holdUntil(page, ['KeyW'], (w) => w.feet[2] < 14.5 && across(w) < 0.05);
     expect(near(below.feet[2], 13.35, 0.1)).toBe(true);
-    // Forward held through the jump: in the air, the walk goes only where it is pushed.
-    await page.keyboard.down('KeyW');
-    const rose = await holdUntil(page, ['Space'], (w) => !w.grounded && w.velocity[1] > 0);
-    // Until it lands: in the page's time the walk may run slower than real time.
-    await expect.poll(async () => (await walked(page)).grounded, { intervals: [20] }).toBe(true);
-    await page.keyboard.up('KeyW');
-    expect(rose.feet[1]).toBeGreaterThan(below.feet[1]);
+    // Forward held through the jump: in the air, the walk goes only where it is pushed. Let go as it
+    // lands, in the page's time, which may run slower than real time.
+    const { rose } = await jumpHolding(page, ['KeyW']);
+    expect(rose[1]).toBeGreaterThan(below.feet[1]);
     const on = await settled(page);
     expect(on.feet[2]).toBeLessThan(13);
     expect(near(on.feet[1], 2.02, 0.1)).toBe(true);
@@ -147,14 +145,13 @@ test('the trail walked by keys and the mouse, to the cairn and into the bothy', 
 
   await test.step('a tap of Space, down and up within a frame, still jumps', async () => {
     const before = await settled(page);
+    const top = await watchHeight(page);
     // Down and up in one task of the page's: no frame can come between them.
     await page.getByRole('application', { name: 'Bothy' }).evaluate((box) => {
       for (const type of ['keydown', 'keyup'])
         box.dispatchEvent(new KeyboardEvent(type, { code: 'Space', bubbles: true }));
     });
-    await expect
-      .poll(async () => (await walked(page)).feet[1] - before.feet[1], { intervals: [50] })
-      .toBeGreaterThan(0.3);
+    await expect.poll(async () => (await top()) - before.feet[1], { intervals: [50] }).toBeGreaterThan(0.3);
     await settled(page);
   });
   expect(errors).toEqual([]);

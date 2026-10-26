@@ -61,3 +61,8 @@ export function windupDone(swing: Swing): number {
   const left = lasts(swing.weapon, 'windup');
   return left <= 0 ? 1 : Math.min(1, swing.ms / left);
 }
+
+/** The phase a swing is in, in seconds: how long it lasts and how far in, which an animator's fit states are laid on (M6.5). */
+export function phaseOf(swing: Swing): { length: number; at: number } {
+  return { length: lasts(swing.weapon, swing.phase) / 1000, at: swing.ms / 1000 };
+}

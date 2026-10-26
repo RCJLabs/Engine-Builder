@@ -1,0 +1,130 @@
+{
+  "name": "Starter character",
+  "file": "starter-character/starter-character.glb",
+  "materials": [
+    {
+      "slot": "clothes",
+      "material": "character-clothes"
+    },
+    {
+      "slot": "trim",
+      "material": "character-trim"
+    },
+    {
+      "slot": "skin",
+      "material": "character-skin"
+    },
+    {
+      "slot": "hair",
+      "material": "character-hair"
+    },
+    {
+      "slot": "soles",
+      "material": "character-soles"
+    }
+  ],
+  "collider": {
+    "shape": "capsule",
+    "center": [
+      0,
+      0.875,
+      0
+    ],
+    "radius": 0.3,
+    "height": 1.75
+  },
+  "rig": {
+    "bones": {
+      "hips": "hips",
+      "spine": "spine",
+      "chest": "chest",
+      "upperChest": "upperChest",
+      "neck": "neck",
+      "head": "head",
+      "leftShoulder": "leftShoulder",
+      "leftUpperArm": "leftUpperArm",
+      "leftLowerArm": "leftLowerArm",
+      "leftHand": "leftHand",
+      "rightShoulder": "rightShoulder",
+      "rightUpperArm": "rightUpperArm",
+      "rightLowerArm": "rightLowerArm",
+      "rightHand": "rightHand",
+      "leftUpperLeg": "leftUpperLeg",
+      "leftLowerLeg": "leftLowerLeg",
+      "leftFoot": "leftFoot",
+      "leftToes": "leftToes",
+      "rightUpperLeg": "rightUpperLeg",
+      "rightLowerLeg": "rightLowerLeg",
+      "rightFoot": "rightFoot",
+      "rightToes": "rightToes"
+    }
+  },
+  "clips": [
+    {
+      "name": "idle",
+      "length": 3
+    },
+    {
+      "name": "walk",
+      "length": 1.1,
+      "pace": 1.4
+    },
+    {
+      "name": "run",
+      "length": 0.7,
+      "pace": 4
+    },
+    {
+      "name": "jump",
+      "length": 0.3
+    },
+    {
+      "name": "fall",
+      "length": 0.8
+    },
+    {
+      "name": "land",
+      "length": 0.3
+    },
+    {
+      "name": "windup",
+      "length": 1
+    },
+    {
+      "name": "strike",
+      "length": 1
+    },
+    {
+      "name": "recover",
+      "length": 1
+    },
+    {
+      "name": "draw",
+      "length": 1
+    },
+    {
+      "name": "hold",
+      "length": 1
+    },
+    {
+      "name": "loose",
+      "length": 1
+    },
+    {
+      "name": "hit",
+      "length": 0.4
+    },
+    {
+      "name": "fall-down",
+      "length": 0.8
+    },
+    {
+      "name": "lie",
+      "length": 2
+    },
+    {
+      "name": "talk",
+      "length": 2.5
+    }
+  ]
+}

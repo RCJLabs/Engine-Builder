@@ -1,0 +1,11 @@
+{
+  "files": {
+    "starter-character/starter-character.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-26",
+      "tool": "tools/starter-kit (character)"
+    }
+  }
+}

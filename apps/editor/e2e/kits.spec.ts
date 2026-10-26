@@ -43,6 +43,7 @@ test('kits turned on, their records made with forms, a row giving an item, and t
     'Material (0)',
     'Model (0)',
     'Foliage (0)',
+    'Animator (0)',
   ]);
   const medkit = await newRecord(page, 'item', 'Item', 'Medkit');
   await medkit.getByLabel(/^Value/).fill('30');

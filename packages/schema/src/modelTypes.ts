@@ -35,6 +35,18 @@ export interface ModelSlot {
   readonly material: string;
 }
 
+/** What import wrote of a skinned model put on the rig (M6.5): each humanoid bone, as the joint it was. */
+export interface ModelRig {
+  readonly bones: Readonly<Record<string, string>>;
+}
+
+/** A clip of the model's file, as import listed it; its pace may be set by hand. */
+export interface ModelClip {
+  readonly name: string;
+  readonly length: number;
+  readonly pace?: number;
+}
+
 export interface LodLevel {
   readonly ratio: number;
   readonly from: number;
@@ -48,6 +60,8 @@ export interface ModelRecord {
   readonly materials?: readonly ModelSlot[];
   readonly lod?: readonly LodLevel[];
   readonly collider?: ModelCollider;
+  readonly rig?: ModelRig;
+  readonly clips?: readonly ModelClip[];
 }
 
 /** What each of a collider's shapes needs, in the order a fitted one is written. */
@@ -68,6 +82,45 @@ const vec3 = (label: string, description: string): FieldDef => ({
   label,
   description,
 });
+
+// Written by import (M6.5, D77): a model put on the engine's rig, and its clips.
+const RIG_FIELDS: TypeFile['fields'] = {
+  rig: {
+    kind: 'group',
+    optional: true,
+    label: 'Rig',
+    description: 'Set as it was imported: its skeleton put on the engine’s humanoid rig',
+    fields: {
+      bones: {
+        kind: 'map',
+        of: { kind: 'text', min: 1 },
+        label: 'Bones',
+        description: 'Each humanoid bone, as the joint it was in the file',
+      },
+    },
+  },
+  clips: {
+    kind: 'list',
+    optional: true,
+    label: 'Clips',
+    description: 'Its file’s clips, as import listed them, played in place',
+    of: {
+      kind: 'group',
+      fields: {
+        name: { kind: 'text', min: 1, label: 'Clip' },
+        length: { kind: 'number', min: 0, label: 'Length', description: 'Seconds' },
+        pace: {
+          kind: 'number',
+          min: 0,
+          max: 20,
+          optional: true,
+          label: 'Pace',
+          description: 'Metres a second it was made for: a walk played at the speed moved over it',
+        },
+      },
+    },
+  },
+};
 
 export const MODEL_TYPE_FILE: TypeFile = {
   title: 'Model',
@@ -139,6 +192,7 @@ export const MODEL_TYPE_FILE: TypeFile = {
         },
       },
     },
+    ...RIG_FIELDS,
   },
 };
 

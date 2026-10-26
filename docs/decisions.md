@@ -2219,6 +2219,81 @@ Evan chose on 2026-10-25, from these options:
 - **The stage decides when an NPC strikes,** so a headless run fights only through a stage run in Node (Rapier and Recast), as arrivals and senses already do.
 - **No animation until M6.5:** a wind-up shows as the figure leaning back, a strike as it leaning forward, a fall as the figure lying down.
 
+### D77. M6.5 animates people with a starter character generated in code on the engine's one humanoid rig; clips made for other skeletons are retargeted onto it as they are imported; attacks play on an upper-body layer over the legs; an animator record, edited as an outline with a preview, is the state machine. LOCKED, 2026-10-26 (Evan's calls, M6.5)
+
+Evan chose on 2026-10-26, from these options:
+- **Where the character and its clips come from:**
+  - a mannequin, the rig and about 15 clips written by a script like the starter kit's and dedicated CC0 by RCJLabs;
+  - Quaternius's Universal Animation Library (CC0, 45 free clips of motion-capture quality);
+  - KayKit's character animations (CC0, one shared skeleton).
+  - This container can't reach either site (its network policy refuses them), so the outside packs needed Evan to add the files.
+- **Clips made for other skeletons:** retargeted at import onto one rig the engine names; or played only on models built on the engine's own bones.
+- **Attacking while moving:** an upper-body layer over the legs; or the whole body taken by the swing.
+- **Editing the state machine:** an outline of states and transitions with a 3D preview, as behaviours are edited; or a node graph.
+
+**Decision.**
+- **A starter character generated in code.**
+  - `tools/starter-character` writes a low-poly mannequin, the rig and its clips:
+    - idle, walk, run;
+    - jump, fall, land;
+    - wind-up, strike and recover for a swing;
+    - draw, hold and loose for a bow;
+    - hit, fall down and lie;
+    - talk.
+  - It is written byte for byte, as `pnpm make:starter-kit` writes the kit, and dedicated CC0 by RCJLabs.
+  - The engine's figure becomes it: an actor drawn as a figure (D73) is the starter character in its clothes, trim and skin colours, at its height.
+  - The player is drawn as their actor's look (project.json's `fighting.player`), or as the starter character when there is none.
+  - Add starter character copies it into a project as a model, its materials and an animator, for a project to change.
+  - The motion is keyframed from formulas, so it is plainer than motion capture. A project can import better clips over it.
+- **One rig, retargeted at import.**
+  - The engine's rig is VRM 1.0's humanoid: its bone names, upright, facing −z.
+  - Importing a skinned model maps its joints to those names by known tables (VRM, Mixamo, Unreal, Quaternius, KayKit, Blender's), and the model's form fixes what is left.
+  - The model worker then **normalises** the skeleton once:
+    - each bone's rest is set to a T-pose with its axes along the world's;
+    - the inverse bind matrices take the change, so the mesh still draws as it did;
+    - every clip's keys are carried into that frame, `n = R_parent · q · R_bone⁻¹`.
+  - Any clip then plays on any rigged model in the project by bone name, through three's AnimationMixer, with nothing worked out per frame.
+- **In place.**
+  - A clip's sideways motion of the hips is taken out at import and kept as its **pace** (metres a second), since the character controller moves the body.
+  - A walk or run plays at the speed moved over its pace, so feet don't slide at the speeds the clip was made for.
+- **Two layers.**
+  - The base layer moves the whole body: idle, walk, run, the air, down, talk.
+  - The upper layer, masked to the spine, neck, head and arms, plays a swing or a shot over it.
+  - A state with no clip on the upper layer gives it no weight, and the base shows through.
+- **Animators are records.**
+  - An `animator` record holds each layer's states and transitions:
+    - a state has a clip, whether it loops, and a rate: fixed, by pace, or fit to a phase;
+    - a transition has a condition in the engine's condition text over the stage's `anim.*` facts and a blend time.
+  - An actor's `animator` field picks one. An actor with none uses the engine's stock animator.
+  - The editor edits it as an outline with forms. Above the form, a preview plays the chosen state on the starter character or the actor's own model, with sliders for each fact.
+- **The sim decides; the stage renders.**
+  - Nothing of animation is in the sim or in saves.
+  - A swing's phases are timed by its weapon on the walk's fixed steps (D76). The upper layer's wind-up, strike and recover states are stretched to fit each phase, so the arm comes down in the step the hit is found. A clip never decides a hit.
+
+**As built** (2026-10-26, where the build moved from the above; [specs/animation.md](specs/animation.md) has the detail):
+- **The generator** lives in `tools/starter-kit/src/character`, beside the kit's, and writes `starter-character/`.
+- **An animator names its model once,** as `clips`; a state names a clip by its name and takes another model's with `from`. A rate is `fixed` (with a `speed`), `pace` or `fit`.
+- **The preview plays on the starter character only,** its clips from any model in the project; an actor's own model waits (the spec's open question 5).
+- **A model's Rig form** is a map of bones to joints as text, not yet a choice of the skeleton's joints.
+- **A skinned model starts with no LOD levels:** each level would need a skeleton of its own.
+- **The player** is drawn as the starter character in their actor's figure; a player actor with a model of its own is drawn as the starter character for now.
+- **Animators step by the motion's time,** its fixed steps, so a slow frame doesn't slide the feet; under a talk's pause the NPC talked to goes on moving.
+- **The stock animator runs above 3.5 m/s,** since the walk's own speed is 2.5.
+- **The Scene view** draws a figure as the starter character once its chunk has loaded, and as M6.1's capsule before.
+
+**Why.**
+- **Generated:** it runs offline and here, its licence is RCJLabs' own, and it proves the whole path without a download. Quaternius or KayKit can come in later through the same import.
+- **Retarget at import:** "sharing one rig" means any clip on any character. Doing it once at import keeps a frame's cost to three's mixer alone.
+- **Upper body:** soft aim swings while moving (D76), and whole-body swings would slide the feet.
+- **Outline:** it works at 360 px, as behaviours' outline does (D75); a node graph waits for Phase 8.
+
+**Cost.**
+- **The generated clips look plain.** How they read is untested for feel.
+- **Normalising rewrites an imported skeleton.** A model exported again from the project has the engine's bone names and rest pose, not its author's.
+- **A rest pose the tables can't place** (no upper arm, a creature) imports unrigged until its form maps it; non-humanoid rigs wait.
+- **Skinned models can't be drawn instanced** with the far ring's models (D72). Only near NPCs animate; beyond 60 m they hold their last pose.
+- **walk.js carries the starter character,** so exported games grow by its size, measured in the gate.
+
 ---
 
 ## Open

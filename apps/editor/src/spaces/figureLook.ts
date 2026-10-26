@@ -64,10 +64,20 @@ export const figuresFrom =
   (key, passed) =>
     key.startsWith(`${ACTOR}:`) ? figureOf(key, value(key), passed) : null;
 
-/** What the walk needs of a placed actor: its figure, or null when it draws as a model, and its height. */
+/**
+ * What the walk needs of a placed actor: its figure, or null when it draws as a model, its height,
+ * and the animator it plays (M6.5), null for the stock one.
+ */
 export interface Npc {
   readonly figure: FigureLook | null;
   readonly height: number;
+  readonly animator: string | null;
+}
+
+/** A placed actor's animator, through its placement's overrides: null for the engine's stock one. */
+export function animatorOf(value: unknown, passed: readonly Fields[]): string | null {
+  const animator = recordHere(value, passed).animator;
+  return typeof animator === 'string' ? animator : null;
 }
 
 /** A placed record as an NPC, by its key and what its placement passes on: null for a record that isn't an actor. */
@@ -77,5 +87,9 @@ export const npcsFrom =
   (value: (key: string) => unknown): NpcOf =>
   (key, passed) =>
     key.startsWith(`${ACTOR}:`)
-      ? { figure: figureOf(key, value(key), passed), height: heightOf(value(key), passed) }
+      ? {
+          figure: figureOf(key, value(key), passed),
+          height: heightOf(value(key), passed),
+          animator: animatorOf(value(key), passed),
+        }
       : null;

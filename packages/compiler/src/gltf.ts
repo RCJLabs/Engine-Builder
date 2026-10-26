@@ -15,6 +15,8 @@ export interface GltfSummary {
   readonly slots: readonly string[];
   readonly textures: number;
   readonly animations: number;
+  /** Skins: a skinned model goes on the engine's rig as it is imported (M6.5), or draws unanimated (W152). */
+  readonly skins: number;
   readonly nodes: number;
   readonly extensionsUsed: readonly string[];
   readonly extensionsRequired: readonly string[];
@@ -137,6 +139,7 @@ export function gltfSummary(path: string, bytes: Uint8Array, assets: ReadonlySet
     slots: materials.map(slotName),
     textures: list(json.textures).length,
     animations: list(json.animations).length,
+    skins: list(json.skins).length,
     nodes: list(json.nodes).length,
     extensionsUsed: texts(json.extensionsUsed),
     extensionsRequired: texts(json.extensionsRequired),

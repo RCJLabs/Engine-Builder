@@ -131,6 +131,12 @@ export async function holdUntilPast(
   line: { readonly atLeast?: number; readonly atMost?: number },
   timeout = 30_000,
 ): Promise<Walked> {
+  // Already past, nothing is pressed: the page would let go before the key went down, and the key
+  // would stay held for a round trip (a loaded CI box walked the ford's player 1.3 m on, M6.5).
+  const now = await walked(page);
+  const at = now.feet[axis === 'x' ? 0 : 2];
+  if ((line.atLeast === undefined || at >= line.atLeast) && (line.atMost === undefined || at <= line.atMost))
+    return now;
   const box = page.locator('[data-eb-walk]');
   const past = box.evaluate(
     (element, { codes, at, line }) =>

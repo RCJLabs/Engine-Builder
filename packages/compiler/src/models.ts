@@ -1,6 +1,7 @@
 /**
  * Each model record's file, read as far as its glTF JSON (M5.5, D67, docs/specs/models.md#the-checks):
- * E070 for one the engine can't draw, W146 for a material slot the file has no material of. A file
+ * E070 for one the engine can't draw, W146 for a material slot the file has no material of, W152 for a
+ * skinned one its record doesn't say is on the rig (M6.5). A file
  * that isn't in assets/ is E018 already, from the record's asset field, and isn't read again here.
  * The editor runs the same check after its record index.
  */
@@ -30,6 +31,11 @@ export function modelDiagnostics(record: RecordInput, summary: GltfSummary | str
     path,
   });
   const found = gltfProblems(summary).map((problem) => at('E070', '/file', problem));
+  const rigged = isObject(record.value) && isObject(record.value.rig);
+  if (typeof summary !== 'string' && summary.skins > 0 && !rigged)
+    found.push(
+      at('W152', '/file', 'Its skin isn’t on the engine’s rig: it draws unanimated. Import it again, its bones mapped'),
+    );
   if (typeof summary === 'string' || !isObject(record.value) || !Array.isArray(record.value.materials)) return found;
   record.value.materials.forEach((entry: unknown, i: number) => {
     if (!isObject(entry) || typeof entry.slot !== 'string' || summary.slots.includes(entry.slot)) return;
@@ -39,7 +45,7 @@ export function modelDiagnostics(record: RecordInput, summary: GltfSummary | str
   return found;
 }
 
-/** E070 and W146 over the project's model records, each file read once. */
+/** E070, W146 and W152 over the project's model records, each file read once. */
 export async function checkModels(
   source: ProjectSource,
   records: readonly RecordInput[],

@@ -23,6 +23,7 @@ import {
 import type { CalendarDef, PackFighting } from '@eb/core';
 import { DIALOGUE, TALK } from '@eb/kits';
 import {
+  ANIMATOR,
   type DataType,
   type Diagnostic,
   ENVIRONMENT,
@@ -181,9 +182,10 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
 
 /**
  * The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music
- * (M4.8), its environments (M5.4) and its materials and models (M5.5) are tables like a project's own.
+ * (M4.8), its environments (M5.4), its materials and models (M5.5), its foliage (M5.6) and its
+ * animators (M6.5) are tables like a project's own.
  */
-const ENGINE_ORDER = [SOUND, AMBIENCE, MUSIC, ENVIRONMENT, MATERIAL, MODEL, FOLIAGE];
+const ENGINE_ORDER = [SOUND, AMBIENCE, MUSIC, ENVIRONMENT, MATERIAL, MODEL, FOLIAGE, ANIMATOR];
 const ENGINE_TABLES: ReadonlySet<string> = new Set(ENGINE_ORDER);
 
 /** The spaces and prefabs, read and checked as the compiler reads and checks them for eb validate (compiler/spaces.ts). */

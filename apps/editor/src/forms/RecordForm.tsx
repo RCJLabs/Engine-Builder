@@ -1,6 +1,8 @@
 import { pointerSegment, SHEET } from '@eb/core';
 import { ACTOR, AI, BEHAVIOUR, DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
 import {
+  ANIM_FACTS,
+  ANIMATOR,
   type DataType,
   type Diagnostic,
   ENVIRONMENT,
@@ -12,6 +14,8 @@ import {
 } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { AnimatorOutline } from '../animators/AnimatorOutline.tsx';
+import { AnimatorPreview } from '../animators/AnimatorPreview.tsx';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
 import { SoundPreview } from '../audio/SoundPreview.tsx';
 import { BehaviourOutline, settingsFor } from '../behaviours/BehaviourOutline.tsx';
@@ -196,6 +200,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     ...(quest ? { slots: slotScope(value) } : {}),
     // A behaviour's conditions name the NPC running it as @self (M6.3).
     ...(behaviour ? { slots: () => SELF } : {}),
+    // An animator's conditions read the stage's anim.* facts alone (M6.5).
+    ...(type === ANIMATOR ? { facts: ANIM_FACTS } : {}),
     typeFile,
     id,
     problemsAt: (pointer) => routed.get(pointer) ?? [],
@@ -255,6 +261,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {type === MODEL ? <ModelHead project={project} value={value} /> : null}
         {/* A foliage type starts from a preset (M5.6). */}
         {type === FOLIAGE ? <FoliageStart /> : null}
+        {/* An animator is tried on the starter character (M6.5). */}
+        {type === ANIMATOR ? <AnimatorPreview project={project} value={value} /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;
@@ -262,6 +270,9 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
           if (type === SHEET && name === 'rows') return <SheetRows key={name} value={held} />;
           // A behaviour's Do gets its outline (M6.3); the type file only sketches it.
           if (behaviour && name === 'do') return <BehaviourOutline key={name} project={project} id={id} value={held} />;
+          // An animator's layers get their outlines (M6.5).
+          if (type === ANIMATOR && (name === 'base' || name === 'upper'))
+            return <AnimatorOutline key={name} project={project} layer={name} clips={clipOf(value)} value={held} />;
           return <FieldView key={name} label={labelOf(name, def)} def={def} info={def} path={[name]} value={held} />;
         })}
         <UsedBy project={project} type={type} id={id} />
@@ -271,6 +282,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
 }
 
 const SELF = { self: ACTOR } as const;
+const clipOf = (value: unknown) =>
+  typeof value === 'object' && value !== null ? (value as Record<string, unknown>).clips : undefined;
 
 /** Where the form shows problems: its fields', and for a behaviour each step's and the steps' fields. */
 function shownPointers(project: OpenProject, typeFile: TypeFile, id: string, value: unknown, behaviour: boolean) {

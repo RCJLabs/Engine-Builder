@@ -281,6 +281,7 @@ describe('the engine’s types', () => {
       'material',
       'model',
       'foliage',
+      'animator',
       'item',
     ]);
   });

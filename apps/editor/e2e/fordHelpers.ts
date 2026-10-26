@@ -56,8 +56,8 @@ export async function turnedTo(page: Page, path: keyof typeof PLACED, yaw: numbe
     .toBe(true);
 }
 
-/** The ford imported, its scripts let run, and a new game of it in Play: the ford drawn. */
-export async function openFord(page: Page, touch = false): Promise<Locator> {
+/** The ford imported and open. */
+export async function importFord(page: Page, touch = false): Promise<void> {
   const how = (button: Locator) => (touch ? button.tap() : button.click());
   await page.goto('./');
   await showProject(page);
@@ -67,6 +67,17 @@ export async function openFord(page: Page, touch = false): Promise<Locator> {
   ]);
   await chooser.setFiles(fixtureZip(FORD, 'ford'));
   await expect(openProject(page).getByRole('heading', { name: 'The ford' })).toBeVisible();
+}
+
+/** The ford imported, its scripts let run, and a new game of it in Play: the ford drawn. */
+export async function openFord(page: Page, touch = false): Promise<Locator> {
+  await importFord(page, touch);
+  return playFord(page, touch);
+}
+
+/** The open ford's scripts let run, and a new game of it in Play: the ford drawn. */
+export async function playFord(page: Page, touch = false): Promise<Locator> {
+  const how = (button: Locator) => (touch ? button.tap() : button.click());
   const panel = await showPlay(page);
   await how(panel.getByRole('button', { name: 'Run its scripts' }));
   const play = panel.getByRole('button', { name: 'Play', exact: true });

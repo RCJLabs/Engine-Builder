@@ -13,6 +13,7 @@
     "eb": "node tools/cli/src/cli.ts",
     "import:space-wrecked": "node tools/import-space-wrecked/src/cli.ts",
     "make:starter-kit": "node tools/starter-kit/src/cli.ts",
+    "make:starter-character": "node tools/starter-kit/src/character/cli.ts",
     "make:moor": "node tools/cli/test/fixtures/makeMoor.ts",
     "bake": "node apps/editor/scripts/bake.ts",
     "build": "pnpm --filter @eb/editor build && pnpm --filter @eb/spike-3d build && pnpm build:games",

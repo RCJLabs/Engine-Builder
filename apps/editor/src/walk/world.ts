@@ -17,7 +17,7 @@ import {
   MODEL,
 } from '@eb/schema';
 import type { LiveModels, ModelFileRead } from '../models/liveModels.ts';
-import { type NpcOf, npcsFrom } from '../spaces/figureLook.ts';
+import { animatorOf, FIGURE, type FigureLook, figureOf, type NpcOf, npcsFrom } from '../spaces/figureLook.ts';
 import type { FoliageShown } from '../spaces/foliageView.ts';
 import type { TerrainFiles } from '../spaces/terrainView.ts';
 import { type Streamed, streamedOf } from './footprints.ts';
@@ -38,6 +38,18 @@ export interface WalkSpace {
   readonly models: LiveModels | undefined;
   /** Placed actors (M6.1): each one's figure, or none for a model, and its height. */
   readonly npcs: NpcOf;
+  /** A record of the world by "type:id" (M6.5): animators and the models their clips come from. */
+  readonly record: (key: string) => unknown;
+  /** The player drawn as their actor's figure, or the starter character's own look, and its animator (M6.5). */
+  readonly player: { readonly look: FigureLook; readonly animator: string | null };
+}
+
+/** The player's look: project.json's fighting player's figure, when they have one and no model (M6.5). */
+function playerOf(record: (key: string) => unknown, player: string | undefined): WalkSpace['player'] {
+  const key = `actor:${player}`;
+  const look = player === undefined ? null : figureOf(key, record(key), []);
+  const fallback: FigureLook = { height: FIGURE.height, clothes: FIGURE.clothes, trim: FIGURE.trim, skin: FIGURE.skin };
+  return { look: look ?? fallback, animator: player === undefined ? null : animatorOf(record(key), []) };
 }
 
 const bytesOf = (base64: string | undefined): Uint8Array | null => {
@@ -80,7 +92,7 @@ function modelsOf(world: PackWorld): LiveModels | undefined {
   return { records, fields: new Map(Object.entries(world.fields)), files, materials, key: [...files.keys()].join('|') };
 }
 
-export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
+export function walkSpace(world: PackWorld, id: string, player?: string): WalkSpace | null {
   if (!Object.hasOwn(world.spaces, id)) return null;
   const space = world.spaces[id] as SpaceJson;
   const prefabs = new Map(Object.entries(world.prefabs) as [string, SpaceJson][]);
@@ -125,5 +137,7 @@ export function walkSpace(world: PackWorld, id: string): WalkSpace | null {
     foliage,
     models: modelsOf(world),
     npcs,
+    record: sources.record,
+    player: playerOf(sources.record, player),
   };
 }

@@ -18,6 +18,7 @@ import {
   SIGHT_M,
   TALK,
 } from '@eb/kits';
+import { ANIMATOR } from './animatorTypes.ts';
 import { FALLING_FIELDS } from './fightingTypes.ts';
 import { MODEL } from './modelTypes.ts';
 import type { Fields } from './typeFile.ts';
@@ -34,7 +35,7 @@ const LOOK: Fields = {
     kind: 'group',
     optional: true,
     label: 'Figure',
-    description: 'How the engine draws it without a model: standing, facing the way it is placed',
+    description: 'How the engine draws it without a model: the starter character in these colours, at this height',
     fields: {
       height: {
         kind: 'number',
@@ -48,6 +49,13 @@ const LOOK: Fields = {
       trim: { kind: 'colour', optional: true, label: 'Trim', description: 'The band at its waist' },
       skin: { kind: 'colour', optional: true, label: 'Skin' },
     },
+  },
+  animator: {
+    kind: 'ref',
+    to: ANIMATOR,
+    optional: true,
+    label: 'Animator',
+    description: 'How it moves (M6.5): the engine’s stock animator when left out',
   },
 };
 
