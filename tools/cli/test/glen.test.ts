@@ -107,8 +107,9 @@ describe('eb with the glen', () => {
     if (!resumed.ok) throw new Error(resumed.message);
     // The quests kit's version 3 (M6.6) tracks the supplies quest, its first active. Then the steps
     // replayed start Find your feet, which the save never knew and which starts with the game: the
-    // last started, it is tracked.
+    // last started, it is tracked. The inventory kit's version 3 (M6.8) opens no container differently.
     expect(resumed.report.migrated).toEqual([
+      { module: 'inventory', from: 2, to: 3 },
       { module: 'quests', from: 2, to: 3 },
       { module: 'world', from: 2, to: 5 },
     ]);

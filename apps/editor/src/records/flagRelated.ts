@@ -4,6 +4,7 @@ import {
   AI,
   BEHAVIOUR,
   DIALOGUE,
+  ECONOMY,
   ENCOUNTER,
   ENCOUNTERS,
   EVENT,
@@ -131,6 +132,13 @@ export const encounterRelated = (record: IndexedRecord | undefined): boolean =>
 export const behaviourRelated = (record: IndexedRecord | undefined): boolean =>
   record !== undefined && (record.type === BEHAVIOUR || record.type === ACTOR);
 
+/**
+ * A shop or an actor (M6.8): a shop is warned of when its actor carries nothing and its stock is
+ * empty (W156), so a change to either checks both again.
+ */
+export const merchantRelated = (record: IndexedRecord | undefined): boolean =>
+  record !== undefined && (record.type === SHOP || record.type === ACTOR);
+
 /** The checks that read other records, for the kits on. */
 export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | undefined) => boolean)[] => [
   flagRelated,
@@ -145,4 +153,5 @@ export const relatedFor = (kits: readonly string[]): ((record: IndexedRecord | u
   ...(kits.includes(MAPS) ? [mapRelated] : []),
   ...(kits.includes(ENCOUNTERS) ? [encounterRelated] : []),
   ...(kits.includes(AI) ? [behaviourRelated] : []),
+  ...(kits.includes(ECONOMY) && kits.includes(STATS) ? [merchantRelated] : []),
 ];

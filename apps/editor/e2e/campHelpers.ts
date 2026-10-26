@@ -26,6 +26,7 @@ export interface FightSeen {
   readonly sent: readonly {
     readonly action: { readonly type: string; readonly by?: string; readonly on?: string; readonly weapon?: string };
     readonly sent: string;
+    readonly engaged?: boolean;
   }[];
   readonly bodies: readonly { readonly actor: string; readonly label: string }[];
 }
@@ -51,7 +52,9 @@ export const fallenOf = (seen: FightSeen): string[] =>
 /**
  * The refused hits a fall doesn't explain. A hit sent before the stage heard of a fall, its striker's
  * or its target's, is refused, rightly: it comes after the last hit taken on one of the two that
- * fell, the one that felled them. Any other refusal is the stage sending what the sim won't take.
+ * fell, the one that felled them. So is an NPC's hit sent while the stage's view, a round trip old,
+ * still had it in the fight the sim had taken it out of (M6.8's CI saw Wren's arrow land so). Any
+ * other refusal is the stage sending what the sim won't take.
  */
 export function unexplainedRefusals(seen: FightSeen) {
   const hits = seen.sent.filter((s) => s.action.type === 'fighting/hit');
@@ -62,7 +65,9 @@ export function unexplainedRefusals(seen: FightSeen) {
   const fell = new Set(fallenOf(seen));
   const afterFall = (actor: string | undefined, i: number) =>
     actor !== undefined && fell.has(actor) && i > (lastTaken.get(actor) ?? Number.POSITIVE_INFINITY);
-  return hits.filter((s, i) => s.sent === 'refused' && !afterFall(s.action.by, i) && !afterFall(s.action.on, i));
+  return hits.filter(
+    (s, i) => s.sent === 'refused' && s.engaged !== true && !afterFall(s.action.by, i) && !afterFall(s.action.on, i),
+  );
 }
 
 /** The HUD's first line, as "Health 80 · Arrows 10 · Coin 0". */
@@ -184,8 +189,26 @@ export async function fightUntil(
   }
 }
 
-/** Each body walked up to and searched: its label "Nothing left" once it is. */
-export async function searchAll(page: Page, steer: Steer, timeout = 60_000): Promise<void> {
+/**
+ * The Container screen a search opens (M6.8): everything in it taken, when there is anything, and it
+ * closed, by `press` (a click, or a tap on a phone).
+ */
+export async function takeAllAndClose(page: Page, press: (button: Locator) => Promise<void>): Promise<void> {
+  const close = game(page).getByRole('button', { name: 'Close', exact: true });
+  await expect(close).toBeVisible();
+  const all = game(page).getByRole('button', { name: 'Take all' });
+  if (await all.isEnabled()) await press(all);
+  await press(close);
+  await expect(close).toBeHidden();
+}
+
+/** Each body walked up to and searched: its bag taken from and closed, its label "Nothing left" once it is empty. */
+export async function searchAll(
+  page: Page,
+  steer: Steer,
+  press: (button: Locator) => Promise<void> = (button) => button.click(),
+  timeout = 60_000,
+): Promise<void> {
   const started = Date.now();
   for (;;) {
     const seen = await look(page);
@@ -199,8 +222,10 @@ export async function searchAll(page: Page, steer: Steer, timeout = 60_000): Pro
       () =>
         (window as unknown as { __ebWalk?: { prompt(): { label: string } | null } }).__ebWalk?.prompt()?.label ?? null,
     );
-    if (prompt === 'Search') await steer.use();
-    else await closeOn(steer, seen.me, nearest.at, 1.2, 10);
+    if (prompt === 'Search') {
+      await steer.use();
+      await takeAllAndClose(page, press);
+    } else await closeOn(steer, seen.me, nearest.at, 1.2, 10);
   }
 }
 

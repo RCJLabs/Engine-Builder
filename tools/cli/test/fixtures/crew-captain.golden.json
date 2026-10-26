@@ -6,13 +6,13 @@
   "maxTurns": 1000,
   "runs": {
     "seed-0": {
-      "hash": "f291b4e0fec24698",
+      "hash": "a468786f0c7f2969",
       "facets": {
         "crew": "553ac8ba98f324a6",
-        "economy": "a243d75ebdab785b",
+        "economy": "f2882c28e63f3439",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "0c5ffc454f5d9416",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "9fa02761c2a9c09e",
         "logic": "08f44b07b5901a25",
         "roster": "5d448a3244f9e82f",
         "sheet": "da9d0cae103b40df",
@@ -23,13 +23,13 @@
       "end": "ended"
     },
     "seed-1": {
-      "hash": "520133115a726a9e",
+      "hash": "483e9de8e8f7bb33",
       "facets": {
         "crew": "b4eb9a11db86421b",
-        "economy": "3b6993ddcd0025ea",
+        "economy": "33520975ff5eab68",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "f9c0ec4ec190127a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "575ad89baa60bb02",
         "logic": "08f44b07b5901a25",
         "roster": "925d3b724eb2e01b",
         "sheet": "da9d0cae103b40df",
@@ -40,13 +40,13 @@
       "end": "ended"
     },
     "seed-2": {
-      "hash": "f9a806d038af3e38",
+      "hash": "31d7627c938c09dd",
       "facets": {
         "crew": "b25aff7357f28205",
-        "economy": "b311b30ccf75bcf9",
+        "economy": "1bdf685e1e74b753",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "765489d8352e6a26",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "91b8d3b01b243dee",
         "logic": "08f44b07b5901a25",
         "roster": "4fb7d165b80617d6",
         "sheet": "da9d0cae103b40df",
@@ -57,13 +57,13 @@
       "end": "ended"
     },
     "seed-3": {
-      "hash": "f7acd81afa06423f",
+      "hash": "7f284977c9fa23f2",
       "facets": {
         "crew": "554bc8ba990197d9",
-        "economy": "03d347f05c298bf9",
+        "economy": "3929eff04e0ed653",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "21f75602ba90a58d",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4321cd02e54a8705",
         "logic": "08f44b07b5901a25",
         "roster": "c9b6d05c2c68cf48",
         "sheet": "da9d0cae103b40df",
@@ -74,13 +74,13 @@
       "end": "ended"
     },
     "seed-4": {
-      "hash": "b8e1fa4909125234",
+      "hash": "2e7379344ab3bb0d",
       "facets": {
         "crew": "846e794aeb922ab4",
-        "economy": "5fea2b2a2290b4c8",
+        "economy": "2680a932192ca282",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "e6a9060edc99c342",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "13d45a06c961450a",
         "logic": "08f44b07b5901a25",
         "roster": "22940beff3589483",
         "sheet": "da9d0cae103b40df",
@@ -91,13 +91,13 @@
       "end": "ended"
     },
     "seed-5": {
-      "hash": "6f3a394d123847df",
+      "hash": "177d02c304c8b008",
       "facets": {
         "crew": "81a6f5f9b89d82ce",
-        "economy": "1ccf3dbffc78ff26",
+        "economy": "d5aa72a0f711ff64",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "11bf79c2e33a0c9a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "68b5a7817a2f4622",
         "logic": "08f44b07b5901a25",
         "roster": "40591b1030ed5b89",
         "sheet": "da9d0cae103b40df",
@@ -108,13 +108,13 @@
       "end": "ended"
     },
     "seed-6": {
-      "hash": "7149438179724f7e",
+      "hash": "d2ec5a04d1c36553",
       "facets": {
         "crew": "270ec53b927a8373",
-        "economy": "7cb7604f425cbe1e",
+        "economy": "0c3ea8d29cce54fc",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "cd90395867e69cfd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "d829bd27d7481e35",
         "logic": "08f44b07b5901a25",
         "roster": "59477b4705da17c2",
         "sheet": "da9d0cae103b40df",
@@ -125,13 +125,13 @@
       "end": "ended"
     },
     "seed-7": {
-      "hash": "a351e95c14e6351c",
+      "hash": "5b261bcccffab661",
       "facets": {
         "crew": "554bc8ba990197d9",
-        "economy": "6cb3bf03f6903f8b",
+        "economy": "f3be27dfa19e8829",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "0423ce59ecfc4781",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "75e83f9f3e9a50d9",
         "logic": "08f44b07b5901a25",
         "roster": "f0ec59baea90b377",
         "sheet": "da9d0cae103b40df",
@@ -142,13 +142,13 @@
       "end": "ended"
     },
     "seed-8": {
-      "hash": "1eb9018efb54c69f",
+      "hash": "8b829bda3f3d5100",
       "facets": {
         "crew": "bf4c88294ff50391",
-        "economy": "56f7a0dacd099679",
+        "economy": "11fa5ab2ce4218d3",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "f801b3615457bacd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "7cbe61fcb6c11c45",
         "logic": "08f44b07b5901a25",
         "roster": "31e9da73ba51701f",
         "sheet": "da9d0cae103b40df",
@@ -159,13 +159,13 @@
       "end": "ended"
     },
     "seed-9": {
-      "hash": "69f12884dbdf011a",
+      "hash": "b235697f0ef5071d",
       "facets": {
         "crew": "78148da432b3b2ae",
-        "economy": "098a87dce3189f41",
+        "economy": "b5f0a16c4a9d84db",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "cc8c8f13b44910bd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f1ed4be911ae7bf5",
         "logic": "08f44b07b5901a25",
         "roster": "215225e3be3bbb66",
         "sheet": "da9d0cae103b40df",
@@ -176,13 +176,13 @@
       "end": "ended"
     },
     "seed-10": {
-      "hash": "74066f5fd913978f",
+      "hash": "3da1a6379cf51b58",
       "facets": {
         "crew": "0bc75a5154b05ffc",
-        "economy": "67f7d9d5b4268b05",
+        "economy": "2911e0e1d6b06e0f",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "44027704cabf3607",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "b579490844897493",
         "logic": "08f44b07b5901a25",
         "roster": "fc3eec21e4a06272",
         "sheet": "da9d0cae103b40df",
@@ -193,13 +193,13 @@
       "end": "ended"
     },
     "seed-11": {
-      "hash": "53bbb31352eed267",
+      "hash": "c856a3e853385296",
       "facets": {
         "crew": "913104a440ada973",
-        "economy": "99b99b9c7ca394e6",
+        "economy": "bb7c2a8e3defff24",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "38ebcc5136db02e0",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "1c02f0ae6073e364",
         "logic": "08f44b07b5901a25",
         "roster": "b727f3c08894b4cc",
         "sheet": "da9d0cae103b40df",
@@ -210,13 +210,13 @@
       "end": "ended"
     },
     "seed-12": {
-      "hash": "f76573efa5aee6e8",
+      "hash": "d886799096610f75",
       "facets": {
         "crew": "b4e79a11db825944",
-        "economy": "164d3ef684b23bf6",
+        "economy": "1d3a3c3af77dd7b4",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "ee69fa5fd5fa2e28",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "73117a2642b7b70c",
         "logic": "08f44b07b5901a25",
         "roster": "1096c3a8b91ed1cc",
         "sheet": "da9d0cae103b40df",
@@ -227,13 +227,13 @@
       "end": "ended"
     },
     "seed-13": {
-      "hash": "d96e24a804c5ee04",
+      "hash": "68e07a687c5d936d",
       "facets": {
         "crew": "ba0a1bf93e87940c",
-        "economy": "d157b277414e580f",
+        "economy": "1b835245a6fd9e5d",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "e113764baaeb1929",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "cc9abd12dd1fffc1",
         "logic": "08f44b07b5901a25",
         "roster": "a2d9ace66e58f86e",
         "sheet": "da9d0cae103b40df",
@@ -244,13 +244,13 @@
       "end": "ended"
     },
     "seed-14": {
-      "hash": "564001218d451daf",
+      "hash": "4436d7a1221635c0",
       "facets": {
         "crew": "b4ee9e11db887ebe",
-        "economy": "6237c56083409494",
+        "economy": "bad0d4bf469edd6e",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d2a0fdbf7e9a2767",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "94d0a7041a094573",
         "logic": "08f44b07b5901a25",
         "roster": "fe6a667838e5da98",
         "sheet": "da9d0cae103b40df",
@@ -261,13 +261,13 @@
       "end": "ended"
     },
     "seed-15": {
-      "hash": "fa6286b0b3fb14c3",
+      "hash": "cbd52053b7382a24",
       "facets": {
         "crew": "6935024adbcc0366",
-        "economy": "3b6993ddcd0025ea",
+        "economy": "33520975ff5eab68",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "8cdb9ece9fcc0561",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "dc996c29422b9db9",
         "logic": "08f44b07b5901a25",
         "roster": "ea970f09a7a8be73",
         "sheet": "da9d0cae103b40df",
@@ -278,13 +278,13 @@
       "end": "ended"
     },
     "seed-16": {
-      "hash": "e0763ee4dc904e6a",
+      "hash": "7c22a36e74950c1d",
       "facets": {
         "crew": "b4e09e11db7c4162",
-        "economy": "4a899d91128c73b3",
+        "economy": "43f5d59a3d6089f1",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "eeb5ffb387ebc6b7",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "6ab4e5e515fef443",
         "logic": "08f44b07b5901a25",
         "roster": "caef950910e55d2e",
         "sheet": "da9d0cae103b40df",
@@ -295,13 +295,13 @@
       "end": "ended"
     },
     "seed-17": {
-      "hash": "ff6c451b02e61717",
+      "hash": "657843d2ce827d48",
       "facets": {
         "crew": "42fcc3007aab2e8a",
-        "economy": "c9cee5a19af1fd47",
+        "economy": "ba633455f6de4395",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "a12ee36544394894",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "8b3988e923847ac8",
         "logic": "08f44b07b5901a25",
         "roster": "50be4bfb1ef9e0c3",
         "sheet": "da9d0cae103b40df",
@@ -312,13 +312,13 @@
       "end": "ended"
     },
     "seed-18": {
-      "hash": "78b1eb2bc5062e0d",
+      "hash": "3f0d96c0cec5624e",
       "facets": {
         "crew": "7874ed3512d5e4ae",
-        "economy": "712d7c0619a5ef54",
+        "economy": "f527a90d4af5cc2e",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "46b608c852dcc2ae",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "a1e03d7371a41ef6",
         "logic": "08f44b07b5901a25",
         "roster": "91f69bc1599160c5",
         "sheet": "da9d0cae103b40df",
@@ -329,13 +329,13 @@
       "end": "ended"
     },
     "seed-19": {
-      "hash": "78ed40438907cf26",
+      "hash": "120eb08061e1d313",
       "facets": {
         "crew": "83cdd58e823e1a17",
-        "economy": "077b1f1025fc0ffa",
+        "economy": "099d1d519879ec38",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "1c724175a3f7a61a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "73686f343aecdfa2",
         "logic": "08f44b07b5901a25",
         "roster": "91d1d5db2fb52f3b",
         "sheet": "da9d0cae103b40df",
@@ -346,13 +346,13 @@
       "end": "ended"
     },
     "seed-20": {
-      "hash": "d9f22ba8e44cadf8",
+      "hash": "90d7cebe9a981031",
       "facets": {
         "crew": "c1d091761f61ec4b",
-        "economy": "9c28fcd802a3b717",
+        "economy": "788cb0f9f44ab2a5",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "2e413aa4c5ca7e2e",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "896b6f4fe491da76",
         "logic": "08f44b07b5901a25",
         "roster": "85bc68a307bda164",
         "sheet": "da9d0cae103b40df",
@@ -363,13 +363,13 @@
       "end": "ended"
     },
     "seed-21": {
-      "hash": "750d7cafd4d844db",
+      "hash": "655c173910945d5e",
       "facets": {
         "crew": "5537c4ba98f0e803",
-        "economy": "c75a4bf88f33eb15",
+        "economy": "e4a8589f9831539f",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "3043f671c51ba98a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "ad2647132a764492",
         "logic": "08f44b07b5901a25",
         "roster": "fe475fb283d82eb2",
         "sheet": "da9d0cae103b40df",
@@ -380,13 +380,13 @@
       "end": "ended"
     },
     "seed-22": {
-      "hash": "968b05a49a02968a",
+      "hash": "1f77b14ab1fa11dd",
       "facets": {
         "crew": "02bb31514f746f4c",
-        "economy": "f0b220442ab0ba9a",
+        "economy": "ca8d442b1b9165d8",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "59fffbef0a4e63be",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "134cc3a4d9565006",
         "logic": "08f44b07b5901a25",
         "roster": "e6c1d6614f84c5a9",
         "sheet": "da9d0cae103b40df",
@@ -397,13 +397,13 @@
       "end": "ended"
     },
     "seed-23": {
-      "hash": "434d961a578420fe",
+      "hash": "b4624255d0d49063",
       "facets": {
         "crew": "553ac8ba98f324a6",
-        "economy": "92d41305a89ef158",
+        "economy": "afbfc5cd5d648252",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "6f88924f0ed33275",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "0396cd5c9cf4c96d",
         "logic": "08f44b07b5901a25",
         "roster": "180fc5a643e0e516",
         "sheet": "da9d0cae103b40df",
@@ -414,13 +414,13 @@
       "end": "ended"
     },
     "seed-24": {
-      "hash": "77726faf896e2e42",
+      "hash": "867cfac3b0dca933",
       "facets": {
         "crew": "6f43c4350d7ad7c1",
-        "economy": "0afe5f177baa00bd",
+        "economy": "8ac7ee0892eacee7",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "179d6471cdfca87f",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "336df82875d1becb",
         "logic": "08f44b07b5901a25",
         "roster": "1440731bdc5cf0da",
         "sheet": "da9d0cae103b40df",
@@ -431,13 +431,13 @@
       "end": "ended"
     },
     "seed-25": {
-      "hash": "089dafcbb25f667a",
+      "hash": "9eee1570557bb687",
       "facets": {
         "crew": "b4e79a11db825944",
-        "economy": "5f5a6a1e2ba7b107",
+        "economy": "68d89efc838c1e55",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "51adb0ad6392f3c9",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "e4ba1b79936d3861",
         "logic": "08f44b07b5901a25",
         "roster": "69f42d5709dee980",
         "sheet": "da9d0cae103b40df",
@@ -448,13 +448,13 @@
       "end": "ended"
     },
     "seed-26": {
-      "hash": "3baa2b1cf571b851",
+      "hash": "e7d4944d85473664",
       "facets": {
         "crew": "4c3aabed57152aad",
-        "economy": "dd17fcd766f3b124",
+        "economy": "8c61a5a6e37b66fe",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d30569288a6bfc45",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "d5791a70cd27c53d",
         "logic": "08f44b07b5901a25",
         "roster": "b516e850a4316644",
         "sheet": "da9d0cae103b40df",
@@ -465,13 +465,13 @@
       "end": "ended"
     },
     "seed-27": {
-      "hash": "c85b0dd2b23fd367",
+      "hash": "8150d58bc0eba722",
       "facets": {
         "crew": "81a9f5f9b89fb8a5",
-        "economy": "5f5a6a1e2ba7b107",
+        "economy": "68d89efc838c1e55",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "b9595dc9be384285",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "7aac0af024cef37d",
         "logic": "08f44b07b5901a25",
         "roster": "acfb80b8c7b32854",
         "sheet": "da9d0cae103b40df",
@@ -482,13 +482,13 @@
       "end": "ended"
     },
     "seed-28": {
-      "hash": "a8ba0da34cd74717",
+      "hash": "6cfdb58d7503f4d8",
       "facets": {
         "crew": "ba1e1ff93e9843e2",
-        "economy": "ac76059f0112ec93",
+        "economy": "be64b820a9cb9b51",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "5c3a78af647bd55a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "18d2c832fe4633e2",
         "logic": "08f44b07b5901a25",
         "roster": "19b4b7814f93b493",
         "sheet": "da9d0cae103b40df",
@@ -499,13 +499,13 @@
       "end": "ended"
     },
     "seed-29": {
-      "hash": "bc71c6c5e715573a",
+      "hash": "5515190d2b77d287",
       "facets": {
         "crew": "bf4584294feede17",
-        "economy": "0afe5f177baa00bd",
+        "economy": "8ac7ee0892eacee7",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "e311f694e59f1393",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f9c2e241a26f14cf",
         "logic": "08f44b07b5901a25",
         "roster": "c9fbdd3cff760df1",
         "sheet": "da9d0cae103b40df",
@@ -516,13 +516,13 @@
       "end": "ended"
     },
     "seed-30": {
-      "hash": "d6a8d08d79fc5ca1",
+      "hash": "5b1f63bf77dc0092",
       "facets": {
         "crew": "bf5384294ffb1b73",
-        "economy": "88ffd023a9040d53",
+        "economy": "ace287a6d9054311",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "62e5270506d45c6c",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2f9899fa5776b980",
         "logic": "08f44b07b5901a25",
         "roster": "294cb7a486a8358b",
         "sheet": "da9d0cae103b40df",
@@ -533,13 +533,13 @@
       "end": "ended"
     },
     "seed-31": {
-      "hash": "eae8cade43277eef",
+      "hash": "83738d8316304718",
       "facets": {
         "crew": "0bed5e5154d13605",
-        "economy": "098a87dce3189f41",
+        "economy": "b5f0a16c4a9d84db",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "fb1ec50d77a0bd34",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "92858b52ea1778e8",
         "logic": "08f44b07b5901a25",
         "roster": "5c0753900e6ebe7a",
         "sheet": "da9d0cae103b40df",
@@ -550,13 +550,13 @@
       "end": "ended"
     },
     "seed-32": {
-      "hash": "50c0e5c70054fddf",
+      "hash": "16031a2c8cc061aa",
       "facets": {
         "crew": "d5b92d5cc88e6a40",
-        "economy": "e5f86bf0197efbd8",
+        "economy": "8890308fdd97c4d2",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "3d857d0f80ad841f",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "b86ed3851671796b",
         "logic": "08f44b07b5901a25",
         "roster": "2377d17e6ae7b159",
         "sheet": "da9d0cae103b40df",
@@ -567,13 +567,13 @@
       "end": "ended"
     },
     "seed-33": {
-      "hash": "137d4049cd394b80",
+      "hash": "0b7e44c3d9d120d3",
       "facets": {
         "crew": "d3a1ee8de97b36be",
-        "economy": "1ccf3dbffc78ff26",
+        "economy": "d5aa72a0f711ff64",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "459ba21f988515ec",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "124f1514e9277300",
         "logic": "08f44b07b5901a25",
         "roster": "b7ffe04449cc181a",
         "sheet": "da9d0cae103b40df",
@@ -584,13 +584,13 @@
       "end": "ended"
     },
     "seed-34": {
-      "hash": "aff6af38fb0fd4e0",
+      "hash": "59537808adb42b65",
       "facets": {
         "crew": "bb0e15fb3560c22f",
-        "economy": "bd4e0e671b56b4a1",
+        "economy": "29184a51f38ef53b",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "7fa00e4533c6ef43",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "d5ffae0a983162bf",
         "logic": "08f44b07b5901a25",
         "roster": "9bf6d4906b69bea9",
         "sheet": "da9d0cae103b40df",
@@ -601,13 +601,13 @@
       "end": "ended"
     },
     "seed-35": {
-      "hash": "e8f057b4fd8118e1",
+      "hash": "14451149b3002af6",
       "facets": {
         "crew": "bf4c88294ff50391",
-        "economy": "a1e8ea98bc03e355",
+        "economy": "71c3b1f57fc4f4df",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "92b1f6ca37c94dbd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "b812b39f952eb8f5",
         "logic": "08f44b07b5901a25",
         "roster": "d091339ed1870dc6",
         "sheet": "da9d0cae103b40df",
@@ -618,13 +618,13 @@
       "end": "ended"
     },
     "seed-36": {
-      "hash": "560f0555dddd1cde",
+      "hash": "9a6efc382f6310b9",
       "facets": {
         "crew": "b25dfb7357f4b110",
-        "economy": "42127e221beb2258",
+        "economy": "92753e3b2dca6352",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "de2dd1ba7cc9d49b",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "9ffcf55ee1362e17",
         "logic": "08f44b07b5901a25",
         "roster": "390f4923e9c5ce84",
         "sheet": "da9d0cae103b40df",
@@ -635,13 +635,13 @@
       "end": "ended"
     },
     "seed-37": {
-      "hash": "f9665c9e4437f066",
+      "hash": "afd65317392d5e41",
       "facets": {
         "crew": "0bc15e5154abfb1a",
-        "economy": "704565957a6c9d28",
+        "economy": "8f717c3077a2db62",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "fcf921727dd5afcd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "81b5d00de03f1145",
         "logic": "08f44b07b5901a25",
         "roster": "c611758f0ff3badb",
         "sheet": "da9d0cae103b40df",
@@ -652,13 +652,13 @@
       "end": "ended"
     },
     "seed-38": {
-      "hash": "f1bdd9f76dd3dac4",
+      "hash": "812a55bf50dd8da5",
       "facets": {
         "crew": "5533c4ba98ecff2c",
-        "economy": "6dbd5c0c09df9b62",
+        "economy": "c9415acffe9d4400",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "7571a4f0a265c185",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "36c4521708fc727d",
         "logic": "08f44b07b5901a25",
         "roster": "6bae2f55920e5e47",
         "sheet": "da9d0cae103b40df",
@@ -669,13 +669,13 @@
       "end": "ended"
     },
     "seed-39": {
-      "hash": "62b384fefd29f16b",
+      "hash": "57cafbc05783f904",
       "facets": {
         "crew": "693ffe4adbd6041f",
-        "economy": "a1e8ea98bc03e355",
+        "economy": "71c3b1f57fc4f4df",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "1056a8f73ef3c8ad",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "6ea7e9f5c047dda5",
         "logic": "08f44b07b5901a25",
         "roster": "71e3b44cc753d97c",
         "sheet": "da9d0cae103b40df",
@@ -686,13 +686,13 @@
       "end": "ended"
     },
     "seed-40": {
-      "hash": "c6e18b9a2b109f8d",
+      "hash": "6f01d9c8b2b172dc",
       "facets": {
         "crew": "2729c53b92914b2b",
-        "economy": "04cc81aeeed85485",
+        "economy": "71fb9ed174b0bf8f",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "221cfd54e3223679",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "9aa361012a7b1cd1",
         "logic": "08f44b07b5901a25",
         "roster": "54173cc21df90b3f",
         "sheet": "da9d0cae103b40df",
@@ -703,13 +703,13 @@
       "end": "ended"
     },
     "seed-41": {
-      "hash": "929608e6fb225483",
+      "hash": "4def5b701124f4ce",
       "facets": {
         "crew": "bf4988294ff2cdba",
-        "economy": "c1555e7b4a581340",
+        "economy": "cc98b07cb7288b3a",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "c250d1b726ca937c",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "45bffdbe8f1dd950",
         "logic": "08f44b07b5901a25",
         "roster": "6f73d44bd4bc5757",
         "sheet": "da9d0cae103b40df",
@@ -720,13 +720,13 @@
       "end": "ended"
     },
     "seed-42": {
-      "hash": "700ead8140cddd5c",
+      "hash": "5dfb49a5becb0fd3",
       "facets": {
         "crew": "79654b60fc207683",
-        "economy": "ec675ab2dee7c230",
+        "economy": "625e3192e1292caa",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "07b366ec2416bab8",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "b3b55259384dad1c",
         "logic": "08f44b07b5901a25",
         "roster": "0984b73e386ef7ff",
         "sheet": "da9d0cae103b40df",
@@ -737,13 +737,13 @@
       "end": "ended"
     },
     "seed-43": {
-      "hash": "c7660ddb448bc415",
+      "hash": "8ab0bf0fd94778a4",
       "facets": {
         "crew": "f2baa939f5019d63",
-        "economy": "2c91816ffc01f75f",
+        "economy": "6e1e669c3408736d",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "6948849b189ee84c",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "9c076324074d0ae0",
         "logic": "08f44b07b5901a25",
         "roster": "7c6fa45cd25be202",
         "sheet": "da9d0cae103b40df",
@@ -754,13 +754,13 @@
       "end": "ended"
     },
     "seed-44": {
-      "hash": "1107a33da07e5ec7",
+      "hash": "2a2ca55a46aad87c",
       "facets": {
         "crew": "6f5ec4350d919f79",
-        "economy": "5e665a7a0471a24a",
+        "economy": "e16509ac1e52b448",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "7085619872efcacd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f5421033d5592c45",
         "logic": "08f44b07b5901a25",
         "roster": "f2d2f7fae752d9c0",
         "sheet": "da9d0cae103b40df",
@@ -771,13 +771,13 @@
       "end": "ended"
     },
     "seed-45": {
-      "hash": "78be0ddca90e19ce",
+      "hash": "ea2d48f7f4a4ef6d",
       "facets": {
         "crew": "de69565ccd7bfc43",
-        "economy": "88ffd023a9040d53",
+        "economy": "ace287a6d9054311",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d998ac3d4483fcd8",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4d845aa894a64b3c",
         "logic": "08f44b07b5901a25",
         "roster": "eed84a57172db015",
         "sheet": "da9d0cae103b40df",
@@ -788,13 +788,13 @@
       "end": "ended"
     },
     "seed-46": {
-      "hash": "5083be9c4bf4fc23",
+      "hash": "511779d4818c3bdc",
       "facets": {
         "crew": "b4e79a11db825944",
-        "economy": "d157b277414e580f",
+        "economy": "1b835245a6fd9e5d",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "fc58f7ba52e00222",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "488268f3da8638ea",
         "logic": "08f44b07b5901a25",
         "roster": "734a8ed18178858f",
         "sheet": "da9d0cae103b40df",
@@ -805,13 +805,13 @@
       "end": "ended"
     },
     "seed-47": {
-      "hash": "626b927b4d24983e",
+      "hash": "a4bca6fe54453b73",
       "facets": {
         "crew": "d5b2315cc888525e",
-        "economy": "56f7a0dacd099679",
+        "economy": "11fa5ab2ce4218d3",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "0e49ed3053348f26",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "29ae3708392a62ee",
         "logic": "08f44b07b5901a25",
         "roster": "48f264e73e5856a2",
         "sheet": "da9d0cae103b40df",
@@ -822,13 +822,13 @@
       "end": "ended"
     },
     "seed-48": {
-      "hash": "2481d21993f51509",
+      "hash": "984b7557f9d68f7e",
       "facets": {
         "crew": "7680df5066207292",
-        "economy": "86cd488663959c63",
+        "economy": "fc1eb5bd5f995861",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "60e9dbdd03da456d",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "573ca2d9d9879165",
         "logic": "08f44b07b5901a25",
         "roster": "eeb449af9609579c",
         "sheet": "da9d0cae103b40df",
@@ -839,13 +839,13 @@
       "end": "ended"
     },
     "seed-49": {
-      "hash": "143528031076a823",
+      "hash": "49eefbc53da2a350",
       "facets": {
         "crew": "6ff161ecbc1f3ff9",
-        "economy": "712d7c0619a5ef54",
+        "economy": "f527a90d4af5cc2e",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "16aa6ab9f0d171ce",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "7fefee85b357b896",
         "logic": "08f44b07b5901a25",
         "roster": "6e9e13f7d6d86299",
         "sheet": "da9d0cae103b40df",
@@ -856,13 +856,13 @@
       "end": "ended"
     },
     "seed-50": {
-      "hash": "538da6ad278c5aee",
+      "hash": "b1694994aa4943e5",
       "facets": {
         "crew": "d7e13239e58dbd99",
-        "economy": "86cd488663959c63",
+        "economy": "fc1eb5bd5f995861",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "a1e174adfff8da6d",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "98343baad5a62665",
         "logic": "08f44b07b5901a25",
         "roster": "14c39c33c4c054d1",
         "sheet": "da9d0cae103b40df",
@@ -873,13 +873,13 @@
       "end": "ended"
     },
     "seed-51": {
-      "hash": "229a64ac8624d218",
+      "hash": "f2ff6be60f16bb5f",
       "facets": {
         "crew": "c1c695761f599e92",
-        "economy": "53a597e8edb1571f",
+        "economy": "ea08fe3e7de16f2d",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "dc84c5be6524d9bb",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "129645bc65403e37",
         "logic": "08f44b07b5901a25",
         "roster": "7a0bbc25441d0bfd",
         "sheet": "da9d0cae103b40df",
@@ -890,13 +890,13 @@
       "end": "ended"
     },
     "seed-52": {
-      "hash": "0a9b635f11a6c317",
+      "hash": "c8dffefd960de260",
       "facets": {
         "crew": "ecb0658df768f027",
-        "economy": "6f9b91a1e81cd9cc",
+        "economy": "13faee10a09cb006",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "15d2c72675b7eeba",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "e74280c8700e5342",
         "logic": "08f44b07b5901a25",
         "roster": "1fbaee67c0de3a7c",
         "sheet": "da9d0cae103b40df",
@@ -907,13 +907,13 @@
       "end": "ended"
     },
     "seed-53": {
-      "hash": "86eeef566ea4d61f",
+      "hash": "d22b90e46cb222d4",
       "facets": {
         "crew": "5541c4ba98f93c88",
-        "economy": "be7ef0ef96936a62",
+        "economy": "e68be2622e376300",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "5185b18fbbe6d1e8",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4be37edc8d39ebcc",
         "logic": "08f44b07b5901a25",
         "roster": "4c9cc89f19d8ec6e",
         "sheet": "da9d0cae103b40df",
@@ -924,13 +924,13 @@
       "end": "ended"
     },
     "seed-54": {
-      "hash": "e485c942e87e84e9",
+      "hash": "13606d8e00168374",
       "facets": {
         "crew": "b4f59a11db8e96a0",
-        "economy": "3ee6208524c7da36",
+        "economy": "af81eeba2e6f60f4",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d96125a5882ba54d",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "5e1dd440ea9506c5",
         "logic": "08f44b07b5901a25",
         "roster": "abd327efeb4a90f9",
         "sheet": "da9d0cae103b40df",
@@ -941,13 +941,13 @@
       "end": "ended"
     },
     "seed-55": {
-      "hash": "eb5128e9f9ae288a",
+      "hash": "f35990c01bf49f15",
       "facets": {
         "crew": "673cf6753c158a34",
-        "economy": "921b2cc66316024c",
+        "economy": "f7ae89ebbebdb086",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "eb42253a194d4be5",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4d12678c56cae7dd",
         "logic": "08f44b07b5901a25",
         "roster": "e0876edf5b73b504",
         "sheet": "da9d0cae103b40df",
@@ -958,13 +958,13 @@
       "end": "ended"
     },
     "seed-56": {
-      "hash": "b8da17de6cf30243",
+      "hash": "2807d72d150c1dc8",
       "facets": {
         "crew": "6f46c0350d7d06cc",
-        "economy": "f0b220442ab0ba9a",
+        "economy": "ca8d442b1b9165d8",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "2898064136ab6f17",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "56a3209d932f60a3",
         "logic": "08f44b07b5901a25",
         "roster": "7c6b7fc8e47c376f",
         "sheet": "da9d0cae103b40df",
@@ -975,13 +975,13 @@
       "end": "ended"
     },
     "seed-57": {
-      "hash": "16684f74df8ee686",
+      "hash": "a0497acf488e28f9",
       "facets": {
         "crew": "d8e303295e565d5e",
-        "economy": "ef70179390b2ccd9",
+        "economy": "2e5fe474d3a197b3",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "84017b90998766a9",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "6f88c257cbbc4d41",
         "logic": "08f44b07b5901a25",
         "roster": "c18808f65bd46691",
         "sheet": "da9d0cae103b40df",
@@ -992,13 +992,13 @@
       "end": "ended"
     },
     "seed-58": {
-      "hash": "d59e3e9fadc76b3f",
+      "hash": "06e4dbd3473903d2",
       "facets": {
         "crew": "0c9d178b920af343",
-        "economy": "92d41305a89ef158",
+        "economy": "afbfc5cd5d648252",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "36799930359ffc45",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "38ed4a78785bc53d",
         "logic": "08f44b07b5901a25",
         "roster": "999dd8057a7ff74f",
         "sheet": "da9d0cae103b40df",
@@ -1009,13 +1009,13 @@
       "end": "ended"
     },
     "seed-59": {
-      "hash": "1856c5a466e9d0d7",
+      "hash": "178db4e6306ea516",
       "facets": {
         "crew": "692b024adbc3aee1",
-        "economy": "7b3fcfd29e47d7a0",
+        "economy": "8be524f56f573b1a",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "f53736734550c9b1",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "bd5162592c093cc9",
         "logic": "08f44b07b5901a25",
         "roster": "54c0cb72766b3353",
         "sheet": "da9d0cae103b40df",
@@ -1026,13 +1026,13 @@
       "end": "ended"
     },
     "seed-60": {
-      "hash": "2a33a8ca59bed442",
+      "hash": "474704897d2aa603",
       "facets": {
         "crew": "8c7e7a334af61969",
-        "economy": "6cb3bf03f6903f8b",
+        "economy": "f3be27dfa19e8829",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "6f4995b2adacad0e",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f8a0f7a4d555f1d6",
         "logic": "08f44b07b5901a25",
         "roster": "cc1897e98c99250f",
         "sheet": "da9d0cae103b40df",
@@ -1043,13 +1043,13 @@
       "end": "ended"
     },
     "seed-61": {
-      "hash": "4c5366da7f9d34ec",
+      "hash": "e174c91522e9fc7b",
       "facets": {
         "crew": "819ff1f9b8975d54",
-        "economy": "c91a6fa09f2ac892",
+        "economy": "10408c10fc7ba170",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "051f687163daf320",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2deec802f4b6d8a4",
         "logic": "08f44b07b5901a25",
         "roster": "a41ab409ab20a1f2",
         "sheet": "da9d0cae103b40df",
@@ -1060,13 +1060,13 @@
       "end": "ended"
     },
     "seed-62": {
-      "hash": "75a34cfd22eb8491",
+      "hash": "a57b982b96484932",
       "facets": {
         "crew": "554bc8ba990197d9",
-        "economy": "79f9e6cc84118702",
+        "economy": "36978e16903aad20",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "f7b2b76c05cc1a1a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4ea8e52a9cc153a2",
         "logic": "08f44b07b5901a25",
         "roster": "f43fcb5038b53a69",
         "sheet": "da9d0cae103b40df",
@@ -1077,13 +1077,13 @@
       "end": "ended"
     },
     "seed-63": {
-      "hash": "3c1d76f10bc8eab3",
+      "hash": "6d0d55358e38804e",
       "facets": {
         "crew": "3843f07a6f89a474",
-        "economy": "054e494f0e6da15a",
+        "economy": "63f370fd96b42598",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "2bb98c6c548f3c9b",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "ed88b010b8fb9617",
         "logic": "08f44b07b5901a25",
         "roster": "24d79eeee3694c25",
         "sheet": "da9d0cae103b40df",
@@ -1094,13 +1094,13 @@
       "end": "ended"
     },
     "seed-64": {
-      "hash": "a5874e64840d04f4",
+      "hash": "cc7bfd85415b5c1f",
       "facets": {
         "crew": "5541c4ba98f93c88",
-        "economy": "4b8a29c5931ef359",
+        "economy": "3844f22023d43633",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "9bed65ab6ff0fdd0",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "c358adea28bc2114",
         "logic": "08f44b07b5901a25",
         "roster": "b178bea41aebd701",
         "sheet": "da9d0cae103b40df",
@@ -1111,13 +1111,13 @@
       "end": "ended"
     },
     "seed-65": {
-      "hash": "3668d261f075668a",
+      "hash": "3869b78b28fea579",
       "facets": {
         "crew": "166c8d525b1c46de",
-        "economy": "cfffac03d9c310ce",
+        "economy": "f9ab76d8dc5507ec",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "028abe56d9d59772",
-        "kernel": "594983895cde9005",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "1a9c30afc37540fd",
         "logic": "08f44b07b5901a25",
         "roster": "e510e1a2094bb037",
         "sheet": "da9d0cae103b40df",
@@ -1128,13 +1128,13 @@
       "end": "ended"
     },
     "seed-66": {
-      "hash": "5f286b0438ea5a98",
+      "hash": "66ff141d208564bf",
       "facets": {
         "crew": "0cb11b8b921ba319",
-        "economy": "bc043d5c24fcdb48",
+        "economy": "3065b6dd695f4102",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "689003d8c3a66473",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "df1b6b98f692acaf",
         "logic": "08f44b07b5901a25",
         "roster": "96f388eee69d1714",
         "sheet": "da9d0cae103b40df",
@@ -1145,13 +1145,13 @@
       "end": "ended"
     },
     "seed-67": {
-      "hash": "50ae487c2c916743",
+      "hash": "56242671ef0971e0",
       "facets": {
         "crew": "0bc75a5154b05ffc",
-        "economy": "c076d571cc807af2",
+        "economy": "5e243704ffd0cdd0",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "7d8ddb2668bf8989",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "6d9b30e4b272d021",
         "logic": "08f44b07b5901a25",
         "roster": "26b954ee9496aeff",
         "sheet": "da9d0cae103b40df",
@@ -1162,13 +1162,13 @@
       "end": "ended"
     },
     "seed-68": {
-      "hash": "70a3f22bcae5e254",
+      "hash": "7a5caa23165568a9",
       "facets": {
         "crew": "b4e79a11db825944",
-        "economy": "a36a8124c9091af1",
+        "economy": "321594464324e78b",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "497a90335dcfae95",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2102071864a9658d",
         "logic": "08f44b07b5901a25",
         "roster": "454e9ce50322b9b4",
         "sheet": "da9d0cae103b40df",
@@ -1179,13 +1179,13 @@
       "end": "ended"
     },
     "seed-69": {
-      "hash": "c0a9bf170b421b8e",
+      "hash": "cc19bd2f446328a7",
       "facets": {
         "crew": "692b024adbc3aee1",
-        "economy": "9c28fcd802a3b717",
+        "economy": "788cb0f9f44ab2a5",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "e0916a483e81318f",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "39bcff53216c8f9b",
         "logic": "08f44b07b5901a25",
         "roster": "8cc4869a647509f5",
         "sheet": "da9d0cae103b40df",
@@ -1196,13 +1196,13 @@
       "end": "ended"
     },
     "seed-70": {
-      "hash": "d687ed6866aac402",
+      "hash": "7d1f877f5c409f1b",
       "facets": {
         "crew": "0bc15e5154abfb1a",
-        "economy": "077b1f1025fc0ffa",
+        "economy": "099d1d519879ec38",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "0678dcebfcd493ee",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2a23a513ccd1f636",
         "logic": "08f44b07b5901a25",
         "roster": "059284888b217777",
         "sheet": "da9d0cae103b40df",
@@ -1213,13 +1213,13 @@
       "end": "ended"
     },
     "seed-71": {
-      "hash": "96b0cb84c003f227",
+      "hash": "8cb6d9fac0ce321e",
       "facets": {
         "crew": "02b835514f724041",
-        "economy": "6f9b91a1e81cd9cc",
+        "economy": "13faee10a09cb006",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "08e3583f74aeeb7b",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "bdc0d83c46c2f6f7",
         "logic": "08f44b07b5901a25",
         "roster": "a85e2e439a6bed15",
         "sheet": "da9d0cae103b40df",
@@ -1230,13 +1230,13 @@
       "end": "ended"
     },
     "seed-72": {
-      "hash": "8c740b386f11cec7",
+      "hash": "18c68e5c86731488",
       "facets": {
         "crew": "78078da432a92852",
-        "economy": "b456c625b51c057a",
+        "economy": "30ccb28f1846a9b8",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "aeb187ceb22301cd",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "336e366a148c6345",
         "logic": "08f44b07b5901a25",
         "roster": "3ec3a6015bc50027",
         "sheet": "da9d0cae103b40df",
@@ -1247,13 +1247,13 @@
       "end": "ended"
     },
     "seed-73": {
-      "hash": "24df021684d9bccc",
+      "hash": "ef0f8801bb531b6f",
       "facets": {
         "crew": "b4e09e11db7c4162",
-        "economy": "bd7553e783440e8b",
+        "economy": "1108af71d138a729",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "633cde94faa3765a",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "1fd52e18946dd4e2",
         "logic": "08f44b07b5901a25",
         "roster": "37a67f095f6a0f7b",
         "sheet": "da9d0cae103b40df",
@@ -1264,13 +1264,13 @@
       "end": "ended"
     },
     "seed-74": {
-      "hash": "ea693cde618a4d35",
+      "hash": "2fbca03b36578de6",
       "facets": {
         "crew": "81a2f1f9b899932b",
-        "economy": "67f7d9d5b4268b05",
+        "economy": "2911e0e1d6b06e0f",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "740fa1eb73e5620b",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "a177de26114eba07",
         "logic": "08f44b07b5901a25",
         "roster": "27919e979036b36c",
         "sheet": "da9d0cae103b40df",
@@ -1281,13 +1281,13 @@
       "end": "ended"
     },
     "seed-75": {
-      "hash": "f1440d1d55068e0d",
+      "hash": "896a703b9065c884",
       "facets": {
         "crew": "6f65c0350d97b75b",
-        "economy": "9c28fcd802a3b717",
+        "economy": "788cb0f9f44ab2a5",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "9cfb1a9fbed01ff7",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "a5b19597d6c31483",
         "logic": "08f44b07b5901a25",
         "roster": "691bd44334e65ba4",
         "sheet": "da9d0cae103b40df",
@@ -1298,13 +1298,13 @@
       "end": "ended"
     },
     "seed-76": {
-      "hash": "9fb0bca162214251",
+      "hash": "9a54ee84f2308c48",
       "facets": {
         "crew": "de705a5ccd8221bd",
-        "economy": "704565957a6c9d28",
+        "economy": "8f717c3077a2db62",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "b8bf587217eccb70",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "8dc324c6db468334",
         "logic": "08f44b07b5901a25",
         "roster": "1ef1ed877e915d14",
         "sheet": "da9d0cae103b40df",
@@ -1315,13 +1315,13 @@
       "end": "ended"
     },
     "seed-77": {
-      "hash": "b78431ba85f8475e",
+      "hash": "5837bbb8aca4093f",
       "facets": {
         "crew": "6a00857643f6c88f",
-        "economy": "d157b277414e580f",
+        "economy": "1b835245a6fd9e5d",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "8a36e36dd394c340",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "b5ef7c3acad7ef44",
         "logic": "08f44b07b5901a25",
         "roster": "ce5a0fa428e56794",
         "sheet": "da9d0cae103b40df",
@@ -1332,13 +1332,13 @@
       "end": "ended"
     },
     "seed-78": {
-      "hash": "f0aeb1e3409d3c89",
+      "hash": "9ef892b4d94a20d4",
       "facets": {
         "crew": "02bb31514f746f4c",
-        "economy": "f0b220442ab0ba9a",
+        "economy": "ca8d442b1b9165d8",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "a6c081ba079df7b9",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "00ed1901decf6111",
         "logic": "08f44b07b5901a25",
         "roster": "c2f86c2c1dec027a",
         "sheet": "da9d0cae103b40df",
@@ -1349,13 +1349,13 @@
       "end": "ended"
     },
     "seed-79": {
-      "hash": "58b7495788d0e8cc",
+      "hash": "91d793976bd87bcf",
       "facets": {
         "crew": "7871e93512d3a80b",
-        "economy": "5fea2b2a2290b4c8",
+        "economy": "2680a932192ca282",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "83cbc1a55b62f358",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f7b77010ab8541bc",
         "logic": "08f44b07b5901a25",
         "roster": "0d2c55133fffab6f",
         "sheet": "da9d0cae103b40df",
@@ -1366,13 +1366,13 @@
       "end": "ended"
     },
     "seed-80": {
-      "hash": "241b2ff02c1b1829",
+      "hash": "118910b182e931de",
       "facets": {
         "crew": "83d1d98e824209ba",
-        "economy": "56f7a0dacd099679",
+        "economy": "11fa5ab2ce4218d3",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "76b39a9099404ead",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "d504db8f1a9463a5",
         "logic": "08f44b07b5901a25",
         "roster": "d41e8561c6885bb6",
         "sheet": "da9d0cae103b40df",
@@ -1383,13 +1383,13 @@
       "end": "ended"
     },
     "seed-81": {
-      "hash": "6b01279ddb6bd339",
+      "hash": "ac1804fd4b5c5698",
       "facets": {
         "crew": "de69565ccd7bfc43",
-        "economy": "472e0dba7e78e1a5",
+        "economy": "88e578c4d13cc12f",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "f223d80fd5967d94",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "dc2e7d93b4e1afc8",
         "logic": "08f44b07b5901a25",
         "roster": "9523c314a0670dc2",
         "sheet": "da9d0cae103b40df",
@@ -1400,13 +1400,13 @@
       "end": "ended"
     },
     "seed-82": {
-      "hash": "85841b4572c6ee33",
+      "hash": "a700ae760c75b63e",
       "facets": {
         "crew": "c183be9e4379cbaa",
-        "economy": "37ac71309e633184",
+        "economy": "f210ec56822dc45e",
         "flag": "1dff1b5e0bf63105",
-        "inventory": "028abe56d9d59772",
-        "kernel": "ec182196e43d89b9",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4644b8debb6ef311",
         "logic": "08f44b07b5901a25",
         "roster": "33d229744ad73b03",
         "sheet": "da9d0cae103b40df",
@@ -1417,13 +1417,13 @@
       "end": "ended"
     },
     "seed-83": {
-      "hash": "eb2bd3ef2a97151e",
+      "hash": "d76005295403bc29",
       "facets": {
         "crew": "50780e7635a1b2ea",
-        "economy": "bba2a1995c6937a2",
+        "economy": "7d7210edefb31840",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "60889bd1896fbaa1",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "cf73a81b80e9f9f9",
         "logic": "08f44b07b5901a25",
         "roster": "e60768bc79420a10",
         "sheet": "da9d0cae103b40df",
@@ -1434,13 +1434,13 @@
       "end": "ended"
     },
     "seed-84": {
-      "hash": "124b40bd387f4520",
+      "hash": "ab7d54b8c0079767",
       "facets": {
         "crew": "b4e49e11db802a39",
-        "economy": "a8cc2e9eae1ebeb7",
+        "economy": "ff452a0d708aaa45",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "bb67804be6453ddc",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "4922c5a5548120b0",
         "logic": "08f44b07b5901a25",
         "roster": "529a89f0db60383a",
         "sheet": "da9d0cae103b40df",
@@ -1451,13 +1451,13 @@
       "end": "ended"
     },
     "seed-85": {
-      "hash": "4b77ee3177861f5b",
+      "hash": "1d8af7714a70f02e",
       "facets": {
         "crew": "0bc75a5154b05ffc",
-        "economy": "6c8d5c6fc04f8d43",
+        "economy": "4ff7baaf1ce18d41",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "70e5a023387e0f8f",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "ca11352e1b696d9b",
         "logic": "08f44b07b5901a25",
         "roster": "f16ebac5080c977d",
         "sheet": "da9d0cae103b40df",
@@ -1468,13 +1468,13 @@
       "end": "ended"
     },
     "seed-86": {
-      "hash": "4a4796c50ea0f216",
+      "hash": "1eb78c2e2a483cd9",
       "facets": {
         "crew": "d7f22e39e59c2a00",
-        "economy": "c1555e7b4a581340",
+        "economy": "cc98b07cb7288b3a",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "8f7e4c7244751e4e",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f8c3d03e06fb6516",
         "logic": "08f44b07b5901a25",
         "roster": "3fe07d99fbe07c4c",
         "sheet": "da9d0cae103b40df",
@@ -1485,13 +1485,13 @@
       "end": "ended"
     },
     "seed-87": {
-      "hash": "14bb8efcbe3891ad",
+      "hash": "e43ce8645d459e00",
       "facets": {
         "crew": "9f2da0f92f11779f",
-        "economy": "e5f86bf0197efbd8",
+        "economy": "8890308fdd97c4d2",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "a8bf1c8d82cc6676",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "f06a0c2c1f5f36fe",
         "logic": "08f44b07b5901a25",
         "roster": "a4af2a60eefa61ee",
         "sheet": "da9d0cae103b40df",
@@ -1502,13 +1502,13 @@
       "end": "ended"
     },
     "seed-88": {
-      "hash": "315565bc4d3c0e3a",
+      "hash": "a60c0c34021ffe03",
       "facets": {
         "crew": "7878ed3512d9cd85",
-        "economy": "ac76059f0112ec93",
+        "economy": "be64b820a9cb9b51",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "6e1a050b17cf9778",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "afe4a770b3a445dc",
         "logic": "08f44b07b5901a25",
         "roster": "9a6c43c0f740ddcc",
         "sheet": "da9d0cae103b40df",
@@ -1519,13 +1519,13 @@
       "end": "ended"
     },
     "seed-89": {
-      "hash": "89af97b8b5bbf8c7",
+      "hash": "107892ad256b839c",
       "facets": {
         "crew": "ba0a1bf93e87940c",
-        "economy": "0cc5d23fb1b0aa48",
+        "economy": "4db03e6f98f96002",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "901a65146c8ad5c8",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "fb45ddf2fdc333ac",
         "logic": "08f44b07b5901a25",
         "roster": "f4de54edaae7ff6a",
         "sheet": "da9d0cae103b40df",
@@ -1536,13 +1536,13 @@
       "end": "ended"
     },
     "seed-90": {
-      "hash": "307dc4a471437193",
+      "hash": "70e8a828dd35b6d6",
       "facets": {
         "crew": "554ec4ba9903c6e4",
-        "economy": "bd6cf9531695f267",
+        "economy": "58adacaf0c7f1435",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d493494197b91acc",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "075227ca86673d60",
         "logic": "08f44b07b5901a25",
         "roster": "26f5072e316386eb",
         "sheet": "da9d0cae103b40df",
@@ -1553,13 +1553,13 @@
       "end": "ended"
     },
     "seed-91": {
-      "hash": "b33f577014230fdd",
+      "hash": "e3c2b8318214774e",
       "facets": {
         "crew": "553ac8ba98f324a6",
-        "economy": "c75a4bf88f33eb15",
+        "economy": "e4a8589f9831539f",
         "flag": "d09dde884a634bd5",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d14929e4dacd8adb",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "a1a5980597dd0957",
         "logic": "08f44b07b5901a25",
         "roster": "659073e73308af5c",
         "sheet": "da9d0cae103b40df",
@@ -1570,13 +1570,13 @@
       "end": "ended"
     },
     "seed-92": {
-      "hash": "4790b1ba863fdfe5",
+      "hash": "6edefd61dbc733b0",
       "facets": {
         "crew": "b4e49e11db802a39",
-        "economy": "a36a8124c9091af1",
+        "economy": "321594464324e78b",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "df046622cf494883",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2c8c80239b3565ff",
         "logic": "08f44b07b5901a25",
         "roster": "b26aac35ecb533ce",
         "sheet": "da9d0cae103b40df",
@@ -1587,13 +1587,13 @@
       "end": "ended"
     },
     "seed-93": {
-      "hash": "c7ca914825f8ac69",
+      "hash": "7f54a9baaa7130ba",
       "facets": {
         "crew": "1cdbb022679c83b1",
-        "economy": "e8e1088d590a77db",
+        "economy": "34b7fba3b3d1dbb9",
         "flag": "c941b5884696b9ce",
-        "inventory": "028abe56d9d59772",
-        "kernel": "fa13e209765f03cc",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "2cd2c092650d2660",
         "logic": "08f44b07b5901a25",
         "roster": "c2ffbcec269f43f6",
         "sheet": "da9d0cae103b40df",
@@ -1604,13 +1604,13 @@
       "end": "ended"
     },
     "seed-94": {
-      "hash": "9ac2f41d72d5e388",
+      "hash": "bbb8e9dfe35d328d",
       "facets": {
         "crew": "6a14897644077865",
-        "economy": "3b6993ddcd0025ea",
+        "economy": "33520975ff5eab68",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "9b6c46e438594817",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "c977614094dd39a3",
         "logic": "08f44b07b5901a25",
         "roster": "bbc49d06e90f3fa4",
         "sheet": "da9d0cae103b40df",
@@ -1621,13 +1621,13 @@
       "end": "ended"
     },
     "seed-95": {
-      "hash": "bed139f8fb78b399",
+      "hash": "38327686add46480",
       "facets": {
         "crew": "7878ed3512d9cd85",
-        "economy": "c824b5753d95feb4",
+        "economy": "e73182e574a3ec0e",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "9a0ff0cc32ececd4",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "8fd78e8f007bc008",
         "logic": "08f44b07b5901a25",
         "roster": "9a05a4995bb445de",
         "sheet": "da9d0cae103b40df",
@@ -1638,13 +1638,13 @@
       "end": "ended"
     },
     "seed-96": {
-      "hash": "c6c5f60a25e5fcf1",
+      "hash": "e7daab8d53bc3ff8",
       "facets": {
         "crew": "eb53846c612242df",
-        "economy": "5d99d7b54b69020e",
+        "economy": "6844fa588dafc02c",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "cf83c648113e7a9b",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "9152e9ec75aad417",
         "logic": "08f44b07b5901a25",
         "roster": "3ee4933d0262eeec",
         "sheet": "da9d0cae103b40df",
@@ -1655,13 +1655,13 @@
       "end": "ended"
     },
     "seed-97": {
-      "hash": "de677b437277b5da",
+      "hash": "3f2943c9cdf6c965",
       "facets": {
         "crew": "93b62dc2706ac640",
-        "economy": "054e494f0e6da15a",
+        "economy": "63f370fd96b42598",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "d70feb3fec580c61",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "26cdb89a8eb7a4b9",
         "logic": "08f44b07b5901a25",
         "roster": "3f8f39ef97f7be02",
         "sheet": "da9d0cae103b40df",
@@ -1672,13 +1672,13 @@
       "end": "ended"
     },
     "seed-98": {
-      "hash": "86d3e31540fe28fb",
+      "hash": "97362dd8d82c7b5c",
       "facets": {
         "crew": "ecb7698df76f15a1",
-        "economy": "11a349da077374e2",
+        "economy": "bf5c4d24ae6aa580",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "b595db4e3cfd5abb",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "eba75b4c3d18bf37",
         "logic": "08f44b07b5901a25",
         "roster": "8b4be08e4868c606",
         "sheet": "da9d0cae103b40df",
@@ -1689,13 +1689,13 @@
       "end": "ended"
     },
     "seed-99": {
-      "hash": "0d8850270a545502",
+      "hash": "1a4ae5562821b1bf",
       "facets": {
         "crew": "0bf05a5154d36510",
-        "economy": "c9cee5a19af1fd47",
+        "economy": "ba633455f6de4395",
         "flag": "e2942c8854be4003",
-        "inventory": "028abe56d9d59772",
-        "kernel": "80e20a64cb94ebaa",
+        "inventory": "2aaf7b4bffeacd55",
+        "kernel": "e14fb7427f540b32",
         "logic": "08f44b07b5901a25",
         "roster": "92fb81c9ac5fa54f",
         "sheet": "da9d0cae103b40df",

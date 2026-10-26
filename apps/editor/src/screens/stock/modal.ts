@@ -1,6 +1,7 @@
 /**
  * The stock screens a kit's mode opens over the game (M4.4, D54): a talk, an event, a shop and a
- * hall. Each is modal, so the game shows behind it, and leaves by the kit's own action.
+ * hall, and since M6.8 a container or a body. Each is modal, so the game shows behind it, and leaves
+ * by the kit's own action.
  */
 import type { Screen } from '@eb/ui/format';
 import type { StockContext } from './context.ts';
@@ -33,11 +34,14 @@ export const eventScreen = (ctx: StockContext): Screen => ({
   main: column([text('{event.name}', 'heading'), text('{event.text}'), choices('event')]),
 });
 
+// A shop an actor keeps says what they have left to pay with (M6.8).
+const keeper = (ctx: StockContext) => (ctx.merchants ? [text('{shop.keeper} has {shop.purse}')] : []);
+
 export const shopScreen = (ctx: StockContext): Screen => ({
   title: 'The shop',
   shows: showing(ctx, 'shopping'),
   modal: true,
-  top: row([text('{shop.name}', 'heading'), ...resources(ctx)]),
+  top: row([text('{shop.name}', 'heading'), ...keeper(ctx), ...resources(ctx)]),
   main: {
     widget: 'tabs',
     tabs: [
@@ -66,6 +70,42 @@ export const shopScreen = (ctx: StockContext): Screen => ({
     ],
   },
   bottom: bar([button('Leave', { take: 'economy/leave' })]),
+});
+
+/** A container's or a body's lines to take, the bag's to put in, Take all and Close (M6.8, D80). */
+export const containerScreen = (ctx: StockContext): Screen => ({
+  title: 'A container',
+  shows: showing(ctx, 'container'),
+  modal: true,
+  top: row([text('{container.name}', 'heading')]),
+  main: {
+    widget: 'tabs',
+    tabs: [
+      {
+        label: 'Take',
+        children: [
+          {
+            widget: 'list',
+            of: 'held',
+            empty: 'It is empty.',
+            item: button('Take {.name} ({.count})', { take: 'entry' }),
+          },
+        ],
+      },
+      {
+        label: 'Put',
+        children: [
+          {
+            widget: 'list',
+            of: 'bag',
+            empty: 'You carry nothing.',
+            item: button('Put {.name} ({.count})', { take: 'entry' }),
+          },
+        ],
+      },
+    ],
+  },
+  bottom: bar([button('Take all', { take: 'inventory/take-all' }), button('Close', { take: 'inventory/close' }, true)]),
 });
 
 /** A hall's hires and its way out are the only actions its mode allows, so the actions on offer are the hall. */

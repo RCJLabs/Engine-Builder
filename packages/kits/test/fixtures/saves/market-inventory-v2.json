@@ -1,0 +1,86 @@
+{
+  "format": 1,
+  "game": "market",
+  "edition": "test",
+  "build": "fixture-inventory-v2",
+  "savedAt": 1761480000000,
+  "snapshot": {
+    "kernel": {
+      "seed": "fixture",
+      "step": 0,
+      "modes": [
+        {
+          "id": "town"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "economy": 1,
+        "flag": 1,
+        "inventory": 2,
+        "logic": 1,
+        "time": 1,
+        "town": 1
+      }
+    },
+    "logic": {},
+    "time": {
+      "tick": 0,
+      "carry": 0,
+      "next": 0,
+      "timers": []
+    },
+    "flag": {
+      "values": {}
+    },
+    "inventory": {
+      "bag": {},
+      "bags": {}
+    },
+    "economy": {
+      "amounts": {},
+      "shops": {}
+    },
+    "town": {}
+  },
+  "log": [
+    {
+      "type": "town/do",
+      "effects": [
+        {
+          "effect": "take-item",
+          "actor": "smith",
+          "item": "medkit"
+        },
+        {
+          "effect": "give-item",
+          "item": "medkit"
+        }
+      ]
+    },
+    {
+      "type": "town/visit",
+      "shop": "dutch"
+    },
+    {
+      "type": "economy/buy",
+      "item": "medkit"
+    },
+    {
+      "type": "economy/leave"
+    },
+    {
+      "type": "town/do",
+      "effects": [
+        {
+          "effect": "give-item",
+          "actor": "ferry",
+          "item": "corridor",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "hash": "36b9c3a4f73efb91",
+  "check": "b31513a9f2d6b91b"
+}

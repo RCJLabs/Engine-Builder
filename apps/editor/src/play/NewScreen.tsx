@@ -50,10 +50,14 @@ export function NewScreen(props: {
   const { project, create, cancel } = props;
   const select = useUniqueId();
   const [picked, setPicked] = useState(BLANK);
-  // Offered by the kits alone: what a template reads of the records is filled in as it is written.
+  // Offered by the kits alone, and the game's modes once its scripts have run (the Container, M6.8):
+  // what a template reads of the records is filled in as it is written.
   const kitsOnly = {
     game: '',
     kits: project.catalog.kits,
+    ...(project.game.catalog
+      ? { modes: { start: project.game.catalog.start, all: project.game.catalog.modes, endings: [] } }
+      : {}),
     records: new Map(),
     starting: [],
     screens: [],

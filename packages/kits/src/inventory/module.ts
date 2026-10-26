@@ -2,14 +2,24 @@
  * The inventory kit's module (M3.3, D41, docs/specs/kits.md): the party's bag, the effects that
  * fill and empty it, and loot tables rolled into it. Items are read from content every time, so
  * an item's value or limit changed by an update reaches every save. Since M6.1 (D73), each actor's
- * bag too, named by an effect's `actor` (bags.ts).
+ * bag too, named by an effect's `actor` (bags.ts); since M6.8 (D80), containers and bodies opened, their
+ * lines taken and put one at a time (containers.ts), the kit built with the pack's containers.
  */
-import { defineModule, type Effect, type ModuleContext, type PreviewContext } from '@eb/core';
+import {
+  type Containers,
+  containerKey,
+  defineModule,
+  type Effect,
+  type ModuleContext,
+  NO_CONTAINERS,
+  type PreviewContext,
+} from '@eb/core';
 import { draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from '../loot/draw.ts';
 import { ACTOR } from '../stats/types.ts';
-import { bagOf, bagToWrite, ofWhom, whose } from './bags.ts';
+import { bagOf, bagToWrite, ofWhom, restockBag, whose } from './bags.ts';
+import { close, heldBy, openContainer, openedIn, putIn, takeAll, takeOptions, takeOut } from './containers.ts';
 import { itemRecord, room } from './items.ts';
-import { INVENTORY, type InventorySlice, ITEM, type ItemRecord, rangeOf } from './types.ts';
+import { CONTAINER, INVENTORY, type InventorySlice, ITEM, type ItemRecord, rangeOf } from './types.ts';
 
 /** An effect's `count`: 1 when left out, else a whole number of at least 1. */
 function countOf(effect: Effect): number {
@@ -107,58 +117,130 @@ function previewRoll(ctx: PreviewContext<InventorySlice>, effect: Effect, depth 
 const ITEM_ARG = { item: { type: 'ref', to: ITEM } } as const;
 const ACTOR_ARG = { actor: { type: 'ref', to: ACTOR } } as const;
 const COUNT = { type: 'int', min: 1 } as const;
+const PLACE = { space: { type: 'text' }, object: { type: 'text' } } as const;
 
-export const inventoryKit = defineModule<InventorySlice>({
-  id: INVENTORY,
-  init: () => ({ bag: {}, bags: {} }),
-  // Version 2 (M6.1) adds `bags`: a version 1 save had no bag but the party's, so every actor's is its `carries`.
-  version: 2,
-  migrate: { 2: (slice) => ({ ...(slice as object), bags: {} }) },
-  facts: {
-    count: {
-      args: ITEM_ARG,
-      domain: { type: 'int', min: 0 },
-      label: 'carried',
-      read: ({ state }, { item }) => state.bag[item as string] ?? 0,
+const CONTAINER_MODE = {
+  [CONTAINER]: { actions: ['inventory/take', 'inventory/put', 'inventory/take-all', 'inventory/close'] },
+};
+
+/**
+ * The kit, built with what the pack's containers start with: none for a game without spaces. The
+ * container mode is only a game's that can open one, a container or a body (`bodies`, with the
+ * fighting kit on), so no other game's screens are asked to show it (W133).
+ */
+export function inventoryModule(containers: Containers = NO_CONTAINERS, bodies = false) {
+  const opens = bodies || Object.keys(containers).length > 0;
+  return defineModule<InventorySlice>({
+    id: INVENTORY,
+    init: () => ({ bag: {}, bags: {}, held: {} }),
+    // Version 2 (M6.1) adds `bags`: a version 1 save had no bag but the party's, so every actor's is its `carries`.
+    // Version 3 (M6.8) adds `held`: a version 2 save had opened no container, so every one is the pack's.
+    version: 3,
+    migrate: {
+      2: (slice) => ({ ...(slice as object), bags: {} }),
+      3: (slice) => ({ ...(slice as object), held: {} }),
     },
-    tagged: {
-      args: { tag: { type: 'text' } },
-      domain: { type: 'int', min: 0 },
-      label: 'carried with the tag',
-      // An item a content update took away still sits in old bags: it counts for no tag.
-      read: ({ state, content }, { tag }) =>
-        Object.entries(state.bag).reduce((sum, [id, count]) => {
-          const item = content.has(ITEM, id) ? (content.get(ITEM, id) as ItemRecord) : undefined;
-          return item?.tags?.includes(tag as string) ? sum + count : sum;
-        }, 0),
-    },
-    carried: {
-      args: { ...ACTOR_ARG, ...ITEM_ARG },
-      domain: { type: 'int', min: 0 },
-      label: 'carried by',
-      read: ({ state, content }, { actor, item }) => bagOf(content, state, whose(content, actor))[item as string] ?? 0,
-    },
-  },
-  effects: {
-    'give-item': {
-      run: (ctx, effect) => {
-        itemRecord(ctx.content, effect.item);
-        give(ctx, whose(ctx.content, effect.actor), effect.item as string, countOf(effect));
+    facts: {
+      count: {
+        args: ITEM_ARG,
+        domain: { type: 'int', min: 0 },
+        label: 'carried',
+        read: ({ state }, { item }) => state.bag[item as string] ?? 0,
       },
-      preview: previewGive,
+      tagged: {
+        args: { tag: { type: 'text' } },
+        domain: { type: 'int', min: 0 },
+        label: 'carried with the tag',
+        // An item a content update took away still sits in old bags: it counts for no tag.
+        read: ({ state, content }, { tag }) =>
+          Object.entries(state.bag).reduce((sum, [id, count]) => {
+            const item = content.has(ITEM, id) ? (content.get(ITEM, id) as ItemRecord) : undefined;
+            return item?.tags?.includes(tag as string) ? sum + count : sum;
+          }, 0),
+      },
+      carried: {
+        args: { ...ACTOR_ARG, ...ITEM_ARG },
+        domain: { type: 'int', min: 0 },
+        label: 'carried by',
+        read: ({ state, content }, { actor, item }) =>
+          bagOf(content, state, whose(content, actor))[item as string] ?? 0,
+      },
+      held: {
+        args: { ...PLACE, ...ITEM_ARG },
+        domain: { type: 'int', min: 0 },
+        label: 'held in',
+        read: ({ state, content }, { space, object, item }) =>
+          Object.hasOwn(containers, containerKey(space as string, object as string))
+            ? (heldBy(content, containers, state, { space: space as string, object: object as string })[
+                item as string
+              ] ?? 0)
+            : 0,
+      },
     },
-    'take-item': { run: take, preview: previewTake },
-    'roll-loot': {
-      run: (ctx, effect) => roll(ctx, whose(ctx.content, effect.actor), effect.table as string, 0),
-      preview: (ctx, effect) => previewRoll(ctx, effect),
+    effects: {
+      'give-item': {
+        run: (ctx, effect) => {
+          itemRecord(ctx.content, effect.item);
+          give(ctx, whose(ctx.content, effect.actor), effect.item as string, countOf(effect));
+        },
+        preview: previewGive,
+      },
+      'take-item': { run: take, preview: previewTake },
+      'roll-loot': {
+        run: (ctx, effect) => roll(ctx, whose(ctx.content, effect.actor), effect.table as string, 0),
+        preview: (ctx, effect) => previewRoll(ctx, effect),
+      },
+      'open-container': (ctx, effect) => openContainer(ctx, containers, effect),
+      // The economy kit's, as a merchant's shop restocks (M6.8).
+      'restock-bag': restockBag,
     },
-  },
-  events: {
-    gained: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items go into the bag' },
-    lost: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items leave the bag' },
-    full: { args: { ...ITEM_ARG, lost: COUNT }, label: 'The bag can’t hold all of it' },
-    'actor-gained': { args: { ...ACTOR_ARG, ...ITEM_ARG, count: COUNT }, label: 'Items go into an actor’s bag' },
-    'actor-lost': { args: { ...ACTOR_ARG, ...ITEM_ARG, count: COUNT }, label: 'Items leave an actor’s bag' },
-    'actor-full': { args: { ...ACTOR_ARG, ...ITEM_ARG, lost: COUNT }, label: 'An actor’s bag can’t hold all of it' },
-  },
-});
+    actions: {
+      take: {
+        run: (ctx, action) => takeOut(ctx, containers, action),
+        options: (view) => {
+          const opened = openedIn(view.mode);
+          return opened === undefined
+            ? []
+            : takeOptions(view.content, containers, view.state, opened).map((item) => ({ item }));
+        },
+      },
+      put: {
+        run: (ctx, action) => putIn(ctx, containers, action),
+        options: (view) =>
+          openedIn(view.mode) === undefined
+            ? []
+            : Object.keys(view.state.bag)
+                .sort()
+                .map((item) => ({ item })),
+      },
+      'take-all': {
+        run: (ctx) => takeAll(ctx, containers),
+        options: (view) => {
+          const opened = openedIn(view.mode);
+          return opened !== undefined && takeOptions(view.content, containers, view.state, opened).length > 0
+            ? [{}]
+            : [];
+        },
+      },
+      close: { run: close, options: (view) => (openedIn(view.mode) === undefined ? [] : [{}]) },
+    },
+    modes: opens ? CONTAINER_MODE : {},
+    events: {
+      gained: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items go into the bag' },
+      lost: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items leave the bag' },
+      full: { args: { ...ITEM_ARG, lost: COUNT }, label: 'The bag can’t hold all of it' },
+      'actor-gained': { args: { ...ACTOR_ARG, ...ITEM_ARG, count: COUNT }, label: 'Items go into an actor’s bag' },
+      'actor-lost': { args: { ...ACTOR_ARG, ...ITEM_ARG, count: COUNT }, label: 'Items leave an actor’s bag' },
+      'actor-full': { args: { ...ACTOR_ARG, ...ITEM_ARG, lost: COUNT }, label: 'An actor’s bag can’t hold all of it' },
+      opened: { args: PLACE, label: 'A container is opened' },
+      took: { args: { ...PLACE, ...ITEM_ARG, count: COUNT }, label: 'Items are taken from a container' },
+      put: { args: { ...PLACE, ...ITEM_ARG, count: COUNT }, label: 'Items are put in a container' },
+      closed: { args: PLACE, label: 'A container is closed' },
+    },
+  });
+}
+
+/** The kit with no containers: a game without spaces, or one read before its pack (kitsInWorld). */
+export const inventoryKit = inventoryModule();
+/** And with the fighting kit's bodies to open (M6.4's search, M6.8). */
+export const INVENTORY_WITH_BODIES = inventoryModule(NO_CONTAINERS, true);

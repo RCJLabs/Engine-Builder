@@ -1,0 +1,17 @@
+{
+  "name": "Hild",
+  "description": "Keeps the trading post.",
+  "carries": {
+    "lamp": 1,
+    "bread": 3
+  },
+  "purse": {
+    "coin": 3
+  },
+  "figure": {
+    "height": 1.68,
+    "clothes": "#5a6b3a",
+    "trim": "#c9a227",
+    "skin": "#d8a27a"
+  }
+}

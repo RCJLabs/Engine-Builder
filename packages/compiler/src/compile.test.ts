@@ -961,6 +961,37 @@ describe('the code table', () => {
       [],
     );
     expect(brief(radiant.diagnostics).map((d) => `${d.code} ${d.path}`)).toEqual(['E088 /slots/0/in']);
+    // M6.8: a chest that holds and takes, and a merchant who carries nothing with an empty stock.
+    const bartered = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({
+          format: 1,
+          id: 'post',
+          name: 'Post',
+          version: '0.1.0',
+          kits: ['inventory', 'economy', 'stats'],
+        }),
+        'records/resource/coin.json': JSON.stringify({ name: 'Coin' }),
+        'records/item/bread.json': JSON.stringify({ name: 'Bread' }),
+        'records/actor/hild.json': JSON.stringify({ name: 'Hild', purse: { coin: 5 } }),
+        'records/shop/post.json': JSON.stringify({ name: 'Post', actor: 'hild', currency: 'coin', buys: {} }),
+        'spaces/yard.json': JSON.stringify({
+          name: 'Yard',
+          objects: [
+            {
+              id: 'chest',
+              shape: 'box',
+              components: { interact: { label: 'Open', effects: [], takes: true, holds: { bread: 1 } } },
+            },
+          ],
+        }),
+      }),
+      [],
+    );
+    expect(brief(bartered.diagnostics).map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'W156 records/shop/post.json /actor',
+      'E089 spaces/yard.json /objects/0/components/interact/holds',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -994,6 +1025,7 @@ describe('the code table', () => {
       animated,
       marked,
       radiant,
+      bartered,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

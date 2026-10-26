@@ -37,9 +37,10 @@ export type Action =
 
 /**
  * Where a list's entries come from: the kits' views, what is on offer, and since M4.4 the records
- * of a type (a codex's) and the assets' credits the pack carries.
+ * of a type (a codex's) and the assets' credits the pack carries; since M6.8, what the open
+ * container or body holds.
  */
-export const SOURCES = ['talk', 'event', 'shelf', 'bag', 'journal', 'offered', 'records', 'credits'] as const;
+export const SOURCES = ['talk', 'event', 'shelf', 'bag', 'held', 'journal', 'offered', 'records', 'credits'] as const;
 export type Source = (typeof SOURCES)[number];
 
 /**
@@ -59,6 +60,7 @@ export const SOURCE_FIELDS: Readonly<Record<Source, readonly string[]>> = {
   event: ['label', 'locked', 'why', 'cost', 'odds'],
   shelf: ['item', 'name', 'price', 'count'],
   bag: ['item', 'name', 'count', 'price'],
+  held: ['item', 'name', 'count'],
   journal: ['quest', 'name', 'state', 'log', 'objectives', 'tracked'],
   offered: ['type', 'label'],
   // And the record's own fields whose values are text, numbers or yes/no: its type says which.
@@ -72,13 +74,17 @@ export const SOURCE_KITS: Readonly<Record<Source, string | undefined>> = {
   event: 'events',
   shelf: 'economy',
   bag: 'inventory',
+  held: 'inventory',
   journal: 'quests',
   offered: undefined,
   records: undefined,
   credits: undefined,
 };
 
-/** The views' own fields that templates may name beside facts: the open talk's line, the open event, the open shop. */
+/**
+ * The views' own fields that templates may name beside facts: the open talk's line, the open event,
+ * the open shop, and since M6.8 its keeper and their purse, and the open container's name.
+ */
 export const VIEW_FIELDS: Readonly<Record<string, string | undefined>> = {
   'talk.name': 'dialogue',
   'talk.speaker': 'dialogue',
@@ -86,6 +92,9 @@ export const VIEW_FIELDS: Readonly<Record<string, string | undefined>> = {
   'event.name': 'events',
   'event.text': 'events',
   'shop.name': 'economy',
+  'shop.keeper': 'economy',
+  'shop.purse': 'economy',
+  'container.name': 'inventory',
   'map.name': 'maps',
 };
 

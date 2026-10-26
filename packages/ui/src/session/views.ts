@@ -103,12 +103,35 @@ interface ShelfItem {
   readonly left: number;
 }
 
-/** The open shop's shelf, in its order, each item at the price the economy kit quotes. */
+interface ShopKept {
+  readonly actor?: string;
+  readonly currency?: string;
+}
+
+/**
+ * The open shop's shelf, in its order, each item at the price the economy kit quotes; for a shop an
+ * actor keeps (M6.8), their bag in item id order, and who they are and what their purse holds.
+ */
 export function shelfShows(reading: Reading, shop: string): Shows {
   const slice = reading.state.economy as { shops?: Record<string, { shelf?: readonly ShelfItem[] }> } | undefined;
-  const shelf = slice?.shops?.[shop]?.shelf ?? [];
+  const record = (reading.content.has('shop', shop) ? reading.content.get('shop', shop) : {}) as ShopKept;
+  const { actor, currency } = record;
+  const shelf =
+    actor === undefined
+      ? (slice?.shops?.[shop]?.shelf ?? [])
+      : reading.content
+          .ids('item')
+          .map((item) => ({ item, left: reading.fact('economy.stock', { shop, item }) as number }))
+          .filter((s) => s.left > 0);
+  const kept: Record<string, Shown> =
+    actor === undefined
+      ? {}
+      : {
+          'shop.keeper': nameOf(reading.content, 'actor', actor) ?? actor,
+          'shop.purse': shown(reading.fact('economy.purse', { actor, resource: currency })),
+        };
   return {
-    fields: { 'shop.name': nameOf(reading.content, 'shop', shop) ?? shop },
+    fields: { 'shop.name': nameOf(reading.content, 'shop', shop) ?? shop, ...kept },
     entries: shelf.map(({ item, left }) =>
       entry(
         reading,
@@ -125,8 +148,11 @@ export function shelfShows(reading: Reading, shop: string): Shows {
   };
 }
 
-/** What is carried, in id order; with a shop open, each at its offer and with the action that sells it. */
-export function bagEntries(reading: Reading, shop: string | undefined): Entry[] {
+/**
+ * What is carried, in id order; with a shop open, each at its offer and with the action that sells
+ * it; with a container open instead (M6.8), with the action that puts it in.
+ */
+export function bagEntries(reading: Reading, shop: string | undefined, container = false): Entry[] {
   const slice = reading.state.inventory as { bag?: Record<string, number> } | undefined;
   const bag = slice?.bag ?? {};
   return Object.keys(bag)
@@ -140,9 +166,9 @@ export function bagEntries(reading: Reading, shop: string | undefined): Entry[] 
           item,
           name: nameOf(reading.content, 'item', item) ?? item,
           count: bag[item] ?? 0,
-          price: shop === undefined ? null : shown(reading.fact('economy.offer', { shop, item })),
+          price: shop === undefined || container ? null : shown(reading.fact('economy.offer', { shop, item })),
         },
-        shop === undefined ? undefined : { type: 'economy/sell', item },
+        container ? { type: 'inventory/put', item } : shop === undefined ? undefined : { type: 'economy/sell', item },
       ),
     );
 }

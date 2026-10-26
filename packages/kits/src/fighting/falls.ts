@@ -1,11 +1,10 @@
 /**
  * A fall and a search (D76, docs/specs/combat.md#a-fall): an actor whose health runs out falls once,
  * its drops rolled into its own bag and its on-fall effects run; an NPC lies down in the world
- * module, and the player's game stops in the fallen mode. A body's search moves its whole bag to the
- * party's, each line raised as the inventory kit raises it.
+ * module, and the player's game stops in the fallen mode. A body's search opens the inventory kit's
+ * container mode on its bag (M6.8, D80), where its lines are taken one at a time.
  */
 import type { Action, ModuleContext } from '@eb/core';
-import { ITEM } from '../inventory/types.ts';
 import { bind } from '../quests/slots.ts';
 import { ACTOR } from '../stats/types.ts';
 import { FALLEN, type FightingActor, type FightingDef, type FightingSlice } from './types.ts';
@@ -25,19 +24,14 @@ export function fall(ctx: Ctx, def: FightingDef, actor: string, by: string): voi
   else if (ctx.fact('world.npc-space', { actor }) !== undefined) ctx.apply({ effect: 'fall', actor });
 }
 
-/** `fighting/search { actor }`: a fallen NPC's whole bag into the party's. */
+/** `fighting/search { actor }`: a fallen NPC's bag opened, to take from and put into. */
 export function search(ctx: Ctx, def: FightingDef | undefined, action: Action): void {
   if (def === undefined) ctx.refuse('not-walked');
   const { actor } = action as Action & { actor?: unknown };
   if (typeof actor !== 'string' || !ctx.content.has(ACTOR, actor)) ctx.refuse('bad-search');
   if (!ctx.read().fallen.includes(actor) || actor === def.player) ctx.refuse('not-fallen', { actor });
   if (!inSpace(ctx, actor)) ctx.refuse('elsewhere', { actor });
-  for (const item of ctx.content.ids(ITEM)) {
-    const count = ctx.fact('inventory.carried', { actor, item }) as number;
-    if (count === 0) continue;
-    ctx.apply({ effect: 'take-item', actor, item, count });
-    ctx.apply({ effect: 'give-item', item, count });
-  }
+  ctx.apply({ effect: 'open-container', actor });
   const slice = ctx.write() as { searched: readonly string[] };
   if (!slice.searched.includes(actor)) slice.searched = [...slice.searched, actor].sort();
   ctx.emit('searched', { actor });

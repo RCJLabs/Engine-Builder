@@ -26,6 +26,7 @@ import {
 import { FALLEN } from '@eb/kits';
 import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
+import { heldShows, openedOf } from './containers.ts';
 import { type FightView, fightOf } from './fighting.ts';
 import { mapShows } from './mapView.ts';
 import { markersOf, type QuestMarker } from './markers.ts';
@@ -94,6 +95,8 @@ export interface PlaySetup {
   readonly credits?: readonly PackCredit[];
   /** project.json's fighting (M6.4), in a game with spaces: the stage's view of the fights reads it. */
   readonly fighting?: PackFighting;
+  /** Each container's name by `space/object` (M6.8), for the Container screen's heading. */
+  readonly containers?: Readonly<Record<string, string>>;
 }
 
 interface Read {
@@ -144,7 +147,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     for (const [text, condition] of wants.conditions) {
       conditions[text] = condition ? game.check(state, condition, sim) : null;
     }
-    const { fields, lists, map } = kitViews(reading, kits);
+    const { fields, lists, map } = kitViews(reading, kits, setup.containers ?? {});
     for (const codex of wants.codexes) lists[codex.key] = codexEntries(reading, codex);
     if (credits) lists.credits = credits;
     lists.offered = offered.map((action, i) => ({
@@ -228,8 +231,11 @@ function worldOf(
   };
 }
 
-/** The talk, the event, the shop and the bag while each applies, the journal and the map, by the kits that are on. */
-function kitViews(reading: Reading, kits: readonly string[]) {
+/**
+ * The talk, the event, the shop, the open container (M6.8) and the bag while each applies, the
+ * journal and the map, by the kits that are on.
+ */
+function kitViews(reading: Reading, kits: readonly string[], containers: Readonly<Record<string, string>>) {
   const fields: Record<string, Shown> = {};
   const lists: Record<string, readonly Entry[]> = {};
   const data = (mode: string, key: string) => {
@@ -254,7 +260,15 @@ function kitViews(reading: Reading, kits: readonly string[]) {
     Object.assign(fields, shows.fields);
     lists.shelf = shows.entries;
   }
-  if (kits.includes('inventory')) lists.bag = bagEntries(reading, shop);
+  const opened = kits.includes('inventory') ? openedOf(frameOf(reading.state, 'container')?.data) : undefined;
+  if (opened !== undefined) {
+    const shows = heldShows(reading, opened, containers);
+    Object.assign(fields, shows.fields);
+    lists.held = shows.entries;
+  }
+  // The bag puts into a container while one is the mode on top, and sells while a shop is.
+  const putting = opened !== undefined && reading.state.kernel.modes.at(-1)?.id === 'container';
+  if (kits.includes('inventory')) lists.bag = bagEntries(reading, shop, putting);
   if (kits.includes('quests')) lists.journal = journalEntries(reading);
   const map = kits.includes('maps') ? mapShows(reading) : undefined;
   if (map) fields['map.name'] = map.name;

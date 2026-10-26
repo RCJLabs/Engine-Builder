@@ -66,6 +66,15 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
         label: 'Takes',
         description: 'Using it takes the object: it is gone, and stays gone in saves',
       },
+      // M6.8 (D80): a chest, a barrel, a sack: using it opens these to take from and put into.
+      holds: {
+        kind: 'map',
+        key: { kind: 'ref', to: 'item' },
+        of: { kind: 'int', min: 1 },
+        optional: true,
+        label: 'Holds',
+        description: 'A container: using it opens what it holds, by item, to take from and put into',
+      },
     },
   },
   spawn: {

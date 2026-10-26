@@ -18,7 +18,7 @@ import { type ParsedFile, parseJsonFile } from './decode.ts';
 import { ASSETS_DIR, ASSETS_LOG, classifyRecordFile, MANIFEST_FILE, RECORDS_DIR } from './layout.ts';
 import { checkManifest } from './manifest.ts';
 import type { ProjectSource } from './source.ts';
-import { classifySpaceFile, SPACES_DIR } from './spaceFiles.ts';
+import { classifySpaceFile, PREFABS_DIR, SPACES_DIR } from './spaceFiles.ts';
 import { type ProjectTypes, readTypes } from './types.ts';
 
 export interface Report {
@@ -108,16 +108,20 @@ export interface KitSettings {
   readonly clock?: ClockDef;
   /** project.json's fighting (M6.4, D76), when it is sound and the fighting kit on. */
   readonly fighting?: PackFighting;
+  /** An interact in a space or a prefab holds items (M6.8, D80): its game has the container mode. */
+  readonly holds?: true;
 }
 
 /** The kits project.json turns on and its calendar, for a caller that reads nothing else: none when it is missing or unsound. */
 export async function readKitSettings(source: ProjectSource): Promise<KitSettings> {
   const { project } = await readManifestFile(source, () => {});
   const spaces = await hasSpaces(source);
+  const holds = spaces && (await holdsItems(source));
   return {
     kits: project?.kits ?? [],
     ...(project?.calendar ? { calendar: project.calendar } : {}),
     ...(spaces ? { spaces } : {}),
+    ...(holds ? { holds } : {}),
     ...(project?.clock ? { clock: project.clock } : {}),
     ...(project?.fighting ? { fighting: project.fighting } : {}),
   };
@@ -151,6 +155,30 @@ async function readManifestFile(
 
 const hasSpaces = async (source: ProjectSource) =>
   (await source.files(SPACES_DIR)).some((path) => classifySpaceFile(path).kind === 'space');
+
+/** Whether a space's or a prefab's interact, or an override of one, holds items (M6.8); one that won't read holds none. */
+async function holdsItems(source: ProjectSource): Promise<boolean> {
+  for (const dir of [SPACES_DIR, PREFABS_DIR]) {
+    for (const path of await source.files(dir)) {
+      const kind = classifySpaceFile(path).kind;
+      if (kind !== 'space' && kind !== 'prefab') continue;
+      const bytes = await source.read(path);
+      const text = bytes === undefined ? '' : new TextDecoder().decode(bytes);
+      if (!text.includes('"holds"')) continue;
+      const parsed = parseJsonFile(bytes as Uint8Array);
+      if (parsed.ok && anyHolds(parsed.value)) return true;
+    }
+  }
+  return false;
+}
+
+const anyHolds = (value: unknown): boolean => {
+  if (Array.isArray(value)) return value.some(anyHolds);
+  if (typeof value !== 'object' || value === null) return false;
+  const interact = (value as { interact?: unknown }).interact;
+  if (typeof interact === 'object' && interact !== null && 'holds' in interact) return true;
+  return Object.values(value).some(anyHolds);
+};
 
 /**
  * The clock a project's spaces are walked at (M6.3, D75): with the time kit on and a space, the

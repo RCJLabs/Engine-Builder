@@ -202,6 +202,6 @@ A kit's type can carry fields a project adds (D41): `types/item.json`, in the ty
 ## Open questions
 
 1. **Rules on selling.** A shop's rules change what it charges, not what it pays. A friend's better offer would need rules of its own on selling.
-2. **Selling to the shelf.** What the party sells is gone, as in Space-Wrecked; Bethesda's merchants put it on the shelf to buy back.
-3. **Bags of other actors** and containers (Phase 6, D41).
+2. **Selling to the shelf.** What the party sells is gone, as in Space-Wrecked; Bethesda's merchants put it on the shelf to buy back. Answered for a shop with an actor by M6.8 ([barter.md](barter.md), D80): it goes into their bag.
+3. **Bags of other actors** and containers (Phase 6, D41): actors' bags came with M6.1 (D73), containers and purses with M6.8 ([barter.md](barter.md), D80).
 4. **`eb` exporting the kits,** so a game.ts can place a kit's module among its own.

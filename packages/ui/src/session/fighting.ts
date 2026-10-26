@@ -31,6 +31,8 @@ export interface FightView {
   readonly weapons: Readonly<Record<string, WeaponView>>;
   readonly fallen: readonly string[];
   readonly searched: readonly string[];
+  /** The bodies searched with nothing left in their bags (M6.8): a search opens what is left. */
+  readonly emptied: readonly string[];
   /** The NPCs striking the player now, at most two (D76). */
   readonly engaged: readonly string[];
 }
@@ -78,6 +80,9 @@ export function fightOf(
     weapons,
     fallen: slice.fallen,
     searched: slice.searched,
+    emptied: slice.searched.filter((actor) =>
+      content.ids('item').every((item) => fact('inventory.carried', { actor, item }) === 0),
+    ),
     engaged: here.filter((actor) => npcEngaged(world.npcs, actor)),
   };
 }

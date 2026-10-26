@@ -86,9 +86,13 @@ export async function act(region: Locator, name: string): Promise<void> {
   await hit(bar(region).getByRole('button', { name, exact: true }));
 }
 
-/** Ticks a box whose state is the file's: it shows ticked once the edit lands. */
+/**
+ * Ticks a box whose state is the file's: it shows ticked once the edit lands. A checkbox by role, as
+ * the frame's drawn screen can bear the same name: a blank screen's title is its id until the Title
+ * typed before lands (CI saw "hut" match both).
+ */
 export async function tick(region: Locator, label: string): Promise<void> {
-  const box = region.getByLabel(label, { exact: true });
+  const box = region.getByRole('checkbox', { name: label, exact: true });
   await hit(box);
   await expect(box).toBeChecked();
 }

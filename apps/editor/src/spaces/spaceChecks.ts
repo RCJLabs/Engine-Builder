@@ -87,6 +87,7 @@ export async function spaceProblems(
     assets: new Set(catalog.assets),
     spaces: spawns,
     walkers,
+    kits: catalog.kits,
   });
   // A navmesh baked from the space as it stands now (M6.2), as the compiler checks it.
   const models = navModelsOf({

@@ -1,5 +1,13 @@
 /** The kits' modules (M3.3, D41), apart from the list of kits so that reading the list costs no sim code. */
-import { type CalendarDef, type ClockDef, type Module, type PackWorld, type WorldPlaces, worldDataOf } from '@eb/core';
+import {
+  type CalendarDef,
+  type ClockDef,
+  containersOf,
+  type Module,
+  type PackWorld,
+  type WorldData,
+  worldDataOf,
+} from '@eb/core';
 import { aiModule } from './ai/module.ts';
 import { AI } from './ai/types.ts';
 import { dialogueModule } from './dialogue/module.ts';
@@ -15,7 +23,8 @@ import { fightingModule } from './fighting/module.ts';
 import { FIGHTING, type FightingDef } from './fighting/types.ts';
 import { gearKit } from './gear/module.ts';
 import { GEAR } from './gear/types.ts';
-import { inventoryKit } from './inventory/module.ts';
+import { INVENTORY_WITH_BODIES, inventoryKit, inventoryModule } from './inventory/module.ts';
+import { INVENTORY } from './inventory/types.ts';
 import { KITS } from './kits.ts';
 import { mapsModule } from './maps/module.ts';
 import { MAPS } from './maps/types.ts';
@@ -56,15 +65,17 @@ const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
  * The modules of the kits on, in the engine's order; the time kit's with the project's calendar
  * (M3.5), and its clock when its spaces are walked (M6.3); the fighting kit's with project.json's
  * fighting when it has a world (M6.4), and the ai kit's hearing its hits when it is on; the quests
- * kit's with the world's places, where its slots find spaces and what is in them (M6.7).
+ * kit's with the world's places, where its slots find spaces and what is in them (M6.7); the inventory
+ * kit's with the world's containers, the uses that hold items (M6.8).
  */
 export function kitModules(
   on: readonly string[],
   calendar?: CalendarDef,
   clock?: ClockDef,
   fighting?: FightingDef,
-  places?: WorldPlaces,
+  world?: Pick<WorldData, 'places' | 'uses'>,
 ): Module[] {
+  const places = world?.places;
   return KITS.filter((kit) => on.includes(kit.id)).map((kit) => {
     if (kit.id === STATS) return on.includes(GEAR) ? STATS_WITH_GEAR : STATS_ALONE;
     if (kit.id === TIME) return timeKit(calendar, clock);
@@ -79,17 +90,30 @@ export function kitModules(
     if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR, on.includes(FIGHTING));
     if (kit.id === FIGHTING) return fightingModule(fighting);
     if (kit.id === QUESTS) return places === undefined ? QUESTS_ALONE : questsModule(places);
+    if (kit.id === INVENTORY) return inventoryOf(world?.uses, on.includes(FIGHTING));
     return MODULES.get(kit.id) as Module;
   });
 }
 
+/** The inventory kit with the world's containers, or one of its two builds when none of its uses holds items. */
+function inventoryOf(uses: WorldData['uses'] | undefined, bodies: boolean): Module {
+  const containers = containersOf(uses);
+  if (Object.keys(containers).length > 0) return inventoryModule(containers, bodies);
+  return bodies ? INVENTORY_WITH_BODIES : inventoryKit;
+}
+
 /**
- * The game's modules with the quests kit's built with the pack's places (M6.7): for a game read before
+ * The game's modules with the quests kit's built with the pack's places (M6.7), and the inventory kit's
+ * with its containers (M6.8): for a game read before
  * its world was known, as eb sim's and the editor's Run are, beside core's withPackWorld. A game's own
  * module of the kit's id is left as it is.
  */
 export function kitsInWorld(modules: readonly Module[], world: PackWorld | undefined): readonly Module[] {
   if (world === undefined) return modules;
-  const { places } = worldDataOf(world);
-  return modules.map((m) => (m === QUESTS_ALONE && places !== undefined ? questsModule(places) : m));
+  const { places, uses } = worldDataOf(world);
+  return modules.map((m) => {
+    if (m === QUESTS_ALONE && places !== undefined) return questsModule(places);
+    if (m === inventoryKit || m === INVENTORY_WITH_BODIES) return inventoryOf(uses, m === INVENTORY_WITH_BODIES);
+    return m;
+  });
 }

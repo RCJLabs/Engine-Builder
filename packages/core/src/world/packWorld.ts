@@ -1,4 +1,5 @@
 import { isRecordId } from '../records.ts';
+import { holdsProblem } from './containers.ts';
 import { mapsProblem, type PackMap } from './packMaps.ts';
 import { type PackPlaces, packPlacesProblem, worldPlacesOf } from './places.ts';
 import type { Placed, Triggers, Uses, WorldData } from './types.ts';
@@ -125,7 +126,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   if (key !== undefined) return `"${key}" is not a record's type and id`;
   if (!allOf(fields, (field) => typeof field === 'string')) return "The pack's model fields are not text";
   return (
-    (format >= 10 ? placesProblem(world) : undefined) ??
+    (format >= 10 ? placesProblem(world, format) : undefined) ??
     (format >= 11 ? walkersProblem(world, format) : undefined) ??
     // Format 15 is the format for tags, which a world without a map may carry.
     (format === 14 || (format >= 15 && world.maps !== undefined) ? mapsProblem(world) : undefined) ??
@@ -162,13 +163,13 @@ function walkersProblem(world: Readonly<Record<string, unknown>>, format: number
 }
 
 /** Format 10's uses, spawn points and start, each of a space the pack has. */
-function placesProblem(world: Readonly<Record<string, unknown>>): string | undefined {
+function placesProblem(world: Readonly<Record<string, unknown>>, format: number): string | undefined {
   const { spaces, uses, spawns, start } = world;
   if (!isObject(spaces) || !allOf(uses, isObject)) return "The pack's uses are not objects";
   for (const [space, found] of Object.entries(uses)) {
     if (!Object.hasOwn(spaces, space)) return `Uses of a space the pack lacks: "${space}"`;
     for (const [path, value] of Object.entries(found as Readonly<Record<string, unknown>>)) {
-      const problem = useProblem(`${space}/${path}`, path, value);
+      const problem = useProblem(`${space}/${path}`, path, value, format);
       if (problem !== undefined) return problem;
     }
   }
@@ -183,13 +184,15 @@ function placesProblem(world: Readonly<Record<string, unknown>>): string | undef
 
 const isPath = (path: string) => path.split('/').every(isRecordId);
 
-function useProblem(key: string, path: string, use: unknown): string | undefined {
+function useProblem(key: string, path: string, use: unknown, format: number): string | undefined {
   if (!isPath(path)) return `"${path}" is not an object's path`;
   if (!isObject(use) || !Array.isArray(use.effects) || typeof use.label !== 'string') {
     return `The use "${key}" has no label or no effects`;
   }
-  const unknown = extra(use, ['label', 'when', 'effects', 'once', 'takes']);
+  const unknown = extra(use, ['label', 'when', 'effects', 'once', 'takes', ...(format >= 16 ? ['holds'] : [])]);
   if (unknown !== undefined) return `Unknown use fields: ${unknown}`;
+  const held = use.holds === undefined ? undefined : holdsProblem(key, use.holds);
+  if (held !== undefined) return held;
   for (const flag of ['once', 'takes'] as const) {
     if (use[flag] !== undefined && typeof use[flag] !== 'boolean')
       return `The use "${key}"'s ${flag} is not true or false`;

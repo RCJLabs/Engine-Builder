@@ -8,6 +8,7 @@ import type { Condition, FactArgs, RecordStore } from '@eb/core';
 import { itemRecord } from '../inventory/items.ts';
 import type { ItemRecord } from '../inventory/types.ts';
 import { resourceRecord } from './amounts.ts';
+import { pursedActor } from './purses.ts';
 import type { ShopRecord } from './types.ts';
 
 function big(n: number, what: string): bigint {
@@ -47,13 +48,18 @@ export interface Quoting {
 
 const stepOf = (content: RecordStore, shop: ShopRecord) => resourceRecord(content, shop.currency).step ?? 1;
 
+/** The shop's faction: its own, else its actor's (M6.8), else none. */
+export const shopFaction = (content: RecordStore, shop: ShopRecord): string | undefined =>
+  shop.faction ?? (shop.actor === undefined ? undefined : pursedActor(content, shop.actor).faction);
+
 /**
  * What buying one of the item costs now: the share its faction's band sets (M3.5, D43), then the
  * rules whose `if` holds. One fraction, rounded once, so their order can't change the price.
  */
 export function quoteBuy(quoting: Quoting, shop: ShopRecord, item: string): number {
   const rules = (shop.rules ?? []).filter((rule) => quoting.holds(rule.if)).map((rule) => rule.percent);
-  const share = shop.faction === undefined ? [] : [quoting.fact('factions.price', { faction: shop.faction }) as number];
+  const faction = shopFaction(quoting.content, shop);
+  const share = faction === undefined ? [] : [quoting.fact('factions.price', { faction }) as number];
   const { value = 0 } = itemRecord(quoting.content, item);
   return buyPrice(value, shop['sells-at'] ?? 100, [...share, ...rules], stepOf(quoting.content, shop));
 }

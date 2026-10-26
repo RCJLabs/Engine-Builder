@@ -21,6 +21,7 @@ function archer(after: (view: FightView) => FightView) {
     weapons: { hero: SWORD, wren: BOW },
     fallen: [],
     searched: [],
+    emptied: [],
     engaged: ['wren'],
   };
   const sent: string[] = [];
@@ -52,17 +53,20 @@ function archer(after: (view: FightView) => FightView) {
   view = after(view);
   flying = true;
   fight.step(false, feet, 0);
-  return sent;
+  return { sent, hook: fight.hook() };
 }
 
 describe('an archer’s arrow landing', () => {
   it('hits the player while the archer still fights', () => {
-    expect(archer((view) => view)).toContain('fighting/hit wren');
+    const { sent, hook } = archer((view) => view);
+    expect(sent).toContain('fighting/hit wren');
+    // Sent while the view had Wren in the fight: a refusal of it would be the sim's newer word.
+    expect(hook.sent.filter((s) => s.action.type === 'fighting/hit').map((s) => s.engaged)).toEqual([true]);
   });
 
   it('sends nothing once the archer has left the fight or fallen', () => {
-    expect(archer((view) => ({ ...view, engaged: [] }))).not.toContain('fighting/hit wren');
-    expect(archer((view) => ({ ...view, fallen: ['wren'] }))).not.toContain('fighting/hit wren');
+    expect(archer((view) => ({ ...view, engaged: [] })).sent).not.toContain('fighting/hit wren');
+    expect(archer((view) => ({ ...view, fallen: ['wren'] })).sent).not.toContain('fighting/hit wren');
   });
 });
 
@@ -90,6 +94,7 @@ describe('the fight’s other duties', () => {
     weapons: { hero: SWORD, rook: SWORD, wren: BOW },
     fallen: [],
     searched: [],
+    emptied: [],
     engaged: ['rook'],
   };
 
@@ -111,6 +116,30 @@ describe('the fight’s other duties', () => {
     expect(fight.anim('wren').down).toBe(false);
     expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search']);
   });
+
+  it('says of an NPC’s hit whether the view had it fighting as it was sent, and nothing of the player’s', () => {
+    const { fight } = camp(base);
+    const feet: Vec3 = [0, 0, -1.6];
+    const hits = () => fight.hook().sent.filter((s) => s.action.type === 'fighting/hit');
+    for (let i = 0; i < 200 && hits().length < 2; i++) fight.step(true, feet, 0);
+    expect(hits().map((s) => [s.action.by, s.engaged])).toEqual(
+      expect.arrayContaining([
+        ['hero', undefined],
+        ['rook', true],
+      ]),
+    );
+  });
+
+  it('offers Search again for a body searched with something left, and Nothing left once emptied (M6.8)', () => {
+    const { fight, bodies } = camp({
+      ...base,
+      fallen: ['rook', 'wren'],
+      searched: ['rook', 'wren'],
+      emptied: ['wren'],
+    });
+    fight.frame();
+    expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search', 'wren Nothing left']);
+  });
 });
 
 describe('what an animator reads of a fighter (M6.5)', () => {
@@ -120,6 +149,7 @@ describe('what an animator reads of a fighter (M6.5)', () => {
       weapons: { hero: SWORD, wren: BOW },
       fallen: [],
       searched: [],
+      emptied: [],
       engaged: ['wren'],
     };
     let flying = false;

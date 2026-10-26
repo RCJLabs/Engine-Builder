@@ -176,7 +176,14 @@ describe('the camp fought', () => {
     expect(c.sent.some((s) => s.action.by === 'wren' && s.action.type === 'fighting/hit' && !s.accepted)).toBe(false);
     // Each body lies where it fell, with a Search use; Rook's purse and coin come to the party.
     expect(c.bodies().map((b) => b.label)).toEqual(['Search', 'Search', 'Search']);
-    for (const body of c.bodies()) if (body.send) c.act(body.send);
+    // A search opens the body's bag (M6.8): all it holds taken, then closed.
+    for (const body of c.bodies()) {
+      if (!body.send) continue;
+      c.act(body.send);
+      expect(c.play.view.modes.at(-1)).toBe('container');
+      if (c.play.view.offered.some((a) => a.type === 'inventory/take-all')) c.act({ type: 'inventory/take-all' });
+      c.act({ type: 'inventory/close' });
+    }
     expect(c.play.view.facts['inventory.count(item: coin)']).toBe(5);
     c.step(false);
     expect(c.bodies().map((b) => b.label)).toEqual(['Nothing left', 'Nothing left', 'Nothing left']);

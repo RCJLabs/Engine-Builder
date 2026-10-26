@@ -1,6 +1,8 @@
 /**
  * The economy kit's records and state (M3.3, docs/specs/kits.md): resources the party holds, and
- * shops that sell from a shelf and buy for a share of an item's value. Whole numbers only.
+ * shops that sell from a shelf and buy for a share of an item's value. Whole numbers only. Since M6.8
+ * (D80, docs/specs/barter.md), an actor's purse, and a shop kept by an actor, which trades from their
+ * bag and purse.
  */
 import type { Condition } from '@eb/core';
 
@@ -57,6 +59,15 @@ export interface ShopRecord {
   readonly rules?: readonly PriceRule[];
   /** With the factions kit on, the faction whose band sets a share of what it charges (M3.5, D43). */
   readonly faction?: string;
+  /** The actor who keeps it (M6.8): it sells from their bag and pays from their purse. */
+  readonly actor?: string;
+}
+
+/** The fields of an actor the economy kit reads (M6.8). */
+export interface PursedActor {
+  /** What it starts with of each resource: 0 for one left out. */
+  readonly purse?: Readonly<Record<string, number>>;
+  readonly faction?: string;
 }
 
 export interface ShelfItem {
@@ -66,6 +77,7 @@ export interface ShelfItem {
 }
 
 export interface ShopState {
+  /** Empty for a shop an actor keeps: it sells from their bag. */
   readonly shelf: readonly ShelfItem[];
   /** `time.day` when the shelf was stocked, for a shop that stocks again. */
   readonly day?: number;
@@ -76,4 +88,6 @@ export interface EconomySlice {
   readonly amounts: Readonly<Record<string, number>>;
   /** By shop, from the first time it opens. */
   readonly shops: Readonly<Record<string, ShopState>>;
+  /** By actor, from the first time their purse changes until their shop restocks it (M6.8, version 2). */
+  readonly purses: Readonly<Record<string, Readonly<Record<string, number>>>>;
 }

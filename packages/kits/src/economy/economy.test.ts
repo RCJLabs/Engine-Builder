@@ -11,7 +11,7 @@ describe('resources', () => {
     const state = start();
     expect(amount(state, 'credits')).toBe(60);
     expect(amount(state, 'fuel')).toBe(3);
-    expect(state.economy).toEqual({ amounts: {}, shops: {} });
+    expect(state.economy).toEqual({ amounts: {}, shops: {}, purses: {} });
     const spent = apply(state, { effect: 'add-resource', resource: 'credits', by: -10 });
     expect((spent.economy as { amounts: object }).amounts).toEqual({ credits: 50 });
     const back = apply(spent, { effect: 'add-resource', resource: 'credits', by: 10 });

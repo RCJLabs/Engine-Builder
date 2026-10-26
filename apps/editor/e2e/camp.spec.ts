@@ -2,7 +2,7 @@
  * M6.4's gate on desktop (D76, docs/specs/combat.md#the-gate): the camp fought in the Play panel by
  * keys and the mouse, and by a stand-in pad. The bow taken, F looses arrows, one taken for each; the
  * sword taken again and F held, the hero turned to each bandit in turn by the mouse until all three
- * lie, and each body searched by E. Standing still, the hero falls, and Back to the camp loads where
+ * lie, and each body searched by E, its bag taken from on the Container screen (M6.8). Standing still, the hero falls, and Back to the camp loads where
  * they came in. On the pad, the right trigger strikes, the sticks turn and walk, and X searches. Read
  * through the HUD and window.__ebWalk. The wind-ups, the 30° soft aim and the camp's numbers are
  * first guesses, untested for feel.
@@ -72,7 +72,8 @@ test('the camp by keys and the mouse: the bow, the fight and the bodies', async 
     const seen = await fought(page);
     // Rook and Crow struck the hero, two at a time; Wren's arrows found them too.
     expect(hitsBy(seen, 'rook').length + hitsBy(seen, 'crow').length + hitsBy(seen, 'wren').length).toBeGreaterThan(0);
-    // A blow sent before the stage heard its striker or its target fall is refused, rightly: none other is.
+    // A blow sent before the stage heard its striker or its target fall is refused, rightly, and so is an
+    // NPC's sent while the stage still saw it fighting: none other is.
     expect(unexplainedRefusals(seen)).toEqual([]);
     await expect(game(page).getByText(/^Down 3 of 3 · Rook 0 · Crow 0 · Wren 0$/)).toBeVisible();
     console.info(`the camp by keys: ${hitsBy(seen, 'hero').length} hits by the hero, the HUD at ${await hudOf(page)}`);

@@ -2,19 +2,21 @@
  * What an actor gains to stand in a space as an NPC (M6.1, D73, docs/specs/npcs.md#the-actors-fields):
  * its look, always, and with each kit on, its talk, its faction and what it carries; with the ai
  * kit (M6.3, D75), its behaviour and its senses; with the fighting kit (M6.4, D76), its drops and
- * what happens as it falls, which the player's actor has too.
+ * what happens as it falls, which the player's actor has too; with the economy kit (M6.8, D80), its purse.
  */
 import {
   AI,
   BEHAVIOUR,
   CONE_DEG,
   DIALOGUE,
+  ECONOMY,
   FACTION,
   FACTIONS,
   FIGHTING,
   HEARING_M,
   INVENTORY,
   ITEM,
+  RESOURCE,
   SIGHT_M,
   TALK,
 } from '@eb/kits';
@@ -88,6 +90,16 @@ const BY_KIT: Readonly<Record<string, Fields>> = {
       description: 'Its bag at the start, by item: give and take change it in play',
     },
   },
+  [ECONOMY]: {
+    purse: {
+      kind: 'map',
+      key: { kind: 'ref', to: RESOURCE },
+      of: { kind: 'int', min: 0 },
+      optional: true,
+      label: 'Purse',
+      description: 'What it holds of each resource at the start: a shop it keeps buys with it',
+    },
+  },
   [AI]: {
     behaviour: {
       kind: 'ref',
@@ -127,7 +139,7 @@ const BY_KIT: Readonly<Record<string, Fields>> = {
 /** An actor's NPC fields with these kits on: the look first, then each kit's in the kits' order. */
 export function npcFields(on: readonly string[]): Fields {
   const fields: Record<string, Fields[string]> = { ...LOOK };
-  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, AI, FIGHTING])
+  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, ECONOMY, AI, FIGHTING])
     if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
   return fields;
 }

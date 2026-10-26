@@ -8,6 +8,8 @@ import type { Condition } from '@eb/core';
 export const INVENTORY = 'inventory';
 export const ITEM = 'item';
 export const LOOT_TABLE = 'loot-table';
+/** The mode an opened container or body is in (M6.8, D80), whose data is `{ space, object }` or `{ actor }`. */
+export const CONTAINER = 'container';
 
 /** records/item/<id>.json. A project may add fields of its own after these (D41); the kit reads only these. */
 export interface ItemRecord {
@@ -57,6 +59,8 @@ export interface InventorySlice {
   readonly bag: Readonly<Record<string, number>>;
   /** Version 2 (M6.1): by actor, its whole bag once anything in it has changed; its `carries` until then. */
   readonly bags: Readonly<Record<string, Readonly<Record<string, number>>>>;
+  /** Version 3 (M6.8): by `space/object`, a container's items once anything in it has changed; the pack's until then. */
+  readonly held: Readonly<Record<string, Readonly<Record<string, number>>>>;
 }
 
 /** A range's ends, with the defaults filled in. */
