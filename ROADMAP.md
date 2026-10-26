@@ -1272,6 +1272,12 @@ How to read this file:
     - **Untested for feel:** the strip's 320 px and 180°, the 10° for the text, the marker's size and heights, and the north-west light wait for your phone.
     - **Logged for later:** questions 1 to 5 in [specs/markers.md](docs/specs/markers.md#open-questions): fog over a map, fast travel, pins for every door, a stage's marker, and a world map across spaces.
 - **M6.7 Radiant aliases.** A quest's slot filled by finding a matching reference placed in the world ("a chest in a cave", "an NPC of the bandits"). Its calls come first (D78).
+  - **As decided** (D79, your calls): a slot can hold a space found by its tags and, in a later slot, an object in it or an actor standing there, found by theirs; spaces and objects carry tags, an object's kept through prefabs and overrides; a slot takes today's picks or the nearest by doors, a repeat trying its last run's pick last; a fallen NPC or a taken object is never found, and nothing comes back in M6.7 ([specs/radiant.md](docs/specs/radiant.md)).
+  - **Gate:** the hollows, a green with a board and a post, a cave one door away and another two, each with a cache and a bandit. Supplies repeats on "the cache in the nearest cave" and the bounty on "a bandit in the nearest cave", each going to the barrow, then the mine, then waiting once both are taken or felled. Checked:
+    - headless through the session, a save mid-run loading to the same slots;
+    - in the Play panel by keys: the compass through the right doors and both caches taken;
+    - by touch at 360, 390 and sideways: the board read by a tap, the compass, the journal naming the cave;
+    - in the editor alone at 1280 and 390: the caves and the cache tagged and Supplies' slots made with forms, then played.
 - **M6.8 Barter and containers.** Trading with an NPC from their bag and purse; chests and other containers taken from and put into, item by item. Its calls come first (D78).
 - **M6.9 Templates.** "Open-world RPG (3rd person)" and "First-person adventure".
 - **M6.10 Proof #2: a Bethesda-style mini world.** 1 exterior, 3 interiors, 5 scheduled NPCs with dialogue, 3 quests (main, side and radiant), combat and barter. The theme is an open question.
