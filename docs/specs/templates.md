@@ -152,6 +152,6 @@ A template's records are mostly the kits' types, whose references the project's 
 ## Open questions
 
 1. Should the guide's steps tick themselves off by a condition over the project? Not built (D61's cost).
-2. Should templates have a third, 3D, kind once Phase 5 lands? The ROADMAP plans 3D templates at M6.7.
+2. Should templates have a third, 3D, kind once Phase 5 lands? The ROADMAP plans 3D templates at M6.9.
 3. W108 (a flag set and never read) doesn't count a screen's `shows-when` or text as reading a flag, so a flag only a screen reads is flagged. The ferry reads its ending through a quest as well. Should screens count? Logged under Phase 4.
 4. Renaming a record leaves conditions, screens' text, scenes and scripts that name it. Should the rename offer to change those it can parse, such as a condition's `@id` or an ink `EXTERNAL`'s argument?

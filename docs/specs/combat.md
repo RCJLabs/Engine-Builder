@@ -75,7 +75,7 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
   `fighting/search { actor }`: everything in its bag moves to the party's bag, each line toasted.
   A body searched answers Interact with "Nothing left", behind any use with something to come of
   it: two bodies lying together, the one not yet searched is the one faced. Taking item by item
-  waits for M6.6's containers.
+  waits for M6.8's containers.
 - **The player falling** stops the walk and the game: the kit pushes its `fallen` mode, where no
   action is on offer, the session's view says `fallen`, and the shell draws its Fallen screen,
   offering the slot's arrival checkpoint and Title. The player actor's `on-fall` effects run first,
@@ -172,7 +172,7 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 
 1. Blocking and dodging (Evan chose without them for M6.4).
 2. NPCs fighting each other, and factions turning hostile when struck.
-3. Taking item by item from a body (M6.6's containers).
+3. Taking item by item from a body (M6.8's containers).
 4. Lead on a moving target for arrows.
 5. Whether the 30° soft-aim cone and the wind-ups feel right, untested for feel.
 6. Whether a press of Attack mid-swing should be kept for the next swing (input buffering), for
