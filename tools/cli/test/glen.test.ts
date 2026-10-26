@@ -99,7 +99,11 @@ describe('eb with the glen', () => {
     const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/glen-world-v2.json'), 'utf8');
     const resumed = resumeFrom(open, raw);
     if (!resumed.ok) throw new Error(resumed.message);
-    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 2, to: 5 }]);
+    // The quests kit's version 3 (M6.6) tracks the supplies quest, its first active.
+    expect(resumed.report.migrated).toEqual([
+      { module: 'quests', from: 2, to: 3 },
+      { module: 'world', from: 2, to: 5 },
+    ]);
     expect(resumed.report).toMatchObject({ replayed: 3, skipped: 0 });
     expect(resumed.play.state.world).toEqual({
       fired: [],
@@ -109,6 +113,7 @@ describe('eb with the glen', () => {
       at: { space: 'bothy', feet: [0.5, 0, -0.2], yaw: 12.5 },
       npcs: {},
     });
+    expect((resumed.play.state.quests as { tracked?: string }).tracked).toBe('supplies');
     expect(resumed.play.take(use('bothy', 'lamp')).accepted).toBe(true);
   });
 });

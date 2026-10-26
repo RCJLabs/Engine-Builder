@@ -79,14 +79,7 @@ export function walkersOf(
   prefabs: ReadonlyMap<string, SpaceJson>,
   navmeshes: ReadonlySet<string>,
 ): Walkers {
-  const objects = new Map<string, Set<string>>();
-  for (const read of files) {
-    if (read.kind !== 'space' || read.value === undefined) continue;
-    const paths = new Set<string>();
-    for (const top of (read.value as SpaceJson).objects)
-      eachPlaced(top, prefabs, (_, ids) => paths.add(ids.join('/')), DEEPEST);
-    objects.set(read.id, paths);
-  }
+  const objects = spaceObjectsOf(files, prefabs);
   const walkers = new Map<string, { space: string; objects: ReadonlySet<string>; navmesh: boolean }>();
   for (const [actor, [first]] of actorPlaces(files, prefabs)) {
     if (!first) continue;
@@ -97,4 +90,20 @@ export function walkersOf(
     });
   }
   return walkers;
+}
+
+/** Each space's object paths, through prefabs: what walk-to (E079) and an objective's target (E086, M6.6) can name. */
+export function spaceObjectsOf(
+  files: readonly SpaceFileRead[],
+  prefabs: ReadonlyMap<string, SpaceJson>,
+): Map<string, ReadonlySet<string>> {
+  const objects = new Map<string, ReadonlySet<string>>();
+  for (const read of files) {
+    if (read.kind !== 'space' || read.value === undefined) continue;
+    const paths = new Set<string>();
+    for (const top of (read.value as SpaceJson).objects)
+      eachPlaced(top, prefabs, (_, ids) => paths.add(ids.join('/')), DEEPEST);
+    objects.set(read.id, paths);
+  }
+  return objects;
 }

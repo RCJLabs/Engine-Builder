@@ -57,6 +57,8 @@ export {
   type TypeFileRole,
 } from './layout.ts';
 export { checkManifest, type ManifestProblem, PROJECT_FORMAT, projectSchema } from './manifest.ts';
+export { checkMapFiles, type MapFileRead, mapImageNames, readMapFile, type SpaceMapFile } from './mapFiles.ts';
+export { mapHashes, mapInputs, mapInputsHash, terrainFilesOf } from './mapInputs.ts';
 export { checkModels, modelDiagnostics, modelFileOf } from './models.ts';
 export {
   checkNavFiles,
@@ -79,7 +81,7 @@ export {
   navModelsOf,
   navSolids,
 } from './navInputs.ts';
-export { actorPlaces, walkersOf } from './npcPlaces.ts';
+export { actorPlaces, spaceObjectsOf, walkersOf } from './npcPlaces.ts';
 export {
   eachPlaced,
   type Fields,
@@ -117,6 +119,7 @@ export {
   classifyComponentFile,
   classifySpaceFile,
   componentPath,
+  mapPath,
   navPath,
   PREFABS_DIR,
   SPACES_DIR,
@@ -150,5 +153,5 @@ export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from '
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
-export { spaceSpawns } from './world.ts';
+export { type DrawnSources, spaceSpawns } from './world.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';

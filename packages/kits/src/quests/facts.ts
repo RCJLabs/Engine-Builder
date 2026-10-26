@@ -1,7 +1,7 @@
 /**
  * The quests kit's facts (docs/specs/quests.md#facts): a quest's state, stage, log, objectives and
- * counts, how many quests are in a state, and M3.10's slots, who is away and runs counted. Each is
- * worded by the ids it names ("pay of debt is done").
+ * counts, how many quests are in a state, and M3.10's slots, who is away and runs counted; M6.6's
+ * tracked quest. Each is worded by the ids it names ("pay of debt is done").
  */
 import { type FactTest, type ModuleDef, OP_WORDS } from '@eb/core';
 import { own } from '../own.ts';
@@ -103,6 +103,13 @@ export const facts: Def['facts'] = {
     label: 'away',
     describe: (test) => (test.op === undefined ? `${arg(test, 'record')} is away` : undefined),
     read: ({ content, state }, { record }) => isAway({ content, read: () => state }, record as string),
+  },
+  tracked: {
+    args: {},
+    domain: { type: 'ref', to: QUEST },
+    label: 'tracked quest',
+    describe: equals((test, not) => `${String(test.value)} is ${not ? 'not ' : ''}the tracked quest`),
+    read: ({ state }) => state.tracked,
   },
   times: {
     args: { ...QUEST_ARG, state: { type: 'enum', values: ['done', 'failed'] } },

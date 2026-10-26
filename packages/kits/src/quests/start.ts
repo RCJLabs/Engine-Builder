@@ -9,6 +9,7 @@ import { own } from '../own.ts';
 import { namedStage, questRecord } from './records.ts';
 import { checkQuest, enter, entryOf, writeEntry } from './run.ts';
 import { fillSlots } from './slots.ts';
+import { trackStarted } from './tracking.ts';
 import { QUEST, type QuestEntry, type QuestsSlice } from './types.ts';
 
 type Ctx = ModuleContext<QuestsSlice>;
@@ -35,6 +36,7 @@ export function startQuest(ctx: Ctx, id: string, at?: string): string | undefine
     };
   }
   ctx.write().quests[id] = entry;
+  trackStarted(ctx, id);
   ctx.emit('started', { quest: id, stage });
   enter(ctx, id, stage);
   checkQuest(ctx, id);

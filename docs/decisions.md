@@ -2318,7 +2318,7 @@ Evan chose on 2026-10-26, from these options ([research/quest-ux.md](research/qu
 **Cost.**
 - **A map is an image a space** in every export, its size measured in the gate.
 - **A bake is a step the author must remember,** as a navmesh's is; W154 says when it is out of date.
-- **The sim learns where targets stand** only through the pack: the places of the objects quests name, of uses, zones and spawns, and of placed actors.
+- **The sim never learns where targets stand:** it holds targets as names and doors as uses and zones. The page turns them into points from the spaces the pack already carries, with the walk's own `objectPlaces`, so a bot can follow doors but not distances.
 
 ---
 

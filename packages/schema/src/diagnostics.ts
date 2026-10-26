@@ -89,6 +89,8 @@ export const DIAGNOSTIC_CODES = {
   E083: "An animator's state names a clip its model doesn't have, or a model that isn't on the rig",
   E084: "An animator's states don't fit together: an id twice, a start or transition naming no state, a whole-body state with no clip, a speed off a fixed rate, or a transition from any state with no condition",
   E085: "An actor's animator on a model that isn't on the rig",
+  E086: "An objective's target names a space, an object of a space, an actor or a slot that isn't one, or is neither an actor nor a space",
+  E087: "A space's map can't be read: its JSON isn't one, or its image is missing",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -142,6 +144,8 @@ export const DIAGNOSTIC_CODES = {
   W151: "A weapon's field its kind doesn't read: a reach or an arc on a ranged weapon, a range or ammo on a melee one",
   W152: "A skinned model isn't on the rig: its skin lacks a required humanoid bone, so it draws unanimated",
   W153: 'An animator state no transition goes to, and not where its layer starts',
+  W154: "A space's map is out of date: the space has changed since it was baked",
+  W155: "An objective's target is an actor placed in no space, so its marker can't show",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

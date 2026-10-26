@@ -10,6 +10,7 @@ import { own } from '../own.ts';
 import { endJob, startJob } from './jobs.ts';
 import { namedStage, questRecord, stageOf } from './records.ts';
 import { bind, goneSlot, slotText } from './slots.ts';
+import { trackEnded } from './tracking.ts';
 import type { Count, QuestEntry, QuestRecord, QuestsSlice, Slot, Stage } from './types.ts';
 
 type Ctx = ModuleContext<QuestsSlice>;
@@ -73,12 +74,14 @@ export function fail(ctx: Ctx, id: string, why: string): void {
   const entry = writeEntry(ctx, id);
   entry.state = 'failed';
   entry.why = why;
+  trackEnded(ctx, id);
   ctx.emit('failed', { quest: id, why });
 }
 
 /** Only ever for a quest the check found active, at a stage with no job. */
 function finish(ctx: Ctx, id: string): void {
   writeEntry(ctx, id).state = 'done';
+  trackEnded(ctx, id);
   ctx.emit('done', { quest: id });
 }
 

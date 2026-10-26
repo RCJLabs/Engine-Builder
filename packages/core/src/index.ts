@@ -19,6 +19,7 @@ export {
   type PackCredit,
   PackError,
   type PackFighting,
+  type PackMap,
   type PackProject,
   type PackUi,
   type PackWorld,
@@ -45,6 +46,7 @@ export * from './sheets/index.ts';
 export * from './sim/index.ts';
 export { type Difference, type FacetReading, firstDifference, readFacets, stateHash } from './stateHash.ts';
 export * from './time/index.ts';
+export { type Doors, doorsOf, doorToward } from './world/doors.ts';
 export { ENGAGED_MOST, engaged as npcEngaged } from './world/npcs.ts';
 export { worldDataOf } from './world/packWorld.ts';
 export {

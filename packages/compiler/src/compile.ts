@@ -24,10 +24,12 @@ import { EXPORT_FILE } from './exportFile.ts';
 import { screenReads, withScreens } from './flagUses.ts';
 import { checkGuide, GUIDE_FILE } from './guide.ts';
 import { MANIFEST_FILE } from './layout.ts';
+import { checkMapFiles } from './mapFiles.ts';
+import { mapHashes } from './mapInputs.ts';
 import { checkModels } from './models.ts';
 import { checkNavFiles } from './navFiles.ts';
 import { navHashes, navModelsOf } from './navInputs.ts';
-import { walkersOf } from './npcPlaces.ts';
+import { spaceObjectsOf, walkersOf } from './npcPlaces.ts';
 import { modelFieldOf } from './placedModels.ts';
 import { diagnosticOf, type ListedRecord, type Report, readProjectFiles } from './projectCheck.ts';
 import { projectFiles } from './projectZip.ts';
@@ -143,6 +145,7 @@ export async function compileProject(
     flagsElsewhere: withScreens(parts.flags, screens.found),
     spaces: spawns,
     walkers,
+    objects: spaceObjectsOf(spaces.files, prefabs),
   });
   // What a zone or an interact holds is reported at its space's line (M5.9), a scene's at its own.
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));
@@ -166,6 +169,9 @@ export async function compileProject(
   };
   const hashes = await navHashes(source, spaces.files, spaces.navs, navModelsOf({ record: recordOf, field }));
   diagnostics.push(...checkNavFiles(spaces.navs, new Set(spawns.keys()), hashes));
+  // A map baked from the space as it stands now (M6.6): its hash against what it draws now.
+  const drawn = await mapHashes(source, spaces.files, spaces.maps, { record: recordOf, types: known.data });
+  diagnostics.push(...checkMapFiles(spaces.maps, new Set(spawns.keys()), drawn));
   const exported = await readJsonFile(source, EXPORT_FILE, (d) => diagnostics.push(d));
   const checked = checkExport(exported, {
     types: new Set(known.types.map((t) => t.type)),
@@ -192,6 +198,7 @@ export async function compileProject(
         files: spaces.files,
         terrains: spaces.terrains,
         navs: spaces.navs,
+        maps: spaces.maps,
         record: recordOf,
         types: known.data,
         kinds: components.kinds,

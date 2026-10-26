@@ -2,7 +2,8 @@
  * The quests kit's record type (M3.9, D47, docs/specs/quests.md#records), as a type file: a quest
  * of stages, each with its log line, effects and objectives; M3.10's slots (D48), and a stage's job. Stage and objective ids are text that
  * Then, Leads to, set-stage and conditions name: that each names one the quest has is E035's and
- * E043's. A count's arguments are text, the ids an event names.
+ * E043's. A count's arguments are text, the ids an event names. An objective's target (M6.6) is
+ * text too, checked against the spaces and actors (E086, W155).
  */
 import type { FieldDef, TypeFile } from './typeFile.ts';
 
@@ -46,6 +47,24 @@ const OBJECTIVE: FieldDef = {
       },
     },
     next: stageId('Leads to', 'Once it is done, the quest goes to this stage at once'),
+    target: {
+      kind: 'group',
+      optional: true,
+      label: 'Target',
+      description:
+        'Where its marker points: an actor, or a space and an object in it. Left out, a count of world/used points at its object',
+      fields: {
+        actor: { kind: 'text', min: 1, optional: true, label: 'Actor', description: 'An actor’s id, or @slot' },
+        space: { kind: 'text', min: 1, optional: true, label: 'Space', description: 'A space’s id' },
+        object: {
+          kind: 'text',
+          min: 1,
+          optional: true,
+          label: 'Object',
+          description: 'Its path in the space: an id, or placement/inner through a prefab',
+        },
+      },
+    },
   },
 };
 

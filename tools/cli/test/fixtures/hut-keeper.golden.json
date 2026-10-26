@@ -6,7 +6,7 @@
   "maxTurns": 1000,
   "runs": {
     "seed-0": {
-      "hash": "2605e852c749c7ca",
+      "hash": "086b3c4670aa00f1",
       "facets": {
         "dialogue": "4646c8f922c607b1",
         "economy": "d85f28e4bd5b11d3",
@@ -15,7 +15,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "802d31c761ff58b9",
+        "kernel": "760e8d9e925ed110",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -25,7 +25,7 @@
       "end": "ended"
     },
     "seed-1": {
-      "hash": "bc858e50c356b6c5",
+      "hash": "4bd36ea17d655307",
       "facets": {
         "dialogue": "3d55eef188e7d682",
         "economy": "ea17f3942f1b8bcd",
@@ -34,9 +34,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "351a530f97ef2629",
-        "kernel": "28b704013c1660b2",
+        "kernel": "f844d6966e38cd8b",
         "logic": "08f44b07b5901a25",
-        "quests": "90b74716fec02361",
+        "quests": "36c16c84e28b61e6",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -44,7 +44,7 @@
       "end": "ended"
     },
     "seed-2": {
-      "hash": "6cb45fe0bec0e1b2",
+      "hash": "24a8d255c0670899",
       "facets": {
         "dialogue": "04bee22b6a24dee2",
         "economy": "4d6d09fd840e66cd",
@@ -53,7 +53,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "7a958a135396c809",
+        "kernel": "b79c983b173a75e0",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -63,7 +63,7 @@
       "end": "ended"
     },
     "seed-3": {
-      "hash": "7e22975f5e1ce129",
+      "hash": "5fe5ed793ce01c72",
       "facets": {
         "dialogue": "fbbbe50f925e58c4",
         "economy": "d31f50e16aa38937",
@@ -72,7 +72,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "fc312de017aaeed2",
-        "kernel": "4b818b6719347674",
+        "kernel": "23777dd44befa02d",
         "logic": "08f44b07b5901a25",
         "quests": "00ccc7c14ac858c2",
         "sheet": "da9d0cae103b40df",
@@ -82,7 +82,7 @@
       "end": "ended"
     },
     "seed-4": {
-      "hash": "78d7c8260fa3f3d2",
+      "hash": "d1ef708e11b41b39",
       "facets": {
         "dialogue": "0f49531bf7c9d40c",
         "economy": "d85f28e4bd5b11d3",
@@ -91,7 +91,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "b8f3c8a05c9aa1cf",
+        "kernel": "b50db0b961b72b86",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -101,7 +101,7 @@
       "end": "ended"
     },
     "seed-5": {
-      "hash": "b20378d09beb5ebd",
+      "hash": "dc15a257c2dbee54",
       "facets": {
         "dialogue": "a5a2ecc54d0ab639",
         "economy": "be568bed2487ec05",
@@ -110,7 +110,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "d9ca07217a1aadce",
-        "kernel": "c92e6fea3cfc66f6",
+        "kernel": "806275761d3fb3ff",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -120,7 +120,7 @@
       "end": "ended"
     },
     "seed-6": {
-      "hash": "e095479df79414dc",
+      "hash": "3fb454938b14f177",
       "facets": {
         "dialogue": "48c1fdbb0d325699",
         "economy": "d31f50e16aa38937",
@@ -129,7 +129,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "fc312de017aaeed2",
-        "kernel": "20380cb761e39ebc",
+        "kernel": "82f8164b1b4f5ff5",
         "logic": "08f44b07b5901a25",
         "quests": "9aea8d117c2213ad",
         "sheet": "da9d0cae103b40df",
@@ -139,7 +139,7 @@
       "end": "ended"
     },
     "seed-7": {
-      "hash": "39d450735bc5d9c7",
+      "hash": "7ef09ded0b2973ee",
       "facets": {
         "dialogue": "5de74904a364b944",
         "economy": "4ed7341a9f701f18",
@@ -148,7 +148,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "c0bf0ee41116c252",
+        "kernel": "1027793b6330102b",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -158,7 +158,7 @@
       "end": "ended"
     },
     "seed-8": {
-      "hash": "e91a5d19bba4b55c",
+      "hash": "585424679e97327d",
       "facets": {
         "dialogue": "3cff4628578830f3",
         "economy": "4dfaed9d40e52f38",
@@ -167,7 +167,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "2e5818a9cbc86dcd",
+        "kernel": "36edb2e5548eca14",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -177,7 +177,7 @@
       "end": "ended"
     },
     "seed-9": {
-      "hash": "4f43b8ae711e7969",
+      "hash": "95aeb0cd1412b68d",
       "facets": {
         "dialogue": "3e58d9c4f8764eb8",
         "economy": "4ed7341a9f701f18",
@@ -186,9 +186,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "64a5991257206616",
+        "kernel": "60235d8eb1968e9f",
         "logic": "08f44b07b5901a25",
-        "quests": "6d812252380efbeb",
+        "quests": "191be5fda3451824",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -196,7 +196,7 @@
       "end": "ended"
     },
     "seed-10": {
-      "hash": "c3d31d619c0817fa",
+      "hash": "9f8723990cfc6b33",
       "facets": {
         "dialogue": "afdc256bca777e4a",
         "economy": "4dfaed9d40e52f38",
@@ -205,7 +205,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "261f09eaed492d16",
+        "kernel": "219cce6747bf559f",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -215,7 +215,7 @@
       "end": "ended"
     },
     "seed-11": {
-      "hash": "d96ca7996e929c63",
+      "hash": "dcdee0242b270921",
       "facets": {
         "dialogue": "d9c671cab58ad762",
         "economy": "07e257625092c380",
@@ -224,9 +224,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "6212d79cc10be9af",
-        "kernel": "84d3314a361df1f5",
+        "kernel": "221327b67cb230bc",
         "logic": "08f44b07b5901a25",
-        "quests": "0084b242fe19bd17",
+        "quests": "ed3c6057da6c51b0",
         "sheet": "da9d0cae103b40df",
         "time": "d864e0f9b3407a13"
       },
@@ -234,7 +234,7 @@
       "end": "ended"
     },
     "seed-12": {
-      "hash": "a5d2812f86d366f6",
+      "hash": "638d5e7b29ed3dfd",
       "facets": {
         "dialogue": "ec7c1fb6c6c697c5",
         "economy": "d85f28e4bd5b11d3",
@@ -243,7 +243,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "f1c8e66324dfd19f",
+        "kernel": "f64b21e6ca69a916",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -253,7 +253,7 @@
       "end": "ended"
     },
     "seed-13": {
-      "hash": "7673e85fb57f3530",
+      "hash": "6edc474793706992",
       "facets": {
         "dialogue": "8f0bde8317409ebd",
         "economy": "35b6b3cbdc042a53",
@@ -262,9 +262,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "ae7e972e3e104adf",
-        "kernel": "5f329358d29e5b50",
+        "kernel": "ed6bfb790bafbff9",
         "logic": "08f44b07b5901a25",
-        "quests": "b0bfcb3153a4dff6",
+        "quests": "77fa2a73289f05f7",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -272,7 +272,7 @@
       "end": "ended"
     },
     "seed-14": {
-      "hash": "4e2458751715bafa",
+      "hash": "75f3bde391cd6fc3",
       "facets": {
         "dialogue": "2a3b4a27c882151c",
         "economy": "4dfaed9d40e52f38",
@@ -281,7 +281,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "998eeba8f9966469",
+        "kernel": "ededd493786c4640",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -291,7 +291,7 @@
       "end": "ended"
     },
     "seed-15": {
-      "hash": "216987ade17640ed",
+      "hash": "0e2ea8e3aa169bec",
       "facets": {
         "dialogue": "82200ad17ec66f52",
         "economy": "4dfaed9d40e52f38",
@@ -300,7 +300,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "ce677928bb0e88ee",
+        "kernel": "d2d945e6c48a01f7",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -310,7 +310,7 @@
       "end": "ended"
     },
     "seed-16": {
-      "hash": "c970e99bb16440e8",
+      "hash": "98181121fb7f95f1",
       "facets": {
         "dialogue": "42cd1dd68cd5f6d7",
         "economy": "4dfaed9d40e52f38",
@@ -319,7 +319,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "c60ff7d7053fb881",
+        "kernel": "390972a50b60c7d8",
         "logic": "08f44b07b5901a25",
         "quests": "46ddd08fed29ef38",
         "sheet": "da9d0cae103b40df",
@@ -329,7 +329,7 @@
       "end": "ended"
     },
     "seed-17": {
-      "hash": "9251ea3a4b5d4cea",
+      "hash": "2d7ed5039ed62711",
       "facets": {
         "dialogue": "f41402a656b15073",
         "economy": "4d6d09fd840e66cd",
@@ -338,7 +338,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "bf05b5c4bee72745",
+        "kernel": "d81b9f402f3d90cc",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -348,7 +348,7 @@
       "end": "ended"
     },
     "seed-18": {
-      "hash": "04de95fb9a33e4c0",
+      "hash": "361a88aca7fe2f41",
       "facets": {
         "dialogue": "2f84bbc1c61af51e",
         "economy": "4dfaed9d40e52f38",
@@ -357,7 +357,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "7670c1923407250d",
+        "kernel": "b6b18be961827754",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -367,7 +367,7 @@
       "end": "ended"
     },
     "seed-19": {
-      "hash": "551dc33bece9c7fb",
+      "hash": "4bbb4565a923043a",
       "facets": {
         "dialogue": "ad1c6a277c1de56f",
         "economy": "4dfaed9d40e52f38",
@@ -376,7 +376,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "6792c59f564b0938",
+        "kernel": "a1af9aa73726e661",
         "logic": "08f44b07b5901a25",
         "quests": "46ddd08fed29ef38",
         "sheet": "da9d0cae103b40df",
@@ -386,7 +386,7 @@
       "end": "ended"
     },
     "seed-20": {
-      "hash": "62e814b42dbfac1b",
+      "hash": "b4c77b858bd33432",
       "facets": {
         "dialogue": "6a04eb28967305d1",
         "economy": "27accd82bc14de5e",
@@ -395,7 +395,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "343d6cdf131073d7",
+        "kernel": "cda30fc02094424e",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -405,7 +405,7 @@
       "end": "ended"
     },
     "seed-21": {
-      "hash": "904d74d1de185617",
+      "hash": "8633c78d7329b6be",
       "facets": {
         "dialogue": "6847adf90d3bc8d0",
         "economy": "4c608414de7a99f1",
@@ -414,7 +414,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "1d45d2dc0faddefa",
+        "kernel": "01b82b3833560df3",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -424,7 +424,7 @@
       "end": "ended"
     },
     "seed-22": {
-      "hash": "35d47cb533dfc2d6",
+      "hash": "b86279ddbad0039f",
       "facets": {
         "dialogue": "57c791832904d613",
         "economy": "4dfaed9d40e52f38",
@@ -433,7 +433,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "f02478631ccc71d2",
+        "kernel": "3f8ce2ba6ee5bfab",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -443,7 +443,7 @@
       "end": "ended"
     },
     "seed-23": {
-      "hash": "f1946846c757ef7f",
+      "hash": "07c3815406c9ad7b",
       "facets": {
         "dialogue": "72333ac5f078cd9a",
         "economy": "69726b44452d7c08",
@@ -452,9 +452,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "0239f8c1a344bc4c",
+        "kernel": "e9240f4632ee52c5",
         "logic": "08f44b07b5901a25",
-        "quests": "ba252bd2ea071f1f",
+        "quests": "2c112b119847ab38",
         "sheet": "da9d0cae103b40df",
         "time": "8f77763575e1f38a"
       },
@@ -462,7 +462,7 @@
       "end": "ended"
     },
     "seed-24": {
-      "hash": "c69a1ba2b4e3942b",
+      "hash": "89a7db0481a6664c",
       "facets": {
         "dialogue": "12e550dda1e5ec3e",
         "economy": "4d6d09fd840e66cd",
@@ -471,7 +471,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "d735771cef38ce9f",
+        "kernel": "dbb7b2a094c2a616",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -481,7 +481,7 @@
       "end": "ended"
     },
     "seed-25": {
-      "hash": "0a080e928509b16f",
+      "hash": "d1e83e7551fb4f86",
       "facets": {
         "dialogue": "0957d34c505e2bfd",
         "economy": "9dcc839864c53aa1",
@@ -490,7 +490,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "ea380432c93bfe33",
-        "kernel": "d4918b6e07ec1693",
+        "kernel": "b12c8160d037721a",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -500,7 +500,7 @@
       "end": "ended"
     },
     "seed-26": {
-      "hash": "f2cedd0e57afee16",
+      "hash": "fec097b3cb4431ba",
       "facets": {
         "dialogue": "aef9f4b0fbe89a77",
         "economy": "ddf6a703f08b6112",
@@ -509,9 +509,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "028abe56d9d59772",
-        "kernel": "1c982007cba954fe",
+        "kernel": "cdb24e4834b162c7",
         "logic": "08f44b07b5901a25",
-        "quests": "971cbb008253e540",
+        "quests": "ef5360be87d9c45d",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -519,7 +519,7 @@
       "end": "ended"
     },
     "seed-27": {
-      "hash": "400ee788f12b9bb6",
+      "hash": "66b75209496e3a7f",
       "facets": {
         "dialogue": "34db0d1bb42308dc",
         "economy": "5cc63fe4fc9dae57",
@@ -528,7 +528,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "57898ab8d7b87dad",
+        "kernel": "7f93984ba4fd53f4",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -538,7 +538,7 @@
       "end": "ended"
     },
     "seed-28": {
-      "hash": "28c53a5bcd82dc8a",
+      "hash": "4a2f728348ef2f6d",
       "facets": {
         "dialogue": "6c6d8c2b6872e98b",
         "economy": "5927d4f47cf39718",
@@ -547,7 +547,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "474df2f7f221fb44",
-        "kernel": "127a2cde4eafb6cf",
+        "kernel": "0e9414f753cc4086",
         "logic": "08f44b07b5901a25",
         "quests": "0905951fa2b518f0",
         "sheet": "da9d0cae103b40df",
@@ -557,7 +557,7 @@
       "end": "ended"
     },
     "seed-29": {
-      "hash": "8b7b951f611a0482",
+      "hash": "0ea4ecf4cd9eb07b",
       "facets": {
         "dialogue": "e35e9f2750183239",
         "economy": "4dfaed9d40e52f38",
@@ -566,7 +566,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "f58a14408fbde284",
+        "kernel": "579d40baae541f3d",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -576,7 +576,7 @@
       "end": "ended"
     },
     "seed-30": {
-      "hash": "1ba004114afb682b",
+      "hash": "ba96aef9a2d53c82",
       "facets": {
         "dialogue": "455c90d9f637f29a",
         "economy": "4dfaed9d40e52f38",
@@ -585,7 +585,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "1a298851f1bd3f6b",
+        "kernel": "2326a9a75ef7e192",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -595,7 +595,7 @@
       "end": "ended"
     },
     "seed-31": {
-      "hash": "333127cd1b8e7da7",
+      "hash": "bfd90ba12593e76d",
       "facets": {
         "dialogue": "aace9636a7225577",
         "economy": "83d25622d7becd15",
@@ -604,9 +604,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "6212d79cc10be9af",
-        "kernel": "f803848633873773",
+        "kernel": "13912c2a0fdf087a",
         "logic": "08f44b07b5901a25",
-        "quests": "95c4a6bf24382c1e",
+        "quests": "f377de2ca92ae0ff",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -614,7 +614,7 @@
       "end": "ended"
     },
     "seed-32": {
-      "hash": "13ca35e9f6e264c4",
+      "hash": "ca9f876fbfc9da63",
       "facets": {
         "dialogue": "21933f22ba67211e",
         "economy": "4d6d09fd840e66cd",
@@ -623,7 +623,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "2f237abccd912e25",
+        "kernel": "62a57334c02aba2c",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -633,7 +633,7 @@
       "end": "ended"
     },
     "seed-33": {
-      "hash": "58e4676ae8e3b769",
+      "hash": "9580323c6612fcc2",
       "facets": {
         "dialogue": "dbfa708b2710d13a",
         "economy": "4d6d09fd840e66cd",
@@ -642,7 +642,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "c61681657d2d6e47",
+        "kernel": "14fc53251425607e",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -652,7 +652,7 @@
       "end": "ended"
     },
     "seed-34": {
-      "hash": "14adb86067d30b47",
+      "hash": "1da23264c81a9838",
       "facets": {
         "dialogue": "ce7418ead9210647",
         "economy": "ba0636d2e08a3e56",
@@ -661,7 +661,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "4f26d37568f568c6",
+        "kernel": "bac28f3f9063600f",
         "logic": "08f44b07b5901a25",
         "quests": "550b9ff65731848b",
         "sheet": "da9d0cae103b40df",
@@ -671,7 +671,7 @@
       "end": "ended"
     },
     "seed-35": {
-      "hash": "4c551c98b7696a38",
+      "hash": "7ce43bc53a2684e1",
       "facets": {
         "dialogue": "ce8f12693fce1a7c",
         "economy": "860927d2eea95fe5",
@@ -680,7 +680,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "593c021dc33a6bb8",
+        "kernel": "9358d725a41648e1",
         "logic": "08f44b07b5901a25",
         "quests": "1d6769e9c05294fe",
         "sheet": "da9d0cae103b40df",
@@ -690,7 +690,7 @@
       "end": "ended"
     },
     "seed-36": {
-      "hash": "848ef1747f1d522b",
+      "hash": "a3cbc05d7dab85b1",
       "facets": {
         "dialogue": "b21f3607a0433c03",
         "economy": "e473851364170767",
@@ -699,9 +699,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "acb71f49362021b2",
-        "kernel": "c23cd755c8bbab1c",
+        "kernel": "60a8167519df2dd5",
         "logic": "08f44b07b5901a25",
-        "quests": "3aae26c249c5f167",
+        "quests": "2c8b302976b14d20",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -709,7 +709,7 @@
       "end": "ended"
     },
     "seed-37": {
-      "hash": "a371071a7642ee83",
+      "hash": "c4ec7ba09c0cc98a",
       "facets": {
         "dialogue": "d27459b857e33fc8",
         "economy": "5cc63fe4fc9dae57",
@@ -718,7 +718,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "660553d6e038102d",
+        "kernel": "8e0f6169ad7ce674",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -728,7 +728,7 @@
       "end": "ended"
     },
     "seed-38": {
-      "hash": "7aab5abddcf26257",
+      "hash": "168fd01287b7b2a8",
       "facets": {
         "dialogue": "3ac665e9129fd58e",
         "economy": "ea17f3942f1b8bcd",
@@ -737,7 +737,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "351a530f97ef2629",
-        "kernel": "8f5be2390d50efd6",
+        "kernel": "5722383004e0245f",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -747,7 +747,7 @@
       "end": "ended"
     },
     "seed-39": {
-      "hash": "311dbb318f097c6e",
+      "hash": "ec016db7dfa5e247",
       "facets": {
         "dialogue": "ed9f8046b30fdfec",
         "economy": "4c608414de7a99f1",
@@ -756,7 +756,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "d9e3eed14c788701",
+        "kernel": "4cdd699f52999658",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -766,7 +766,7 @@
       "end": "ended"
     },
     "seed-40": {
-      "hash": "97ecf54121a7b189",
+      "hash": "07f7772de96bab18",
       "facets": {
         "dialogue": "6231622c7e225bef",
         "economy": "4dfaed9d40e52f38",
@@ -775,7 +775,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "4bdd667294fb253a",
+        "kernel": "2c3ee0b1de31f033",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -785,7 +785,7 @@
       "end": "ended"
     },
     "seed-41": {
-      "hash": "a24f744acc5dd448",
+      "hash": "65afedb74a420eb9",
       "facets": {
         "dialogue": "3adf11f36bfac251",
         "economy": "4dfaed9d40e52f38",
@@ -794,7 +794,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "1e95cd81730efdbe",
+        "kernel": "f63688eb7ad51487",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -804,7 +804,7 @@
       "end": "ended"
     },
     "seed-42": {
-      "hash": "c8d688edd5f4ed8d",
+      "hash": "3047625fabd34dae",
       "facets": {
         "dialogue": "4ac5f747d786823a",
         "economy": "d4386703fe99620d",
@@ -813,7 +813,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "ea380432c93bfe33",
-        "kernel": "8166e7d0795020bc",
+        "kernel": "e426f16432bbe1f5",
         "logic": "08f44b07b5901a25",
         "quests": "550b9ff65731848b",
         "sheet": "da9d0cae103b40df",
@@ -823,7 +823,7 @@
       "end": "ended"
     },
     "seed-43": {
-      "hash": "709e55f31e17beaa",
+      "hash": "effb51f2c99c4979",
       "facets": {
         "dialogue": "bf24be2ff2e0d569",
         "economy": "ba0636d2e08a3e56",
@@ -832,7 +832,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "a59a9e93641989c5",
+        "kernel": "beb0880ed46ff34c",
         "logic": "08f44b07b5901a25",
         "quests": "6e1415dcc890d184",
         "sheet": "da9d0cae103b40df",
@@ -842,7 +842,7 @@
       "end": "ended"
     },
     "seed-44": {
-      "hash": "6821c03c40d31e41",
+      "hash": "ddd60d0cb435dd1a",
       "facets": {
         "dialogue": "5038c53ecb3094ab",
         "economy": "4d6d09fd840e66cd",
@@ -851,7 +851,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "62511d1e2e446201",
+        "kernel": "d54a97ec34657158",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -861,7 +861,7 @@
       "end": "ended"
     },
     "seed-45": {
-      "hash": "c57042f0eb6ff961",
+      "hash": "9a0d61e0f2ad6293",
       "facets": {
         "dialogue": "606c4b92f56cbd1a",
         "economy": "960c3d94a1d9b25c",
@@ -870,9 +870,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "0192673353504cbe",
-        "kernel": "72a759f22c4f37fe",
+        "kernel": "23c18832955745c7",
         "logic": "08f44b07b5901a25",
-        "quests": "9bb0dc5de9fdd5d3",
+        "quests": "3335504f2e3dcbec",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -880,7 +880,7 @@
       "end": "ended"
     },
     "seed-46": {
-      "hash": "7edc5626a8bcfe48",
+      "hash": "423ccf9326a138b9",
       "facets": {
         "dialogue": "2f82744f543784ab",
         "economy": "4dfaed9d40e52f38",
@@ -889,7 +889,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "6fa18a047dd70e9a",
+        "kernel": "93069411b58bb313",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -899,7 +899,7 @@
       "end": "ended"
     },
     "seed-47": {
-      "hash": "28ddccdd1803322c",
+      "hash": "2e7ad858b4e3a68b",
       "facets": {
         "dialogue": "a256d5d28110a94c",
         "economy": "4d6d09fd840e66cd",
@@ -908,7 +908,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "53bae51f983f3f62",
+        "kernel": "c35c9fa2887d157b",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -918,7 +918,7 @@
       "end": "ended"
     },
     "seed-48": {
-      "hash": "d52156bca4b748dc",
+      "hash": "06c1d2bf66aca2bb",
       "facets": {
         "dialogue": "c26591b685b77607",
         "economy": "ba0636d2e08a3e56",
@@ -927,7 +927,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "8c0f5ed4dac0bce9",
+        "kernel": "e06e47bf59969ec0",
         "logic": "08f44b07b5901a25",
         "quests": "550b9ff65731848b",
         "sheet": "da9d0cae103b40df",
@@ -937,7 +937,7 @@
       "end": "ended"
     },
     "seed-49": {
-      "hash": "1242cf2418f2cd78",
+      "hash": "152919dfce1ce27b",
       "facets": {
         "dialogue": "c52cf3bdd9789526",
         "economy": "d4386703fe99620d",
@@ -946,7 +946,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "ea380432c93bfe33",
-        "kernel": "077e5913d4e16de3",
+        "kernel": "b436edbbacdc296a",
         "logic": "08f44b07b5901a25",
         "quests": "5de2caa16c2cccbe",
         "sheet": "da9d0cae103b40df",
@@ -956,7 +956,7 @@
       "end": "ended"
     },
     "seed-50": {
-      "hash": "14b572036f399210",
+      "hash": "5e2febc6c3e0dad0",
       "facets": {
         "dialogue": "bdd9c0ff150b7bdf",
         "economy": "3595681a273becc4",
@@ -965,9 +965,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "1232d6559dba7613",
-        "kernel": "7487793ab54757fc",
+        "kernel": "c21277fb1f359f35",
         "logic": "08f44b07b5901a25",
-        "quests": "f88f7c56bea31e3c",
+        "quests": "d233e69c352c5ed9",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -975,7 +975,7 @@
       "end": "ended"
     },
     "seed-51": {
-      "hash": "553276d41ada5f64",
+      "hash": "da9d973ffa00aea5",
       "facets": {
         "dialogue": "35a8f9c00f618b23",
         "economy": "4dfaed9d40e52f38",
@@ -984,7 +984,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "985c54fa755d482e",
+        "kernel": "ed554a918eb25037",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -994,7 +994,7 @@
       "end": "ended"
     },
     "seed-52": {
-      "hash": "650500ffa6860d53",
+      "hash": "c6ab0d59fd2c101a",
       "facets": {
         "dialogue": "db92d53cb7e8d99a",
         "economy": "5cc63fe4fc9dae57",
@@ -1003,7 +1003,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "9d0b371beb114a14",
+        "kernel": "94759ce0624aedcd",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -1013,7 +1013,7 @@
       "end": "ended"
     },
     "seed-53": {
-      "hash": "7da14b6c0d71f621",
+      "hash": "41000538f5261a30",
       "facets": {
         "dialogue": "9df672f092109c60",
         "economy": "4dfaed9d40e52f38",
@@ -1022,7 +1022,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "8835965a42d28343",
+        "kernel": "c239a42de088414a",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1032,7 +1032,7 @@
       "end": "ended"
     },
     "seed-54": {
-      "hash": "47ba8b1e2c527d6e",
+      "hash": "ac2850b25ebd6b4d",
       "facets": {
         "dialogue": "324a7abecfa948c3",
         "economy": "e72ee1dbd870ff5c",
@@ -1041,7 +1041,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "d9ca07217a1aadce",
-        "kernel": "21dd169286b93063",
+        "kernel": "ce95ab3a5eb3ebea",
         "logic": "08f44b07b5901a25",
         "quests": "550b9ff65731848b",
         "sheet": "da9d0cae103b40df",
@@ -1051,7 +1051,7 @@
       "end": "ended"
     },
     "seed-55": {
-      "hash": "140d254314c62779",
+      "hash": "de7d2599d8c54208",
       "facets": {
         "dialogue": "a3eea32464672bc2",
         "economy": "f39bb39185399640",
@@ -1060,7 +1060,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "d9ca07217a1aadce",
-        "kernel": "2c56cb65a05ed99b",
+        "kernel": "5d7f07ecab621a82",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1070,7 +1070,7 @@
       "end": "ended"
     },
     "seed-56": {
-      "hash": "f3d2912b664666b2",
+      "hash": "90822e15f196576b",
       "facets": {
         "dialogue": "a4d91bcba38c83d8",
         "economy": "90f908c36b60cd2d",
@@ -1079,7 +1079,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "fc312de017aaeed2",
-        "kernel": "45aca1371a74bc34",
+        "kernel": "60d1abbdde66f7ed",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -1089,7 +1089,7 @@
       "end": "ended"
     },
     "seed-57": {
-      "hash": "b3d7447acba4c7a2",
+      "hash": "f70946a36c6142c9",
       "facets": {
         "dialogue": "845345388c261e77",
         "economy": "4d6d09fd840e66cd",
@@ -1098,7 +1098,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "0097fdf9c5dd9ae4",
+        "kernel": "fce62829df43899d",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1108,7 +1108,7 @@
       "end": "ended"
     },
     "seed-58": {
-      "hash": "82ac1823da49d954",
+      "hash": "5899ee9cb35949bd",
       "facets": {
         "dialogue": "c86ba7ca8f7e3b53",
         "economy": "4c608414de7a99f1",
@@ -1117,7 +1117,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b084c50ce8e60e5d",
+        "kernel": "2d68fb0939ea0ca4",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -1127,7 +1127,7 @@
       "end": "ended"
     },
     "seed-59": {
-      "hash": "9a32a10a7f93e729",
+      "hash": "7c89ea1627b2b908",
       "facets": {
         "dialogue": "87c74114c7554386",
         "economy": "5cc63fe4fc9dae57",
@@ -1136,7 +1136,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "30fb2992b5c0f952",
+        "kernel": "806393ea07da472b",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -1146,7 +1146,7 @@
       "end": "ended"
     },
     "seed-60": {
-      "hash": "86a3c3379f52cd87",
+      "hash": "aa50e49e1b0907fe",
       "facets": {
         "dialogue": "ee2f8975ebddc9b0",
         "economy": "8cd5dab5eb2c2ab4",
@@ -1155,7 +1155,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "474df2f7f221fb44",
-        "kernel": "2cd0c5b20e43337e",
+        "kernel": "ddeaf3f2774b4147",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1165,7 +1165,7 @@
       "end": "ended"
     },
     "seed-61": {
-      "hash": "79cf84e140164799",
+      "hash": "d30116bf761c7ca6",
       "facets": {
         "dialogue": "51401c5fdb51b36b",
         "economy": "ba0636d2e08a3e56",
@@ -1174,7 +1174,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "3ea030c817b3c5b6",
+        "kernel": "15a7312d045f43bf",
         "logic": "08f44b07b5901a25",
         "quests": "0905951fa2b518f0",
         "sheet": "da9d0cae103b40df",
@@ -1184,7 +1184,7 @@
       "end": "ended"
     },
     "seed-62": {
-      "hash": "9316bb19d13251bc",
+      "hash": "6d357976c4cd7505",
       "facets": {
         "dialogue": "ce7b9349a0a10f7b",
         "economy": "4c608414de7a99f1",
@@ -1193,7 +1193,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b07cebcfa92e2baa",
+        "kernel": "4f02d6a61b275c23",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -1203,7 +1203,7 @@
       "end": "ended"
     },
     "seed-63": {
-      "hash": "755ec0892353ca41",
+      "hash": "7715302a814e0c98",
       "facets": {
         "dialogue": "576cdbed4a8c52d6",
         "economy": "d5f8b45764ee447f",
@@ -1212,7 +1212,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "dfebdb23d3d017b8",
-        "kernel": "d87acb2f2d9cb4f1",
+        "kernel": "40af7db92b9a7908",
         "logic": "08f44b07b5901a25",
         "quests": "1d6769e9c05294fe",
         "sheet": "da9d0cae103b40df",
@@ -1222,7 +1222,7 @@
       "end": "ended"
     },
     "seed-64": {
-      "hash": "595415be7367c4dc",
+      "hash": "cd20dc907f0f273b",
       "facets": {
         "dialogue": "71cb32e94f8eeebf",
         "economy": "a4475aa8faa96fb1",
@@ -1231,7 +1231,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "474df2f7f221fb44",
-        "kernel": "f9df599db8afff2c",
+        "kernel": "c65d6125c6167325",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1241,7 +1241,7 @@
       "end": "ended"
     },
     "seed-65": {
-      "hash": "cf8da9332f474857",
+      "hash": "7d0d05ba0bdfc003",
       "facets": {
         "dialogue": "5e168bd1f1ded78e",
         "economy": "c471e3dc8a33aef9",
@@ -1250,9 +1250,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "df7849ea7b238ddd",
-        "kernel": "70ceda1706d0aac3",
+        "kernel": "aad2e7eaa48668ca",
         "logic": "08f44b07b5901a25",
-        "quests": "dc52d821716cc562",
+        "quests": "3dfe6982c04ff5b3",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1260,7 +1260,7 @@
       "end": "ended"
     },
     "seed-66": {
-      "hash": "c67c94203dab686b",
+      "hash": "295da3964593068c",
       "facets": {
         "dialogue": "572feafb74b022b2",
         "economy": "4d6d09fd840e66cd",
@@ -1269,7 +1269,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "eb83fd31cd2a1dec",
+        "kernel": "0bbe0299bdadfae5",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1279,7 +1279,7 @@
       "end": "ended"
     },
     "seed-67": {
-      "hash": "9402f403f135ca1c",
+      "hash": "cd8e83c9d7cdc822",
       "facets": {
         "dialogue": "d885b76089924819",
         "economy": "fcf385b41d5b55de",
@@ -1288,9 +1288,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "1232d6559dba7613",
-        "kernel": "85ebd0fe8822f44f",
+        "kernel": "8205b9178d3f7e06",
         "logic": "08f44b07b5901a25",
-        "quests": "a1a20face44e1a5b",
+        "quests": "2c0841ada7442fb4",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1298,7 +1298,7 @@
       "end": "ended"
     },
     "seed-68": {
-      "hash": "c80867d4308f35fc",
+      "hash": "5a52f91c15882a10",
       "facets": {
         "dialogue": "efd4c21acb0e4fcb",
         "economy": "ba0636d2e08a3e56",
@@ -1307,9 +1307,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "a2736f8a6f6df828",
+        "kernel": "4ed8512e02760611",
         "logic": "08f44b07b5901a25",
-        "quests": "36751036c0fdcf31",
+        "quests": "aef33d884c81563e",
         "sheet": "da9d0cae103b40df",
         "time": "81a3747d979e09a0"
       },
@@ -1317,7 +1317,7 @@
       "end": "ended"
     },
     "seed-69": {
-      "hash": "181ca03d666172a2",
+      "hash": "b3ec76c33321042b",
       "facets": {
         "dialogue": "efccec77b6c77b64",
         "economy": "c54a799204035757",
@@ -1326,7 +1326,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "1232d6559dba7613",
-        "kernel": "bb34a2e35576d3c8",
+        "kernel": "1c39f2df93017db1",
         "logic": "08f44b07b5901a25",
         "quests": "1d6769e9c05294fe",
         "sheet": "da9d0cae103b40df",
@@ -1336,7 +1336,7 @@
       "end": "ended"
     },
     "seed-70": {
-      "hash": "ae09f089b966212d",
+      "hash": "c375ce01e3fedd2c",
       "facets": {
         "dialogue": "220e86513a552ae7",
         "economy": "4dfaed9d40e52f38",
@@ -1345,7 +1345,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "80988eed610ef51d",
+        "kernel": "844a64bd47a90664",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -1355,7 +1355,7 @@
       "end": "ended"
     },
     "seed-71": {
-      "hash": "bfdd3c1662ea0dd2",
+      "hash": "53fe386a15b7604a",
       "facets": {
         "dialogue": "5768fbfa9aaa7c0e",
         "economy": "ba0636d2e08a3e56",
@@ -1364,9 +1364,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b2e048e1e70fe13e",
+        "kernel": "8a81044beed5f807",
         "logic": "08f44b07b5901a25",
-        "quests": "d353be2168ccc73e",
+        "quests": "2426f2174daa141f",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1374,7 +1374,7 @@
       "end": "ended"
     },
     "seed-72": {
-      "hash": "f23128bab63afe97",
+      "hash": "5299ae2bc15ccf0e",
       "facets": {
         "dialogue": "a4837652af762923",
         "economy": "fcf385b41d5b55de",
@@ -1383,7 +1383,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "1232d6559dba7613",
-        "kernel": "aa8c1bc84c485471",
+        "kernel": "12c0ce524a461888",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1393,7 +1393,7 @@
       "end": "ended"
     },
     "seed-73": {
-      "hash": "cbee4770f2955be1",
+      "hash": "2ae863fac893e53a",
       "facets": {
         "dialogue": "b58e8014f42662db",
         "economy": "4d6d09fd840e66cd",
@@ -1402,7 +1402,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "5bcef59a496bd94d",
+        "kernel": "64648fd5d2323594",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1412,7 +1412,7 @@
       "end": "ended"
     },
     "seed-74": {
-      "hash": "6d6409e1489702c1",
+      "hash": "6b8c2ab0ab801167",
       "facets": {
         "dialogue": "81229f27e0c1ef36",
         "economy": "f859bbfb312f7d51",
@@ -1421,9 +1421,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "fc312de017aaeed2",
-        "kernel": "377640a82d850769",
+        "kernel": "8bd52992ac5ae940",
         "logic": "08f44b07b5901a25",
-        "quests": "29de852bd528f580",
+        "quests": "f23f9b9922d33067",
         "sheet": "da9d0cae103b40df",
         "time": "81a3747d979e09a0"
       },
@@ -1431,7 +1431,7 @@
       "end": "ended"
     },
     "seed-75": {
-      "hash": "1db289ec0826d3cd",
+      "hash": "92c3c5328ed6fd01",
       "facets": {
         "dialogue": "802abae38f14d892",
         "economy": "2fc62b6d61b32d92",
@@ -1440,9 +1440,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "acb71f49362021b2",
-        "kernel": "662023da2d170600",
+        "kernel": "ba8f81ad1caae529",
         "logic": "08f44b07b5901a25",
-        "quests": "d4725a672c2e31a1",
+        "quests": "51a5cc78cf2b6b26",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1450,7 +1450,7 @@
       "end": "ended"
     },
     "seed-76": {
-      "hash": "3ffcb70028dd8a58",
+      "hash": "0a88afbedbecb447",
       "facets": {
         "dialogue": "60b0c96d88fd6e0e",
         "economy": "a4475aa8faa96fb1",
@@ -1459,7 +1459,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "474df2f7f221fb44",
-        "kernel": "5e93083d3b733dcf",
+        "kernel": "5aacf056408fc786",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1469,7 +1469,7 @@
       "end": "ended"
     },
     "seed-77": {
-      "hash": "b83487fa34e646fd",
+      "hash": "8e461e53cc628954",
       "facets": {
         "dialogue": "c7c8e68f7c95ed23",
         "economy": "4dfaed9d40e52f38",
@@ -1478,7 +1478,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "f8a3e88fc79c89d4",
+        "kernel": "b8631e389a21378d",
         "logic": "08f44b07b5901a25",
         "quests": "46ddd08fed29ef38",
         "sheet": "da9d0cae103b40df",
@@ -1488,7 +1488,7 @@
       "end": "ended"
     },
     "seed-78": {
-      "hash": "bdd7827a5fc39fec",
+      "hash": "d1126144972344ed",
       "facets": {
         "dialogue": "968d64335b1b9304",
         "economy": "4dfaed9d40e52f38",
@@ -1497,7 +1497,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "1207003cd553b054",
+        "kernel": "d1c635e5a7d85e0d",
         "logic": "08f44b07b5901a25",
         "quests": "46903fd516df47a5",
         "sheet": "da9d0cae103b40df",
@@ -1507,7 +1507,7 @@
       "end": "ended"
     },
     "seed-79": {
-      "hash": "33036a1389ddb27d",
+      "hash": "75488cc7e6c3db76",
       "facets": {
         "dialogue": "ed7c92fb719cc228",
         "economy": "e4744f7e429ae326",
@@ -1516,7 +1516,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "06d3f996bb58d661",
+        "kernel": "ccb7248eda7cf938",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1526,7 +1526,7 @@
       "end": "ended"
     },
     "seed-80": {
-      "hash": "97444222bcdd8634",
+      "hash": "a025bc8aa696c143",
       "facets": {
         "dialogue": "20fef9eccde00c8d",
         "economy": "ba0636d2e08a3e56",
@@ -1535,7 +1535,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "f7c002f9287a9be3",
+        "kernel": "a47897a10075576a",
         "logic": "08f44b07b5901a25",
         "quests": "6e1415dcc890d184",
         "sheet": "da9d0cae103b40df",
@@ -1545,7 +1545,7 @@
       "end": "ended"
     },
     "seed-81": {
-      "hash": "1c41fb3dd47d8b43",
+      "hash": "34aa2c494862a224",
       "facets": {
         "dialogue": "a658b3395d852fab",
         "economy": "ba0636d2e08a3e56",
@@ -1554,7 +1554,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "2163ca897e7a8e1e",
+        "kernel": "23a4515ade877de7",
         "logic": "08f44b07b5901a25",
         "quests": "550b9ff65731848b",
         "sheet": "da9d0cae103b40df",
@@ -1564,7 +1564,7 @@
       "end": "ended"
     },
     "seed-82": {
-      "hash": "be7e4e4a5c363a88",
+      "hash": "a946d23027f881c1",
       "facets": {
         "dialogue": "80b32f923033bfb2",
         "economy": "4c608414de7a99f1",
@@ -1573,7 +1573,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b6170a999b6d5eeb",
+        "kernel": "bf142bef08a80112",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -1583,7 +1583,7 @@
       "end": "ended"
     },
     "seed-83": {
-      "hash": "c443cbc5795ce9a1",
+      "hash": "162fb56cdc9b74ae",
       "facets": {
         "dialogue": "559c769eef1e8f14",
         "economy": "4ce7d78f032a9739",
@@ -1592,7 +1592,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "3057f69d0e859e2c",
+        "kernel": "fcd5fe251bec1225",
         "logic": "08f44b07b5901a25",
         "quests": "9aea8d117c2213ad",
         "sheet": "da9d0cae103b40df",
@@ -1602,7 +1602,7 @@
       "end": "ended"
     },
     "seed-84": {
-      "hash": "94e542b57f496139",
+      "hash": "662864d3ecbabf40",
       "facets": {
         "dialogue": "9d01a3ab4f84e5fa",
         "economy": "4c608414de7a99f1",
@@ -1611,7 +1611,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b9dbd5e5fea03c2a",
+        "kernel": "5861c0bc70996ca3",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -1621,7 +1621,7 @@
       "end": "ended"
     },
     "seed-85": {
-      "hash": "4e666f74bd5b9442",
+      "hash": "64b5266d18d3b166",
       "facets": {
         "dialogue": "fe1232244df915f8",
         "economy": "960c3d94a1d9b25c",
@@ -1630,9 +1630,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "0192673353504cbe",
-        "kernel": "c431476050c75862",
+        "kernel": "33d301e341052e7b",
         "logic": "08f44b07b5901a25",
-        "quests": "971cbb008253e540",
+        "quests": "ef5360be87d9c45d",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1640,7 +1640,7 @@
       "end": "ended"
     },
     "seed-86": {
-      "hash": "76e74944c015525c",
+      "hash": "0d3797b28fb005eb",
       "facets": {
         "dialogue": "c5e9b4f25db14a95",
         "economy": "ba0636d2e08a3e56",
@@ -1649,7 +1649,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "b98eee668d161901",
+        "kernel": "2c88693493372858",
         "logic": "08f44b07b5901a25",
         "quests": "6e1415dcc890d184",
         "sheet": "da9d0cae103b40df",
@@ -1659,7 +1659,7 @@
       "end": "ended"
     },
     "seed-87": {
-      "hash": "e8898ff80b3d34e2",
+      "hash": "32fa78654e6eb88b",
       "facets": {
         "dialogue": "48b457bde1a107db",
         "economy": "4dfaed9d40e52f38",
@@ -1668,7 +1668,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "9b4f31d0c0a925bc",
+        "kernel": "fe0f3b647a14e6f5",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1678,7 +1678,7 @@
       "end": "ended"
     },
     "seed-88": {
-      "hash": "22063ad2179c8b0d",
+      "hash": "72fcd9cd9a3da3ac",
       "facets": {
         "dialogue": "711dbdea5440828c",
         "economy": "4dfaed9d40e52f38",
@@ -1687,7 +1687,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "1321cc2871aef98c",
+        "kernel": "153474f7ee49e805",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1697,7 +1697,7 @@
       "end": "ended"
     },
     "seed-89": {
-      "hash": "12487e29bbba7575",
+      "hash": "d36bd95dc92a8686",
       "facets": {
         "dialogue": "1d31a2ed85f66d78",
         "economy": "ba0636d2e08a3e56",
@@ -1706,7 +1706,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "736084e9d2569fcb",
+        "kernel": "2eee1ffd29dd33f2",
         "logic": "08f44b07b5901a25",
         "quests": "6e1415dcc890d184",
         "sheet": "da9d0cae103b40df",
@@ -1716,7 +1716,7 @@
       "end": "ended"
     },
     "seed-90": {
-      "hash": "a532119127472933",
+      "hash": "d33bb80e4b775929",
       "facets": {
         "dialogue": "6c6d8c2b6872e98b",
         "economy": "c54a799204035757",
@@ -1725,9 +1725,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "1232d6559dba7613",
-        "kernel": "8d527822542a4084",
+        "kernel": "ef65a49c72c07d3d",
         "logic": "08f44b07b5901a25",
-        "quests": "f5227ab54dfb47c9",
+        "quests": "e6ba7ecc89775b8e",
         "sheet": "da9d0cae103b40df",
         "time": "d864e0f9b3407a13"
       },
@@ -1735,7 +1735,7 @@
       "end": "ended"
     },
     "seed-91": {
-      "hash": "a7e15a1c17fc6ed2",
+      "hash": "00f902841a0c9639",
       "facets": {
         "dialogue": "55a2a4157671cddf",
         "economy": "e4744f7e429ae326",
@@ -1744,7 +1744,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "09038045d0ee98fd",
-        "kernel": "06bb11495de63c6a",
+        "kernel": "5a027ca185eb80e3",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1754,7 +1754,7 @@
       "end": "ended"
     },
     "seed-92": {
-      "hash": "f6042e9b8912e04a",
+      "hash": "52f2a99a8fdd90b8",
       "facets": {
         "dialogue": "2729ae3bfb338fca",
         "economy": "5501a28f8625559a",
@@ -1763,9 +1763,9 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "6212d79cc10be9af",
-        "kernel": "ee0e65488797c6c3",
+        "kernel": "2812731c254d84ca",
         "logic": "08f44b07b5901a25",
-        "quests": "dc52d821716cc562",
+        "quests": "3dfe6982c04ff5b3",
         "sheet": "da9d0cae103b40df",
         "time": "656af282e4f3255a"
       },
@@ -1773,7 +1773,7 @@
       "end": "ended"
     },
     "seed-93": {
-      "hash": "ad953ea1d4a1b0a6",
+      "hash": "eec4ff608b338fef",
       "facets": {
         "dialogue": "356547b783ac0411",
         "economy": "8cd5dab5eb2c2ab4",
@@ -1782,7 +1782,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "474df2f7f221fb44",
-        "kernel": "83361af231540a4f",
+        "kernel": "7f50030b36709406",
         "logic": "08f44b07b5901a25",
         "quests": "4dd6bd8e66c1b2c3",
         "sheet": "da9d0cae103b40df",
@@ -1792,7 +1792,7 @@
       "end": "ended"
     },
     "seed-94": {
-      "hash": "52676b5a4339bd7f",
+      "hash": "bcfa6e007dda4a20",
       "facets": {
         "dialogue": "337704f2d702dfc8",
         "economy": "ba0636d2e08a3e56",
@@ -1801,7 +1801,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "bb55e580a5e37a67",
+        "kernel": "b9155eaf45d68a9e",
         "logic": "08f44b07b5901a25",
         "quests": "6e1415dcc890d184",
         "sheet": "da9d0cae103b40df",
@@ -1811,7 +1811,7 @@
       "end": "ended"
     },
     "seed-95": {
-      "hash": "e245876af9d2dbe1",
+      "hash": "03e86bc1244eaf28",
       "facets": {
         "dialogue": "2e0876d3ccbf6259",
         "economy": "4ed7341a9f701f18",
@@ -1820,7 +1820,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "165d9408c6a9e72e",
-        "kernel": "97344d41e93a60d1",
+        "kernel": "603a27f42620e0e8",
         "logic": "08f44b07b5901a25",
         "quests": "7b444b2e3e16093a",
         "sheet": "da9d0cae103b40df",
@@ -1830,7 +1830,7 @@
       "end": "ended"
     },
     "seed-96": {
-      "hash": "031a8f11e14eead8",
+      "hash": "e95ef874d1261b49",
       "facets": {
         "dialogue": "b7b4d99a986f11a6",
         "economy": "4dfaed9d40e52f38",
@@ -1839,7 +1839,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "3dcada80e8668fe2",
+        "kernel": "ad6c9503d8a465fb",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1849,7 +1849,7 @@
       "end": "ended"
     },
     "seed-97": {
-      "hash": "d555a10c94e538af",
+      "hash": "ab1884e69bf52c20",
       "facets": {
         "dialogue": "1008b7473a99e85d",
         "economy": "4d6d09fd840e66cd",
@@ -1858,7 +1858,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "f86b8bbfff5e2559",
+        "kernel": "7c89d32a974a9d30",
         "logic": "08f44b07b5901a25",
         "quests": "51cd7fb425e7ec64",
         "sheet": "da9d0cae103b40df",
@@ -1868,7 +1868,7 @@
       "end": "ended"
     },
     "seed-98": {
-      "hash": "e06a1b2382fd8a45",
+      "hash": "ddc866ec218c6404",
       "facets": {
         "dialogue": "f7dc756586ab58fb",
         "economy": "4dfaed9d40e52f38",
@@ -1877,7 +1877,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "c0039fb3146184ff",
-        "kernel": "38f2d726d765601c",
+        "kernel": "d75e16462888e2d5",
         "logic": "08f44b07b5901a25",
         "quests": "cfb23b68aab2870a",
         "sheet": "da9d0cae103b40df",
@@ -1887,7 +1887,7 @@
       "end": "ended"
     },
     "seed-99": {
-      "hash": "2fd3b58c7735382a",
+      "hash": "30917461900b216b",
       "facets": {
         "dialogue": "3b3552f46eadf341",
         "economy": "513cd7fbae9813c0",
@@ -1896,7 +1896,7 @@
         "flag": "1dff1b5e0bf63105",
         "hut": "08f44b07b5901a25",
         "inventory": "351a530f97ef2629",
-        "kernel": "a7d16e8265ab6a40",
+        "kernel": "53728597e6d58869",
         "logic": "08f44b07b5901a25",
         "quests": "46ddd08fed29ef38",
         "sheet": "da9d0cae103b40df",

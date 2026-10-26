@@ -11,6 +11,7 @@ import { questShown } from './journal.ts';
 import { namedStage, questRecord } from './records.ts';
 import { fail } from './run.ts';
 import { hear, setStage, startQuest, startWaiting } from './start.ts';
+import { track, withTracked } from './tracking.ts';
 import { QUEST, QUESTS, type QuestsSlice } from './types.ts';
 
 type Def = ModuleDef<QuestsSlice>;
@@ -31,9 +32,9 @@ const events: Def['events'] = {
 export const questsModule: Module = defineModule<QuestsSlice>({
   id: QUESTS,
   // Version 2 (M3.10) adds an entry's slots, lost, times and again, which a quest of version 1
-  // has none of: its entries load as they are.
-  version: 2,
-  migrate: { 2: (slice) => slice },
+  // has none of: its entries load as they are. Version 3 (M6.6) adds the tracked quest.
+  version: 3,
+  migrate: { 2: (slice) => slice, 3: withTracked },
   init: () => ({ quests: {} }),
   // Quests that start with the game, then those whose start holds already.
   start: (ctx) => {
@@ -42,6 +43,10 @@ export const questsModule: Module = defineModule<QuestsSlice>({
   },
   facts,
   events,
+  actions: {
+    // The journal's Track (M6.6): outside play, so it takes no mode's leave and no bot takes it.
+    track: { run: (ctx, action) => track(ctx, action.quest), anyMode: true },
+  },
   effects: {
     'start-quest': {
       run: (ctx, effect) => {

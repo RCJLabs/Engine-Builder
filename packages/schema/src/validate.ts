@@ -35,6 +35,7 @@ import { checkModel, MODEL, type ModelRecord } from './modelTypes.ts';
 import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
+import { checkTargets } from './targetCheck.ts';
 import { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walkers } from './worldCheck.ts';
 
 export interface RecordInput {
@@ -106,6 +107,11 @@ export interface ValidateOptions {
   readonly spaces?: SpaceSpawns;
   /** Where each placed actor stands (M6.2), for walk-to's names (E079). Without it, walk-to gets only the shape check. */
   readonly walkers?: Walkers;
+  /**
+   * Each space's object paths, through prefabs (M6.6), for objectives' targets (E086, W155), with
+   * `walkers`. Without both, a target gets only the shape check.
+   */
+  readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
   /** Flags set and read by spaces' trigger zones and by screens (M5.8), for the flags' lint. */
   readonly flagsElsewhere?: FlagUses;
 }
@@ -190,8 +196,11 @@ export function validateRecords(
       if (type === FLAG) flags.heard(id, from);
     };
     if (record.type === SHEET) checkSheet(record.value, { ...ctx, heard });
-    if (sound && record.type === QUEST && on.includes(QUESTS))
+    if (sound && record.type === QUEST && on.includes(QUESTS)) {
       checkCounts(record.value as QuestRecord, { ...ctx, heard }, slotsAt);
+      const { objects, walkers } = options;
+      if (objects && walkers) checkTargets(record.value as QuestRecord, { records: index, objects, walkers }, report);
+    }
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);

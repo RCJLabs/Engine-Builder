@@ -97,6 +97,11 @@ export interface ActionSpec<S> {
    * offered once, with no payload.
    */
   readonly options?: (view: OptionsView<S>) => readonly ActionPayload[];
+  /**
+   * An action outside play, as a menu's (M6.6: the journal's quests/track): allowed in every mode
+   * and in no mode's list, as the debug step is, so no bot is offered it and no mode need name it.
+   */
+  readonly anyMode?: true;
 }
 
 export type FactRead<S> = (view: FactView<S>, args: FactArgs) => unknown;

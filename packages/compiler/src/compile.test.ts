@@ -897,6 +897,51 @@ describe('the code table', () => {
       'W153 records/animator/moves.json /base/states/2/id',
       'W152 records/model/hero.json /file',
     ]);
+    // M6.6: targets naming a space that isn't there and an actor placed nowhere, a map baked before
+    // its space last changed, and one of a space that isn't there.
+    const marked = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({
+          format: 1,
+          id: 'glen',
+          name: 'Glen',
+          version: '0.1.0',
+          kits: ['time', 'stats', 'quests'],
+        }),
+        'records/actor/bram.json': '{}',
+        'records/flag/found.json': '{}',
+        'records/quest/supplies.json': JSON.stringify({
+          name: 'Supplies',
+          'at-start': true,
+          stages: [
+            {
+              id: 'go',
+              objectives: [
+                { id: 'barn', text: 'Find the barn', 'done-when': 'flag.on(found)', target: { space: 'barn' } },
+                { id: 'bram', text: 'Find Bram', 'done-when': 'flag.on(found)', target: { actor: 'bram' } },
+              ],
+            },
+          ],
+        }),
+        'spaces/glen.json': JSON.stringify({ name: 'Glen', objects: [{ id: 'cairn', shape: 'box' }] }),
+        'spaces/glen.map.json': JSON.stringify({
+          bounds: [-8, -8, 8, 8],
+          size: [1024, 1024],
+          image: 'glen.map.webp',
+          hash: '0000000000000000',
+        }),
+        'spaces/glen.map.webp': new Uint8Array([82, 73, 70, 70]),
+        'spaces/barn.map.json': '{',
+      }),
+      [],
+    );
+    const sixSix = brief(marked.diagnostics).filter((d) => ['E086', 'E087', 'W154', 'W155'].includes(d.code));
+    expect(sixSix.map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'E086 records/quest/supplies.json /stages/0/objectives/0/target/space',
+      'W155 records/quest/supplies.json /stages/0/objectives/1/target/actor',
+      'E087 spaces/barn.map.json ',
+      'W154 spaces/glen.map.json ',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -928,6 +973,7 @@ describe('the code table', () => {
       armed,
       unarmed,
       animated,
+      marked,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
