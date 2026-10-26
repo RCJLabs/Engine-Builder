@@ -12,11 +12,11 @@ It builds on [models](models.md) (the import and the model worker), [npcs](npcs.
 ## The rig
 
 - **The engine's rig** is VRM 1.0's humanoid.
-  - Required bones:
-    - the trunk: `hips`, `spine`, `chest`, `neck`, `head`;
+  - Required bones, VRM's fifteen:
+    - the trunk: `hips`, `spine`, `head`;
     - each side's arm: `leftUpperArm`, `leftLowerArm`, `leftHand` and the right's;
     - each side's leg: `leftUpperLeg`, `leftLowerLeg`, `leftFoot` and the right's.
-  - Kept when there: `upperChest`, both `Shoulder`s and `Toes`.
+  - Kept when there: `chest`, `upperChest`, `neck`, both `Shoulder`s and `Toes`.
   - Any other joint (fingers, a jaw, a tail) is carried along but shared with no other model.
   - Metres, +y up, facing −z, as every placed thing faces.
 - **A normalised skeleton.** At rest every bone's world rotation is the identity, in a T-pose:

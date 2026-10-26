@@ -9,9 +9,11 @@
     ".": "./src/index.ts",
     "./colliders": "./src/colliders.ts",
     "./hull": "./src/hull.ts",
+    "./humanoid": "./src/humanoid.ts",
     "./io": "./src/io.ts",
     "./lod": "./src/lod.ts",
-    "./pack": "./src/pack.ts"
+    "./pack": "./src/pack.ts",
+    "./rig": "./src/rig.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
