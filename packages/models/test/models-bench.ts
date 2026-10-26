@@ -1,7 +1,8 @@
 /**
  * Measures a model's work in Node (M5.5, D67): a model packed as import packs it, from plain
  * floats and from Draco; a LOD level cut by the simplifier; and each collider fitted. On the
- * test's hills (2,048 triangles) and on a grid four times their size (8,192). Medians of N: the
+ * test's hills (2,048 triangles) and on a grid four times their size (8,192); and a foreign rig
+ * (24 joints, a 1 s walk) packed as import packs a rigged model, put on the rig first (M6.5). Medians of N: the
  * instrument behind the "Model packing" and "Model sizes" readings in ROADMAP.md, the sizes as
  * they are and gzipped at level 9. The browser's own times come from the console lines the import
  * writes.
@@ -13,6 +14,8 @@ import { fitBox, fitCapsule, fitSphere, modelPositions } from '../src/colliders.
 import { fitHull } from '../src/hull.ts';
 import { floatPositions, lodReady, simplifyIndices } from '../src/lod.ts';
 import { packModel, readModel } from '../src/pack.ts';
+import { rigModel } from '../src/rig.ts';
+import { foreignRig } from './rigs.ts';
 import { dracoDecoder, glbOf, gridArrays, gridModel } from './shapes.ts';
 
 const N = 15;
@@ -77,3 +80,12 @@ for (const [label, n] of [
     console.log(`  ${shape} fitted: ${ms(await median(() => fit(points)))}`);
   }
 }
+
+// A rigged model as the model worker packs it: put on the rig, then packed (M6.5).
+const strider = await glbOf(foreignRig());
+const rigged = await packModel({ name: 'strider.glb', bytes: strider }, [], decoders, (doc) => void rigModel(doc));
+console.log(`foreign rig, 24 joints and a 1 s walk: ${sizes(strider)}, packed on the rig ${sizes(rigged)}`);
+const rigTime = await median(() =>
+  packModel({ name: 'strider.glb', bytes: strider }, [], decoders, (doc) => void rigModel(doc)),
+);
+console.log(`  put on the rig and packed: ${ms(rigTime)}`);
