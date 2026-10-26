@@ -176,5 +176,5 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 5. Whether the 30° soft-aim cone and the wind-ups feel right, untested for feel.
 6. Whether a press of Attack mid-swing should be kept for the next swing (input buffering), for
    players who tap rather than hold.
-7. Whether the camp's numbers suit a phone: by touch the e2e's hero ended with 7 to 40 of 50 over
-   runs, by keys 25 to 32, by a pad 36 to 45.
+7. Whether the camp's numbers suit a person on a phone: steered by the specs, the hero ended with 28
+   to 40 of 50 by touch (five runs at each size), 32 by keys and 40 to 44 by a pad (four runs each).
