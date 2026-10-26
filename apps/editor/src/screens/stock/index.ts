@@ -80,7 +80,9 @@ export const STOCK: readonly Stock[] = [
     name: 'Container',
     about: 'A chest’s or a body’s lines to take, and the bag’s to put in',
     // Only a game that can open one has the mode (M6.8): a use that holds, or the fighting kit's bodies.
-    offered: (ctx) => ctx.modes?.all.includes('container') === true,
+    // Before its scripts have run, any game with the inventory kit and a space might.
+    offered: (ctx) =>
+      ctx.modes ? ctx.modes.all.includes('container') : hasKits(ctx, ['inventory']) && (ctx.spaces ?? []).length > 0,
     build: containerScreen,
   },
   { id: 'hall', name: 'Hall', about: 'Hire from a hall’s offers', offered: needs('roster'), build: hallScreen },

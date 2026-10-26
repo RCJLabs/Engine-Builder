@@ -17,11 +17,11 @@ export const POST = join(import.meta.dirname, '../../../tools/cli/test/fixtures/
 /** Where each thing the player uses stands, on the ground. */
 export const AT = { chest: [-4, 0, 2], barrel: [4, 0, 2], counter: [0, 0, 0] } as const;
 
-/** The open project's scripts let run, and a new game of it in Play: the yard drawn. */
-export async function playPost(page: Page, touch = false): Promise<Locator> {
+/** The open project's scripts let run, unless they may already, and a new game of it in Play: the yard drawn. */
+export async function playPost(page: Page, touch = false, trusted = false): Promise<Locator> {
   const how = (button: Locator) => (touch ? button.tap() : button.click());
   const panel = await showPlay(page);
-  await how(panel.getByRole('button', { name: 'Run its scripts' }));
+  if (!trusted) await how(panel.getByRole('button', { name: 'Run its scripts' }));
   const play = panel.getByRole('button', { name: 'Play', exact: true });
   await expect(play).toBeEnabled();
   await how(play);
