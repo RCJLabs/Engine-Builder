@@ -116,7 +116,10 @@ async function makeWalker(page: Page, touch: boolean): Promise<Locator> {
     await o.act('Add state');
     await o.rename('talk');
     await choose(o.chosen, /^From/, 'Choose a model', 'strider');
-    await o.chosen.getByRole('combobox', { name: /^Clip/ }).selectOption('walk');
+    const clip = o.chosen.getByRole('combobox', { name: /^Clip/ });
+    await clip.selectOption('walk');
+    // The clips offered are the strider's alone, now the state takes its clip from it.
+    await expect(clip.locator('option')).toHaveText(['None', 'walk']);
     await o.chosen.getByRole('checkbox', { name: /^Loops/ }).check();
   });
   await test.step('the transitions each way, on anim.talking', async () => {

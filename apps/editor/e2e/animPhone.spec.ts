@@ -15,6 +15,7 @@ import {
   record,
   startRecording,
   stopRecording,
+  throughJump,
 } from './animHelpers.ts';
 import { BANDITS, fallenOf, fightUntil, fought, hands, openCamp, touchSteer, yawTo } from './campHelpers.ts';
 import { watchErrors } from './checks.ts';
@@ -71,7 +72,7 @@ for (const viewport of [
         await settled(page);
         await startRecording(page);
         await fingers.tap(camp.getByRole('button', { name: 'Jump' }));
-        await page.waitForTimeout(1500);
+        await throughJump(page);
         expectJump(await stopRecording(page));
       });
 

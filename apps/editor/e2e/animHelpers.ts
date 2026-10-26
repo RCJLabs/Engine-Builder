@@ -57,6 +57,27 @@ export function stopRecording(page: Page): Promise<Frame[]> {
   });
 }
 
+/**
+ * Until the recording holds a jump through: a frame off the ground, then the last standing idle.
+ * Waited on as the frames come rather than for a fixed time, so a slow machine's frames still see
+ * it whole; a tap the walk never took fails here, still on the ground.
+ */
+export async function throughJump(page: Page): Promise<void> {
+  await expect
+    .poll(
+      () =>
+        page.evaluate((player) => {
+          const frames = (window as unknown as { __animFrames?: Frame[] }).__animFrames ?? [];
+          if (!frames.some((f) => !f.grounded)) return 'on the ground';
+          const last = frames.at(-1);
+          const state = last?.anims.find((a) => a.key === player)?.layers.base[0]?.state;
+          return last?.grounded && state === 'idle' ? 'through' : 'in the air';
+        }, PLAYER),
+      { timeout: 15_000 },
+    )
+    .toBe('through');
+}
+
 /** Every frame for `ms`. */
 export async function record(page: Page, ms: number): Promise<Frame[]> {
   await startRecording(page);

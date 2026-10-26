@@ -18,6 +18,7 @@ import {
   record,
   startRecording,
   stopRecording,
+  throughJump,
 } from './animHelpers.ts';
 import { BANDITS, fallenOf, fightUntil, fought, keySteer, openCamp, yawTo } from './campHelpers.ts';
 import { watchErrors } from './checks.ts';
@@ -55,7 +56,7 @@ test('the camp by keys: idle, walk and run at their paces, the air, a swing on i
     await settled(page);
     await startRecording(page);
     await holdUntil(page, ['Space'], (w) => !w.grounded);
-    await page.waitForTimeout(1500);
+    await throughJump(page);
     expectJump(await stopRecording(page));
   });
 

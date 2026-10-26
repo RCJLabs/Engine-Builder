@@ -2270,6 +2270,17 @@ Evan chose on 2026-10-26, from these options:
   - Nothing of animation is in the sim or in saves.
   - A swing's phases are timed by its weapon on the walk's fixed steps (D76). The upper layer's wind-up, strike and recover states are stretched to fit each phase, so the arm comes down in the step the hit is found. A clip never decides a hit.
 
+**As built** (2026-10-26, where the build moved from the above; [specs/animation.md](specs/animation.md) has the detail):
+- **The generator** lives in `tools/starter-kit/src/character`, beside the kit's, and writes `starter-character/`.
+- **An animator names its model once,** as `clips`; a state names a clip by its name and takes another model's with `from`. A rate is `fixed` (with a `speed`), `pace` or `fit`.
+- **The preview plays on the starter character only,** its clips from any model in the project; an actor's own model waits (the spec's open question 5).
+- **A model's Rig form** is a map of bones to joints as text, not yet a choice of the skeleton's joints.
+- **A skinned model starts with no LOD levels:** each level would need a skeleton of its own.
+- **The player** is drawn as the starter character in their actor's figure; a player actor with a model of its own is drawn as the starter character for now.
+- **Animators step by the motion's time,** its fixed steps, so a slow frame doesn't slide the feet; under a talk's pause the NPC talked to goes on moving.
+- **The stock animator runs above 3.5 m/s,** since the walk's own speed is 2.5.
+- **The Scene view** draws a figure as the starter character once its chunk has loaded, and as M6.1's capsule before.
+
 **Why.**
 - **Generated:** it runs offline and here, its licence is RCJLabs' own, and it proves the whole path without a download. Quaternius or KayKit can come in later through the same import.
 - **Retarget at import:** "sharing one rig" means any clip on any character. Doing it once at import keeps a frame's cost to three's mixer alone.

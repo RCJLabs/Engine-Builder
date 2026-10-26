@@ -97,18 +97,21 @@ keys by the model's hip height over the clip's own, so a short character's hips 
 
 ## Animators
 
-An `animator` record (an engine type, like `behaviour`):
+An `animator` record (an engine type, like `behaviour`). `clips` names the model whose clips its
+states play; a state takes another model's with `from`:
 
 ```json
 {
+  "clips": "starter-character",
   "base": {
     "start": "idle",
     "states": [
-      { "id": "idle", "clip": "starter-character/idle", "loop": true },
-      { "id": "walk", "clip": "starter-character/walk", "loop": true, "rate": "pace" },
-      { "id": "run",  "clip": "starter-character/run",  "loop": true, "rate": "pace" },
-      { "id": "air",  "clip": "starter-character/fall", "loop": true },
-      { "id": "down", "clip": "starter-character/fall-down" }
+      { "id": "idle", "clip": "idle", "loop": true },
+      { "id": "walk", "clip": "walk", "loop": true, "rate": "pace" },
+      { "id": "run",  "clip": "run",  "loop": true, "rate": "pace" },
+      { "id": "air",  "clip": "fall", "loop": true },
+      { "id": "down", "clip": "fall-down" },
+      { "id": "talk", "clip": "walk", "from": "strider", "loop": true }
     ],
     "transitions": [
       { "from": "idle", "to": "walk", "when": "anim.speed > 0.2", "blend": 0.2 },
@@ -120,7 +123,7 @@ An `animator` record (an engine type, like `behaviour`):
     "start": "none",
     "states": [
       { "id": "none" },
-      { "id": "windup", "clip": "starter-character/windup", "rate": "fit" }
+      { "id": "windup", "clip": "windup", "rate": "fit" }
     ],
     "transitions": [
       { "from": "*", "to": "windup", "when": "anim.swing == \"windup\"", "blend": 0.1 }
@@ -131,9 +134,11 @@ An `animator` record (an engine type, like `behaviour`):
 
 - **A state** has:
   - an `id`;
-  - a `clip` (a model's key and the clip's name);
+  - a `clip`, the clip's name in its model, and `from`, another model to take it from;
   - `loop`;
-  - a `rate`: a number (1 left out); `"pace"`, the speed moved over the clip's pace; or `"fit"`, the clip's length over the phase's.
+  - a `rate`: `"fixed"` (left out) plays at its `speed` (1 left out); `"pace"`, at the speed moved over the clip's pace; `"fit"`, laid on the phase, its time the clip's length times the phase's progress.
+- **A transition with no `when`** comes as the playing state's clip ends: a one-shot reaching its length, or a loop wrapping. One from `"*"` needs a `when`.
+- **Blends.** Over a blend the playing state's weight rises from 0 to 1 and the faded one's falls; a transition mid-blend drops the older faded state. A `fit` state fading out holds where its own phase left it.
 - **A state with no clip** gives its layer no weight. The base layer's states all have clips.
 - **Transitions** are checked in order each frame from the state playing, `"*"` matching any. The first whose condition holds crossfades to its `to` over `blend` seconds. A transition to the state already playing does nothing.
 - **Conditions** are the engine's condition text over the stage's facts:
@@ -155,6 +160,8 @@ An `animator` record (an engine type, like `behaviour`):
 
 ## In the walk
 
+- **Time.** Animators step by the time the motion stepped (its fixed steps), not the frame's, so a slow frame doesn't slide the feet. Under a talk's pause the NPC talked to goes on moving; every other body holds.
+- **Speed.** The player's is the controller's across the ground; an NPC's is measured from how far its node moved, smoothed over 0.15 s. The stock animator runs above 3.5 m/s and walks above 0.2: the walk's own speed is 2.5 and the run's 5.
 - **Each frame** the stage:
   1. works out each animated body's facts;
   2. steps its animator, a plain function of the facts, the state and the time, which returns each layer's state, time and weights;
@@ -177,7 +184,7 @@ An `animator` record (an engine type, like `behaviour`):
 | Code | When |
 | --- | --- |
 | E083 | An animator's clip names a model that isn't rigged, or a clip it doesn't have |
-| E084 | An animator's states: an `id` twice, `start` not a state, a transition to or from a state that isn't there, a base state with no clip, or a `rate` that isn't a number, `"pace"` or `"fit"` |
+| E084 | An animator's states: an `id` twice, `start` not a state, a transition to or from a state that isn't there, a base state with no clip, a `speed` with a `rate` other than `"fixed"`, or a transition from `"*"` with no `when` |
 | E085 | An actor's `animator` on a model that isn't rigged |
 | W152 | A skinned model with required bones unmapped: it draws, unanimated |
 | W153 | An animator state no transition reaches |
@@ -186,19 +193,22 @@ A transition's condition is checked as conditions are (E022, E023), against the 
 
 ## The editor
 
+- **The import** puts a skinned model on the rig in the model worker before packing it, and writes its record's `rig` (each humanoid bone and the joint it was) and `clips` (each name, length and pace, a pace only when it moves). A skinned model starts with no LOD levels: each level would need a skeleton of its own.
 - **The model's form**, for a skinned model, gains:
-  - **Rig**: the humanoid bones, each with the joint it maps to, chosen from the skeleton's joints, and W152's bones marked;
+  - **Rig**: a map of the humanoid bones to the joints they were, as text; the joints aren't yet offered from the skeleton;
   - **Clips**: each clip's name, length and pace.
-- **The animator's form** is an outline of its two layers' states, each with its transitions, as a behaviour's outline is (D75):
-  - add, move and remove;
-  - a state's form: clip, loop, rate;
-  - a transition's form: to, when, blend.
-- **The preview** above the form is a small 3D view, a lazy chunk:
-  - it plays the chosen state on the starter character, or on a chosen actor's model;
-  - sliders and switches set each fact, so a transition can be tried;
-  - it runs the animator the stage runs.
-- **The actor's form** gains Animator, and Records lists animators after behaviours.
-- **Add → Starter character** in the Assets panel.
+- **The animator's form** is an outline of each layer, as a behaviour's outline is (D75):
+  - a row a state, the transitions it leaves by under it, numbered in the order they are read; then the transitions from any state, or from one that isn't there;
+  - Starts in, a choice of the layer's states;
+  - Add state (after the one chosen, playing the model's first clip; a layer that starts in no state starts in it), Add transition (from the state chosen, to the next, its condition to write), Up, Down and Remove (a state takes its transitions both ways with it, and the layer keeps one); Add upper body and Remove upper body;
+  - a state's form: its name, renamed where the layer names it when the field is left; its clip, a choice of its model's clips; from, loop, rate and speed;
+  - a transition's form: from and to, choices of the layer's states; when, read with the `anim.*` facts alone; blend.
+- **The preview** above the form, a lazy chunk of its own:
+  - it plays the animator on the starter character, its clips from the starter character or from the project's own models, decoded from their files;
+  - a slider sets the speed, switches set grounded, rising, talking, down and hit, and choices set swing, bow and weapon; a swing or a draw chosen runs its phase once over half a second;
+  - it runs the animator the stage runs, and says what each layer plays, read back from it (`window.__ebAnimPreview` for the e2e).
+- **The actor's form** gains Animator, and Records lists animators after the engine's other types.
+- **Add starter character** in the Assets panel.
 
 ## The gate
 
@@ -230,6 +240,8 @@ A transition's condition is checked as conditions are (E022, E023), against the 
 2. Feet planted on slopes and steps (IK).
 3. Faces: blinking, mouths with talk lines.
 4. A held weapon drawn in the hand, by the model's `rightHand` bone (the item's own model, when items have models).
-5. Root motion kept for clips that need it (a vault, a lunge). Until then the import takes the travel out of every clip, a one-shot's too: a fall backwards imported lands where it stood, and its record gets a pace nothing reads.
-6. Non-humanoid rigs (a dog, a horse) and their own clip sets.
-7. A node graph for animators (Phase 8).
+5. Previewing on a chosen actor's model rather than the starter character, and a model's Rig form offering the skeleton's joints to choose from.
+6. Root motion kept for clips that need it (a vault, a lunge). Until then the import takes the travel out of every clip, a one-shot's too: a fall backwards imported lands where it stood, and its record gets a pace nothing reads.
+7. Non-humanoid rigs (a dog, a horse) and their own clip sets.
+8. A node graph for animators (Phase 8).
+9. The player's look: a player actor with a model of its own is drawn as the starter character for now.
