@@ -92,6 +92,7 @@ export const DIAGNOSTIC_CODES = {
   E086: "An objective's target names a space, an object of a space, an actor or a slot that isn't one, or is neither an actor nor a space",
   E087: "A space's map can't be read: its JSON isn't one, or its image is missing",
   E088: "A quest's slot that finds in the world can't be read: its type, In, Tags or Pick don't hold together",
+  E089: 'An interact holds items and takes the object, which then could never be opened again; or holds items with the inventory kit off',
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -147,6 +148,7 @@ export const DIAGNOSTIC_CODES = {
   W153: 'An animator state no transition goes to, and not where its layer starts',
   W154: "A space's map is out of date: the space has changed since it was baked",
   W155: "An objective's target is an actor placed in no space, so its marker can't show",
+  W156: 'A shop whose actor carries nothing and whose stock is empty: it never has anything to sell',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

@@ -1,0 +1,5 @@
+{
+  "title": "The post",
+  "tagline": "Hild's trading post, a chest and a barrel",
+  "slot-line": "Coin {economy.amount(resource: coin)} · Hild {economy.purse(actor: hild, resource: coin)}"
+}

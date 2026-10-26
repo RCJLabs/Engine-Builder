@@ -1,0 +1,90 @@
+{
+  "name": "The yard",
+  "objects": [
+    {
+      "id": "start",
+      "name": "Start",
+      "shape": "box",
+      "at": [0, 0, 6],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [24, 0.2, 24],
+      "color": "#7b8a5a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "counter",
+      "name": "Counter",
+      "shape": "box",
+      "at": [0, 0, 0],
+      "scale": [3, 1, 0.8],
+      "color": "#8a6a44",
+      "components": {
+        "collider": {},
+        "interact": {
+          "label": "Trade",
+          "effects": [
+            {
+              "effect": "open-shop",
+              "shop": "post"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hild",
+      "name": "Hild",
+      "record": "actor:hild",
+      "at": [0, 0, -1.2]
+    },
+    {
+      "id": "chest",
+      "name": "Chest",
+      "shape": "box",
+      "at": [-4, 0, 2],
+      "scale": [1.2, 0.7, 0.8],
+      "color": "#6b4a2b",
+      "components": {
+        "collider": {},
+        "interact": {
+          "label": "Open",
+          "effects": [],
+          "holds": {
+            "bread": 2,
+            "candle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "barrel",
+      "name": "Barrel",
+      "shape": "cylinder",
+      "at": [4, 0, 2],
+      "scale": [0.8, 1.1, 0.8],
+      "color": "#7a5a3a",
+      "components": {
+        "collider": {},
+        "interact": {
+          "label": "Open",
+          "effects": [],
+          "holds": {}
+        }
+      }
+    }
+  ]
+}

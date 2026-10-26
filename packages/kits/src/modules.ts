@@ -23,7 +23,7 @@ import { fightingModule } from './fighting/module.ts';
 import { FIGHTING, type FightingDef } from './fighting/types.ts';
 import { gearKit } from './gear/module.ts';
 import { GEAR } from './gear/types.ts';
-import { inventoryKit, inventoryModule } from './inventory/module.ts';
+import { INVENTORY_WITH_BODIES, inventoryKit, inventoryModule } from './inventory/module.ts';
 import { INVENTORY } from './inventory/types.ts';
 import { KITS } from './kits.ts';
 import { mapsModule } from './maps/module.ts';
@@ -90,15 +90,16 @@ export function kitModules(
     if (kit.id === AI) return aiModule(calendar ?? DEFAULT_CALENDAR, on.includes(FIGHTING));
     if (kit.id === FIGHTING) return fightingModule(fighting);
     if (kit.id === QUESTS) return places === undefined ? QUESTS_ALONE : questsModule(places);
-    if (kit.id === INVENTORY) return world === undefined ? inventoryKit : inventoryOf(world.uses);
+    if (kit.id === INVENTORY) return inventoryOf(world?.uses, on.includes(FIGHTING));
     return MODULES.get(kit.id) as Module;
   });
 }
 
-/** The inventory kit with the world's containers, or its one build when none of its uses holds items. */
-function inventoryOf(uses: WorldData['uses']): Module {
+/** The inventory kit with the world's containers, or one of its two builds when none of its uses holds items. */
+function inventoryOf(uses: WorldData['uses'] | undefined, bodies: boolean): Module {
   const containers = containersOf(uses);
-  return Object.keys(containers).length === 0 ? inventoryKit : inventoryModule(containers);
+  if (Object.keys(containers).length > 0) return inventoryModule(containers, bodies);
+  return bodies ? INVENTORY_WITH_BODIES : inventoryKit;
 }
 
 /**
@@ -112,6 +113,7 @@ export function kitsInWorld(modules: readonly Module[], world: PackWorld | undef
   const { places, uses } = worldDataOf(world);
   return modules.map((m) => {
     if (m === QUESTS_ALONE && places !== undefined) return questsModule(places);
-    return m === inventoryKit ? inventoryOf(uses) : m;
+    if (m === inventoryKit || m === INVENTORY_WITH_BODIES) return inventoryOf(uses, m === INVENTORY_WITH_BODIES);
+    return m;
   });
 }

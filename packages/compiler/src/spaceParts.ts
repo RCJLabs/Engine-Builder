@@ -4,7 +4,8 @@
  * against the records there are and its overrides against its type (E064, E065), each prefab
  * override against the prefab's objects (E066, and E058 for a field it can't change), a space's
  * environment against the records (E069, M5.4), its terrain's foliage (E073, M5.6), and its starts
- * (W142). Every reference found is a use, for the editor's "used by".
+ * (W142), and an interact that holds items (E089, M6.8). Every reference found is a use, for the
+ * editor's "used by".
  */
 import { conditionRefs, FLAG, formatRef, parseRef, pointerSegment, type RecordIndex } from '@eb/core';
 import {
@@ -49,6 +50,8 @@ export interface SpacePartsContext {
   readonly spaces?: SpaceSpawns;
   /** Where each placed actor stands (M6.2), for a walk-to in a zone's or a use's effects (E079). */
   readonly walkers?: Walkers;
+  /** project.json's kits, for an interact that holds items without the inventory kit (E089, M6.8). */
+  readonly kits?: readonly string[];
 }
 
 /** A reference a space or prefab holds: a placed record, or a ref inside a component or an override. */
@@ -64,6 +67,8 @@ export interface SpaceUse {
 const overrideSchema = z.strictObject(placeFields);
 
 const DEEPEST = 8;
+const INTERACT = 'interact';
+const INVENTORY = 'inventory';
 
 interface Walk {
   readonly ctx: SpacePartsContext;
@@ -162,6 +167,25 @@ function checkComponent(walk: Walk, kind: string, fields: unknown, at: string, o
     return;
   }
   checkPart(type.recordType.schema, fields, at, partContext(walk, at, only, 'E063'));
+  if (kind === INTERACT && isFields(fields)) checkHolds(walk, fields, at, only);
+}
+
+/**
+ * E089 (M6.8, D80): a container that takes the object, as it could never be opened again, or one in a
+ * game without the inventory kit to open it; at `holds`, when the override sets it or Takes.
+ */
+function checkHolds(walk: Walk, fields: Fields, at: string, only: ReadonlySet<string> | undefined): void {
+  if (fields.holds === undefined || (only !== undefined && !only.has('holds') && !only.has('takes'))) return;
+  if (fields.takes === true) {
+    report(walk, 'E089', `${at}/holds`, 'It holds items and takes the object: once taken, it could never be opened');
+  } else if (walk.ctx.kits !== undefined && !walk.ctx.kits.includes(INVENTORY)) {
+    report(
+      walk,
+      'E089',
+      `${at}/holds`,
+      'It holds items, which the inventory kit opens: turn the kit on in project.json',
+    );
+  }
 }
 
 /** A placed record's overrides: its fields as they stand here, checked as the record, only the overridden ones reported. */

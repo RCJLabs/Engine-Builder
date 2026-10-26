@@ -1,7 +1,8 @@
 /**
  * The kits' checks beyond their type files (M3.3, docs/specs/kits.md): E035 for a record whose
  * numbers or entries don't hold together, E036 for loot tables nested in a loop, and W113 for a
- * shop that stocks again in a game without days. Each record is checked as it comes; what needs
+ * shop that stocks again in a game without days, and W156 for a shop whose actor never has anything
+ * to sell (M6.8). Each record is checked as it comes; what needs
  * every loot table waits for finish(). The stats, factions, roster, events and dialogue kits' are
  * in their own files, as are the quests', the maps' and the encounters' kits'.
  */
@@ -110,6 +111,8 @@ export class KitChecks {
   private readonly known: Known;
   private readonly tables = new Map<string, Seen<LootTableRecord>>();
   private readonly shops = new Map<string, Seen<ShopRecord>>();
+  /** Each actor by id: whether it carries anything at the start, for a merchant's W156 (M6.8). */
+  private readonly carrying = new Map<string, boolean>();
   private readonly stats: StatChecks;
   private readonly factions: FactionChecks;
   /** With the roster kit off, its type names are free for a project's own types (D41). */
@@ -160,7 +163,10 @@ export class KitChecks {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
     } else if (type === RESOURCE) checkResource(value as ResourceRecord, report);
-    else if (type === SHOP) {
+    else if (type === ACTOR) {
+      const carries = (value as { readonly carries?: Readonly<Record<string, number>> }).carries;
+      this.carrying.set(id, Object.keys(carries ?? {}).length > 0);
+    } else if (type === SHOP) {
       const shop = value as ShopRecord;
       checkShop(shop, report);
       this.shops.set(id, { value: shop, report });
@@ -224,6 +230,11 @@ export class KitChecks {
           '/stock/table',
           `Its stock table gives ${resource.resource} (in ${resource.table}): a shelf holds items only`,
         );
+      }
+      const { actor, stock } = shop.value;
+      const stocked = (stock?.items ?? []).length > 0 || stock?.table !== undefined;
+      if (actor !== undefined && !stocked && this.carrying.get(actor) === false) {
+        shop.report('W156', '/actor', `${actor} carries nothing and its stock is empty: it never has anything to sell`);
       }
     }
   }

@@ -125,6 +125,7 @@ export async function compileProject(
     assets: files.assets,
     spaces: spawns,
     walkers,
+    kits: files.kits,
   });
   const screens = screenReads(grounds.facts);
   const uiDiagnostics = checkProjectUi(ui, {

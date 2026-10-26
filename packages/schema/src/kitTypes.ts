@@ -238,11 +238,23 @@ const WEAPON_ITEM_TYPE_FILE: TypeFile = {
   fields: { ...WORN_ITEM_TYPE_FILE.fields, ...WEAPON_FIELDS },
 };
 
-/** A shop that may name a faction, with the factions kit on (M3.5). */
-const FACTION_SHOP_TYPE_FILE: TypeFile = {
-  ...SHOP_TYPE_FILE,
-  fields: { ...SHOP_TYPE_FILE.fields, ...FACTION_SHOP_FIELDS },
+/** What a shop gains with the stats kit's actors (M6.8, D80): the actor who keeps it. */
+const MERCHANT_FIELDS: Fields = {
+  actor: {
+    kind: 'ref',
+    to: ACTOR,
+    optional: true,
+    label: 'Actor',
+    description: 'Who keeps it: it sells from their bag, pays from their purse, and restocks both',
+  },
 };
+
+/** A shop that may name a faction, with the factions kit on (M3.5), and its actor, with stats (M6.8). */
+function shopTypeFile(on: readonly string[]): TypeFile {
+  const faction = on.includes(FACTIONS) ? FACTION_SHOP_FIELDS : {};
+  const actor = on.includes(STATS) ? MERCHANT_FIELDS : {};
+  return { ...SHOP_TYPE_FILE, fields: { ...SHOP_TYPE_FILE.fields, ...faction, ...actor } };
+}
 
 /**
  * Each kit's types, by name, as the type files it has with the kits on: gear adds to items and
@@ -256,7 +268,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   }),
   [ECONOMY]: (on) => ({
     [RESOURCE]: RESOURCE_TYPE_FILE,
-    [SHOP]: on.includes(FACTIONS) ? FACTION_SHOP_TYPE_FILE : SHOP_TYPE_FILE,
+    [SHOP]: shopTypeFile(on),
   }),
   [STATS]: (on) => ({ [STAT]: STAT_TYPE_FILE, [ACTOR]: actorTypeFile(on), [STATUS]: STATUS_TYPE_FILE }),
   [GEAR]: () => ({ [SLOT]: SLOT_TYPE_FILE }),

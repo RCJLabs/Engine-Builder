@@ -191,7 +191,8 @@ function useProblem(key: string, path: string, use: unknown, format: number): st
   }
   const unknown = extra(use, ['label', 'when', 'effects', 'once', 'takes', ...(format >= 16 ? ['holds'] : [])]);
   if (unknown !== undefined) return `Unknown use fields: ${unknown}`;
-  if (use.holds !== undefined) return holdsProblem(key, use.holds);
+  const held = use.holds === undefined ? undefined : holdsProblem(key, use.holds);
+  if (held !== undefined) return held;
   for (const flag of ['once', 'takes'] as const) {
     if (use[flag] !== undefined && typeof use[flag] !== 'boolean')
       return `The use "${key}"'s ${flag} is not true or false`;

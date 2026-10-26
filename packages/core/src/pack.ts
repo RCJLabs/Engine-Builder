@@ -198,12 +198,23 @@ export function createPack(
 }
 
 // Formats 12 to 16 keep format 11's navmeshes and actors, none or not, so a clocked, fought, mapped,
-// tagged or holding pack has one world shape; format 14 and up keep the maps, and 15 and up the places.
+// tagged or holding pack has one world shape; format 14 and up keep the maps, and 15 and up the places,
+// every space untagged for a world given none.
 function worldIn(format: number, world: PackWorld): PackWorld {
   const { places, ...placeless } = world;
-  const kept = format >= 15 ? world : format === 14 ? placeless : withoutMaps(placeless);
+  const kept =
+    format >= 15 ? { ...world, places: places ?? untagged(world) } : format === 14 ? placeless : withoutMaps(placeless);
   return format >= 12 ? { ...kept, navmeshes: kept.navmeshes ?? {}, actors: kept.actors ?? {} } : kept;
 }
+
+const untagged = (world: PackWorld) => ({
+  spaces: Object.fromEntries(
+    Object.keys(world.spaces)
+      .sort()
+      .map((id) => [id, { tags: [] }]),
+  ),
+  objects: {},
+});
 
 function withoutMaps(world: PackWorld): PackWorld {
   const { maps, ...rest } = world;

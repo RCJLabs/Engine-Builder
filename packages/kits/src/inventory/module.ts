@@ -119,8 +119,17 @@ const ACTOR_ARG = { actor: { type: 'ref', to: ACTOR } } as const;
 const COUNT = { type: 'int', min: 1 } as const;
 const PLACE = { space: { type: 'text' }, object: { type: 'text' } } as const;
 
-/** The kit, built with what the pack's containers start with: none for a game without spaces. */
-export function inventoryModule(containers: Containers = NO_CONTAINERS) {
+const CONTAINER_MODE = {
+  [CONTAINER]: { actions: ['inventory/take', 'inventory/put', 'inventory/take-all', 'inventory/close'] },
+};
+
+/**
+ * The kit, built with what the pack's containers start with: none for a game without spaces. The
+ * container mode is only a game's that can open one, a container or a body (`bodies`, with the
+ * fighting kit on), so no other game's screens are asked to show it (W133).
+ */
+export function inventoryModule(containers: Containers = NO_CONTAINERS, bodies = false) {
+  const opens = bodies || Object.keys(containers).length > 0;
   return defineModule<InventorySlice>({
     id: INVENTORY,
     init: () => ({ bag: {}, bags: {}, held: {} }),
@@ -215,9 +224,7 @@ export function inventoryModule(containers: Containers = NO_CONTAINERS) {
       },
       close: { run: close, options: (view) => (openedIn(view.mode) === undefined ? [] : [{}]) },
     },
-    modes: {
-      [CONTAINER]: { actions: ['inventory/take', 'inventory/put', 'inventory/take-all', 'inventory/close'] },
-    },
+    modes: opens ? CONTAINER_MODE : {},
     events: {
       gained: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items go into the bag' },
       lost: { args: { ...ITEM_ARG, count: COUNT }, label: 'Items leave the bag' },
@@ -235,3 +242,5 @@ export function inventoryModule(containers: Containers = NO_CONTAINERS) {
 
 /** The kit with no containers: a game without spaces, or one read before its pack (kitsInWorld). */
 export const inventoryKit = inventoryModule();
+/** And with the fighting kit's bodies to open (M6.4's search, M6.8). */
+export const INVENTORY_WITH_BODIES = inventoryModule(NO_CONTAINERS, true);
