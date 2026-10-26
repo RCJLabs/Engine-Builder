@@ -221,6 +221,18 @@ eb sim <project> --game <module> [--policy <name>] [--seeds <n>] [--prefix <text
 - **Planted bugs:** 47, each caught by at least one test. The first run let three through: options in registration order, an empty `modules` export, and the run count printed for distinct endings. Each now has a test that fails it.
 - **Readings:** the seed sweep, in ROADMAP's Readings.
 
+## A walked game's stage (M6.9, D81)
+
+A walked game moves only by what its stage sends: `world/use` and `world/trigger` as the player reaches a thing, `fighting/hit` as a blow lands, `fighting/search` at a body. None of them is an option, so a bot alone can't take a step. A run can be given a **stage**: what a stage could send now, beside the game's options.
+
+- **`RunOptions.stage`** is a function of the state, the game and the sim that returns candidate actions. Each candidate is reduced, and kept only when the sim takes it, so a stage never offers what is refused. The bot's turn sees the game's options, then the stage's, in that order.
+- **The world's stage** (core's `world/stage.ts`) offers, in the space the player is in: each use, as `world/use`, and each zone, as `world/trigger`. It places no one, so a bot reaches anything in that space: distance and sight are the walk's, not the bot's (D81's cost).
+- **The fighting kit's stage** (`fighting/stage.ts`) adds, with project.json's `fighting`:
+  - the player's blow, with what they wield, at each NPC of the space still standing;
+  - each engaged NPC's blow at the player, with what it wields;
+  - the search of each fallen body there.
+- **`eb sim` gives every game with spaces the world's stage,** and the fighting kit's when it is on. A golden file records which stage its runs had, so a run without one doesn't match one with.
+
 ## Open questions
 
 1. **Comparing two versions.** A/B runs with content overrides belong to the Balance Lab (Phase 8), as in chooser-of-the-dead's `compare.ts` and football-manager-simulator's paired blocks.

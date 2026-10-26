@@ -2405,6 +2405,48 @@ Evan chose on 2026-10-26, from these options:
 
 The spec is [specs/barter.md](specs/barter.md).
 
+### D81. Two 3D templates: a valley hamlet in third person and a lighthouse at night in first person, about ten minutes each, checked by machine; bots play walked games through a headless stage. LOCKED, 2026-10-26 (Evan's calls, M6.9)
+
+Evan chose on 2026-10-26, from these options:
+- **The RPG template:** a valley hamlet; a border fort; or a labelled skeleton with no setting.
+- **The first-person template:** a lighthouse at night; an empty manor; or a labelled skeleton.
+- **Size:** about ten minutes each; about twenty; or a few minutes.
+- **Gate:** all by machine, as D61; or that, plus Evan playing each on his phone before it merges.
+
+**Decision.**
+- **The valley hamlet** ("Open-world RPG"), in third person:
+  - *The place:* a green with the reeve's house, the smithy a door away, and the woods' edge where bandits camp. A cave lies through a door in the hill.
+  - *The people:* the reeve, Osric, sets the job. The smith, Wenna, trades from her bag and purse (M6.8). A third, a goatherd, only talks.
+  - *The quests:* drive off the bandits, the main quest, which ends the game; and Wenna's supplies, a radiant job: the cache in the nearest cave (M6.7).
+  - *The systems:* one fight (M6.4) and one merchant. It is M6.10's shape made small, so M6.10 can start from it, as M4.12 started from the salvage coast.
+- **The lighthouse** ("First-person adventure"), in first person:
+  - *The place:* the rock outside and three rooms: the keeper's room, the store and the lamp room.
+  - *The story:* the keeper is gone. Read the logbook (an ink scene), take the store's key from the keeper's chest, open the store, fetch the oil and light the lamp before the ship comes in.
+  - *No combat.* It leans on what the hamlet doesn't: first person, doors, a container, flags and ink.
+- **About ten minutes each,** as M4.11's two, each with about eight "Make it yours" steps.
+- **Checked by machine,** as D61:
+  - each validates clean;
+  - bots play seeded runs to golden files, reaching every quest stage and the ending, no offer refused;
+  - in the editor, a new project from each is played to its ending by keys and by touch at 360, 390 and sideways;
+  - each exports as one file that plays from `file://`.
+
+**Also settled, as the session's calls** (2026-10-26, engineering calls that follow from the above):
+- **Bots play a walked game through a headless stage.**
+  - *What it offers:* besides the game's options, a run may offer what a stage could send: each use and each zone of the player's space, the player's blow at each NPC there, an engaged NPC's blow at the player, and the search of a body.
+  - *Kept only when taken:* each candidate is kept only when the sim takes it, so nothing offered is refused.
+  - *Where it runs:* `eb sim` gives it to every game with spaces. It places no one, so a bot reaches anything in the space it is in. M6.10's "bots complete every quest headless" needs the same.
+- **The templates carry the starter kit's pieces they place** (GLBs, records and the log), inlined in their chunk as the kit's own chunk does. NPCs draw as the starter character, which walk.js carries. No terrain and no baked maps, so each template stays a few hundred kilobytes.
+- **Navmeshes are baked by `pnpm bake`** for the spaces whose NPCs walk or fight.
+
+**Why.**
+- **A template earns its place by showing one of each system at work,** as D61's did. The hamlet shows Phase 6's systems together; the lighthouse shows the quieter half of Phase 5 and the scenes of Phase 3.
+- **The headless stage keeps D61's gate honest:** without it, no bot can take a step in a walked game, and golden runs would prove nothing.
+
+**Cost.**
+- **Two more games to keep working,** each with a golden file.
+- **The headless stage ignores distance and sight.** A bot can use a chest across the space; the e2e plays the distances, the bots the logic.
+- **Untested for feel** until someone new to the editor plays them.
+
 ---
 
 ## Open

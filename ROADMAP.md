@@ -1371,6 +1371,12 @@ How to read this file:
     - **Untested for feel:** the Container screen's two tabs on a phone, Take all, and the keeper's line wait for your phone.
     - **Logged for later:** questions 1 to 5 in [specs/barter.md](docs/specs/barter.md#open-questions): owners and theft, capacity and weight, money in containers, a merchant's own goods, and restocking without a visit.
 - **M6.9 Templates.** "Open-world RPG (3rd person)" and "First-person adventure".
+  - **As decided** (D81, your calls): the valley hamlet in third person (a reeve's job against bandits, a smith who trades, a radiant supplies job, a cave a door away) and the lighthouse at night in first person (the logbook, the keeper's chest, the locked store, the lamp), about ten minutes each, checked by machine as D61. Bots play a walked game through a headless stage that offers what a stage could send, each kept only when the sim takes it ([specs/templates.md](docs/specs/templates.md), [specs/runner.md](docs/specs/runner.md#a-walked-games-stage-m69-d81)).
+  - **Gate:**
+    - each template validates clean, and its bot plays seeded runs to a golden file with every quest stage and its ending reached, no offer refused;
+    - the headless stage: candidates kept only when taken, the space's uses and zones alone, the fight's blows and searches;
+    - in the editor, a new project from each, its guide followed, played to its ending in the Play panel by keys, and by touch at 360, 390 and sideways;
+    - each exported as one file that plays from `file://`.
 - **M6.10 Proof #2: a Bethesda-style mini world.** 1 exterior, 3 interiors, 5 scheduled NPCs with dialogue, 3 quests (main, side and radiant), combat and barter. The theme is an open question.
 
 **Done when:**

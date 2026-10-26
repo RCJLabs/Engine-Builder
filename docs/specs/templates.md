@@ -130,6 +130,40 @@ The survey behind them is [research/templates.md](../research/templates.md).
 - **Its policy is `ferryman`:** it rows on and says what the scenes offer, at random.
 - **The crossing quest** reads the same flag, its outcomes the three endings, so the journal shows how the night went and the sweep counts it. Without it, W108 called the flag never read: the check doesn't count a screen's conditions as readers (open question 3).
 
+## The valley hamlet (M6.9, D81)
+
+- **What it is:** the "Open-world RPG" template, in third person. A hamlet in a green valley is troubled by bandits in the woods.
+- **Kits:** inventory, economy, stats, gear, dialogue, quests, time, ai and fighting, with project.json's `fighting` naming the player and the combat.
+- **Spaces:**
+  - **The green,** its start: the reeve's house, the well, a goatherd and the woods' edge, where two bandits camp.
+  - **The smithy,** through its door, where Wenna trades.
+  - **The cave,** through a door in the hill, with a cache and a third bandit.
+
+  They are drawn with the starter kit's pieces and the engine's shapes. NPCs are figures, drawn as the starter character. The green and the cave have navmeshes baked by `pnpm bake`.
+- **People:**
+  - *Osric the reeve:* his talk starts the main quest and ends it.
+  - *Wenna the smith:* she keeps the smithy's shop from her bag and purse, and gives the supplies job.
+  - *Edda the goatherd:* only talks.
+- **Quests:**
+  - **The bandits,** the main quest: the reeve's job. Drive off the bandits in the woods, then the one in the cave, then tell the reeve. Done, the game ends on its ending screen.
+  - **Supplies,** a radiant job (M6.7): Wenna wants the cache from the nearest cave, a slot of tagged objects in a tagged space. It repeats.
+- **The hero** starts with a sword and a few coins. The bandits drop coin, and the smith buys what they carried.
+- **Its policy is `wanderer`:** it uses what the space offers, says what talks offer, buys and sells, and fights what stands near, at random.
+
+## The lighthouse (M6.9, D81)
+
+- **What it is:** the "First-person adventure" template. On a rock at night, the lighthouse's keeper has gone, and a ship is due before dawn.
+- **Kits:** inventory, dialogue and quests. Flags are the engine's own.
+- **Spaces,** in first person:
+  - **The rock,** its start: the tower's door.
+  - **The keeper's room:** the logbook on the table, and the keeper's chest, which holds the store's key (M6.8).
+  - **The store,** behind a door that opens only with the key: the oil.
+  - **The lamp room,** up the stair: the lamp.
+- **The logbook is an ink scene,** the keeper's last entries. Reading it sets the flag that the lamp needs a full can.
+- **One quest,** *Light the lamp*: read the log, find the key, open the store, fetch the oil, light the lamp. Lit, the game ends on its ending screen.
+- **No combat.**
+- **Its policy is `keeper`:** it uses what the room offers, takes what a container holds and says what the scene offers, at random.
+
 ## The gate (D61)
 
 - **`templates.test.ts` in tools/cli, for each template:**
@@ -145,6 +179,12 @@ The survey behind them is [research/templates.md](../research/templates.md).
 - **`eb new` is tested in Node:** the files written, the name applied, and a non-empty folder refused.
 - **A step's file renamed or gone:** `templates.spec.ts` renames the raider record that "Make the raiders tougher" opens; the encounter's foe and the step follow, with no problems. Deleted, the step is W140 in Problems, which opens the Project panel.
 
+### M6.9's gate (D81)
+
+- **`templates.test.ts`** holds the valley hamlet and the lighthouse to the same three checks, their runs through the headless stage (runner.md).
+- **`templates3d.spec.ts`:** New project from each, every guide step followed, played to its ending in the Play panel by keys, walking, and exported as a single file that plays from `file://`.
+- **`templates3dPhone.spec.ts`:** each played to its ending by touch at 360×740, 390×844 and 844×390, every control in reach.
+
 ## Renaming what a template holds
 
 A template's records are mostly the kits' types, whose references the project's type files don't describe. Renaming a record (M2.6, D33) now also rewrites every reference the record index finds to it in a record, read from the working copy as the step runs: the kits' and the engine's types, effects, and a map's keys such as a choice's `cost`. It also moves guide.json's steps that open its file. What it doesn't change, as before: conditions that name the id as a word, a screen's text that does, and scenes and scripts. Those show as problems to fix by hand.
@@ -152,6 +192,6 @@ A template's records are mostly the kits' types, whose references the project's 
 ## Open questions
 
 1. Should the guide's steps tick themselves off by a condition over the project? Not built (D61's cost).
-2. Should templates have a third, 3D, kind once Phase 5 lands? The ROADMAP plans 3D templates at M6.9.
+2. Should templates have a third, 3D, kind once Phase 5 lands? Answered by M6.9 (D81): the valley hamlet and the lighthouse.
 3. W108 (a flag set and never read) doesn't count a screen's `shows-when` or text as reading a flag, so a flag only a screen reads is flagged. The ferry reads its ending through a quest as well. Should screens count? Logged under Phase 4.
 4. Renaming a record leaves conditions, screens' text, scenes and scripts that name it. Should the rename offer to change those it can parse, such as a condition's `@id` or an ink `EXTERNAL`'s argument?
