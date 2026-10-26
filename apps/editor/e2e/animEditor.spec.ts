@@ -70,7 +70,9 @@ async function bringModels(page: Page, touch: boolean): Promise<void> {
       clips: [{ name: 'walk', pace: 1.4 }],
     });
   const strider = await openRecord(page, 'Model', 'strider');
-  await expect(strider.getByRole('textbox', { name: 'Bones: rightHand', exact: true })).toHaveValue('mixamorig:RightHand');
+  await expect(strider.getByRole('textbox', { name: 'Bones: rightHand', exact: true })).toHaveValue(
+    'mixamorig:RightHand',
+  );
 }
 
 /** The whole body's outline in an animator's form. */
