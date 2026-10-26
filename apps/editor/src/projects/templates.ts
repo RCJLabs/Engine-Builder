@@ -7,26 +7,30 @@
  */
 import { fromTemplate, type TemplateEntry } from '@eb/compiler';
 import listed from '../../../../templates/templates.json?raw';
+import { bundledFiles } from '../models/bundled.ts';
 
 export const TEMPLATES: readonly TemplateEntry[] = JSON.parse(listed) as TemplateEntry[];
 
 interface Bundled {
   readonly files: Record<string, string>;
+  /** Its files that aren't text, as data URLs: a 3D template's models and navmeshes (M6.9). */
+  readonly binaries?: Record<string, string>;
   readonly prefix: string;
 }
 
 const BUNDLES: Readonly<Record<string, () => Promise<Bundled>>> = {
   'salvage-coast': () => import('./templateFiles/salvageCoast.ts'),
   'last-ferry': () => import('./templateFiles/lastFerry.ts'),
+  'valley-hamlet': () => import('./templateFiles/valleyHamlet.ts'),
+  lighthouse: () => import('./templateFiles/lighthouse.ts'),
 };
 
 /** A template's own files, by their paths in the project. */
 export async function templateFiles(id: string): Promise<Map<string, Uint8Array>> {
   const load = BUNDLES[id];
   if (!load) throw new Error(`There is no template "${id}".`);
-  const { files, prefix } = await load();
-  const encoder = new TextEncoder();
-  return new Map(Object.entries(files).map(([path, text]) => [path.slice(prefix.length), encoder.encode(text)]));
+  const { files, binaries = {}, prefix } = await load();
+  return bundledFiles(binaries, files, prefix);
 }
 
 /** The files of a new project named `name`, made from the template `id`. */
