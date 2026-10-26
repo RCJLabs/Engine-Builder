@@ -40,6 +40,7 @@
       "name": "By the tower door",
       "shape": "box",
       "at": [0, 0, 5.2],
+      "turn": [0, 180, 0],
       "scale": [0.6, 0.05, 0.6],
       "color": "#d9d9d9",
       "components": {

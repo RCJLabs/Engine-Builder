@@ -25,14 +25,14 @@
         "spawn": {
           "start": true
         }
-      },
-      "turn": [0, 180, 0]
+      }
     },
     {
       "id": "smithy-step",
       "name": "Outside the smithy",
       "shape": "box",
       "at": [9, 0, 6.5],
+      "turn": [0, 180, 0],
       "scale": [0.6, 0.05, 0.6],
       "color": "#d9d9d9",
       "components": {
@@ -44,12 +44,12 @@
       "name": "Outside the cave",
       "shape": "box",
       "at": [-10.5, 0, -6],
+      "turn": [0, -90, 0],
       "scale": [0.6, 0.05, 0.6],
       "color": "#d9d9d9",
       "components": {
         "spawn": {}
-      },
-      "turn": [0, 90, 0]
+      }
     },
     {
       "id": "reeve-house",
@@ -136,7 +136,7 @@
       "id": "bench",
       "name": "Bench",
       "record": "model:kit-bench",
-      "at": [-5, 0, 7.5]
+      "at": [-10.5, 0, 6.5]
     },
     {
       "id": "osric",

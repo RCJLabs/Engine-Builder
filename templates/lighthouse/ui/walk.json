@@ -1,16 +1,6 @@
 {
   "title": "The lighthouse",
   "shows": ["out"],
-  "top": {
-    "widget": "stack",
-    "children": [
-      {
-        "widget": "text",
-        "text": "{quests.tracked}",
-        "style": "heading"
-      }
-    ]
-  },
   "main": {
     "widget": "space"
   },

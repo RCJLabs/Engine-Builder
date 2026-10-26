@@ -2,21 +2,9 @@
   "title": "The valley hamlet",
   "shows": ["out"],
   "top": {
-    "widget": "stack",
-    "direction": "row",
-    "justify": "between",
-    "wrap": true,
-    "children": [
-      {
-        "widget": "text",
-        "text": "Health {stats.current(actor: hero, stat: health)} · Coin {economy.amount(resource: coin)}",
-        "style": "heading"
-      },
-      {
-        "widget": "text",
-        "text": "{quests.tracked}"
-      }
-    ]
+    "widget": "text",
+    "text": "Health {stats.current(actor: hero, stat: health)} · Coin {economy.amount(resource: coin)}",
+    "style": "heading"
   },
   "main": {
     "widget": "space"

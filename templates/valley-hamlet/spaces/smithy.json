@@ -22,8 +22,7 @@
       "color": "#d9d9d9",
       "components": {
         "spawn": {}
-      },
-      "turn": [0, 180, 0]
+      }
     },
     {
       "id": "north",
