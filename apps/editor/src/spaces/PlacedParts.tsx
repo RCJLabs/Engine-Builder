@@ -13,7 +13,7 @@ import { openRecord } from '../records/actions.ts';
 import { namesOf } from '../records/names.ts';
 import { editOpen } from './actions.ts';
 import { formBase } from './ComponentsSection.tsx';
-import { TextBox, Triple } from './ObjectFields.tsx';
+import { TextBox, Triple, withAxis } from './ObjectFields.tsx';
 import { AddComponent, PartFields } from './PartFields.tsx';
 import { insideOf, recordOverridesHere, setOverride } from './partEdits.ts';
 import { tidy } from './snap.ts';
@@ -170,14 +170,14 @@ export function InsideObject(props: Placement) {
         legend="Place, in metres"
         value={t.at}
         canEdit={base.canEdit}
-        write={(at) => set('at', tidied(at), 'Move')}
+        write={(axis, n) => set('at', tidied(withAxis(t.at, axis, n)), 'Move')}
       />
       {mark('at', 'place')}
       <Triple
         legend="Turn, in degrees"
         value={t.turn}
         canEdit={base.canEdit}
-        write={(turn) => set('turn', tidied(turn), 'Turn')}
+        write={(axis, n) => set('turn', tidied(withAxis(t.turn, axis, n)), 'Turn')}
       />
       {mark('turn', 'turn')}
       <Triple
@@ -185,7 +185,7 @@ export function InsideObject(props: Placement) {
         value={t.scale}
         canEdit={base.canEdit}
         above={0}
-        write={(scale) => set('scale', tidied(scale), 'Scale')}
+        write={(axis, n) => set('scale', tidied(withAxis(t.scale, axis, n)), 'Scale')}
       />
       {mark('scale', 'scale')}
       {object.shape !== undefined ? (

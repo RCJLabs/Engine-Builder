@@ -119,9 +119,18 @@ async function makeForge(page: Page, touch: boolean): Promise<void> {
     .poll(async () => ((await stored(page, FOLDER, 'spaces/forge.json')) as { objects?: unknown[] } | null)?.objects)
     .toEqual([
       expect.objectContaining({ shape: 'box', components: { collider: {} } }),
-      expect.objectContaining({ shape: 'box', components: { spawn: {} } }),
+      expect.objectContaining({ shape: 'box', scale: [0.5, 0.1, 0.5], components: { spawn: {} } }),
       { id: 'ada', record: 'actor:ada', at: [...ADA_AT] },
     ]);
+  // At the origin, which the file leaves out: a lost write of an axis once left the spawn where Add
+  // put it, 1.5 m along x, and the player began out of Ada's reach (M6.6's CI).
+  const spawnAt = async () => {
+    const file = (await stored(page, FOLDER, 'spaces/forge.json')) as {
+      objects: { at?: unknown; components?: { spawn?: unknown } }[];
+    } | null;
+    return file ? (file.objects.find((o) => o.components?.spawn)?.at ?? 'origin') : 'unread';
+  };
+  await expect.poll(spawnAt).toBe('origin');
   // Drawn as the engine's figure, at her height and in her colours.
   await expect
     .poll(() =>

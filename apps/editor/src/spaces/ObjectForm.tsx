@@ -14,7 +14,7 @@ import { EnvironmentField } from '../environment/EnvironmentField.tsx';
 import { FoliageSection } from '../foliage/FoliageSection.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { TerrainForm } from '../terrain/TerrainForm.tsx';
-import { deleteChosen, placeChosen, setObject } from './actions.ts';
+import { deleteChosen, placeAxis, setObject } from './actions.ts';
 import { ComponentsSection } from './ComponentsSection.tsx';
 import type { Transform } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
@@ -84,12 +84,8 @@ export function ObjectForm({ project }: { project: OpenProject }) {
 function OneObject({ object, prefabs }: { object: SpaceObject; prefabs: ReadonlyMap<string, SpaceJson> }) {
   const canEdit = editing.access.value.kind === 'editing';
   const t = transformOf(object);
-  const place = (next: Transform, what: string) =>
-    void placeChosen(
-      new Map([[object.id, next]]),
-      `${what} ${object.id}`,
-      `${openSpace.value?.path}#${object.id}#${what}`,
-    );
+  const place = (part: keyof Transform, what: string) => (axis: number, n: number) =>
+    void placeAxis(object.id, part, axis, n, what);
   const nameId = useUniqueId();
   const shapeId = useUniqueId();
   const colorId = useUniqueId();
@@ -114,20 +110,9 @@ function OneObject({ object, prefabs }: { object: SpaceObject; prefabs: Readonly
           }
         />
       </div>
-      <Triple legend="Place, in metres" value={t.at} canEdit={canEdit} write={(at) => place({ ...t, at }, 'Move')} />
-      <Triple
-        legend="Turn, in degrees"
-        value={t.turn}
-        canEdit={canEdit}
-        write={(turn) => place({ ...t, turn }, 'Turn')}
-      />
-      <Triple
-        legend="Scale"
-        value={t.scale}
-        canEdit={canEdit}
-        above={0}
-        write={(scale) => place({ ...t, scale }, 'Scale')}
-      />
+      <Triple legend="Place, in metres" value={t.at} canEdit={canEdit} write={place('at', 'Move')} />
+      <Triple legend="Turn, in degrees" value={t.turn} canEdit={canEdit} write={place('turn', 'Turn')} />
+      <Triple legend="Scale" value={t.scale} canEdit={canEdit} above={0} write={place('scale', 'Scale')} />
       {object.shape !== undefined ? (
         <>
           <div class="form-field">

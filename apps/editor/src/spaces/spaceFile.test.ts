@@ -11,6 +11,7 @@ import {
   placeObjects,
   places,
   renameObject,
+  setAxis,
 } from './spaceEdits.ts';
 import { changeSpaceText, freeId, readSpace, type SpaceJson, spaceText, withTransform } from './spaceFile.ts';
 
@@ -120,6 +121,25 @@ describe('the Scene panel’s edits', () => {
     expect(renameObject(yard, 'ground', '  The field ').objects[0]?.name).toBe('The field');
     expect(renameObject(renameObject(yard, 'ground', 'x'), 'ground', 'ground').objects[0]).not.toHaveProperty('name');
     expect(deleteObjects(yard, new Set(['ground'])).objects.map((o) => o.id)).toEqual(['crate-1']);
+  });
+
+  it('sets one axis against the file as it is when the edit lands, so x, y and z typed fast all stick', () => {
+    // Each written from the same render, as an object's form's three boxes are when typed faster than
+    // it redraws: each keeps the axes the edits before it set.
+    const spawn: SpaceJson = {
+      name: 'Forge',
+      objects: [{ id: 'spawn', shape: 'box', at: [1.5, 0, 0], scale: [2, 1, 2] }],
+    };
+    const x = setAxis(spawn, 'spawn', 'at', 0, 0);
+    const y = setAxis(x, 'spawn', 'at', 1, 0.5);
+    const z = setAxis(y, 'spawn', 'scale', 2, 0.5);
+    expect(z.objects[0]).toEqual({ id: 'spawn', shape: 'box', at: [0, 0.5, 0], scale: [2, 1, 0.5] });
+    // At the origin and back to one, the file leaves them out, as a whole transform written does.
+    expect(setAxis(setAxis(x, 'spawn', 'scale', 0, 1), 'spawn', 'scale', 2, 1).objects[0]).toEqual({
+      id: 'spawn',
+      shape: 'box',
+    });
+    expect(setAxis(spawn, 'other', 'at', 0, 9)).toEqual(spawn);
   });
 
   it('group objects into a prefab around their centre, on the ground, placed where they were', () => {

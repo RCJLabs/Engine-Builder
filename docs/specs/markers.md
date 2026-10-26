@@ -140,6 +140,7 @@ The world gains `maps`: each baked space's bounds, size and image, the image amo
   - The cut at 2.4 m took the top off every wall, so the glen's buildings showed only as their shadows. Roofs are now left out mesh by mesh.
   - The sun's shadow camera stood 15.6 m from the origin with its near plane in front of it. In any space wider than that, a line crossed the ground where the near plane cut it, and with no bias every broad floor shadowed itself. Both are fixed for the editor's view and the walk alike.
   - At 60% of the screen's height, the Map widget pushed the screen's bar off a 1280 by 800 screen. It is now 50%.
+  - Outside M6.6's own code, CI found an object's x, y and z, typed faster than the form redrew, each writing the whole triple from the last render, so an axis whose edit hadn't drawn was put back. The object's form now sets each axis against the file as the edit lands (`setAxis`). A placement's override inside a prefab still writes the whole triple from its form; it waits for the next change there.
 - **Untested for feel:**
   - the strip's 320 px and its 180°;
   - the 10° for the text;

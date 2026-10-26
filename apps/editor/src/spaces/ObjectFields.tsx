@@ -30,13 +30,17 @@ export function TextBox(props: { id: string; value: string; canEdit: boolean; wr
 
 const AXES = ['x', 'y', 'z'] as const;
 
-/** Three numbers: a place, a turn or a scale. */
+/** A triple with one axis changed. */
+export const withAxis = (v: Vec3, axis: number, n: number): Vec3 =>
+  v.map((value, i) => (i === axis ? n : value)) as unknown as Vec3;
+
+/** Three numbers: a place, a turn or a scale; a box written says which axis, so the write is that axis's alone. */
 export function Triple(props: {
   legend: string;
   value: Vec3;
   canEdit: boolean;
   above?: number;
-  write: (value: Vec3) => void;
+  write: (axis: number, n: number) => void;
 }) {
   const { legend, value, canEdit, above, write } = props;
   return (
@@ -49,7 +53,7 @@ export function Triple(props: {
           value={value[i] as number}
           canEdit={canEdit}
           above={above}
-          write={(n) => write(value.map((v, j) => (j === i ? n : v)) as unknown as Vec3)}
+          write={(n) => write(i, n)}
         />
       ))}
     </fieldset>
