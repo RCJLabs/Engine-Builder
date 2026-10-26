@@ -8,7 +8,7 @@ import type { Beat } from '@eb/core';
 import { own } from '../own.ts';
 import { namedStage, questRecord } from './records.ts';
 import { checkQuest, enter, entryOf, writeEntry } from './run.ts';
-import { fillSlots } from './slots.ts';
+import { fillSlots, type Reader } from './slots.ts';
 import { trackStarted } from './tracking.ts';
 import { QUEST, type QuestEntry, type QuestsContext } from './types.ts';
 
@@ -42,6 +42,18 @@ export function startQuest(ctx: Ctx, id: string, at?: string): string | undefine
   enter(ctx, id, stage);
   checkQuest(ctx, id);
   return undefined;
+}
+
+/**
+ * Whether start-quest would start the quest now (quests.can-start, M6.9): waiting, or ended and
+ * repeating, with its slots filled as the journal's preview fills them. A talk's option that starts
+ * a job reads it, so the job isn't offered once nothing is left to fill its slots.
+ */
+export function canStart(reader: Reader, id: string): boolean {
+  const quest = questRecord(reader.content, id);
+  const before = own(reader.read().quests, id);
+  if (before !== undefined && (before.state === 'active' || quest.repeats !== true)) return false;
+  return !('unfilled' in fillSlots(reader, quest, undefined, before?.slots));
 }
 
 /**

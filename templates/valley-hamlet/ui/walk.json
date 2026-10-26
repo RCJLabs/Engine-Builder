@@ -1,0 +1,47 @@
+{
+  "title": "The valley hamlet",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "Health {stats.current(actor: hero, stat: health)} · Coin {economy.amount(resource: coin)}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{quests.tracked}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Wait an hour",
+        "action": {
+          "take": "hamlet/wait"
+        }
+      }
+    ]
+  },
+  "ambience": "valley"
+}

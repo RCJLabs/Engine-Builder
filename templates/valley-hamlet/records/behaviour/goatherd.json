@@ -1,0 +1,10 @@
+{
+  "name": "Edda’s rounds",
+  "description": "Between the pasture and the well, all day.",
+  "do": {
+    "sandbox": ["pasture-a", "pasture-b", "well-side"],
+    "dwell": {
+      "minutes": 20
+    }
+  }
+}

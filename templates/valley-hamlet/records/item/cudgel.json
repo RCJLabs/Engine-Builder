@@ -1,0 +1,10 @@
+{
+  "name": "Cudgel",
+  "description": "A length of oak with a nail through it.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 3
+  },
+  "value": 3
+}

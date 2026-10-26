@@ -1,0 +1,5 @@
+{
+  "title": "The valley hamlet",
+  "tagline": "Bandits in the woods above the green, and a reeve who needs them gone",
+  "slot-line": "Health {stats.current(actor: hero, stat: health)} · Coin {economy.amount(resource: coin)}"
+}

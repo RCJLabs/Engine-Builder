@@ -1,0 +1,82 @@
+{
+  "name": "Wenna at her bench",
+  "speaker": "wenna",
+  "starts": [
+    {
+      "if": "quests.stage(quest: supplies) == bring",
+      "line": "bring"
+    },
+    {
+      "line": "greet"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "text": "The iron’s hot. Buying or selling?",
+      "options": [
+        {
+          "id": "trade",
+          "label": "Show me your bench",
+          "effects": [
+            {
+              "effect": "open-shop",
+              "shop": "smithy"
+            }
+          ]
+        },
+        {
+          "id": "work",
+          "label": "Any work?",
+          "if": "quests.can-start(quest: supplies)",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "supplies"
+            }
+          ],
+          "next": "job"
+        },
+        {
+          "id": "bye",
+          "label": "Another time"
+        }
+      ]
+    },
+    {
+      "id": "job",
+      "text": "A carter left supplies in the cave under the hill before the bandits came. Fetch me a bundle and I’ll pay you for it."
+    },
+    {
+      "id": "bring",
+      "text": "Did you find them?",
+      "options": [
+        {
+          "id": "hand",
+          "label": "Here they are",
+          "if": "inventory.count(item: supplies) >= 1",
+          "effects": [
+            {
+              "effect": "take-item",
+              "item": "supplies"
+            },
+            {
+              "effect": "add-resource",
+              "resource": "coin",
+              "by": 8
+            }
+          ],
+          "next": "paid"
+        },
+        {
+          "id": "later",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "paid",
+      "text": "Eight pennies, as I said. Come back if you want more work."
+    }
+  ]
+}

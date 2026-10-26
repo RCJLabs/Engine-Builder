@@ -11,6 +11,7 @@ import { classifyScript, SCRIPTS_DIR } from '@eb/script';
 import { EXPORT_FILE } from './exportFile.ts';
 import { ASSETS_DIR, classifyRecordFile, classifyTypeFile, MANIFEST_FILE, RECORDS_DIR, TYPES_DIR } from './layout.ts';
 import { classifyScene, SCENES_DIR } from './sceneFiles.ts';
+import { classifySpaceFile, PREFABS_DIR, SPACES_DIR } from './spaceFiles.ts';
 import { classifyUi, UI_DIR } from './uiFiles.ts';
 
 export const GUIDE_FILE = 'guide.json';
@@ -70,6 +71,11 @@ export function opensInEditor(file: string): boolean {
   if (top === SCRIPTS_DIR) return classifyScript(file).kind === 'script';
   if (top === SCENES_DIR) return classifyScene(file).kind === 'scene';
   if (top === UI_DIR) return classifyUi(file).kind !== 'ignored';
+  // A space or a prefab in the Scene panel, at the object `at` points into (M6.9's 3D templates).
+  if (top === SPACES_DIR || top === PREFABS_DIR) {
+    const { kind } = classifySpaceFile(file);
+    return kind === 'space' || kind === 'prefab';
+  }
   return top === ASSETS_DIR && file.length > ASSETS_DIR.length + 1;
 }
 

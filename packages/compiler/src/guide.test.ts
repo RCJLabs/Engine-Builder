@@ -68,11 +68,14 @@ describe('guide.json', () => {
       'ui/theme.json',
       'ui/harbour.json',
       'assets/sounds/bell.wav',
+      // A space and a prefab in the Scene panel (M6.9).
+      'spaces/green.json',
+      'prefabs/cottage.json',
     ];
     expect(opens.filter(opensInEditor)).toEqual(opens);
-    expect(['guide.json', 'records/x.json', 'scenes/a/b.ink', 'assets/', 'README.md'].filter(opensInEditor)).toEqual(
-      [],
-    );
+    // A navmesh or a terrain's PNG is its space's own, made there, not opened.
+    const none = ['guide.json', 'records/x.json', 'scenes/a/b.ink', 'assets/', 'README.md', 'spaces/green.nav'];
+    expect([...none, 'spaces/green.height.png', 'spaces/a/b.json'].filter(opensInEditor)).toEqual([]);
   });
 
   it('is checked by compileProject against the project’s files, and travels in its zips', async () => {

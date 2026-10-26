@@ -60,6 +60,17 @@ describe('Make it yours', () => {
     });
   });
 
+  it('opens a space’s step in the Scene panel, at the object it points into (M6.9)', async () => {
+    const { catalog } = await salvageCoast();
+    const step = {
+      id: 'camp',
+      title: 'Camp',
+      text: 'Move it.',
+      open: { file: 'spaces/green.json', at: '/objects/3/at' },
+    };
+    expect(stepPlace(step, catalog)).toEqual({ kind: 'space', path: 'spaces/green.json', object: 3 });
+  });
+
   it('has no place for a file the editor can’t open', async () => {
     const { catalog } = await salvageCoast();
     const step = { id: 'notes', title: 'Notes', text: 'Read them.', open: { file: 'NOTES.txt' } };

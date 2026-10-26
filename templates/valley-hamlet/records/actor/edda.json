@@ -1,0 +1,12 @@
+{
+  "name": "Edda",
+  "description": "Keeps the hamlet’s goats.",
+  "talk": "goatherd",
+  "behaviour": "goatherd",
+  "figure": {
+    "height": 1.6,
+    "clothes": "#6b7a3a",
+    "trim": "#d9c9a0",
+    "skin": "#e0b090"
+  }
+}

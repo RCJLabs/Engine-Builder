@@ -1,0 +1,9 @@
+{
+  "name": "Smithy",
+  "hour": 12,
+  "sky": "colour",
+  "zenith": "#1a1410",
+  "sun-strength": 0.4,
+  "ambient": "#e0b890",
+  "ambient-strength": 1.1
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Valley morning",
+  "hour": 9,
+  "sky": "gradient",
+  "zenith": "#4a78b0",
+  "horizon": "#cfe0e8",
+  "ground": "#4a5a38",
+  "sun": "#fff2d8",
+  "sun-strength": 2,
+  "ambient": "#d8e2e8",
+  "ambient-strength": 1.3,
+  "fog": {
+    "color": "#b8c8cc",
+    "near": 60,
+    "far": 260
+  }
+}

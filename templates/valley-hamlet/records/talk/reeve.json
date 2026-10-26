@@ -1,0 +1,74 @@
+{
+  "name": "Osric by his door",
+  "speaker": "osric",
+  "starts": [
+    {
+      "if": "quests.state(quest: bandits) == done",
+      "line": "thanks"
+    },
+    {
+      "if": "quests.stage(quest: bandits) == report",
+      "line": "report"
+    },
+    {
+      "if": "quests.state(quest: bandits) == active",
+      "line": "waiting"
+    },
+    {
+      "line": "ask"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "Bandits have made a den in the woods above the green, and one more holes up in the cave under the hill. Will you drive them off?",
+      "options": [
+        {
+          "id": "accept",
+          "label": "I’ll see to it",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "bandits"
+            }
+          ],
+          "next": "advice"
+        },
+        {
+          "id": "decline",
+          "label": "Not today"
+        }
+      ]
+    },
+    {
+      "id": "advice",
+      "text": "Mind the big one in the cave. Wenna at the smithy will sell you bread, and buy what they leave behind."
+    },
+    {
+      "id": "waiting",
+      "text": "The woods aren’t safe yet. The goats won’t go up past the well."
+    },
+    {
+      "id": "report",
+      "text": "You’re back. Is it done?",
+      "options": [
+        {
+          "id": "tell",
+          "label": "They’re gone, all three",
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "told-reeve",
+              "to": true
+            }
+          ],
+          "next": "thanks"
+        }
+      ]
+    },
+    {
+      "id": "thanks",
+      "text": "Then the green can sleep again. There’s a bed in the hamlet for you, whenever you want it."
+    }
+  ]
+}

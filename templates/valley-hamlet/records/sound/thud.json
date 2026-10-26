@@ -1,0 +1,13 @@
+{
+  "name": "Thud",
+  "voices": [
+    {
+      "volume": 0.5,
+      "frequency": 110,
+      "attack": 0.001,
+      "sustain": 0.03,
+      "release": 0.2,
+      "shape": "sine"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "You",
+  "stats": {
+    "health": 30,
+    "might": 1,
+    "armour": 1
+  },
+  "wears": {
+    "hand": "sword"
+  }
+}

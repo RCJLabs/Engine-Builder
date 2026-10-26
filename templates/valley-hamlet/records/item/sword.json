@@ -1,0 +1,10 @@
+{
+  "name": "Sword",
+  "description": "Plain, and kept sharp.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 5
+  },
+  "value": 12
+}

@@ -1,0 +1,143 @@
+{
+  "name": "The smithy",
+  "environment": "smithy",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [10, 0.2, 10],
+      "color": "#6a5a4a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the door",
+      "shape": "box",
+      "at": [0, 0, 3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {}
+      },
+      "turn": [0, 180, 0]
+    },
+    {
+      "id": "north",
+      "name": "Back wall",
+      "shape": "box",
+      "at": [0, 0, -5],
+      "scale": [10, 3, 0.3],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-5, 0, 0],
+      "scale": [0.3, 3, 10],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [5, 0, 0],
+      "scale": [0.3, 3, 10],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-west",
+      "name": "Front wall",
+      "shape": "box",
+      "at": [-3, 0, 5],
+      "scale": [4, 3, 0.3],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-east",
+      "name": "Front wall",
+      "shape": "box",
+      "at": [3, 0, 5],
+      "scale": [4, 3, 0.3],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 5.4],
+      "scale": [2, 2.2, 0.6],
+      "color": "#3b2a1c",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "green",
+              "spawn": "smithy-step"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "shape": "box",
+      "at": [-3.5, 0, -3.8],
+      "scale": [2, 1.2, 1.5],
+      "color": "#6a3a2a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "anvil",
+      "name": "Anvil",
+      "shape": "box",
+      "at": [-1.2, 0, -2],
+      "scale": [0.8, 0.8, 0.5],
+      "color": "#3a3a3a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "table",
+      "name": "Bench",
+      "record": "model:kit-table",
+      "at": [3, 0, -3.5]
+    },
+    {
+      "id": "barrel",
+      "name": "Water barrel",
+      "record": "model:kit-barrel",
+      "at": [-4, 0, 3]
+    },
+    {
+      "id": "wenna",
+      "name": "Wenna",
+      "record": "actor:wenna",
+      "at": [1.5, 0, -2.5]
+    }
+  ]
+}

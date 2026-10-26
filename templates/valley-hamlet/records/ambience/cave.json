@@ -1,0 +1,13 @@
+{
+  "name": "Cave drip",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "brown",
+      "filter": "lowpass",
+      "frequency": 220,
+      "gain": 0.4,
+      "sway": 0.3
+    }
+  ]
+}
