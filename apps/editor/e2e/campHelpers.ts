@@ -48,7 +48,24 @@ export const fallenOf = (seen: FightSeen): string[] =>
     .map((n) => n.actor)
     .sort();
 
-/** The HUD's first line, as "Health 50 · Arrows 10 · Coin 0". */
+/**
+ * The refused hits a fall doesn't explain. A hit sent before the stage heard of a fall, its striker's
+ * or its target's, is refused, rightly: it comes after the last hit taken on one of the two that
+ * fell, the one that felled them. Any other refusal is the stage sending what the sim won't take.
+ */
+export function unexplainedRefusals(seen: FightSeen) {
+  const hits = seen.sent.filter((s) => s.action.type === 'fighting/hit');
+  const lastTaken = new Map<string, number>();
+  hits.forEach((s, i) => {
+    if (s.sent === 'accepted' && s.action.on) lastTaken.set(s.action.on, i);
+  });
+  const fell = new Set(fallenOf(seen));
+  const afterFall = (actor: string | undefined, i: number) =>
+    actor !== undefined && fell.has(actor) && i > (lastTaken.get(actor) ?? Number.POSITIVE_INFINITY);
+  return hits.filter((s, i) => s.sent === 'refused' && !afterFall(s.action.by, i) && !afterFall(s.action.on, i));
+}
+
+/** The HUD's first line, as "Health 80 · Arrows 10 · Coin 0". */
 export async function hudOf(page: Page): Promise<string> {
   const text = await game(page)
     .getByRole('heading', { name: /^Health / })
@@ -78,7 +95,7 @@ export async function playCamp(page: Page, touch = false): Promise<Locator> {
   await expect(play).toBeEnabled();
   await how(play);
   await newGame(page, how);
-  await expect(game(page).getByRole('heading', { name: 'Health 50 · Arrows 10 · Coin 0' })).toBeVisible();
+  await expect(game(page).getByRole('heading', { name: 'Health 80 · Arrows 10 · Coin 0' })).toBeVisible();
   const box = await drawing(page, 'camp', 'The camp');
   await expect
     .poll(

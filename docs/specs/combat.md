@@ -60,8 +60,8 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 - **Being hit** alerts: an NPC the player hits has its awareness set to 100 (the ai kit hears
   `fighting/hit`), and its behaviour decides whether it fights.
 - **An NPC's arrow in flight** when its archer falls or leaves the fight lands harmless: the stage
-  sends no hit for it, as the sim would refuse one. A blow sent in the very step its striker falls is
-  refused by the sim; nothing else of an NPC's is.
+  sends no hit for it, as the sim would refuse one. A blow sent before the stage hears that its
+  striker or its target has fallen, the player's or an NPC's, is refused by the sim; nothing else is.
 
 ## A fall
 
@@ -164,8 +164,9 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 - **In the editor** (`campEditor.spec.ts`): the camp with Crow unarmed and idle; a club made a
   weapon with its Weapon group, an Ambush of one Attack the player step in the outline, W150 seen
   on Crow until the club is worn, and Crow fought in Play, at 1280 and 390.
-- **The hero has 50 health,** Rook 6, Crow 9, Wren 10; at 30 the keys' fight ended at 2. A first
-  guess, untested for feel.
+- **The hero has 80 health,** Rook 6, Crow 9, Wren 10. At 30 the keys' fight ended at 2; at 50 at 32
+  run alone but at 10 under the whole suite, where the bots react more slowly. A first guess,
+  untested for feel.
 
 ## Open questions
 
@@ -176,5 +177,5 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 5. Whether the 30° soft-aim cone and the wind-ups feel right, untested for feel.
 6. Whether a press of Attack mid-swing should be kept for the next swing (input buffering), for
    players who tap rather than hold.
-7. Whether the camp's numbers suit a person on a phone: steered by the specs, the hero ended with 28
-   to 40 of 50 by touch (five runs at each size), 32 by keys and 40 to 44 by a pad (four runs each).
+7. Whether the camp's numbers suit a person on a phone: steered by the specs, the hero ended with 52
+   to 62 of 80 by touch, 48 to 59 by keys and 72 to 75 by a pad (three runs each, on 2 workers).

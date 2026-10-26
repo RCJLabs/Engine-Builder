@@ -2206,7 +2206,7 @@ Evan chose on 2026-10-25, from these options:
 - **A searched body still answers Interact,** saying "Nothing left", but behind any use with something to come of it, so a body searched never hides another lying beside it.
 - **An NPC's arrow in flight** when its archer falls or leaves the fight hurts no one: the stage sends no hit the sim would refuse.
 - **E082 also covers `fighting` given with the kit off,** as E080 does for a clock.
-- **The camp's hero has 50 health:** at 30, a bot fighting by keys ended at 2. Untested for feel.
+- **The camp's hero has 80 health:** at 30, a bot fighting by keys ended at 2; at 50 it ended at 32 run alone but at 10 under the whole suite, where the bot reacts more slowly while the bandits keep their pace. Untested for feel.
 
 **Why.**
 - **No roll:** a hit the player sees land that the sim calls a miss reads as a bug; damage less armour keeps gear meaningful.

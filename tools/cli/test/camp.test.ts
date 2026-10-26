@@ -69,13 +69,13 @@ describe('eb with the camp', () => {
     expect(fight()?.engaged).toEqual(['crow', 'rook']);
     expect(refused({ type: 'fighting/hit', by: 'wren', on: 'hero', weapon: 'bow' })).toBe('not-fighting');
     hit('rook', 'hero', 'sword');
-    expect(health('hero')).toBe(47);
+    expect(health('hero')).toBe(77);
     // Rook's armour takes 1 off the sword's 4 and the hero's might of 2: Rook, at 1, falls to the next.
     hit('hero', 'rook', 'sword');
     expect(fight()?.fallen).toEqual(['rook']);
     expect(fight()?.engaged).toEqual(['crow', 'wren']);
     hit('wren', 'hero', 'bow');
-    expect(health('hero')).toBe(45);
+    expect(health('hero')).toBe(75);
     // The opening blows left Crow at 3 and Wren at 4: one more each.
     hit('hero', 'crow', 'sword');
     hit('hero', 'wren', 'sword');
@@ -102,8 +102,8 @@ describe('eb with the camp', () => {
     const open = await opened();
     const { play, hit, refused, health } = played(open);
     hit('hero', 'crow', 'sword');
-    // Crow's sword takes 3 a blow off the hero's 50, past their armour.
-    for (let i = 0; i < 16; i++) hit('crow', 'hero', 'sword');
+    // Crow's sword takes 3 a blow off the hero's 80, past their armour.
+    for (let i = 0; i < 26; i++) hit('crow', 'hero', 'sword');
     expect(health('hero')).toBe(2);
     const before = saveOf(open, play, { edition: 'test' }, 1000);
     hit('crow', 'hero', 'sword');

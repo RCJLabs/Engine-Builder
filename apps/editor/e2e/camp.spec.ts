@@ -20,6 +20,7 @@ import {
   openCamp,
   type Steer,
   searchAll,
+  unexplainedRefusals,
   yawTo,
 } from './campHelpers.ts';
 import { watchErrors } from './checks.ts';
@@ -71,9 +72,8 @@ test('the camp by keys and the mouse: the bow, the fight and the bodies', async 
     const seen = await fought(page);
     // Rook and Crow struck the hero, two at a time; Wren's arrows found them too.
     expect(hitsBy(seen, 'rook').length + hitsBy(seen, 'crow').length + hitsBy(seen, 'wren').length).toBeGreaterThan(0);
-    // A bandit's blow sent in the step it fell is refused, rightly: none other is.
-    const refused = seen.sent.filter((s) => s.action.type === 'fighting/hit' && s.sent === 'refused');
-    expect(refused.filter((s) => !fallenOf(seen).includes(s.action.by ?? ''))).toEqual([]);
+    // A blow sent before the stage heard its striker or its target fall is refused, rightly: none other is.
+    expect(unexplainedRefusals(seen)).toEqual([]);
     await expect(game(page).getByText(/^Down 3 of 3 · Rook 0 · Crow 0 · Wren 0$/)).toBeVisible();
     console.info(`the camp by keys: ${hitsBy(seen, 'hero').length} hits by the hero, the HUD at ${await hudOf(page)}`);
   });
@@ -126,7 +126,7 @@ test('the camp by keys: a hero who stands still falls, and Back to the camp load
 
   await test.step('Back to the camp: the hero whole again where they came in, the bandits too', async () => {
     await shellScreens(page).getByRole('button', { name: 'Back to The camp' }).click();
-    await expect(game(page).getByRole('heading', { name: 'Health 50 · Arrows 10 · Coin 0' })).toBeVisible();
+    await expect(game(page).getByRole('heading', { name: 'Health 80 · Arrows 10 · Coin 0' })).toBeVisible();
     await expect(game(page).getByText(/^Down 0 of 3 · Rook 6 · Crow 9 · Wren 10$/)).toBeVisible();
     await expect.poll(async () => (await walked(page)).feet[2]).toBeGreaterThan(9);
   });
