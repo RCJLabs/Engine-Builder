@@ -290,3 +290,25 @@ describe('a foreign rig normalised', () => {
     ).toBe(false);
   });
 });
+
+describe('a foreign rig packed as the import packs it (M6.5)', () => {
+  it('comes out of the pack on the rig: read again, nothing to turn or face, its walk still paced', async () => {
+    const { packModel, readModel } = await import('./pack.ts');
+    const { modelIO } = await import('./io.ts');
+    const plain = await (await modelIO()).writeBinary(foreignRig());
+    let rigged: ReturnType<typeof rigModel> = null;
+    const glb = await packModel({ name: 'hero.glb', bytes: plain }, [], {}, (doc) => {
+      rigged = rigModel(doc);
+    });
+    const first = rigged as ReturnType<typeof rigModel>;
+    expect(first?.rigged).toBe(true);
+    expect(first?.faced).toBe(true);
+    expect(first?.clips.find((c) => c.name === 'walk')?.pace).toBeCloseTo(WALK_PACE, 2);
+    const again = rigModel(await readModel({ name: 'hero.glb', bytes: glb }, [], {}));
+    expect(again?.rigged).toBe(true);
+    expect(again?.turned).toEqual([]);
+    expect(again?.faced).toBe(false);
+    // In place already: the packed walk's hips go nowhere.
+    expect(again?.clips.find((c) => c.name === 'walk')?.pace).toBeCloseTo(0, 2);
+  });
+});

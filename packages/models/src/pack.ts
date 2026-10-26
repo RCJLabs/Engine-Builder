@@ -41,13 +41,18 @@ export async function readModel(main: ModelFile, beside: readonly ModelFile[], d
   return io.readJSON({ json, resources: resources as JSONDocument['resources'] });
 }
 
-/** The model packed: reordered, quantised, compressed with Meshopt, one .glb. */
+/**
+ * The model packed: reordered, quantised, compressed with Meshopt, one .glb. `prepare` sees the
+ * document first, as read: the import puts a skeleton on the rig there (M6.5).
+ */
 export async function packModel(
   main: ModelFile,
   beside: readonly ModelFile[],
   decoders: Decoders,
+  prepare?: (doc: Document) => void,
 ): Promise<Uint8Array> {
   const doc = await readModel(main, beside, decoders);
+  prepare?.(doc);
   for (const extension of doc.getRoot().listExtensionsUsed()) {
     if (extension.extensionName === DRACO) extension.dispose();
   }

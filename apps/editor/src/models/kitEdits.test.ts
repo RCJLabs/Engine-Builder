@@ -69,3 +69,25 @@ describe('adding the starter kit', () => {
     expect(again.changes.map((c) => c.path)).toEqual(['records/material/kit-wood.json']);
   });
 });
+
+describe('adding the starter character (M6.5)', () => {
+  const FOLDER = resolve(import.meta.dirname, '../../../../starter-character');
+  const character = new Map(
+    listed(FOLDER).map((path) => [relative(FOLDER, path).split('\\').join('/'), new Uint8Array(readFileSync(path))]),
+  );
+
+  it('writes its GLB, its model, materials and stock animator, and its log entry, with no new problem', async () => {
+    const t = setup();
+    const before = (await compileProject(t.copy, [])).diagnostics;
+    await t.session.edit('character', async (copy) => (await addStarterKit(copy, character)).changes);
+    const glb = 'assets/starter-character/starter-character.glb';
+    expect(await t.copy.read(glb)).toEqual(character.get(glb));
+    expect(await t.copy.files('records/animator')).toEqual(['records/animator/starter-character.json']);
+    const log = JSON.parse(new TextDecoder().decode(await t.copy.read('assets/assets.json')));
+    expect(log.files['starter-character/starter-character.glb']).toMatchObject({
+      licence: 'CC0-1.0',
+      author: 'RCJLabs',
+    });
+    expect((await compileProject(t.copy, [])).diagnostics).toEqual(before);
+  });
+});

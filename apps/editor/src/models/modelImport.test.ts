@@ -4,7 +4,7 @@
  * model starts as.
  */
 import { describe, expect, it } from 'vitest';
-import { gltfNames, LOD_START, modelRecordOf, pickBlocked, planPick, stemOf } from './modelImport.ts';
+import { gltfNames, LOD_START, modelRecordOf, pickBlocked, planPick, rigOf, stemOf } from './modelImport.ts';
 
 const MB = 1024 * 1024;
 const file = (name: string, size = 100) => ({ name, size });
@@ -87,6 +87,28 @@ describe('a model’s first record', () => {
       modelRecordOf('rock.glb', 'models/rock.glb', { triangles, collider: box }, new Set());
     expect(at(1000).value.lod).toBeUndefined();
     expect(at(1001).value.lod).toEqual(LOD_START);
+  });
+
+  it('starts a model on the rig with its bones and its clips, paced, and no LOD (M6.5)', () => {
+    const rig = {
+      rigged: true,
+      bones: { hips: 'mixamorig:Hips', head: 'mixamorig:Head' },
+      missing: [],
+      clips: [
+        { name: 'walk', length: 1, pace: 1.4 },
+        { name: 'idle', length: 2, pace: 0 },
+      ],
+    };
+    const record = modelRecordOf('hero.glb', 'models/hero.glb', { triangles: 5000, collider: box, rig }, new Set());
+    expect(record.value.rig).toEqual({ bones: rig.bones });
+    expect(record.value.clips).toEqual([
+      { name: 'walk', length: 1, pace: 1.4 },
+      { name: 'idle', length: 2 },
+    ]);
+    expect(record.value.lod).toBeUndefined();
+    // One whose required bones weren't all found gets neither: W152 says so.
+    expect(rigOf({ ...rig, rigged: false, missing: ['head'] })).toEqual({});
+    expect(rigOf(null)).toEqual({});
   });
 
   it('takes the first free id, and "model" for a name with no letter or digit', () => {
