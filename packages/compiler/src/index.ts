@@ -100,6 +100,7 @@ export {
   modelNeeds,
   placedKeys,
 } from './placedModels.ts';
+export { placesOf, spaceTagsOf } from './places.ts';
 export {
   type KitSettings,
   type ListedRecord,

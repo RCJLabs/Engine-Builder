@@ -26,7 +26,7 @@ import {
   withPackWorld,
   worldModule,
 } from '@eb/core';
-import { kitMetrics, kitModules } from '@eb/kits';
+import { kitMetrics, kitModules, kitsInWorld } from '@eb/kits';
 import { type GameModule, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
 import { formatGolden } from './simReport.ts';
@@ -74,7 +74,10 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const policies = new Map([randomPolicy, ...loaded.policies].map((p) => [p.name, p]));
   const policy = policies.get(settings.policy);
   if (!policy) throw new UsageError(`No policy "${settings.policy}": this game has ${[...policies.keys()].join(', ')}`);
-  const game = createGame({ modules: withPackWorld(modules, pack.world), start: loaded.start });
+  const game = createGame({
+    modules: withPackWorld(kitsInWorld(modules, pack.world), pack.world),
+    start: loaded.start,
+  });
   const sim = { content: createRecordStore(pack.records) };
   const { maxTurns } = settings;
   // The kits' metrics come after the game's own (M3.9): each quest's state at the end.

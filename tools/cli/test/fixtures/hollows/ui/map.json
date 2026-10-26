@@ -1,0 +1,21 @@
+{
+  "title": "Map",
+  "modal": true,
+  "main": {
+    "widget": "space-map"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

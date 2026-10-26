@@ -1,0 +1,68 @@
+{
+  "name": "The hall",
+  "objects": [
+    {
+      "id": "door",
+      "name": "Door",
+      "shape": "box",
+      "at": [0, 0, 4],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [10, 0.2, 10],
+      "color": "#8b6a45",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 5.6],
+      "scale": [2.4, 2, 0.6],
+      "color": "#3b2a1c",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "green",
+              "spawn": "start"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mine-door",
+      "name": "Mine door",
+      "shape": "box",
+      "at": [0, 0, 2.5],
+      "scale": [1.4, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go down",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "mine",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

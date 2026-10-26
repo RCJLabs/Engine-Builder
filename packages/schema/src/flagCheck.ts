@@ -4,6 +4,7 @@
  * never set, or never named (W108 to W110), as rule-or-drool's src/validate/rules.ts warns of its
  * flags. Records arrive in any order, so the checks that need every flag run at the end.
  */
+
 import {
   type Condition,
   conditionRefs,
@@ -18,6 +19,7 @@ import {
 import type { Report } from './checkValue.ts';
 import type { SoundCondition } from './conditions.ts';
 import type { SpaceSpawns, Walkers } from './worldCheck.ts';
+import type { SpaceTags } from './worldSlots.ts';
 
 interface Place {
   /** The record, as "type:id". */
@@ -64,6 +66,8 @@ export interface FlagUses {
   readonly walkers?: Walkers;
   /** Each space's object paths through prefabs (M6.6), for a quest's targets (E086, W155). */
   readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
+  /** The spaces' tags, their objects' and their actors' (M6.7), for a quest's world slots (E088, W127). */
+  readonly tags?: SpaceTags;
 }
 
 export class FlagChecks {

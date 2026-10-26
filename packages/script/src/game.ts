@@ -82,7 +82,8 @@ export function readGame(
   if (!Array.isArray(metrics) || !metrics.every(isMetric)) {
     return shapeProblem('metrics, if any: fact ids, or { fact, args, label }');
   }
-  const kitted = kitModules(kits, calendar, clock, world !== undefined ? fighting : undefined);
+  // The quests kit's slots find in the world's places (M6.7).
+  const kitted = kitModules(kits, calendar, clock, world !== undefined ? fighting : undefined, world?.places);
   const clash = modules.find((m) => kitted.some((kit) => kit.id === m.id && kit !== m));
   if (clash) {
     const message = `Its module "${clash.id}" has the id of the ${clash.id} kit, which project.json lists: name it otherwise`;

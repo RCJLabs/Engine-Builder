@@ -195,7 +195,7 @@ export {
   type Road,
   type Takes,
 } from './maps/types.ts';
-export { kitModules } from './modules.ts';
+export { kitModules, kitsInWorld } from './modules.ts';
 export {
   canBeDone,
   canEnd,

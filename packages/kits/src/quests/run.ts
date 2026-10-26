@@ -5,15 +5,15 @@
  * before failure. Its slots are bound into each condition and effect before they are read (M3.10).
  * The slice is copied only when a quest changes, so an event that moves none leaves it shared.
  */
-import type { Beat, Condition, DeepReadonly, ModuleContext } from '@eb/core';
+import type { Beat, Condition, DeepReadonly } from '@eb/core';
 import { own } from '../own.ts';
 import { endJob, startJob } from './jobs.ts';
 import { namedStage, questRecord, stageOf } from './records.ts';
 import { bind, goneSlot, slotText } from './slots.ts';
 import { trackEnded } from './tracking.ts';
-import type { Count, QuestEntry, QuestRecord, QuestsSlice, Slot, Stage } from './types.ts';
+import type { Count, QuestEntry, QuestRecord, QuestsContext, Slot, Stage } from './types.ts';
 
-type Ctx = ModuleContext<QuestsSlice>;
+type Ctx = QuestsContext;
 type Entry = DeepReadonly<QuestEntry>;
 
 /** What the journal says of a stage that fails with no why of its own. */
@@ -127,7 +127,10 @@ function lose(ctx: Ctx, id: string, quest: QuestRecord, slot: Slot): Move {
   entry.lost = [...(entry.lost ?? []), slot.id].sort();
   ctx.emit('gone', { quest: id, slot: slot.id, record: own(entry.slots ?? {}, slot.id) as string });
   if (slot.gone !== undefined) return { to: 'stage', stage: slot.gone };
-  return { to: 'fail', why: slotText(ctx.content, quest, entry.slots, slot.why ?? `{${slot.id}} is gone.`) };
+  return {
+    to: 'fail',
+    why: slotText(ctx.content, quest, entry.slots, slot.why ?? `{${slot.id}} is gone.`, ctx.places),
+  };
 }
 
 /**
@@ -135,7 +138,7 @@ function lose(ctx: Ctx, id: string, quest: QuestRecord, slot: Slot): Move {
  * record gone (step 6), which comes before failing (step 7). A stage with a job waits for it.
  */
 function progress(ctx: Ctx, id: string, quest: QuestRecord, stage: Stage, heard: Beat | undefined): Move | undefined {
-  const why = (text: string) => slotText(ctx.content, quest, entryOf(ctx, id)?.slots, text);
+  const why = (text: string) => slotText(ctx.content, quest, entryOf(ctx, id)?.slots, text, ctx.places);
   // Reaching it fails the quest, at this check, which follows at once: before it, its effects'
   // events may be heard, and with no objectives it would read as done.
   if (stage.fails === true) return { to: 'fail', why: why(stage.log ?? FAILED) };

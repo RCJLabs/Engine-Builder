@@ -3,11 +3,14 @@
  * objectives check themselves, and for each quest started, where it is, what it has logged and
  * what of its stage is done. A quest not yet started has no entry.
  */
-import type { Condition, Effect } from '@eb/core';
+import type { Condition, Effect, ModuleContext, WorldPlaces } from '@eb/core';
 
 /** The kit's id, its module's id and the key of its slice. */
 export const QUESTS = 'quests';
 export const QUEST = 'quest';
+
+/** What the kit's handlers reach: the kernel's context, with the pack's places since M6.7 (D79). */
+export type QuestsContext = ModuleContext<QuestsSlice> & { readonly places?: WorldPlaces };
 
 /** A count objective: done once the event, with these argument values, is heard `to` times. */
 export interface Count {
@@ -67,8 +70,11 @@ export interface Stage {
   readonly job?: Job;
 }
 
-/** How a slot picks among the records that match: the first by id, at random, or by a fact's number. */
-export const PICKS = ['first', 'random', 'most', 'least'] as const;
+/**
+ * How a slot picks among the records that match: the first by id, at random, or by a fact's number;
+ * since M6.7 (D79), for a slot that finds in the world, the nearest by doors.
+ */
+export const PICKS = ['first', 'random', 'most', 'least', 'nearest'] as const;
 export type Pick = (typeof PICKS)[number];
 
 /** The fact whose number ranks the records a slot could hold: `stats.value` with `actor: @man`. */
@@ -81,11 +87,15 @@ export interface SlotRank {
 export interface Slot {
   /** Lowercase words joined by hyphens, once in the quest. */
   readonly id: string;
-  /** The type of record it holds. */
+  /** The type of record it holds; or since M6.7 (D79) `space` or `object`, found in the world. */
   readonly type: string;
   /** The one record it holds; or `where`, which each record of the type is tried against. */
   readonly record?: string;
   readonly where?: Condition;
+  /** M6.7: for an object or an actor, the space it is found in: an id, or `@slot` of an earlier space slot. */
+  readonly in?: string;
+  /** M6.7: the tags a match carries, every one of them. */
+  readonly tags?: readonly string[];
   readonly pick?: Pick;
   readonly by?: SlotRank;
   /** The record is sent: away until the quest ends. */

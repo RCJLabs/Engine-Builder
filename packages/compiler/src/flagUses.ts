@@ -28,7 +28,7 @@ export function withScreens(zones: FlagUses, screens: ReadonlyMap<string, Readon
   for (const from of [zones.read, screens]) {
     for (const [flag, where] of from) read.set(flag, new Set([...(read.get(flag) ?? []), ...where]));
   }
-  // The spaces' spawn points, walkers and objects (M5.9, M6.2, M6.6) go along: the editor's records
+  // The spaces' spawn points, walkers, objects and tags (M5.9, M6.2, M6.6, M6.7) go along: the editor's records
   // check against them, and a quest's target offers the objects.
   return {
     set: zones.set,
@@ -37,5 +37,6 @@ export function withScreens(zones: FlagUses, screens: ReadonlyMap<string, Readon
     ...(zones.spawns ? { spawns: zones.spawns } : {}),
     ...(zones.walkers ? { walkers: zones.walkers } : {}),
     ...(zones.objects ? { objects: zones.objects } : {}),
+    ...(zones.tags ? { tags: zones.tags } : {}),
   };
 }

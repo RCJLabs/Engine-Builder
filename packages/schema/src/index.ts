@@ -230,3 +230,4 @@ export {
   scanRecord,
 } from './walk.ts';
 export { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walker, type Walkers } from './worldCheck.ts';
+export { findsInWorld, type SpaceTags } from './worldSlots.ts';

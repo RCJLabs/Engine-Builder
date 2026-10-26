@@ -37,6 +37,7 @@ import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
 import { checkTargets } from './targetCheck.ts';
 import { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walkers } from './worldCheck.ts';
+import type { SpaceTags } from './worldSlots.ts';
 
 export interface RecordInput {
   readonly type: string;
@@ -112,6 +113,8 @@ export interface ValidateOptions {
    * `walkers`. Without both, a target gets only the shape check.
    */
   readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
+  /** The spaces' tags (M6.7), for a quest's world slots (E088, W127). Without it, only their own fields are checked. */
+  readonly tags?: SpaceTags;
   /** Flags set and read by spaces' trigger zones and by screens (M5.8), for the flags' lint. */
   readonly flagsElsewhere?: FlagUses;
 }
@@ -142,7 +145,7 @@ export function validateRecords(
   const usages = new Map<string, Usage[]>();
   const assetUsages = new Map<string, Usage[]>();
   const flags = new FlagChecks();
-  const kits = new KitChecks(on, known, index);
+  const kits = new KitChecks(on, known, index, options.tags);
   // The ai kit's records, whose checks read every actor's and every behaviour's (M6.3).
   const behaving: Checked[] = [];
   const riggedOf = riggedModels(records);

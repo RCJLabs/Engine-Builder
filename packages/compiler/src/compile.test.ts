@@ -942,6 +942,25 @@ describe('the code table', () => {
       'E087 spaces/barn.map.json ',
       'W154 spaces/glen.map.json ',
     ]);
+    // M6.7: a quest's object slot with no In, in a project whose cave has a cache.
+    const radiant = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'hollow', name: 'Hollow', version: '0.1.0', kits: ['quests'] }),
+        'records/quest/fetch.json': JSON.stringify({
+          name: 'Fetch',
+          'at-start': true,
+          slots: [{ id: 'cache', type: 'object', tags: ['cache'] }],
+          stages: [{ id: 'go', log: 'Go.' }],
+        }),
+        'spaces/cave.json': JSON.stringify({
+          name: 'Cave',
+          tags: ['cave'],
+          objects: [{ id: 'chest', shape: 'box', tags: ['cache'] }],
+        }),
+      }),
+      [],
+    );
+    expect(brief(radiant.diagnostics).map((d) => `${d.code} ${d.path}`)).toEqual(['E088 /slots/0/in']);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -974,6 +993,7 @@ describe('the code table', () => {
       unarmed,
       animated,
       marked,
+      radiant,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

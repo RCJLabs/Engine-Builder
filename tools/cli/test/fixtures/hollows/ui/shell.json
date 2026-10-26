@@ -1,0 +1,5 @@
+{
+  "title": "The hollows",
+  "tagline": "A board, a post and the caves past the green",
+  "slot-line": "Supplies {inventory.count(item: supplies)}"
+}

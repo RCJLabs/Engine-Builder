@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "hollows",
+  "name": "The hollows",
+  "version": "0.1.0",
+  "kits": ["inventory", "stats", "factions", "quests"],
+  "start-space": "green"
+}

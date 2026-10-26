@@ -54,6 +54,12 @@ export function checkSpaces(files: readonly SpaceFileRead[], terrains: readonly 
       );
       continue;
     }
+    if (read.kind === 'prefab' && space.tags !== undefined) {
+      diagnostics.push(
+        at(read.file, 'E058', '/tags', 'Only a space has tags of its own: tag a placement of the prefab'),
+      );
+      continue;
+    }
     sound.set(read.file, { read, space });
   }
   const spaces = [...sound.values()].filter(({ read }) => read.kind === 'space');

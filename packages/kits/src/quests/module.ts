@@ -3,8 +3,9 @@
  * the game or when a condition holds, moved on as their objectives are done, and failed on a
  * condition or a deadline. It hears every event, as the events kit does, to count and check.
  * M3.10 (D48) fills a quest's slots as it starts, runs it again when it repeats, and seals its jobs.
+ * M6.7 (D79) builds it with the pack's places, where its slots can find spaces and what is in them.
  */
-import { defineModule, type Module, type ModuleDef, type RecordStore } from '@eb/core';
+import { defineModule, type Module, type ModuleDef, NO_PLACES, type RecordStore, type WorldPlaces } from '@eb/core';
 import { own } from '../own.ts';
 import { facts, QUEST_ARG, TEXT } from './facts.ts';
 import { questShown } from './journal.ts';
@@ -29,53 +30,59 @@ const events: Def['events'] = {
   gone: { args: { ...QUEST_ARG, slot: TEXT, record: TEXT }, label: 'A slot’s record is gone' },
 };
 
-export const questsModule: Module = defineModule<QuestsSlice>({
-  id: QUESTS,
-  // Version 2 (M3.10) adds an entry's slots, lost, times and again, which a quest of version 1
-  // has none of: its entries load as they are. Version 3 (M6.6) adds the tracked quest.
-  version: 3,
-  migrate: { 2: (slice) => slice, 3: withTracked },
-  init: () => ({ quests: {} }),
-  // Quests that start with the game, then those whose start holds already.
-  start: (ctx) => {
-    for (const id of ctx.content.ids(QUEST)) if (questRecord(ctx.content, id)['at-start'] === true) startQuest(ctx, id);
-    startWaiting(ctx);
-  },
-  facts,
-  events,
-  actions: {
-    // The journal's Track (M6.6): outside play, so it takes no mode's leave and no bot takes it.
-    track: { run: (ctx, action) => track(ctx, action.quest), anyMode: true },
-  },
-  effects: {
-    'start-quest': {
-      run: (ctx, effect) => {
-        const quest = questKey(ctx.content, effect.quest);
-        const slot = startQuest(ctx, quest);
-        if (slot !== undefined) ctx.refuse('unfilled', { quest, slot });
-      },
-      preview: (ctx, effect) => questShown(ctx, questKey(ctx.content, effect.quest)),
+/** The kit's module, its handlers reaching the places as well as the kernel's context. */
+export function questsModule(places: WorldPlaces = NO_PLACES): Module {
+  const at = <C extends object>(ctx: C): C & { places: WorldPlaces } => ({ ...ctx, places });
+  return defineModule<QuestsSlice>({
+    id: QUESTS,
+    // Version 2 (M3.10) adds an entry's slots, lost, times and again, which a quest of version 1
+    // has none of: its entries load as they are. Version 3 (M6.6) adds the tracked quest.
+    version: 3,
+    migrate: { 2: (slice) => slice, 3: withTracked },
+    init: () => ({ quests: {} }),
+    // Quests that start with the game, then those whose start holds already.
+    start: (kernel) => {
+      const ctx = at(kernel);
+      for (const id of ctx.content.ids(QUEST))
+        if (questRecord(ctx.content, id)['at-start'] === true) startQuest(ctx, id);
+      startWaiting(ctx);
     },
-    'set-stage': {
-      run: (ctx, effect) => {
-        const quest = questKey(ctx.content, effect.quest);
-        const slot = setStage(ctx, quest, stageKey(ctx.content, effect));
-        if (slot !== undefined) ctx.refuse('unfilled', { quest, slot });
+    facts,
+    events,
+    actions: {
+      // The journal's Track (M6.6): outside play, so it takes no mode's leave and no bot takes it.
+      track: { run: (ctx, action) => track(ctx, action.quest), anyMode: true },
+    },
+    effects: {
+      'start-quest': {
+        run: (ctx, effect) => {
+          const quest = questKey(ctx.content, effect.quest);
+          const slot = startQuest(at(ctx), quest);
+          if (slot !== undefined) ctx.refuse('unfilled', { quest, slot });
+        },
+        preview: (ctx, effect) => questShown(at(ctx), questKey(ctx.content, effect.quest)),
       },
-      preview: (ctx, effect) => {
-        const quest = questKey(ctx.content, effect.quest);
-        const stage = stageKey(ctx.content, effect);
-        const from = own(ctx.read().quests, quest)?.stage;
-        return from === undefined ? { quest, stage } : { quest, stage, from };
+      'set-stage': {
+        run: (ctx, effect) => {
+          const quest = questKey(ctx.content, effect.quest);
+          const slot = setStage(at(ctx), quest, stageKey(ctx.content, effect));
+          if (slot !== undefined) ctx.refuse('unfilled', { quest, slot });
+        },
+        preview: (ctx, effect) => {
+          const quest = questKey(ctx.content, effect.quest);
+          const stage = stageKey(ctx.content, effect);
+          const from = own(ctx.read().quests, quest)?.stage;
+          return from === undefined ? { quest, stage } : { quest, stage, from };
+        },
+      },
+      'fail-quest': {
+        run: (ctx, effect) => fail(at(ctx), questKey(ctx.content, effect.quest), whyOf(effect)),
+        preview: (ctx, effect) => ({ quest: questKey(ctx.content, effect.quest), why: whyOf(effect) }),
       },
     },
-    'fail-quest': {
-      run: (ctx, effect) => fail(ctx, questKey(ctx.content, effect.quest), whyOf(effect)),
-      preview: (ctx, effect) => ({ quest: questKey(ctx.content, effect.quest), why: whyOf(effect) }),
-    },
-  },
-  on: { '*': hear },
-});
+    on: { '*': (ctx, event) => hear(at(ctx), event) },
+  });
+}
 
 /** The quest's id, once it is known to be one. */
 function questKey(content: RecordStore, id: unknown): string {

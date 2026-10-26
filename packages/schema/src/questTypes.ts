@@ -55,13 +55,19 @@ const OBJECTIVE: FieldDef = {
         'Where its marker points: an actor, or a space and an object in it. Left out, a count of world/used points at its object',
       fields: {
         actor: { kind: 'text', min: 1, optional: true, label: 'Actor', description: 'An actor’s id, or @slot' },
-        space: { kind: 'text', min: 1, optional: true, label: 'Space', description: 'A space’s id' },
+        space: {
+          kind: 'text',
+          min: 1,
+          optional: true,
+          label: 'Space',
+          description: 'A space’s id, or @slot of a space slot',
+        },
         object: {
           kind: 'text',
           min: 1,
           optional: true,
           label: 'Object',
-          description: 'Its path in the space: an id, or placement/inner through a prefab',
+          description: 'Its path in the space: an id, or placement/inner through a prefab; or @slot of an object slot',
         },
       },
     },
@@ -76,7 +82,8 @@ const SLOT: FieldDef = {
       kind: 'text',
       min: 1,
       label: 'Type',
-      description: 'The type of record it holds: actor, item, or a type of your own',
+      description:
+        'The type of record it holds: actor, item, or a type of your own; or space or object, found in the world',
     },
     record: {
       kind: 'text',
@@ -91,13 +98,28 @@ const SLOT: FieldDef = {
       label: 'Where',
       description: 'Each record of its type is tried, @ and this slot’s id standing for it. Give this or Record',
     },
+    in: {
+      kind: 'text',
+      min: 1,
+      optional: true,
+      label: 'In',
+      description: 'For an object or an actor: the space it is found in, by id or @slot of a space slot before it',
+    },
+    tags: {
+      kind: 'list',
+      min: 1,
+      optional: true,
+      label: 'Tags',
+      description: 'For a space, an object or an actor: the tags a match carries, every one of them',
+      of: { kind: 'text', min: 1 },
+    },
     pick: {
       kind: 'enum',
-      values: ['first', 'random', 'most', 'least'],
+      values: ['first', 'random', 'most', 'least', 'nearest'],
       optional: true,
       label: 'Pick',
       description:
-        'Among the records that match: the first by id when left out, one at random, or the most or least By',
+        'Among the records that match: the first by id when left out, one at random, the most or least By, or the nearest by doors',
     },
     by: {
       kind: 'group',

@@ -1,0 +1,49 @@
+{
+  "title": "The hollows",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Read the board, or the post.",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Supplies {inventory.count(item: supplies)}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Map",
+        "action": {
+          "open": "map"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Rest a while",
+        "action": {
+          "take": "hollows/rest"
+        }
+      }
+    ]
+  }
+}

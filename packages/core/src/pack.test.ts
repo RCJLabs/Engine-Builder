@@ -229,6 +229,12 @@ describe('createPack', () => {
       spawns: { bothy: [], trailhead: [] },
       start: 'bothy',
       actors: {},
+      // M6.7: each space's name, with no tags before format 15.
+      places: {
+        spaces: { bothy: { name: 'Bothy', tags: [] }, trailhead: { name: 'Trailhead', tags: [] } },
+        objects: {},
+        actors: {},
+      },
     });
   });
 

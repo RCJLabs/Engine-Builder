@@ -1,0 +1,38 @@
+{
+  "name": "Supplies",
+  "repeats": true,
+  "slots": [
+    {
+      "id": "cave",
+      "type": "space",
+      "tags": ["cave"],
+      "pick": "nearest"
+    },
+    {
+      "id": "cache",
+      "type": "object",
+      "in": "@cave",
+      "tags": ["cache"]
+    }
+  ],
+  "stages": [
+    {
+      "id": "fetch",
+      "log": "The board asks for the supplies left in {cave}.",
+      "objectives": [
+        {
+          "id": "cache",
+          "text": "Take the supplies from the {cache} in {cave}",
+          "count": {
+            "event": "world/used",
+            "args": {
+              "space": "@cave",
+              "object": "@cache"
+            },
+            "to": 1
+          }
+        }
+      ]
+    }
+  ]
+}

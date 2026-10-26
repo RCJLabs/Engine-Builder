@@ -1,0 +1,8 @@
+{
+  "name": "Rusk",
+  "description": "A bandit in the mine.",
+  "faction": "bandits",
+  "figure": {
+    "clothes": "#3a3a5a"
+  }
+}

@@ -9,6 +9,7 @@ import { type QuestRecord, type Slot, type Stage, stageOf } from '@eb/kits';
 import type { DiagnosticCode } from './diagnostics.ts';
 import { schemaIssues } from './issues.ts';
 import type { Known } from './known.ts';
+import { checkWorldSlot, findsInWorld, type SpaceTags } from './worldSlots.ts';
 
 type Report = (code: DiagnosticCode, path: string, message: string) => void;
 type Scope = Readonly<Record<string, string>>;
@@ -47,6 +48,8 @@ export interface SlotContext {
   readonly records: RecordIndex;
   /** Types records of which modules make in play: the roster's actors. */
   readonly made: ReadonlySet<string>;
+  /** The spaces' tags (M6.7), for the slots that find in the world: undefined where the spaces aren't read. */
+  readonly tags?: SpaceTags;
 }
 
 /** Each slot's own fields, then the texts naming slots. */
@@ -61,15 +64,26 @@ export function checkSlots(quest: QuestRecord, report: Report, ctx: SlotContext)
     } else if (seen.has(slot.id)) report('E035', `${at}/id`, `${slot.id} is a slot twice in this quest`);
     seen.add(slot.id);
     checkSlot(quest, slot, at, report, ctx);
+    checkWorldSlot(slots, i, report, ctx.tags);
     if (slot.by !== undefined) checkBy(slot.by, `${at}/by`, scope(`${at}/by`), report, ctx);
   });
   checkTexts(quest, new Set(slots.map((slot) => slot.id)), report);
 }
 
 function checkSlot(quest: QuestRecord, slot: Slot, at: string, report: Report, ctx: SlotContext): void {
-  if ((slot.record === undefined) === (slot.where === undefined)) {
+  // A slot that finds in the world needs neither (M6.7): worldSlots.ts checks it.
+  const world = findsInWorld(slot);
+  if (!world && (slot.record === undefined) === (slot.where === undefined)) {
     const which = slot.record === undefined ? 'give one' : 'not both';
     report('E035', at, `A slot holds a Record or the records matching Where: ${which}`);
+  }
+  if (world && slot.type !== 'actor') {
+    if (slot.gone !== undefined && stageOf(quest, slot.gone) === undefined)
+      report('E035', `${at}/gone`, `This quest has no stage ${slot.gone}`);
+    if (slot.pick === 'most' || slot.pick === 'least') {
+      if (slot.by === undefined) report('E035', `${at}/pick`, `${slot.pick} by what? Give By`);
+    } else if (slot.by !== undefined) report('E035', `${at}/by`, 'By ranks the records for Most or Least only');
+    return;
   }
   const ranks = slot.pick === 'most' || slot.pick === 'least';
   if (ranks && slot.by === undefined) report('E035', `${at}/pick`, `${slot.pick} by what? Give By`);
@@ -81,6 +95,7 @@ function checkSlot(quest: QuestRecord, slot: Slot, at: string, report: Report, c
     report('E035', `${at}/gone`, 'A record is gone when Keeps while stops holding: give Keeps while');
   }
   const written = ctx.records.ids(slot.type).length > 0;
+  if (world) return;
   if (slot.record !== undefined && !ctx.records.has(slot.type, slot.record)) {
     report('E044', `${at}/record`, `No ${slot.type} record "${slot.record}"`);
   } else if (!written && !ctx.made.has(slot.type)) {

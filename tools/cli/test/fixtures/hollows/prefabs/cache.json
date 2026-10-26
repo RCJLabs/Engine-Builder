@@ -1,0 +1,26 @@
+{
+  "name": "Cache",
+  "objects": [
+    {
+      "id": "chest",
+      "name": "Old chest",
+      "shape": "box",
+      "at": [0, 0, 0],
+      "scale": [0.8, 0.5, 0.5],
+      "color": "#6b4a2a",
+      "tags": ["cache"],
+      "components": {
+        "interact": {
+          "label": "Take the supplies",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "supplies"
+            }
+          ],
+          "takes": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "The mine",
+  "tags": ["cave"],
+  "objects": [
+    {
+      "id": "door",
+      "name": "Door",
+      "shape": "box",
+      "at": [0, 0, 2],
+      "scale": [0.6, 0.1, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [8, 0.2, 8],
+      "color": "#4a4a52",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 3.6],
+      "scale": [2.4, 2, 0.6],
+      "color": "#3b2a1c",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "green",
+              "spawn": "start"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "stash",
+      "prefab": "cache",
+      "at": [0, 0, 0.5]
+    },
+    {
+      "id": "empty",
+      "prefab": "cache",
+      "at": [3, 0, -2],
+      "overrides": {
+        "chest": {
+          "tags": ["empty"]
+        }
+      }
+    },
+    {
+      "id": "rusk",
+      "record": "actor:rusk",
+      "at": [-2.5, 0, -2]
+    }
+  ]
+}

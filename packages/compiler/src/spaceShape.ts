@@ -14,9 +14,19 @@ const id = z.string().regex(RECORD_ID_PATTERN, { error: 'Not an id: use lowercas
 const three = z.tuple([z.number(), z.number(), z.number()]);
 const above = z.number().gt(0, { error: 'A scale is above 0' });
 
+/** At most this many tags a space or an object (M6.7, D79). */
+export const TAGS_MOST = 16;
+
+/** What a space or an object is, for the quests that look for it (M6.7, D79): words, each once. */
+const tags = z
+  .array(z.string().regex(RECORD_ID_PATTERN, { error: 'A tag is lowercase words joined by hyphens' }))
+  .max(TAGS_MOST, { error: `${TAGS_MOST} tags at most` })
+  .refine((list) => new Set(list).size === list.length, { error: 'A tag is listed once' });
+
 /** The fields an object and an override share (M5.2): what an override can change. */
 export const placeFields = {
   name: z.string().min(1).max(80).optional(),
+  tags: tags.optional(),
   at: three.optional(),
   turn: three.optional(),
   scale: z.tuple([above, above, above]).optional(),
@@ -95,6 +105,8 @@ export const terrainSchema = z
 
 export const spaceSchema = z.strictObject({
   name: z.string().min(1).max(80),
+  /** A space's tags (M6.7): a prefab's are E058, as a placement of it carries its own. */
+  tags: tags.optional(),
   /** The id of the environment record it is drawn under (M5.4, D66): a space's alone. */
   environment: id.optional(),
   terrain: terrainSchema.optional(),

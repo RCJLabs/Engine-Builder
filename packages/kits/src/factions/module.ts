@@ -54,6 +54,13 @@ export const factionsKit = defineModule<FactionsSlice>({
           : bandOf(factionRecord(content, faction), standingOf(content, state, faction))?.id;
       },
     },
+    // M6.7 (D79): "an NPC of the bandits", which a quest's slot asks.
+    'faction-of': {
+      args: { actor: { type: 'ref', to: ACTOR } },
+      domain: { type: 'ref', to: FACTION },
+      label: 'the faction of',
+      read: ({ content }, { actor }) => factionOfActor(content, actor),
+    },
     reached: {
       args: { ...FACTION_ARG, band: { type: 'text' } },
       domain: { type: 'bool' },

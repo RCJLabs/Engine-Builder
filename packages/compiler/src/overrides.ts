@@ -13,7 +13,7 @@ export const isFields = (value: unknown): value is Fields =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /** What an override replaces whole. */
-const REPLACED = ['name', 'at', 'turn', 'scale', 'shape', 'color'] as const;
+const REPLACED = ['name', 'tags', 'at', 'turn', 'scale', 'shape', 'color'] as const;
 
 /** Components with `over`'s laid on them: a kind's fields replace the base's one by one, and a kind it lacks is added. */
 export function mergeComponents(base: unknown, over: unknown): Record<string, Fields> | undefined {

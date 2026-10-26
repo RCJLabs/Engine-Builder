@@ -1,0 +1,14 @@
+{
+  "name": "The bandits",
+  "description": "They hole up in the caves.",
+  "min": -20,
+  "max": 20,
+  "start": -10,
+  "bands": [
+    {
+      "id": "hostile",
+      "name": "Hostile",
+      "description": "They want you gone."
+    }
+  ]
+}

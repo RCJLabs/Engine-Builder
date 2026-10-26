@@ -10,6 +10,7 @@
 import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
+import { doorsBetween, doorsOf } from './doors.ts';
 import { attack, engaged, fall, follow, npcsAt, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
@@ -21,6 +22,7 @@ const own = <T>(map: Readonly<Record<string, T>>, key: string): T | undefined =>
 
 const TEXT: Domain = { type: 'text' };
 const BOOL: Domain = { type: 'bool' };
+const DOORS: Domain = { type: 'int', min: 0 };
 const PLACE = { space: TEXT, object: TEXT };
 
 const placeIn = (list: readonly string[], args: Readonly<Record<string, unknown>>) =>
@@ -38,6 +40,7 @@ export function withPackWorld(modules: readonly Module[], world: PackWorld | und
 
 /** The module for a pack's world: on whenever the pack has spaces. */
 export function worldModule(world: WorldData): Module {
+  const doors = doorsOf(world);
   return defineModule<WorldSlice>({
     id: WORLD,
     version: WORLD_VERSION,
@@ -92,6 +95,14 @@ export function worldModule(world: WorldData): Module {
         domain: BOOL,
         label: 'the player is in the space',
         read: (view, args) => typeof args.space === 'string' && view.state.space === args.space,
+      },
+      // M6.7 (D79): what a quest's slot reads to take the nearest.
+      doors: {
+        args: { space: TEXT },
+        domain: DOORS,
+        label: 'the fewest doors from where the player is to the space',
+        read: (view, args) =>
+          typeof args.space === 'string' ? doorsBetween(doors, view.state.space, args.space) : undefined,
       },
       // The space a placed actor stands in (M6.3): the ai kit's, as it hears what NPCs of a space sensed.
       'npc-space': {
