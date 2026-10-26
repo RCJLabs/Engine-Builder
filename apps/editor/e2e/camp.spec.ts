@@ -119,6 +119,8 @@ test('the camp by keys: a hero who stands still falls, and Back to the camp load
       timeout: 120_000,
     });
     await expect(page.getByRole('application', { name: 'The camp' })).toBeHidden();
+    // Not over: the game says nothing under the Fallen screen.
+    await expect(game(page).getByText('Nothing to do: the game is over.')).toHaveCount(0);
     await expect(shellScreens(page).getByText('The checkpoint is where you last came into a place.')).toBeVisible();
   });
 

@@ -2198,6 +2198,16 @@ Evan chose on 2026-10-25, from these options:
 - **Being hit alerts:** an NPC the player strikes has its awareness set to the top, whatever its faction; its behaviour decides whether it fights or not.
 - **The world module at version 5** gains `attack` and `fall` (not `fight`, the encounters kit's effect), so where an NPC is engaged and whether it is down are kept where the stage reads every other goal.
 
+**Made on the way, building it** (Claude's calls, 2026-10-26):
+- **A pad attacks with its right trigger,** not its west button: X was already Interact (M5.9).
+- **The touch Attack button stands above Jump,** as big (64 px), so one thumb can reach both.
+- **The wind-up is a lean:** an NPC's figure leans back 15° over the wind-up and forward 20° over the strike, the player's capsule likewise; a figure holds no weapon to brighten until M6.5.
+- **A fighter waiting its turn holds at 5 m,** backing away when the player comes nearer, rather than circling: holding is one point for Detour's crowd to walk to, where circling needs a new one round the player every step. Circling was not tried; whether holding reads well is untested for feel.
+- **A searched body still answers Interact,** saying "Nothing left", but behind any use with something to come of it, so a body searched never hides another lying beside it.
+- **An NPC's arrow in flight** when its archer falls or leaves the fight hurts no one: the stage sends no hit the sim would refuse.
+- **E082 also covers `fighting` given with the kit off,** as E080 does for a clock.
+- **The camp's hero has 50 health:** at 30, a bot fighting by keys ended at 2. Untested for feel.
+
 **Why.**
 - **No roll:** a hit the player sees land that the sim calls a miss reads as a bug; damage less armour keeps gear meaningful.
 - **Soft aim:** one thumb on a phone, no extra button, and close to how a keyboard player aims anyway.
@@ -2207,7 +2217,7 @@ Evan chose on 2026-10-25, from these options:
 **Cost.**
 - **No blocking or dodging** in M6.4: stepping away from a wind-up is the only defence.
 - **The stage decides when an NPC strikes,** so a headless run fights only through a stage run in Node (Rapier and Recast), as arrivals and senses already do.
-- **No animation until M6.5:** a wind-up shows as the figure leaning back and its weapon brightening, a fall as the figure lying down.
+- **No animation until M6.5:** a wind-up shows as the figure leaning back, a strike as it leaning forward, a fall as the figure lying down.
 
 ---
 

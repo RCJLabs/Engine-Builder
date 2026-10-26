@@ -253,24 +253,27 @@ export function keySteer(page: Page, camp: Locator): Steer {
  */
 export function touchSteer(page: Page, camp: Locator, fingers: Awaited<ReturnType<typeof hands>>): Steer {
   const attack = camp.getByRole('button', { name: 'Attack' });
-  /** A point on the view a thumb can reach, `across` it: sideways, the panel shows only part of it. */
-  const onView = async (across: number) => {
+  /**
+   * A point on the view a thumb can reach, `across` it and `down` the part shown: sideways, the panel
+   * shows only part of it. The look starts higher, clear of the buttons in the corner.
+   */
+  const onView = async (across: number, down: number) => {
     await camp.scrollIntoViewIfNeeded();
     const area = await camp.boundingBox();
     if (!area) throw new Error('No view to touch');
     const bottom = Math.min(area.y + area.height, page.viewportSize()?.height ?? area.y + area.height);
-    return { x: area.x + area.width * across, y: area.y + (bottom - area.y) * 0.6 };
+    return { x: area.x + area.width * across, y: area.y + (bottom - area.y) * down };
   };
   return {
     turn: async (degrees) => {
-      const at = await onView(0.7);
+      const at = await onView(0.7, 0.3);
       await fingers.press(2, at.x, at.y);
       await fingers.slide(2, Math.round(-degrees / 0.3), 0);
       await fingers.lift(2);
     },
     // Past 48 px the stick runs.
     walk: async (ms, run) => {
-      const at = await onView(0.25);
+      const at = await onView(0.25, 0.6);
       await fingers.press(1, at.x, at.y);
       await fingers.slide(1, 0, run ? -56 : -44);
       const until = Date.now() + ms;
