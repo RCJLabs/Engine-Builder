@@ -11,6 +11,7 @@ import type { GameState, SimContext } from '../sim/types.ts';
 import { readFacets, stateHash } from '../stateHash.ts';
 import { playRun, type RefusedOffer, type RunEnd, type RunResult } from './play.ts';
 import type { Policy } from './policy.ts';
+import type { Stage } from './stage.ts';
 import { type Interval, type NumberSummary, summarize, wilson } from './stats.ts';
 
 /** A fact to read at the end of each run: an id, or an id with arguments and a label. */
@@ -21,6 +22,8 @@ export interface SweepOptions {
   readonly policy: Policy;
   readonly maxTurns?: number;
   readonly metrics?: readonly MetricSpec[];
+  /** A walked game's stage (M6.9): every run plays with it. */
+  readonly stage?: Stage;
 }
 
 /** A share of the runs, with its 95% interval. */
@@ -49,6 +52,8 @@ export interface RunSummary {
 export interface SweepReport {
   readonly runs: number;
   readonly policy: string;
+  /** The stage the runs played with, a walked game's (M6.9). */
+  readonly stage?: string;
   readonly ends: Readonly<Record<RunEnd, number>>;
   /**
    * How many different states the runs ended in, by the modules' slices: the kernel, which holds
@@ -69,14 +74,19 @@ export function sweep(
   sim: SimContext,
   options: SweepOptions,
 ): { readonly report: SweepReport; readonly runs: readonly RunSummary[] } {
-  const { seeds, policy, maxTurns } = options;
+  const { seeds, policy, maxTurns, stage } = options;
   if (new Set(seeds).size !== seeds.length) throw new RangeError('sweep(): seeds must be distinct');
   const metrics = (options.metrics ?? []).map((spec) => (typeof spec === 'string' ? { fact: spec } : spec));
   const read: unknown[][] = metrics.map(() => []);
   const results: RunResult[] = [];
   const runs: RunSummary[] = [];
   for (const seed of seeds) {
-    const result = playRun(game, sim, { seed, policy, ...(maxTurns === undefined ? {} : { maxTurns }) });
+    const result = playRun(game, sim, {
+      seed,
+      policy,
+      ...(maxTurns === undefined ? {} : { maxTurns }),
+      ...(stage === undefined ? {} : { stage }),
+    });
     results.push(result);
     runs.push(summaryOf(result));
     for (const [i, m] of metrics.entries()) read[i]?.push(game.fact(result.state, m.fact, m.args, sim));
@@ -85,6 +95,7 @@ export function sweep(
   const report: SweepReport = {
     runs: results.length,
     policy: policy.name,
+    ...(stage === undefined ? {} : { stage: stage.name }),
     ends: { ended: 0, stopped: 0, capped: 0, ...count(results.map((r) => r.end)) },
     distinct: new Set(runs.map(endingOf)).size,
     turns: summarize(results.map((r) => r.turns)),

@@ -41,6 +41,12 @@ describe('a sweep in words', () => {
     ]);
   });
 
+  it('names the stage a walked game’s runs played with (M6.9)', () => {
+    expect(formatSweep('hold', { ...REPORT, stage: 'walk+fight' }, 1000)[0]).toBe(
+      'hold: 20 runs with the greedy policy and the walk and fight stage, at most 1000 turns each.',
+    );
+  });
+
   it('names the first offers the game refused', () => {
     const refused = {
       count: 4,

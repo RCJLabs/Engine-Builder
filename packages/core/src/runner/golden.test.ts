@@ -56,11 +56,24 @@ describe('golden files', () => {
     ]);
   });
 
-  it('refuse to compare runs played with other seeds, another policy or another cap', () => {
+  it('refuse to compare runs played with other seeds, another policy, another cap or another stage', () => {
     const fewer = goldenOf(info, sweep(game, sim, { seeds: seeds.slice(1), policy: randomPolicy }).runs);
     expect(() => compareGolden(golden, fewer)).toThrow(GoldenError);
     expect(() => compareGolden(golden, { ...golden, policy: 'other' })).toThrow(GoldenError);
     expect(() => compareGolden(golden, { ...golden, maxTurns: 5 })).toThrow(GoldenError);
+    // A walked game's runs (M6.9): played with a stage, or with another, they are other runs.
+    expect(() => compareGolden(golden, { ...golden, stage: 'walk' })).toThrow(GoldenError);
+    const walked = { ...golden, stage: 'walk+fight' };
+    expect(() => compareGolden(walked, { ...golden, stage: 'walk' })).toThrow(GoldenError);
+    expect(compareGolden(walked, { ...walked }).same).toBe(true);
+  });
+
+  it('keep the stage a walked game’s runs played with, after the cap', () => {
+    const walked = goldenOf({ ...info, stage: 'walk+fight' }, []);
+    expect(Object.keys(walked)).toEqual(['format', 'game', 'content', 'policy', 'maxTurns', 'stage', 'runs']);
+    const read = readGolden(JSON.parse(JSON.stringify({ ...golden, stage: 'walk+fight' })));
+    expect(read.stage).toBe('walk+fight');
+    expect(Object.keys(golden)).not.toContain('stage');
   });
 
   it.each([
@@ -71,6 +84,9 @@ describe('golden files', () => {
     ['no policy', (g: Golden) => ({ ...g, policy: '' }), 'no policy name'],
     ['no cap', (g: Golden) => ({ ...g, maxTurns: 0 }), 'no turn cap'],
     ['no runs', (g: Golden) => ({ ...g, runs: {} }), 'no runs'],
+    ['a stage that is not names', (g: Golden) => ({ ...g, stage: 'Walk' }), 'a stage that is not stage names'],
+    ['an empty stage name', (g: Golden) => ({ ...g, stage: 'walk+' }), 'a stage that is not stage names'],
+    ['a stage that is not text', (g: Golden) => ({ ...g, stage: 1 }), 'a stage that is not stage names'],
     [
       'a broken run',
       (g: Golden) => ({ ...g, runs: { ...g.runs, 'golden-3': { ...g.runs['golden-3'], end: 'won' } } }),

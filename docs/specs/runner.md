@@ -233,6 +233,15 @@ A walked game moves only by what its stage sends: `world/use` and `world/trigger
   - the search of each fallen body there.
 - **`eb sim` gives every game with spaces the world's stage,** and the fighting kit's when it is on. A golden file records which stage its runs had, so a run without one doesn't match one with.
 
+As built:
+
+- `Stage` is `{ name, candidates(state, game, sim) }` (core's `runner/stage.ts`); `joinStages` plays several, each one's candidates after the one before's, under their names joined by "+". The kits' `walkedStage(project, world)` is the one `eb sim` and the editor's Run both use: `walk`, or `walk+fight` when the pack holds project.json's `fighting`.
+- The fighting stage offers an unarmed striker's blow with `""`, as the kit names fists. A bow's blow spends no arrow: the walk's arrows fly on the page, which a headless run has none of.
+- The report's first line names the stage ("…with the random policy and the walk and fight stage…"), and the golden keeps it after the cap. `eb sim --golden` against a file played with another stage, or none, stops with a usage error naming both rather than comparing other runs.
+- Run over the walked fixtures, the stage found two bugs the session tests had not:
+  - the camp's own weapon change was offered while the other weapon was in a body, not the bag, and refused;
+  - a project's `game.ts` is read with the checking game's stand-in container, and `kitsInWorld` kept that inventory build, so `eb sim` and Run threw at the post's barrel. `kitsInWorld` now builds again any inventory the kits made.
+
 ## Open questions
 
 1. **Comparing two versions.** A/B runs with content overrides belong to the Balance Lab (Phase 8), as in chooser-of-the-dead's `compare.ts` and football-manager-simulator's paired blocks.

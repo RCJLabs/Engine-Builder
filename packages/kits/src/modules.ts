@@ -95,11 +95,21 @@ export function kitModules(
   });
 }
 
+// Each inventory build the kits made, with whether it opens bodies: a game read before its world was
+// known, as a project's game.ts is with the checking game's stand-in container, has one built for
+// that world, which kitsInWorld builds again for the pack's (M6.9's bots found the stand-in kept).
+const INVENTORY_BUILDS = new WeakMap<Module, boolean>([
+  [inventoryKit, false],
+  [INVENTORY_WITH_BODIES, true],
+]);
+
 /** The inventory kit with the world's containers, or one of its two builds when none of its uses holds items. */
 function inventoryOf(uses: WorldData['uses'] | undefined, bodies: boolean): Module {
   const containers = containersOf(uses);
-  if (Object.keys(containers).length > 0) return inventoryModule(containers, bodies);
-  return bodies ? INVENTORY_WITH_BODIES : inventoryKit;
+  if (Object.keys(containers).length === 0) return bodies ? INVENTORY_WITH_BODIES : inventoryKit;
+  const built = inventoryModule(containers, bodies);
+  INVENTORY_BUILDS.set(built, bodies);
+  return built;
 }
 
 /**
@@ -113,7 +123,8 @@ export function kitsInWorld(modules: readonly Module[], world: PackWorld | undef
   const { places, uses } = worldDataOf(world);
   return modules.map((m) => {
     if (m === QUESTS_ALONE && places !== undefined) return questsModule(places);
-    if (m === inventoryKit || m === INVENTORY_WITH_BODIES) return inventoryOf(uses, m === INVENTORY_WITH_BODIES);
+    const bodies = INVENTORY_BUILDS.get(m);
+    if (bodies !== undefined) return inventoryOf(uses, bodies);
     return m;
   });
 }

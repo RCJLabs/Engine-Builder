@@ -1,5 +1,6 @@
 /** The fighting kit (M6.4, D76, docs/specs/combat.md): weapons, hits, falls and bodies in a walked space. */
 export { fightingModule } from './module.ts';
+export { fightingStage } from './stage.ts';
 export {
   FALLEN,
   FIGHTING,

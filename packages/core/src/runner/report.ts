@@ -30,12 +30,16 @@ const ENDS: Readonly<Record<RunEnd, string>> = {
   capped: 'cut off at the turn cap',
 };
 
+// The stage a walked game's runs play with (M6.9): what the walk could send, as its names say.
+const stageText = (stage: string | undefined): string =>
+  stage === undefined ? '' : ` and the ${stage.split('+').join(' and ')} stage`;
+
 export function formatSweep(project: string, report: SweepReport, maxTurns: number): string[] {
   const ends = (['ended', 'stopped', 'capped'] as const)
     .filter((end) => report.ends[end] > 0)
     .map((end) => `${report.ends[end]} ${ENDS[end]}`);
   const lines = [
-    `${project}: ${report.runs} runs with the ${report.policy} policy, at most ${maxTurns} turns each.`,
+    `${project}: ${report.runs} runs with the ${report.policy} policy${stageText(report.stage)}, at most ${maxTurns} turns each.`,
     `Ends: ${ends.join(', ')}, in ${report.distinct} different ${report.distinct === 1 ? 'state' : 'states'}.`,
   ];
   if (report.turns) lines.push(`Turns: ${numberText(report.turns)}.`);

@@ -6,6 +6,7 @@ import { Rng } from '../rng.ts';
 import type { Game } from '../sim/game.ts';
 import type { Action, GameState, RejectedBeat, SimContext } from '../sim/types.ts';
 import { type Policy, turnFor } from './policy.ts';
+import type { Stage } from './stage.ts';
 
 /** Turns a run may take by default before it is cut off. */
 export const MAX_TURNS = 1000;
@@ -18,6 +19,8 @@ export interface RunOptions {
    * then a finding in the report rather than a hang.
    */
   readonly maxTurns?: number;
+  /** What a walked game's stage could send, offered beside the game's options (M6.9, D81). */
+  readonly stage?: Stage;
 }
 
 /** Why a run stopped: nothing offered, the policy stopped, or the turn cap. */
@@ -56,7 +59,7 @@ export function playRun(game: Game, sim: SimContext, options: RunOptions): RunRe
   const log: Action[] = [];
   const finish = (turns: number, end: RunEnd): RunResult => ({ seed, state, turns, end, refused, beats, log });
   for (let turn = 0; turn < maxTurns; turn++) {
-    const view = turnFor(game, sim, state, rng, turn);
+    const view = turnFor(game, sim, state, rng, turn, options.stage);
     const offered = view.options;
     if (offered.length === 0) return finish(turn, 'ended');
     const action = policy.choose(view);
