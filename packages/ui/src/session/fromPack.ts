@@ -10,6 +10,7 @@ import {
   createRecordStore,
   debugModule,
   debugStepsOf,
+  holdsAny,
   type LoadReport,
   loadSave,
   type Pack,
@@ -29,6 +30,7 @@ import type { Screen } from '../format/screen.ts';
 import type { ShellFile } from '../format/shell.ts';
 import type { Theme } from '../format/theme.ts';
 import { audioOf } from './audioPack.ts';
+import { containerNames } from './containers.ts';
 import { type Play, type PlaySetup, resumePlay, startPlay } from './play.ts';
 
 /** A pack read and its game loaded, ready to start or load games of. */
@@ -102,6 +104,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     ...(feedback ? { feedback } : {}),
     ...(pack.credits ? { credits: pack.credits } : {}),
     ...(pack.project.fighting && pack.world ? { fighting: pack.project.fighting } : {}),
+    ...(holdsAny(pack.world?.uses) ? { containers: containerNames(pack.world) } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
   return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio, debug } };

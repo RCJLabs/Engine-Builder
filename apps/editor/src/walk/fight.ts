@@ -242,7 +242,8 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
           to.walker.fell(n.path);
         }
         if (!down || !n.here) continue;
-        const searched = now?.searched.includes(n.actor) === true;
+        // Searched and taken from until nothing is left (M6.8): what is left opens again.
+        const searched = now?.emptied.includes(n.actor) === true;
         const at: Vec3 = [n.at[0], n.at[1] + 0.3, n.at[2]];
         const send = { type: 'fighting/search', actor: n.actor };
         uses.push({
@@ -293,7 +294,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       bodies: to
         .npcs()
         .filter((n) => fallen(n.actor))
-        .map((n) => ({ actor: n.actor, label: view()?.searched.includes(n.actor) ? 'Nothing left' : 'Search' })),
+        .map((n) => ({ actor: n.actor, label: view()?.emptied.includes(n.actor) ? 'Nothing left' : 'Search' })),
     }),
   };
 }

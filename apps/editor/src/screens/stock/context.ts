@@ -33,6 +33,8 @@ export interface StockContext {
   readonly shown: ReadonlySet<string>;
   /** The project's spaces, by id and name, in id order (M5.8): the Space template walks the first. */
   readonly spaces?: readonly Named[];
+  /** Whether a shop names the actor who keeps it (M6.8): the Shop template says what their purse holds. */
+  readonly merchants?: boolean;
 }
 
 /** The records of a type, by id and name. */
@@ -74,12 +76,14 @@ export interface Held {
 export function contextFrom(base: Omit<StockContext, 'records' | 'starting'>, held: Iterable<Held>): StockContext {
   const byType = new Map<string, Named[]>();
   const rosters: unknown[] = [];
+  let merchants = false;
   for (const { type, id, value } of held) {
     byType.set(type, [...(byType.get(type) ?? []), { id, name: nameOf(value, id) }]);
     if (type === 'roster') rosters.push(value);
+    if (type === 'shop' && typeof (value as { actor?: unknown } | null)?.actor === 'string') merchants = true;
   }
   for (const list of byType.values()) list.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  return { ...base, records: byType, starting: startingOf(rosters) };
+  return { ...base, records: byType, starting: startingOf(rosters), ...(merchants ? { merchants } : {}) };
 }
 
 /** The modes some screen already shows, read from the screens' files as they stand; one that isn't JSON shows none. */

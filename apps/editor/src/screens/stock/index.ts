@@ -4,7 +4,7 @@
  */
 import type { Screen } from '@eb/ui/format';
 import { hasKits, type StockContext } from './context.ts';
-import { dialogueScreen, eventScreen, hallScreen, shopScreen } from './modal.ts';
+import { containerScreen, dialogueScreen, eventScreen, hallScreen, shopScreen } from './modal.ts';
 import { codexScreen, codexTabs, creditsScreen, inventoryScreen, journalScreen, spaceMapScreen } from './pages.ts';
 import { endingScreen, hudScreen, mapScreen, spaceScreen, startsOnMap } from './play.ts';
 
@@ -74,6 +74,14 @@ export const STOCK: readonly Stock[] = [
     about: 'Buy from the shelf and sell from the bag',
     offered: needs('economy', 'inventory'),
     build: shopScreen,
+  },
+  {
+    id: 'container',
+    name: 'Container',
+    about: 'A chest’s or a body’s lines to take, and the bag’s to put in',
+    // Only a game that can open one has the mode (M6.8): a use that holds, or the fighting kit's bodies.
+    offered: (ctx) => ctx.modes?.all.includes('container') === true,
+    build: containerScreen,
   },
   { id: 'hall', name: 'Hall', about: 'Hire from a hall’s offers', offered: needs('roster'), build: hallScreen },
   {

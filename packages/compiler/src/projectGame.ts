@@ -5,7 +5,7 @@
  * that never returns hangs its caller here, as a --game module's would; the editor stops its worker
  * from outside.
  */
-import { EMPTY_WORLD } from '@eb/core';
+import { EMPTY_WORLD, type WorldData } from '@eb/core';
 import { compareDiagnostics, type Diagnostic, severityOf } from '@eb/schema';
 import { type GameCatalog, loadProjectGame, type ProjectGame, scriptPath } from '@eb/script';
 import { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
@@ -22,6 +22,13 @@ export type ScriptedGame =
   | { readonly kind: 'failed'; readonly diagnostic: Diagnostic }
   | { readonly kind: 'loaded'; readonly game: ProjectGame; readonly catalog: GameCatalog };
 
+// A stand-in container, so the game checked has the inventory kit's container mode once an interact
+// holds items (M6.8): what holds what is the pack's, which the checks don't need.
+const HOLDING_WORLD: WorldData = {
+  ...EMPTY_WORLD,
+  uses: { holding: { holding: { label: '', effects: [], holds: {} } } },
+};
+
 /**
  * The game that scripts already read make, run, with the kits the project lists joined (D41), the
  * time kit's with its calendar, and the world module when it has spaces (M5.8): with no zones, as
@@ -34,7 +41,7 @@ export function gameOf(scripts: ScriptsRead, settings: KitSettings = { kits: [] 
     scripts.compiled,
     settings.kits,
     settings.calendar,
-    settings.spaces ? EMPTY_WORLD : undefined,
+    settings.spaces ? (settings.holds ? HOLDING_WORLD : EMPTY_WORLD) : undefined,
     settings.clock,
     settings.fighting,
   );

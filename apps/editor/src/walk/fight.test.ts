@@ -21,6 +21,7 @@ function archer(after: (view: FightView) => FightView) {
     weapons: { hero: SWORD, wren: BOW },
     fallen: [],
     searched: [],
+    emptied: [],
     engaged: ['wren'],
   };
   const sent: string[] = [];
@@ -90,6 +91,7 @@ describe('the fight’s other duties', () => {
     weapons: { hero: SWORD, rook: SWORD, wren: BOW },
     fallen: [],
     searched: [],
+    emptied: [],
     engaged: ['rook'],
   };
 
@@ -120,6 +122,7 @@ describe('what an animator reads of a fighter (M6.5)', () => {
       weapons: { hero: SWORD, wren: BOW },
       fallen: [],
       searched: [],
+      emptied: [],
       engaged: ['wren'],
     };
     let flying = false;

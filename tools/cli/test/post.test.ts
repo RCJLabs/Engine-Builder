@@ -138,6 +138,29 @@ describe('eb with the post', () => {
     expect([held('barrel', 'lamp'), mine('lamp')]).toEqual([1, 0]);
   });
 
+  it('gives the screens the chest’s lines with Take, the bag with Put, and Hild’s bag, purse and name', async () => {
+    const { play, act } = played(await opened());
+    act(use('chest'));
+    const lines = (list: string) =>
+      (play.view.lists[list] ?? []).map((e) => [e.fields.name, e.fields.count, e.action?.type, e.enabled]);
+    expect(play.view.fields['container.name']).toBe('Chest');
+    expect(lines('held')).toEqual([
+      ['Bread', 2, 'inventory/take', true],
+      ['Candle', 1, 'inventory/take', true],
+    ]);
+    act(take('candle'));
+    expect(lines('bag')).toEqual([['Candle', 1, 'inventory/put', true]]);
+    act(CLOSE);
+    act(use('counter'));
+    expect([play.view.fields['shop.keeper'], play.view.fields['shop.purse']]).toEqual(['Hild', 3]);
+    expect(lines('shelf')).toEqual([
+      ['Bread', 3, 'economy/buy', true],
+      ['Candle', 2, 'economy/buy', true],
+      ['Lamp', 1, 'economy/buy', true],
+    ]);
+    expect(lines('bag')).toEqual([['Candle', 1, 'economy/sell', true]]);
+  });
+
   it('saves mid-trade, and a load gives the same bags, purses and containers back', async () => {
     const open = await opened();
     const { play, act } = played(open);

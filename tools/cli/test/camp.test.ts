@@ -81,11 +81,18 @@ describe('eb with the camp', () => {
     hit('hero', 'wren', 'sword');
     expect(fight()?.fallen).toEqual(['rook', 'crow', 'wren']);
     expect(play.view.facts['flag.number(flag: bandits-down)']).toBe(3);
-    // Rook carried three coins and dropped two more; the others carried nothing.
+    // Rook carried three coins and dropped two more; the others carried nothing. A search opens the
+    // body's bag (M6.8), its lines taken one at a time.
     take({ type: 'fighting/search', actor: 'rook' });
+    expect(play.view.lists.held?.map((e) => [e.fields.item, e.fields.count])).toEqual([['coin', 5]]);
+    take({ type: 'inventory/take', item: 'coin' });
+    take({ type: 'inventory/close' });
     take({ type: 'fighting/search', actor: 'crow' });
+    expect(play.view.lists.held).toEqual([]);
+    take({ type: 'inventory/close' });
     expect(play.view.facts['inventory.count(item: coin)']).toBe(5);
     expect(fight()?.searched).toEqual(['crow', 'rook']);
+    expect(fight()?.emptied).toEqual(['crow', 'rook']);
   });
 
   it('takes an arrow for each shot, and none is no shot', async () => {

@@ -1,0 +1,80 @@
+{
+  "title": "A container",
+  "shows": ["container"],
+  "modal": true,
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "text",
+        "text": "{container.name}",
+        "style": "heading"
+      }
+    ]
+  },
+  "main": {
+    "widget": "tabs",
+    "tabs": [
+      {
+        "label": "Take",
+        "children": [
+          {
+            "widget": "list",
+            "of": "held",
+            "empty": "It is empty.",
+            "item": {
+              "widget": "button",
+              "label": "Take {.name} ({.count})",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "label": "Put",
+        "children": [
+          {
+            "widget": "list",
+            "of": "bag",
+            "empty": "You carry nothing.",
+            "item": {
+              "widget": "button",
+              "label": "Put {.name} ({.count})",
+              "action": {
+                "take": "entry"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Take all",
+        "action": {
+          "take": "inventory/take-all"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Close",
+        "style": "primary",
+        "action": {
+          "take": "inventory/close"
+        }
+      }
+    ]
+  }
+}
