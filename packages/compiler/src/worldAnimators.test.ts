@@ -31,6 +31,12 @@ function project(placed: unknown) {
       clips: 'starter-character',
       base: { start: 'idle', states: [{ id: 'idle', clip: 'idle', loop: true, speed: 0.5 }] },
     }),
+    // The same file as a second model, so a state can take its clip from another model.
+    'records/model/twin.json': text('records/model/starter-character.json'),
+    'records/animator/borrowed.json': json({
+      clips: 'starter-character',
+      base: { start: 'idle', states: [{ id: 'idle', clip: 'walk', from: 'twin', loop: true }] },
+    }),
     'records/actor/smith.json': json({ stats: {}, animator: 'starter-character' }),
     'records/actor/carter.json': json({ stats: {} }),
     'spaces/yard.json': json({ name: 'Yard', objects: placed }),
@@ -38,6 +44,20 @@ function project(placed: unknown) {
 }
 
 describe('the world’s animators', () => {
+  it('packs the model a state takes its clip from, beside the animator’s own', async () => {
+    const result = await compileProject(
+      project([{ id: 'smith', record: 'actor:smith', overrides: { animator: 'borrowed' } }]),
+      [],
+    );
+    expect(result.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
+    expect(Object.keys(result.pack?.world?.records ?? {}).sort()).toEqual([
+      'actor:smith',
+      'animator:borrowed',
+      'model:starter-character',
+      'model:twin',
+    ]);
+  });
+
   it('packs a placed actor’s animator and the model its clips come from, with its file', async () => {
     const result = await compileProject(project([{ id: 'smith', record: 'actor:smith' }]), []);
     expect(result.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);

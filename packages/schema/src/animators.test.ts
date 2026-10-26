@@ -71,6 +71,9 @@ describe('an animator', () => {
       upper: { ...SOUND.upper, states: [{ id: 'none' }, { id: 'strike', clip: 'strike', from: 'crate' }] },
     };
     expect(check([HERO, CRATE, animator(offRig)])).toEqual(['E083 body /upper/states/1/clip']);
+    // Off the rig, though its record lists the clip: still E083, the model can't play it.
+    const listed = record('model', 'crate', { file: 'models/crate.glb', clips: [{ name: 'strike', length: 1 }] });
+    expect(check([HERO, listed, animator(offRig)])).toEqual(['E083 body /upper/states/1/clip']);
   });
 
   it('is E084 for states that don’t fit together', () => {

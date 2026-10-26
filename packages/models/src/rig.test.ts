@@ -4,10 +4,12 @@
  * rig already the engine's with the same arm and leg directions; and the walk taken in place, its
  * pace read back.
  */
+import { Document } from '@gltf-transform/core';
 import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 import { foreignRig, poseAt, positionOf, skinned, targetRig, WALK_PACE } from '../test/rigs.ts';
 import { REQUIRED } from './humanoid.ts';
+import { inPlace } from './inPlace.ts';
 import { normaliseRig } from './normalise.ts';
 import { rigModel } from './rig.ts';
 import { type Joint, mapJoints, readJointName } from './rigMap.ts';
@@ -220,6 +222,42 @@ describe('a foreign rig normalised', () => {
       .sub(positionOf(rest, node('leftUpperArm') as never))
       .normalize();
     expect(along.angleTo(new Vector3(-1, 0, 0))).toBeLessThan(1e-4);
+  });
+
+  it('rests in metres where it stood, its centimetre armature folded in, the hips too', () => {
+    const doc = foreignRig();
+    rigModel(doc);
+    const rest = poseAt(doc, 0, doc, 'none');
+    const at = (name: string) =>
+      positionOf(
+        rest,
+        doc
+          .getRoot()
+          .listNodes()
+          .find((n) => n.getName() === name) as never,
+      );
+    // FOREIGN's hips at 1 m and its head at 1.6 m, on the spine no T-pose turns.
+    expect(at('hips').distanceTo(new Vector3(0, 1, 0))).toBeLessThan(1e-4);
+    expect(at('head').distanceTo(new Vector3(0, 1.6, 0))).toBeLessThan(1e-4);
+  });
+
+  it('reads a pace across the ground whichever way the hips drift', () => {
+    const doc = new Document();
+    const buffer = doc.createBuffer();
+    const hips = doc.createNode('hips').setTranslation([0, 1, 0]);
+    doc.createScene().addChild(hips);
+    const accessor = (type: 'SCALAR' | 'VEC3', array: number[]) =>
+      doc.createAccessor().setType(type).setArray(new Float32Array(array)).setBuffer(buffer);
+    const sampler = doc
+      .createAnimationSampler()
+      .setInput(accessor('SCALAR', [0, 1]))
+      .setOutput(accessor('VEC3', [0, 1, 0, 3, 1, 4]))
+      .setInterpolation('LINEAR');
+    doc
+      .createAnimation('stride')
+      .addSampler(sampler)
+      .addChannel(doc.createAnimationChannel().setTargetNode(hips).setTargetPath('translation').setSampler(sampler));
+    expect(inPlace(doc, hips)).toEqual([{ name: 'stride', length: 1, pace: 5 }]);
   });
 
   it('plays its walk on a rig already the engine’s with the same arm and leg directions', () => {

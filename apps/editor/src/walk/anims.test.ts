@@ -44,6 +44,20 @@ const timeOf = (anims: ReturnType<typeof createAnims>, key: string) =>
   anims.seen().find((a) => a.key === key)?.layers.base[0]?.time ?? Number.NaN;
 
 describe('the walk’s animated bodies', () => {
+  it('draws each copy on bones of its own, so moving one moves no other', () => {
+    const [a, b] = [figure(0), figure(1)];
+    const skins: THREE.SkinnedMesh[] = [];
+    a.traverse((node) => {
+      if ((node as THREE.SkinnedMesh).isSkinnedMesh) skins.push(node as THREE.SkinnedMesh);
+    });
+    expect(skins.length).toBeGreaterThan(0);
+    for (const skin of skins)
+      for (const bone of skin.skeleton.bones) {
+        expect(a.getObjectById(bone.id)).toBe(bone);
+        expect(b.getObjectById(bone.id)).toBeUndefined();
+      }
+  });
+
   it('steps a body near every frame, one out to twice as far every other frame, and holds one beyond', () => {
     const anims = createAnims(
       () => undefined,

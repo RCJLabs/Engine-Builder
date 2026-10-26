@@ -95,6 +95,8 @@ function outline(form: Locator, touch: boolean) {
       const box = chosen.getByRole('textbox', { name: /^When/ });
       await box.fill(text);
       await box.press('Tab');
+      // Read with the stage's anim.* facts, not the game's: it parses, and says so in words.
+      await expect(chosen.getByText(/^Reads: (Not t|T)alking\.$/)).toBeVisible();
     },
   };
 }
