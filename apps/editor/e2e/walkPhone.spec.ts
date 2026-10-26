@@ -8,6 +8,7 @@
 import { expect, test } from '@playwright/test';
 import { watchErrors } from './checks.ts';
 import { expectFits, game } from './hutScreens.ts';
+import { watchHeight } from './jumpHelpers.ts';
 import { across, lookByTouch, near, openTrail, settled, stickUntil, walked } from './walkHelpers.ts';
 
 for (const viewport of [
@@ -52,16 +53,9 @@ for (const viewport of [
 
       await test.step('the jump button jumps', async () => {
         const before = await settled(page);
+        const top = await watchHeight(page);
         await jump.tap();
-        await expect
-          .poll(
-            async () => {
-              const w = await walked(page);
-              return w.feet[1] - before.feet[1];
-            },
-            { intervals: [50] },
-          )
-          .toBeGreaterThan(0.3);
+        await expect.poll(async () => (await top()) - before.feet[1], { intervals: [50] }).toBeGreaterThan(0.3);
         const landed = await settled(page);
         expect(near(landed.feet[1], before.feet[1], 0.1)).toBe(true);
       });

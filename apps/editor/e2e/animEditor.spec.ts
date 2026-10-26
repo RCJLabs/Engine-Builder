@@ -180,8 +180,8 @@ async function talkToAda(page: Page, touch: boolean): Promise<void> {
     await lookByTouch(page, ford, Math.round(-(want - from.yaw) / 0.3), 0);
     await stickUntil(page, ford, 40, (w) => w.feet[0] <= -1.3);
   } else {
+    // From the start at z 8, level with her: a strafe to the left until she is in reach.
     await ford.focus();
-    await holdUntilPast(page, ['KeyS'], 'z', { atLeast: 7.9 });
     await holdUntilPast(page, ['KeyA'], 'x', { atMost: -1.2 });
     await settled(page);
     await faceTowards(page, ford, -3, 8);

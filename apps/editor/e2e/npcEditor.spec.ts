@@ -21,7 +21,9 @@ import { drawing, faceTowards, lookByTouch, settled, walked } from './walkHelper
 
 const FOLDER = 'smithy';
 const LOOK = { height: 1.6, clothes: '#7a4a2a', trim: '#2f2f2f', skin: '#c08a62' };
-const ADA_AT = [1.5, 0, 0] as const;
+// 1.5 m from the spawn at the origin, ahead and to the left: the player turns 37° to her, and she
+// turns about 143° to face them.
+const ADA_AT = [-0.9, 0, -1.2] as const;
 
 const MAIN = `import { defineModule } from 'eb';
 
@@ -100,6 +102,9 @@ async function makeForge(page: Page, touch: boolean): Promise<void> {
   await add(page, 'Box');
   form = await showInspector(page, touch);
   await setTriple(form, 'Scale', [0.5, 0.1, 0.5]);
+  // At the origin. Left where Add put it, 1.5 m along x, it was where Ada stood: the player began on
+  // her, and the yaw toward them turned by degrees as their feet settled by millimetres (M6.5).
+  await setTriple(form, 'Place, in metres', [0, 0, 0]);
   await form.getByLabel('Add a component').selectOption({ label: 'Spawn point' });
   await showScene(page);
   await press(scenePanel(page).getByRole('button', { name: 'Add', exact: true }), touch);
@@ -163,6 +168,7 @@ async function talkToAda(page: Page, touch: boolean): Promise<void> {
   const seen = await npcs(page);
   expect(seen.ada).toMatchObject({ actor: 'ada', drawn: 'figure', placed: 0 });
   const from = await walked(page);
+  expect(Math.hypot(from.feet[0] - ADA_AT[0], from.feet[2] - ADA_AT[2]), JSON.stringify(from.feet)).toBeCloseTo(1.5, 1);
   if (touch) {
     const want = yawToward(from.feet, ADA_AT);
     await lookByTouch(page, forge, Math.round(-(want - from.yaw) / 0.3), 0);
