@@ -12,15 +12,12 @@ import type { Cue } from '../format/audio.ts';
 import type { Said } from '../format/feedback.ts';
 import type { Sent } from '../render/spaceHost.ts';
 import type { View } from '../session/types.ts';
+import { fallenIn, keptAfterStep } from './checkpoint.ts';
 import { continueSlot, DAILY_SLOT, dailyNumber, dailySeed, type SlotInfo, slotInfo, slotName } from './slots.ts';
 import { createStepLine } from './stepLine.ts';
 import type { ShellProps } from './types.ts';
 
 export type ShellScreenName = 'title' | 'new' | 'saves' | 'settings' | 'pause' | 'stopped' | 'fallen';
-
-/** The fighting kit's mode a fallen player's game stops in (M6.4). */
-const FALLEN = 'fallen';
-const fallenIn = (view: View) => view.modes.includes(FALLEN);
 
 export interface InPlay {
   readonly slot: string;
@@ -159,8 +156,7 @@ export function useShell(props: ShellProps) {
       const reply = await send({ kind: 'act', action, at: now().getTime() });
       if (reply.kind !== 'stepped') return stop(reply.kind === 'failed' ? reply.message : 'The game stopped');
       if (reply.save) await keep(play.slot, reply.save);
-      if (reply.save && reply.beats.some((beat) => beat.type === 'world/arrived'))
-        await keepPoint(play.slot, reply.save, reply.view);
+      if (reply.save && keptAfterStep(reply.beats, reply.view)) await keepPoint(play.slot, reply.save, reply.view);
       sent = reply.accepted ? 'accepted' : 'refused';
       // In the one render with the view, so the buttons it draws are enabled as focus comes back to one.
       landing?.();

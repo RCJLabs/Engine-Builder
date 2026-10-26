@@ -83,6 +83,20 @@ describe('fighting’s checks in the editor', () => {
       expect(brief(problems)).toEqual(expected);
     });
 
+  it('are checked without a space too: what it names, as eb validate gives it', async () => {
+    const files = Object.fromEntries(
+      Object.entries(withProject((p) => Object.assign(p, { fighting: { player: 'nobody', combat: 'blades' } }))).filter(
+        ([path]) => !path.startsWith('spaces/') && !path.startsWith('ui/') && !path.startsWith('records/behaviour/'),
+      ),
+    );
+    const project = JSON.parse(files['project.json'] as string);
+    delete project['start-space'];
+    const { source, problems } = await checked({ ...files, 'project.json': JSON.stringify(project) });
+    const compiler = (await compileProject(source, [])).diagnostics;
+    expect(brief(problems)).toEqual(brief(compiler));
+    expect(brief(problems)).toEqual(['project.json /fighting/player']);
+  });
+
   it('include W150 for a bandit that attacks with nothing worn, as eb validate gives it', async () => {
     const files = withProject(() => {});
     const crow = JSON.parse(decode(files['records/actor/crow.json'] as Uint8Array) as string);
