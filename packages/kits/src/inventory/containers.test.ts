@@ -80,7 +80,7 @@ describe('a container', () => {
   });
 
   it('puts the party’s line, or count of it, into an empty barrel', () => {
-    let state = step(start(), { type: 'yard/do', effects: [{ effect: 'give-item', item: 'lamp', count: 2 }] });
+    let state = step(start(), { type: 'yard/do', effects: [{ effect: 'give-item', item: 'lamp', count: 3 }] });
     state = step(state, { type: 'yard/open', object: 'barrel' });
     expect(offered(state)).toEqual(['inventory/put:lamp', 'inventory/close:']);
     const result = game.reduce(state, { type: 'inventory/put', item: 'lamp', count: 1 }, sim);
@@ -89,8 +89,11 @@ describe('a container', () => {
       { type: 'inventory/put', space: 'yard', object: 'barrel', item: 'lamp', count: 1 },
     ]);
     expect(held(result.state, 'barrel', 'lamp')).toBe(1);
-    expect(bag(result.state, 'lamp')).toBe(1);
+    expect(bag(result.state, 'lamp')).toBe(2);
     expect(refusal(result.state, { type: 'inventory/put', item: 'candle' })).toBe('none');
+    // With no count, the whole line.
+    state = step(result.state, { type: 'inventory/put', item: 'lamp' });
+    expect([held(state, 'barrel', 'lamp'), bag(state, 'lamp')]).toEqual([3, 0]);
   });
 
   it('closes back to the mode it opened from, raising closed', () => {

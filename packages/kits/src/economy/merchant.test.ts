@@ -2,9 +2,9 @@
  * Merchants and purses (M6.8, D80, docs/specs/barter.md): Hild's post sells from her bag and buys with
  * her purse, restocks both every three days, and prices by her faction when the shop names none.
  */
-import type { Effect, GameState } from '@eb/core';
+import { createRecordStore, type Effect, type GameState } from '@eb/core';
 import { describe, expect, it } from 'vitest';
-import { fact, game, refusal, sim, start, step } from '../../test/post.ts';
+import { fact, game, RECORDS, refusal, sim, start, step } from '../../test/post.ts';
 
 const given = (state: GameState, ...effects: Effect[]) => step(state, { type: 'yard/do', effects });
 const trading = (state = start()) => step(state, { type: 'yard/trade' });
@@ -31,6 +31,8 @@ describe('a shop an actor keeps', () => {
     const state = trading();
     expect(hilds(state, 'candle')).toBe(2);
     expect(hilds(state, 'lamp')).toBe(1);
+    // As far as each fits: she carries bread's max already.
+    expect(hilds(state, 'bread')).toBe(3);
     expect(state.economy).toMatchObject({ shops: { post: { shelf: [], day: 0 } } });
     expect(offered(state, 'economy/buy')).toEqual(['bread', 'candle', 'lamp']);
     expect(fact(state, 'economy.stock', { shop: 'post', item: 'candle' })).toBe(2);
@@ -44,6 +46,8 @@ describe('a shop an actor keeps', () => {
     expect(purse(result.state)).toBe(50);
     expect(hilds(result.state, 'lamp')).toBe(0);
     expect(fact(result.state, 'inventory.count', { item: 'lamp' })).toBe(1);
+    // The whole purse kept once it changes, as a bag is.
+    expect((result.state.economy as { purses: unknown }).purses).toEqual({ hild: { coin: 50, shell: 2 } });
     expect(offered(result.state, 'economy/buy')).toEqual(['bread', 'candle']);
     expect(refusal(result.state, { type: 'economy/buy', item: 'lamp' })).toBe('sold-out');
   });
@@ -72,6 +76,21 @@ describe('a shop an actor keeps', () => {
     expect(
       refusal(trading(given(start(), { effect: 'give-item', item: 'bread' })), { type: 'economy/sell', item: 'bread' }),
     ).toBe('no-room');
+  });
+
+  it('keeps a purse within its resource’s bounds, the rest lost', () => {
+    const capped = {
+      content: createRecordStore({ ...RECORDS, resource: { coin: { name: 'Coin', start: 50, max: 50 } } }),
+    };
+    const go = (state: GameState, action: Parameters<typeof game.reduce>[1]) => {
+      const result = game.reduce(state, action, capped);
+      expect(result.accepted).toBe(true);
+      return result.state;
+    };
+    let state = go(game.init('post', capped), { type: 'yard/trade' });
+    state = go(state, { type: 'economy/buy', item: 'lamp' });
+    state = go(state, { type: 'economy/buy', item: 'candle' });
+    expect((state.economy as { purses: unknown }).purses).toEqual({ hild: { coin: 50, shell: 2 } });
   });
 
   it('restocks their bag and purse once its days have passed, what was sold to them gone', () => {

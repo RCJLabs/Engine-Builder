@@ -24,12 +24,12 @@ export const RECORDS = {
     candle: { name: 'Candle', value: 4 },
     rope: { name: 'Rope', value: 10 },
   },
-  resource: { coin: { name: 'Coin', start: 50 } },
+  resource: { coin: { name: 'Coin', start: 50 }, shell: { name: 'Shell' } },
   faction: {
     valley: { name: 'The valley', bands: [{ id: 'stranger' }, { id: 'friend', from: 5, price: 80 }] },
   },
   actor: {
-    hild: { name: 'Hild', carries: { lamp: 1, bread: 3 }, purse: { coin: 30 }, faction: 'valley' },
+    hild: { name: 'Hild', carries: { lamp: 1, bread: 3 }, purse: { coin: 30, shell: 2 }, faction: 'valley' },
     tam: { name: 'Tam', carries: { rope: 1 } },
   },
   shop: {
@@ -38,7 +38,14 @@ export const RECORDS = {
       actor: 'hild',
       currency: 'coin',
       buys: {},
-      stock: { items: [{ item: 'candle', count: 2 }], every: { days: 3 } },
+      // Bread's max is 3, which Hild carries already: the stock's two don't fit.
+      stock: {
+        items: [
+          { item: 'candle', count: 2 },
+          { item: 'bread', count: 2 },
+        ],
+        every: { days: 3 },
+      },
     },
     stall: { name: 'Stall', currency: 'coin', buys: {}, stock: { items: [{ item: 'rope' }] } },
   },
