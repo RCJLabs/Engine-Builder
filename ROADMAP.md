@@ -1348,6 +1348,7 @@ How to read this file:
       - A format 16 pack with no tags failed `readPack`, which wants format 15's places; such a world is now packed untagged.
       - The container mode in every inventory game asked every fixture's screens to show it (W133), so it joins only a game that can open something.
       - A commit went in with a formatting error: piped through `tail`, `pnpm lint`'s failure was lost. It was fixed before the push.
+      - CI on an early head (d136f7d, docs and a save alone) failed `camp.spec.ts`: one of Wren's arrows was refused, as the stage's view, a round trip old, still had her fighting when the sim had taken her out. M6.4's stage did right; its spec had no word for it. Each hit the stage sends now says whether the view had its striker engaged (`fight().sent[].engaged`), and the spec explains such a refusal. Two planted bugs, the flag always set and never set, were each seen failing in `fight.test.ts`.
     - **45 planted bugs:**
       - *38 against the unit tests of the sim, the pack, the compiler, the checks and the session:* 33 caught on the first run. The 5 that got past were closed with tests: a whole line put, a restock as far as each fits, a purse within its bounds, a purse kept whole, and a body searched but not emptied.
       - *7 against the editor and the stage:*

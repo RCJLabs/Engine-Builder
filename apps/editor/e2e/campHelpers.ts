@@ -26,6 +26,7 @@ export interface FightSeen {
   readonly sent: readonly {
     readonly action: { readonly type: string; readonly by?: string; readonly on?: string; readonly weapon?: string };
     readonly sent: string;
+    readonly engaged?: boolean;
   }[];
   readonly bodies: readonly { readonly actor: string; readonly label: string }[];
 }
@@ -51,7 +52,9 @@ export const fallenOf = (seen: FightSeen): string[] =>
 /**
  * The refused hits a fall doesn't explain. A hit sent before the stage heard of a fall, its striker's
  * or its target's, is refused, rightly: it comes after the last hit taken on one of the two that
- * fell, the one that felled them. Any other refusal is the stage sending what the sim won't take.
+ * fell, the one that felled them. So is an NPC's hit sent while the stage's view, a round trip old,
+ * still had it in the fight the sim had taken it out of (M6.8's CI saw Wren's arrow land so). Any
+ * other refusal is the stage sending what the sim won't take.
  */
 export function unexplainedRefusals(seen: FightSeen) {
   const hits = seen.sent.filter((s) => s.action.type === 'fighting/hit');
@@ -62,7 +65,9 @@ export function unexplainedRefusals(seen: FightSeen) {
   const fell = new Set(fallenOf(seen));
   const afterFall = (actor: string | undefined, i: number) =>
     actor !== undefined && fell.has(actor) && i > (lastTaken.get(actor) ?? Number.POSITIVE_INFINITY);
-  return hits.filter((s, i) => s.sent === 'refused' && !afterFall(s.action.by, i) && !afterFall(s.action.on, i));
+  return hits.filter(
+    (s, i) => s.sent === 'refused' && s.engaged !== true && !afterFall(s.action.by, i) && !afterFall(s.action.on, i),
+  );
 }
 
 /** The HUD's first line, as "Health 80 · Arrows 10 · Coin 0". */

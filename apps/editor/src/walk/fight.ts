@@ -52,7 +52,8 @@ export interface WalkFight {
   readonly engaged: readonly string[];
   readonly npcs: readonly { readonly actor: string; readonly swing: Swing['phase'] | null; readonly down: boolean }[];
   readonly arrows: readonly { readonly by: string; readonly at: Vec3 }[];
-  readonly sent: readonly { readonly action: Action; readonly sent: Sent | 'waiting' }[];
+  /** Each hit with whether the view had its striker in the fight as it was sent (`engaged`, an NPC's alone). */
+  readonly sent: readonly { readonly action: Action; readonly sent: Sent | 'waiting'; readonly engaged?: boolean }[];
   readonly bodies: readonly { readonly actor: string; readonly label: string }[];
 }
 
@@ -91,14 +92,18 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
   let aim: { foe: Foe; from: number } | null = null;
   const npcSwings = new Map<string, Swing>();
   let arrows: Arrow[] = [];
-  const sent: { action: Action; sent: Sent | 'waiting' }[] = [];
+  const sent: { action: Action; sent: Sent | 'waiting'; engaged?: boolean }[] = [];
   const laid = new Set<string>();
   // The step each actor was last hit on, once the sim took the hit: anim.hit (M6.5).
   let steps = 0;
   const struck = new Map<string, number>();
 
-  const post = (action: Action): Promise<Sent> => {
-    const entry: { action: Action; sent: Sent | 'waiting' } = { action, sent: 'waiting' };
+  const post = (action: Action, engaged?: boolean): Promise<Sent> => {
+    const entry: { action: Action; sent: Sent | 'waiting'; engaged?: boolean } = {
+      action,
+      sent: 'waiting',
+      ...(engaged === undefined ? {} : { engaged }),
+    };
     sent.push(entry);
     return outbox.post(action).then((result) => {
       entry.sent = result;
@@ -130,8 +135,13 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
     if (met.npc !== undefined && actorAt(met.npc) === target.actor) return true;
     return met.toi >= most - target.radius;
   };
+  // An NPC's hit says whether the view had it in the fight as it was sent: the view is a round trip
+  // old, so the sim may have taken it out since and refuse the hit, rightly (M6.8's CI found one).
   const hit = (by: string, on: string, weapon: string) =>
-    void post({ type: 'fighting/hit', by, on, weapon }).then((result) => {
+    void post(
+      { type: 'fighting/hit', by, on, weapon },
+      by === view()?.player ? undefined : view()?.engaged.includes(by) === true,
+    ).then((result) => {
       if (result === 'accepted') struck.set(on, steps);
     });
   const shoot = (by: string, weapon: WeaponView, from: Vec3, at: Vec3 | undefined, yaw: number) => {

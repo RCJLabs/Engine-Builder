@@ -72,7 +72,8 @@ test('the camp by keys and the mouse: the bow, the fight and the bodies', async 
     const seen = await fought(page);
     // Rook and Crow struck the hero, two at a time; Wren's arrows found them too.
     expect(hitsBy(seen, 'rook').length + hitsBy(seen, 'crow').length + hitsBy(seen, 'wren').length).toBeGreaterThan(0);
-    // A blow sent before the stage heard its striker or its target fall is refused, rightly: none other is.
+    // A blow sent before the stage heard its striker or its target fall is refused, rightly, and so is an
+    // NPC's sent while the stage still saw it fighting: none other is.
     expect(unexplainedRefusals(seen)).toEqual([]);
     await expect(game(page).getByText(/^Down 3 of 3 · Rook 0 · Crow 0 · Wren 0$/)).toBeVisible();
     console.info(`the camp by keys: ${hitsBy(seen, 'hero').length} hits by the hero, the HUD at ${await hudOf(page)}`);
