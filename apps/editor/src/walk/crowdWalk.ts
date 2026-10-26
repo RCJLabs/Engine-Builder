@@ -8,8 +8,8 @@
  * into the rings, or went and came back) starts at its goal, its arrival said at once, or beside
  * the player it follows: a far NPC is wherever its schedule says.
  * M6.4 (D76, docs/specs/combat.md#an-npc-fighting): one sent to attack keeps the distance `keep` gives
- * it from the player, as a follower keeps its own, and faces them; one fallen leaves the crowd and lies
- * where it fell.
+ * it from the player, as a follower keeps its own, and faces them, backing off to it when `keep` says
+ * so (one waiting its turn); one fallen leaves the crowd and lies where it fell.
  * Plain logic over nav/lib.ts, so Node's tests walk the crowd the page does.
  */
 import type { Agent, NavCrowd, NavWorld } from '../nav/lib.ts';
@@ -65,6 +65,12 @@ export interface WalkingNpc {
   readonly fight?: number;
 }
 
+/** The metres a fighter keeps from the player, and whether it backs away to them when nearer. */
+export interface Keep {
+  readonly distance: number;
+  readonly away?: boolean;
+}
+
 export interface CrowdWalk {
   /** The sim's word after each step: the goals walk-to gave. */
   told(next: Readonly<Record<string, NpcTold>>): void;
@@ -104,8 +110,8 @@ export function createCrowdWalk(
   places: (path: string) => Vec3 | undefined,
   told: Readonly<Record<string, NpcTold>>,
   begun: (path: string) => boolean = () => true,
-  /** The metres an NPC sent to attack keeps from the player (M6.4): its reach when engaged, else farther off. */
-  keep: (actor: string) => number = () => 1,
+  /** What an NPC sent to attack keeps from the player (M6.4): its reach when engaged, else farther off, backing away. */
+  keep: (actor: string) => Keep = () => ({ distance: 1 }),
 ): CrowdWalk {
   const crowd: NavCrowd = nav.crowd();
   const arrivals = new Map<string, string>();
@@ -168,15 +174,27 @@ export function createCrowdWalk(
   };
   /** A follower, or a fighter, walks to the player while past its distance and slack, and stands once within it. */
   const follow = (w: Walking, feet: Vec3) => {
-    const distance = w.follow ?? (w.fight !== undefined ? keep(w.npc.actor) : undefined);
+    const kept = w.follow === undefined && w.fight !== undefined ? keep(w.npc.actor) : undefined;
+    const distance = w.follow ?? kept?.distance;
     if (distance === undefined || !w.agent) return;
     const off = across(w.at, feet);
-    if (off <= distance) {
+    if (kept?.away && off < distance - FOLLOW_SLACK_M) {
+      backOff(w, feet, distance, off);
+    } else if (off <= distance) {
       if (w.target) w.agent.stop();
       w.target = undefined;
     } else if (off > distance + FOLLOW_SLACK_M && (!w.target || across(w.target, feet) > FOLLOW_SLACK_M)) {
       w.target = w.agent.walkTo(feet) ?? undefined;
     }
+  };
+  /** Walks away from the player to `distance`, on the navmesh, unless already on its way there. */
+  const backOff = (w: Walking, feet: Vec3, distance: number, off: number) => {
+    if (!w.agent || (w.target && across(w.target, feet) >= distance - FOLLOW_SLACK_M)) return;
+    const k = off > 0.01 ? distance / off : 0;
+    const away: Vec3 =
+      off > 0.01 ? [feet[0] + (w.at[0] - feet[0]) * k, w.at[1], feet[2] + (w.at[2] - feet[2]) * k] : w.at;
+    const near = nav.closest(away);
+    w.target = near ? (w.agent.walkTo(near) ?? undefined) : undefined;
   };
   /** Fallen: out of the crowd, where it stands now, never walked again. */
   const fell = (w: Walking) => {

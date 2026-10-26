@@ -11,6 +11,7 @@ import { FIGURE } from '../spaces/figureLook.ts';
 import { sub, type Vec3 } from '../spaces/vec.ts';
 import { aimAt, type Foe, turnedToward } from './aim.ts';
 import { type Arrow, aimedVelocity, loose, stepArrows } from './arrows.ts';
+import type { Keep } from './crowdWalk.ts';
 import { yawToward } from './facing.ts';
 import { forwardOf } from './interact.ts';
 import { STEP } from './motion.ts';
@@ -58,8 +59,8 @@ export interface FightStage {
   step(attack: boolean, feet: Vec3, yaw: number): number;
   /** Each frame: poses, the bodies' uses. */
   frame(): void;
-  /** The metres the crowd keeps a fighter from the player. */
-  keep(actor: string): number;
+  /** What the crowd keeps a fighter at from the player: its reach engaged, 5 m and backing off waiting. */
+  keep(actor: string): Keep;
   arrows(): readonly Arrow[];
   /** The player's lean, in degrees, for the view. */
   lean(): number;
@@ -228,10 +229,9 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       to.bodies(uses);
     },
     keep(actor) {
-      if (!view()?.engaged.includes(actor)) return WAITING_M;
       const weapon = weaponOf(actor);
-      if (!weapon) return WAITING_M;
-      return weapon.kind === 'melee' ? Math.max(0.8, weapon.reach - CLOSER_M) : weapon.range * 0.8;
+      if (!view()?.engaged.includes(actor) || !weapon) return { distance: WAITING_M, away: true };
+      return { distance: weapon.kind === 'melee' ? Math.max(0.8, weapon.reach - CLOSER_M) : weapon.range * 0.8 };
     },
     arrows: () => arrows,
     fell: (path) => laid.has(path),

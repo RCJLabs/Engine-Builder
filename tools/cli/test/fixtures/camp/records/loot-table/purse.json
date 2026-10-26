@@ -1,0 +1,1 @@
+{ "name": "A bandit's purse", "entries": [{ "item": "coin", "weight": 1, "count": { "min": 2 } }] }

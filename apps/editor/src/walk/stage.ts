@@ -193,7 +193,7 @@ export async function startStage(
     walker,
     view,
     begun: first.near,
-    keep: (actor) => fight?.keep(actor) ?? WAITING_M,
+    keep: (actor) => fight?.keep(actor) ?? { distance: WAITING_M, away: true },
   });
   const clock = createGameClock(() => ask.clocked?.() === true, outbox);
   const placed = objectPlaces(space.space, space.prefabs);

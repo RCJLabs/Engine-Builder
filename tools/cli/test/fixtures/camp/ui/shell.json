@@ -1,0 +1,5 @@
+{
+  "title": "The camp",
+  "tagline": "Three bandits round a fire, and a hero with a sword and a bow",
+  "slot-line": "Health {stats.current(actor: hero, stat: health)}"
+}

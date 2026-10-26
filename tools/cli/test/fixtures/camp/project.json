@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "camp",
+  "name": "The camp",
+  "version": "0.1.0",
+  "kits": ["inventory", "stats", "gear", "time", "encounters", "ai", "fighting"],
+  "calendar": {
+    "ticksPerDay": 1440,
+    "units": {
+      "minutes": 1,
+      "hours": 60
+    },
+    "start": {
+      "tick": 720
+    }
+  },
+  "fighting": {
+    "player": "hero",
+    "combat": "blades"
+  },
+  "start-space": "camp"
+}

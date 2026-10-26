@@ -1,0 +1,22 @@
+{
+  "name": "Crow",
+  "stats": {
+    "health": 9
+  },
+  "wears": {
+    "hand": "sword"
+  },
+  "behaviour": "bandit",
+  "figure": {
+    "clothes": "#3a3a3a",
+    "trim": "#6a3a3a",
+    "skin": "#a07858"
+  },
+  "on-fall": [
+    {
+      "effect": "add-to-flag",
+      "flag": "bandits-down",
+      "by": 1
+    }
+  ]
+}

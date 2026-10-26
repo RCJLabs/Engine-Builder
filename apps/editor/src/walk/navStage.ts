@@ -11,7 +11,7 @@ import type { NavWorld } from '../nav/lib.ts';
 import { FIGURE } from '../spaces/figureLook.ts';
 import { add, sub, times, type Vec3 } from '../spaces/vec.ts';
 import type { Intent } from './controls.ts';
-import { type CrowdNpc, createCrowdWalk, type WalkingNpc } from './crowdWalk.ts';
+import { type CrowdNpc, createCrowdWalk, type Keep, type WalkingNpc } from './crowdWalk.ts';
 import { objectPlaces } from './goals.ts';
 import type { LoadNav } from './host.ts';
 import { STEP } from './motion.ts';
@@ -67,8 +67,8 @@ export async function createNavStage(
     readonly walker: Walker;
     view(): WalkView;
     readonly begun?: ReadonlySet<string>;
-    /** The metres a fighter keeps from the player (M6.4). */
-    keep?(actor: string): number;
+    /** What a fighter keeps from the player (M6.4). */
+    keep?(actor: string): Keep;
   },
 ): Promise<NavStage | null> {
   const packed = world.navmeshes?.[space.id];

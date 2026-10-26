@@ -21,7 +21,14 @@ describe('the controls', () => {
     expect(intentOf(keys('KeyA', 'KeyD'), 0).move).toEqual([0, 0]);
     expect(intentOf(keys('ShiftLeft', 'KeyW'), 0).run).toBe(true);
     expect(intentOf(keys('Space'), 0).jump).toBe(true);
-    expect(intentOf(keys(), 0)).toEqual({ move: [0, 0], run: false, jump: false, use: false, attack: false, look: [0, 0] });
+    expect(intentOf(keys(), 0)).toEqual({
+      move: [0, 0],
+      run: false,
+      jump: false,
+      use: false,
+      attack: false,
+      look: [0, 0],
+    });
     expect(intentOf(keys('KeyE'), 0).use).toBe(true);
   });
 

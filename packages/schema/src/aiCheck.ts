@@ -19,7 +19,9 @@ export interface Checked {
   readonly report: Report;
 }
 
-const WALKING = new Set(['travel', 'sleep', 'work', 'patrol', 'sandbox', 'follow']);
+const WALKING = new Set(['travel', 'sleep', 'work', 'patrol', 'sandbox', 'follow', 'attack']);
+/** Leaves whose one value names the player, not a point. */
+const PLAYERS = new Set(['follow', 'face', 'attack']);
 const LENGTHS = ['dwell', 'wait', 'cooldown'] as const;
 
 interface Node {
@@ -45,7 +47,7 @@ function nodesOf(root: BehaviourNode): Node[] {
 function pointsOf({ node, path }: Node): [string, string][] {
   const kind = kindOf(node) as string;
   const value = (node as Record<string, unknown>)[kind];
-  if (typeof value === 'string' && kind !== 'follow' && kind !== 'face') return [[value, `${path}/${kind}`]];
+  if (typeof value === 'string' && !PLAYERS.has(kind)) return [[value, `${path}/${kind}`]];
   if (Array.isArray(value) && (kind === 'patrol' || kind === 'sandbox'))
     return value.map((point, i) => [point as string, `${path}/${kind}/${i}`]);
   return [];
