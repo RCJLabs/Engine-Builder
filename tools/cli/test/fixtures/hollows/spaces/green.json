@@ -68,8 +68,8 @@
       "id": "barrow-mound",
       "name": "Barrow",
       "shape": "box",
-      "at": [-8, 0, -9],
-      "scale": [6, 3, 5],
+      "at": [-6, 0, -1],
+      "scale": [5, 3, 4],
       "color": "#7d8a6a",
       "components": {
         "collider": {}
@@ -79,7 +79,7 @@
       "id": "barrow-door",
       "name": "Barrow door",
       "shape": "box",
-      "at": [-8, 0, -6.4],
+      "at": [-6, 0, 1.1],
       "scale": [1.4, 2.2, 0.2],
       "color": "#5b3a24",
       "components": {
@@ -99,8 +99,8 @@
       "id": "hall-house",
       "name": "Hall",
       "shape": "box",
-      "at": [8, 0, -9],
-      "scale": [6, 3, 5],
+      "at": [6, 0, -1],
+      "scale": [5, 3, 4],
       "color": "#a39a8c",
       "components": {
         "collider": {}
@@ -110,7 +110,7 @@
       "id": "hall-door",
       "name": "Hall door",
       "shape": "box",
-      "at": [8, 0, -6.4],
+      "at": [6, 0, 1.1],
       "scale": [1.4, 2.2, 0.2],
       "color": "#5b3a24",
       "components": {
