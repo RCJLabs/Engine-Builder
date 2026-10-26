@@ -5,7 +5,7 @@
  * once the browser lets the editor change it. Its scripts are checked, and run when it is
  * trusted, in the script worker (M3.2, D38).
  */
-import { directorySource, MANIFEST_FILE, readKitSettings } from '@eb/compiler';
+import { directorySource, MANIFEST_FILE, PREFABS_DIR, readKitSettings, SPACES_DIR } from '@eb/compiler';
 import { SCRIPTS_DIR } from '@eb/script';
 import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
@@ -121,7 +121,10 @@ function refresher(copy: WorkingCopy): Refresh {
       // last gone, joins the world module or takes it away (M5.8); and the first interact that holds
       // items, or the last, the inventory kit's container mode (M6.8).
       const spaces = await hasSpaces(copy);
-      const holds = spaces && (await readKitSettings(copy)).holds === true;
+      // Every space and prefab is read for it, so only once one of them, or project.json, has changed.
+      const placed = (path: string) => path.startsWith(`${SPACES_DIR}/`) || path.startsWith(`${PREFABS_DIR}/`);
+      const reread = paths === null || !hadHolds.has(copy) || paths.some((p) => p === MANIFEST_FILE || placed(p));
+      const holds = spaces && (reread ? (await readKitSettings(copy)).holds === true : hadHolds.get(copy) === true);
       const turned = hadSpaces.get(copy) !== spaces || hadHolds.get(copy) !== holds;
       hadSpaces.set(copy, spaces);
       hadHolds.set(copy, holds);

@@ -154,11 +154,15 @@ async function tryWalker(page: Page, form: Locator): Promise<void> {
   await expect
     .poll(async () => (await previewed(page))?.playing.find((p) => p.clip === 'walk' && p.role === 'lower')?.weight)
     .toBeCloseTo(1, 3);
-  // The walk swings the arms: the hand moves between two looks.
+  // The walk swings the arms: the hand moves from where it was. Polled, as a busy runner can draw no
+  // frame in a fixed 250 ms (CI saw it move 0.08 mm).
   const a = (await previewed(page))?.rightHand ?? [0, 0, 0];
-  await page.waitForTimeout(250);
-  const b = (await previewed(page))?.rightHand ?? [0, 0, 0];
-  expect(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])).toBeGreaterThan(0.01);
+  await expect
+    .poll(async () => {
+      const b = (await previewed(page))?.rightHand ?? a;
+      return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    })
+    .toBeGreaterThan(0.01);
   await preview.getByLabel('Talking').uncheck();
   await expect(status).toHaveAttribute('data-base', 'idle, playing idle from starter-character');
 }
