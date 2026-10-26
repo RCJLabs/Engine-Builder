@@ -1,14 +1,17 @@
 /**
  * The economy kit's module (M3.3, D41, docs/specs/kits.md): the party's resources, costs paid
  * all or none, and shops. Buying and selling are actions in the mode a shop opens, so bots and
- * menus offer exactly what the shop accepts, at the price the quote gives.
+ * menus offer exactly what the shop accepts, at the price the quote gives. A shop an actor keeps
+ * (M6.8, D80) sells from their bag and pays into and out of their purse.
  */
 import { defineModule, evaluate, type FactView, type ModuleContext, type OptionsView } from '@eb/core';
 import { itemRecord } from '../inventory/items.ts';
 import { ITEM } from '../inventory/types.ts';
+import { ACTOR } from '../stats/types.ts';
 import { addAmount, amountOf, costEntries, payCost, resourceRecord, shortOf } from './amounts.ts';
+import { addToPurse, purseOf } from './purses.ts';
 import { buysItem, quoteBuy, quoteSell } from './quote.ts';
-import { buyVerdict, sellVerdict, shopIn, shopRecord, stockIfDue, type Trade, takeFromShelf } from './shop.ts';
+import { buyVerdict, inStock, sellVerdict, shopIn, shopRecord, stockIfDue, type Trade, takeFromShelf } from './shop.ts';
 import { ECONOMY, type EconomySlice, RESOURCE, SHOP, SHOPPING } from './types.ts';
 
 const tradeIn = (ctx: ModuleContext<EconomySlice>): Trade => ({
@@ -38,9 +41,14 @@ function buy(ctx: ModuleContext<EconomySlice>, item: unknown) {
   if (shop === undefined) return ctx.refuse('not-shopping');
   const verdict = buyVerdict(tradeIn(ctx), shop, item);
   if (!verdict.ok) return ctx.refuse(verdict.reason, verdict.data);
-  if (verdict.price > 0) addAmount(ctx, shopRecord(ctx.content, shop).currency, -verdict.price);
+  const { currency, actor } = shopRecord(ctx.content, shop);
+  if (verdict.price > 0) addAmount(ctx, currency, -verdict.price);
+  if (actor === undefined) takeFromShelf(ctx, shop, item as string);
+  else {
+    if (verdict.price > 0) addToPurse(ctx, actor, currency, verdict.price);
+    ctx.apply({ effect: 'take-item', actor, item, count: 1 });
+  }
   ctx.apply({ effect: 'give-item', item, count: 1 });
-  takeFromShelf(ctx, shop, item as string);
   ctx.emit('bought', { shop, item, price: verdict.price });
 }
 
@@ -49,8 +57,13 @@ function sell(ctx: ModuleContext<EconomySlice>, item: unknown) {
   if (shop === undefined) return ctx.refuse('not-shopping');
   const verdict = sellVerdict(tradeIn(ctx), shop, item);
   if (!verdict.ok) return ctx.refuse(verdict.reason, verdict.data);
+  const { currency, actor } = shopRecord(ctx.content, shop);
   ctx.apply({ effect: 'take-item', item, count: 1 });
-  if (verdict.price > 0) addAmount(ctx, shopRecord(ctx.content, shop).currency, verdict.price);
+  if (actor !== undefined) {
+    ctx.apply({ effect: 'give-item', actor, item, count: 1 });
+    if (verdict.price > 0) addToPurse(ctx, actor, currency, -verdict.price);
+  }
+  if (verdict.price > 0) addAmount(ctx, currency, verdict.price);
   ctx.emit('sold', { shop, item, price: verdict.price });
 }
 
@@ -60,7 +73,10 @@ const PRICE = { type: 'int', min: 0 } as const;
 
 export const economyKit = defineModule<EconomySlice>({
   id: ECONOMY,
-  init: () => ({ amounts: {}, shops: {} }),
+  init: () => ({ amounts: {}, shops: {}, purses: {} }),
+  // Version 2 (M6.8) adds `purses`: a version 1 save changed none, so every purse is its record's.
+  version: 2,
+  migrate: { 2: (slice) => ({ ...(slice as object), purses: {} }) },
   facts: {
     amount: {
       args: { resource: { type: 'ref', to: RESOURCE } },
@@ -72,8 +88,12 @@ export const economyKit = defineModule<EconomySlice>({
       domain: PRICE,
       label: 'the price',
       read: (view, { shop, item }) => {
-        const onShelf = view.state.shops[shop as string]?.shelf.some((s) => s.item === item);
-        return onShelf ? quoteBuy(tradeFor(view), shopRecord(view.content, shop), item as string) : undefined;
+        const record = shopRecord(view.content, shop);
+        const trade = tradeFor(view);
+        if (!view.content.has(ITEM, item as string) || inStock(trade, shop as string, record, item as string) < 1) {
+          return undefined;
+        }
+        return quoteBuy(trade, record, item as string);
       },
     },
     offer: {
@@ -92,7 +112,16 @@ export const economyKit = defineModule<EconomySlice>({
       args: { ...SHOP_ARG, ...ITEM_ARG },
       domain: { type: 'int', min: 0 },
       label: 'on the shelf',
-      read: ({ state }, { shop, item }) => state.shops[shop as string]?.shelf.find((s) => s.item === item)?.left ?? 0,
+      read: (view, { shop, item }) =>
+        view.content.has(ITEM, item as string)
+          ? inStock(tradeFor(view), shop as string, shopRecord(view.content, shop), item as string)
+          : 0,
+    },
+    purse: {
+      args: { actor: { type: 'ref', to: ACTOR }, resource: { type: 'ref', to: RESOURCE } },
+      domain: { type: 'int' },
+      label: 'in the purse of',
+      read: ({ state, content }, { actor, resource }) => purseOf(state, content, actor as string, resource as string),
     },
   },
   effects: {
@@ -131,9 +160,12 @@ export const economyKit = defineModule<EconomySlice>({
         const shop = shopIn(view.mode);
         if (shop === undefined) return [];
         const trade = tradeOf(view);
-        return (view.state.shops[shop]?.shelf ?? [])
-          .filter((s) => buyVerdict(trade, shop, s.item).ok)
-          .map((s) => ({ item: s.item }));
+        // A merchant's goods are their bag, read item by item in id order, as selling reads the party's.
+        const goods =
+          shopRecord(view.content, shop).actor === undefined
+            ? (view.state.shops[shop]?.shelf ?? []).map((s) => s.item)
+            : view.content.ids(ITEM);
+        return goods.filter((item) => buyVerdict(trade, shop, item).ok).map((item) => ({ item }));
       },
     },
     sell: {

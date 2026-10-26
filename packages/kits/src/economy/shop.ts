@@ -1,13 +1,15 @@
 /**
  * Shops (docs/specs/kits.md): a shelf stocked from the shop's items and its table, stocked again
  * every few days when it says so, and the checks a buy and a sale make. The actions and the options
- * they offer share the checks, so what is offered is what is accepted.
+ * they offer share the checks, so what is offered is what is accepted. A shop an actor keeps (M6.8,
+ * D80) stocks their bag instead, and buys with their purse.
  */
 import type { Condition, DeepReadonly, FactArgs, ModeFrame, ModuleContext, RecordStore } from '@eb/core';
 import { itemRecord, room } from '../inventory/items.ts';
 import { ITEM } from '../inventory/types.ts';
 import { draw, entryKind, liveEntries, lootTable, MAX_DEPTH } from '../loot/draw.ts';
 import { amountOf, highest, lowest, resourceRecord } from './amounts.ts';
+import { purseOf, resetPurse } from './purses.ts';
 import { buysItem, quoteBuy, quoteSell } from './quote.ts';
 import { type EconomySlice, SHOP, type ShelfItem, type ShopRecord, type ShopState } from './types.ts';
 
@@ -58,8 +60,21 @@ export function stockIfDue(ctx: ModuleContext<EconomySlice>, id: string, shop: S
   const today = every === undefined ? undefined : (ctx.fact('time.day') as number);
   const fresh = today === undefined || every === undefined || (saved?.day !== undefined && today - saved.day < every);
   if (saved && fresh) return;
-  const shelf = stockShelf(ctx, id, shop);
+  const stocked = stockShelf(ctx, id, shop);
+  // A merchant's bag goes back to what they carry, the stock on top, and their purse to their record's.
+  if (shop.actor !== undefined) {
+    const add = Object.fromEntries(stocked.map((s) => [s.item, s.left]));
+    ctx.apply({ effect: 'restock-bag', actor: shop.actor, add });
+    resetPurse(ctx, shop.actor);
+  }
+  const shelf = shop.actor === undefined ? stocked : [];
   (ctx.write().shops as Record<string, ShopState>)[id] = today === undefined ? { shelf } : { shelf, day: today };
+}
+
+/** How many of the item the shop has to sell: on its shelf, or in its actor's bag. */
+export function inStock(trade: Pick<Trade, 'slice' | 'fact'>, shopId: string, shop: ShopRecord, item: string): number {
+  if (shop.actor !== undefined) return trade.fact('inventory.carried', { actor: shop.actor, item }) as number;
+  return trade.slice.shops[shopId]?.shelf.find((s) => s.item === item)?.left ?? 0;
 }
 
 /** One item off the shelf; the last one takes the item off it. */
@@ -87,8 +102,9 @@ const isItem = (content: RecordStore, item: unknown): item is string =>
 /** Whether one of the item can be bought now, and at what price. */
 export function buyVerdict(trade: Trade, shopId: string, item: unknown): Verdict {
   const shop = shopRecord(trade.content, shopId);
-  const onShelf = trade.slice.shops[shopId]?.shelf.some((s) => s.item === item) === true;
-  if (!isItem(trade.content, item) || !onShelf) return no('sold-out', { shop: shopId, item: String(item) });
+  if (!isItem(trade.content, item) || inStock(trade, shopId, shop, item) < 1) {
+    return no('sold-out', { shop: shopId, item: String(item) });
+  }
   const price = quoteBuy(trade, shop, item);
   const have = amountOf(trade.slice, trade.content, shop.currency);
   if (have - price < lowest(resourceRecord(trade.content, shop.currency))) {
@@ -111,5 +127,23 @@ export function sellVerdict(trade: Trade, shopId: string, item: unknown): Verdic
   if (have + price > highest(resourceRecord(trade.content, shop.currency))) {
     return no('purse-full', { shop: shopId, item, price, have });
   }
+  return shop.actor === undefined ? { ok: true, price } : merchantTakes(trade, shopId, shop.actor, shop, item, price);
+}
+
+/** Whether a merchant can pay for the item and has room for it in their bag. */
+function merchantTakes(
+  trade: Trade,
+  shopId: string,
+  actor: string,
+  shop: ShopRecord,
+  item: string,
+  price: number,
+): Verdict {
+  const purse = purseOf(trade.slice, trade.content, actor, shop.currency);
+  if (purse - price < lowest(resourceRecord(trade.content, shop.currency))) {
+    return no('cant-pay', { shop: shopId, actor, item, price, have: purse });
+  }
+  const carried = trade.fact('inventory.carried', { actor, item }) as number;
+  if (room(itemRecord(trade.content, item), carried, 1) < 1) return no('no-room', { shop: shopId, actor, item });
   return { ok: true, price };
 }

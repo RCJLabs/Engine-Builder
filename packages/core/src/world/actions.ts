@@ -53,6 +53,8 @@ export function use(world: WorldData, ctx: ModuleContext<WorldSlice>, action: Ac
   if (found.takes === true) remember(ctx.write().taken as string[], key);
   if (found.once === true) remember(ctx.write().fired as string[], key);
   for (const effect of found.effects) ctx.apply(effect);
+  // M6.8 (D80): a use that holds items opens them, once its own effects have run; E089 keeps the kit on.
+  if (found.holds !== undefined) ctx.apply({ effect: 'open-container', space, object });
 }
 
 /** To the centimetre and the tenth of a degree: what the stage sends, kept canonical whatever it rounded. */

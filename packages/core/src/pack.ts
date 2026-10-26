@@ -6,6 +6,7 @@ import { isRecordId, type RecordPack } from './records.ts';
 import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
 import { type ClockDef, MAX_RATE, msPerTickAt } from './time/clock.ts';
+import { holdsAny } from './world/containers.ts';
 import { asFormat9, asFormat10, type PackWorld, worldProblem } from './world/packWorld.ts';
 import { hasTags } from './world/places.ts';
 
@@ -23,12 +24,12 @@ export type { PackWorld } from './world/packWorld.ts';
  * format 11 (M6.2) its navmeshes and where each actor is placed; format 12 (M6.3) the clock that runs
  * while its spaces are walked, navmeshes or none; format 13 (M6.4) project.json's fighting, the player
  * and the combat record a walked space's fights read, clock or none; format 14 (M6.6) the spaces' maps;
- * format 15 (M6.7) the tags of the spaces and their objects, maps or none.
+ * format 15 (M6.7) the tags of the spaces and their objects, maps or none; format 16 (M6.8) what a use holds.
  * A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 15;
+export const PACK_FORMAT = 16;
 
 export interface PackProject {
   readonly id: string;
@@ -79,7 +80,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -114,7 +115,7 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
  * any (format 5), the shell's settings when there are any (format 6), the assets' credits
  * when there are any (format 7), the music's files (format 8) and the spaces (format 9), with
  * their uses, spawn points and start (format 10), their navmeshes (format 11), the clock (format 12),
- * the fighting (format 13), the maps (format 14) and the tags (format 15).
+ * the fighting (format 13), the maps (format 14), the tags (format 15) and what uses hold (format 16).
  */
 export function createPack(
   project: PackProject,
@@ -135,6 +136,7 @@ export function createPack(
   const fought = walked && fighting !== undefined && hasKits && kits.includes('fighting');
   const mapped = walked && world.maps !== undefined && Object.keys(world.maps).length > 0;
   const tagged = walked && hasTags(world.places);
+  const held = walked && holdsAny(world.uses);
   const kitted = hasKits
     ? {
         ...plain,
@@ -148,23 +150,25 @@ export function createPack(
   const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
-  const ten = walked && !clocked && !fought && !mapped && !tagged ? asFormat10(withoutMaps(world)) : undefined;
+  const ten = walked && !clocked && !fought && !mapped && !tagged && !held ? asFormat10(withoutMaps(world)) : undefined;
   const nine = ten !== undefined ? asFormat9(ten) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
   const format = walked
-    ? tagged
-      ? 15
-      : mapped
-        ? 14
-        : fought
-          ? 13
-          : clocked
-            ? 12
-            : ten === undefined
-              ? 11
-              : nine === undefined
-                ? 10
-                : 9
+    ? held
+      ? 16
+      : tagged
+        ? 15
+        : mapped
+          ? 14
+          : fought
+            ? 13
+            : clocked
+              ? 12
+              : ten === undefined
+                ? 11
+                : nine === undefined
+                  ? 10
+                  : 9
     : sounded
       ? 8
       : credited
@@ -193,8 +197,8 @@ export function createPack(
   return { ...content, hash: packHash(content) };
 }
 
-// Formats 12 to 15 keep format 11's navmeshes and actors, none or not, so a clocked, fought, mapped or
-// tagged pack has one world shape; format 14 and up keep the maps, and only format 15 the places.
+// Formats 12 to 16 keep format 11's navmeshes and actors, none or not, so a clocked, fought, mapped,
+// tagged or holding pack has one world shape; format 14 and up keep the maps, and 15 and up the places.
 function worldIn(format: number, world: PackWorld): PackWorld {
   const { places, ...placeless } = world;
   const kept = format >= 15 ? world : format === 14 ? placeless : withoutMaps(placeless);
@@ -229,7 +233,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`

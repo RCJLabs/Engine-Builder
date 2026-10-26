@@ -24,6 +24,8 @@ export interface WorldUse {
   readonly once?: boolean;
   /** Using it takes the object: it is drawn and solid no more, kept in the slice's `taken`. */
   readonly takes?: boolean;
+  /** M6.8 (D80): the items it starts with; using it opens it, after its effects, in the inventory kit's container mode. */
+  readonly holds?: Readonly<Record<string, number>>;
 }
 
 /** By space id, then by the object's path: its id, or "placement/inner" through a prefab. */

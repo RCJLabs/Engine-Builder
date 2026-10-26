@@ -28,11 +28,11 @@ const carried = (state: GameState, actor: string, item: string, using = sim) =>
 describe('an actor’s bag', () => {
   it('is what the actor carries until anything in it changes, the party’s bag apart', () => {
     const state = start();
-    expect(slice(state)).toEqual({ bag: {}, bags: {} });
+    expect(slice(state)).toEqual({ bag: {}, bags: {}, held: {} });
     expect(carried(state, 'smith', 'medkit')).toBe(2);
     expect(carried(state, 'ferry', 'medkit')).toBe(0);
     const taken = apply(state, { effect: 'take-item', actor: 'smith', item: 'medkit' });
-    expect(slice(taken.state)).toEqual({ bag: {}, bags: { smith: { reactor: 1, medkit: 1 } } });
+    expect(slice(taken.state)).toEqual({ bag: {}, bags: { smith: { reactor: 1, medkit: 1 } }, held: {} });
     expect(taken.beats).toContainEqual({ type: 'inventory/actor-lost', actor: 'smith', item: 'medkit', count: 1 });
     const given = apply(taken.state, { effect: 'give-item', item: 'medkit' });
     expect(slice(given.state).bag).toEqual({ medkit: 1 });
@@ -94,9 +94,13 @@ describe('a save made by the inventory kit’s version 1', () => {
   it('loads, migrated, the party’s bag as it was and every actor’s its carries', () => {
     const loaded = loadSave(game, V1, marketSim, { game: 'market', build: 'fixture-inventory-v1' });
     if (!loaded.ok) throw new Error(loaded.message);
-    expect(loaded.report.migrated).toEqual([{ module: 'inventory', from: 1, to: 2 }]);
+    // Since M6.8 the economy's slice goes on to version 2 as well, and the inventory's to 3.
+    expect(loaded.report.migrated).toEqual([
+      { module: 'inventory', from: 1, to: 3 },
+      { module: 'economy', from: 1, to: 2 },
+    ]);
     expect(loaded.report).toMatchObject({ replayed: 4, skipped: 0 });
-    expect(slice(loaded.state)).toEqual({ bag: { medkit: 1, reactor: 2, corridor: 1 }, bags: {} });
+    expect(slice(loaded.state)).toEqual({ bag: { medkit: 1, reactor: 2, corridor: 1 }, bags: {}, held: {} });
     expect(carried(loaded.state, 'smith', 'medkit')).toBe(2);
   });
 
@@ -111,6 +115,7 @@ describe('a save made by the inventory kit’s version 1', () => {
     expect(slice(next)).toEqual({
       bag: { medkit: 1, reactor: 1, corridor: 1 },
       bags: { smith: { reactor: 2, medkit: 2 } },
+      held: {},
     });
   });
 });

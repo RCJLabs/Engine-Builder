@@ -126,17 +126,21 @@ describe('a fall', () => {
 });
 
 describe('a body', () => {
-  it('gives its whole bag to the party’s, and is searched once there is nothing left', () => {
+  it('opens its bag to take from (M6.8), and is searched from the first time it is opened', () => {
     let state = alarmed();
     state = c.must(state, { type: 'fighting/hit', by: 'hero', on: 'rook', weapon: 'sword' }).state;
     const step = c.must(state, { type: 'fighting/search', actor: 'rook' });
-    expect(c.fact(step.state, 'inventory.count', { item: 'coin' })).toBe(5);
-    expect(c.fact(step.state, 'inventory.carried', { actor: 'rook', item: 'coin' })).toBe(0);
-    expect(step.beats).toContainEqual({ type: 'inventory/gained', item: 'coin', count: 5 });
+    expect(step.beats.filter((b) => b.type.startsWith('inventory/'))).toEqual([]);
     expect(step.beats).toContainEqual({ type: 'fighting/searched', actor: 'rook' });
     expect(c.fact(step.state, 'fighting.searched', { actor: 'rook' })).toBe(true);
-    // Searched again, it gives nothing and the stage says so.
-    const again = c.must(step.state, { type: 'fighting/search', actor: 'rook' });
+    const taken = c.must(step.state, { type: 'inventory/take', item: 'coin' });
+    expect(c.fact(taken.state, 'inventory.count', { item: 'coin' })).toBe(5);
+    expect(c.fact(taken.state, 'inventory.carried', { actor: 'rook', item: 'coin' })).toBe(0);
+    expect(taken.beats).toContainEqual({ type: 'inventory/gained', item: 'coin', count: 5 });
+    // Open, the container mode offers no search; closed, it opens on what is left, here nothing.
+    expect(refusal(c.take(taken.state, { type: 'fighting/search', actor: 'rook' }))).toBe('mode');
+    const closed = c.must(taken.state, { type: 'inventory/close' }).state;
+    const again = c.must(closed, { type: 'fighting/search', actor: 'rook' });
     expect(again.beats.filter((b) => b.type.startsWith('inventory/'))).toEqual([]);
     expect(c.slice(again.state).searched).toEqual(['rook']);
   });

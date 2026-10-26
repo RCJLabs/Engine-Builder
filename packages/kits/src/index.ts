@@ -131,8 +131,9 @@ export * from './fighting/index.ts';
 export { gearKit } from './gear/module.ts';
 export { GEAR, type GearSlice, SLOT, type SlotRecord, type WearableItem, type WearingActor } from './gear/types.ts';
 export { gearParts, wornBy } from './gear/worn.ts';
+export { type Opened, openedIn } from './inventory/containers.ts';
 export { itemRecord, room } from './inventory/items.ts';
-export { inventoryKit } from './inventory/module.ts';
+export { inventoryKit, inventoryModule } from './inventory/module.ts';
 export {
   INVENTORY,
   type InventorySlice,
