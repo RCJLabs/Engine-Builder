@@ -26,14 +26,13 @@ const NONE: SpaceTags = { spaces: new Map(), objects: new Map(), actors: new Map
 /** Each problem as `code path message`; `null` stands for spaces not read. */
 function problems(slots: readonly Partial<Slot>[], tags: SpaceTags | null = TAGS): string[] {
   const found: string[] = [];
-  slots.forEach((_, i) =>
+  for (let i = 0; i < slots.length; i++)
     checkWorldSlot(
       slots as Slot[],
       i,
       (code, path, message) => found.push(`${code} ${path} ${message}`),
       tags ?? undefined,
-    ),
-  );
+    );
   return found;
 }
 
