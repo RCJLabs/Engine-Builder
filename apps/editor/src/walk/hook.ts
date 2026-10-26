@@ -6,6 +6,7 @@
 import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
+import type { AnimSeen } from './anims.ts';
 import type { ViewKind } from './cameras.ts';
 import type { WalkFight } from './fight.ts';
 import type { WalkNav } from './navStage.ts';
@@ -81,6 +82,8 @@ export interface WalkHook {
   senses(): ReturnType<WalkSenses['hook']> | null;
   /** The fights (M6.4): the player's swing and aim, each NPC's swing, arrows, what was sent, the bodies. */
   fight(): WalkFight | null;
+  /** The animated bodies (M6.5): the player ("@player") and each NPC built, read back from the mixer and the skeleton. */
+  anims(): AnimSeen[];
 }
 
 declare global {

@@ -8,7 +8,7 @@
 import type { Fields } from '@eb/compiler';
 import { modelHere } from '@eb/compiler';
 import { lodReady } from '@eb/models/lod';
-import { type MaterialRecord, MODEL_DATA, type ModelCollider, type ModelRecord, schemaIssues } from '@eb/schema';
+import { type MaterialRecord, MODEL, MODEL_DATA, type ModelCollider, type ModelRecord, schemaIssues } from '@eb/schema';
 import dracoWasm from 'three/examples/jsm/libs/draco/draco_decoder.wasm?url';
 import dracoWrapper from 'three/examples/jsm/libs/draco/draco_wasm_wrapper.js?url';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -84,6 +84,14 @@ function disposeGltf(gltf: GLTF): void {
       material.dispose();
     }
   }
+}
+
+/** The height of a scene's `hips` above its origin, at rest: 0 for a scene without them. */
+function hipsOf(scene: THREE.Object3D): number {
+  const hips = scene.getObjectByName('hips');
+  if (!hips) return 0;
+  scene.updateMatrixWorld(true);
+  return hips.getWorldPosition(new THREE.Vector3()).y;
 }
 
 /** `onError` hears of a file that can't be drawn: the editor's error toast, the walk's console. */
@@ -177,7 +185,17 @@ export function createModelsView(renderer: THREE.WebGPURenderer, onError: (messa
       holder.scale.setScalar(record.scale ?? 1);
       holder.add(body);
       holder.userData.model = { id: model.id, record } satisfies Drawn;
+      // A model on the rig (M6.5): an animator moves its copy, by its key and its hips' height.
+      if (record.rig) body.userData.animated = { model: model.id, hips: hipsOf(file.gltf.scene) };
       return holder;
+    },
+
+    /** A model's clips by name and its hips' height, as its file decoded, or null while it isn't (M6.5). */
+    clips(models: LiveModels, id: string): { clips: Map<string, THREE.AnimationClip>; hips: number } | null {
+      const value = models.records.get(`${MODEL}:${id}`) as ModelRecord | undefined;
+      const file = value && typeof value.file === 'string' ? decoded.get(value.file) : undefined;
+      if (!file?.gltf) return null;
+      return { clips: new Map(file.gltf.animations.map((clip) => [clip.name, clip])), hips: hipsOf(file.gltf.scene) };
     },
 
     /** The collider's wire for a model drawn by draw(), or null when it has none. */

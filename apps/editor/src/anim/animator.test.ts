@@ -33,9 +33,9 @@ describe('the animator run', () => {
   });
 
   it('reads its transitions in order: down before run, run before walk', () => {
-    expect(run({ ...STILL, speed: 3 }, 1).base?.state).toBe('run');
-    expect(run({ ...STILL, speed: 1 }, 1).base?.state).toBe('walk');
-    expect(run({ ...STILL, speed: 3, down: true }, 1).base?.state).toBe('down');
+    expect(run({ ...STILL, speed: 5 }, 1).base?.state).toBe('run');
+    expect(run({ ...STILL, speed: 2.5 }, 1).base?.state).toBe('walk');
+    expect(run({ ...STILL, speed: 5, down: true }, 1).base?.state).toBe('down');
   });
 
   it('does nothing for the first transition that holds when it leads to the state playing', () => {
@@ -78,6 +78,17 @@ describe('the animator run', () => {
     const struck = run({ ...swinging, swing: 'strike', phase: { length: 0.2, at: 0.2 } }, 1, 1 / 60, later);
     expect(struck.upper?.state).toBe('strike');
     expect(struck.upper?.time).toBeCloseTo(1, 6);
+  });
+
+  it('fades a fit state from where its own phase left it, not from the next phase’s progress', () => {
+    const late = run({ ...STILL, swing: 'windup', phase: { length: 0.4, at: 0.38 } }, 1);
+    expect(late.upper?.time).toBeCloseTo(0.95, 6);
+    const struck = run({ ...STILL, swing: 'strike', phase: { length: 0.2, at: 0.02 } }, 1, 1 / 60, late);
+    expect(struck.upper?.state).toBe('strike');
+    expect(struck.upper?.from).toEqual({ state: 'windup', time: late.upper?.time });
+    // Still fading next frame, the wind-up holds there.
+    const on = run({ ...STILL, swing: 'strike', phase: { length: 0.2, at: 0.04 } }, 1, 1 / 60, struck);
+    expect(on.upper?.from?.time).toBeCloseTo(0.95, 6);
   });
 
   it('gives an upper state with no clip no weight: the upper body fades back to the base', () => {

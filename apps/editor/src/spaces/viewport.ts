@@ -9,6 +9,7 @@
 
 import type { TerrainJson } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
+import { characterReady } from '../anim/character.ts';
 import { noteError } from '../app/state.ts';
 import type { Look } from '../environment/look.ts';
 import type { LiveModels } from '../models/liveTypes.ts';
@@ -221,6 +222,20 @@ export async function createView(
     noteError,
   );
   let shown: Parameters<View['show']> | null = null;
+  // The starter character's file (M6.5), fetched with the first figure drawn: the view builds again once it is read.
+  let figuresLoading = false;
+  const loadFigures = () => {
+    if (figuresLoading) return;
+    figuresLoading = true;
+    void import('../anim/characterLoad.ts')
+      .then((load) => load.loadCharacter())
+      .then(
+        () => {
+          if (shown && !gone) show(...shown);
+        },
+        (error: unknown) => noteError(`The starter character can’t be drawn: ${String(error)}`),
+      );
+  };
 
   const outline = () => {
     models.wire(chosen.flatMap((id) => built?.byId.get(id) ?? []));
@@ -274,6 +289,7 @@ export async function createView(
     }
     const drawModel = models.use(live);
     built = builder.build(space, prefabs, names, drawModel, false, figures);
+    if (!characterReady() && figuresIn(built.root).length > 0) loadFigures();
     if (tier.shadowMap > 0) castShadows(built.root);
     lods = lodsOf(built.root);
     foliage.models(drawModel);

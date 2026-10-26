@@ -3,7 +3,8 @@
  * weapon, soft-aimed at the foe in front; an engaged NPC closes, winds up and strikes, or an archer
  * shoots from where it stands; every hit the swing or the arrow finds goes to the sim as
  * fighting/hit, which decides it. Fallen NPCs lie where they fell and are searched by Interact. All
- * on the walk's fixed steps, so a headless run in Node fights as the page does.
+ * on the walk's fixed steps, so a headless run in Node fights as the page does. Since M6.5 (D77) the
+ * animators read each fighter's phase from here, which M6.4's leans stood in for.
  */
 import type { Action } from '@eb/core';
 import type { FightView, Sent, SpaceAsk, WeaponView } from '@eb/ui';
@@ -19,7 +20,7 @@ import type { Outbox } from './outbox.ts';
 import { BODY, type Walker } from './physics.ts';
 import type { UsePoint } from './solids.ts';
 import { chestOf, reached, type Target } from './strike.ts';
-import { type Swing, startSwing, stepSwing, struckBy, windupDone } from './swing.ts';
+import { phaseOf, type Swing, startSwing, stepSwing, struckBy, windupDone } from './swing.ts';
 
 /** Metres an NPC sent to attack and not engaged keeps from the player: it waits its turn there. */
 export const WAITING_M = 5;
@@ -40,7 +41,6 @@ export interface FightTo {
   readonly walker: Walker;
   /** The NPCs of the space, wherever the crowd, or their placing, has them. */
   npcs(): readonly FightNpc[];
-  pose(path: string, pose: 'stand' | 'windup' | 'strike' | 'down'): void;
   bodies(uses: readonly UsePoint[]): void;
 }
 
@@ -59,19 +59,30 @@ export interface WalkFight {
 export interface FightStage {
   /** One fixed step: swings and arrows on, hits sent; the yaw soft aim turns the player to. */
   step(attack: boolean, feet: Vec3, yaw: number): number;
-  /** Each frame: poses, the bodies' uses. */
+  /** Each frame: the fallen laid down, the bodies' uses. */
   frame(): void;
   /** What the crowd keeps a fighter at from the player: its reach engaged, 5 m and backing off waiting. */
   keep(actor: string): Keep;
   arrows(): readonly Arrow[];
-  /** The player's lean, in degrees, for the view. */
-  lean(): number;
+  /** What an animator reads of a fighter (M6.5): its swing's or bow's phase, its weapon, its fall, a hit just taken. */
+  anim(actor: string): FightAnim;
   /** Whether the object at this path is a body laid down: its solid stays out. */
   fell(path: string): boolean;
   hook(): WalkFight;
 }
 
-const LEAN: Readonly<Record<Swing['phase'], number>> = { windup: 12, strike: -15, recover: 0 };
+/** What anims.ts lays a fighter's anim.* facts from (docs/specs/animation.md#animators). */
+export interface FightAnim {
+  readonly swing: 'none' | Swing['phase'];
+  readonly draw: 'none' | 'draw' | 'loose';
+  readonly weapon: 'none' | 'melee' | 'ranged';
+  readonly phase?: { readonly length: number; readonly at: number };
+  readonly down: boolean;
+  readonly hit: boolean;
+}
+
+/** Seconds anim.hit holds after a hit lands: the stock flinch's length. */
+export const HIT_S = 0.4;
 
 export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightStage | null {
   if (!ask.fight?.()) return null;
@@ -82,6 +93,9 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
   let arrows: Arrow[] = [];
   const sent: { action: Action; sent: Sent | 'waiting' }[] = [];
   const laid = new Set<string>();
+  // The step each actor was last hit on, once the sim took the hit: anim.hit (M6.5).
+  let steps = 0;
+  const struck = new Map<string, number>();
 
   const post = (action: Action): Promise<Sent> => {
     const entry: { action: Action; sent: Sent | 'waiting' } = { action, sent: 'waiting' };
@@ -116,7 +130,10 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
     if (met.npc !== undefined && actorAt(met.npc) === target.actor) return true;
     return met.toi >= most - target.radius;
   };
-  const hit = (by: string, on: string, weapon: string) => void post({ type: 'fighting/hit', by, on, weapon });
+  const hit = (by: string, on: string, weapon: string) =>
+    void post({ type: 'fighting/hit', by, on, weapon }).then((result) => {
+      if (result === 'accepted') struck.set(on, steps);
+    });
   const shoot = (by: string, weapon: WeaponView, from: Vec3, at: Vec3 | undefined, yaw: number) => {
     const ahead = forwardOf(yaw);
     const aimAtPoint: Vec3 = at ?? [from[0] + ahead[0] * weapon.range, from[1], from[2] + ahead[1] * weapon.range];
@@ -206,6 +223,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
 
   return {
     step(attack, feet, yaw) {
+      steps++;
       const turned = playerStep(attack, feet, yaw);
       const engaged = new Set(view()?.engaged ?? []);
       for (const n of standing()) if (engaged.has(n.actor)) npcStep(n, feet);
@@ -223,8 +241,6 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
           laid.add(n.path);
           to.walker.fell(n.path);
         }
-        const phase = npcSwings.get(n.actor)?.phase;
-        to.pose(n.path, down ? 'down' : phase === 'windup' ? 'windup' : phase === 'strike' ? 'strike' : 'stand');
         if (!down || !n.here) continue;
         const searched = now?.searched.includes(n.actor) === true;
         const at: Vec3 = [n.at[0], n.at[1] + 0.3, n.at[2]];
@@ -245,7 +261,23 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
     },
     arrows: () => arrows,
     fell: (path) => laid.has(path),
-    lean: () => (swing ? LEAN[swing.phase] : 0),
+    anim(actor) {
+      const me = view()?.player;
+      const weapon = weaponOf(actor);
+      const s = actor === me ? swing : (npcSwings.get(actor) ?? null);
+      const at = struck.get(actor);
+      const hitNow = at !== undefined && (steps - at) * STEP < HIT_S;
+      const kind = weapon?.kind ?? 'none';
+      const ranged = kind === 'ranged';
+      return {
+        swing: s && !ranged ? s.phase : 'none',
+        draw: s && ranged ? (s.phase === 'windup' ? 'draw' : 'loose') : 'none',
+        weapon: kind,
+        ...(s ? { phase: phaseOf(s) } : {}),
+        down: fallen(actor),
+        hit: hitNow,
+      };
+    },
     hook: () => ({
       weapon: weaponOf(view()?.player ?? '')?.item ?? '',
       swing: swing?.phase ?? null,

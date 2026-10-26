@@ -9,6 +9,7 @@
  */
 import { type Fields, isFields, overridden, passedOn, placedObjects } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
+import { characterReady, createCharacters } from '../anim/character.ts';
 import type { FigureOf } from './figureLook.ts';
 import { createFigures } from './figureView.ts';
 import type { Transform } from './gizmoMath.ts';
@@ -84,6 +85,7 @@ export function createBuilder() {
   };
   const wire = new THREE.MeshBasicMaterial({ color: MISSING, wireframe: true });
   const figures = createFigures();
+  const characters = createCharacters();
   const waters = new Map<string, THREE.Material>();
   /** Water's surface: clearer water is fainter, its opacity clarity's complement. */
   const water = (fields: Fields) => {
@@ -194,7 +196,9 @@ export function createBuilder() {
       // An actor with no model is an NPC the engine draws (M6.1), in play and in the editor alike.
       const look = figureOf(seen.record, passedOn(object, layers));
       if (look) {
-        const figure = figures.figure(look);
+        // The starter character once its file is decoded (M6.5); M6.1's capsule before then.
+        const made = characterReady();
+        const figure = made ? characters.character(made, look) : figures.figure(look);
         group.add(figure);
         if (!play) labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: figure });
         return withComponents(group, seen, play);
@@ -258,6 +262,7 @@ export function createBuilder() {
       for (const each of waters.values()) each.dispose();
       wire.dispose();
       figures.dispose();
+      characters.dispose();
     },
   };
 }

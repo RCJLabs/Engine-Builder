@@ -12,18 +12,23 @@
  * near the player see and hear them (walkSenses.ts).
  * M6.4 (D76, docs/specs/combat.md): in a game with fights, Attack swings and NPCs sent to attack
  * strike back, every hit found on the fixed steps and decided by the sim (fight.ts).
+ * M6.5 (D77, docs/specs/animation.md#in-the-walk): every body plays its animator on the facts the
+ * walk gives it each frame, the NPC talked to going on under its talk's pause.
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
 import RAPIER from '@dimforge/rapier3d-compat';
 import type { PackWorld } from '@eb/core';
 import type { SpaceAsk, SpaceDrawn, WalkQuality } from '@eb/ui';
+import { STILL } from '../anim/animator.ts';
+import { loadCharacter } from '../anim/characterLoad.ts';
 import { tierFromHints } from '../perf/hints.ts';
 import { readHints } from '../perf/readHints.ts';
 import { lowerTier, TIERS } from '../perf/tiers.ts';
 import { FIGURE } from '../spaces/figureLook.ts';
 import type { Vec3 } from '../spaces/vec.ts';
 import { type Acts, createActs, type InputBy } from './acts.ts';
+import { type AnimBody, PLAYER } from './anims.ts';
 import { heldPitch, type Shot, shotOf, THIRD, type ViewKind } from './cameras.ts';
 import { type Held, intentOf, PAD_DEAD } from './controls.ts';
 import { createFight, type FightNpc, type FightStage, WAITING_M } from './fight.ts';
@@ -31,7 +36,7 @@ import { createGameClock, type GameClock } from './gameClock.ts';
 import { objectPlaces } from './goals.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import type { LoadNav } from './host.ts';
-import { jumpOf, stepsFor } from './motion.ts';
+import { jumpOf, STEP, stepsFor } from './motion.ts';
 import { createNavStage, type NavStage, npcsOf } from './navStage.ts';
 import { createOutbox } from './outbox.ts';
 import { createWalker, type Walker } from './physics.ts';
@@ -120,6 +125,7 @@ const hookOf = ({
   clock: () => clock.hook(),
   senses: () => senses?.hook() ?? null,
   fight: () => fight?.hook() ?? null,
+  anims: () => surface.view.anims(),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -145,12 +151,13 @@ export async function startStage(
   world: PackWorld,
   loadNav?: LoadNav,
 ): Promise<SpaceDrawn> {
-  const space = walkSpace(world, ask.space);
+  const space = walkSpace(world, ask.space, ask.fight?.()?.player);
   if (!space) {
     box.textContent = `No space "${ask.space}" in this game.`;
     return { pause() {}, quality() {}, taken() {}, stop() {} };
   }
-  await loadRapier();
+  // The starter character's file is read before the view is made, so every figure is drawn as it (M6.5).
+  await Promise.all([loadRapier(), loadCharacter()]);
   const spawn = spawnOf(space.parts.spawns, ask.arrive);
   const at: Vec3 | undefined = ask.at ? [ask.at.feet[0], ask.at.feet[1], ask.at.feet[2]] : undefined;
   const tier = await tierFor(ask.quality);
@@ -221,9 +228,19 @@ export async function startStage(
       if (agents) return agents.map((a) => ({ ...a, height: heightOf(a.actor), here: a.state !== 'away' }));
       return placedNpcs.map((n) => ({ ...n, at: n.placed, here: built.has(n.path) }));
     },
-    pose: (path, pose) => surface.view.npcs.pose(path, pose),
     bodies: (uses) => acts.bodies(uses),
   });
+  const player = ask.fight?.()?.player;
+  /** A body's anim.* facts (M6.5): the player's from the character, an NPC's speed measured by anims.ts. */
+  const factsOf = (key: string, actor: string | null): AnimBody['facts'] => {
+    const who = key === PLAYER ? player : (actor ?? undefined);
+    const fought = fight && who !== undefined ? fight.anim(who) : null;
+    const facts = { ...STILL, ...(fought ?? {}) };
+    if (key !== PLAYER) return { ...facts, talking: surface.view.npcs.talking() === key };
+    const v = walker.velocity();
+    const grounded = walker.grounded();
+    return { ...facts, speed: Math.hypot(v[0], v[2]), grounded, rising: !grounded && v[1] > 0 };
+  };
   const began: WalkHook['began'] = at
     ? { from: 'at' }
     : spawn && spawn.path === ask.arrive
@@ -250,8 +267,11 @@ export async function startStage(
     const elapsed = Math.min(0.25, (time - last) / 1000);
     last = time;
     // Paused, nothing moves and the frame is held: but for an NPC turning to face the player (M6.1).
+    // M6.5: under a talk, the NPC talked to goes on moving, its talk state playing; all else holds.
     if (paused) {
-      if (surface.view.npcs.turning(time)) draw();
+      const talker = surface.view.npcs.talking();
+      if (talker) surface.view.animate(elapsed, shot.at, (key, actor) => (key === talker ? factsOf(key, actor) : null));
+      if (talker || surface.view.npcs.turning(time)) draw();
       return;
     }
     const held = { ...surface.inputs.take(), ...touches.take() };
@@ -278,9 +298,11 @@ export async function startStage(
     senses?.frame(elapsed * 1000, walker.feet(), intent, walker.grounded());
     if (fight) {
       fight.frame();
-      surface.view.lean(fight.lean());
       surface.view.arrows.draw(fight.arrows());
     }
+    // By the time the motion stepped, not the frame's: on a slow frame the walk steps at most five
+    // times, and a clip ahead of the feet would slide them.
+    surface.view.animate(steps.steps * STEP, shot.at, factsOf);
     draw();
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;

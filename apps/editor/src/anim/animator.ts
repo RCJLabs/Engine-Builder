@@ -178,7 +178,8 @@ export function stepLayer(
     const into: LayerRun = {
       state: rule.to,
       time: 0,
-      from: rule.blend > 0 ? { state: run.state, time: now.time } : null,
+      // A fit state fades from where its own phase left it: the facts already hold the next phase.
+      from: rule.blend > 0 ? { state: run.state, time: state?.rate === 'fit' ? run.time : now.time } : null,
       blend: rule.blend,
       mixed: 0,
     };

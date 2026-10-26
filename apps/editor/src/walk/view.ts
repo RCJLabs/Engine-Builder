@@ -4,9 +4,12 @@
  * no grid, gizmo or labels, from wherever the stage's camera stands. The stage asks for every frame.
  * M5.10 (D72, docs/specs/streaming.md): it draws the objects near, built a few a frame, and the
  * models of those far, instanced at their coarsest level; fog closes at the tier's view distance.
+ * M6.5 (D77, docs/specs/animation.md#in-the-walk): the player and the NPCs are the starter character,
+ * or a model on the rig, each moved by its animator (anims.ts).
  */
 
 import * as THREE from 'three/webgpu';
+import { characterReady, createCharacters } from '../anim/character.ts';
 import { lookOf as environmentLook } from '../environment/look.ts';
 import { frameStats } from '../perf/frames.ts';
 import { pixelRatioOf, type TierSettings } from '../perf/tiers.ts';
@@ -19,6 +22,7 @@ import { createTerrainView } from '../spaces/terrainView.ts';
 import type { Quat, Vec3 } from '../spaces/vec.ts';
 import { createViewModels } from '../spaces/viewModels.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
+import { type AnimBody, type AnimSeen, createAnims, NEAR_M, PLAYER } from './anims.ts';
 import { createArrowView } from './arrowView.ts';
 import type { Shot } from './cameras.ts';
 import { createFarModels } from './farModels.ts';
@@ -57,11 +61,16 @@ export interface WalkView {
   /** The NPCs (M6.1): one turned to face the player as its Talk is used, and back as the walk goes on. */
   readonly npcs: Pick<
     ReturnType<typeof createNpcView>,
-    'isNpc' | 'face' | 'back' | 'turning' | 'list' | 'built' | 'place' | 'pose' | 'poseOf'
+    'isNpc' | 'face' | 'back' | 'turning' | 'list' | 'built' | 'place' | 'talking'
   >;
-  /** Fights (M6.4): the arrows in flight, and the character leaning in degrees as it winds up and strikes. */
+  /** Fights (M6.4): the arrows in flight. */
   readonly arrows: ReturnType<typeof createArrowView>;
-  lean(degrees: number): void;
+  /**
+   * Animation (M6.5): the player and each NPC built moved by their animators, `dt` seconds on, the
+   * camera at `eye`; each body's facts by its key (PLAYER for the player) and actor, null to hold it.
+   */
+  animate(dt: number, eye: Vec3, facts: (key: string, actor: string | null) => AnimBody['facts']): void;
+  anims(): AnimSeen[];
   /** Tap to move (M6.2): the ray through a point of the view, and the ring where the player is going. */
   ray(x: number, y: number): { from: Vec3; dir: Vec3 };
   screenOf(p: Vec3): [number, number] | null;
@@ -137,10 +146,12 @@ export async function createWalkView(
   scene.add(terrain.root, foliage.root);
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 2000);
   const builder = createBuilder();
-  const character = bodyMesh();
+  // The player drawn as the starter character (M6.5), or as M5.8's capsule if its file isn't read.
+  const characters = createCharacters();
+  const made = characterReady();
+  const character = made ? characters.character(made, space.player.look) : bodyMesh();
   scene.add(character);
   const arrows = createArrowView(scene);
-  let lean = 0;
   const marker = createTapMarker(scene);
 
   let hidden: ReadonlySet<string> = new Set();
@@ -181,6 +192,8 @@ export async function createWalkView(
     (key, passed) => space.npcs(key, passed)?.figure ?? null,
   );
   const npcs = createNpcView(space, () => near.root);
+  // The Low tier halves how near a body must be to move every frame (D77).
+  const anims = createAnims(space.record, (id) => models.clips(id), tier.name === 'low' ? NEAR_M / 2 : NEAR_M);
   const farOnes = createFarModels(space.space, space.prefabs, builder, draw, shadows);
   let lastFar: { placements: readonly Placement[]; water: readonly string[] } = { placements: [], water: [] };
   const showFar = () => farOnes.show(lastFar.placements, lastFar.water);
@@ -235,7 +248,7 @@ export async function createWalkView(
       camera.updateMatrixWorld();
       character.visible = drawBody;
       character.position.set(...feet);
-      character.rotation.set((lean * Math.PI) / 180, (yaw * Math.PI) / 180, 0, 'YXZ');
+      character.rotation.set(0, (yaw * Math.PI) / 180, 0, 'YXZ');
       for (const m of moved) follow(m.path, m.at, m.turn);
       npcs.apply(performance.now());
       const eye: Vec3 = [camera.position.x, camera.position.y, camera.position.z];
@@ -282,9 +295,15 @@ export async function createWalkView(
     },
     npcs,
     arrows,
-    lean(degrees) {
-      lean = degrees;
+    animate(dt, eye, facts) {
+      const bodies: AnimBody[] = [
+        { key: PLAYER, node: character, animator: space.player.animator, facts: facts(PLAYER, null) },
+      ];
+      for (const n of npcs.animated())
+        bodies.push({ key: n.path, node: n.node, animator: n.animator, facts: facts(n.path, n.actor) });
+      anims.frame(dt, eye, bodies);
     },
+    anims: () => anims.seen(),
     ray: (x, y) => rayFrom(camera, x, y, size.w, size.h),
     screenOf: (p) => screenFrom(camera, p, size.w, size.h),
     marker,
@@ -306,6 +325,8 @@ export async function createWalkView(
       foliage.dispose();
       environment.dispose();
       arrows.dispose();
+      anims.dispose();
+      characters.dispose();
       models.dispose();
       renderer.dispose();
     },

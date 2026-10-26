@@ -57,7 +57,9 @@ describe('an NPC’s look', () => {
     expect(look('actor:smith', [])?.height).toBe(1.5);
     expect(look('flag:met', [])).toBeNull();
     const npcs = npcsFrom((key) => records[key]);
-    expect(npcs('actor:warden', [])).toEqual({ figure: null, height: FIGURE.height });
+    expect(npcs('actor:warden', [])).toEqual({ figure: null, height: FIGURE.height, animator: null });
+    // Its animator, through what its placement overrides (M6.5).
+    expect(npcs('actor:warden', [{ animator: 'slow' }])?.animator).toBe('slow');
     expect(npcs('flag:met', [])).toBeNull();
     expect(chestOf(1.5)).toBe(1);
   });

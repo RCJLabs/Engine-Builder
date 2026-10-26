@@ -4,9 +4,11 @@
  * cut by meshoptimizer's simplifier, and the collider as a wire. Geometry and materials made here
  * are kept by what they are made from, so each placement of a model shares them.
  */
+
 import { simplifyIndices } from '@eb/models/lod';
 import { MATERIAL_DEFAULTS, type MaterialRecord, type ModelCollider, type ModelRecord } from '@eb/schema';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
+import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as THREE from 'three/webgpu';
 import { meshesOf } from './meshes.ts';
 
@@ -90,15 +92,27 @@ export function trianglesOf(root: THREE.Object3D): number {
   return count;
 }
 
+/** Whether a scene holds a skinned mesh: its copies need bones of their own. */
+const skinnedIn = (scene: THREE.Object3D) => {
+  let found = false;
+  scene.traverse((node) => {
+    if ((node as THREE.SkinnedMesh).isSkinnedMesh) found = true;
+  });
+  return found;
+};
+
 /**
  * The model's scene, or its LOD levels: each a copy of the scene with every geometry cut to the
- * level's ratio, drawn from its `from` metres. `cut` makes and keeps those geometries.
+ * level's ratio, drawn from its `from` metres. `cut` makes and keeps those geometries. A skinned
+ * model (M6.5) is copied on bones of its own and drawn whole: each level would need its own
+ * skeleton for an animator to move.
  */
 export function withLevels(
   scene: THREE.Object3D,
   lod: ModelRecord['lod'],
   cut: (geometry: THREE.BufferGeometry, ratio: number) => THREE.BufferGeometry,
 ): THREE.Object3D {
+  if (skinnedIn(scene)) return cloneSkinned(scene);
   const whole = scene.clone(true);
   if (!lod || lod.length === 0) return whole;
   const levels = new THREE.LOD();

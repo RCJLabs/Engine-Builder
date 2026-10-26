@@ -43,7 +43,6 @@ function archer(after: (view: FightView) => FightView) {
   const fight = createFight(ask, outbox, {
     walker,
     npcs: () => [{ actor: 'wren', path: 'wren', at: [0, 0, -10] as Vec3, height: 1.7, here: true }],
-    pose() {},
     bodies() {},
   });
   if (!fight) throw new Error('No fight');
@@ -70,7 +69,6 @@ describe('an archer’s arrow landing', () => {
 describe('the fight’s other duties', () => {
   function camp(view: FightView) {
     const fell: string[] = [];
-    const poses: string[] = [];
     let bodies: readonly { readonly path: string; readonly label: string }[] = [];
     const walker = { cast: () => null, fell: (path: string) => fell.push(path) } as unknown as Walker;
     const outbox: Outbox = { post: () => Promise.resolve('accepted'), pump() {}, close() {}, size: 0 };
@@ -80,13 +78,12 @@ describe('the fight’s other duties', () => {
         { actor: 'rook', path: 'rook', at: [0, 0, -3] as Vec3, height: 1.75, here: true },
         { actor: 'wren', path: 'wren', at: [0, 0, -9] as Vec3, height: 1.65, here: true },
       ],
-      pose: (path, pose) => poses.push(`${path} ${pose}`),
       bodies: (uses) => {
         bodies = uses;
       },
     });
     if (!fight) throw new Error('No fight');
-    return { fight, fell, poses, bodies: () => bodies };
+    return { fight, fell, bodies: () => bodies };
   }
   const base: FightView = {
     player: 'hero',
@@ -104,12 +101,57 @@ describe('the fight’s other duties', () => {
   });
 
   it('lays a fallen NPC down once, takes its body out of the way, and offers it to Search', () => {
-    const { fight, fell, poses, bodies } = camp({ ...base, fallen: ['rook'] });
+    const { fight, fell, bodies } = camp({ ...base, fallen: ['rook'] });
     fight.frame();
     fight.frame();
     expect(fell).toEqual(['rook']);
     expect(fight.fell('rook')).toBe(true);
-    expect(poses).toContain('rook down');
+    // Its animator lies it down (M6.5): anim.down holds for it and for no one standing.
+    expect(fight.anim('rook').down).toBe(true);
+    expect(fight.anim('wren').down).toBe(false);
     expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search']);
+  });
+});
+
+describe('what an animator reads of a fighter (M6.5)', () => {
+  it('gives a swing’s phase and its seconds, a bow’s draw, and a hit for 0.4 s once the sim takes it', async () => {
+    const view: FightView = {
+      player: 'hero',
+      weapons: { hero: SWORD, wren: BOW },
+      fallen: [],
+      searched: [],
+      engaged: ['wren'],
+    };
+    let flying = false;
+    const walker = { cast: () => (flying ? { toi: 0.1, player: true } : null), fell() {} } as unknown as Walker;
+    const outbox: Outbox = { post: () => Promise.resolve('accepted'), pump() {}, close() {}, size: 0 };
+    const fight = createFight({ fight: () => view } as SpaceAsk, outbox, {
+      walker,
+      npcs: () => [{ actor: 'wren', path: 'wren', at: [0, 0, -10] as Vec3, height: 1.7, here: true }],
+      bodies() {},
+    });
+    if (!fight) throw new Error('No fight');
+    const feet: Vec3 = [0, 0, 0];
+    expect(fight.anim('hero')).toEqual({ swing: 'none', draw: 'none', weapon: 'melee', down: false, hit: false });
+    fight.step(true, feet, 0);
+    const hero = fight.anim('hero');
+    expect(hero.swing).toBe('windup');
+    expect(hero.phase?.length).toBeCloseTo(SWORD.windup / 1000, 9);
+    expect(hero.phase?.at).toBeCloseTo(1 / 60, 9);
+    const wren = fight.anim('wren');
+    expect([wren.swing, wren.draw, wren.weapon]).toEqual(['none', 'draw', 'ranged']);
+    for (let i = 0; i < 120 && fight.arrows().length === 0; i++) fight.step(false, feet, 0);
+    flying = true;
+    fight.step(false, feet, 0);
+    expect(fight.anim('hero').hit).toBe(false);
+    // The sim's answer comes back before the next step.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fight.anim('hero').hit).toBe(true);
+    flying = false;
+    // 23 steps on it still holds; the 24th makes 0.4 s, and it ends.
+    for (let i = 0; i < 23; i++) fight.step(false, feet, 0);
+    expect(fight.anim('hero').hit).toBe(true);
+    fight.step(false, feet, 0);
+    expect(fight.anim('hero').hit).toBe(false);
   });
 });

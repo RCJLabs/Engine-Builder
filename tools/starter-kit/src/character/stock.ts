@@ -29,7 +29,8 @@ export const STOCK_ANIMATOR: AnimatorRecord = {
       ...['idle', 'walk', 'run', 'talk'].map((from) => ({ from, to: 'jump', when: 'anim.rising', blend: 0.1 })),
       { from: '*', to: 'air', when: 'not anim.grounded and not anim.rising', blend: 0.2 },
       { from: '*', to: 'talk', when: 'anim.grounded and anim.talking', blend: 0.3 },
-      { from: '*', to: 'run', when: 'anim.grounded and anim.speed > 2.5' },
+      // Between the walk's 2.5 m/s and the run's 5 (motion.ts), so neither flickers into the other.
+      { from: '*', to: 'run', when: 'anim.grounded and anim.speed > 3.5' },
       { from: '*', to: 'walk', when: 'anim.grounded and anim.speed > 0.2' },
       { from: '*', to: 'idle', when: 'anim.grounded and anim.speed <= 0.2', blend: 0.3 },
     ],

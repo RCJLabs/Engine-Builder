@@ -64,6 +64,10 @@ export function createViewModels(
       const ready = view;
       return ready && models ? (key, passed) => ready.draw(models, key, passed) : () => null;
     },
+    /** A rigged model's clips and hips' height (M6.5), once its file is decoded; null before. */
+    clips(id: string): ReturnType<ModelsView['clips']> {
+      return view && latest ? view.clips(latest, id) : null;
+    },
     /** The colliders of the models under `chosen` drawn as wires, and no others. */
     wire(chosen: readonly THREE.Object3D[]): void {
       unwire();

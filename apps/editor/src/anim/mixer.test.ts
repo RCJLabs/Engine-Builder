@@ -9,7 +9,8 @@ import * as THREE from 'three/webgpu';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { FIGURE } from '../spaces/figureLook.ts';
 import type { Played } from './animator.ts';
-import { CHARACTER, type Character, createCharacters, loadCharacter } from './character.ts';
+import { CHARACTER, type Character, createCharacters } from './character.ts';
+import { loadCharacter } from './characterLoad.ts';
 import { type ClipSource, createAnimated } from './mixer.ts';
 
 const GLB = resolve(

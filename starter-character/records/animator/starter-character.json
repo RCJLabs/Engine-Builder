@@ -90,7 +90,7 @@
       {
         "from": "*",
         "to": "run",
-        "when": "anim.grounded and anim.speed > 2.5"
+        "when": "anim.grounded and anim.speed > 3.5"
       },
       {
         "from": "*",

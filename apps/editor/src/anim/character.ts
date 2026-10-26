@@ -1,16 +1,14 @@
 /**
- * The starter character in three (M6.5, D77, docs/specs/animation.md#the-starter-character): its GLB,
- * carried inside walk.js and the editor's own build, decoded once a page, and a copy of it for each
- * figure, on bones of its own, scaled to the figure's height, its clothes, trim and skin in the
- * look's colours and its hair and soles as the file has them. The stock animator and the model
- * record come with it, so a game with no animation of its own plays the engine's.
+ * The starter character in three (M6.5, D77, docs/specs/animation.md#the-starter-character): a
+ * copy of it for each figure, on bones of its own, scaled to the figure's height, its clothes, trim
+ * and skin in the look's colours and its hair and soles as the file has them, standing in the
+ * idle's first frame until an animator moves it. The stock animator and the model record come
+ * with it, so a game with no animation of its own plays the engine's. characterLoad.ts decodes the
+ * file; until it has, a figure draws as M6.1's capsule.
  */
 import type { AnimatorRecord, ModelRecord } from '@eb/schema';
-import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as THREE from 'three/webgpu';
-import glbUrl from '../../../../starter-character/assets/starter-character/starter-character.glb?url';
 import stock from '../../../../starter-character/records/animator/starter-character.json';
 import record from '../../../../starter-character/records/model/starter-character.json';
 import type { FigureLook } from '../spaces/figureLook.ts';
@@ -28,35 +26,30 @@ export interface Character {
   readonly hips: number;
 }
 
-let loading: Promise<Character> | null = null;
 let ready: Character | null = null;
 
-/** Decodes the file once a page: from its own URL, or from `bytes` where there is no fetch to it (Node). */
-export function loadCharacter(bytes?: ArrayBuffer): Promise<Character> {
-  loading ??= (async () => {
-    const buffer = bytes ?? (await (await fetch(glbUrl)).arrayBuffer());
-    const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(buffer, '');
-    const scene = gltf.scene;
-    scene.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(scene, true);
-    const hips = scene.getObjectByName('hips');
-    const made: Character = {
-      scene,
-      clips: new Map(gltf.animations.map((clip) => [clip.name, clip])),
-      height: box.max.y,
-      hips: hips ? hips.getWorldPosition(new THREE.Vector3()).y : 0.95,
-    };
-    ready = made;
-    return made;
-  })();
-  return loading;
-}
-
-/** The decoded file once loadCharacter has resolved, else null: a figure drawn before then is the old capsule. */
+/** The decoded file once characterLoad.ts has read it, else null. */
 export const characterReady = (): Character | null => ready;
+
+export function setCharacter(made: Character): Character {
+  ready = made;
+  return made;
+}
 
 /** The slots a look colours; the rest keep the file's. */
 const COLOURED = ['clothes', 'trim', 'skin'] as const;
+type Coloured = (typeof COLOURED)[number];
+const isColoured = (slot: string): slot is Coloured => (COLOURED as readonly string[]).includes(slot);
+
+/** `body` in the first frame of `clip`, bound and let go again. */
+function posed(body: THREE.Object3D, clip: THREE.AnimationClip | undefined): void {
+  if (!clip) return;
+  const mixer = new THREE.AnimationMixer(body);
+  mixer.clipAction(clip).play();
+  mixer.update(0);
+  mixer.stopAllAction();
+  mixer.uncacheRoot(body);
+}
 
 export function createCharacters() {
   const materials = new Map<string, THREE.Material>();
@@ -85,10 +78,11 @@ export function createCharacters() {
         mesh.castShadow = true;
         // Its bounds are its rest pose's: lying down or reaching out, it would be culled while seen.
         mesh.frustumCulled = false;
-        const slot = (mesh.material as THREE.Material).name as (typeof COLOURED)[number];
-        if (COLOURED.includes(slot)) mesh.material = coloured(slot, mesh.material as THREE.Material, look[slot]);
+        const slot = (mesh.material as THREE.Material).name;
+        if (isColoured(slot)) mesh.material = coloured(slot, mesh.material as THREE.Material, look[slot]);
       });
-      body.userData.animated = { model: CHARACTER };
+      posed(body, made.clips.get('idle'));
+      body.userData.animated = { model: CHARACTER, hips: made.hips };
       const group = new THREE.Group();
       group.add(body);
       group.userData.figure = look;
