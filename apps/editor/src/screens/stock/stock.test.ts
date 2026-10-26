@@ -97,7 +97,9 @@ describe('the stock screens, written into a project and compiled against its gam
     expect(compiled.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
     const screen = (id: string) => new TextDecoder().decode(added[`ui/${id}.json`]);
     expect(showsOf(JSON.parse(screen('container')))).toEqual(['container']);
-    expect(screen('container')).toContain('"of": "held"');
+    // The template writes the post's own screen, as barterEditor.spec.ts makes it in the editor.
+    const posts = JSON.parse(readFileSync(join(FIXTURES, 'post', 'ui/container.json'), 'utf8'));
+    expect(JSON.parse(screen('container'))).toEqual(posts);
     expect(screen('shop')).toContain('{shop.keeper} has {shop.purse}');
     // The camp's bodies open the same mode (M6.4's search); the hut opens nothing, so has none.
     const camp = await contextOf('camp', filesOf('camp'));

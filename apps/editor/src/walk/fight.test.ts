@@ -113,6 +113,17 @@ describe('the fight’s other duties', () => {
     expect(fight.anim('wren').down).toBe(false);
     expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search']);
   });
+
+  it('offers Search again for a body searched with something left, and Nothing left once emptied (M6.8)', () => {
+    const { fight, bodies } = camp({
+      ...base,
+      fallen: ['rook', 'wren'],
+      searched: ['rook', 'wren'],
+      emptied: ['wren'],
+    });
+    fight.frame();
+    expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search', 'wren Nothing left']);
+  });
 });
 
 describe('what an animator reads of a fighter (M6.5)', () => {

@@ -2396,6 +2396,15 @@ Evan chose on 2026-10-26, from these options:
 - **Bodies keep `fighting.searched`.** It holds once a body has been opened.
 - **The pack is format 16** when any use holds items. Every other pack keeps its format and hash.
 
+**As built** (2026-10-26, [specs/barter.md](specs/barter.md#as-built-2026-10-26)):
+- **The container mode is only a game's that can open something**, a use that holds or the fighting kit's bodies, so no other game's screens are asked to show it (W133).
+- **Selling to a merchant also refuses `no-room`**, as their bag has an item's `max` too; Take all refuses `none` once empty.
+- **A restock is `restock-bag`,** an inventory effect: the bag back to `carries`, the stock on top as far as each fits.
+- **The compiler checks screens with a stand-in container** when an interact holds, and the editor checks the game again when the first `holds` comes or the last goes.
+- **Sixteen golden files changed** in their slices' facets alone; turns, ends and content hashes are the same.
+
+The spec is [specs/barter.md](specs/barter.md).
+
 ---
 
 ## Open

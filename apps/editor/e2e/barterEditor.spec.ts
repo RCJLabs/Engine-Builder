@@ -1,8 +1,10 @@
 /**
  * M6.8's gate in the editor (D80, docs/specs/barter.md#the-gate), at 1280 and 390 wide: the post comes
- * in with no holds, no purse, no shop's actor and no Container screen. Hild's Purse, the shop's Actor
- * and the chest's Holds set with forms, E089 shown while the chest also takes, the Container screen
- * from its stock template, each file as the fixture has it; and in Play the chest opens with its bread.
+ * in with no holds, no purse, no shop's actor and no Container screen, and its scripts run before
+ * anything holds items, so no Container template is offered. Hild's Purse, the shop's Actor and the
+ * chest's Holds set with forms, E089 shown while the chest also takes; the game checked again as the
+ * chest first holds, so the Container template is offered without running anything; each file as the
+ * fixture has it; and in Play the chest opens with its bread.
  */
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -123,13 +125,27 @@ async function fillChest(page: Page, touch: boolean): Promise<void> {
   });
 }
 
+const templateOf = (panel: Locator, name: string) => panel.getByLabel('Template').locator('option', { hasText: name });
+
+async function runScripts(page: Page, touch: boolean): Promise<void> {
+  await test.step('its scripts run: no Container template, as nothing holds items yet', async () => {
+    const panel = await showPlay(page);
+    await press(panel.getByRole('button', { name: 'Run its scripts' }), touch);
+    await expect(panel.getByRole('button', { name: 'Play', exact: true })).toBeEnabled();
+    await press(panel.getByRole('button', { name: 'New screen' }), touch);
+    await expect(templateOf(panel, 'Shop')).toHaveCount(1);
+    await expect(templateOf(panel, 'Container')).toHaveCount(0);
+    await press(panel.getByRole('button', { name: 'Cancel' }), touch);
+  });
+}
+
 async function newContainerScreen(page: Page, touch: boolean): Promise<void> {
   await test.step('the Container screen from its stock template', async () => {
     const panel = await showPlay(page);
-    await press(panel.getByRole('button', { name: 'Run its scripts' }), touch);
-    // The game's modes come once its scripts have run: then the chest's container mode is one.
-    await expect(panel.getByRole('button', { name: 'Play', exact: true })).toBeEnabled();
+    // The game was checked again as the chest first held items, with nothing run by hand: its modes
+    // now have the container mode.
     await press(panel.getByRole('button', { name: 'New screen' }), touch);
+    await expect(templateOf(panel, 'Container')).toHaveCount(1);
     await panel.getByLabel('Template').selectOption({ label: 'Container' });
     await expect(panel.getByLabel('Name of the new screen')).toHaveValue('Container');
     await press(panel.getByRole('button', { name: 'Create' }), touch);
@@ -148,6 +164,7 @@ for (const [width, height, touch] of [
       test.setTimeout(400_000);
       const errors = watchErrors(page);
       await importZip(page, postBare(), 'The post', touch);
+      await runScripts(page, touch);
       await makeMerchant(page, touch);
       await fillChest(page, touch);
       await newContainerScreen(page, touch);

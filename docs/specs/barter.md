@@ -109,6 +109,28 @@ It is checked four ways:
 - **By keys and by touch** at 360, 390 and sideways: the chest opened, a line taken and one put back; Hild's goods bought and sold through the Shop screen.
 - **In the editor alone** at 1280 and 390, from the post with no holds and no purse: the chest's Holds, Hild's Purse and the shop's Actor set with forms, then played: the chest opens with its bread.
 
+## As built (2026-10-26)
+
+- **Where it lives.**
+  - *The sim:* the inventory kit's `containers.ts` (open, take, put, take all, close, and what Take offers) and `bags.ts`'s `restock-bag`; the economy kit's `purses.ts` and `shop.ts` (`inStock`, a merchant's verdicts, the restock). The kit is `inventoryModule(containers, bodies)`, built with the pack's containers as the quests kit is with the places (D79); `kitModules` and `kitsInWorld` choose it. Core's `world/containers.ts` reads a pack's containers, and the world module's use opens one after its effects.
+  - *The pack:* `holds` beside a use's other fields, format 16. A format 16 pack always has places, every space untagged when none has a tag, so format 15's shape holds.
+  - *The checks:* E089 in the compiler's `spaceParts.ts`, at `holds`; W156 in `packages/schema`'s `kitCheck.ts`, at the shop's `actor`.
+  - *The screens:* the session's `containers.ts` (each container's name, read from the pack's spaces) and `views.ts` (`held`, `container.name`, `shop.keeper`, `shop.purse`); the stock Container and Shop templates in the editor's `screens/stock/modal.ts`.
+- **The container mode is only a game's that can open something:** a use that holds, or the fighting kit's bodies. Every other game's screens are asked nothing new, so no fixture or template got W133.
+- **More refusals than specified.**
+  - Take refuses `none` for a line that isn't there.
+  - Take all refuses `none` once the container is empty, and `full` when nothing in it fits.
+  - Selling to a merchant also refuses `no-room` when their bag can't take another of the item (its `max`).
+- **A restock is an inventory effect,** `restock-bag { actor, add }`: the bag back to `carries`, `add`'s items on top as far as each fits. A merchant's shop keeps no shelf of its own: `economy.stock` and the Buy list read the bag, in item id order.
+- **A purse is kept whole** once any of it changes, as a bag is, and within its resources' bounds. An actor's Purse field takes nothing below 0.
+- **A body searched with something left** still offers Search; once its bag is empty the prompt says Nothing left (the fight view's `emptied`).
+- **The compiler checks screens against a stand-in container** while the pack is unread: a project with any interact that holds is checked with a game whose world has one, so `ui/container.json`'s mode is known (E049 otherwise).
+- **In the editor:**
+  - The script worker gets a space's or a prefab's file whole when it holds items, and the game is checked again when the first `holds` is added or the last removed.
+  - New screen offers the Container template once the game's modes include it, so not to a game whose scripts haven't run. M4.4's New screen read only the kits; it now reads the modes too.
+  - A shop and its actor are checked together, so W156 goes when either changes.
+- **Sixteen golden files changed** in their economy, inventory and kernel facets alone, the slices' new fields and versions: every run's turns, ends and content hash are as they were.
+
 ## Open questions
 
 1. **Owners and theft** (D80): a container or a bag owned by an actor or a faction, taking from it seen lowering standing.

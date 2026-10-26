@@ -118,6 +118,8 @@ apps/editor/           the editor PWA
                        objects of the space it names, M6.6; a slot's In and a target's space and object slots, M6.7)
                        and targetChecks.test.ts (E086 and W155 in the editor); radiantChecks.test.ts (E088, W127 and
                        E086's slots in the editor, as eb validate gives them, and again when only tags change, M6.7)
+  src/barter/          barterChecks.test.ts (M6.8, D80): E089 and W156 in the editor, as eb validate gives them, W156
+                       gone when only the shop's actor changes (records/flagRelated.ts's merchantRelated)
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
@@ -434,7 +436,10 @@ apps/editor/           the editor PWA
                        radiantPhone.spec.ts and radiantEditor.spec.ts are M6.7's, the hollows' Supplies read from the board
                        by keys (the barrow's cache, then the mine's, then no third run) and by touch at 360, 390 and
                        sideways (the compass, the journal, the Map's pin), and the hollows tagged and Supplies made with
-                       forms alone at 1280 and 390, then played
+                       forms alone at 1280 and 390, then played; postHelpers.ts, barter.spec.ts, barterPhone.spec.ts and
+                       barterEditor.spec.ts are M6.8's, the post's chest taken from and put into and Hild's lamp bought
+                       and the candle sold, by keys and by touch at 360, 390 and sideways, and the chest's Holds, Hild's
+                       Purse, the shop's Actor and the Container screen made with forms alone at 1280 and 390, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -460,7 +465,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        M6.4 (D76): attack and fall (npcs.ts), the slice at version 5, format 13's fighting (PackFighting);
                        M6.6 (D78): doors.ts (doorsOf, doorToward: the fewest doors between spaces), packMaps.ts (format
                        14's maps); M6.7 (D79): places.ts (format 15's places: every space's tags and each tagged
-                       object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors
+                       object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors; M6.8 (D80):
+                       containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -514,7 +520,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        weapon, an actor's drops and on-fall, W151, checkFightingNames: E082); M6.5: animatorTypes.ts
                        (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; M6.6: questTypes.ts's target, targetCheck.ts (E086,
                        W155); M6.7: worldSlots.ts (slots that find in the world: E088, W127), targetCheck.ts's @slot
-                       space and object, spaceShape's tags (E058); not pure
+                       space and object, spaceShape's tags (E058); M6.8: the interact's holds (componentTypes.ts), an
+                       actor's purse (npcFields.ts), a shop's actor (kitTypes.ts), W156 (kitCheck.ts); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -557,7 +564,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        E087, W154), mapInputs.ts (what a bake draws and its hash), world.ts packs the maps as format 14;
                        M6.7: places.ts (placesOf: the tags through prefabs and overrides, and `{slot}`'s names, packed
                        as format 15; spaceTagsOf, what the checks read), tags in spaceShape.ts and spaces.ts (E058);
-                       not pure
+                       M6.8: E089 (spaceParts.ts's checkHolds), KitSettings.holds (projectCheck.ts) and the checking
+                       game's stand-in container (projectGame.ts's HOLDING_WORLD); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -597,15 +605,19 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        weapons.ts: what an actor wields; hits.ts: a hit and its hurt; falls.ts: a fall, its drops and on-fall,
                        a body searched; module.ts, built with the project's fighting); kits.ts (KITS,
                        kitsOn: what project.json's kits
-                       turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code; kitsInWorld, M6.7)
+                       turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code; kitsInWorld, M6.7);
+                       M6.8 (D80): inventory/containers.ts (containers and bodies opened, taken from and put into, the
+                       kit built with the pack's containers, slice v3), bags.ts's restock-bag; economy/purses.ts (slice
+                       v2) and shop.ts's merchants (a shop's actor's bag and purse)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
-                       camp.ts (a hero and three bandits, M6.4): the records
+                       camp.ts (a hero and three bandits, M6.4), post.ts (Hild's post, a chest and a barrel, M6.8): the records
                        and games the kit tests share;
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading,
                        and dock-quests-v2.json, by its version 2 (M6.6);
-                       fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1)
+                       fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1), and
+                       market-inventory-v2.json, by its version 2 and the economy kit's version 1 (M6.8)
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
                        conditions.ts (ink conditions as the engine's, through EXTERNALs), tags.ts and fx.ts,
@@ -637,7 +649,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        settings.ts as plain functions, a component per screen (Title, NewGame, SavesScreen with
                        ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css; stepLine.ts,
                        the stage's steps and the player's presses on one line to the worker, M6.3; Fallen.tsx, the fallen
-                       player's screen and its checkpoint, M6.4); session/fighting.ts, the fight as the stage reads it (M6.4)
+                       player's screen and its checkpoint, M6.4); session/fighting.ts, the fight as the stage reads it (M6.4,
+                       and the bodies emptied, M6.8); session/containers.ts, each container's name (M6.8)
 packages/models/       3D models (M5.5, D67), not pure, in the browser and in Node: io.ts (gltf-transform's reader and
                        writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
                        (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
@@ -735,7 +748,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        breaks once each for E082 and W150; hollows/, M6.7's gate: a green with a board and a post, the
                        barrow a door away and the mine two through the hall, each cave tagged with a cache (the mine's
                        through the cache prefab) and a bandit, Supplies and the bounty repeating on the nearest, which
-                       hollows.test.ts plays through the session and breaks once each for E088, W127 and E086
+                       hollows.test.ts plays through the session and breaks once each for E088, W127 and E086; post/,
+                       M6.8's gate: a yard where Hild trades from her bag and purse, a chest of bread and a candle and an
+                       empty barrel, which post.test.ts plays through the session and breaks once each for E089 and W156
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json
