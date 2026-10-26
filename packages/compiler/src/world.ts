@@ -22,6 +22,8 @@ import type { TerrainFileRead } from './terrains.ts';
 
 /** The record type an NPC is placed as (M6.1). */
 const ACTOR = 'actor';
+/** An actor's animator (M6.5): the walk plays its states on the actor's model. */
+const ANIMATOR = 'animator';
 
 export interface WorldSources {
   readonly files: readonly SpaceFileRead[];
@@ -38,6 +40,8 @@ export interface WorldSources {
   readonly known: KnownOptions;
   /** The space a new game starts in: project.json's start-space, or the only space (E075 otherwise). */
   readonly start: string;
+  /** project.json's fighting player (M6.4): the actor the walk draws the player as (M6.5). */
+  readonly player?: string;
 }
 
 const TRIGGER = 'trigger';
@@ -148,7 +152,7 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     const bytes = await source.read(terrain.file);
     if (bytes) files[terrain.file] = base64Of(bytes);
   }
-  const drawn = drawnFrom(spaces, prefabs, sources);
+  const drawn = drawnFrom(spaces, prefabs, sources, sources.player);
   for (const path of drawn.files) {
     const bytes = await source.read(`${ASSETS_DIR}/${path}`);
     if (!bytes) continue;
@@ -186,14 +190,31 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
   };
 }
 
+/** An animator's record and the models its clips come from: its own `clips`, and a state's `from`. */
+function animatorNeeds(id: string, sources: WorldSources, keys: Set<string>, found: Set<string>): void {
+  const animator = sources.record(`${ANIMATOR}:${id}`);
+  if (!isFields(animator)) return;
+  keys.add(`${ANIMATOR}:${id}`);
+  const layers = [animator.base, animator.upper].filter(isFields);
+  const states = layers.flatMap((layer) => (Array.isArray(layer.states) ? layer.states.filter(isFields) : []));
+  const from = [animator.clips, ...states.map((state) => state.from)].filter((m): m is string => typeof m === 'string');
+  for (const model of new Set(from)) {
+    keys.add(`${MODEL}:${model}`);
+    const record = sources.record(`${MODEL}:${model}`);
+    if (isFields(record) && typeof record.file === 'string') found.add(record.file);
+  }
+}
+
 /**
  * What the spaces draw from: every model file, placed or grown as a terrain's foliage, by its path
  * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
+ * Since M6.5 an actor's animator and the models its clips come from, and the player's actor.
  */
 function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
   prefabs: ReadonlyMap<string, SpaceJson>,
   sources: WorldSources,
+  player?: string,
 ): { files: string[]; records: Record<string, unknown>; fields: Record<string, string> } {
   const fields: Record<string, string> = {};
   const models: ModelSources = {
@@ -207,6 +228,7 @@ function drawnFrom(
   };
   const keys = new Set<string>();
   const found = new Set<string>();
+  const actors = player === undefined ? [] : [`${ACTOR}:${player}`];
   for (const space of spaces.values()) {
     const grown = (space.terrain?.foliage ?? []).flatMap((id) => {
       keys.add(`${FOLIAGE}:${id}`);
@@ -214,15 +236,17 @@ function drawnFrom(
       return isFields(foliage) && typeof foliage.model === 'string' ? [`${MODEL}:${foliage.model}`] : [];
     });
     if (space.environment !== undefined) keys.add(`${ENVIRONMENT}:${space.environment}`);
-    const needs = modelNeeds(space, prefabs, models, grown);
-    // Each placement with what it passes on: an override may name another model.
+    const needs = modelNeeds(space, prefabs, models, [...grown, ...actors]);
+    // Each placement with what it passes on: an override may name another model, or another animator.
     const visit = (key: string, passed: readonly Fields[]) => {
       keys.add(key);
       const model = modelHere(key, passed, models);
       if (model) keys.add(`${MODEL}:${model.id}`);
+      const animator = key.startsWith(`${ACTOR}:`) ? recordHere(sources.record(key), passed).animator : undefined;
+      if (typeof animator === 'string') animatorNeeds(animator, sources, keys, found);
     };
     eachPlacedRecord(space, prefabs, visit);
-    for (const key of grown) visit(key, []);
+    for (const key of [...grown, ...actors]) visit(key, []);
     for (const material of needs.materials) keys.add(`${MATERIAL}:${material}`);
     for (const file of needs.files) found.add(file);
   }

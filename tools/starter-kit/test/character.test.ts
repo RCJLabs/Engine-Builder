@@ -11,7 +11,7 @@ import { HUMANOID } from '@eb/models/humanoid';
 import { readModel } from '@eb/models/pack';
 import { rigModel } from '@eb/models/rig';
 import { describe, expect, it } from 'vitest';
-import { poseAt, skinned } from '../../../packages/models/test/rigs.ts';
+import { poseAt, positionOf, skinned } from '../../../packages/models/test/rigs.ts';
 import { folderSource } from '../../cli/src/folderSource.ts';
 import { CHARACTER, makeCharacter } from '../src/character/character.ts';
 import { CLIPS } from '../src/character/clips.ts';
@@ -82,6 +82,20 @@ describe('the starter character', () => {
     const { low, high } = await reach('idle');
     expect(low).toBeCloseTo(0, 2);
     expect(Math.abs(high - HEIGHT)).toBeLessThan(0.03);
+  });
+
+  it('cuts down and forward over a strike: the hand over the head to the waist in front', async () => {
+    const doc = await character();
+    const hand = doc
+      .getRoot()
+      .listNodes()
+      .find((n) => n.getName() === 'rightHand');
+    if (!hand) throw new Error('no right hand');
+    const from = positionOf(poseAt(doc, 0, doc, 'strike'), hand);
+    const to = positionOf(poseAt(doc, 1, doc, 'strike'), hand);
+    expect(from.y).toBeGreaterThan(1.7);
+    expect(to.y).toBeLessThan(from.y - 0.6);
+    expect(to.z).toBeLessThan(from.z - 0.7);
   });
 
   it('never goes into the ground, and keeps a foot on it wherever it does not leave it', async () => {

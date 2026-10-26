@@ -19,8 +19,8 @@ const CARRIED = PARTS.map((part) => {
   return { bone: part.bone, corners };
 });
 
-/** The lowest point of the body in `pose`, in metres. */
-export function lowestOf(pose: Pose): number {
+/** Each bone's turn and place in the world in `pose`, as the file will play it. */
+export function bonesOf(pose: Pose): { turns: Map<HumanBone, Quat>; places: Map<HumanBone, Vec3> } {
   const turns = new Map<HumanBone, Quat>();
   const places = new Map<HumanBone, Vec3>();
   // HUMANOID lists a parent before its children.
@@ -36,6 +36,12 @@ export function lowestOf(pose: Pose): number {
     turns.set(bone, mul(parent, q));
     places.set(bone, add(places.get(up) as Vec3, rotate(parent, offsetOf(bone))));
   }
+  return { turns, places };
+}
+
+/** The lowest point of the body in `pose`, in metres. */
+export function lowestOf(pose: Pose): number {
+  const { turns, places } = bonesOf(pose);
   let lowest = Number.POSITIVE_INFINITY;
   for (const { bone, corners } of CARRIED) {
     const q = turns.get(bone) as Quat;

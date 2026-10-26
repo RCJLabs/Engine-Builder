@@ -197,6 +197,7 @@ export async function compileProject(
         kinds: components.kinds,
         known: kitted,
         start,
+        ...(fighting?.player === undefined ? {} : { player: fighting.player }),
       });
   return {
     diagnostics,

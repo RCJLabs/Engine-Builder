@@ -45,12 +45,16 @@ function stride(
   });
 }
 
-/** A swing's three poses: drawn back, struck through, and the standing pose it recovers to. */
+/**
+ * A swing's three poses: the sword hand raised over the head and back, cut down through to the
+ * waist in front, and the standing pose it recovers to. The hand comes 0.75 m down and 0.84 m
+ * forward over the strike.
+ */
 const WOUND: Pose = standing({
-  turns: { rightUpperArm: [-0.9, 0, 1.0], rightLowerArm: [0, 1.2, 0], spine: [0, -0.35, 0], chest: [0, -0.2, 0] },
+  turns: { rightUpperArm: [0.5, 0.4, 2.5], rightLowerArm: [0, 0, 1.3], spine: [0, -0.3, 0], chest: [0, -0.15, 0] },
 });
 const STRUCK: Pose = standing({
-  turns: { rightUpperArm: [0.9, 0, 0.35], rightLowerArm: [0, 0.15, 0], spine: [-0.1, 0.3, 0], chest: [0, 0.15, 0] },
+  turns: { rightUpperArm: [0.9, 0, 0.3], rightLowerArm: [0, 0.25, 0], spine: [-0.3, 0.3, 0], chest: [-0.1, 0.15, 0] },
 });
 /** A bow drawn: the left arm out in front holding it, the right hand back at the chin. */
 const DRAWN: Pose = standing({
