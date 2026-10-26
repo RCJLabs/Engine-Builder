@@ -6,9 +6,11 @@
  * record index is.
  */
 import {
+  checkMapFiles,
   checkNavFiles,
   checkProjectSpaceParts,
   MANIFEST_FILE,
+  mapHashes,
   modelFieldOf,
   navHashes,
   navModelsOf,
@@ -16,6 +18,7 @@ import {
   readSpaces,
   type SpaceJson,
   type SpaceUse,
+  spaceObjectsOf,
   spaceSpawns,
   walkersOf,
 } from '@eb/compiler';
@@ -38,6 +41,8 @@ export interface SpaceChecks {
 }
 
 export const NO_FLAG_USES: FlagUses = { set: new Map(), read: new Map() };
+
+const splitKey = (key: string): [string, string] => [key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)];
 
 /** project.json's fighting against the records and where each actor stands (E082, M6.4), as compileProject checks it. */
 function fightingProblems(catalog: Catalog, index: RecordIndex, walkers: Walkers): Diagnostic[] {
@@ -92,9 +97,20 @@ export async function spaceProblems(
   });
   const hashes = await navHashes(source, read.files, read.navs, models);
   const navs = checkNavFiles(read.navs, new Set(spawns.keys()), hashes);
+  // A map baked from the space as it stands now (M6.6), as the compiler checks it.
+  const drawn = await mapHashes(source, read.files, read.maps, {
+    record: (key) => value(...splitKey(key)),
+    types: catalog.types,
+  });
+  const maps = checkMapFiles(read.maps, new Set(spawns.keys()), drawn);
   const users = new Map<string, SpaceUse[]>();
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
   const fought = fightingProblems(catalog, index, walkers);
-  return { problems: [...found.diagnostics, ...navs, ...fought], users, flags: { ...found.flags, spawns, walkers } };
+  const objects = spaceObjectsOf(read.files, prefabs);
+  return {
+    problems: [...found.diagnostics, ...navs, ...maps, ...fought],
+    users,
+    flags: { ...found.flags, spawns, walkers, objects },
+  };
 }

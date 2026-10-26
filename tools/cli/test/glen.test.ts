@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { compileWithGame } from '@eb/compiler';
 import type { Action } from '@eb/core';
-import { type Opened, openPack, resumeFrom, saveOf, startPlay } from '@eb/ui/session';
+import { type Opened, openPack, type Play, resumeFrom, saveOf, startPlay } from '@eb/ui/session';
 import { describe, expect, it } from 'vitest';
 import { folderSource } from '../src/folderSource.ts';
 
@@ -24,6 +24,12 @@ async function opened(): Promise<Opened> {
 
 const use = (space: string, object: string): Action => ({ type: 'world/use', space, object });
 const zone = (space: string, object: string): Action => ({ type: 'world/trigger', space, object });
+
+/** Where the world view puts the player, without the markers (M6.6), which glenMarkers.test.ts follows. */
+function placeOf(play: Play) {
+  const { markers: _markers, ...place } = play.view.world ?? {};
+  return place;
+}
 
 describe('eb with the glen', () => {
   it('builds it as format 10: each space’s uses by their label, its spawn points, and the glen to start in', async () => {
@@ -52,13 +58,13 @@ describe('eb with the glen', () => {
       if (!step.accepted) throw new Error(`${JSON.stringify(action)}: ${JSON.stringify(step.beats)}`);
       return step;
     };
-    expect(play.view.world).toEqual({ space: 'glen', taken: [] });
+    expect(placeOf(play)).toEqual({ space: 'glen', taken: [] });
     take(use('glen', 'rope'));
     expect(play.view.world?.taken).toEqual(['glen/rope']);
     expect(play.take(use('glen', 'rope')).accepted).toBe(false);
     // An interact's door: in, the lamp taken, and out again by the other.
     take(use('glen', 'bothy-door'));
-    expect(play.view.world).toEqual({ space: 'bothy', arrive: 'door', taken: ['glen/rope'] });
+    expect(placeOf(play)).toEqual({ space: 'bothy', arrive: 'door', taken: ['glen/rope'] });
     take(use('bothy', 'lamp'));
     take(use('bothy', 'way-out'));
     expect(play.view.world).toMatchObject({ space: 'glen', arrive: 'bothy-out' });
@@ -84,7 +90,7 @@ describe('eb with the glen', () => {
     const file = saveOf(open, play, { edition: 'test' }, 1000);
     const resumed = resumeFrom(open, JSON.stringify(file));
     if (!resumed.ok) throw new Error(resumed.message);
-    expect(resumed.play.view.world).toEqual({
+    expect(placeOf(resumed.play)).toEqual({
       space: 'bothy',
       at: { space: 'bothy', feet: [0.5, 0, -0.2], yaw: 12.5 },
       arrive: 'door',
@@ -99,7 +105,9 @@ describe('eb with the glen', () => {
     const raw = readFileSync(resolve(import.meta.dirname, 'fixtures/saves/glen-world-v2.json'), 'utf8');
     const resumed = resumeFrom(open, raw);
     if (!resumed.ok) throw new Error(resumed.message);
-    // The quests kit's version 3 (M6.6) tracks the supplies quest, its first active.
+    // The quests kit's version 3 (M6.6) tracks the supplies quest, its first active. Then the steps
+    // replayed start Find your feet, which the save never knew and which starts with the game: the
+    // last started, it is tracked.
     expect(resumed.report.migrated).toEqual([
       { module: 'quests', from: 2, to: 3 },
       { module: 'world', from: 2, to: 5 },
@@ -113,7 +121,7 @@ describe('eb with the glen', () => {
       at: { space: 'bothy', feet: [0.5, 0, -0.2], yaw: 12.5 },
       npcs: {},
     });
-    expect((resumed.play.state.quests as { tracked?: string }).tracked).toBe('supplies');
+    expect((resumed.play.state.quests as { tracked?: string }).tracked).toBe('settle');
     expect(resumed.play.take(use('bothy', 'lamp')).accepted).toBe(true);
   });
 });

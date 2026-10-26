@@ -1,7 +1,8 @@
 /**
  * The Scene panel's toolbar (M5.1, docs/specs/viewport.md#the-toolbar): the gizmo's mode, snapping,
  * Add, Select more, Group into prefab, Delete and Frame, and in a space Terrain, whose row holds the
- * terrain tools (M5.3), and Navigation, whose row bakes and shows the navmesh (M6.2); then Quality,
+ * terrain tools (M5.3), Navigation, whose row bakes and shows the navmesh (M6.2), and Map, whose row
+ * bakes the space's map (M6.6); then Quality,
  * whose row holds the tier and Stats (M5.7). Every button is 44 px; on a phone the bar wraps rather
  * than scrolls.
  */
@@ -16,6 +17,7 @@ import { QualityTools } from '../perf/QualityTools.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
+import { MapTools } from '../spaceMaps/MapTools.tsx';
 import { TerrainTools } from '../terrain/TerrainTools.tsx';
 import { addHere, deleteChosen, dropChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
@@ -39,10 +41,10 @@ const SHAPE_NAMES: Record<(typeof SHAPES)[number], string> = {
 };
 
 export function SceneToolbar({ project }: { project: OpenProject }) {
-  const [shown, setShown] = useState<'add' | 'group' | 'terrain' | 'navigation' | 'quality' | null>(null);
+  const [shown, setShown] = useState<'add' | 'group' | 'terrain' | 'navigation' | 'map' | 'quality' | null>(null);
   const canEdit = editing.access.value.kind === 'editing';
   const chosen = picked.value.length;
-  const toggle = (what: 'add' | 'group' | 'terrain' | 'navigation' | 'quality') =>
+  const toggle = (what: 'add' | 'group' | 'terrain' | 'navigation' | 'map' | 'quality') =>
     setShown(shown === what ? null : what);
   const open = openSpace.value;
   const space = liveOf(open)?.space;
@@ -147,6 +149,11 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
             Navigation
           </button>
         ) : null}
+        {open?.kind === 'space' ? (
+          <button type="button" class="button" aria-expanded={shown === 'map'} onClick={() => toggle('map')}>
+            Map
+          </button>
+        ) : null}
         <button type="button" class="button" aria-expanded={shown === 'quality'} onClick={() => toggle('quality')}>
           Quality
         </button>
@@ -154,6 +161,7 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
       {shown === 'quality' ? <QualityTools /> : null}
       {shown === 'terrain' && open?.kind === 'space' && space ? <TerrainTools terrain={space.terrain} /> : null}
       {shown === 'navigation' && open?.kind === 'space' ? <NavTools project={project} /> : null}
+      {shown === 'map' && open?.kind === 'space' ? <MapTools project={project} /> : null}
       {shown === 'add' && canEdit ? <AddRow project={project} done={() => setShown(null)} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (
         <NameRecord

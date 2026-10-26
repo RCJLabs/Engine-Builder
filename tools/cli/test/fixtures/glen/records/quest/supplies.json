@@ -8,12 +8,20 @@
         {
           "id": "rope",
           "text": "Take a rope",
-          "done-when": "inventory.count(item: rope) >= 1"
+          "done-when": "inventory.count(item: rope) >= 1",
+          "target": {
+            "space": "glen",
+            "object": "rope"
+          }
         },
         {
           "id": "lamp",
           "text": "Take the bothy's lamp",
-          "done-when": "inventory.count(item: lamp) >= 1"
+          "done-when": "inventory.count(item: lamp) >= 1",
+          "target": {
+            "space": "bothy",
+            "object": "lamp"
+          }
         }
       ],
       "next": "store"
@@ -26,7 +34,10 @@
           "id": "shed",
           "text": "Reach the shed",
           "done-when": "world.in(space: shed)",
-          "next": "stored"
+          "next": "stored",
+          "target": {
+            "space": "shed"
+          }
         }
       ]
     },

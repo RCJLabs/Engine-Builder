@@ -64,7 +64,9 @@ export async function terrainFilesOf(
 ): Promise<Partial<Record<TerrainPart, Uint8Array>>> {
   const found: Partial<Record<TerrainPart, Uint8Array>> = {};
   if (!space.terrain) return found;
-  for (const part of PARTS) {
+  // The density is read only for a terrain that lists foliage, as the editor reads it.
+  const listed = (space.terrain.foliage ?? []).length > 0;
+  for (const part of listed ? PARTS : PARTS.filter((p) => p !== 'foliage')) {
     const bytes = await source.read(terrainPath(id, part));
     if (bytes) found[part] = bytes;
   }

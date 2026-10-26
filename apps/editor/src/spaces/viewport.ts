@@ -17,6 +17,7 @@ import type { NavLook } from '../nav/protocol.ts';
 import { frameStats } from '../perf/frames.ts';
 import { createFrameClock } from '../perf/stepDown.ts';
 import { pixelRatioOf, TIERS, type TierSettings } from '../perf/tiers.ts';
+import type { MapShot } from '../spaceMaps/shot.ts';
 import { type Boxed, LATCH_PX, type Latch, union } from './bounds.ts';
 import { type Built, createBuilder, type NameOf, setTransform } from './build.ts';
 import { type Drag, startDrag } from './drag.ts';
@@ -24,6 +25,7 @@ import { createEnvironmentView } from './environmentView.ts';
 import type { FigureOf } from './figureLook.ts';
 import { figuresIn } from './figureView.ts';
 import { createFoliageView, type FoliageShown } from './foliageView.ts';
+import { drawFromAbove } from './fromAbove.ts';
 import { AXES, type Handle, type Mode, metresFor, onPlane, type Placed, pivotOf, type Ray } from './gizmoMath.ts';
 import { createGizmo } from './gizmoView.ts';
 import { gripsOf, hitHandle, ownAxes, type Project, type Screen, shapesOf } from './handles.ts';
@@ -90,6 +92,8 @@ export interface View {
   aim(): Vec3;
   /** The tier drawn, its settings as three has them, and its frames (M5.7). */
   perf(): PerfSummary;
+  /** The space drawn once from above for its map (M6.6), lit by the editor's own light. */
+  bakeMap(shot: MapShot): HTMLCanvasElement;
   draw(): void;
   dispose(): void;
 }
@@ -159,6 +163,8 @@ export async function createView(
 
   let orbit = START;
   let built: Built | null = null;
+  // The environment shown, put back after a map is drawn in the editor's own light.
+  let look: Look | null = null;
   // The models' LODs, their levels picked for this camera alone (modelParts.ts's withLevels).
   let lods: THREE.LOD[] = [];
   let filed = new Map<string, Placed>();
@@ -488,8 +494,9 @@ export async function createView(
       if (gizmo.light(handle)) draw();
     },
     show,
-    showEnvironment(look) {
-      environment.show(look);
+    showEnvironment(next) {
+      look = next;
+      environment.show(next);
       // The sun moved: its shadow camera with it.
       fitShadows();
       draw();
@@ -504,6 +511,21 @@ export async function createView(
     },
     showFoliage(list) {
       foliage.show(list);
+    },
+    bakeMap(shot) {
+      // A map reads the same at any hour: the editor's own light, no sky, weather or fog.
+      environment.show(null);
+      const keep = new Set<THREE.Object3D>([skyLight, sun, terrain.root, foliage.root, ...(built ? [built.root] : [])]);
+      try {
+        return drawFromAbove(renderer, scene, keep, shot, (eye) => {
+          terrain.levels(eye);
+          foliage.levels(eye);
+        });
+      } finally {
+        environment.show(look);
+        fitShadows();
+        draw();
+      }
     },
     showNav: (look) => navOverlay.show(look),
     terrain,
