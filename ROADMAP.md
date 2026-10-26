@@ -1221,6 +1221,18 @@ How to read this file:
     - **Untested for feel:** contact always hitting, the 30° cone, the wind-ups and their lean, holding at 5 m, the camp's numbers, and touch's Attack above Jump wait for your phone.
     - **Logged for later:** questions 1 to 7 in [specs/combat.md](docs/specs/combat.md#open-questions): blocking and dodging, NPCs fighting each other, taking item by item, lead on a moving target, the cone and wind-ups, keeping a press made mid-swing, and the camp's numbers on a phone.
 - **M6.5 Animation.** State machines from clips, sharing one rig.
+  - **As decided** (D77, your calls):
+    - **A starter character generated in code:** a mannequin on the engine's rig, with idle, walk, run, the air, a swing's three phases, a bow's, a hit, a fall and a talk. Dedicated CC0 by RCJLabs.
+    - **The figure becomes it:** the figure (D73) and the player wear it.
+    - **One rig:** VRM's humanoid. Clips made for other skeletons (Mixamo, Unreal, Quaternius, KayKit) are carried onto it as they are imported, normalised once in the model worker and made to play in place.
+    - **Two layers:** attacks play on an upper-body layer over the legs.
+    - **Animators are records:** an `animator` record holds the state machine, its transitions in the condition text over the stage's `anim.*` facts. The editor edits it as an outline with a 3D preview ([specs/animation.md](docs/specs/animation.md)).
+  - **Gate:**
+    - **Headless:** the animator's transitions, blends and rates; a foreign rig made in code, normalised with every vertex where it was; its walk played on the starter character with the same bone directions.
+    - **The camp in the Play panel,** read through `__ebWalk.anims()`:
+      - by keys: the hero and the bandits walk and run at their clips' pace, jump, swing with the upper layer's phases lined up with the hits, and fall;
+      - the same by touch at 360, 390 and sideways.
+    - **In the editor alone** at 1280 and 390 wide: a foreign walk imported and mapped, and an animator made, previewed and seen in Play.
 - **M6.6 Quest UX.** Markers, compass and map; radiant aliases ("find a matching reference"); barter and containers.
 - **M6.7 Templates.** "Open-world RPG (3rd person)" and "First-person adventure".
 - **M6.8 Proof #2: a Bethesda-style mini world.** 1 exterior, 3 interiors, 5 scheduled NPCs with dialogue, 3 quests (main, side and radiant), combat and barter. The theme is an open question.
