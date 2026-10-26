@@ -62,10 +62,10 @@ keys by the model's hip height over the clip's own, so a short character's hips 
 
 ## The starter character
 
-- **`tools/starter-character`**, run by `pnpm make:starter-character`, writes the character into `starter-character/` byte for byte, as `pnpm make:starter-kit` writes the kit:
-  - a mannequin of about 2,000 triangles in five material slots: clothes, trim, skin, hair and soles;
-  - its skeleton on the rig, already normalised;
-  - the clips below, sampled at 30 frames a second from formulas;
+- **`tools/starter-kit/src/character`**, run by `pnpm make:starter-character`, writes the character into `starter-character/` byte for byte, as `pnpm make:starter-kit` writes the kit:
+  - a jointed mannequin of 372 triangles, 1.76 m to the top of its hair, each part moved wholly by one bone, in five material slots: clothes, trim, skin, hair and soles;
+  - its skeleton on the rig, already normalised: the import maps every bone by name and turns none;
+  - the clips below, sampled at 30 frames a second from formulas. Each frame's lowest point is worked out bone by bone and the hips lifted by however far under the ground it is (never lowered, so a run keeps its moment in the air): a walk's trailing toes dipped 4 cm under before;
   - its model, materials and stock animator as records, and the provenance log (CC0, RCJLabs).
 - **The clips:**
 
@@ -88,12 +88,12 @@ keys by the model's hip height over the clip's own, so a short character's hips 
   | lie | yes | 2 s | 0 |
   | talk | yes | 2.5 s | 0 |
 
-  A clip marked *fit* is stretched to the phase it plays in.
+  A clip marked *fit* is stretched to the phase it plays in. The fall-down ends lying 0.55 m behind where it stood, the one clip whose hips travel; its pace is 0, as it is no walk.
 - **The engine's own copy.**
   - walk.js carries it, so the figure needs no project files and plays offline.
   - An actor drawn as a figure is the starter character, scaled to its height, with its clothes, trim and skin colours on those slots.
   - The capsule the player was drawn as goes: the player is their actor's look, or the starter character when project.json names no `fighting.player`.
-- **Add starter character** (the Assets panel's Add) copies it into the project as `models/starter-character.glb` with its records, as Add starter kit does, for a project to change or replace.
+- **Add starter character** (the Assets panel's Add) copies it into the project at `assets/starter-character/` with its records, as Add starter kit does, for a project to change or replace.
 
 ## Animators
 
@@ -230,6 +230,6 @@ A transition's condition is checked as conditions are (E022, E023), against the 
 2. Feet planted on slopes and steps (IK).
 3. Faces: blinking, mouths with talk lines.
 4. A held weapon drawn in the hand, by the model's `rightHand` bone (the item's own model, when items have models).
-5. Root motion kept for clips that need it (a vault, a lunge).
+5. Root motion kept for clips that need it (a vault, a lunge). Until then the import takes the travel out of every clip, a one-shot's too: a fall backwards imported lands where it stood, and its record gets a pace nothing reads.
 6. Non-humanoid rigs (a dog, a horse) and their own clip sets.
 7. A node graph for animators (Phase 8).

@@ -5,7 +5,7 @@
  * (VRM's names, a T-pose, every frame the world's, facing −z), and what the tests read of either:
  * a document posed at a time, joint positions, and a vertex skinned by glTF's rule.
  */
-import { Document, type Node } from '@gltf-transform/core';
+import { Document, type Node, type Primitive, type Skin } from '@gltf-transform/core';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
 type V3 = [number, number, number];
@@ -298,18 +298,24 @@ function sample(input: Floats, output: Floats, t: number, turn: boolean): number
 export const positionOf = (worlds: ReadonlyMap<Node, Matrix4>, node: Node) =>
   new Vector3().setFromMatrixPosition(worlds.get(node) as Matrix4);
 
-/** Every vertex of the first skinned mesh, skinned by glTF's rule: Σ weight · joint world · inverse bind · position. */
+/**
+ * Every vertex of the first skinned mesh, primitive by primitive, skinned by glTF's rule:
+ * Σ weight · joint world · inverse bind · position.
+ */
 export function skinned(doc: Document, worlds: ReadonlyMap<Node, Matrix4>): Vector3[] {
   const node = doc
     .getRoot()
     .listNodes()
     .find((n) => n.getSkin() && n.getMesh()) as Node;
   const skin = node.getSkin() as NonNullable<ReturnType<Node['getSkin']>>;
+  return (node.getMesh()?.listPrimitives() ?? []).flatMap((primitive) => skinnedPrimitive(skin, primitive, worlds));
+}
+
+function skinnedPrimitive(skin: Skin, primitive: Primitive, worlds: ReadonlyMap<Node, Matrix4>): Vector3[] {
   const binds = skin.getInverseBindMatrices() as NonNullable<ReturnType<typeof skin.getInverseBindMatrices>>;
-  const primitive = node.getMesh()?.listPrimitives()[0];
-  const positions = primitive?.getAttribute('POSITION');
-  const joints = primitive?.getAttribute('JOINTS_0');
-  const weights = primitive?.getAttribute('WEIGHTS_0');
+  const positions = primitive.getAttribute('POSITION');
+  const joints = primitive.getAttribute('JOINTS_0');
+  const weights = primitive.getAttribute('WEIGHTS_0');
   if (!positions || !joints || !weights) return [];
   const out: Vector3[] = [];
   for (let v = 0; v < positions.getCount(); v++) {

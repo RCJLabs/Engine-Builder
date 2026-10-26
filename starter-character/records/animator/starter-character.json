@@ -1,0 +1,204 @@
+{
+  "name": "Starter character",
+  "clips": "starter-character",
+  "base": {
+    "start": "idle",
+    "states": [
+      {
+        "id": "idle",
+        "clip": "idle",
+        "loop": true
+      },
+      {
+        "id": "walk",
+        "clip": "walk",
+        "loop": true,
+        "rate": "pace"
+      },
+      {
+        "id": "run",
+        "clip": "run",
+        "loop": true,
+        "rate": "pace"
+      },
+      {
+        "id": "jump",
+        "clip": "jump"
+      },
+      {
+        "id": "air",
+        "clip": "fall",
+        "loop": true
+      },
+      {
+        "id": "talk",
+        "clip": "talk",
+        "loop": true
+      },
+      {
+        "id": "down",
+        "clip": "fall-down"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "*",
+        "to": "down",
+        "when": "anim.down",
+        "blend": 0.25
+      },
+      {
+        "from": "jump",
+        "to": "air"
+      },
+      {
+        "from": "idle",
+        "to": "jump",
+        "when": "anim.rising",
+        "blend": 0.1
+      },
+      {
+        "from": "walk",
+        "to": "jump",
+        "when": "anim.rising",
+        "blend": 0.1
+      },
+      {
+        "from": "run",
+        "to": "jump",
+        "when": "anim.rising",
+        "blend": 0.1
+      },
+      {
+        "from": "talk",
+        "to": "jump",
+        "when": "anim.rising",
+        "blend": 0.1
+      },
+      {
+        "from": "*",
+        "to": "air",
+        "when": "not anim.grounded and not anim.rising",
+        "blend": 0.2
+      },
+      {
+        "from": "*",
+        "to": "talk",
+        "when": "anim.grounded and anim.talking",
+        "blend": 0.3
+      },
+      {
+        "from": "*",
+        "to": "run",
+        "when": "anim.grounded and anim.speed > 2.5"
+      },
+      {
+        "from": "*",
+        "to": "walk",
+        "when": "anim.grounded and anim.speed > 0.2"
+      },
+      {
+        "from": "*",
+        "to": "idle",
+        "when": "anim.grounded and anim.speed <= 0.2",
+        "blend": 0.3
+      }
+    ]
+  },
+  "upper": {
+    "start": "none",
+    "states": [
+      {
+        "id": "none"
+      },
+      {
+        "id": "windup",
+        "clip": "windup",
+        "rate": "fit"
+      },
+      {
+        "id": "strike",
+        "clip": "strike",
+        "rate": "fit"
+      },
+      {
+        "id": "recover",
+        "clip": "recover",
+        "rate": "fit"
+      },
+      {
+        "id": "draw",
+        "clip": "draw",
+        "rate": "fit"
+      },
+      {
+        "id": "hold",
+        "clip": "hold",
+        "loop": true
+      },
+      {
+        "id": "loose",
+        "clip": "loose",
+        "rate": "fit"
+      },
+      {
+        "id": "hit",
+        "clip": "hit"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "*",
+        "to": "windup",
+        "when": "anim.swing == \"windup\"",
+        "blend": 0.1
+      },
+      {
+        "from": "*",
+        "to": "strike",
+        "when": "anim.swing == \"strike\"",
+        "blend": 0.05
+      },
+      {
+        "from": "*",
+        "to": "recover",
+        "when": "anim.swing == \"recover\"",
+        "blend": 0.05
+      },
+      {
+        "from": "*",
+        "to": "draw",
+        "when": "anim.draw == \"draw\"",
+        "blend": 0.1
+      },
+      {
+        "from": "*",
+        "to": "hold",
+        "when": "anim.draw == \"hold\"",
+        "blend": 0.1
+      },
+      {
+        "from": "*",
+        "to": "loose",
+        "when": "anim.draw == \"loose\"",
+        "blend": 0.05
+      },
+      {
+        "from": "hit",
+        "to": "none"
+      },
+      {
+        "from": "*",
+        "to": "hit",
+        "when": "anim.hit",
+        "blend": 0.05
+      },
+      {
+        "from": "*",
+        "to": "none",
+        "when": "not anim.hit",
+        "blend": 0.25
+      }
+    ]
+  }
+}

@@ -57,6 +57,7 @@ pnpm eb publish <project> --repo <git folder> [--message <text>] [--push]  # the
 pnpm eb new <folder> --template <id> [--name <text>]  # a project from a template (M4.11), as New project makes it
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
+pnpm make:starter-character                            # starter-character/ from tools/starter-kit/src/character (M6.5)
 pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
 pnpm bake <project> <space>                            # spaces/<space>.nav baked in Node, as Bake navigation bakes it (M6.2);
                                                        # give the project as an absolute path under pnpm -C
