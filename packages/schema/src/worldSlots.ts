@@ -88,7 +88,11 @@ function inSpace(slots: readonly Slot[], i: number, report: Report): Slot | stri
     return null;
   }
   if (before.type !== SPACE) {
-    report('E088', `/slots/${i}/in`, `@${name} holds a ${before.type}, not a space`);
+    report(
+      'E088',
+      `/slots/${i}/in`,
+      `@${name} holds ${/^[aeiou]/.test(before.type) ? 'an' : 'a'} ${before.type}, not a space`,
+    );
     return null;
   }
   return before;

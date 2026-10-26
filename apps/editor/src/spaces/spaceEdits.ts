@@ -71,6 +71,12 @@ export function changeObject(space: SpaceJson, id: string, patch: Partial<SpaceO
   };
 }
 
+/** The space's own tags (M6.7): none left, none written. */
+export function withSpaceTags(space: SpaceJson, tags: readonly string[]): SpaceJson {
+  const { tags: _, ...rest } = space;
+  return tags.length > 0 ? { ...rest, tags: [...tags] } : rest;
+}
+
 /** Its name: none when typed as nothing or as its id, which the outliner shows anyway. */
 export function renameObject(space: SpaceJson, id: string, typed: string): SpaceJson {
   const name = typed.trim().slice(0, 80);

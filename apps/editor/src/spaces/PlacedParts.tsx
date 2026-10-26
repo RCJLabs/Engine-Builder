@@ -19,6 +19,8 @@ import { insideOf, recordOverridesHere, setOverride } from './partEdits.ts';
 import { tidy } from './snap.ts';
 import { GREY, nameOf, type SpaceJson, type SpaceObject, transformOf } from './spaceFile.ts';
 import { inside as insideSignal } from './state.ts';
+import { TagsField } from './TagsField.tsx';
+import { projectTags } from './tags.ts';
 import type { Vec3 } from './vec.ts';
 
 interface Placement {
@@ -166,6 +168,14 @@ export function InsideObject(props: Placement) {
         />
         {mark('name', 'name')}
       </div>
+      <TagsField
+        of={object.name ?? object.id}
+        tags={object.tags ?? []}
+        known={projectTags(props.project.index?.flagsElsewhere?.tags)}
+        canEdit={base.canEdit}
+        write={(tags) => set('tags', [...tags], 'Tags')}
+      />
+      {mark('tags', 'tags')}
       <Triple
         legend="Place, in metres"
         value={t.at}

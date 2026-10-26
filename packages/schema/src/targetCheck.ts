@@ -24,6 +24,8 @@ interface QuestShape {
 }
 
 const ACTOR = 'actor';
+/** "a space", "an object": a slot's type with its article. */
+const aType = (type: string) => `${/^[aeiou]/.test(type) ? 'an' : 'a'} ${type}`;
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -31,7 +33,7 @@ function checkActor(actor: string, quest: QuestShape, at: string, ctx: TargetCon
   if (actor.startsWith('@')) {
     const slot = quest.slots?.find((s) => s.id === actor.slice(1));
     if (!slot) report('E086', at, `This quest has no slot "${actor.slice(1)}"`);
-    else if (slot.type !== ACTOR) report('E086', at, `The slot "${slot.id}" holds a ${slot.type}, not an actor`);
+    else if (slot.type !== ACTOR) report('E086', at, `The slot "${slot.id}" holds ${aType(slot.type)}, not an actor`);
     return;
   }
   if (!ctx.records.has(ACTOR, actor)) report('E086', at, `No actor "${actor}"`);
@@ -46,13 +48,13 @@ function checkPlaceSlots(quest: QuestShape, space: string, object: unknown, at: 
     const slot = slotOf(space);
     if (!slot) report('E086', `${at}/space`, `This quest has no slot "${space.slice(1)}"`);
     else if (slot.type !== 'space')
-      report('E086', `${at}/space`, `The slot "${slot.id}" holds a ${slot.type}, not a space`);
+      report('E086', `${at}/space`, `The slot "${slot.id}" holds ${aType(slot.type)}, not a space`);
   }
   if (typeof object === 'string' && object.startsWith('@')) {
     const slot = slotOf(object);
     if (!slot) report('E086', `${at}/object`, `This quest has no slot "${object.slice(1)}"`);
     else if (slot.type !== 'object')
-      report('E086', `${at}/object`, `The slot "${slot.id}" holds a ${slot.type}, not an object`);
+      report('E086', `${at}/object`, `The slot "${slot.id}" holds ${aType(slot.type)}, not an object`);
     else if (slot.in !== space)
       report('E086', `${at}/object`, `The slot "${slot.id}" is found in ${slot.in ?? 'no space'}, not ${space}`);
     return true;
