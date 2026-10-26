@@ -20,7 +20,7 @@ import {
   type TypeReport,
   UI_DIR,
 } from '@eb/compiler';
-import type { CalendarDef } from '@eb/core';
+import type { CalendarDef, PackFighting } from '@eb/core';
 import { DIALOGUE, TALK } from '@eb/kits';
 import {
   type DataType,
@@ -78,6 +78,8 @@ export interface Catalog {
   readonly kits: readonly string[];
   /** project.json's calendar, with the time kit on and the calendar sound (M3.5, D43). */
   readonly calendar?: CalendarDef;
+  /** project.json's fighting, with the fighting kit on and its shape sound (M6.4, D76): its names are the index's to check. */
+  readonly fighting?: PackFighting;
   /**
    * The problems with the project's files that aren't one record's (M2.8): project.json, types/,
    * files under records/ that aren't records, and the assets' log; files under scenes/ that aren't
@@ -172,6 +174,7 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
     recordTypes: known.types,
     kits: read.kits,
     ...(read.calendar ? { calendar: read.calendar } : {}),
+    ...(read.project?.fighting ? { fighting: read.project.fighting } : {}),
     problems: [...read.diagnostics, ...scenes.problems, ...ui.problems, ...spaces.problems, ...components.diagnostics],
   };
 }

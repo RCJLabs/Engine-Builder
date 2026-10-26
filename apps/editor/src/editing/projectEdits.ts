@@ -127,20 +127,35 @@ export async function calendarChange(
   return after === before ? [] : [{ path: MANIFEST_FILE, before, after }];
 }
 
-/**
- * The change `change` makes to project.json's clock (M6.3, D75), a clock left out read as an empty
- * one: one with nothing left in it is taken out, so an emptied Rate means the default again.
- */
-export async function clockChange(source: ProjectSource, change: (clock: unknown) => unknown): Promise<FileChange[]> {
+/** The change `change` makes to project.json's `key`, left out read as empty and taken out once emptied. */
+async function partChange(
+  source: ProjectSource,
+  key: string,
+  change: (part: unknown) => unknown,
+): Promise<FileChange[]> {
   const before = await source.read(MANIFEST_FILE);
   if (before === undefined) return [];
   const after = editJson(before, (manifest) => {
     if (!isObject(manifest)) return manifest;
-    const next = change(manifest.clock ?? {});
-    const { clock: _, ...rest } = manifest;
+    const next = change(manifest[key] ?? {});
+    const { [key]: _, ...rest } = manifest;
     return next === undefined || (isObject(next) && Object.keys(next).length === 0)
       ? rest
-      : { ...manifest, clock: next };
+      : { ...manifest, [key]: next };
   });
   return after === before ? [] : [{ path: MANIFEST_FILE, before, after }];
 }
+
+/**
+ * The change `change` makes to project.json's clock (M6.3, D75), a clock left out read as an empty
+ * one: one with nothing left in it is taken out, so an emptied Rate means the default again.
+ */
+export const clockChange = (source: ProjectSource, change: (clock: unknown) => unknown): Promise<FileChange[]> =>
+  partChange(source, 'clock', change);
+
+/**
+ * The change `change` makes to project.json's fighting (M6.4, D76): who the player is and the
+ * combat record a hit reads. Both emptied takes it out, which E082 names once the project has a space.
+ */
+export const fightingChange = (source: ProjectSource, change: (fighting: unknown) => unknown): Promise<FileChange[]> =>
+  partChange(source, 'fighting', change);
