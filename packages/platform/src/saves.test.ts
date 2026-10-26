@@ -88,6 +88,26 @@ describe('writing a slot', () => {
     expect(await store.keys('eb/')).toEqual([]);
   });
 
+  it('keeps a checkpoint beside the slot, with the space it was kept in, and removes it with the slot (M6.4)', async () => {
+    const { store, saves } = setup();
+    await saves.write('slot-1', saveOf(play('x', 5), 1));
+    expect(await saves.checkpointOf('slot-1')).toBeUndefined();
+    const kept = saveOf(play('y', 3), 2);
+    expect(await saves.keepCheckpoint('slot-1', kept, 'camp')).toEqual({ ok: true });
+    expect(await saves.checkpointOf('slot-1')).toEqual({ raw: JSON.stringify(kept), space: 'camp' });
+    // The slot's own save is untouched: the checkpoint is a key of its own.
+    expect(await savedAt(store, SLOT)).toBe(1);
+    await saves.keepCheckpoint('slot-1', saveOf(play('z', 2), 3));
+    expect(JSON.parse((await saves.checkpointOf('slot-1'))?.raw ?? 'null')?.savedAt).toBe(3);
+    expect((await saves.checkpointOf('slot-1'))?.space).toBeUndefined();
+    // A damaged save is refused, and the checkpoint already kept stays.
+    expect(await saves.keepCheckpoint('slot-1', { ...kept, savedAt: 9 })).toMatchObject({ ok: false });
+    expect(JSON.parse((await saves.checkpointOf('slot-1'))?.raw ?? 'null')?.savedAt).toBe(3);
+    await saves.remove('slot-1');
+    expect(await saves.checkpointOf('slot-1')).toBeUndefined();
+    expect(await store.keys('eb/')).toEqual([]);
+  });
+
   it('quarantines a damaged save before writing over it, and keeps it out of the backup', async () => {
     const { store, saves } = setup();
     await saves.write('slot-1', saveOf(play('x', 5), 1));

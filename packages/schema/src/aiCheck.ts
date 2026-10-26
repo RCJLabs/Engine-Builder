@@ -1,10 +1,11 @@
 /**
  * The ai kit's checks beyond its schema (M6.3, D75, docs/specs/ai.md#checks): E081 for a behaviour
  * that can't run for an actor using it, or with this calendar; W148 for one no actor uses. Run once
- * every record has been read, as the points are each actor's space's.
+ * every record has been read, as the points are each actor's space's. With M6.4 (D76), E081 for an
+ * attack with the fighting kit off, and W150 for an actor that attacks wearing no weapon.
  */
 import { type CalendarDef, calendarOf, pointerSegment } from '@eb/core';
-import { ACTOR, BEHAVIOUR, type BehaviourNode, childrenOf, kindOf } from '@eb/kits';
+import { ACTOR, BEHAVIOUR, type BehaviourNode, childrenOf, ITEM, kindOf } from '@eb/kits';
 import type { DiagnosticCode } from './diagnostics.ts';
 import type { Walkers } from './worldCheck.ts';
 
@@ -18,7 +19,9 @@ export interface Checked {
   readonly report: Report;
 }
 
-const WALKING = new Set(['travel', 'sleep', 'work', 'patrol', 'sandbox', 'follow']);
+const WALKING = new Set(['travel', 'sleep', 'work', 'patrol', 'sandbox', 'follow', 'attack']);
+/** Leaves whose one value names the player, not a point. */
+const PLAYERS = new Set(['follow', 'face', 'attack']);
 const LENGTHS = ['dwell', 'wait', 'cooldown'] as const;
 
 interface Node {
@@ -44,7 +47,7 @@ function nodesOf(root: BehaviourNode): Node[] {
 function pointsOf({ node, path }: Node): [string, string][] {
   const kind = kindOf(node) as string;
   const value = (node as Record<string, unknown>)[kind];
-  if (typeof value === 'string' && kind !== 'follow' && kind !== 'face') return [[value, `${path}/${kind}`]];
+  if (typeof value === 'string' && !PLAYERS.has(kind)) return [[value, `${path}/${kind}`]];
   if (Array.isArray(value) && (kind === 'patrol' || kind === 'sandbox'))
     return value.map((point, i) => [point as string, `${path}/${kind}/${i}`]);
   return [];
@@ -98,12 +101,44 @@ function checkCalendar({ node, path }: Node, calendar: CalendarDef, report: Repo
   });
 }
 
-/** E081 and W148 over every behaviour and the actors using them. */
+/** Whether the actor's record starts it wearing an item that is a weapon. */
+function armed(actor: Checked, items: ReadonlyMap<string, unknown>): boolean {
+  const wears = (actor.value as { wears?: Readonly<Record<string, unknown>> } | null)?.wears ?? {};
+  return Object.values(wears).some(
+    (item) => typeof item === 'string' && (items.get(item) as { weapon?: unknown } | undefined)?.weapon !== undefined,
+  );
+}
+
+/** E081 for an attack the kit can't run, and W150 for its actors who wear no weapon. */
+function checkAttacks(nodes: readonly Node[], using: readonly Checked[], behaviour: Checked, fighting: Fighting): void {
+  const attacks = nodes.filter(({ node }) => kindOf(node) === 'attack');
+  if (attacks.length === 0) return;
+  if (fighting.items === undefined) {
+    for (const { path } of attacks)
+      behaviour.report('E081', `${path}/attack`, 'An attack needs the fighting kit: turn it on in the Project panel');
+    return;
+  }
+  for (const actor of using)
+    if (!armed(actor, fighting.items))
+      actor.report('W150', '/behaviour', `"${actor.id}" attacks wearing no weapon, so it fights with its fists`);
+}
+
+/** The fighting kit's side: the items, by id, when it is on. */
+interface Fighting {
+  readonly items?: ReadonlyMap<string, unknown>;
+}
+
+/** E081, W148 and W150 over every behaviour and the actors using them. `fighting` says whether the kit is on. */
 export function checkBehaviours(
   records: readonly Checked[],
   calendar: CalendarDef | undefined,
   walkers?: Walkers,
+  fighting = false,
 ): void {
+  const kit: Fighting = fighting
+    ? { items: new Map(records.filter((r) => r.type === ITEM).map((r) => [r.id, r.value])) }
+    : {};
+  const actors = new Map(records.filter((r) => r.type === ACTOR).map((r) => [r.id, r]));
   const behaviours = records.filter((r) => r.type === BEHAVIOUR);
   const users = new Map<string, string[]>();
   for (const record of records) {
@@ -126,6 +161,12 @@ export function checkBehaviours(
     const using = users.get(behaviour.id) ?? [];
     if (using.length === 0)
       behaviour.report('W148', '', 'No actor has this behaviour: give it to one as its Behaviour');
+    checkAttacks(
+      nodes,
+      using.flatMap((id) => actors.get(id) ?? []),
+      behaviour,
+      kit,
+    );
     const said = new Set<string>();
     const once = (path: string, message: string) => {
       if (said.has(`${path} ${message}`)) return;

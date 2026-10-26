@@ -833,6 +833,33 @@ describe('the code table', () => {
       'W148 records/behaviour/night.json ',
       'E081 records/behaviour/night.json /do/wait/weeks',
     ]);
+    // M6.4: the fighting kit with a space and no fighting; one naming nothing; an attack with the
+    // kit off; a bandit who attacks with nothing worn; a sword given ammo.
+    const FIGHT_KITS = ['inventory', 'stats', 'gear', 'time', 'encounters', 'ai', 'fighting'];
+    const unsaid = await kitted(FIGHT_KITS, green, { calendar: { ticksPerDay: 1440 } });
+    const camp = {
+      ...green,
+      'records/actor/rook.json': '{ "name": "Rook", "behaviour": "bandit" }',
+      'records/behaviour/bandit.json': '{ "do": { "attack": "player" } }',
+      'records/item/sword.json': '{ "name": "Sword", "weapon": { "kind": "melee", "damage": 4, "ammo": "sword" } }',
+    };
+    const armed = await kitted(FIGHT_KITS, camp, {
+      calendar: { ticksPerDay: 1440 },
+      fighting: { player: 'hero', combat: 'blades' },
+    });
+    const { 'records/item/sword.json': _, ...bare } = camp;
+    const unarmed = await kitted(['stats', 'time', 'ai'], bare, { calendar: { ticksPerDay: 1440 } });
+    const said = [...unsaid.diagnostics, ...armed.diagnostics, ...unarmed.diagnostics];
+    expect(brief(said).map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'E082 project.json ',
+      'E082 project.json /fighting/combat',
+      'E082 project.json /fighting/player',
+      'E081 records/actor/rook.json /behaviour',
+      'W150 records/actor/rook.json /behaviour',
+      'W151 records/item/sword.json /weapon/ammo',
+      'E081 records/actor/rook.json /behaviour',
+      'E081 records/behaviour/bandit.json /do/attack',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -860,6 +887,9 @@ describe('the code table', () => {
       odd,
       still,
       behaved,
+      unsaid,
+      armed,
+      unarmed,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

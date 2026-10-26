@@ -9,14 +9,17 @@ import type { UiFile } from './uiCheck.ts';
 
 /**
  * W133: a mode the game has that no screen shows, so it plays with the fallback. A screen with
- * problems of its own still counts for the modes it names, so its E047 isn't joined by a W133.
+ * problems of its own still counts for the modes it names, so its E047 isn't joined by a W133. The
+ * fighting kit's fallen mode is the shell's to draw (M6.4): its Fallen screen covers the game's.
  */
+const SHELL_DRAWN = ['fallen'];
+
 export function unshownModes(screens: ReadonlyMap<string, UiFile>, modes: readonly string[], out: Diagnostic[]): void {
   const shows = ({ value }: UiFile) => {
     const named = typeof value === 'object' && value !== null ? (value as { shows?: unknown }).shows : undefined;
     return Array.isArray(named) ? named.filter((mode): mode is string => typeof mode === 'string') : [];
   };
-  const shown = new Set([...screens.values()].flatMap(shows));
+  const shown = new Set([...[...screens.values()].flatMap(shows), ...SHELL_DRAWN]);
   for (const mode of modes) {
     if (shown.has(mode)) continue;
     out.push({

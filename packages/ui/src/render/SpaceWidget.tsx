@@ -39,6 +39,7 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
       ...placing,
       here: () => latest.current?.space === space,
       clocked: () => latest.current?.space === space && latest.current.clock === true,
+      fight: () => (latest.current?.space === space ? latest.current.fight : undefined),
       send: (action) => send.current?.(action) ?? Promise.resolve('dropped'),
     });
     drawn.current = made;

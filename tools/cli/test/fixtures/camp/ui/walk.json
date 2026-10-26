@@ -1,0 +1,44 @@
+{
+  "title": "The camp",
+  "shows": ["out"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Health {stats.current(actor: hero, stat: health)} \u00b7 Arrows {inventory.count(item: arrow)} \u00b7 Coin {inventory.count(item: coin)}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Down {flag.number(flag: bandits-down)} of 3 \u00b7 Rook {stats.current(actor: rook, stat: health)} \u00b7 Crow {stats.current(actor: crow, stat: health)} \u00b7 Wren {stats.current(actor: wren, stat: health)}"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Take the bow",
+        "action": {
+          "take": "camp/bow"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Take the sword",
+        "action": {
+          "take": "camp/sword"
+        }
+      }
+    ]
+  }
+}

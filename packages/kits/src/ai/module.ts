@@ -2,9 +2,12 @@
  * The ai kit's module (M6.3, D75, docs/specs/ai.md): each placed actor with a behaviour runs it as
  * a new game starts and after every event, as the quests kit hears every event, setting the goals
  * the stage walks (D74); and the stage's ai/sensed keeps each NPC's awareness of the player. Built
- * with the calendar, whose `hours` unit and weekdays its guards read.
+ * with the calendar, whose `hours` unit and weekdays its guards read, and knowing whether the
+ * fighting kit is on, whose hits alert the NPC struck (M6.4, D76): a listener for an event no module
+ * declares is refused.
  */
 import {
+  type Beat,
   type Calendar,
   type CalendarDef,
   calendarOf,
@@ -25,6 +28,7 @@ import { runBehaviour } from './run.ts';
 import {
   AI,
   type AiSlice,
+  AWARE_MAX,
   BEHAVIOUR,
   type BehaviourNode,
   type BehaviourRecord,
@@ -88,16 +92,38 @@ function nowOf(ctx: Ctx, calendar: Calendar): Now {
   };
 }
 
-/** Every placed actor's behaviour run on. One placed nowhere has nothing to walk, and E081 keeps it from content. */
+/**
+ * Every placed actor's behaviour run on. One placed nowhere has nothing to walk, and E081 keeps it
+ * from content; one fallen runs nothing again, and what it was doing ends (M6.4).
+ */
 function runAll(ctx: Ctx, calendar: Calendar): void {
   const list = behaving(ctx.content);
   if (list.length === 0) return;
   const ai = aiOf(ctx, calendar);
   const now = nowOf(ctx, calendar);
-  for (const { actor, tree } of list) if (spaceOf(ctx, actor) !== undefined) runBehaviour(ai, actor, tree, now);
+  for (const { actor, tree } of list) {
+    if (spaceOf(ctx, actor) === undefined) continue;
+    if (ctx.fact('world.npc-down', { actor }) !== true) runBehaviour(ai, actor, tree, now);
+    else if (ai.npc(actor)?.leaf !== undefined) {
+      ai.save(actor, {});
+      ai.doing(actor, undefined);
+    }
+  }
 }
 
-export function aiModule(def: CalendarDef): Module {
+/** The fighting kit's hit: an NPC struck is alerted at once (docs/specs/combat.md#a-hit), and then all run on. */
+function struck(ctx: Ctx, calendar: Calendar, event: Beat): void {
+  const { on } = event as Beat & { on?: unknown };
+  if (typeof on === 'string' && behaving(ctx.content).some(({ actor }) => actor === on)) {
+    const aware = (ctx.write() as { aware: Record<string, number> }).aware;
+    const was = own(aware, on) ?? 0;
+    aware[on] = AWARE_MAX;
+    if (levelOf(was) !== levelOf(AWARE_MAX)) ctx.emit('aware', { actor: on, level: levelOf(AWARE_MAX) });
+  }
+  runAll(ctx, calendar);
+}
+
+export function aiModule(def: CalendarDef, fighting = false): Module {
   const calendar = calendarOf(def);
   return defineModule<AiSlice>({
     id: AI,
@@ -148,6 +174,7 @@ export function aiModule(def: CalendarDef): Module {
     on: {
       // Its own ai/doing changes nothing a behaviour reads; everything else might.
       'ai/doing': () => {},
+      ...(fighting ? { 'fighting/hit': (ctx: Ctx, event: Beat) => struck(ctx, calendar, event) } : {}),
       '*': (ctx) => runAll(ctx, calendar),
     },
   });

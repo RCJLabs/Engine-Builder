@@ -50,6 +50,11 @@ export const KIT_WORDS: Readonly<Record<string, { readonly name: string; readonl
     brings:
       'Behaviours for NPCs: what each does by the hour, as a tree of steps, and what it sees and hears of the player. Needs Stats and Time.',
   },
+  fighting: {
+    name: 'Fighting',
+    brings:
+      'Weapons on items, blows and arrows in a walked space, NPCs who fall and bodies to search. Needs Stats, Gear and Encounters.',
+  },
 };
 
 /** The boxes as asked (askedKits.ts). Undo or redo, which leave the history closed, drop every ask. */

@@ -4,6 +4,7 @@
  * the player page and an exported game are hosts. Without one, the box says where it is walked.
  */
 import type { Action } from '@eb/core';
+import type { FightView } from '../session/fighting.ts';
 
 /** What came of a trigger the stage sent: the sim took it, refused it, or it waited on a step and was never sent. */
 export type Sent = 'accepted' | 'refused' | 'dropped';
@@ -21,6 +22,9 @@ export interface NpcGoal {
   /** M6.3: the metres it keeps from the player it follows, or that it stands turned to them. */
   readonly follow?: number;
   readonly facing?: 'player';
+  /** M6.4 (D76): its turn among those sent to attack the player, and fallen. */
+  readonly fight?: number;
+  readonly down?: true;
 }
 
 /** Where the player stood, from a load (M5.9): the feet, and the way they faced in degrees. */
@@ -44,6 +48,8 @@ export interface SpaceAsk {
   here(): boolean;
   /** The game's clock runs as the space is walked now (M6.3, D75): the stage sends time/elapse. */
   clocked?(): boolean;
+  /** The fights as the sim has them now (M6.4, D76): none in a game without the fighting kit. */
+  fight?(): FightView | undefined;
   /** Sends `world/trigger`, `world/use` and `world/at` as the character walks, as a button's action is sent. */
   send(action: Action): Promise<Sent>;
 }

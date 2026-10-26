@@ -2,10 +2,10 @@
   "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts: the grove's glade with a box, framed on a 1280 x 900 desktop, orbited 50 degrees, every plant's model drawn.",
   "sizes": {
     "editor-start": {
-      "budget": 120269,
-      "reading": 114541,
-      "read": "2026-10-24",
-      "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own"
+      "budget": 126938,
+      "reading": 120893,
+      "read": "2026-10-26",
+      "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own; re-read at M6.4, whose fighting kit's type files and words the catalog reads at the start"
     },
     "scene-view": {
       "budget": 366784,

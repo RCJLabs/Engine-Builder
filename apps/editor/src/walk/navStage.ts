@@ -11,7 +11,7 @@ import type { NavWorld } from '../nav/lib.ts';
 import { FIGURE } from '../spaces/figureLook.ts';
 import { add, sub, times, type Vec3 } from '../spaces/vec.ts';
 import type { Intent } from './controls.ts';
-import { type CrowdNpc, createCrowdWalk, type WalkingNpc } from './crowdWalk.ts';
+import { type CrowdNpc, createCrowdWalk, type Keep, type WalkingNpc } from './crowdWalk.ts';
 import { objectPlaces } from './goals.ts';
 import type { LoadNav } from './host.ts';
 import { STEP } from './motion.ts';
@@ -63,7 +63,13 @@ export async function createNavStage(
   ask: SpaceAsk,
   outbox: Outbox,
   load: LoadNav | undefined,
-  to: { readonly walker: Walker; view(): WalkView; readonly begun?: ReadonlySet<string> },
+  to: {
+    readonly walker: Walker;
+    view(): WalkView;
+    readonly begun?: ReadonlySet<string>;
+    /** What a fighter keeps from the player (M6.4). */
+    keep?(actor: string): Keep;
+  },
 ): Promise<NavStage | null> {
   const packed = world.navmeshes?.[space.id];
   if (packed === undefined || !load) return null;
@@ -76,7 +82,7 @@ export async function createNavStage(
   const placedOf = new Map(npcs.map((n) => [n.path, n.placed]));
   // The objects built as the walk began (M6.3): their NPCs start where they stood, any other at its goal.
   const begun = (path: string) => to.begun?.has(path.split('/')[0] as string) ?? true;
-  const crowd = createCrowdWalk(nav, npcs, (path) => places.get(path), ask.npcs ?? {}, begun);
+  const crowd = createCrowdWalk(nav, npcs, (path) => places.get(path), ask.npcs ?? {}, begun, to.keep);
   const tell = createNpcTell(ask, outbox, (actor, goal) => crowd.heard(actor, goal));
   let tapped: TapPath | null = null;
   const turned = new Set<string>();

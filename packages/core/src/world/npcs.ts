@@ -5,6 +5,8 @@
  * anyone: it keeps the goals and hears the arrivals, so a save puts each NPC back where it stood.
  * M6.3 (D75, docs/specs/ai.md#the-world-module-at-version-4): `follow` sends one after the player and
  * `stand` stops it, turned to them or not; each replaces the others.
+ * M6.4 (D76, docs/specs/combat.md#an-npc-fighting): `attack` sends one at the player, the first two
+ * sent engaged and the rest circling, and `fall` puts one down for good.
  */
 import type { ModuleContext } from '../sim/module.ts';
 import type { Action, Effect } from '../sim/types.ts';
@@ -27,18 +29,20 @@ function stillOf(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effec
     goal: _goal,
     follow: _follow,
     facing: _facing,
+    fight: _fight,
     ...was
   } = own(npcs, actor as string) ?? {
     space: placed.space,
   };
-  return { npcs, actor: actor as string, was };
+  return { npcs, actor: actor as string, was, down: own(npcs, actor as string)?.down === true };
 }
 
 export function walkTo(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
   const { to } = effect as Effect & { to?: unknown };
-  const { npcs, actor, was } = stillOf(world, ctx, effect, 'walk-to');
+  const { npcs, actor, was, down } = stillOf(world, ctx, effect, 'walk-to');
   if (typeof to !== 'string' || to.length === 0)
     throw new Error(`walk-to: no object to walk to: ${JSON.stringify(to)}`);
+  if (down) return;
   const { arrived: _left, ...kept } = was;
   npcs[actor] = { ...kept, goal: to };
 }
@@ -50,7 +54,8 @@ export function follow(world: WorldData, ctx: ModuleContext<WorldSlice>, effect:
   const { distance = FOLLOW_M } = effect as Effect & { distance?: unknown };
   if (typeof distance !== 'number' || !Number.isFinite(distance) || distance <= 0)
     throw new Error(`follow: a distance is metres, more than 0: ${JSON.stringify(distance)}`);
-  const { npcs, actor, was } = stillOf(world, ctx, effect, 'follow');
+  const { npcs, actor, was, down } = stillOf(world, ctx, effect, 'follow');
+  if (down) return;
   const { arrived: _left, ...kept } = was;
   npcs[actor] = { ...kept, follow: cm(distance) };
 }
@@ -59,8 +64,39 @@ export function follow(world: WorldData, ctx: ModuleContext<WorldSlice>, effect:
 export function stand(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
   const { facing } = effect as Effect & { facing?: unknown };
   if (facing !== undefined && facing !== 'player') throw new Error(`stand: it faces only "player": ${facing}`);
-  const { npcs, actor, was } = stillOf(world, ctx, effect, 'stand');
+  const { npcs, actor, was, down } = stillOf(world, ctx, effect, 'stand');
+  if (down) return;
   npcs[actor] = { ...was, ...(facing === 'player' ? { facing } : {}) };
+}
+
+/** How many NPCs fight the player at once (D76); the rest circle until one falls or is sent elsewhere. */
+export const ENGAGED_MOST = 2;
+
+/** Sends it at the player, at the back of the queue; one fighting already keeps its turn. */
+export function attack(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { npcs, actor, was, down } = stillOf(world, ctx, effect, 'attack');
+  if (down) return;
+  const kept = own(npcs, actor)?.fight;
+  const last = Object.values(npcs).reduce((most, npc) => Math.max(most, npc.fight ?? 0), 0);
+  const { arrived: _left, ...rest } = was;
+  npcs[actor] = { ...rest, fight: kept ?? last + 1 };
+}
+
+/** Puts it down where it stands, its goals cleared: every goal effect after leaves it there. */
+export function fall(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { npcs, actor, was } = stillOf(world, ctx, effect, 'fall');
+  npcs[actor] = { ...was, down: true };
+}
+
+/** Whether the NPC is one of the first ENGAGED_MOST of those fighting, by turn and then by id. */
+export function engaged(npcs: Readonly<Record<string, Pick<NpcPlace, 'fight' | 'down'>>>, actor: string): boolean {
+  const turn = own(npcs, actor)?.fight;
+  if (turn === undefined) return false;
+  const ahead = Object.entries(npcs).filter(
+    ([other, npc]) =>
+      npc.fight !== undefined && npc.down !== true && (npc.fight < turn || (npc.fight === turn && other < actor)),
+  );
+  return ahead.length < ENGAGED_MOST;
 }
 
 /** To the centimetre and the tenth of a degree, as world/at keeps the player's. */

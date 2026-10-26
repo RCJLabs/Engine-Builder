@@ -156,6 +156,17 @@ describe('eb with the village', () => {
     expect((resumed.play.state.world as { npcs: Record<string, Npc> }).npcs.guard?.goal).toBe('wall-se');
     expect(resumed.play.view.facts['ai.doing(actor: guard)']).toBe('patrol');
   });
+
+  it('loads a save made by the world module’s version 4 (M6.4), the guard facing the player as it was', async () => {
+    const open = await opened();
+    const raw = await readFile(resolve(import.meta.dirname, 'fixtures/saves/village-world-v4.json'), 'utf8');
+    const resumed = resumeFrom(open, raw);
+    if (!resumed.ok) throw new Error(resumed.message);
+    expect(resumed.report.migrated).toEqual([{ module: 'world', from: 4, to: 5 }]);
+    const npcs = (resumed.play.state.world as { npcs: Record<string, Npc> }).npcs;
+    expect(npcs.guard).toMatchObject({ facing: 'player' });
+    expect(resumed.play.view.facts['ai.level(actor: guard)']).toBe('suspicious');
+  });
 });
 
 describe('the village broken', () => {

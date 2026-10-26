@@ -1,5 +1,14 @@
-import { type CalendarDef, calendarOf, MAX_RATE, msPerTickAt, type PackProject, RECORD_ID_PATTERN } from '@eb/core';
-import { kitsOn, TIME } from '@eb/kits';
+import {
+  type CalendarDef,
+  calendarOf,
+  isRecordId,
+  MAX_RATE,
+  msPerTickAt,
+  type PackFighting,
+  type PackProject,
+  RECORD_ID_PATTERN,
+} from '@eb/core';
+import { FIGHTING, kitsOn, TIME } from '@eb/kits';
 import { calendarSchema, type SchemaIssue, schemaIssues, z } from '@eb/schema';
 
 /**
@@ -13,8 +22,8 @@ export const PROJECT_FORMAT = 1;
 const VERSION = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 /**
- * project.json, format 1. `kits` (M3.3, D41), `calendar` (M3.5, D43), `start-space` (M5.9, D71) and `clock` (M6.3, D75)
- * need no new format: a project without them reads as before. Kits' ids are checked beyond the schema (E033, E034), and
+ * project.json, format 1. `kits` (M3.3, D41), `calendar` (M3.5, D43), `start-space` (M5.9, D71), `clock` (M6.3, D75)
+ * and `fighting` (M6.4, D76) need no new format: a project without them reads as before. Kits' ids are checked beyond the schema (E033, E034), and
  * a calendar's sense too (E038), so neither stops the project being read.
  */
 export const projectSchema = z.strictObject({
@@ -29,12 +38,14 @@ export const projectSchema = z.strictObject({
   calendar: z.unknown().optional(),
   // Checked apart (E080), as the calendar is: the clock while walking (M6.3, D75).
   clock: z.unknown().optional(),
+  // Checked apart (E082): who the player is and the combat record a walked space's fights read (M6.4, D76).
+  fighting: z.unknown().optional(),
   // The space a game of two or more starts in (M5.9): checked against the spaces once they are read (E075).
   'start-space': z.string().regex(RECORD_ID_PATTERN, { error: "Not a valid space id: use its file's name" }).optional(),
 });
 
 export interface ManifestProblem extends SchemaIssue {
-  readonly code: 'E008' | 'E009' | 'E033' | 'E034' | 'E038' | 'E080' | 'W116';
+  readonly code: 'E008' | 'E009' | 'E033' | 'E034' | 'E038' | 'E080' | 'E082' | 'W116';
 }
 
 /**
@@ -95,15 +106,40 @@ function clockFor(
 }
 
 /**
+ * project.json's fighting as given, when its shape is sound, or E082: the fighting kit off, or not
+ * `{ "player": <actor>, "combat": <combat> }`. Whether they name records waits for the records, and
+ * whether a project with a space needs one waits for its spaces.
+ */
+function fightingFor(given: unknown, on: readonly string[]): { fighting?: PackFighting; problems: ManifestProblem[] } {
+  if (given === undefined) return { problems: [] };
+  const fail = (path: string, message: string) => ({ problems: [{ code: 'E082' as const, path, message }] });
+  if (!on.includes(FIGHTING))
+    return fail('/fighting', "This is the fighting kit's, which project.json doesn't turn on");
+  const shape = 'Fighting is { "player": the player\'s actor, "combat": the combat record a hit reads }';
+  if (typeof given !== 'object' || given === null || Array.isArray(given)) return fail('/fighting', shape);
+  const { player, combat, ...extra } = given as Record<string, unknown>;
+  if (Object.keys(extra).length > 0) return fail('/fighting', shape);
+  for (const [key, value] of [
+    ['player', player],
+    ['combat', combat],
+  ] as const)
+    if (!isRecordId(value))
+      return fail(`/fighting/${key}`, `Name the ${key === 'player' ? 'actor' : 'combat record'} by its id`);
+  return { fighting: { player: player as string, combat: combat as string }, problems: [] };
+}
+
+/**
  * The project's id, name, version and the kits on, in the engine's order, or the problems that
  * stop project.json being read. A kit's problems don't stop it: that kit is off. `clockRate` is
- * project.json's clock when it gives one: its rate when sound, null when E080 refused it.
+ * project.json's clock when it gives one: its rate when sound, null when E080 refused it; `fighting`
+ * likewise, null when E082 refused it.
  */
 export function checkManifest(value: unknown): {
   project: PackProject | null;
   problems: ManifestProblem[];
   startSpace?: string;
   clockRate?: number | null;
+  fighting?: PackFighting | null;
 } {
   const format = typeof value === 'object' && value !== null ? (value as { format?: unknown }).format : undefined;
   if (typeof format === 'number' && Number.isInteger(format) && format > PROJECT_FORMAT) {
@@ -119,6 +155,7 @@ export function checkManifest(value: unknown): {
     kits = [],
     calendar,
     clock,
+    fighting,
     'start-space': startSpace,
   } = value as z.infer<typeof projectSchema>;
   const { on, problems } = kitsOn(kits);
@@ -129,11 +166,20 @@ export function checkManifest(value: unknown): {
   }));
   const timed = calendarFor(calendar, on);
   const clocked = clockFor(clock, on, timed.calendar);
-  const kitted = { id, name, version, kits: on, ...(timed.calendar ? { calendar: timed.calendar } : {}) };
+  const fought = fightingFor(fighting, on);
+  const kitted = {
+    id,
+    name,
+    version,
+    kits: on,
+    ...(timed.calendar ? { calendar: timed.calendar } : {}),
+    ...(fought.fighting ? { fighting: fought.fighting } : {}),
+  };
   return {
     project: on.length > 0 ? kitted : { id, name, version },
-    problems: [...listed, ...timed.problems, ...clocked.problems],
+    problems: [...listed, ...timed.problems, ...clocked.problems, ...fought.problems],
     ...(startSpace !== undefined ? { startSpace } : {}),
     ...(clock !== undefined ? { clockRate: clocked.rate ?? null } : {}),
+    ...(fighting !== undefined ? { fighting: fought.fighting ?? null } : {}),
   };
 }

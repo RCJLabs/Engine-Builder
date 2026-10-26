@@ -77,6 +77,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     pack.project.calendar,
     pack.world ? worldDataOf(pack.world) : undefined,
     pack.project.clock,
+    pack.project.fighting,
   );
   if (!loaded.ok) return { ok: false, message: `The game didn’t load: ${loaded.problem.message}` };
   const { modules, start } = loaded.game;
@@ -100,6 +101,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     wants,
     ...(feedback ? { feedback } : {}),
     ...(pack.credits ? { credits: pack.credits } : {}),
+    ...(pack.project.fighting && pack.world ? { fighting: pack.project.fighting } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
   return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio, debug } };

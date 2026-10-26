@@ -44,7 +44,7 @@ beforeAll(async () => {
   moor = walkSpace(world, 'moor') as WalkSpace;
 }, 60_000);
 
-const STILL: Intent = { move: [0, 0], run: false, jump: false, use: false, look: [0, 0] };
+const STILL: Intent = { move: [0, 0], run: false, jump: false, use: false, attack: false, look: [0, 0] };
 const VIEW = 250;
 
 /** The moor as the stage starts it: the ring around the spawn built first, its solids in the walker. */

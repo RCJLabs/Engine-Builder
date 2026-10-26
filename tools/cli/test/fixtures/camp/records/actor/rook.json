@@ -1,0 +1,27 @@
+{
+  "name": "Rook",
+  "stats": {
+    "health": 6,
+    "armour": 1
+  },
+  "wears": {
+    "hand": "sword"
+  },
+  "behaviour": "bandit",
+  "carries": {
+    "coin": 3
+  },
+  "drops": "purse",
+  "figure": {
+    "clothes": "#6a3a3a",
+    "trim": "#2a2a2a",
+    "skin": "#c09070"
+  },
+  "on-fall": [
+    {
+      "effect": "add-to-flag",
+      "flag": "bandits-down",
+      "by": 1
+    }
+  ]
+}

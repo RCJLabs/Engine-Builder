@@ -1,0 +1,97 @@
+{
+  "name": "The camp",
+  "objects": [
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [40, 0.2, 40],
+      "color": "#6f7a4f",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "tent",
+      "name": "Tent",
+      "shape": "box",
+      "at": [-9, 0, -9],
+      "scale": [3, 2.2, 3],
+      "color": "#8a7a5a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "fire",
+      "name": "Fire",
+      "shape": "box",
+      "at": [0, 0, -5],
+      "scale": [1, 0.4, 1],
+      "color": "#6a3a2a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "log",
+      "name": "Log",
+      "shape": "box",
+      "at": [4, 0, -9],
+      "scale": [2.5, 0.5, 0.6],
+      "color": "#5a4a3a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "start",
+      "name": "Where the hero comes in",
+      "shape": "box",
+      "at": [0, 0, 10],
+      "turn": [0, 0, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "tent-door",
+      "name": "By the tent's door",
+      "shape": "box",
+      "at": [-6.5, 0, -6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "fire-side",
+      "name": "By the fire",
+      "shape": "box",
+      "at": [3, 0, -3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9"
+    },
+    {
+      "id": "rook",
+      "name": "Rook",
+      "record": "actor:rook",
+      "at": [-2, 0, -4]
+    },
+    {
+      "id": "crow",
+      "name": "Crow",
+      "record": "actor:crow",
+      "at": [2, 0, -6]
+    },
+    {
+      "id": "wren",
+      "name": "Wren",
+      "record": "actor:wren",
+      "at": [0, 0, -11]
+    }
+  ]
+}

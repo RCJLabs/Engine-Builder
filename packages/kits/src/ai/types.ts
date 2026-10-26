@@ -35,7 +35,9 @@ export type BehaviourNode =
   | { readonly follow: 'player'; readonly distance?: number }
   | { readonly wait: Length }
   | { readonly face: 'player' }
-  | { readonly effects: readonly Effect[] };
+  | { readonly effects: readonly Effect[] }
+  // With the fighting kit on (M6.4, D76): the world module's fight, while it holds.
+  | { readonly attack: 'player' };
 
 export interface BehaviourRecord {
   readonly name?: string;
@@ -44,7 +46,18 @@ export interface BehaviourRecord {
 }
 
 /** The leaves, the packages and three actions: what `ai.doing` says an NPC is doing. */
-export const LEAVES = ['travel', 'sleep', 'work', 'patrol', 'sandbox', 'follow', 'wait', 'face', 'effects'] as const;
+export const LEAVES = [
+  'travel',
+  'sleep',
+  'work',
+  'patrol',
+  'sandbox',
+  'follow',
+  'wait',
+  'face',
+  'effects',
+  'attack',
+] as const;
 export type Leaf = (typeof LEAVES)[number];
 
 /** Leaves that walk to one point and stay there. */

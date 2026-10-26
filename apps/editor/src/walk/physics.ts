@@ -13,6 +13,13 @@ import { isTaken, type Solid, type Spawn } from './solids.ts';
 export type Rapier = typeof RAPIER_NS;
 
 export const BODY = { height: 1.8, radius: 0.35 } as const;
+
+/** What a cast met, `toi` metres along: an NPC's body, the player's, or a solid. */
+export interface Cast {
+  readonly toi: number;
+  readonly npc?: string;
+  readonly player?: true;
+}
 export const SLOPE = 40;
 export const STEP_UP = 0.35;
 export const SNAP = 0.4;
@@ -49,6 +56,13 @@ export interface Walker {
   add(solids: readonly Solid[]): void;
   /** An NPC's solid moved by `shift` from where it was placed (M6.2), as its agent walks. */
   npcAt(path: string, shift: Vec3): void;
+  /**
+   * What a ray meets (M6.4): an NPC's body by its path, the player's, or a solid. `except` is the
+   * NPC that looses or swings, left out, or null for the player.
+   */
+  cast(from: Vec3, dir: Vec3, most: number, except: string | null): Cast | null;
+  /** An NPC fallen (M6.4): its body taken out of the way, so the walk and arrows pass over it. */
+  fell(path: string): void;
   /** The solids of these top-level objects, taken down with their cells. */
   drop(tops: ReadonlySet<string>): void;
   /** How many bodies the world holds, the character's left out. */
@@ -134,12 +148,17 @@ export function createWalker(
   let bodies: { path: string; body: RAPIER_NS.RigidBody }[] = [];
   /** Each NPC's body by path, with where it was placed: the crowd's moves are from there. */
   const npcs = new Map<string, { body: RAPIER_NS.RigidBody; from: Vec3 }>();
+  /** Each NPC's path by its body's handle, for what a cast met. */
+  const npcBodies = new Map<number, string>();
   const add = (solids: readonly Solid[]) => {
     for (const solid of solids) {
       const body = addSolid(rapier, world, solid);
       if (body) bodies.push({ path: solid.path, body });
       if (body && solid.moves) moving.push({ path: solid.path, body });
-      if (body && solid.npc && solid.kind !== 'hull') npcs.set(solid.path, { body, from: solid.center });
+      if (body && solid.npc && solid.kind !== 'hull') {
+        npcs.set(solid.path, { body, from: solid.center });
+        npcBodies.set(body.handle, solid.path);
+      }
     }
   };
   /** Takes out the bodies `gone` says of: from the world, and from the lists. */
@@ -147,7 +166,11 @@ export function createWalker(
     for (const { path, body } of bodies) if (gone(path)) world.removeRigidBody(body);
     bodies = bodies.filter((b) => !gone(b.path));
     moving = moving.filter((m) => !gone(m.path));
-    for (const path of [...npcs.keys()]) if (gone(path)) npcs.delete(path);
+    for (const [path, npc] of [...npcs]) {
+      if (!gone(path)) continue;
+      npcs.delete(path);
+      npcBodies.delete(npc.body.handle);
+    }
   };
   add(parts.solids);
   const half = BODY.height / 2 - BODY.radius;
@@ -247,6 +270,22 @@ export function createWalker(
     },
     drop(tops) {
       if (tops.size > 0) takeOut((path) => tops.has(topOf(path)));
+    },
+    cast(from, dir, most, except) {
+      const ray = new rapier.Ray({ x: from[0], y: from[1], z: from[2] }, { x: dir[0], y: dir[1], z: dir[2] });
+      const shooter = except === null ? undefined : npcs.get(except)?.body;
+      const hit =
+        except === null
+          ? world.castRay(ray, most, true, undefined, undefined, capsule, character)
+          : world.castRay(ray, most, true, undefined, undefined, undefined, shooter);
+      if (!hit) return null;
+      if (hit.collider.handle === capsule.handle) return { toi: hit.timeOfImpact, player: true };
+      const parent = hit.collider.parent();
+      const npc = parent ? npcBodies.get(parent.handle) : undefined;
+      return npc === undefined ? { toi: hit.timeOfImpact } : { toi: hit.timeOfImpact, npc };
+    },
+    fell(path) {
+      takeOut((p) => p === path);
     },
     bodies: () => bodies.length,
     teleport(at) {

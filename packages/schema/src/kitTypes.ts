@@ -18,6 +18,7 @@ import {
   EVENTS,
   FACTION,
   FACTIONS,
+  FIGHTING,
   GEAR,
   HALL,
   INVENTORY,
@@ -45,6 +46,7 @@ import { SPEAKER_TYPE_FILE, talkTypeFile } from './dialogueTypes.ts';
 import { COMBAT_TYPE_FILE, ENCOUNTER_TYPE_FILE } from './encounterTypes.ts';
 import { DECK_TYPE_FILE, eventTypeFile } from './eventTypes.ts';
 import { FACTION_SHOP_FIELDS, FACTION_TYPE_FILE } from './factionTypes.ts';
+import { WEAPON_FIELDS } from './fightingTypes.ts';
 import { DESCRIPTION, NAME, TAGS } from './kitFields.ts';
 import { mapTypeFile, NODE_KIND_TYPE_FILE } from './mapTypes.ts';
 import { QUEST_TYPE_FILE } from './questTypes.ts';
@@ -230,6 +232,11 @@ export const SHOP_TYPE_FILE: TypeFile = {
 
 /** An item that can be worn, with the gear kit on (M3.4). */
 const WORN_ITEM_TYPE_FILE: TypeFile = { ...ITEM_TYPE_FILE, fields: { ...ITEM_TYPE_FILE.fields, ...WORN_ITEM_FIELDS } };
+/** One that can be a weapon too, with the fighting kit on (M6.4), which needs the gear kit. */
+const WEAPON_ITEM_TYPE_FILE: TypeFile = {
+  ...WORN_ITEM_TYPE_FILE,
+  fields: { ...WORN_ITEM_TYPE_FILE.fields, ...WEAPON_FIELDS },
+};
 
 /** A shop that may name a faction, with the factions kit on (M3.5). */
 const FACTION_SHOP_TYPE_FILE: TypeFile = {
@@ -244,7 +251,7 @@ const FACTION_SHOP_TYPE_FILE: TypeFile = {
  */
 const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Record<string, TypeFile>>>> = {
   [INVENTORY]: (on) => ({
-    [ITEM]: on.includes(GEAR) ? WORN_ITEM_TYPE_FILE : ITEM_TYPE_FILE,
+    [ITEM]: on.includes(FIGHTING) ? WEAPON_ITEM_TYPE_FILE : on.includes(GEAR) ? WORN_ITEM_TYPE_FILE : ITEM_TYPE_FILE,
     [LOOT_TABLE]: lootTableFile(on.includes(ECONOMY)),
   }),
   [ECONOMY]: (on) => ({

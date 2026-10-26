@@ -18,7 +18,10 @@ export const forwardOf = (yaw: number): [number, number] => {
   return [-Math.sin(r), -Math.cos(r)];
 };
 
-/** The use the player faces, or none: the nearest in reach and in the cone. */
+/**
+ * The use the player faces, or none: the nearest in reach and in the cone, one with something to
+ * come of it before one spent, so a body searched never hides another beside it (M6.4).
+ */
 export function facing(
   uses: readonly UsePoint[],
   feet: Vec3,
@@ -28,7 +31,7 @@ export function facing(
   const middle: Vec3 = [feet[0], feet[1] + BODY.height / 2, feet[2]];
   const [fx, fz] = forwardOf(yaw);
   const cos = Math.cos((CONE * Math.PI) / 180);
-  let best: { use: UsePoint; d: number } | undefined;
+  let best: { use: UsePoint; d: number; spent: boolean } | undefined;
   for (const use of uses) {
     const [dx, dy, dz] = [use.center[0] - middle[0], use.center[1] - middle[1], use.center[2] - middle[2]];
     const d = Math.hypot(dx, dy, dz);
@@ -36,7 +39,8 @@ export function facing(
     const across = Math.hypot(dx, dz);
     // Right above or below the middle, it is faced whichever way the player turns.
     if (across > 0.05 && (dx * fx + dz * fz) / across < cos) continue;
-    if (!best || d < best.d) best = { use, d };
+    const spent = use.spent === true;
+    if (!best || (spent === best.spent ? d < best.d : !spent)) best = { use, d, spent };
   }
   return best?.use;
 }

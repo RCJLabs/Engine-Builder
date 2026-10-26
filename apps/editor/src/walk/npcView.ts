@@ -2,7 +2,9 @@
  * The NPCs in the walk's view (M6.1, D73, docs/specs/npcs.md#talking): which built objects are placed
  * actors, each turned to face the player as its Talk is used and back once the walk goes on, and
  * what the hook says of them. The turns are facing.ts's arithmetic, laid on the nodes here. Since
- * M6.2 (D74) an NPC the crowd walks is put where its agent is, facing the way it walks.
+ * M6.2 (D74) an NPC the crowd walks is put where its agent is, facing the way it walks. Since M6.4
+ * (D76) a fighter leans back as it winds up and forward as it strikes, the tell a player reads, and
+ * one fallen lies on its back where it fell.
  */
 import { eachPlaced } from '@eb/compiler';
 import * as THREE from 'three/webgpu';
@@ -24,6 +26,10 @@ export interface NpcSeen {
 const UP = new THREE.Vector3(0, 1, 0);
 const DEG = Math.PI / 180;
 
+export type Pose = 'stand' | 'windup' | 'strike' | 'down';
+/** Degrees about the NPC's own x: back is positive, so a figure lies face up at 90. */
+const POSE_DEG: Readonly<Record<Pose, number>> = { stand: 0, windup: 15, strike: -20, down: 90 };
+
 export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
   const npcs = new Map<string, { actor: string }>();
   for (const object of space.space.objects) {
@@ -41,6 +47,7 @@ export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
     return figure ? 'figure' : 'model';
   };
   const facing = createFacing();
+  const poses = new Map<string, Pose>();
   // Each NPC's yaw as placed, read the first time it is seen, before anything turns it.
   const placed = new Map<string, number>();
   const ahead = new THREE.Vector3();
@@ -86,6 +93,16 @@ export function createNpcView(space: WalkSpace, root: () => THREE.Object3D) {
       node.getWorldPosition(at);
       facing.face(path, now, from, yawOf(node), yawToward([at.x, at.y, at.z], feet));
     },
+    /** Its pose, laid on what it draws as: each part tipped about its own feet. */
+    pose(path: string, pose: Pose): void {
+      if ((poses.get(path) ?? 'stand') === pose) return;
+      const node = npcs.has(path) ? nodeAt(root(), path) : undefined;
+      if (!node) return;
+      poses.set(path, pose);
+      for (const part of node.children) part.rotation.x = POSE_DEG[pose] * DEG;
+      node.updateMatrixWorld(true);
+    },
+    poseOf: (path: string): Pose => poses.get(path) ?? 'stand',
     back: (now: number) => facing.back(now),
     turning: (now: number) => facing.turning(now),
     /** Lays this frame's turn on its node: about the world's up, so the NPC stays upright. */

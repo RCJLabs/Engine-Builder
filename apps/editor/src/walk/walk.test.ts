@@ -41,7 +41,7 @@ beforeAll(async () => {
   world = compiled.pack.world;
 }, 30_000);
 
-const STILL: Intent = { move: [0, 0], run: false, jump: false, use: false, look: [0, 0] };
+const STILL: Intent = { move: [0, 0], run: false, jump: false, use: false, attack: false, look: [0, 0] };
 const forward = (more: Partial<Intent> = {}): Intent => ({ ...STILL, move: [0, 1], ...more });
 
 function trail(name = 'trailhead') {

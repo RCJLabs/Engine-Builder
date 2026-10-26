@@ -1,7 +1,8 @@
 /**
  * What a behaviour's run reads and changes, apart from the module so it tests without a game: the
  * NPC's run in the slice, where the world module says it last arrived, its stream, effects; and the
- * goals it gives the world module (walk-to, follow, stand), which the stage walks (D74, D75).
+ * goals it gives the world module (walk-to, follow, stand, and attack since M6.4), which the stage
+ * walks (D74, D75, D76).
  */
 import type { Effect } from '@eb/core';
 import type { AiNpc, Leaf } from './types.ts';
@@ -26,5 +27,6 @@ export function goals(ai: Ai, actor: string) {
     follow: (distance?: number) =>
       ai.apply({ effect: 'follow', actor, ...(distance !== undefined ? { distance } : {}) }),
     stand: (facing = false) => ai.apply({ effect: 'stand', actor, ...(facing ? { facing: 'player' } : {}) }),
+    attack: () => ai.apply({ effect: 'attack', actor }),
   };
 }

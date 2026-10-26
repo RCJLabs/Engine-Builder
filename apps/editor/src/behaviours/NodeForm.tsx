@@ -13,13 +13,11 @@ import { pointerOf, useForm } from '../forms/formContext.ts';
 import { labelOf } from '../forms/labels.ts';
 import type { Path } from '../forms/values.ts';
 import { type NodeSettings, nodeFields } from './nodeFields.ts';
-import { KIND_WORDS } from './nodeWords.ts';
+import { KIND_WORDS, kindsFor } from './nodeWords.ts';
 import { asKind, type OutlineRow, type Start } from './outline.ts';
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
-
-export const KINDS = Object.keys(KIND_WORDS) as NodeKind[];
 
 interface Props {
   readonly row: OutlineRow;
@@ -42,7 +40,7 @@ export function NodeForm({ row, settings, start, change }: Props) {
           {problem.message}
         </p>
       ))}
-      <KindPick key={row.path} row={row} start={start} change={change} />
+      <KindPick key={row.path} row={row} settings={settings} start={start} change={change} />
       {row.kind === 'guard' ? <HoursField path={[...row.at, 'hours']} value={node.hours} /> : null}
       {row.kind
         ? Object.entries(nodeFields(row.kind, settings)).map(([name, def]) => (
@@ -60,7 +58,7 @@ export function NodeForm({ row, settings, start, change }: Props) {
   );
 }
 
-function KindPick({ row, start, change }: Pick<Props, 'row' | 'start' | 'change'>) {
+function KindPick({ row, start, change, settings }: Props) {
   const form = useForm();
   const id = useUniqueId();
   const [kind, setKind] = useState<NodeKind>(row.kind ?? 'wait');
@@ -75,7 +73,7 @@ function KindPick({ row, start, change }: Pick<Props, 'row' | 'start' | 'change'
           disabled={!form.canEdit}
           onChange={(event) => setKind(event.currentTarget.value as NodeKind)}
         >
-          {KINDS.map((each) => (
+          {(settings.kinds ?? kindsFor(false)).map((each) => (
             <option key={each} value={each}>
               {KIND_WORDS[each]}
             </option>

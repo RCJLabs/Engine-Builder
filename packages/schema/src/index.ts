@@ -78,6 +78,13 @@ export {
   WEATHERS,
   type Weather,
 } from './environmentTypes.ts';
+export {
+  checkFightingNames,
+  checkWeapon,
+  FALLING_FIELDS,
+  type FightingProblem,
+  WEAPON_FIELDS,
+} from './fightingTypes.ts';
 export type { FlagUses, HeldElsewhere } from './flagCheck.ts';
 export {
   checkFoliage,

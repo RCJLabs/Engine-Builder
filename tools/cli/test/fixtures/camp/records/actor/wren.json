@@ -1,0 +1,23 @@
+{
+  "name": "Wren",
+  "stats": {
+    "health": 10
+  },
+  "wears": {
+    "hand": "bow"
+  },
+  "behaviour": "bandit",
+  "figure": {
+    "height": 1.65,
+    "clothes": "#4a5a3a",
+    "trim": "#6a3a3a",
+    "skin": "#d0a080"
+  },
+  "on-fall": [
+    {
+      "effect": "add-to-flag",
+      "flag": "bandits-down",
+      "by": 1
+    }
+  ]
+}

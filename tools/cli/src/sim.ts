@@ -47,7 +47,8 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   // The kits the project lists join a --game module's game as they join a project's own (D41),
   // unless it names them; a project game's already have.
   const project = await readKitSettings(source);
-  const kits = kitModules(project.kits, project.calendar, project.clock).filter(
+  const fighting = project.spaces ? project.fighting : undefined;
+  const kits = kitModules(project.kits, project.calendar, project.clock, fighting).filter(
     (kit) => !loaded.modules.some((m) => m.id === kit.id),
   );
   // No bot walks (movement.md, open question 2), so the checks need only the module's names; a game's

@@ -1,0 +1,22 @@
+{
+  "name": "A bandit's day",
+  "description": "Wanders the camp until alerted, and then attacks.",
+  "do": {
+    "first": [
+      {
+        "if": "ai.level(actor: @self) == alerted",
+        "do": {
+          "attack": "player"
+        }
+      },
+      {
+        "do": {
+          "sandbox": ["tent-door", "fire-side"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

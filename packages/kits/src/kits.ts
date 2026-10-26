@@ -10,6 +10,7 @@ import { ECONOMY } from './economy/types.ts';
 import { ENCOUNTERS } from './encounters/types.ts';
 import { EVENTS } from './events/types.ts';
 import { FACTIONS } from './factions/types.ts';
+import { FIGHTING } from './fighting/types.ts';
 import { GEAR } from './gear/types.ts';
 import { INVENTORY } from './inventory/types.ts';
 import { MAPS } from './maps/types.ts';
@@ -39,6 +40,8 @@ export const KITS: readonly Kit[] = Object.freeze([
   { id: ENCOUNTERS, needs: [STATS] },
   // Actors are the stats kit's; schedules are hours (M6.3, D75).
   { id: AI, needs: [STATS, TIME] },
+  // Health is a pool, weapons are worn and the combat record names the stats a hit reads (M6.4, D76).
+  { id: FIGHTING, needs: [STATS, GEAR, ENCOUNTERS] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));

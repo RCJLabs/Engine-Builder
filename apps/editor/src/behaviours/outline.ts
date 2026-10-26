@@ -199,6 +199,7 @@ export function newNode(kind: NodeKind, start: Start): unknown {
       return { sandbox: [start.point], dwell: length };
     case 'follow':
     case 'face':
+    case 'attack':
       return { [kind]: 'player' };
     case 'wait':
       return { wait: length };

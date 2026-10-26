@@ -9,8 +9,9 @@
  * and talks; M3.8, docs/specs/dialogue.md) and the quests kit (stages, objectives, the journal;
  * M3.9, docs/specs/quests.md), the maps kit (layered and drawn maps, travel; M4.6,
  * docs/specs/maps.md), the encounters kit (fights worked out exactly and rolled once; M4.7,
- * docs/specs/encounters.md), and the ai kit (behaviours, schedules and awareness; M6.3,
- * docs/specs/ai.md). Their record types and checks are in @eb/schema.
+ * docs/specs/encounters.md), the ai kit (behaviours, schedules and awareness; M6.3,
+ * docs/specs/ai.md), and the fighting kit (weapons, hits, falls and bodies in a walked space; M6.4,
+ * docs/specs/combat.md). Their record types and checks are in @eb/schema.
  */
 export * from './ai/index.ts';
 export { goesOnTo, leadsFrom, stepsFrom } from './dialogue/graph.ts';
@@ -126,6 +127,7 @@ export {
 export { factionsKit } from './factions/module.ts';
 export { bandOf, priceOf, reached, standingOf, startOf, within } from './factions/standing.ts';
 export { type Band, type Drift, FACTION, FACTIONS, type FactionRecord, type FactionsSlice } from './factions/types.ts';
+export * from './fighting/index.ts';
 export { gearKit } from './gear/module.ts';
 export { GEAR, type GearSlice, SLOT, type SlotRecord, type WearableItem, type WearingActor } from './gear/types.ts';
 export { gearParts, wornBy } from './gear/worn.ts';

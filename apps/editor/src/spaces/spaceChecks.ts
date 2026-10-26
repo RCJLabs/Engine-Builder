@@ -1,12 +1,14 @@
 /**
  * The spaces' and prefabs' problems that need the records (M5.2, D64): components against their
  * kinds, placed records and every override, as compileProject checks them (checkProjectSpaceParts),
- * and every reference they hold, which "used by" lists beside the records'. Read again after every
- * change, once the record index is.
+ * and every reference they hold, which "used by" lists beside the records'; and project.json's
+ * fighting, whose player must stand in no space (M6.4). Read again after every change, once the
+ * record index is.
  */
 import {
   checkNavFiles,
   checkProjectSpaceParts,
+  MANIFEST_FILE,
   modelFieldOf,
   navHashes,
   navModelsOf,
@@ -17,7 +19,7 @@ import {
   spaceSpawns,
   walkersOf,
 } from '@eb/compiler';
-import { compareText, type Diagnostic, type FlagUses, knownFrom } from '@eb/schema';
+import { checkFightingNames, compareText, type Diagnostic, type FlagUses, knownFrom, type Walkers } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import { recordLookup } from '../records/lookup.ts';
 import type { RecordIndex } from '../records/recordIndex.ts';
@@ -37,6 +39,17 @@ export interface SpaceChecks {
 
 export const NO_FLAG_USES: FlagUses = { set: new Map(), read: new Map() };
 
+/** project.json's fighting against the records and where each actor stands (E082, M6.4), as compileProject checks it. */
+function fightingProblems(catalog: Catalog, index: RecordIndex, walkers: Walkers): Diagnostic[] {
+  if (!catalog.fighting) return [];
+  const has = (type: string, id: string) => index.records.has(`${type}:${id}`);
+  return checkFightingNames(catalog.fighting, has, (actor) => walkers.get(actor)?.space).map((problem) => ({
+    ...problem,
+    severity: 'error',
+    file: MANIFEST_FILE,
+  }));
+}
+
 export async function spaceProblems(
   source: ProjectSource,
   catalog: Catalog,
@@ -44,7 +57,7 @@ export async function spaceProblems(
   game: GameState,
 ): Promise<SpaceChecks> {
   if (catalog.spaces.length === 0 && catalog.prefabs.length === 0)
-    return { problems: [], users: new Map(), flags: NO_FLAG_USES };
+    return { problems: fightingProblems(catalog, index, new Map()), users: new Map(), flags: NO_FLAG_USES };
   const read = await readSpaces(source);
   const spawns = spaceSpawns(read.files);
   const prefabs = new Map(
@@ -82,5 +95,6 @@ export async function spaceProblems(
   const users = new Map<string, SpaceUse[]>();
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
-  return { problems: [...found.diagnostics, ...navs], users, flags: { ...found.flags, spawns, walkers } };
+  const fought = fightingProblems(catalog, index, walkers);
+  return { problems: [...found.diagnostics, ...navs, ...fought], users, flags: { ...found.flags, spawns, walkers } };
 }

@@ -1,4 +1,4 @@
-import { TIME } from '@eb/kits';
+import { FIGHTING, TIME } from '@eb/kits';
 import { ExportSlot } from '../export/ExportSlot.tsx';
 import { GuideSlot } from '../guide/GuideSlot.tsx';
 import { busy, closeProject, copyCurrentIn, exportCurrent, exportGame, type OpenProject } from '../projects/session.ts';
@@ -6,6 +6,7 @@ import { recordsLine } from '../projects/summary.ts';
 import { TypeList } from '../records/TypeList.tsx';
 import { CalendarSlot } from './CalendarSlot.tsx';
 import { EditState } from './EditState.tsx';
+import { FightingSlot } from './FightingSlot.tsx';
 import { ProjectFields } from './ProjectFields.tsx';
 import { ProjectKits } from './ProjectKits.tsx';
 
@@ -39,6 +40,7 @@ export function OpenProjectView({ project }: { project: OpenProject }) {
       )}
       {summary.project ? <ProjectKits on={summary.project.kits ?? []} /> : null}
       {summary.project?.kits?.includes(TIME) ? <CalendarSlot project={project} /> : null}
+      {summary.project?.kits?.includes(FIGHTING) ? <FightingSlot project={project} /> : null}
       <TypeList project={project} />
       {summary.project ? <GuideSlot project={project} /> : null}
       {summary.project ? <ExportSlot project={project} /> : null}

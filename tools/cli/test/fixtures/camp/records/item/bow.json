@@ -1,0 +1,5 @@
+{
+  "name": "Bow",
+  "slot": "hand",
+  "weapon": { "kind": "ranged", "damage": 3, "ammo": "arrow" }
+}

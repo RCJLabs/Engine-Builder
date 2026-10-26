@@ -8,7 +8,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { bakedSolids, soupOf } from '../nav/geometry.ts';
 import { bakeSoup, openNav, readyNav } from '../nav/lib.ts';
 import type { Vec3 } from '../spaces/vec.ts';
-import { type CrowdNpc, createCrowdWalk, type NpcTold } from './crowdWalk.ts';
+import { type CrowdNpc, createCrowdWalk, type Keep, type NpcTold } from './crowdWalk.ts';
 import { yawToward } from './facing.ts';
 
 const across = (a: readonly number[], b: readonly number[]) =>
@@ -34,9 +34,14 @@ function green() {
   return openNav(baked.navmesh);
 }
 
-function walkOf(npcs: CrowdNpc[], told: Record<string, NpcTold>, begun?: (path: string) => boolean) {
+function walkOf(
+  npcs: CrowdNpc[],
+  told: Record<string, NpcTold>,
+  begun?: (path: string) => boolean,
+  keep?: (actor: string) => Keep,
+) {
   const nav = green();
-  const walk = createCrowdWalk(nav, npcs, (path) => places.get(path), told, begun);
+  const walk = createCrowdWalk(nav, npcs, (path) => places.get(path), told, begun, keep);
   const of = (actor: string) => walk.list().find((n) => n.actor === actor);
   const steps = (n: number, feet: Vec3) => {
     for (let i = 0; i < n; i++) walk.step(1 / 60, feet);
@@ -50,6 +55,16 @@ function walkOf(npcs: CrowdNpc[], told: Record<string, NpcTold>, begun?: (path: 
 
 describe('the crowd’s M6.3 moves, through Recast in Node', () => {
   beforeAll(() => readyNav());
+
+  it('backs a fighter waiting its turn away to its distance as the player comes close (M6.4)', () => {
+    const waiting = () => ({ distance: 5, away: true });
+    const { walk, of, steps, done } = walkOf([npc('wren', [0, 0, 0])], { wren: { fight: 1 } }, undefined, waiting);
+    walk.present(new Set(['wren']));
+    const player: Vec3 = [1.5, 0, 0];
+    steps(60 * 6, player);
+    expect(across(of('wren')?.at ?? [], player)).toBeGreaterThan(4.5);
+    done();
+  });
 
   it('walks a follower to within its distance of the player, stands, and sets off again when they go', () => {
     const { walk, of, steps, done } = walkOf([npc('dog', [8, 0, 0])], { dog: { follow: 2 } });

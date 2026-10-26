@@ -21,7 +21,14 @@ describe('the controls', () => {
     expect(intentOf(keys('KeyA', 'KeyD'), 0).move).toEqual([0, 0]);
     expect(intentOf(keys('ShiftLeft', 'KeyW'), 0).run).toBe(true);
     expect(intentOf(keys('Space'), 0).jump).toBe(true);
-    expect(intentOf(keys(), 0)).toEqual({ move: [0, 0], run: false, jump: false, use: false, look: [0, 0] });
+    expect(intentOf(keys(), 0)).toEqual({
+      move: [0, 0],
+      run: false,
+      jump: false,
+      use: false,
+      attack: false,
+      look: [0, 0],
+    });
     expect(intentOf(keys('KeyE'), 0).use).toBe(true);
   });
 
@@ -163,6 +170,7 @@ describe('the motion', () => {
     run,
     jump,
     use: false,
+    attack: false,
     look: [0, 0] as [number, number],
   });
   it('walks at 2.5 m/s and runs at 5, forward along the yaw', () => {

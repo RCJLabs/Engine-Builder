@@ -7,6 +7,7 @@ import type { Sent } from '@eb/ui';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { PerfSummary } from '../spaces/viewportHook.ts';
 import type { ViewKind } from './cameras.ts';
+import type { WalkFight } from './fight.ts';
 import type { WalkNav } from './navStage.ts';
 import type { NpcSeen } from './npcView.ts';
 import type { WalkSenses } from './walkSenses.ts';
@@ -78,6 +79,8 @@ export interface WalkHook {
   };
   /** What the NPCs sensed (M6.3): each ai/sensed sent and what the sim made of it, and the last report's sightings; null with none that sense. */
   senses(): ReturnType<WalkSenses['hook']> | null;
+  /** The fights (M6.4): the player's swing and aim, each NPC's swing, arrows, what was sent, the bodies. */
+  fight(): WalkFight | null;
 }
 
 declare global {

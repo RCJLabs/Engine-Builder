@@ -11,6 +11,7 @@ import { useInput } from '../input/useInput.ts';
 import { GameScreens } from '../render/GameScreens.tsx';
 import { themeVars } from '../render/layout.ts';
 import { showCrash, watchCrashes } from './crash.ts';
+import { Fallen } from './Fallen.tsx';
 import { NewGame } from './NewGame.tsx';
 import { Pause } from './Pause.tsx';
 import { SavesScreen } from './SavesScreen.tsx';
@@ -101,7 +102,7 @@ export function Shell(props: ShellProps) {
           />
         ) : null}
         <div
-          class={`eb-shell-screens${play && screen === 'pause' ? ' eb-shell-over' : ''}`}
+          class={`eb-shell-screens${play && (screen === 'pause' || screen === 'fallen') ? ' eb-shell-over' : ''}`}
           ref={box}
           hidden={screen === undefined}
           data-input={input.device}
@@ -137,7 +138,7 @@ type ForProps = ShellProps & {
   readonly change: ReturnType<typeof useSettings>[1];
 };
 
-function ShellScreenFor({ state, memory, back, opened, update, settings, change }: ForProps) {
+function ShellScreenFor({ state, memory, back, opened, update, settings, change, spaces }: ForProps) {
   const leave = back ?? (() => state.show('title'));
   switch (state.screen) {
     case 'new':
@@ -158,6 +159,8 @@ function ShellScreenFor({ state, memory, back, opened, update, settings, change 
       return <Pause state={state} memory={memory} />;
     case 'stopped':
       return <Stopped state={state} opened={opened} memory={memory} />;
+    case 'fallen':
+      return <Fallen state={state} memory={memory} name={(space) => spaces?.name(space)} />;
     default:
       return <Title state={state} opened={opened} memory={memory} update={update} />;
   }

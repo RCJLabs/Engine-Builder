@@ -32,7 +32,7 @@ const space = {
   id: 'green',
   npcs: (key: string) => (key === 'actor:guard' ? { height: 2 } : null),
 } as unknown as WalkSpace;
-const still: Intent = { move: [0, 0], run: false, jump: false, use: false, look: [0, 0] };
+const still: Intent = { move: [0, 0], run: false, jump: false, use: false, attack: false, look: [0, 0] };
 
 describe('sensersIn', () => {
   it('senses with each NPC of the space that has a behaviour, its own senses or the kit’s', () => {

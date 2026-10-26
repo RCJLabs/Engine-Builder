@@ -20,6 +20,7 @@ const KEYS: readonly [string, NodeKind][] = [
   ['wait', 'wait'],
   ['face', 'face'],
   ['effects', 'effects'],
+  ['attack', 'attack'],
 ];
 
 /** The node's kind, by the key that names it; undefined for what isn't a node. */

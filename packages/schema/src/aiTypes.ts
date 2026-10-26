@@ -49,9 +49,10 @@ const KINDS: Readonly<Record<string, readonly string[]>> = {
   wait: [],
   face: [],
   effects: [],
+  attack: [],
 };
 const NODE_WORDS =
-  'a node is first, in-order, a guard (if, hours or days, and do), or travel, sleep, work, patrol, sandbox, follow, wait, face or effects';
+  'a node is first, in-order, a guard (if, hours or days, and do), or travel, sleep, work, patrol, sandbox, follow, wait, face, effects or attack';
 
 /**
  * A node as one strict object of every key a node can have, which says exactly one of them names
@@ -78,6 +79,8 @@ export const nodeSchema: z.ZodType<BehaviourNode> = z.lazy(() =>
       wait: length.optional(),
       face: player.optional(),
       effects: z.array(effect()).min(1, { error: 'Give it an effect' }).optional(),
+      // With the fighting kit on (M6.4, D76): E081 when it is off, as the kits are the compiler's to know.
+      attack: player.optional(),
     })
     .superRefine((node, ctx) => {
       const given = Object.keys(node).filter((key) => (node as Record<string, unknown>)[key] !== undefined);

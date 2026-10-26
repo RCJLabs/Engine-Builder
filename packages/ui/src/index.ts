@@ -34,3 +34,4 @@ export {
   screenStack,
   stillOpen,
 } from './render/stack.ts';
+export { type FightView, fightOf, type WeaponView, weaponView } from './session/fighting.ts';

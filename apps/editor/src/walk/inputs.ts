@@ -8,7 +8,7 @@ import { WALK_KEYS } from './controls.ts';
 
 export interface Inputs {
   /** What is held now, and the mouse's move since the last take. */
-  take(): Omit<Held, 'stick' | 'jumpButton'>;
+  take(): Omit<Held, 'stick' | 'jumpButton' | 'attackButton'>;
   /** Nothing held: the space lost focus, or the shell paused it. */
   clear(): void;
   dispose(): void;
@@ -23,6 +23,9 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
   const tapped = new Set<string>();
   let drag = { x: 0, y: 0 };
   let pressed: { x: number; y: number; moved: number } | null = null;
+  // With the pointer locked a click attacks (M6.4): held while the button is, counted once if let go between frames.
+  let clicking = false;
+  let clicked = false;
 
   const keydown = (event: KeyboardEvent) => {
     if (!WALK_KEYS.has(event.code) || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -35,6 +38,11 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
   const blur = () => keys.clear();
   const down = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse') return;
+    if (document.pointerLockElement === canvas && event.button === 0) {
+      clicking = true;
+      clicked = true;
+      return;
+    }
     pressed = { x: event.clientX, y: event.clientY, moved: 0 };
     canvas.setPointerCapture(event.pointerId);
   };
@@ -46,6 +54,7 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
     if (pressed) pressed.moved += Math.abs(event.movementX) + Math.abs(event.movementY);
   };
   const up = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') clicking = false;
     if (event.pointerType !== 'mouse' || !pressed) return;
     const click = pressed.moved < CLICK;
     pressed = null;
@@ -70,9 +79,10 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
       pads.reduce((best, p) => (Math.abs(p.axes[i] ?? 0) > Math.abs(best) ? (p.axes[i] ?? 0) : best), 0),
     );
     const a = pads.some((p) => p.buttons[0]?.pressed === true);
-    // X, in the standard mapping: Interact (M5.9).
+    // X, in the standard mapping: Interact (M5.9); the right trigger: Attack (M6.4).
     const x = pads.some((p) => p.buttons[2]?.pressed === true);
-    return { axes, a, x };
+    const rt = pads.some((p) => p.buttons[7]?.pressed === true || (p.buttons[7]?.value ?? 0) > 0.5);
+    return { axes, a, x, rt };
   };
 
   return {
@@ -82,8 +92,11 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
       const held = pad();
       const down = new Set([...keys, ...tapped]);
       tapped.clear();
+      const click = clicking || clicked;
+      clicked = false;
       return {
         keys: down,
+        ...(click ? { click } : {}),
         ...(held ? { pad: held } : {}),
         ...(moved.x !== 0 || moved.y !== 0 ? { drag: { ...moved, by: 'mouse' as const } } : {}),
       };
@@ -93,6 +106,8 @@ export function createInputs(box: HTMLElement, canvas: HTMLCanvasElement): Input
       tapped.clear();
       drag = { x: 0, y: 0 };
       pressed = null;
+      clicking = false;
+      clicked = false;
     },
     dispose() {
       box.removeEventListener('keydown', keydown);

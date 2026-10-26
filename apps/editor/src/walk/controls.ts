@@ -12,6 +12,8 @@ export interface Intent {
   readonly jump: boolean;
   /** Interact held this frame (M5.9): pressed, the walk uses what the player faces. */
   readonly use: boolean;
+  /** Attack held this frame (M6.4): it swings, and swings again as the last recovers while held. */
+  readonly attack: boolean;
   /** How far to turn, in degrees: left is positive yaw, up positive pitch. */
   readonly look: readonly [number, number];
 }
@@ -30,6 +32,7 @@ const RIGHT = ['KeyD', 'ArrowRight'];
 const RUN = ['ShiftLeft', 'ShiftRight'];
 const JUMP = ['Space'];
 const USE = ['KeyE'];
+const ATTACK = ['KeyF'];
 
 /** The keys the walk takes, by KeyboardEvent.code: the page does nothing else with them while it has focus. */
 export const WALK_KEYS: ReadonlySet<string> = new Set([
@@ -40,17 +43,21 @@ export const WALK_KEYS: ReadonlySet<string> = new Set([
   ...RUN,
   ...JUMP,
   ...USE,
+  ...ATTACK,
 ]);
 
 export interface Held {
   /** KeyboardEvent.code of each key held. */
   readonly keys: ReadonlySet<string>;
-  /** The pad's axes and whether A and X are down, when one is connected. */
-  readonly pad?: { readonly axes: readonly number[]; readonly a: boolean; readonly x?: boolean };
+  /** The pad's axes and whether A, X and the right trigger (M6.4) are down, when one is connected. */
+  readonly pad?: { readonly axes: readonly number[]; readonly a: boolean; readonly x?: boolean; readonly rt?: boolean };
   /** The touch stick's push. */
   readonly stick?: Push;
   /** The jump button held. */
   readonly jumpButton?: boolean;
+  /** The touch Attack button held, or the mouse's button with the pointer locked (M6.4). */
+  readonly attackButton?: boolean;
+  readonly click?: boolean;
   /** Mouse or touch look since the last frame, in pixels, and which. */
   readonly drag?: { readonly x: number; readonly y: number; readonly by: 'mouse' | 'touch' };
 }
@@ -86,6 +93,7 @@ export function intentOf(held: Held, dt: number): Intent {
   const run = any(held.keys, RUN) || pad.strength > PAD_RUN || held.stick?.run === true;
   const jump = any(held.keys, JUMP) || held.pad?.a === true || held.jumpButton === true;
   const use = any(held.keys, USE) || held.pad?.x === true;
+  const attack = any(held.keys, ATTACK) || held.pad?.rt === true || held.attackButton === true || held.click === true;
   const look: [number, number] = [0, 0];
   if (held.drag) {
     const k = held.drag.by === 'mouse' ? MOUSE_DEGREES : TOUCH_DEGREES;
@@ -97,5 +105,5 @@ export function intentOf(held: Held, dt: number): Intent {
     look[0] -= right.push[0] * PAD_LOOK * dt;
     look[1] += right.push[1] * PAD_LOOK * dt;
   }
-  return { move, run, jump, use, look };
+  return { move, run, jump, use, attack, look };
 }
