@@ -3,7 +3,15 @@
  * what scripts/game.ts declares once it has run. The script worker reads them again after each
  * change under scripts/; a project with no scripts never starts the worker.
  */
-import { classifySpaceFile, gameOptions, MANIFEST_FILE, type ProjectSource, readFiles, SPACES_DIR } from '@eb/compiler';
+import {
+  classifySpaceFile,
+  gameOptions,
+  MANIFEST_FILE,
+  PREFABS_DIR,
+  type ProjectSource,
+  readFiles,
+  SPACES_DIR,
+} from '@eb/compiler';
 import { type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
 import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, scriptPath } from '@eb/script';
 import type { CheckResult, SentFile } from './protocol.ts';
@@ -42,15 +50,26 @@ const spaceFiles = async (source: ProjectSource): Promise<string[]> =>
 
 export const hasSpaces = async (source: ProjectSource): Promise<boolean> => (await spaceFiles(source)).length > 0;
 
+/** A space's or a prefab's bytes when an interact in it holds items (M6.8), else none. */
+async function holding(source: ProjectSource, path: string): Promise<Uint8Array> {
+  const bytes = await source.read(path);
+  return bytes !== undefined && new TextDecoder().decode(bytes).includes('"holds"') ? bytes : new Uint8Array();
+}
+
 /**
  * Every file under scripts/, as the worker reads them, and project.json, whose kits join the game
  * its scripts make (M3.3, D41); and each space file's name, empty, since whether there are any is
- * all the check reads of them (M5.8).
+ * all the check reads of them (M5.8), but whole, as a prefab is, when it holds items: its game then
+ * has the container mode (M6.8).
  */
 export async function scriptFiles(source: ProjectSource): Promise<SentFile[]> {
   const read = await readFiles(source, [MANIFEST_FILE, ...(await source.files(SCRIPTS_DIR))]);
-  const spaces = (await spaceFiles(source)).map((path): SentFile => [path, new Uint8Array()]);
-  return [...read, ...spaces];
+  const spaces = await Promise.all(
+    (await spaceFiles(source)).map(async (path): Promise<SentFile> => [path, await holding(source, path)]),
+  );
+  const prefabs = (await source.files(PREFABS_DIR)).filter((path) => classifySpaceFile(path).kind === 'prefab');
+  const held = await Promise.all(prefabs.map(async (path): Promise<SentFile> => [path, await holding(source, path)]));
+  return [...read, ...spaces, ...held.filter(([, bytes]) => bytes.length > 0)];
 }
 
 export function stateOf(result: CheckResult, run: boolean): GameState {

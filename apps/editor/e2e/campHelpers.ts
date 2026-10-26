@@ -184,8 +184,26 @@ export async function fightUntil(
   }
 }
 
-/** Each body walked up to and searched: its label "Nothing left" once it is. */
-export async function searchAll(page: Page, steer: Steer, timeout = 60_000): Promise<void> {
+/**
+ * The Container screen a search opens (M6.8): everything in it taken, when there is anything, and it
+ * closed, by `press` (a click, or a tap on a phone).
+ */
+export async function takeAllAndClose(page: Page, press: (button: Locator) => Promise<void>): Promise<void> {
+  const close = game(page).getByRole('button', { name: 'Close', exact: true });
+  await expect(close).toBeVisible();
+  const all = game(page).getByRole('button', { name: 'Take all' });
+  if (await all.isEnabled()) await press(all);
+  await press(close);
+  await expect(close).toBeHidden();
+}
+
+/** Each body walked up to and searched: its bag taken from and closed, its label "Nothing left" once it is empty. */
+export async function searchAll(
+  page: Page,
+  steer: Steer,
+  press: (button: Locator) => Promise<void> = (button) => button.click(),
+  timeout = 60_000,
+): Promise<void> {
   const started = Date.now();
   for (;;) {
     const seen = await look(page);
@@ -199,8 +217,10 @@ export async function searchAll(page: Page, steer: Steer, timeout = 60_000): Pro
       () =>
         (window as unknown as { __ebWalk?: { prompt(): { label: string } | null } }).__ebWalk?.prompt()?.label ?? null,
     );
-    if (prompt === 'Search') await steer.use();
-    else await closeOn(steer, seen.me, nearest.at, 1.2, 10);
+    if (prompt === 'Search') {
+      await steer.use();
+      await takeAllAndClose(page, press);
+    } else await closeOn(steer, seen.me, nearest.at, 1.2, 10);
   }
 }
 

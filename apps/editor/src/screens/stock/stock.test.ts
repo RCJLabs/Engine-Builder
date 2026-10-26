@@ -84,6 +84,31 @@ describe('the stock screens, written into a project and compiled against its gam
     }, 30_000);
   }
 
+  it('gives a game that opens containers the Container screen, and a merchant’s shop their purse (M6.8)', async () => {
+    const files = filesOf('post');
+    const ctx = await contextOf('post', files);
+    expect(ctx.merchants).toBe(true);
+    const { added, screens } = withStock(ctx, files);
+    expect(screens).toContain('container');
+    // A walked game's HUD and ending show no mode of their own (W134, as since M5.8): these two are clean.
+    const compiled = await compileWithGame(memorySource(added));
+    const ours = ['ui/container.json', 'ui/shop.json'];
+    expect(compiled.diagnostics.filter((d) => ours.includes(d.file ?? ''))).toEqual([]);
+    expect(compiled.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
+    const screen = (id: string) => new TextDecoder().decode(added[`ui/${id}.json`]);
+    expect(showsOf(JSON.parse(screen('container')))).toEqual(['container']);
+    expect(screen('container')).toContain('"of": "held"');
+    expect(screen('shop')).toContain('{shop.keeper} has {shop.purse}');
+    // The camp's bodies open the same mode (M6.4's search); the hut opens nothing, so has none.
+    const camp = await contextOf('camp', filesOf('camp'));
+    expect(STOCK.find((s) => s.id === 'container')?.offered(camp)).toBe(true);
+    const hut = await contextOf('hut', filesOf('hut'));
+    expect(STOCK.find((s) => s.id === 'container')?.offered(hut)).toBe(false);
+    expect(STOCK.find((s) => s.id === 'shop')?.build(hut).top).not.toMatchObject({
+      children: expect.arrayContaining([expect.objectContaining({ text: '{shop.keeper} has {shop.purse}' })]),
+    });
+  }, 30_000);
+
   it('puts a talk’s and an event’s odds under each choice, and nothing under a hall’s offers (M4.7)', async () => {
     const lists = async (name: string) => {
       const files = filesOf(name);

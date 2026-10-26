@@ -5,7 +5,7 @@
  * once the browser lets the editor change it. Its scripts are checked, and run when it is
  * trusted, in the script worker (M3.2, D38).
  */
-import { directorySource, MANIFEST_FILE } from '@eb/compiler';
+import { directorySource, MANIFEST_FILE, readKitSettings } from '@eb/compiler';
 import { SCRIPTS_DIR } from '@eb/script';
 import { signal } from '@preact/signals';
 import { note, noteError } from '../app/state.ts';
@@ -102,6 +102,7 @@ function loadScreenChecks() {
 let checker: ScriptWorker | null = null;
 /** Whether each working copy had a space when its game was last checked. */
 const hadSpaces = new WeakMap<WorkingCopy, boolean>();
+const hadHolds = new WeakMap<WorkingCopy, boolean>();
 
 /**
  * Reads the summary, the catalog and the record index again after changes to `copy`, one read
@@ -117,10 +118,13 @@ function refresher(copy: WorkingCopy): Refresh {
       current.value = { ...open, summary, catalog };
       let { game } = open;
       // project.json too: its kits join the game the scripts make (M3.3); and a first space, or the
-      // last gone, joins the world module or takes it away (M5.8).
+      // last gone, joins the world module or takes it away (M5.8); and the first interact that holds
+      // items, or the last, the inventory kit's container mode (M6.8).
       const spaces = await hasSpaces(copy);
-      const turned = hadSpaces.get(copy) !== spaces;
+      const holds = spaces && (await readKitSettings(copy)).holds === true;
+      const turned = hadSpaces.get(copy) !== spaces || hadHolds.get(copy) !== holds;
       hadSpaces.set(copy, spaces);
+      hadHolds.set(copy, holds);
       if (paths === null || turned || paths.some((path) => isScriptPath(path) || path === MANIFEST_FILE)) {
         checker ??= scriptWorker();
         game = await readGameState(copy, checker, trust.trusted(open.trustKey));

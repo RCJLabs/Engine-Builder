@@ -58,7 +58,7 @@ for (const viewport of [
       });
 
       await test.step('each body searched by tapping its prompt', async () => {
-        await searchAll(page, touch);
+        await searchAll(page, touch, (button) => button.tap());
         await expect.poll(() => hudOf(page)).toMatch(/ · Coin 5$/);
         await expectFits(page);
       });
