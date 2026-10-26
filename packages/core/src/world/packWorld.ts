@@ -1,4 +1,5 @@
 import { isRecordId } from '../records.ts';
+import { mapsProblem, type PackMap } from './packMaps.ts';
 import type { Placed, Triggers, Uses, WorldData } from './types.ts';
 
 /**
@@ -33,6 +34,8 @@ export interface PackWorld {
   readonly navmeshes?: Readonly<Record<string, string>>;
   /** Format 11: each placed actor's space and path. */
   readonly actors?: Readonly<Record<string, Placed>>;
+  /** Format 14 (M6.6): each baked space's map, its image among the files. */
+  readonly maps?: Readonly<Record<string, PackMap>>;
 }
 
 /** What the world module is built from. A format 9 pack has no uses, and starts in its first space. */
@@ -92,6 +95,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   const placed = [
     ...(format >= 10 ? ['uses', 'spawns', 'start'] : []),
     ...(format >= 11 ? ['navmeshes', 'actors'] : []),
+    ...(format >= 14 ? ['maps'] : []),
   ];
   const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields', ...placed]);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
@@ -116,7 +120,9 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   if (key !== undefined) return `"${key}" is not a record's type and id`;
   if (!allOf(fields, (field) => typeof field === 'string')) return "The pack's model fields are not text";
   return (
-    (format >= 10 ? placesProblem(world) : undefined) ?? (format >= 11 ? walkersProblem(world, format) : undefined)
+    (format >= 10 ? placesProblem(world) : undefined) ??
+    (format >= 11 ? walkersProblem(world, format) : undefined) ??
+    (format >= 14 ? mapsProblem(world) : undefined)
   );
 }
 

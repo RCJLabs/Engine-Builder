@@ -7,6 +7,7 @@ import { type SpaceKind, spacePath } from '@eb/compiler';
 import { effect, signal } from '@preact/signals';
 import { chosen } from '../forms/selection.ts';
 import { current } from '../projects/opened.ts';
+import type { MapShot } from '../spaceMaps/shot.ts';
 import type { Boxed } from './bounds.ts';
 import type { Mode } from './gizmoMath.ts';
 import { isMoveStep, type MoveStep } from './snap.ts';
@@ -52,6 +53,8 @@ export function chooseStep(next: MoveStep): void {
 }
 /** The open file's objects' boxes as the view draws them (M5.10), for Drop; null with no view. */
 export const objectBoxes = signal<(() => readonly Boxed[]) | null>(null);
+/** The view's way to draw the open space from above (M6.6), for Bake map; null with no view. */
+export const mapBaker = signal<((shot: MapShot) => HTMLCanvasElement) | null>(null);
 /** Touch's way to choose many: each tap adds or takes away until it is turned off. */
 export const selectMore = signal(false);
 /** What a phone's inspector sheet shows while a space is open: the object's form, or the outliner. */

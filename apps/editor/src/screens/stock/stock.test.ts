@@ -131,13 +131,21 @@ describe('the stock screens, written into a project and compiled against its gam
     expect(space.title).toBe('Walk');
     expect(space.shows).toEqual(['trailhead']);
     expect(space.main).toEqual({ widget: 'space' });
-    expect(space.bottom.of).toBe('offered');
+    // The actions on offer, then the way to the Map (M6.6): the trail has no quests, so no Journal.
+    expect(space.bottom.children[0].of).toBe('offered');
+    expect(space.bottom.children[1].children).toEqual([
+      { widget: 'button', label: 'Map', action: { open: 'space-map' } },
+    ]);
+    const map = JSON.parse(new TextDecoder().decode(added['ui/space-map.json']));
+    expect(map).toMatchObject({ title: 'Map', modal: true, main: { widget: 'space-map' } });
     expect(showsOf(JSON.parse(new TextDecoder().decode(added['ui/hud.json'])))).toEqual([]);
     expect(STOCK.find((s) => s.id === 'space')?.offered({ ...ctx, spaces: [] })).toBe(false);
     // Clean against the trail's game. Its HUD and ending show no mode, as the trail has no other and no end (W134).
-    expect([...withStock(ctx, files).screens].sort()).toEqual(['credits', 'ending', 'hud', 'space']);
+    expect([...withStock(ctx, files).screens].sort()).toEqual(['credits', 'ending', 'hud', 'space', 'space-map']);
     const compiled = await compileWithGame(memorySource(added));
-    expect(compiled.diagnostics.filter((d) => d.file === 'ui/space.json')).toEqual([]);
+    expect(compiled.diagnostics.filter((d) => d.file === 'ui/space.json' || d.file === 'ui/space-map.json')).toEqual(
+      [],
+    );
   }, 30_000);
 
   it('shows the map for each mode that travels, with the live numbers over it (M4.6)', async () => {

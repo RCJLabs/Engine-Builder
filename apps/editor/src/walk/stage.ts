@@ -14,6 +14,8 @@
  * strike back, every hit found on the fixed steps and decided by the sim (fight.ts).
  * M6.5 (D77, docs/specs/animation.md#in-the-walk): every body plays its animator on the facts the
  * walk gives it each frame, the NPC talked to going on under its talk's pause.
+ * M6.6 (D78, docs/specs/markers.md): the compass and a marker over each of the tracked quest's
+ * targets, or the door toward one in another space (markerStage.ts).
  * It resolves once its first frame is drawn, so the host's loading screen covers the wait.
  * Loaded the first time a Space widget draws, with three and Rapier.
  */
@@ -36,6 +38,7 @@ import { createGameClock, type GameClock } from './gameClock.ts';
 import { objectPlaces } from './goals.ts';
 import { clearWalkHook, setWalkHook, type WalkHook } from './hook.ts';
 import type { LoadNav } from './host.ts';
+import { createMarkerStage, type MarkerStage } from './markerStage.ts';
 import { jumpOf, STEP, stepsFor } from './motion.ts';
 import { createNavStage, type NavStage, npcsOf } from './navStage.ts';
 import { createOutbox } from './outbox.ts';
@@ -72,6 +75,7 @@ interface Walking {
   readonly clock: GameClock;
   readonly senses: WalkSenses | null;
   readonly fight: FightStage | null;
+  readonly markers: MarkerStage;
   gone(): ReadonlySet<string>;
   look(): { yaw: number; pitch: number; shot: Shot; paused: boolean };
 }
@@ -89,6 +93,7 @@ const hookOf = ({
   clock,
   senses,
   fight,
+  markers,
   gone,
   look,
 }: Walking): WalkHook => ({
@@ -126,6 +131,7 @@ const hookOf = ({
   senses: () => senses?.hook() ?? null,
   fight: () => fight?.hook() ?? null,
   anims: () => surface.view.anims(),
+  markers: () => markers.hook(),
 });
 
 /** What moved the walk last, for the key the prompt names: E, the pad's X, or none for touch. */
@@ -230,6 +236,18 @@ export async function startStage(
     },
     bodies: (uses) => acts.bodies(uses),
   });
+  const markers = createMarkerStage(
+    box,
+    ask,
+    world,
+    {
+      space: ask.space,
+      places: placed,
+      height: heightOf,
+      walking: () => new Map((nav?.hook().agents ?? []).map((a) => [a.actor, a.at])),
+    },
+    (point) => surface.view.screenOf(point),
+  );
   const player = ask.fight?.()?.player;
   /** A body's anim.* facts (M6.5): the player's from the character, an NPC's speed measured by anims.ts. */
   const factsOf = (key: string, actor: string | null): AnimBody['facts'] => {
@@ -304,6 +322,7 @@ export async function startStage(
     // times, and a clip ahead of the feet would slide them.
     surface.view.animate(steps.steps * STEP, shot.at, factsOf);
     draw();
+    markers.frame(walker.feet(), yaw);
     // Auto steps down when frames run long (D69); every frame of a walk is drawn back to back.
     const lower = surface.clock.frame(time, true) && surface.tier.auto ? lowerTier(surface.tier.name) : null;
     if (lower) void retier({ name: lower, auto: true });
@@ -332,6 +351,7 @@ export async function startStage(
     clock,
     senses,
     fight,
+    markers,
     gone: () => gone,
     look: () => ({ yaw, pitch, shot, paused }),
   });
@@ -373,6 +393,7 @@ export async function startStage(
       surface.dispose();
       touches.dispose();
       prompt.dispose();
+      markers.dispose();
       walker.free();
     },
   };

@@ -2,16 +2,16 @@
   "$comment": "Each budget is a reading plus a margin: 5% for sizes, 10% for counts (M5.7, D69, docs/specs/performance.md#the-budgets). A change that adds weight on purpose raises the budget with its new reading and date, in the same change. Sizes are checked by pnpm budgets after the build, counts by perf.spec.ts: the grove's glade with a box, framed on a 1280 x 900 desktop, orbited 50 degrees, every plant's model drawn.",
   "sizes": {
     "editor-start": {
-      "budget": 129664,
-      "reading": 123490,
+      "budget": 130320,
+      "reading": 124115,
       "read": "2026-10-26",
-      "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own; re-read at M6.4, whose fighting kit's type files and words the catalog reads at the start, and M6.5, whose record form reads the animator's facts"
+      "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own; re-read at M6.4, whose fighting kit's type files and words the catalog reads at the start, and M6.5, whose record form reads the animator's facts; and M6.6, whose quest form offers a target's choices and whose designer knows the space-map widget"
     },
     "scene-view": {
-      "budget": 384324,
-      "reading": 366023,
+      "budget": 388435,
+      "reading": 369939,
       "read": "2026-10-26",
-      "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts; re-read at M6.5, whose figures are drawn as the starter character, copied on bones of their own"
+      "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts; re-read at M6.5, whose figures are drawn as the starter character, copied on bones of their own; and M6.6, whose view bakes a space's map from above"
     },
     "models-view": {
       "budget": 74516,
@@ -20,10 +20,10 @@
       "of": "zlib's gzip at level 9 of the modelsView chunk and the chunks it imports statically that the start and the view don't: the loaders and decoders; re-read at M6.5, whose skinned models are copied on their own bones"
     },
     "walk": {
-      "budget": 2719419,
-      "reading": 2589923,
+      "budget": 2721470,
+      "reading": 2591877,
       "read": "2026-10-26",
-      "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space; re-read at M6.5, which carries the starter character, its clips and the mixers"
+      "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space; re-read at M6.5, which carries the starter character, its clips and the mixers; and M6.6, which draws the compass and the markers and works out the map's pins"
     },
     "nav": {
       "budget": 241910,
@@ -32,22 +32,22 @@
       "of": "zlib's gzip at level 9 of runtime/nav.js (M6.2): Recast and Detour through recast-navigation-js, their wasm inline, loaded beside walk.js only for a space with a navmesh, and by Bake navigation's worker"
     },
     "precache": {
-      "budget": 15005461,
-      "reading": 14290916,
+      "budget": 15052151,
+      "reading": 14335382,
       "read": "2026-10-26",
-      "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2; re-read at M6.5, with the starter character in walk.js, the editor and Add starter character's chunk"
+      "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2; re-read at M6.5, with the starter character in walk.js, the editor and Add starter character's chunk; and M6.6, with the compass, the markers, the Map screen and Bake map"
     },
     "space-wrecked-web": {
-      "budget": 568000,
-      "reading": 546460,
-      "read": "2026-10-25",
-      "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content; re-read at M6.3, whose ai kit every export's runtime carries"
+      "budget": 585000,
+      "reading": 562469,
+      "read": "2026-10-26",
+      "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content; re-read at M6.3, whose ai kit every export's runtime carries; re-read at M6.6, whose runtime carries the markers' session and the Map screen's widget"
     },
     "trail-web": {
-      "budget": 7815396,
-      "reading": 7443235,
+      "budget": 7829734,
+      "reading": 7456890,
       "read": "2026-10-26",
-      "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page; re-read at M6.5, whose walk.js carries the starter character"
+      "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page; re-read at M6.5, whose walk.js carries the starter character; and M6.6, whose walk.js draws the compass and the markers"
     }
   },
   "counts": {

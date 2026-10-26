@@ -29,6 +29,20 @@ describe('the sun’s shadow camera', () => {
     expect(sun.shadow.camera.right).toBeGreaterThanOrEqual(101);
   });
 
+  it('reaches the ground nearer the sun than the sun is to the origin', () => {
+    // The editor's own sun, 15.6 m from the origin, over a space 21 m round it: the camera's near
+    // plane goes 5.6 m behind it, so the near edge of the sphere is in front of it.
+    const sun = sunAt(6, 12, 8);
+    const objects = new THREE.Group();
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(30, 0.2, 30));
+    objects.add(ground);
+    fitShadowsTo(sun, null, objects);
+    const r = sun.shadow.camera.right;
+    expect(r).toBeGreaterThan(sun.position.length());
+    expect(sun.shadow.camera.near).toBeLessThanOrEqual(sun.position.length() - r);
+    expect(sun.shadow.camera.far).toBeGreaterThanOrEqual(sun.position.length() + r);
+  });
+
   it('keeps 10 m round an empty space', () => {
     const sun = sunAt(0, 50, 0);
     fitShadowsTo(sun, null, new THREE.Group());

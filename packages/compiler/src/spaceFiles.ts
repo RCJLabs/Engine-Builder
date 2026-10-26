@@ -22,10 +22,14 @@ export const terrainPath = (id: string, part: TerrainPart) => `${SPACES_DIR}/${i
 /** A space's navmesh beside it (M6.2, D74), baked in the editor. */
 export const navPath = (id: string) => `${SPACES_DIR}/${id}.nav`;
 
+/** A space's map beside it (M6.6, D78), baked in the editor: its JSON names its image. */
+export const mapPath = (id: string) => `${SPACES_DIR}/${id}.map.json`;
+
 export type SpaceFile =
   | { readonly kind: SpaceKind; readonly id: string }
   | { readonly kind: 'terrain'; readonly id: string; readonly part: TerrainPart }
   | { readonly kind: 'nav'; readonly id: string }
+  | { readonly kind: 'map'; readonly id: string }
   | { readonly kind: 'misplaced'; readonly reason: string }
   | { readonly kind: 'ignored' };
 
@@ -54,8 +58,12 @@ export function classifyComponentFile(path: string): ComponentFile {
 
 const TERRAIN_FILE = /^(.+)\.(heights|paint|foliage)\.png$/;
 const NAV_FILE = /^(.+)\.nav$/;
+const MAP_FILE = /^(.+)\.map\.json$/;
 
-/** What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs and a navmesh carry their space's. */
+/**
+ * What a file under spaces/ or prefabs/ is: its name is its id, as a record's is; a terrain's PNGs,
+ * a navmesh and a map carry their space's. A map's image is the map's to name, so it is ignored here.
+ */
 export function classifySpaceFile(path: string): SpaceFile {
   const parts = path.split('/');
   const top = parts[0];
@@ -71,6 +79,12 @@ export function classifySpaceFile(path: string): SpaceFile {
     const id = nav[1] as string;
     if (isRecordId(id)) return { kind: 'nav', id };
     return { kind: 'misplaced', reason: `"${id}" isn’t a space's id: its navmesh carries it` };
+  }
+  const map = top === SPACES_DIR && parts.length === 2 ? MAP_FILE.exec(name) : null;
+  if (map) {
+    const id = map[1] as string;
+    if (isRecordId(id)) return { kind: 'map', id };
+    return { kind: 'misplaced', reason: `"${id}" isn’t a space's id: its map carries it` };
   }
   if ((top !== SPACES_DIR && top !== PREFABS_DIR) || !name.endsWith('.json')) return { kind: 'ignored' };
   const kind: SpaceKind = top === SPACES_DIR ? 'space' : 'prefab';

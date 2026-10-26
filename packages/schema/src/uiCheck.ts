@@ -196,6 +196,7 @@ function templateFields(widget: Widget): readonly (readonly [string, string])[] 
       return fields.map((key) => [`/${key}`, widget[key] as string] as const);
     }
     case 'space':
+    case 'space-map':
       return widget.label === undefined ? [] : [['/label', widget.label]];
     default:
       return [];
@@ -226,6 +227,9 @@ function checkWidget(
     } else if (options.spaces.size === 0) {
       here('E049', '/widget', 'A Space widget draws the space the player is in, and this project has no spaces/');
     }
+  }
+  if (widget.widget === 'space-map' && options.spaces !== undefined && options.spaces.size === 0) {
+    here('E049', '/widget', 'A space map draws the space the player is in, and this project has no spaces/');
   }
   const needs = WIDGET_KITS[widget.widget];
   if (needs !== undefined && !options.kits.includes(needs)) {
@@ -258,7 +262,6 @@ function checkAction(
 }
 
 const WHOSE: Readonly<Partial<Record<Source, string>>> = {
-  journal: 'journal’s',
   records: 'codex’s',
   credits: 'credits list’s',
 };

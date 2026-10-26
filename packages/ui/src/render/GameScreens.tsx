@@ -24,6 +24,7 @@ import type { Sent, SpaceHost, WalkQuality } from './spaceHost.ts';
 import { drawn, type Opened, type Shown, screenStack, stillOpen } from './stack.ts';
 import './screens.css';
 import './map.css';
+import './spaceMap.css';
 
 export interface GameScreensProps {
   readonly screens: Readonly<Record<string, Screen>>;
@@ -51,6 +52,8 @@ export interface GameScreensProps {
   /** Sends the stage's triggers, answering what the sim made of each (M5.8). */
   readonly send?: (action: Action) => Promise<Sent>;
   readonly quality?: WalkQuality;
+  /** The shell's Quest markers setting (M6.6): off hides the walk's compass and markers. */
+  readonly markers?: boolean;
 }
 
 const NOTHING: readonly Said[] = [];
@@ -131,6 +134,7 @@ export function GameScreens(props: GameScreensProps) {
     spaces: props.spaces,
     send: props.send,
     ...(props.quality ? { quality: props.quality } : {}),
+    ...(props.markers === false ? { markers: false } : {}),
   };
   return (
     // The turn and whether a step is on its way, for a test or a stage to wait on.

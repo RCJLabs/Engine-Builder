@@ -33,6 +33,7 @@ import {
   frameAsked,
   gizmoMode,
   groundHeight,
+  mapBaker,
   moveStep,
   type OpenSpace,
   objectBoxes,
@@ -118,6 +119,7 @@ export function SceneView(props: {
         if (gone) return made.dispose();
         view.current = made;
         objectBoxes.value = () => made.boxes();
+        mapBaker.value = (shot) => made.bakeMap(shot);
         made.setMode(gizmoMode.peek());
         // A new view is shown everything afresh.
         shown.current = lastShown();

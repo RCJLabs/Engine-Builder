@@ -112,6 +112,15 @@ const OWN: Readonly<Record<WidgetKind, Readonly<Record<string, FieldDef>>>> = {
       description: 'What a screen reader calls it: the space’s name unless set.',
     },
   },
+  // M6.6: the space the player is in from above, with the tracked quest's pins.
+  'space-map': {
+    label: {
+      kind: 'text',
+      optional: true,
+      label: 'Label',
+      description: 'What a screen reader calls it: “Map of” the space’s name unless set.',
+    },
+  },
 };
 
 /** A `records` list's own fields, which only it has (M4.4). */
@@ -194,6 +203,7 @@ export function newWidget(kind: WidgetKind): Record<string, unknown> {
     case 'map':
       return { widget: kind };
     case 'space':
+    case 'space-map':
       return { widget: kind };
   }
 }
@@ -221,4 +231,5 @@ export const KIND_NAMES: Readonly<Record<WidgetKind, string>> = {
   log: 'Log',
   map: 'Map',
   space: 'Space',
+  'space-map': 'Space map',
 };

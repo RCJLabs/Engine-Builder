@@ -38,6 +38,20 @@
     "children": [
       {
         "widget": "button",
+        "label": "Map",
+        "action": {
+          "open": "map"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
         "label": "Rest a while",
         "action": {
           "take": "glen/rest"

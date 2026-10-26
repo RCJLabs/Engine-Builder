@@ -5,17 +5,19 @@
  * interacts and spawn points resolved the same way, and the start. Only called once the project
  * compiled without errors, so every file here is sound.
  */
-import type { PackWorld, TriggerZone, WorldUse } from '@eb/core';
+import type { PackMap, PackWorld, TriggerZone, WorldUse } from '@eb/core';
 import type { SpaceSpawns } from '@eb/schema';
 import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL, packValue } from '@eb/schema';
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
+import type { MapFileRead } from './mapFiles.ts';
 import type { NavFileRead } from './navFiles.ts';
 import { actorPlaces } from './npcPlaces.ts';
 import { eachPlaced, type Fields, isFields, recordHere } from './overrides.ts';
 import { eachPlacedRecord, type ModelSources, modelFieldOf, modelHere, modelNeeds } from './placedModels.ts';
 import type { ProjectSource } from './source.ts';
+import { SPACES_DIR } from './spaceFiles.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
 import type { TerrainFileRead } from './terrains.ts';
@@ -30,6 +32,8 @@ export interface WorldSources {
   readonly terrains: readonly TerrainFileRead[];
   /** The spaces' navmeshes (M6.2): each sound one is packed whole, header and all. */
   readonly navs: readonly NavFileRead[];
+  /** The spaces' maps (M6.6): each sound one is packed with its image, stale or not (W154 warns). */
+  readonly maps?: readonly MapFileRead[];
   /** A record's value by "type:id", undefined when there is none. */
   readonly record: (key: string) => unknown;
   /** The record types, for each one's model field. */
@@ -169,6 +173,14 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     const bytes = nav.header !== null && spaces.has(nav.id) ? await source.read(nav.file) : undefined;
     if (bytes) navmeshes[nav.id] = base64Of(bytes);
   }
+  const maps: Record<string, PackMap> = {};
+  for (const { id, map } of sources.maps ?? []) {
+    const image = map && spaces.has(id) ? `${SPACES_DIR}/${map.image}` : undefined;
+    const bytes = image === undefined ? undefined : await source.read(image);
+    if (!map || image === undefined || !bytes) continue;
+    files[image] = base64Of(bytes);
+    maps[id] = { bounds: map.bounds, size: map.size, image };
+  }
   // Where each actor is placed, which the world module walks it from (M6.2): one place each (E077).
   const actors: Record<string, { space: string; path: string }> = {};
   for (const [actor, [first]] of actorPlaces(sources.files, prefabs)) {
@@ -187,11 +199,13 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     // Format 11 only with a navmesh: createPack leaves both out without one.
     navmeshes,
     actors,
+    // Format 14 only with a map (M6.6).
+    ...(Object.keys(maps).length > 0 ? { maps } : {}),
   };
 }
 
 /** An animator's record and the models its clips come from: its own `clips`, and a state's `from`. */
-function animatorNeeds(id: string, sources: WorldSources, keys: Set<string>, found: Set<string>): void {
+function animatorNeeds(id: string, sources: DrawnSources, keys: Set<string>, found: Set<string>): void {
   const animator = sources.record(`${ANIMATOR}:${id}`);
   if (!isFields(animator)) return;
   keys.add(`${ANIMATOR}:${id}`);
@@ -205,15 +219,19 @@ function animatorNeeds(id: string, sources: WorldSources, keys: Set<string>, fou
   }
 }
 
+/** What drawnFrom reads: the records and each type's model field. */
+export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
+
 /**
  * What the spaces draw from: every model file, placed or grown as a terrain's foliage, by its path
  * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
- * Since M6.5 an actor's animator and the models its clips come from, and the player's actor.
+ * Since M6.5 an actor's animator and the models its clips come from, and the player's actor; since
+ * M6.6 a map's hash reads it too (mapInputs.ts).
  */
-function drawnFrom(
+export function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
   prefabs: ReadonlyMap<string, SpaceJson>,
-  sources: WorldSources,
+  sources: DrawnSources,
   player?: string,
 ): { files: string[]; records: Record<string, unknown>; fields: Record<string, string> } {
   const fields: Record<string, string> = {};

@@ -1,0 +1,85 @@
+/**
+ * A space drawn once from straight above, for Bake map (M6.6, D78, docs/specs/markers.md#baking):
+ * an orthographic camera over the shot's ground, north (-z) up; only the scene's children in `keep`
+ * shown (the space, its terrain and foliage, the lights), and in them nothing build.ts flags OFF_MAP
+ * and no mesh wholly above the shot's roofs; no fog.
+ * Drawn on the view's own canvas at the map's size, where the renderer turns its colours to sRGB as it
+ * does every frame, and copied out in the same task, before the frame is shown; then all is put back.
+ */
+import * as THREE from 'three/webgpu';
+import type { MapShot } from '../spaceMaps/shot.ts';
+import { OFF_MAP } from './build.ts';
+import type { Vec3 } from './vec.ts';
+
+/** Whether `node` is a mesh wholly above `roofs`, by its geometry's box where it stands. */
+function aboveRoofs(node: THREE.Object3D, roofs: number | undefined): boolean {
+  const mesh = node as THREE.Mesh;
+  if (roofs === undefined || !mesh.isMesh) return false;
+  if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+  const box = (mesh.geometry.boundingBox as THREE.Box3).clone().applyMatrix4(mesh.matrixWorld);
+  return box.min.y > roofs;
+}
+
+/**
+ * What a bake hides, each now shown: the scene's children not kept, and inside those kept, what
+ * build.ts flags OFF_MAP and meshes wholly above `roofs`. The scene's matrices are brought up to date.
+ */
+export function leftOut(
+  scene: THREE.Scene,
+  keep: ReadonlySet<THREE.Object3D>,
+  roofs: number | undefined,
+): THREE.Object3D[] {
+  const hidden = scene.children.filter((child) => child.visible && !keep.has(child));
+  scene.updateMatrixWorld();
+  for (const root of keep) {
+    root.traverse((node) => {
+      if (node.visible && (node.userData[OFF_MAP] === true || aboveRoofs(node, roofs))) hidden.push(node);
+    });
+  }
+  return hidden;
+}
+
+/** How far below the camera the ground may be, beyond the shot's height. */
+const DEPTH = 1000;
+/** The eye the terrain's and foliage's levels are picked for: low over the middle, so the near ground is fine. */
+const LEVELS_EYE = 30;
+
+export function drawFromAbove(
+  renderer: THREE.WebGPURenderer,
+  scene: THREE.Scene,
+  keep: ReadonlySet<THREE.Object3D>,
+  shot: MapShot,
+  levels: (eye: Vec3) => void,
+): HTMLCanvasElement {
+  const [x0, z0, x1, z1] = shot.bounds;
+  const [cx, cz] = [(x0 + x1) / 2, (z0 + z1) / 2];
+  const [halfX, halfZ] = [(x1 - x0) / 2, (z1 - z0) / 2];
+  const camera = new THREE.OrthographicCamera(-halfX, halfX, halfZ, -halfZ, 0.01, shot.top + DEPTH);
+  camera.position.set(cx, shot.top, cz);
+  camera.up.set(0, 0, -1);
+  camera.lookAt(cx, shot.top - 1, cz);
+  camera.updateProjectionMatrix();
+  camera.updateMatrixWorld();
+  const hidden = leftOut(scene, keep, shot.roofs);
+  for (const child of hidden) child.visible = false;
+  const fog = scene.fog;
+  scene.fog = null;
+  const size = renderer.getSize(new THREE.Vector2());
+  const ratio = renderer.getPixelRatio();
+  levels([cx, Math.min(shot.top, LEVELS_EYE), cz]);
+  try {
+    renderer.setPixelRatio(1);
+    renderer.setSize(shot.pixels, shot.pixels, false);
+    renderer.render(scene, camera);
+    const out = document.createElement('canvas');
+    out.width = shot.pixels;
+    out.height = shot.pixels;
+    out.getContext('2d')?.drawImage(renderer.domElement, 0, 0);
+    return out;
+  } finally {
+    renderer.setPixelRatio(ratio);
+    renderer.setSize(size.x, size.y, false);
+    for (const child of hidden) child.visible = true;
+    scene.fog = fog;
+  }
+}

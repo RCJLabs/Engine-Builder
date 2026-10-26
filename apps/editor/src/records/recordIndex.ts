@@ -267,6 +267,8 @@ export async function updateIndex(
   const spawned = {
     ...(flagsElsewhere?.spawns ? { spaces: flagsElsewhere.spawns } : {}),
     ...(flagsElsewhere?.walkers ? { walkers: flagsElsewhere.walkers } : {}),
+    // A quest's targets name spaces' objects (E086, M6.6).
+    ...(flagsElsewhere?.objects ? { objects: flagsElsewhere.objects } : {}),
   };
   const checks = flagsElsewhere ? { ...game, flagsElsewhere, ...spawned } : game;
   check(records, checking, catalog, checks);
@@ -313,14 +315,22 @@ const heldKey = (uses: FlagUses | undefined): string => {
   const walkers = [...(uses.walkers ?? [])]
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([actor, w]) => [actor, w.space, w.navmesh, [...w.objects].sort()]);
-  return JSON.stringify([effects, conditions, spawns, walkers]);
+  const objects = [...(uses.objects ?? [])]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([space, paths]) => [space, [...paths].sort()]);
+  return JSON.stringify([effects, conditions, spawns, walkers, objects]);
 };
 
 function check(
   records: Map<string, IndexedRecord>,
   dirty: ReadonlySet<string>,
   catalog: Catalog,
-  game: GameChecks & { readonly flagsElsewhere?: FlagUses; readonly spaces?: SpaceSpawns; readonly walkers?: Walkers },
+  game: GameChecks & {
+    readonly flagsElsewhere?: FlagUses;
+    readonly spaces?: SpaceSpawns;
+    readonly walkers?: Walkers;
+    readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
+  },
 ): void {
   if (dirty.size === 0) return;
   // As the compiler does: a record of a type whose file has problems isn't checked, and one of a

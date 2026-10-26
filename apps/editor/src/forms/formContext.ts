@@ -26,6 +26,8 @@ export interface FormApi {
   readonly slots?: (pointer: string) => Readonly<Record<string, string>>;
   /** The facts its conditions read, when not the game's: an animator's are the stage's `anim.*` (M6.5). */
   readonly facts?: FactCatalog;
+  /** What a text field at a path offers, when the form knows (M6.6: a quest's targets): drawn as a choice. */
+  readonly textChoices?: (path: Path) => readonly string[] | undefined;
   readonly typeFile: TypeFile;
   readonly id: string;
   problemsAt(pointer: string): readonly Diagnostic[];

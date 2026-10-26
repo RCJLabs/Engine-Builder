@@ -1,0 +1,94 @@
+{
+  "format": 1,
+  "game": "dock",
+  "edition": "test",
+  "build": "fixture-quests-v2",
+  "savedAt": 1761480000000,
+  "snapshot": {
+    "kernel": {
+      "seed": "fixture",
+      "step": 3,
+      "modes": [
+        {
+          "id": "dock"
+        }
+      ],
+      "streams": {},
+      "versions": {
+        "dock": 1,
+        "flag": 1,
+        "logic": 1,
+        "quests": 2,
+        "sheet": 1,
+        "time": 1
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {
+        "posted": true
+      }
+    },
+    "sheet": {
+      "fired": []
+    },
+    "time": {
+      "tick": 0,
+      "carry": 0,
+      "next": 0,
+      "timers": []
+    },
+    "quests": {
+      "quests": {
+        "debt": {
+          "state": "active",
+          "stage": "owed",
+          "log": ["owed"],
+          "done": [],
+          "counts": {},
+          "days": 0
+        },
+        "bounty": {
+          "state": "active",
+          "stage": "hunt",
+          "log": ["hunt"],
+          "done": [],
+          "counts": {
+            "scrap": 1
+          },
+          "days": 0
+        },
+        "courier": {
+          "state": "active",
+          "stage": "pickup",
+          "log": ["pickup"],
+          "done": [],
+          "counts": {},
+          "days": 0
+        }
+      }
+    },
+    "dock": {}
+  },
+  "log": [
+    {
+      "type": "dock/scrap",
+      "kind": "drone"
+    },
+    {
+      "type": "dock/do",
+      "effects": [
+        {
+          "effect": "set-flag",
+          "flag": "refused",
+          "to": true
+        }
+      ]
+    },
+    {
+      "type": "dock/rest"
+    }
+  ],
+  "hash": "15a4303cc4eabf46",
+  "check": "61ecafce5a856c62"
+}

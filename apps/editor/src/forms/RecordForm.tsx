@@ -32,6 +32,7 @@ import { MaterialStart } from '../models/MaterialStart.tsx';
 import { ModelHead } from '../models/ModelHead.tsx';
 import type { OpenProject } from '../projects/opened.ts';
 import { QuestMap } from '../quests/QuestMap.tsx';
+import { targetChoices, targetSources } from '../quests/targetChoices.ts';
 import { duplicateRecord } from '../records/actions.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { copyName, nameIn, namesOf } from '../records/names.ts';
@@ -197,7 +198,13 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
     canEdit,
     catalog,
     names: namesOf(project.index, catalog),
-    ...(quest ? { slots: slotScope(value) } : {}),
+    ...(quest
+      ? {
+          slots: slotScope(value),
+          // An objective's target: the actors and the quest's slots, the spaces, and the chosen space's objects (M6.6).
+          textChoices: (path) => targetChoices(value, targetSources(project), path),
+        }
+      : {}),
     // A behaviour's conditions name the NPC running it as @self (M6.3).
     ...(behaviour ? { slots: () => SELF } : {}),
     // An animator's conditions read the stage's anim.* facts alone (M6.5).

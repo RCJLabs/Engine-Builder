@@ -24,6 +24,8 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
   send.current = drawing.send;
   const latest = useRef(world);
   latest.current = world;
+  const marking = useRef(drawing.markers !== false);
+  marking.current = drawing.markers !== false;
   const placing = space === undefined ? undefined : placingIn(space, world);
   const takenKey = placing?.taken.join('\n') ?? '';
   // The NPCs' goals as text: a walk-to after a step reaches the stage, their stands do not restart it.
@@ -40,6 +42,7 @@ export function SpaceWidgetView({ widget, drawing }: { readonly widget: SpaceWid
       here: () => latest.current?.space === space,
       clocked: () => latest.current?.space === space && latest.current.clock === true,
       fight: () => (latest.current?.space === space ? latest.current.fight : undefined),
+      markers: () => (marking.current && latest.current?.space === space ? (latest.current.markers ?? []) : []),
       send: (action) => send.current?.(action) ?? Promise.resolve('dropped'),
     });
     drawn.current = made;

@@ -42,8 +42,11 @@ export type Action =
 export const SOURCES = ['talk', 'event', 'shelf', 'bag', 'journal', 'offered', 'records', 'credits'] as const;
 export type Source = (typeof SOURCES)[number];
 
-/** Sources whose entries come with no action, so `{"take": "entry"}` has nothing to take. */
-export const NO_ACTION: readonly Source[] = ['journal', 'records', 'credits'];
+/**
+ * Sources whose entries come with no action, so `{"take": "entry"}` has nothing to take. A journal's
+ * entries track their quest since M6.6.
+ */
+export const NO_ACTION: readonly Source[] = ['records', 'credits'];
 
 /** In a `records` list, a fact's argument that is its entry's record (M4.4), as a quest's `@slot` is its slot's. */
 export const ENTRY = '@entry';
@@ -56,7 +59,7 @@ export const SOURCE_FIELDS: Readonly<Record<Source, readonly string[]>> = {
   event: ['label', 'locked', 'why', 'cost', 'odds'],
   shelf: ['item', 'name', 'price', 'count'],
   bag: ['item', 'name', 'count', 'price'],
-  journal: ['quest', 'name', 'state', 'log', 'objectives'],
+  journal: ['quest', 'name', 'state', 'log', 'objectives', 'tracked'],
   offered: ['type', 'label'],
   // And the record's own fields whose values are text, numbers or yes/no: its type says which.
   records: ['id', 'name'],
@@ -166,7 +169,12 @@ export type Widget =
    * drawn by the page's host. `label` names it for assistive tech; the space's name when left out.
    * Without `space`, it draws the space the player is in, and the next as enter-space moves them (M5.9).
    */
-  | (Base & { readonly widget: 'space'; readonly space?: string; readonly label?: string });
+  | (Base & { readonly widget: 'space'; readonly space?: string; readonly label?: string })
+  /**
+   * The space the player is in from above (M6.6, D78, docs/specs/markers.md#in-play): its baked map, or
+   * plain ground, with pins for the player and the tracked quest's targets, drawn by the page's host.
+   */
+  | (Base & { readonly widget: 'space-map'; readonly label?: string });
 
 export type WidgetKind = Widget['widget'];
 export const WIDGETS: readonly WidgetKind[] = [
@@ -182,6 +190,7 @@ export const WIDGETS: readonly WidgetKind[] = [
   'log',
   'map',
   'space',
+  'space-map',
 ];
 
 /** How many lines a log widget shows unless it says, and the most it may. */

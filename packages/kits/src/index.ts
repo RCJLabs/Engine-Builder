@@ -213,6 +213,8 @@ export { questsModule } from './quests/module.ts';
 export { namedObjective, namedSlot, namedStage, objectiveOf, questRecord, stageOf } from './quests/records.ts';
 export { FAILED } from './quests/run.ts';
 export { bind as bindSlots, slotText } from './quests/slots.ts';
+export { targetOf } from './quests/targets.ts';
+export { firstActive } from './quests/tracking.ts';
 export {
   type Count,
   type Job,
@@ -230,6 +232,7 @@ export {
   type Slot,
   type SlotRank,
   type Stage,
+  type Target as QuestTarget,
 } from './quests/types.ts';
 export { bondOf, pairKey } from './roster/bonds.ts';
 export { type HireVerdict, hallIn, hireVerdict } from './roster/hall.ts';

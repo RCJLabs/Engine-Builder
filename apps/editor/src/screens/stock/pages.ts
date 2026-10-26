@@ -4,7 +4,7 @@
  */
 import type { Screen, Widget } from '@eb/ui/format';
 import { recordsOf, type StockContext } from './context.ts';
-import { bar, close, column, text } from './parts.ts';
+import { bar, button, close, column, text } from './parts.ts';
 
 const page = (title: string, main: Widget): Screen => ({ title, modal: true, main, bottom: bar([close()]) });
 
@@ -29,13 +29,23 @@ export const journalScreen = (): Screen =>
             widget: 'list',
             of: 'journal',
             empty: 'Nothing in the journal yet.',
-            item: panel([text('{.name}', 'heading'), text('{.log}'), text('{.objectives}', 'caption')]),
+            // M6.6: which quest the compass follows, and Track for another that is active.
+            item: panel([
+              text('{.name}', 'heading'),
+              text('{.tracked}', 'caption'),
+              text('{.log}'),
+              text('{.objectives}', 'caption'),
+              button('Track', { take: 'entry' }),
+            ]),
           },
         ],
       },
       { label: 'Log', children: [{ widget: 'log', lines: 20, label: 'So far', empty: 'Nothing yet.' }] },
     ],
   });
+
+/** The space the player is in from above, with their pin and the tracked quest's (M6.6, D78). */
+export const spaceMapScreen = (): Screen => page('Map', { widget: 'space-map' });
 
 export const creditsScreen = (ctx: StockContext): Screen =>
   page(

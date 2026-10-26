@@ -20,10 +20,16 @@ export function castShadows(root: THREE.Object3D): void {
   });
 }
 
-/** Shadows on or off for the renderer and the sun, at a map `size` a side (0 for none). */
+/**
+ * Shadows on or off for the renderer and the sun, at a map `size` a side (0 for none). With no bias a
+ * broad flat face shadows itself unevenly, a line along its triangles' seam (M6.6's map bake showed
+ * it): a little, pushed along the normal, as three's examples do.
+ */
 export function sunShadows(renderer: THREE.WebGPURenderer, sun: THREE.DirectionalLight, size: number): void {
   renderer.shadowMap.enabled = size > 0;
   sun.castShadow = size > 0;
+  sun.shadow.bias = -0.0005;
+  sun.shadow.normalBias = 0.02;
   if (size > 0) sun.shadow.mapSize.set(size, size);
 }
 
@@ -42,7 +48,12 @@ export function fitShadowsTo(
   fitSunShadow(sun, radius || 10);
 }
 
-/** The sun's shadow camera round a sphere of `radius` metres at the origin, from wherever the sun now is. */
+/**
+ * The sun's shadow camera round a sphere of `radius` metres at the origin, from wherever the sun now
+ * is. The camera stands at the sun, which may be nearer the origin than the sphere's edge: its near
+ * plane goes behind it, as an orthographic camera's may, or the ground towards the sun goes unshadowed
+ * past a line across it (M6.6's map bake showed it).
+ */
 export function fitSunShadow(sun: THREE.DirectionalLight, radius: number): void {
   const camera = sun.shadow.camera;
   const r = Math.max(radius, 1);
@@ -50,7 +61,7 @@ export function fitSunShadow(sun: THREE.DirectionalLight, radius: number): void 
   camera.right = r;
   camera.top = r;
   camera.bottom = -r;
-  camera.near = 0.5;
+  camera.near = Math.min(0.5, sun.position.length() - r);
   camera.far = sun.position.length() + 2 * r;
   camera.updateProjectionMatrix();
 }

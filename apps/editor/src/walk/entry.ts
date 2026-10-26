@@ -3,6 +3,7 @@
  * an exported game's runtime by vite.walk.config.ts, as one classic script that leaves the stage
  * where the runtime's host finds it.
  */
+import { mapOf } from './mapPins.ts';
 import { startStage } from './stage.ts';
 
-window.__ebWalkStage = { startStage };
+window.__ebWalkStage = { startStage, mapOf };

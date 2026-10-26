@@ -17,6 +17,7 @@ import {
   groupObjects,
   placeObjects,
   renameObject,
+  setAxis,
 } from './spaceEdits.ts';
 import { type SpaceJson, type SpaceObject, transformOf, withTransform } from './spaceFile.ts';
 import { aim, groundHeight, moveStep, objectBoxes, openSpace, openSpaceFile, pick, picked, snapOn } from './state.ts';
@@ -62,7 +63,11 @@ export async function addHere(
   if (made) pick([made]);
 }
 
-/** The places a drag or the form gave the chosen objects. */
+/** One axis of an object's place, turn or scale, typed in its form (setAxis). */
+export const placeAxis = (id: string, part: keyof Transform, axis: number, n: number, what: string): Promise<void> =>
+  editOpen(`${what} ${id}`, (space) => setAxis(space, id, part, axis, n), `${openSpace.value?.path}#${id}#${what}`);
+
+/** The places a drag gave the chosen objects. */
 export const placeChosen = (places: ReadonlyMap<string, Transform>, label: string, group?: string): Promise<void> =>
   editOpen(label, (space) => placeObjects(space, places), group);
 

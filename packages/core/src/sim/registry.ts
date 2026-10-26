@@ -19,7 +19,7 @@ export interface ActionEntry {
   readonly module: string;
   readonly run: ActionRun<unknown>;
   readonly options?: ActionSpec<unknown>['options'];
-  /** The debug step (M4.9): allowed in every mode, and in no mode's list, so nothing offers it. */
+  /** The debug step (M4.9), or an action outside play (M6.6): allowed in every mode, in no mode's list, so nothing offers it. */
   readonly anyMode?: true;
 }
 
@@ -87,7 +87,7 @@ export function buildRegistry(modules: readonly Module[]): Registry {
         module: module.id,
         run: spec.run,
         ...(spec.options ? { options: spec.options } : {}),
-        ...(debug ? { anyMode: true as const } : {}),
+        ...(debug || ('anyMode' in spec && spec.anyMode === true) ? { anyMode: true as const } : {}),
       });
     }
     for (const [fact, def] of Object.entries(module.facts ?? {})) {
@@ -204,7 +204,7 @@ function checkFact(id: string, info: FactInfo): void {
 
 function expandModes(modules: readonly Module[], actions: ReadonlyMap<string, ActionEntry>): Map<string, Set<string>> {
   const modes = new Map<string, Set<string>>();
-  // The debug step is in no mode's list, "*" included, so options() never offers it.
+  // The debug step and actions outside play are in no mode's list, "*" included, so options() never offers them.
   const listed = [...actions].filter(([, entry]) => !entry.anyMode).map(([type]) => type);
   for (const module of modules) {
     for (const [mode, def] of Object.entries(module.modes ?? {})) {

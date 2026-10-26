@@ -74,4 +74,4 @@ Read from the earlier surveys; nothing here was read again from the sibling repo
 ## Open questions
 
 1. Should a template's guide tick off steps once done, by a condition over the project's files? Not built; the steps only open places (D61's cost).
-2. Will the templates be kept in step with Phase 5's 3D, or will 3D get its own templates (ROADMAP M6.7)? Assumed the latter.
+2. Will the templates be kept in step with Phase 5's 3D, or will 3D get its own templates (ROADMAP M6.9)? Assumed the latter.

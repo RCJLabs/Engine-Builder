@@ -28,6 +28,7 @@ import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
 import { type FightView, fightOf } from './fighting.ts';
 import { mapShows } from './mapView.ts';
+import { markersOf, type QuestMarker } from './markers.ts';
 import { codexEntries, creditEntries, parseCodex } from './records.ts';
 import { feedbackSayer } from './say.ts';
 import { soundCondition } from './sound.ts';
@@ -51,6 +52,8 @@ const WALKED = new Set([
   'fighting/loosed',
   'fighting/search',
 ]);
+/** The journal's Track (M6.6): it takes no time and no mode offers it, as looking at the journal doesn't. */
+const TRACK = 'quests/track';
 
 export interface Play {
   readonly view: View;
@@ -151,7 +154,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       enabled: true,
     }));
     const fight = fightOf(state, content, reading.fact, setup.fighting);
-    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE), fight);
+    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE), fight, markersOf(reading, kits));
     return {
       modes: state.kernel.modes.map((frame) => frame.id),
       offered,
@@ -189,7 +192,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
     compact: () => session.compact(),
     look: (wants) => viewOf(session.state, parsedWants(wants, catalog)),
     act(action) {
-      const walked = WALKED.has(action.type);
+      const walked = WALKED.has(action.type) || action.type === TRACK;
       if (!walked && !view.offered.some((offer) => canonicalJson(offer) === canonicalJson(action))) {
         return { view, beats: [], said: [], cues: [], accepted: false };
       }
@@ -203,7 +206,12 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
  * The world module's slice, as the stage reads it: only what it says, in a game with spaces. `clocked`
  * when the walk should send time/elapse now: the game follows real time and its mode allows it (M6.3).
  */
-function worldOf(state: GameState, clocked: boolean, fight: FightView | undefined): WorldView | undefined {
+function worldOf(
+  state: GameState,
+  clocked: boolean,
+  fight: FightView | undefined,
+  markers: readonly QuestMarker[],
+): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
   const { space, at, arrive, taken, npcs } = slice;
@@ -216,6 +224,7 @@ function worldOf(state: GameState, clocked: boolean, fight: FightView | undefine
     ...walking,
     ...(clocked ? { clock: true as const } : {}),
     ...(fight ? { fight } : {}),
+    ...(markers.length > 0 ? { markers } : {}),
   };
 }
 

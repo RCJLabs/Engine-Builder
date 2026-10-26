@@ -135,11 +135,26 @@ describe('a play’s view', () => {
     const play = startPlay({ game: dock.game, sim: dock.sim, kits: ['quests'], wants: none }, 'dock');
     const journal = play.view.lists.journal ?? [];
     expect(journal.length).toBeGreaterThan(0);
-    for (const entry of journal) {
-      expect(entry.fields.state).not.toBe('waiting');
-      expect(entry.enabled).toBe(false);
-      expect(entry.action).toBeUndefined();
-    }
+    for (const entry of journal) expect(entry.fields.state).not.toBe('waiting');
+  });
+
+  it('tracks a quest from the journal (M6.6): Track on each active quest but the tracked one', () => {
+    const dock = dockWith();
+    const play = startPlay({ game: dock.game, sim: dock.sim, kits: ['quests'], wants: none }, 'dock');
+    const journal = () => Object.fromEntries((play.view.lists.journal ?? []).map((e) => [e.key, e]));
+    expect(journal().debt).toMatchObject({
+      action: { type: 'quests/track', quest: 'debt' },
+      enabled: false,
+      fields: { tracked: 'Tracked' },
+    });
+    // The debt pays nothing to track: a flag posts the bounty, which starts and is tracked.
+    play.take({ type: 'dock/do', effects: [{ effect: 'set-flag', flag: 'posted', to: true }] });
+    expect(journal().bounty?.fields.tracked).toBe('Tracked');
+    expect(journal().debt).toMatchObject({ enabled: true, fields: { tracked: null } });
+    // No mode offers quests/track, yet the journal's Track is taken.
+    expect(play.view.offered.some((a) => a.type === 'quests/track')).toBe(false);
+    expect(play.act({ type: 'quests/track', quest: 'debt' }).accepted).toBe(true);
+    expect(journal().debt?.fields.tracked).toBe('Tracked');
   });
 
   it('applies no list whose kit is off', () => {

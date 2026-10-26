@@ -16,6 +16,12 @@ export interface Count {
   readonly to: number;
 }
 
+/**
+ * Where an objective's marker points (M6.6, D78, docs/specs/markers.md#targets): an actor, by id or
+ * `@slot`; or a space and, in it, an object by its path; or a space alone.
+ */
+export type Target = { readonly actor: string } | { readonly space: string; readonly object?: string };
+
 export interface Objective {
   /** Lowercase words joined by hyphens, once in the quest. */
   readonly id: string;
@@ -25,6 +31,8 @@ export interface Objective {
   readonly count?: Count;
   /** Once done, the quest goes to this stage at once (Leads to). */
   readonly next?: string;
+  /** Where its marker points (M6.6); read from its count when left out. */
+  readonly target?: Target;
 }
 
 /** One way a job can end: its chance in whole percents, and the stage it leads to. */
@@ -132,7 +140,9 @@ export interface QuestEntry {
   again?: boolean;
 }
 
-/** The kit's slice: each quest started, by id. */
+/** The kit's slice: each quest started, by id, and the one tracked (M6.6). */
 export interface QuestsSlice {
   quests: Record<string, QuestEntry>;
+  /** The quest whose targets the walk points at: the last started, or the journal's choice. */
+  tracked?: string;
 }

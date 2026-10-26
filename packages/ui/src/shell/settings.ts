@@ -30,6 +30,8 @@ export interface Settings {
   readonly effects: number;
   readonly vibration: boolean;
   readonly quality: Quality;
+  /** The compass and the quest markers over a walked space (M6.6, D78): on unless turned off. */
+  readonly markers: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   effects: 100,
   vibration: true,
   quality: 'auto',
+  markers: true,
 };
 
 const isVolume = (value: unknown): value is number =>
@@ -72,6 +75,7 @@ export function readSettings(text: string | undefined): Settings {
     effects: volume('effects'),
     vibration: typeof stored.vibration === 'boolean' ? stored.vibration : DEFAULT_SETTINGS.vibration,
     quality: one(QUALITIES, stored.quality, DEFAULT_SETTINGS.quality),
+    markers: typeof stored.markers === 'boolean' ? stored.markers : DEFAULT_SETTINGS.markers,
   };
 }
 

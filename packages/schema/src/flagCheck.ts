@@ -62,6 +62,8 @@ export interface FlagUses {
   readonly spawns?: SpaceSpawns;
   /** Where each placed actor stands (M6.2), for a walk-to in a record (E079), read with the spaces. */
   readonly walkers?: Walkers;
+  /** Each space's object paths through prefabs (M6.6), for a quest's targets (E086, W155). */
+  readonly objects?: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
 export class FlagChecks {

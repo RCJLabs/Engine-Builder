@@ -1,0 +1,38 @@
+{
+  "name": "Find your feet",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "look",
+      "log": "Have a look round the glen.",
+      "objectives": [
+        {
+          "id": "rope",
+          "text": "Pick up the rope by the path",
+          "count": {
+            "event": "world/used",
+            "args": {
+              "space": "glen",
+              "object": "rope"
+            },
+            "to": 1
+          }
+        },
+        {
+          "id": "gate",
+          "text": "Look over the gate",
+          "done-when": "quests.reached(quest: supplies, stage: stored)",
+          "target": {
+            "space": "glen",
+            "object": "gate"
+          }
+        }
+      ],
+      "next": "settled"
+    },
+    {
+      "id": "settled",
+      "log": "You know your way about the glen now."
+    }
+  ]
+}

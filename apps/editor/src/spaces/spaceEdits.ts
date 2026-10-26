@@ -26,6 +26,22 @@ export function addObject(space: SpaceJson, object: SpaceObject): { space: Space
   return { space: { ...space, objects: [...space.objects, { ...object, id }] }, id };
 }
 
+/**
+ * One axis of an object's place, turn or scale set, the other two as the file holds them when the
+ * edit lands: x, y and z typed one after another each keep the others', where a whole triple taken
+ * from the form's last render put back an axis whose edit hadn't drawn yet (M6.6's CI found it).
+ */
+export function setAxis(space: SpaceJson, id: string, part: keyof Transform, axis: number, n: number): SpaceJson {
+  return {
+    ...space,
+    objects: space.objects.map((o) => {
+      if (o.id !== id) return o;
+      const t = transformOf(o);
+      return withTransform(o, { ...t, [part]: t[part].map((v, i) => (i === axis ? n : v)) as unknown as Vec3 });
+    }),
+  };
+}
+
 /** Each object named in `places` at its new place, turn and scale. */
 export function placeObjects(space: SpaceJson, places: ReadonlyMap<string, Transform>): SpaceJson {
   return {

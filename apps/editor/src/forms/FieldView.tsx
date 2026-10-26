@@ -8,7 +8,7 @@ import { MapField } from './fields/MapField.tsx';
 import { NumberField } from './fields/NumberField.tsx';
 import { AssetField, RefField } from './fields/PickField.tsx';
 import { TextField } from './fields/TextField.tsx';
-import { pointerOf } from './formContext.ts';
+import { pointerOf, useForm } from './formContext.ts';
 
 /**
  * The field for a value of any kind, in a box that says where in the record it is (`data-at`, a
@@ -22,12 +22,18 @@ export function FieldView(props: FieldProps) {
   );
 }
 
-/** One component per kind, as the type file names them. */
+/** One component per kind, as the type file names them; text the form offers choices for, as a choice (M6.6). */
 function FieldOfKind(props: FieldProps) {
   const { def } = props;
+  const form = useForm();
+  const choices = def.kind === 'text' ? form.textChoices?.(props.path) : undefined;
   switch (def.kind) {
     case 'text':
-      return <TextField {...props} def={def} />;
+      return choices ? (
+        <EnumField {...props} def={{ kind: 'enum', values: choices }} />
+      ) : (
+        <TextField {...props} def={def} />
+      );
     case 'int':
     case 'number':
       return <NumberField {...props} def={def} />;

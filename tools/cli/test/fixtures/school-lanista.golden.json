@@ -6,10 +6,10 @@
   "maxTurns": 1000,
   "runs": {
     "seed-0": {
-      "hash": "6d3ff974ced29ac1",
+      "hash": "0d1eca4b59cfcc24",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "95d533560923ecef",
+        "kernel": "85f341e14c42851e",
         "logic": "08f44b07b5901a25",
         "quests": "4bed335555d885ec",
         "roster": "e6dd3ebc299fa7fe",
@@ -22,12 +22,12 @@
       "end": "ended"
     },
     "seed-1": {
-      "hash": "ff3e44806b45c783",
+      "hash": "895b58645cbbc185",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "a91311b30cbb2e17",
+        "kernel": "d97751ad479c17e6",
         "logic": "08f44b07b5901a25",
-        "quests": "5c3deb57a2e46554",
+        "quests": "c58e4073714abe23",
         "roster": "ea2d3392ff4f9fda",
         "school": "ab4fd97b41288b8b",
         "sheet": "da9d0cae103b40df",
@@ -38,12 +38,12 @@
       "end": "ended"
     },
     "seed-2": {
-      "hash": "a3bad8a91b423054",
+      "hash": "bc8ad337a297bb70",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "65fb51844f1a9cf2",
+        "kernel": "72abc4e174b76673",
         "logic": "08f44b07b5901a25",
-        "quests": "594a6a9105fc111d",
+        "quests": "31bc494120de18ca",
         "roster": "0cb2d02a1700dcf0",
         "school": "04f35f6f95daea90",
         "sheet": "da9d0cae103b40df",
@@ -54,10 +54,10 @@
       "end": "ended"
     },
     "seed-3": {
-      "hash": "ef56de9f4b1c6451",
+      "hash": "da23a1fc217a4fce",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "d6ce4496c36fd09b",
+        "kernel": "ecdf878312aec17a",
         "logic": "08f44b07b5901a25",
         "quests": "2fb8ccad9f8f0385",
         "roster": "ba02caf5f327fd09",
@@ -70,10 +70,10 @@
       "end": "ended"
     },
     "seed-4": {
-      "hash": "8e435bcc80332ee3",
+      "hash": "0fc97a52d2be74a2",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "33db844f19926135",
+        "kernel": "81f2743a0568a3fc",
         "logic": "08f44b07b5901a25",
         "quests": "2aa155da10c11083",
         "roster": "b1e437557d69aad2",
@@ -86,12 +86,12 @@
       "end": "ended"
     },
     "seed-5": {
-      "hash": "7c37d8ddbe490494",
+      "hash": "9d6e5ed5138f8022",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "ecfb1f4e826956b6",
+        "kernel": "d23ce455ddc1a567",
         "logic": "08f44b07b5901a25",
-        "quests": "77c9b55c3cb684e4",
+        "quests": "5f5254f4a1f7f093",
         "roster": "2a602f0d543e2b78",
         "school": "ab4fd97b41288b8b",
         "sheet": "da9d0cae103b40df",
@@ -102,10 +102,10 @@
       "end": "ended"
     },
     "seed-6": {
-      "hash": "9302bb3ba0e45603",
+      "hash": "70d756c358448bb4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "742de6cc546e2dd3",
+        "kernel": "8afda234e5e49752",
         "logic": "08f44b07b5901a25",
         "quests": "984547b4ac14eff8",
         "roster": "b50d4e3c9a37622d",
@@ -118,10 +118,10 @@
       "end": "ended"
     },
     "seed-7": {
-      "hash": "a1fa95c3cf2078f3",
+      "hash": "fe8974792feda2e4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "8af52df700386064",
+        "kernel": "a633c04675b6dd1d",
         "logic": "08f44b07b5901a25",
         "quests": "e67f17c0dc6eec70",
         "roster": "fa7e035f4980f9b6",
@@ -134,12 +134,12 @@
       "end": "ended"
     },
     "seed-8": {
-      "hash": "346c7b3fe9241f3e",
+      "hash": "ea7078ee31b87cfa",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "94088cde0814c069",
+        "kernel": "4b1b0517bca1f090",
         "logic": "08f44b07b5901a25",
-        "quests": "bee97a5c0cfab230",
+        "quests": "003a6bffa3cb91bf",
         "roster": "d6780cd8f02b25de",
         "school": "ab4fd97b41288b8b",
         "sheet": "da9d0cae103b40df",
@@ -150,10 +150,10 @@
       "end": "ended"
     },
     "seed-9": {
-      "hash": "b06116265b501dd1",
+      "hash": "81cb3f43ba9d4c30",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "52bc2ae071570223",
+        "kernel": "17f96660d5bee422",
         "logic": "08f44b07b5901a25",
         "quests": "fec6cd2d9e907ec4",
         "roster": "647ed449b62b32a3",
@@ -166,10 +166,10 @@
       "end": "ended"
     },
     "seed-10": {
-      "hash": "7c7490ee522461e0",
+      "hash": "d61ad24409c04789",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "f1b520102f1820bd",
+        "kernel": "9caa1f9461ab9884",
         "logic": "08f44b07b5901a25",
         "quests": "4fca5e95d6a00a88",
         "roster": "97437678edbc8b21",
@@ -182,12 +182,12 @@
       "end": "ended"
     },
     "seed-11": {
-      "hash": "af61bb937ae30595",
+      "hash": "3d9d283c73a6ffcb",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "7168b1e0b1080fbf",
+        "kernel": "bf56b938e166772e",
         "logic": "08f44b07b5901a25",
-        "quests": "40635b3f2952acd4",
+        "quests": "51e7df593f571da3",
         "roster": "5a9d8f7e803086c7",
         "school": "ab30d97b410ddafc",
         "sheet": "da9d0cae103b40df",
@@ -198,10 +198,10 @@
       "end": "ended"
     },
     "seed-12": {
-      "hash": "6c7b5ae5316acee3",
+      "hash": "5ef5a953b26328e2",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "23ecc99018dfd2fd",
+        "kernel": "271462dadad3e6c4",
         "logic": "08f44b07b5901a25",
         "quests": "96de114d4bbca6ad",
         "roster": "ce1f93b7c1d50323",
@@ -214,10 +214,10 @@
       "end": "ended"
     },
     "seed-13": {
-      "hash": "1541685024e84bb0",
+      "hash": "de46e12f41d32a33",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "f55fefe26c3d5892",
+        "kernel": "503cd1891d669513",
         "logic": "08f44b07b5901a25",
         "quests": "a50ffae9ea95fce2",
         "roster": "6d201b1775774a7c",
@@ -230,10 +230,10 @@
       "end": "ended"
     },
     "seed-14": {
-      "hash": "5c6b217040c07734",
+      "hash": "3ef58211486b8bab",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "823fe584f00b0f69",
+        "kernel": "39525dbea4983f90",
         "logic": "08f44b07b5901a25",
         "quests": "88f99876a8feefba",
         "roster": "4d814ca7f214f9bc",
@@ -246,10 +246,10 @@
       "end": "ended"
     },
     "seed-15": {
-      "hash": "61306703ac1a9fbc",
+      "hash": "83bfd9070a544e9f",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "0940925e3fb4e4c3",
+        "kernel": "8e5e76e3afbc04c2",
         "logic": "08f44b07b5901a25",
         "quests": "93516717ec7262fb",
         "roster": "418b7b7bb7ea4e9a",
@@ -262,10 +262,10 @@
       "end": "ended"
     },
     "seed-16": {
-      "hash": "d272853783432b5c",
+      "hash": "5e236a2cb084c7ad",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "47dc15aa226f3606",
+        "kernel": "ab1fb8687310bc37",
         "logic": "08f44b07b5901a25",
         "quests": "057e1245c84ffa7a",
         "roster": "6670c8d90d3457d4",
@@ -278,10 +278,10 @@
       "end": "ended"
     },
     "seed-17": {
-      "hash": "d1db2a62fae94f9e",
+      "hash": "e612c0c71cb46a37",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "2bee3942a2e10e98",
+        "kernel": "24e51a27f7f9a5b1",
         "logic": "08f44b07b5901a25",
         "quests": "52c31c577c209d4b",
         "roster": "a0420138d5c9504c",
@@ -294,10 +294,10 @@
       "end": "ended"
     },
     "seed-18": {
-      "hash": "0995320cd42b793e",
+      "hash": "cb81dd9ced252775",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "85718e5de041a0ce",
+        "kernel": "32524d3c8c9aa5df",
         "logic": "08f44b07b5901a25",
         "quests": "af926f53e62dca6c",
         "roster": "1041cad544207494",
@@ -310,10 +310,10 @@
       "end": "ended"
     },
     "seed-19": {
-      "hash": "7deb7da52e601ea1",
+      "hash": "b6500602c6776a24",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "431ff11d01745e45",
+        "kernel": "2383dc23d65cd18c",
         "logic": "08f44b07b5901a25",
         "quests": "7b45777333e81184",
         "roster": "5183481c35b6d12e",
@@ -326,10 +326,10 @@
       "end": "ended"
     },
     "seed-20": {
-      "hash": "72cd6b0cde0b6526",
+      "hash": "da4eac0df5907421",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "676875bca955f923",
+        "kernel": "2ca5b13d0dbddb22",
         "logic": "08f44b07b5901a25",
         "quests": "fd6423e69ddb4c5a",
         "roster": "1440489512769cf3",
@@ -342,10 +342,10 @@
       "end": "ended"
     },
     "seed-21": {
-      "hash": "269f1cdf141df670",
+      "hash": "01563db174fa1fbb",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "051c4bba7aa21c0e",
+        "kernel": "a43983a230e8211f",
         "logic": "08f44b07b5901a25",
         "quests": "6f4b48c85214d973",
         "roster": "9fcd2575514c4dde",
@@ -358,10 +358,10 @@
       "end": "ended"
     },
     "seed-22": {
-      "hash": "e80a3556640912fd",
+      "hash": "fc17e4dc1ec44e76",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "9aa1567716cbbcc8",
+        "kernel": "4fead86957f52be1",
         "logic": "08f44b07b5901a25",
         "quests": "a31e3d24894be72d",
         "roster": "55b95ccc4372ef11",
@@ -374,10 +374,10 @@
       "end": "ended"
     },
     "seed-23": {
-      "hash": "1cc2fbe36b35399d",
+      "hash": "bc9588bd26067c3c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "36fad7a032f0934a",
+        "kernel": "4925ad027f10912b",
         "logic": "08f44b07b5901a25",
         "quests": "63d6d1b6f68c2370",
         "roster": "f7ff2e44c9ae75a5",
@@ -390,10 +390,10 @@
       "end": "ended"
     },
     "seed-24": {
-      "hash": "60f6a84741020a7f",
+      "hash": "742aaa1e8ce3498c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "a3ad41110abd8341",
+        "kernel": "eded80eecb8b2928",
         "logic": "08f44b07b5901a25",
         "quests": "6f860e20e7f45eda",
         "roster": "57c2d0af1d7db019",
@@ -406,10 +406,10 @@
       "end": "ended"
     },
     "seed-25": {
-      "hash": "253590dfbd3f900c",
+      "hash": "93b8e5e01bf016dd",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "0d77a0f437fdb02f",
+        "kernel": "d37c78351fdafb5e",
         "logic": "08f44b07b5901a25",
         "quests": "e5900e3b97e17756",
         "roster": "7830ea5da1b7960a",
@@ -422,10 +422,10 @@
       "end": "ended"
     },
     "seed-26": {
-      "hash": "bd57234de4f31697",
+      "hash": "ade78354586ce1ae",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "346f77acef4d9660",
+        "kernel": "effe2ffd035d0ff9",
         "logic": "08f44b07b5901a25",
         "quests": "3a424eb9f920b225",
         "roster": "552ad1aa919bbaa8",
@@ -438,12 +438,12 @@
       "end": "ended"
     },
     "seed-27": {
-      "hash": "8406510fbdf4f33a",
+      "hash": "519eee7c2d5930a2",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5ec97a25fbb44f96",
+        "kernel": "56367c7dfae96347",
         "logic": "08f44b07b5901a25",
-        "quests": "02babb9170afee33",
+        "quests": "d6c9372b2eb9b4f0",
         "roster": "039d81414cc05765",
         "school": "ab52dd7b412ac82e",
         "sheet": "da9d0cae103b40df",
@@ -454,12 +454,12 @@
       "end": "ended"
     },
     "seed-28": {
-      "hash": "7a76a325701b94dc",
+      "hash": "04d284d0aaa9e442",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "2b78b36bca894f78",
+        "kernel": "9af14d6ec9657f11",
         "logic": "08f44b07b5901a25",
-        "quests": "8e9d7520e2753241",
+        "quests": "341f6098dc4c96ce",
         "roster": "601f526b9bdf0c2e",
         "school": "ab2add7b4109761a",
         "sheet": "da9d0cae103b40df",
@@ -470,12 +470,12 @@
       "end": "ended"
     },
     "seed-29": {
-      "hash": "52717789c09c15cb",
+      "hash": "d20951fc35a76c19",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "e2062b8ef378f3ae",
+        "kernel": "94182436c31a8c3f",
         "logic": "08f44b07b5901a25",
-        "quests": "f2616010f19db400",
+        "quests": "6bcb4d0127bc2e6f",
         "roster": "4b1ac8c0f546a589",
         "school": "ab2add7b4109761a",
         "sheet": "da9d0cae103b40df",
@@ -486,10 +486,10 @@
       "end": "ended"
     },
     "seed-30": {
-      "hash": "7224ea77cbf1af56",
+      "hash": "843f372cb707a17b",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "86cdac526e746f1d",
+        "kernel": "6b8f1a02f8f5f264",
         "logic": "08f44b07b5901a25",
         "quests": "549fac8db955b199",
         "roster": "24c3d65a035355ea",
@@ -502,10 +502,10 @@
       "end": "ended"
     },
     "seed-31": {
-      "hash": "81f8de6238a3d5eb",
+      "hash": "6bd979ff4af1f6d6",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "30c2a4ae141343ca",
+        "kernel": "42ed7a10603341ab",
         "logic": "08f44b07b5901a25",
         "quests": "028cca59c40cf24e",
         "roster": "1b05113da1bfdfc6",
@@ -518,10 +518,10 @@
       "end": "ended"
     },
     "seed-32": {
-      "hash": "219a43566265a600",
+      "hash": "e14004cd4e9e3533",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "08887b5c61c9ddbc",
+        "kernel": "97de50f1f30c4ff5",
         "logic": "08f44b07b5901a25",
         "quests": "69edf1adc81a22f7",
         "roster": "9781150112d0a609",
@@ -534,12 +534,12 @@
       "end": "ended"
     },
     "seed-33": {
-      "hash": "fa59853e9bc00565",
+      "hash": "0238c508fc06cc0d",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "84339349b4b8623b",
+        "kernel": "e620065e443ebe1a",
         "logic": "08f44b07b5901a25",
-        "quests": "2164ff1401c709c4",
+        "quests": "e6c0905846b2cc73",
         "roster": "2b546f8dc694fdb0",
         "school": "ab26d97b41058677",
         "sheet": "da9d0cae103b40df",
@@ -550,10 +550,10 @@
       "end": "ended"
     },
     "seed-34": {
-      "hash": "0d49c785654c7915",
+      "hash": "66fa3e4a69dc333e",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5912364e6e203c53",
+        "kernel": "6fe1f1b6ff96a5d2",
         "logic": "08f44b07b5901a25",
         "quests": "43181bb99bff071b",
         "roster": "5ebf1b1fdd128aab",
@@ -566,10 +566,10 @@
       "end": "ended"
     },
     "seed-35": {
-      "hash": "e8b1adc0cef3f3d1",
+      "hash": "e82b419298c5d112",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5e0202dfdaff0970",
+        "kernel": "79c8ba80a19b4249",
         "logic": "08f44b07b5901a25",
         "quests": "193a7aab7ccd935c",
         "roster": "32bfb40c6affe10f",
@@ -582,10 +582,10 @@
       "end": "ended"
     },
     "seed-36": {
-      "hash": "72b19d711fc021f1",
+      "hash": "a6394666163080a8",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "2628c176908aa5f6",
+        "kernel": "e181c35fc6f1efa7",
         "logic": "08f44b07b5901a25",
         "quests": "244f649a32bdeb00",
         "roster": "364b733c1d483dd0",
@@ -598,10 +598,10 @@
       "end": "ended"
     },
     "seed-37": {
-      "hash": "2b7497bcf0d437aa",
+      "hash": "b524a78be3c7b9f1",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "fc7f08f364197391",
+        "kernel": "8d066ef0653d43f8",
         "logic": "08f44b07b5901a25",
         "quests": "bb8ff2937a4b6482",
         "roster": "8d3678d23515993d",
@@ -614,10 +614,10 @@
       "end": "ended"
     },
     "seed-38": {
-      "hash": "363bdf5851ab676e",
+      "hash": "c99d1ecf5d1693f7",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "7d9b9c1cdadd4619",
+        "kernel": "db3e8adce6667300",
         "logic": "08f44b07b5901a25",
         "quests": "7421b18d55c1ced0",
         "roster": "3e287941b7ef52ac",
@@ -630,10 +630,10 @@
       "end": "ended"
     },
     "seed-39": {
-      "hash": "0c827c495ddaea6c",
+      "hash": "4c78e7d03f9f1a5f",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "27aa581156536544",
+        "kernel": "2482bec6945f517d",
         "logic": "08f44b07b5901a25",
         "quests": "7fcfd5481cd2c84a",
         "roster": "9c1910a53733e6cc",
@@ -646,12 +646,12 @@
       "end": "ended"
     },
     "seed-40": {
-      "hash": "8d08a4ddfa5f0fa8",
+      "hash": "5329d6ca63db04e6",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "dffce63c09c30a1c",
+        "kernel": "6e2bc4a58c9919d5",
         "logic": "08f44b07b5901a25",
-        "quests": "3293c94536a30027",
+        "quests": "fd2f1f63a16960c4",
         "roster": "73cfd5a2d350de3a",
         "school": "ab2add7b4109761a",
         "sheet": "da9d0cae103b40df",
@@ -662,10 +662,10 @@
       "end": "ended"
     },
     "seed-41": {
-      "hash": "3b2249c3fb8599e6",
+      "hash": "63a898c7d0ae02f5",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "9921460346f6c38b",
+        "kernel": "af363665f5fb2c2a",
         "logic": "08f44b07b5901a25",
         "quests": "e8cf6f26d17b65c9",
         "roster": "44965647485817ba",
@@ -678,10 +678,10 @@
       "end": "ended"
     },
     "seed-42": {
-      "hash": "8ee2c59a52d09450",
+      "hash": "015532b99092e7c5",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c32a5f1f28fc8059",
+        "kernel": "951f4d2eed95ab40",
         "logic": "08f44b07b5901a25",
         "quests": "aba493dd969ee411",
         "roster": "13eb0a7836e7e77e",
@@ -694,10 +694,10 @@
       "end": "ended"
     },
     "seed-43": {
-      "hash": "9c59a18494fdefbf",
+      "hash": "fed1fc34367cc6de",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "b649b098a96f0ece",
+        "kernel": "632a6f7755c813df",
         "logic": "08f44b07b5901a25",
         "quests": "b8dedc0f2352998f",
         "roster": "0203edd2acfe78df",
@@ -710,10 +710,10 @@
       "end": "ended"
     },
     "seed-44": {
-      "hash": "c7c188f5828e0efd",
+      "hash": "77bf07aa987a5a38",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "9d464be4e9c62554",
+        "kernel": "4269575739c2a04d",
         "logic": "08f44b07b5901a25",
         "quests": "7b00e447b5a53114",
         "roster": "b0f0fa3f412dc4b1",
@@ -726,10 +726,10 @@
       "end": "ended"
     },
     "seed-45": {
-      "hash": "484fc9830482c77d",
+      "hash": "1ba5cdf4669341ac",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c218e197e114c185",
+        "kernel": "18febe72146dffcc",
         "logic": "08f44b07b5901a25",
         "quests": "542d8b34f2247826",
         "roster": "874b9af2332e897e",
@@ -742,10 +742,10 @@
       "end": "ended"
     },
     "seed-46": {
-      "hash": "69b52fc213b7675c",
+      "hash": "5a1d46ee4bfb5597",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "be21b740b5c6fcaf",
+        "kernel": "84268e819da447de",
         "logic": "08f44b07b5901a25",
         "quests": "ec91c51dc26ae78e",
         "roster": "d1c4086533f013a1",
@@ -758,10 +758,10 @@
       "end": "ended"
     },
     "seed-47": {
-      "hash": "d66fa04b41dc5771",
+      "hash": "ec331a7062446360",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "44b5aded904fb154",
+        "kernel": "e9d8b95fe04c2c4d",
         "logic": "08f44b07b5901a25",
         "quests": "4abe4552f7d0b6fa",
         "roster": "0aec8320096ba84a",
@@ -774,10 +774,10 @@
       "end": "ended"
     },
     "seed-48": {
-      "hash": "04ccef50bcf57f31",
+      "hash": "8d2c8c8c0ffdc5c0",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "738d9bc80a9c6f1c",
+        "kernel": "01bc7a318d727ed5",
         "logic": "08f44b07b5901a25",
         "quests": "fd019301941e5458",
         "roster": "daa0a75333f69735",
@@ -790,10 +790,10 @@
       "end": "ended"
     },
     "seed-49": {
-      "hash": "a9cb4b76b7bd7771",
+      "hash": "ea49f4cc6c14c85c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "fd0e100334f4af12",
+        "kernel": "57eaf1a9e61deb93",
         "logic": "08f44b07b5901a25",
         "quests": "727f3a444621a3e8",
         "roster": "2718dfa9058533b5",
@@ -806,10 +806,10 @@
       "end": "ended"
     },
     "seed-50": {
-      "hash": "9aeea6250a1aa926",
+      "hash": "de82ca27b7d68f05",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "6c03da844e7ee3bb",
+        "kernel": "cdf04d98de053f9a",
         "logic": "08f44b07b5901a25",
         "quests": "b9032a33d3998817",
         "roster": "5dc8549131361b89",
@@ -822,10 +822,10 @@
       "end": "ended"
     },
     "seed-51": {
-      "hash": "3e3a6955bed44181",
+      "hash": "e08798c4ab2d5c74",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "046f04dd7a40b060",
+        "kernel": "bffdbd2d8e5029f9",
         "logic": "08f44b07b5901a25",
         "quests": "2fca7a6add75d1bc",
         "roster": "c37a7858fcac96fb",
@@ -838,10 +838,10 @@
       "end": "ended"
     },
     "seed-52": {
-      "hash": "c95e1bd3874c1933",
+      "hash": "6031ef7c7aa92fe0",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5d2243685439976d",
+        "kernel": "15c2ac7aa79c2b74",
         "logic": "08f44b07b5901a25",
         "quests": "326d9070d42fda0a",
         "roster": "80b4eea86647dc20",
@@ -854,10 +854,10 @@
       "end": "ended"
     },
     "seed-53": {
-      "hash": "fd1dc29fccafd34e",
+      "hash": "383843c4d5c58adb",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "749773f949b0db7d",
+        "kernel": "77bf0d440ba4ef44",
         "logic": "08f44b07b5901a25",
         "quests": "09fd5073e38ff436",
         "roster": "681aae874c08e5dd",
@@ -870,10 +870,10 @@
       "end": "ended"
     },
     "seed-54": {
-      "hash": "c4ceb64428d21256",
+      "hash": "1c3648120830c84d",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "dc36db80a43c176f",
+        "kernel": "cc54ea0be75aaf9e",
         "logic": "08f44b07b5901a25",
         "quests": "62373a9185f09acf",
         "roster": "e75292463e7a2dab",
@@ -886,10 +886,10 @@
       "end": "ended"
     },
     "seed-55": {
-      "hash": "1158a91b085bd610",
+      "hash": "21fbd9f8192b505b",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "3f40e27efd79e6a0",
+        "kernel": "1c23673f0220e239",
         "logic": "08f44b07b5901a25",
         "quests": "7ba01126cb19de69",
         "roster": "b9ad36dd94d8234e",
@@ -902,10 +902,10 @@
       "end": "ended"
     },
     "seed-56": {
-      "hash": "7cba7638ec584a77",
+      "hash": "ba1268e71c527a32",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "f0abbd001476350c",
+        "kernel": "1047d1f93f8dc1c5",
         "logic": "08f44b07b5901a25",
         "quests": "c8f87190413a1da9",
         "roster": "a4584a3d0c929df4",
@@ -918,10 +918,10 @@
       "end": "ended"
     },
     "seed-57": {
-      "hash": "1ac557b6cda1e234",
+      "hash": "95465de8884b668d",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "8505930f3fd131b6",
+        "kernel": "6a4758169b298067",
         "logic": "08f44b07b5901a25",
         "quests": "217730e77106d905",
         "roster": "7f2ccb8567c5dc0a",
@@ -934,10 +934,10 @@
       "end": "ended"
     },
     "seed-58": {
-      "hash": "eb5b4be470139777",
+      "hash": "ff919bf686a6885a",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "9e2e156b98f5879d",
+        "kernel": "82ef831c23770ae4",
         "logic": "08f44b07b5901a25",
         "quests": "6f18f231d6127ec5",
         "roster": "2f63db5d1d749b0f",
@@ -950,10 +950,10 @@
       "end": "ended"
     },
     "seed-59": {
-      "hash": "16b18db4001a371a",
+      "hash": "48079d8a5d97a98f",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "0e67778a769e4808",
+        "kernel": "2281daca68859921",
         "logic": "08f44b07b5901a25",
         "quests": "1e8b921ff9066033",
         "roster": "120007a99e8c48c6",
@@ -966,10 +966,10 @@
       "end": "ended"
     },
     "seed-60": {
-      "hash": "fc42793bd212df20",
+      "hash": "4c31a26ce95c22d1",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "0e4473f8aa3dc617",
+        "kernel": "3ea8b3f2e51eafe6",
         "logic": "08f44b07b5901a25",
         "quests": "f181f8d46351ead1",
         "roster": "6af63be387ff3088",
@@ -982,10 +982,10 @@
       "end": "ended"
     },
     "seed-61": {
-      "hash": "fb42b899c709d96c",
+      "hash": "5c318c341fb1c8ff",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "24006ad1c738e2e9",
+        "kernel": "db12e30b7bc61310",
         "logic": "08f44b07b5901a25",
         "quests": "944275126c8b4ff5",
         "roster": "ea8086e9a80f3643",
@@ -998,10 +998,10 @@
       "end": "ended"
     },
     "seed-62": {
-      "hash": "dfec2b7e37a2f2cc",
+      "hash": "6cfd2ca9d0d1f3b1",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "697a4a00746538af",
+        "kernel": "2f7f21415c4283de",
         "logic": "08f44b07b5901a25",
         "quests": "1a319138e36a2939",
         "roster": "a5257b493965fdc3",
@@ -1014,10 +1014,10 @@
       "end": "ended"
     },
     "seed-63": {
-      "hash": "2830bec311e089e1",
+      "hash": "40f66cbded00b66e",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "e0a778a225368337",
+        "kernel": "7d63d5e3d494fd06",
         "logic": "08f44b07b5901a25",
         "quests": "ec91c51dc26ae78e",
         "roster": "98d7ae164ce641ae",
@@ -1030,10 +1030,10 @@
       "end": "ended"
     },
     "seed-64": {
-      "hash": "8d7c2218aaa123df",
+      "hash": "eede9562396192a4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5ecf4de48a76c0c7",
+        "kernel": "67624b8c8b41ad16",
         "logic": "08f44b07b5901a25",
         "quests": "6e2227c47f28b75f",
         "roster": "874a6488744ccf09",
@@ -1046,10 +1046,10 @@
       "end": "ended"
     },
     "seed-65": {
-      "hash": "84dada15f9bc0fb8",
+      "hash": "68f61e61cc15d98f",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c38666164c9e2ba5",
+        "kernel": "ae2096c03117e1ec",
         "logic": "08f44b07b5901a25",
         "quests": "2ef02289f3640d00",
         "roster": "465f995885301b25",
@@ -1062,10 +1062,10 @@
       "end": "ended"
     },
     "seed-66": {
-      "hash": "701375910ba19ee7",
+      "hash": "703cd40e6b9960b4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "74a33991003289e6",
+        "kernel": "443ef996c551a017",
         "logic": "08f44b07b5901a25",
         "quests": "79f5d82dbd81b916",
         "roster": "94ba27bb49593d5c",
@@ -1078,10 +1078,10 @@
       "end": "ended"
     },
     "seed-67": {
-      "hash": "1912e28c07577571",
+      "hash": "9bd57e2a712fa16c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "85a2ec643462fdd4",
+        "kernel": "2ac5f7d6845f78cd",
         "logic": "08f44b07b5901a25",
         "quests": "a2af7b9097f13764",
         "roster": "8aa67e515dac0c2a",
@@ -1094,12 +1094,12 @@
       "end": "ended"
     },
     "seed-68": {
-      "hash": "63bf9128443d0390",
+      "hash": "5914ef3b56899ce6",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "98813cdccd728f73",
+        "kernel": "8bd0c97fa7d5c5f2",
         "logic": "08f44b07b5901a25",
-        "quests": "a0fd7f3daa069881",
+        "quests": "691c1942eb8c020e",
         "roster": "06df99ca41c5a023",
         "school": "ab52dd7b412ac82e",
         "sheet": "da9d0cae103b40df",
@@ -1110,10 +1110,10 @@
       "end": "ended"
     },
     "seed-69": {
-      "hash": "85822de56688dd2f",
+      "hash": "f38393ab702db96c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "886af8d84c4f538e",
+        "kernel": "278830c00295589f",
         "logic": "08f44b07b5901a25",
         "quests": "70058090f3c746d1",
         "roster": "46682d0145bb0bd4",
@@ -1126,10 +1126,10 @@
       "end": "ended"
     },
     "seed-70": {
-      "hash": "161b815f3c0e3391",
+      "hash": "f94f49c57d7968c0",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "978f6d599133692a",
+        "kernel": "817a7cf6e22f008b",
         "logic": "08f44b07b5901a25",
         "quests": "f97662c5d80d9929",
         "roster": "a2779cbf84aa34a1",
@@ -1142,10 +1142,10 @@
       "end": "ended"
     },
     "seed-71": {
-      "hash": "f090ede3c74bafed",
+      "hash": "87551af1f672a808",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "7bebdc0e00ec7354",
+        "kernel": "210ee78050e8ee4d",
         "logic": "08f44b07b5901a25",
         "quests": "e105bde478fb377a",
         "roster": "4cf05f4b2a8d2deb",
@@ -1158,10 +1158,10 @@
       "end": "ended"
     },
     "seed-72": {
-      "hash": "e417567e5b53301e",
+      "hash": "52a09af8053778bf",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "3e0d788a3b67293c",
+        "kernel": "cd634e1fcca99b75",
         "logic": "08f44b07b5901a25",
         "quests": "c960d2c9608219a8",
         "roster": "2467b67aa90b81df",
@@ -1174,12 +1174,12 @@
       "end": "ended"
     },
     "seed-73": {
-      "hash": "a1d9f3319c36dcc1",
+      "hash": "36d7c21e220620f1",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "75c37665c79e7fdd",
+        "kernel": "36fc39e93f869f24",
         "logic": "08f44b07b5901a25",
-        "quests": "e7d6404c6f5e4d92",
+        "quests": "73f0f3ab0747f261",
         "roster": "e7a6f89619d04603",
         "school": "ab52dd7b412ac82e",
         "sheet": "da9d0cae103b40df",
@@ -1190,10 +1190,10 @@
       "end": "ended"
     },
     "seed-74": {
-      "hash": "fff9361384ca76f9",
+      "hash": "53d8da65537cb96a",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5c9e0a40f470bcdd",
+        "kernel": "1dd6cdc46c58dc24",
         "logic": "08f44b07b5901a25",
         "quests": "0753253880c4fe89",
         "roster": "1b509e57b30ff142",
@@ -1206,12 +1206,12 @@
       "end": "ended"
     },
     "seed-75": {
-      "hash": "9b82ab09196dc6f7",
+      "hash": "aab96f466adcd077",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "3603d430d4628410",
+        "kernel": "7ef15bf71fd553e9",
         "logic": "08f44b07b5901a25",
-        "quests": "fcc5e287b490214b",
+        "quests": "e8f7d0d036b3e7c8",
         "roster": "ea9931bad7bdc3bb",
         "school": "ab2add7b4109761a",
         "sheet": "da9d0cae103b40df",
@@ -1222,12 +1222,12 @@
       "end": "ended"
     },
     "seed-76": {
-      "hash": "b478a6245842a089",
+      "hash": "0d07420085872f91",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c130a5ebec01e1ab",
+        "kernel": "af05d0899fe1e3ca",
         "logic": "08f44b07b5901a25",
-        "quests": "be77bbe68e1d5d0f",
+        "quests": "bbd303fce535480c",
         "roster": "9c58dc836918b51b",
         "school": "ab52dd7b412ac82e",
         "sheet": "da9d0cae103b40df",
@@ -1238,10 +1238,10 @@
       "end": "ended"
     },
     "seed-77": {
-      "hash": "60155661d4035413",
+      "hash": "8b0cfb2b629daa6c",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "59a31e5ea1543bf3",
+        "kernel": "4cf2ab017bb77272",
         "logic": "08f44b07b5901a25",
         "quests": "83ad0e47cdaa1f1c",
         "roster": "aa9c39a724b1f366",
@@ -1254,10 +1254,10 @@
       "end": "ended"
     },
     "seed-78": {
-      "hash": "cda330115434ae3e",
+      "hash": "13399220536503ef",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "79a48af65dcda512",
+        "kernel": "d4816c9d0ef6e193",
         "logic": "08f44b07b5901a25",
         "quests": "f6d2ab0e35c51cb2",
         "roster": "557c3cdbeded1803",
@@ -1270,12 +1270,12 @@
       "end": "ended"
     },
     "seed-79": {
-      "hash": "a33f25e3bf7094f8",
+      "hash": "09d419d9d091c1a2",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "5ebb2989f4a5fc99",
+        "kernel": "bc5e184a002f2980",
         "logic": "08f44b07b5901a25",
-        "quests": "4ee3f0f0c75242f8",
+        "quests": "1e228169e274db07",
         "roster": "a356366a1a11effe",
         "school": "ab2add7b4109761a",
         "sheet": "da9d0cae103b40df",
@@ -1286,10 +1286,10 @@
       "end": "ended"
     },
     "seed-80": {
-      "hash": "bb9e254d386d8406",
+      "hash": "adde44f49ce55069",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "46b43664f0e32a5d",
+        "kernel": "07ecf9e868cb49a4",
         "logic": "08f44b07b5901a25",
         "quests": "939877abb19a0fe1",
         "roster": "72694fedd55f0281",
@@ -1302,12 +1302,12 @@
       "end": "ended"
     },
     "seed-81": {
-      "hash": "da2ef88439b5fa50",
+      "hash": "11094fb5819a0890",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c211a80a51602937",
+        "kernel": "5ece054c00bea306",
         "logic": "08f44b07b5901a25",
-        "quests": "331decd29682a889",
+        "quests": "7e1a17aa19f0b076",
         "roster": "3e78cb4664780029",
         "school": "ab26d97b41058677",
         "sheet": "da9d0cae103b40df",
@@ -1318,10 +1318,10 @@
       "end": "ended"
     },
     "seed-82": {
-      "hash": "6ebcd343c4041a3e",
+      "hash": "6afb14c9672d7d43",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "dfc698deae6e431a",
+        "kernel": "7dda25ca1ee7e73b",
         "logic": "08f44b07b5901a25",
         "quests": "7810f8b7918bd2bd",
         "roster": "0e40b1b3bc1f5167",
@@ -1334,12 +1334,12 @@
       "end": "ended"
     },
     "seed-83": {
-      "hash": "ed16037742a01fc0",
+      "hash": "acfab39babe2cfb6",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "8db7c3982948d18f",
+        "kernel": "fd9f78345292bfbe",
         "logic": "08f44b07b5901a25",
-        "quests": "b2ef1807cef0ba33",
+        "quests": "3340a7c8554040f0",
         "roster": "f8d815c0a6558e0f",
         "school": "ab3bdd7b4117e94d",
         "sheet": "da9d0cae103b40df",
@@ -1350,10 +1350,10 @@
       "end": "ended"
     },
     "seed-84": {
-      "hash": "20d7e7c05332ed69",
+      "hash": "98d2e4036d5b7ae0",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "47eed9119c1d8f82",
+        "kernel": "004ce93572c33383",
         "logic": "08f44b07b5901a25",
         "quests": "2da2135ec41ac160",
         "roster": "868baf18dade9b7e",
@@ -1366,10 +1366,10 @@
       "end": "ended"
     },
     "seed-85": {
-      "hash": "2e0e76893df7c653",
+      "hash": "63e50b9862098cf6",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "8437fd23c3d3ac91",
+        "kernel": "14bf6320c4f77cf8",
         "logic": "08f44b07b5901a25",
         "quests": "feed1c61855694ce",
         "roster": "c30858ac3d3d00d0",
@@ -1382,10 +1382,10 @@
       "end": "ended"
     },
     "seed-86": {
-      "hash": "2d5bdaf83421ee73",
+      "hash": "f6df2056a9e2e536",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "75180381a75fae79",
+        "kernel": "b9894b31935034e0",
         "logic": "08f44b07b5901a25",
         "quests": "9d604742a7623ab8",
         "roster": "6bc6cd52c358cd9e",
@@ -1398,10 +1398,10 @@
       "end": "ended"
     },
     "seed-87": {
-      "hash": "7b2a6ccdf61b480d",
+      "hash": "2bec5b8f5d9e8e7e",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "45e21d363c42488b",
+        "kernel": "5bf70d98eb46b12a",
         "logic": "08f44b07b5901a25",
         "quests": "da6d757dd07ceae4",
         "roster": "3ee896378d0a97d3",
@@ -1414,10 +1414,10 @@
       "end": "ended"
     },
     "seed-88": {
-      "hash": "d32bd9cd976b4f85",
+      "hash": "21dd8c513b3b37e4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "ee20f19ad64b9b8f",
+        "kernel": "5e08a636ff9589be",
         "logic": "08f44b07b5901a25",
         "quests": "a169b64f9de28b35",
         "roster": "e7c035ac193da652",
@@ -1430,12 +1430,12 @@
       "end": "ended"
     },
     "seed-89": {
-      "hash": "d8b1538ddd1224f7",
+      "hash": "e7ba755f25911481",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "76bfd07caa5ac941",
+        "kernel": "c100105a6b286f28",
         "logic": "08f44b07b5901a25",
-        "quests": "20174c502a985cec",
+        "quests": "21f052706a526cdb",
         "roster": "aeb182acc4359929",
         "school": "ab2ddd7b410babf1",
         "sheet": "da9d0cae103b40df",
@@ -1446,10 +1446,10 @@
       "end": "ended"
     },
     "seed-90": {
-      "hash": "148dcf546f7216dd",
+      "hash": "52a3d970c048cac4",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "f15f8a1561ca9290",
+        "kernel": "3a4d11dbad3d6269",
         "logic": "08f44b07b5901a25",
         "quests": "995a32adc0156ecf",
         "roster": "15ab566b8d76c918",
@@ -1462,10 +1462,10 @@
       "end": "ended"
     },
     "seed-91": {
-      "hash": "5d494cf0d591d386",
+      "hash": "3dc3e3924d6f54a5",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "7200744d20c80f43",
+        "kernel": "f71e58d290cf2f42",
         "logic": "08f44b07b5901a25",
         "quests": "66e60a8f6b7f1b65",
         "roster": "957dd4c4fe1edc4b",
@@ -1478,10 +1478,10 @@
       "end": "ended"
     },
     "seed-92": {
-      "hash": "53ceab77a5b44b35",
+      "hash": "4f406e437f5a61fa",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "d65fc99309c47cc5",
+        "kernel": "b6c3b499deacf00c",
         "logic": "08f44b07b5901a25",
         "quests": "0c9eb5fc71151f45",
         "roster": "e4531a45de47c4f3",
@@ -1494,12 +1494,12 @@
       "end": "ended"
     },
     "seed-93": {
-      "hash": "cf53e6642bb2b9a2",
+      "hash": "395dd909267a18dc",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "1501fae89486eb9d",
+        "kernel": "f9c368991f086ee4",
         "logic": "08f44b07b5901a25",
-        "quests": "7846665de9d49f73",
+        "quests": "05a52bde7b2c4f30",
         "roster": "77c6e088706016c7",
         "school": "ab30d97b410ddafc",
         "sheet": "da9d0cae103b40df",
@@ -1510,10 +1510,10 @@
       "end": "ended"
     },
     "seed-94": {
-      "hash": "cc0eebab4fad1003",
+      "hash": "31cd038264380d82",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "4da1a87a4f16ae36",
+        "kernel": "32e36d81aa6efce7",
         "logic": "08f44b07b5901a25",
         "quests": "7a407571ce65886f",
         "roster": "04dc790a097893c0",
@@ -1526,10 +1526,10 @@
       "end": "ended"
     },
     "seed-95": {
-      "hash": "48a1972215abeb5c",
+      "hash": "b718b60e155d00ab",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "b3ee576a544f7d0a",
+        "kernel": "b564a187c7153aeb",
         "logic": "08f44b07b5901a25",
         "quests": "8d6fa5d0b0676f96",
         "roster": "cbcbfc6bdbe5e9e8",
@@ -1542,10 +1542,10 @@
       "end": "ended"
     },
     "seed-96": {
-      "hash": "71147e5569ef1ce9",
+      "hash": "89e90e98e04759d2",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "6c0d498b2c9f5e31",
+        "kernel": "731668a5d786c718",
         "logic": "08f44b07b5901a25",
         "quests": "4aedb34c232efa27",
         "roster": "aca37f0c99161f78",
@@ -1558,10 +1558,10 @@
       "end": "ended"
     },
     "seed-97": {
-      "hash": "d482bd07f2ce8f32",
+      "hash": "64fb0f320c5471af",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "c70a09008cf96120",
+        "kernel": "a3ec8dc091a05cb9",
         "logic": "08f44b07b5901a25",
         "quests": "307731cca3a7100b",
         "roster": "372b31f3978767b7",
@@ -1574,12 +1574,12 @@
       "end": "ended"
     },
     "seed-98": {
-      "hash": "6baa47b5b5ded3c1",
+      "hash": "f6e046d463ebd26f",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "672d7f3ef0b6d012",
+        "kernel": "c20a60e5a1e00c93",
         "logic": "08f44b07b5901a25",
-        "quests": "0907394742a71e00",
+        "quests": "71158deb801bb86f",
         "roster": "21f38c285b1ebd77",
         "school": "ab2ddd7b410babf1",
         "sheet": "da9d0cae103b40df",
@@ -1590,10 +1590,10 @@
       "end": "ended"
     },
     "seed-99": {
-      "hash": "05ca0f44fc2ca4ff",
+      "hash": "cb7be5eaefc675fc",
       "facets": {
         "flag": "1dff1b5e0bf63105",
-        "kernel": "cc78750df9b9dcdc",
+        "kernel": "fa18aa5afcc4c995",
         "logic": "08f44b07b5901a25",
         "quests": "440d4d7e9d4afb83",
         "roster": "7a2333aa40c9ee35",

@@ -17,11 +17,14 @@ export {
 } from './render/mapLayout.ts';
 export { npcsIn, placingIn } from './render/placing.ts';
 export {
+  type MapAsk,
+  type MapPin,
   type NpcGoal,
   type Sent,
   type SpaceAsk,
   type SpaceDrawn,
   type SpaceHost,
+  type SpaceMapShown,
   type StandAt,
   WALK_QUALITIES,
   type WalkQuality,
@@ -35,3 +38,4 @@ export {
   stillOpen,
 } from './render/stack.ts';
 export { type FightView, fightOf, type WeaponView, weaponView } from './session/fighting.ts';
+export { markersOf, type QuestMarker } from './session/markers.ts';

@@ -2,14 +2,16 @@
  * What a quest shows (docs/specs/quests.md#what-a-quest-shows): its journal entry, read from the
  * state the kit keeps, so the journal says what the sim holds. Each reached stage's log line, the
  * current stage's objectives with their counts, the days left and why it failed; M3.10's slots,
- * a job's odds and time left (never its outcome), the runs counted and a slot no record fills.
+ * a job's odds and time left (never its outcome), the runs counted and a slot no record fills;
+ * M6.6's targets, where each objective's marker points.
  */
 import type { FactArgs } from '@eb/core';
 import { own } from '../own.ts';
 import { jobTable, jobTimer } from './jobs.ts';
 import { questRecord, stageOf } from './records.ts';
-import { fillSlots, nameOf, type Reader, slotText } from './slots.ts';
-import type { QuestRecord, Stage } from './types.ts';
+import { bind, fillSlots, nameOf, type Reader, slotText } from './slots.ts';
+import { targetOf } from './targets.ts';
+import type { QuestRecord, Stage, Target } from './types.ts';
 
 export type ObjectiveShown = {
   readonly id: string;
@@ -17,6 +19,8 @@ export type ObjectiveShown = {
   readonly done: boolean;
   readonly count?: number;
   readonly to?: number;
+  /** Where its marker points (M6.6), its slots bound: written, or read from its count. */
+  readonly target?: Target;
 };
 
 export type JobShown = {
@@ -95,10 +99,16 @@ export function questShown(reader: Reader, id: string): QuestShown {
   }
   const objectives = (stage.objectives ?? []).map((objective): ObjectiveShown => {
     const done = entry.done.includes(objective.id);
-    const said = text(objective.text);
-    if (objective.count === undefined) return { id: objective.id, text: said, done };
+    const target = targetOf(objective);
+    const shownObjective = {
+      id: objective.id,
+      text: text(objective.text),
+      done,
+      ...(target === undefined ? {} : { target: bind(target, slots) }),
+    };
+    if (objective.count === undefined) return shownObjective;
     const count = own(entry.counts, objective.id) ?? 0;
-    return { id: objective.id, text: said, done, count, to: objective.count.to };
+    return { ...shownObjective, count, to: objective.count.to };
   });
   return {
     ...shown,
