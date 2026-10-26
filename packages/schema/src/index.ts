@@ -8,6 +8,29 @@
 export { z } from 'zod';
 export { BEHAVIOUR_TYPE_FILE, behaviourData, nodeSchema } from './aiTypes.ts';
 export {
+  ANIM_FACTS,
+  ANIMATOR,
+  ANIMATOR_DATA,
+  ANIMATOR_TYPE_FILE,
+  ANY,
+  type AnimatorRecord,
+  type AnimLayer,
+  type AnimState,
+  type AnimTransition,
+  BLEND,
+  checkActorAnimator,
+  checkAnimator,
+  checkAnimatorClips,
+  DRAW_PHASES,
+  LAYERS,
+  type Layer,
+  RATES,
+  type Rate,
+  type RiggedModel,
+  SWING_PHASES,
+  WEAPON_KINDS,
+} from './animatorTypes.ts';
+export {
   ASSET_KEY,
   ASSET_KINDS,
   ASSET_PATH_PATTERN,
@@ -134,8 +157,10 @@ export {
   MODEL,
   MODEL_DATA,
   MODEL_TYPE_FILE,
+  type ModelClip,
   type ModelCollider,
   type ModelRecord,
+  type ModelRig,
   type ModelSlot,
   type Vec3,
 } from './modelTypes.ts';

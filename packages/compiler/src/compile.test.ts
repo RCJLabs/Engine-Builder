@@ -860,6 +860,43 @@ describe('the code table', () => {
       'E081 records/actor/rook.json /behaviour',
       'E081 records/behaviour/bandit.json /do/attack',
     ]);
+    // M6.5: a skinned model off the rig, an animator playing a clip its model lacks, a state twice
+    // and one nothing reaches, and an actor whose animator is on the model off the rig.
+    const animated = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'yard', name: 'Yard', version: '0.1.0', kits: ['stats'] }),
+        'assets/hero.glb': glb({ asset: { version: '2.0' }, skins: [{ joints: [0] }], nodes: [{ name: 'Hips' }] }),
+        'assets/body.glb': glb({ asset: { version: '2.0' }, skins: [{ joints: [0] }], nodes: [{ name: 'hips' }] }),
+        'records/model/hero.json': JSON.stringify({ file: 'hero.glb' }),
+        'records/model/body.json': JSON.stringify({
+          file: 'body.glb',
+          rig: { bones: { hips: 'Hips' } },
+          clips: [{ name: 'idle', length: 2 }],
+        }),
+        'records/animator/moves.json': JSON.stringify({
+          clips: 'body',
+          base: {
+            start: 'idle',
+            states: [
+              { id: 'idle', clip: 'idle' },
+              { id: 'idle', clip: 'sit' },
+              { id: 'lost', clip: 'idle' },
+            ],
+          },
+        }),
+        'records/actor/ana.json': JSON.stringify({ stats: {}, model: 'hero', animator: 'moves' }),
+      }),
+      [],
+    );
+    // Its assets have no provenance log (E019), as other compiles here already show.
+    const sixFive = brief(animated.diagnostics).filter((d) => d.code !== 'E019');
+    expect(sixFive.map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'E085 records/actor/ana.json /animator',
+      'E083 records/animator/moves.json /base/states/1/clip',
+      'E084 records/animator/moves.json /base/states/1/id',
+      'W153 records/animator/moves.json /base/states/2/id',
+      'W152 records/model/hero.json /file',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -890,6 +927,7 @@ describe('the code table', () => {
       unsaid,
       armed,
       unarmed,
+      animated,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

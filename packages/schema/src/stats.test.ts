@@ -37,13 +37,27 @@ describe('the stats and gear kits’ types', () => {
   it('are the stats kit’s three, the gear kit’s slot, and gear’s fields on items and actors', () => {
     expect([...kitTypeFiles(['stats']).keys()]).toEqual(['stat', 'actor', 'status']);
     expect([...kitTypeFiles(ALL).keys()]).toEqual(['item', 'loot-table', 'stat', 'actor', 'status', 'slot']);
-    expect(fields(['stats'], 'actor')).toEqual(['name', 'description', 'stats', 'statuses', 'model', 'figure']);
+    expect(fields(['stats'], 'actor')).toEqual([
+      'name',
+      'description',
+      'stats',
+      'statuses',
+      'model',
+      'figure',
+      'animator',
+    ]);
     expect(fields(ALL, 'actor')).toEqual([
       ...['name', 'description', 'stats', 'statuses', 'slots', 'wears'],
-      ...['model', 'figure', 'carries'],
+      ...['model', 'figure', 'animator', 'carries'],
     ]);
     // An NPC's talk and faction (M6.1, D73) with their kits on, in the kits' order.
-    expect(fields(['stats', 'factions', 'dialogue'], 'actor').slice(4)).toEqual(['model', 'figure', 'talk', 'faction']);
+    expect(fields(['stats', 'factions', 'dialogue'], 'actor').slice(4)).toEqual([
+      'model',
+      'figure',
+      'animator',
+      'talk',
+      'faction',
+    ]);
     expect(fields(['inventory'], 'item')).not.toContain('slot');
     expect(fields(ALL, 'item')).toEqual(expect.arrayContaining(['slot', 'modifiers']));
     for (const [type, file] of kitTypeFiles(ALL)) expect(readTypeFile(file).ok, type).toBe(true);

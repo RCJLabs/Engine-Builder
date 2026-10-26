@@ -86,6 +86,9 @@ export const DIAGNOSTIC_CODES = {
   E080: "project.json's clock can't run: the time kit is off, its rate isn't a whole number from 0 to 3,600, or the calendar's ticks aren't whole real milliseconds at it",
   E081: "A behaviour's node can't run: a point its actor's space lacks, walking where there is no navmesh, a unit, hour or weekday its calendar lacks, an actor with a behaviour placed nowhere, or an attack with the fighting kit off",
   E082: "project.json's fighting is wrong: missing with the fighting kit on and a space, the kit off, its player not an actor or placed in a space, or its combat not a combat record",
+  E083: "An animator's state names a clip its model doesn't have, or a model that isn't on the rig",
+  E084: "An animator's states don't fit together: an id twice, a start or transition naming no state, a whole-body state with no clip, a speed off a fixed rate, or a transition from any state with no condition",
+  E085: "An actor's animator on a model that isn't on the rig",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -137,6 +140,8 @@ export const DIAGNOSTIC_CODES = {
   W149: "No clock is given and the calendar's ticks aren't whole real milliseconds at 20x: the clock stays still while walking",
   W150: 'An actor whose behaviour attacks wears no weapon: it fights with its fists',
   W151: "A weapon's field its kind doesn't read: a reach or an arc on a ranged weapon, a range or ammo on a melee one",
+  W152: "A skinned model isn't on the rig: its skin lacks a required humanoid bone, so it draws unanimated",
+  W153: 'An animator state no transition goes to, and not where its layer starts',
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

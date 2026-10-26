@@ -12,6 +12,15 @@ import {
 import { ACTOR, AI, BEHAVIOUR, FIGHTING, ITEM, QUEST, QUESTS, type QuestRecord } from '@eb/kits';
 import type { z } from 'zod';
 import { type Checked, checkBehaviours } from './aiCheck.ts';
+import {
+  ANIM_FACTS,
+  ANIMATOR,
+  type AnimatorRecord,
+  checkActorAnimator,
+  checkAnimator,
+  checkAnimatorClips,
+  type RiggedModel,
+} from './animatorTypes.ts';
 import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
@@ -130,6 +139,7 @@ export function validateRecords(
   const kits = new KitChecks(on, known, index);
   // The ai kit's records, whose checks read every actor's and every behaviour's (M6.3).
   const behaving: Checked[] = [];
+  const riggedOf = riggedModels(records);
   for (const record of records) {
     const from = formatRef(record.type, record.id);
     const report = (code: DiagnosticCode, path: string, message: string) =>
@@ -173,7 +183,9 @@ export function validateRecords(
     };
     const slotsAt = kits.slotsOf(record.type, record.value);
     if (slotsAt) ctx.slotsAt = slotsAt;
-    const sound = checkPart(recordType.schema, record.value, '', ctx);
+    // An animator's conditions read the stage's anim.* facts, not the game's (M6.5).
+    const facts = record.type === ANIMATOR ? { ...ctx, known: { ...known, facts: ANIM_FACTS, openFacts: false } } : ctx;
+    const sound = checkPart(recordType.schema, record.value, '', facts);
     const heard = (type: string, id: string) => {
       if (type === FLAG) flags.heard(id, from);
     };
@@ -184,6 +196,11 @@ export function validateRecords(
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
     if (record.type === FOLIAGE && sound) checkFoliage(record.value as FoliageRecord, report);
+    if (record.type === ANIMATOR && sound) {
+      checkAnimator(record.value as AnimatorRecord, report);
+      checkAnimatorClips(record.value as AnimatorRecord, riggedOf, report);
+    }
+    if (record.type === ACTOR && sound) checkActorAnimator(record.value as Record<string, unknown>, riggedOf, report);
     if (sound && on.includes(AI) && (record.type === BEHAVIOUR || record.type === ACTOR || record.type === ITEM))
       behaving.push({ type: record.type, id: record.id, value: record.value, report });
     if (sound && record.type === ITEM && on.includes(FIGHTING)) checkWeapon(record.value, report);
@@ -232,6 +249,22 @@ function recordIndex(records: readonly RecordInput[], counts: ReadonlyMap<string
     else ids.set(type, [id]);
   }
   return { ids: (type) => ids.get(type) ?? [], has: (type, id) => counts.has(formatRef(type, id)) };
+}
+
+/** Each model record's rig and clips, by its id, for an animator's clips (E083) and an actor's animator (E085). */
+function riggedModels(records: readonly RecordInput[]): (id: string) => RiggedModel | undefined {
+  const models = new Map<string, RiggedModel>();
+  for (const { type, id, value } of records) {
+    if (type !== MODEL || typeof value !== 'object' || value === null) continue;
+    const { rig, clips } = value as { rig?: unknown; clips?: unknown };
+    const names = Array.isArray(clips)
+      ? clips
+          .map((clip) => (clip as { name?: unknown }).name)
+          .filter((name): name is string => typeof name === 'string')
+      : [];
+    models.set(id, { rigged: typeof rig === 'object' && rig !== null, clips: names });
+  }
+  return (id) => models.get(id);
 }
 
 /** Throws on programmer errors: two types with one name, or a reference to a type nobody defined. */
