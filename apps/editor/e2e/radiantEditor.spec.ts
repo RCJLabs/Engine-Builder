@@ -2,9 +2,9 @@
  * M6.7's gate in the editor (D79, docs/specs/radiant.md#the-gate), at 1280 and 390 wide: the hollows
  * come in with no tags anywhere and no Supplies, so the bounty's den can never be filled (W127). The
  * barrow and the mine tagged caves in the space's form, and W127 gone; the barrow's crate tagged as an
- * object, the mine's through the cache prefab; Supplies made with forms, its object slot giving E088
- * until it is given In; and in Play the board read, the compass on the barrow's door and the journal
- * naming the crate the editor tagged.
+ * object, the mine's through the cache prefab, and the mine's empty one told apart by an override;
+ * Supplies made with forms, its object slot giving E088 until it is given In; and in Play the board
+ * read, the compass on the barrow's door and the journal naming the crate the editor tagged.
  */
 import { cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -79,11 +79,11 @@ async function addTag(form: Locator, of: string, tag: string, touch: boolean): P
   await expect(field.getByRole('list', { name: `Tags of ${of}` }).getByRole('listitem')).toContainText([tag]);
 }
 
-/** An object chosen by its outliner row, its form in the inspector under its name and id. */
-async function chosen(page: Page, name: string, id: string, touch: boolean): Promise<Locator> {
+/** An object chosen by its outliner row, its form in the inspector under `heading`. */
+async function chosen(page: Page, name: string, heading: string, touch: boolean): Promise<Locator> {
   await press(outlinerRow(await showOutliner(page, touch), name), touch);
   const form = await showInspector(page, touch);
-  await expect(form.getByRole('heading', { name: `${name} (${id})`, exact: true })).toBeVisible();
+  await expect(form.getByRole('heading', { name: heading, exact: true })).toBeVisible();
   return form;
 }
 
@@ -112,7 +112,7 @@ async function tagCaves(page: Page, touch: boolean): Promise<void> {
 
   await test.step('the barrow’s crate tagged as an object, the mine’s chest through the cache prefab', async () => {
     await openFile(page, /^The barrow \(barrow\)/, touch);
-    await addTag(await chosen(page, 'Crate', 'cache', touch), 'Crate', 'cache', touch);
+    await addTag(await chosen(page, 'Crate', 'Crate (cache)', touch), 'Crate', 'cache', touch);
     await expect
       .poll(async () => {
         const barrow = (await stored(page, FOLDER, 'spaces/barrow.json')) as Tagged | null;
@@ -120,8 +120,23 @@ async function tagCaves(page: Page, touch: boolean): Promise<void> {
       })
       .toEqual([['cache', ['cache']]]);
     await openFile(page, /^Cache \(cache\)/, touch);
-    await addTag(await chosen(page, 'Old chest', 'chest', touch), 'Old chest', 'cache', touch);
+    await addTag(await chosen(page, 'Old chest', 'Old chest (chest)', touch), 'Old chest', 'cache', touch);
     await expect.poll(() => stored(page, FOLDER, 'prefabs/cache.json')).toEqual(fixture('prefabs/cache.json'));
+  });
+
+  await test.step('the mine’s empty chest told apart by an override: cache off, empty on', async () => {
+    await openFile(page, /^The mine \(mine\)/, touch);
+    const form = await chosen(page, 'empty', 'empty', touch);
+    await press(form.getByRole('button', { name: /^Old chest / }), touch);
+    await expect(form.getByRole('heading', { name: 'empty › chest', exact: true })).toBeVisible();
+    const tags = form.getByRole('list', { name: 'Tags of Old chest' });
+    // The prefab's tag, shown as this placement has it until it is changed here.
+    await expect(tags.getByRole('listitem')).toHaveText(['cache×']);
+    await press(tags.getByRole('button', { name: 'Remove the tag cache' }), touch);
+    await expect(tags.getByRole('listitem')).toHaveCount(0);
+    await addTag(form, 'Old chest', 'empty', touch);
+    await expect(form.getByRole('button', { name: 'Revert tags' })).toBeVisible();
+    await expect.poll(() => stored(page, FOLDER, 'spaces/mine.json')).toEqual(fixture('spaces/mine.json'));
   });
 }
 

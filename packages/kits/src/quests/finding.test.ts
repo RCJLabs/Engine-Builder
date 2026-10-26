@@ -12,12 +12,16 @@ import {
   type Effect,
   engineModules,
   type GameState,
+  type Module,
+  type PackWorld,
   type SimContext,
   type WorldData,
   type WorldPlaces,
+  withPackWorld,
   worldModule,
 } from '@eb/core';
 import { describe, expect, it } from 'vitest';
+import { kitModules, kitsInWorld } from '../modules.ts';
 import { questsModule } from './module.ts';
 import type { QuestsSlice } from './types.ts';
 
@@ -203,11 +207,14 @@ describe('slots that find in the world', () => {
       visit: { ...quest, slots: [{ ...quest.slots[0], tags: ['cave', 'dry'] }] },
       near: quest,
     });
-    // A stage with no objectives is done at once, so each start is a run of its own.
-    const first = caves.apply(caves.start(), start('near'));
-    const was = slotsOf(first, 'near')?.cave;
-    const second = caves.apply(first, start('near'));
-    expect(slotsOf(second, 'near')?.cave).toBe(was === 'barrow' ? 'den' : 'barrow');
+    // A stage with no objectives is done at once, so each start is a run of its own. Over a dozen
+    // seeds, as the barrow and the den tie and a draw alone would repeat itself half the time.
+    for (let i = 0; i < 12; i++) {
+      const first = caves.apply(caves.start(`seed-${i}`), start('near'));
+      const was = slotsOf(first, 'near')?.cave;
+      const second = caves.apply(first, start('near'));
+      expect(slotsOf(second, 'near')?.cave).toBe(was === 'barrow' ? 'den' : 'barrow');
+    }
     const only = caves.apply(caves.apply(caves.start(), start('visit')), start('visit'));
     expect(slotsOf(only, 'visit')).toEqual({ cave: 'den' });
   });
@@ -233,6 +240,116 @@ describe('slots that find in the world', () => {
     expect(slotsOf(anyone.apply(anyone.start(), start('any')), 'any')).toEqual({ den: 'barrow', chief: 'moss' });
     const mossDown = anyone.apply(anyone.start(), { effect: 'fall', actor: 'moss' });
     expect(slotsOf(anyone.apply(mossDown, start('any')), 'any')).toEqual({ den: 'barrow', chief: 'wick' });
+  });
+
+  it('leaves out a space no door leads to when it takes the nearest', () => {
+    const vaulted: WorldPlaces = {
+      ...PLACES,
+      spaces: { ...PLACES.spaces, vault: { name: 'The vault', tags: ['sealed'] } },
+    };
+    const quest = (pick?: string) => ({
+      name: 'Vault',
+      slots: [{ id: 'cave', type: 'space', tags: ['sealed'], ...(pick === undefined ? {} : { pick }) }],
+      stages: [stage],
+    });
+    const first = cavesWith({ vault: quest() }, vaulted);
+    expect(slotsOf(first.apply(first.start(), start('vault')), 'vault')).toEqual({ cave: 'vault' });
+    const near = cavesWith({ vault: quest('nearest') }, vaulted);
+    expect(near.tryApply(near.start(), start('vault')).accepted).toBe(false);
+  });
+
+  it('names the slot In a space that none of its matches could fill', () => {
+    const quest = {
+      name: 'Fetch',
+      slots: [
+        { id: 'cave', type: 'space', tags: ['cave'] },
+        { id: 'cache', type: 'object', in: '@cave', tags: ['cache'] },
+      ],
+      stages: [stage],
+    };
+    const caves = cavesWith({ fetch: quest });
+    const barrow = caves.step(caves.apply(caves.start(), into('barrow')), use('barrow', 'cache'));
+    const both = caves.step(caves.apply(barrow, into('mine')), use('mine', 'stash/chest'));
+    const refused = caves.tryApply(both, start('fetch'));
+    expect(refused.accepted).toBe(false);
+    expect(refused.beats[0]).toMatchObject({ reason: 'unfilled', quest: 'fetch', slot: 'cache' });
+  });
+
+  it('counts a run’s space or object as gone once a build of the game no longer has it', () => {
+    const quest = {
+      name: 'Fetch',
+      slots: [
+        { id: 'cave', type: 'space', tags: ['cave'] },
+        { id: 'cache', type: 'object', in: '@cave', tags: ['cache'] },
+      ],
+      stages: [stage],
+    };
+    const caves = cavesWith({ fetch: quest });
+    const started = caves.apply(caves.start(), start('fetch'));
+    expect(slotsOf(started, 'fetch')).toEqual({ cave: 'barrow', cache: 'cache' });
+    const stateOf = (state: GameState) => (state.quests as QuestsSlice).quests.fetch;
+    // The same build: a step later the run goes on.
+    expect(stateOf(caves.apply(started, into('green')))?.state).toBe('active');
+    const { barrow: _, ...spaces } = PLACES.spaces;
+    const noBarrow = cavesWith({ fetch: quest }, { ...PLACES, spaces });
+    expect(stateOf(noBarrow.apply(started, into('green')))).toMatchObject({ state: 'failed', lost: ['cave'] });
+    const { cache: __, ...objects } = PLACES.objects.barrow ?? {};
+    const noCache = cavesWith({ fetch: quest }, { ...PLACES, objects: { ...PLACES.objects, barrow: objects } });
+    expect(stateOf(noCache.apply(started, into('green')))).toMatchObject({ state: 'failed', lost: ['cache'] });
+  });
+
+  it('leaves a slot of records as M3.10 has it: the same pick each run, and no next match tried', () => {
+    const green = { fact: 'world.in', args: { space: 'green' } };
+    const caves = cavesWith({
+      again: {
+        name: 'Again',
+        repeats: true,
+        slots: [{ id: 'who', type: 'actor', where: green }],
+        stages: [{ id: 'go' }],
+      },
+      pair: {
+        name: 'Pair',
+        slots: [
+          { id: 'who', type: 'actor', where: green },
+          { id: 'other', type: 'actor', where: { fact: 'world.npc-down', args: { actor: '@who' } } },
+        ],
+        stages: [stage],
+      },
+    });
+    const twice = caves.apply(caves.apply(caves.start(), start('again')), start('again'));
+    expect(slotsOf(twice, 'again')).toEqual({ who: 'moss' });
+    // Moss is first and standing, so Other can't be filled; Who doesn't go on to Wick, who is down.
+    const wickDown = caves.apply(caves.start(), { effect: 'fall', actor: 'wick' });
+    const refused = caves.tryApply(wickDown, start('pair'));
+    expect(refused.accepted).toBe(false);
+    expect(refused.beats[0]).toMatchObject({ reason: 'unfilled', quest: 'pair', slot: 'other' });
+  });
+
+  it('is swapped for one that knows the world in a game made before its pack, as eb sim and Run make theirs', () => {
+    const pack: PackWorld = {
+      spaces: { cave: { name: 'The cave', objects: [] }, green: { name: 'The green', objects: [] } },
+      prefabs: {},
+      triggers: {},
+      files: {},
+      records: {},
+      fields: {},
+      uses: {},
+      spawns: { cave: [], green: [] },
+      start: 'green',
+      places: { spaces: { cave: { tags: ['cave'] }, green: { tags: [] } }, objects: {} },
+    };
+    const quest = { name: 'Any', slots: [{ id: 'cave', type: 'space', tags: ['cave'] }], stages: [stage] };
+    const sim: SimContext = { content: createRecordStore({ quest: { any: quest } }) };
+    const tried = (kits: readonly Module[]) => {
+      const modules = withPackWorld([...engineModules, worldModule(WORLD), ...kits, test], pack);
+      const game = createGame({ modules, start: 'out' });
+      return game.reduce(game.init('any', sim), { type: 'test/do', effects: [start('any')] }, sim);
+    };
+    const alone = kitModules(['quests']);
+    expect(tried(alone).accepted).toBe(false);
+    const swapped = tried(kitsInWorld(alone, pack));
+    expect(swapped.accepted).toBe(true);
+    expect((swapped.state.quests as QuestsSlice).quests.any?.slots).toEqual({ cave: 'cave' });
   });
 
   it('fills no world slot in a game whose kit was built without places', () => {

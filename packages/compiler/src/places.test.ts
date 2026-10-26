@@ -25,6 +25,7 @@ const CAVE: SpaceJson = {
     { id: 'empty', prefab: 'cache', name: 'Empty', overrides: { chest: { tags: ['empty'] } } },
     { id: 'named', prefab: 'cache', overrides: { chest: { name: 'Strongbox' } } },
     { id: 'whole', prefab: 'cache', tags: ['crate'] },
+    { id: 'labelled', prefab: 'cache', name: 'Labelled', tags: ['crate'] },
     { id: 'wick', record: 'actor:wick', tags: ['chief'] },
     { id: 'rock', shape: 'box' },
   ],
@@ -51,6 +52,9 @@ describe('the pack’s places', () => {
         cave: {
           // Its own name, else its placed record's, else its prefab's; or none.
           'empty/chest': { tags: ['empty'] },
+          // A placement's own name comes before its prefab's.
+          labelled: { tags: ['crate'], name: 'Labelled' },
+          'labelled/chest': { tags: ['cache'] },
           'named/chest': { tags: ['cache'], name: 'Strongbox' },
           'stash/chest': { tags: ['cache'] },
           whole: { tags: ['crate'], name: 'Cache' },
@@ -80,14 +84,17 @@ describe('the pack’s places', () => {
     expect(tags.actors).toEqual(new Map([['wick', ['chief']]]));
   });
 
-  it('gives E058 for tags that aren’t words once each, and for a prefab’s own', async () => {
+  it('gives E058 for tags that aren’t words once each, more than 16, and a prefab’s own', async () => {
     const compiled = await compileProject(
       memorySource({
         'project.json': JSON.stringify({ format: 1, id: 'cave', name: 'Cave', version: '0.1.0' }),
         'spaces/cave.json': JSON.stringify({
           name: 'Cave',
           tags: ['cave', 'cave'],
-          objects: [{ id: 'chest', shape: 'box', tags: ['Big Chest'] }],
+          objects: [
+            { id: 'chest', shape: 'box', tags: ['Big Chest'] },
+            { id: 'crate', shape: 'box', tags: Array.from({ length: 17 }, (_, i) => `tag-${i}`) },
+          ],
         }),
         'prefabs/cache.json': JSON.stringify({ name: 'Cache', tags: ['cache'], objects: [] }),
       }),
@@ -96,6 +103,7 @@ describe('the pack’s places', () => {
     expect(compiled.diagnostics.map((d) => `${d.code} ${d.file} ${d.path} ${d.message}`)).toEqual([
       'E058 prefabs/cache.json /tags Only a space has tags of its own: tag a placement of the prefab',
       'E058 spaces/cave.json /objects/0/tags/0 A tag is lowercase words joined by hyphens',
+      'E058 spaces/cave.json /objects/1/tags 16 tags at most',
       'E058 spaces/cave.json /tags A tag is listed once',
     ]);
   });

@@ -82,13 +82,20 @@ describe('a quest’s world slots in the editor', () => {
     ]);
   });
 
-  it('checks the slots again when a tag is added to a space', async () => {
-    const { index } = await checked(files());
+  it('checks the slots again when a tag is added to a space, as the open project updates its index', async () => {
+    const { index, problems } = await checked(files());
     expect(index.flagsElsewhere?.tags?.spaces.get('barrow')).toEqual(['cave']);
+    expect(brief(problems)).toContain('W127 records/quest/fetch.json /slots/3/tags');
     const denned = files();
     denned['spaces/green.json'] = json({ name: 'Green', tags: ['den'], objects: [{ id: 'well', shape: 'box' }] });
-    const again = await checked(denned);
-    expect(brief(again.problems)).not.toContain('W127 records/quest/fetch.json /slots/3/tags');
+    // As projects/opened.ts does: the changed file read, then the records again with the spaces' new tags.
+    const source = memorySource(denned);
+    const catalog = await readCatalog(source);
+    const read = await updateIndex(index, source, catalog, ['spaces/green.json'], {}, index.flagsElsewhere);
+    const spaced = await spaceProblems(source, catalog, read, NO_SCRIPTS);
+    const again = await updateIndex(read, source, catalog, [], {}, withScreens(spaced.flags, new Map()));
+    const now = projectProblems(catalog, { ...again, spaces: spaced.problems });
+    expect(brief(now)).not.toContain('W127 records/quest/fetch.json /slots/3/tags');
   });
 
   it('offers In the spaces and the space slots before it, and a target the slots that fit', () => {

@@ -44,6 +44,7 @@ describe('format 15', () => {
     expect(hasTags(UNTAGGED)).toBe(false);
     expect(hasTags(undefined)).toBe(false);
     expect(hasTags({ spaces: { cave: { tags: [] } }, objects: { cave: { x: { tags: ['y'] } } } })).toBe(true);
+    expect(hasTags({ spaces: { cave: { tags: ['cave'] } }, objects: {} })).toBe(true);
     const plain = pack({ ...world, places: UNTAGGED });
     expect(plain).toEqual(pack(world));
     expect(plain.format).toBe(10);
