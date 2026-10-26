@@ -1316,6 +1316,12 @@ How to read this file:
     - **Untested for feel:** ties drawn at random among caves equally near, and a bounty that runs out once every den is cleared, wait for your phone.
     - **Logged for later:** questions 1 to 5 in [specs/radiant.md](docs/specs/radiant.md#open-questions): resetting spaces, making a thing at a found place, NPCs that travel, nearest in metres, and saying why the board has nothing.
 - **M6.8 Barter and containers.** Trading with an NPC from their bag and purse; chests and other containers taken from and put into, item by item. Its calls come first (D78).
+  - **As decided** (D80, your calls): each NPC has a purse, kept once it changes; a shop names its NPC, who sells from their bag, buys into it with their purse, and restocks both every few days; any object's interact can hold items, taken from and put into one line at a time, and a fallen body opens the same screen; no capacity, owners or theft yet ([specs/barter.md](docs/specs/barter.md)).
+  - **Gate:** the post, a yard where Hild trades from her bag and purse, with a chest of bread and a candle and an empty barrel. Checked:
+    - headless through the session: a lamp bought, the candle sold and bought back, Hild's purse run dry and restocked after three days, the chest emptied line by line and a lamp put in the barrel, a save mid-trade, and old inventory and economy saves loading;
+    - the camp's bodies opened and taken from line by line;
+    - by keys and by touch at 360, 390 and sideways: the chest opened, a line taken and one put back, and Hild's goods bought and sold;
+    - in the editor alone at 1280 and 390: the chest's Holds, Hild's Purse and the shop's Actor set with forms, then played.
 - **M6.9 Templates.** "Open-world RPG (3rd person)" and "First-person adventure".
 - **M6.10 Proof #2: a Bethesda-style mini world.** 1 exterior, 3 interiors, 5 scheduled NPCs with dialogue, 3 quests (main, side and radiant), combat and barter. The theme is an open question.
 

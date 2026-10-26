@@ -2366,6 +2366,36 @@ Evan chose on 2026-10-26, from these options:
 
 The spec is [specs/radiant.md](specs/radiant.md).
 
+### D80. A purse per NPC; a shop names its NPC and trades from their bag; any object can hold things, taken from and put into line by line; no limits or theft yet. LOCKED, 2026-10-26 (Evan's calls, M6.8)
+
+Evan chose on 2026-10-26, from these options:
+- **NPC money:** a purse per NPC, kept by the economy kit; coin as an item in the bag; or unlimited, as shops are now.
+- **Merchants:** a shop names its NPC, who trades from their bag; any NPC trades at item value with no shop record; or a shop tied to an NPC only for opening and prices, its shelf kept apart.
+- **Containers:** an interact field on any object; a container record type placed like an actor; or containers that are only taken from.
+- **Limits:** none, and no theft yet; a capacity per container; or ownership and theft now.
+
+**Decision.**
+- **A purse per NPC.** An actor carries `purse`, an amount of each resource it starts with. The economy kit keeps it once it changes, as the inventory kit keeps a bag (D73): until then, the record's. A merchant who has bought a lot can't pay for more until their purse comes back.
+- **A shop names its NPC.** A shop record gains `actor`. Its prices, rules and faction stay the shop's; the faction is the actor's when the shop names none. What it sells is what is in the actor's bag; what the party sells goes into that bag and can be bought back; the actor's purse pays for it and takes the price. Every `stock.every.days` the bag goes back to the actor's `carries` with the stock's items and table added, and the purse back to its record. A shop with no actor keeps its shelf, as before.
+- **Containers are an interact's `holds`.** Any object's interact can hold items: its `holds` names how many of each it starts with. Using it opens the container: its items one line at a time, taken into the party's bag, and the party's put into it. The inventory kit keeps a container's items once they change, by space and object, as it keeps a bag. A fallen body opens the same screen on its bag, in place of taking everything.
+- **No limits, no theft yet.** Anything can be put in, any amount. Owners and theft, and a container's capacity, are logged for later.
+
+**Why.**
+- **The purse:** "trading with an NPC from their bag and purse" is the milestone. A merchant whose coin runs out is the Bethesda shape, and the economy kit already bounds an amount and refuses what can't be paid.
+- **The shop record:** prices, rules and faction bands already live there (M3.3, D43), and merchants are few, so naming the NPC on the shop costs one field. Items sold going into the bag answers kits.md's open question 2.
+- **Holds:** an object with an interact is already what the player uses; a container is one more thing using it can do. Bodies and chests on one screen means one flow to learn and to test.
+- **No limits:** theft needs owners, senses and factions together (M6.3, M6.4, M3.5), a milestone of its own; capacity needs weight, which items don't have.
+
+**Cost.**
+- **Saves change twice.** The inventory kit's slice goes to version 3 (containers) and the economy kit's to version 2 (purses), each with a migration and a fixture saved by the version before.
+- **A restock throws away what the party sold** to that merchant since the last one, as Bethesda's do.
+- **A container's starting items come from the pack's uses**, so the inventory kit is built with them, as the quests kit is built with the places (D79).
+
+**Also settled, as the session's calls** (2026-10-26):
+- **Line by line.** Take and Put move a whole line, all of one item; Take all empties the container. Scripts can give a count.
+- **Bodies keep `fighting.searched`.** It holds once a body has been opened.
+- **The pack is format 16** when any use holds items. Every other pack keeps its format and hash.
+
 ---
 
 ## Open
