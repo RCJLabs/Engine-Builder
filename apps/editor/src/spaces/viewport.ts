@@ -513,15 +513,20 @@ export async function createView(
       foliage.show(list);
     },
     bakeMap(shot) {
-      // A map reads the same at any hour: the editor's own light, no sky, weather or fog.
+      // A map reads the same at any hour: the editor's own light, no sky, weather or fog, and the sun
+      // high in the north-west, as maps are lit, its shadows short.
       environment.show(null);
       const keep = new Set<THREE.Object3D>([skyLight, sun, terrain.root, foliage.root, ...(built ? [built.root] : [])]);
+      const was = sun.position.clone();
+      sun.position.set(-3, 10, -3);
+      fitShadows();
       try {
         return drawFromAbove(renderer, scene, keep, shot, (eye) => {
           terrain.levels(eye);
           foliage.levels(eye);
         });
       } finally {
+        sun.position.copy(was);
         environment.show(look);
         fitShadows();
         draw();

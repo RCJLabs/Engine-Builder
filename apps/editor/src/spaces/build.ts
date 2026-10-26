@@ -60,6 +60,17 @@ function shapes(): Record<'box' | 'sphere' | 'cylinder' | 'plane', THREE.BufferG
 }
 
 /** Sets an object's place, turn and scale as its file gives them. */
+/**
+ * What a baked map leaves out (M6.6, docs/specs/markers.md#baking): the editor's marks, zones and spawn
+ * points, which a player never sees, and characters, which move. Flagged on the node in its userData.
+ */
+export const OFF_MAP = 'offMap';
+
+const offMap = <T extends THREE.Object3D>(node: T): T => {
+  node.userData[OFF_MAP] = true;
+  return node;
+};
+
 export function setTransform(target: THREE.Object3D, t: Transform): void {
   target.position.set(t.at[0], t.at[1], t.at[2]);
   target.rotation.set(t.turn[0] * RAD, t.turn[1] * RAD, t.turn[2] * RAD, 'YXZ');
@@ -118,7 +129,7 @@ export function createBuilder() {
     ]),
   );
   const markOf = (kind: string, geometry: THREE.BufferGeometry) =>
-    new THREE.Mesh(geometry, markMaterials.get(kind) as THREE.Material);
+    offMap(new THREE.Mesh(geometry, markMaterials.get(kind) as THREE.Material));
 
   /** The marks of an object's components, as children of its own node; in play (M5.8), only lights and water. */
   const withComponents = (node: THREE.Object3D, object: SpaceObject, play: boolean) => {
@@ -183,6 +194,7 @@ export function createBuilder() {
         wet !== undefined ? water(fieldsOf(wet)) : material(seen.color ?? GREY, seen.shape === 'plane'),
       );
       setTransform(mesh, transformOf(seen));
+      if (seen.components?.trigger !== undefined || seen.components?.spawn !== undefined) offMap(mesh);
       return withComponents(mesh, seen, play);
     }
     const group = new THREE.Group();
@@ -198,7 +210,7 @@ export function createBuilder() {
       if (look) {
         // The starter character once its file is decoded (M6.5); M6.1's capsule before then.
         const made = characterReady();
-        const figure = made ? characters.character(made, look) : figures.figure(look);
+        const figure = offMap(made ? characters.character(made, look) : figures.figure(look));
         group.add(figure);
         if (!play) labels.push({ text: names(seen.record) ?? seen.name ?? seen.record, at: figure });
         return withComponents(group, seen, play);
@@ -211,7 +223,7 @@ export function createBuilder() {
       return withComponents(group, seen, play);
     }
     const prefab = seen.prefab === undefined ? undefined : prefabs.get(seen.prefab);
-    if (!prefab) group.add(new THREE.Mesh(missing, wire));
+    if (!prefab) group.add(offMap(new THREE.Mesh(missing, wire)));
     else if (depth < DEEPEST) {
       for (const inner of placedObjects(prefab, passedOn(object, layers))) {
         const made = objectOf(inner.object, prefabs, depth + 1, inner.layers, names, labels, models, play, figureOf);

@@ -10,7 +10,8 @@
 
 .eb-space-map-ground {
   position: relative;
-  width: min(100%, 60vh);
+  /* Room under it for the caption and the screen's bar, sideways on a phone too. */
+  width: min(100%, 50vh);
   border: 1px solid var(--eb-muted);
   border-radius: var(--eb-radius);
   overflow: hidden;

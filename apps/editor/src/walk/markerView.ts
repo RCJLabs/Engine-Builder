@@ -44,8 +44,9 @@ function diamond(size: number): HTMLElement {
 }
 
 /** A pip, or a marker over the world: a diamond with its distance under it. */
-function badge(size: number): { el: HTMLElement; words: HTMLElement } {
+function badge(size: number, kind: string): { el: HTMLElement; words: HTMLElement } {
   const el = document.createElement('div');
+  el.className = kind;
   style(el, { position: 'absolute', left: '0', top: '0', textAlign: 'center', willChange: 'transform' });
   const words = document.createElement('div');
   style(words, {
@@ -65,6 +66,7 @@ export function createMarkerView(box: HTMLElement): MarkerView {
   layer.setAttribute('aria-hidden', 'true');
   style(layer, { position: 'absolute', inset: '0', overflow: 'hidden', pointerEvents: 'none', color: '#ffffff' });
   const strip = document.createElement('div');
+  strip.className = 'walk-compass';
   style(strip, {
     position: 'absolute',
     top: 'max(8px, env(safe-area-inset-top))',
@@ -77,6 +79,7 @@ export function createMarkerView(box: HTMLElement): MarkerView {
     display: 'none',
   });
   const caption = document.createElement('div');
+  caption.className = 'walk-compass-text';
   style(caption, {
     position: 'absolute',
     top: 'calc(max(8px, env(safe-area-inset-top)) + 48px)',
@@ -97,7 +100,7 @@ export function createMarkerView(box: HTMLElement): MarkerView {
   const take = (pool: Map<string, ReturnType<typeof badge>>, key: string, size: number, into: HTMLElement) => {
     let found = pool.get(key);
     if (!found) {
-      found = badge(size);
+      found = badge(size, into === strip ? 'walk-pip' : 'walk-marker');
       pool.set(key, found);
       into.append(found.el);
     }
