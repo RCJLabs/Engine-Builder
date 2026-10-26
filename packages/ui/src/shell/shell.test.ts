@@ -76,6 +76,10 @@ describe('settings', () => {
     expect(readSettings('{"quality": "ultra", "text": "large"}')).toEqual({ ...DEFAULT_SETTINGS, text: 'large' });
     expect(readSettings('{"torn')).toEqual(DEFAULT_SETTINGS);
     expect(readSettings('[1]')).toEqual(DEFAULT_SETTINGS);
+    // M6.6's Quest markers: on unless turned off, settings kept before them included.
+    expect(readSettings('{"quality": "high"}').markers).toBe(true);
+    expect(readSettings('{"markers": false}').markers).toBe(false);
+    expect(readSettings('{"markers": "no"}').markers).toBe(true);
     expect(readSettings('{"text":"larger","motion":"sideways"}')).toEqual({
       ...DEFAULT_SETTINGS,
       text: 'larger',

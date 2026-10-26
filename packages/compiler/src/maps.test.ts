@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { compileProject } from './compile.ts';
-import { mapInputsHash } from './mapInputs.ts';
+import { mapInputsHash, terrainFilesOf } from './mapInputs.ts';
 import { memorySource } from './source.ts';
 import { classifySpaceFile } from './spaceFiles.ts';
 import type { SpaceJson } from './spaceShape.ts';
@@ -57,6 +57,23 @@ describe('mapInputsHash', () => {
   it('stays when what isn’t drawn changes: a prefab it doesn’t place, its environment', () => {
     expect(hash(glen, new Map([['shed', shed]]))).toBe(now);
     expect(hash(glen, undefined, { 'environment:dusk': { hour: 7 } })).toBe(now);
+  });
+
+  it('reads a terrain’s density only when the terrain lists foliage, as the editor reads it', async () => {
+    const files = {
+      'spaces/fell.heights.png': new Uint8Array([1]),
+      'spaces/fell.paint.png': new Uint8Array([2]),
+      'spaces/fell.foliage.png': new Uint8Array([3]),
+    };
+    const terrain = { size: 33, spacing: 1, low: 0, high: 4, layers: [{ name: 'Grass', color: '#7a8b5c' }] };
+    const bare = { name: 'Fell', objects: [], terrain } as unknown as SpaceJson;
+    const planted = { ...bare, terrain: { ...terrain, foliage: ['pine'] } } as SpaceJson;
+    expect(Object.keys(await terrainFilesOf(memorySource(files), 'fell', bare))).toEqual(['heights', 'paint']);
+    expect(Object.keys(await terrainFilesOf(memorySource(files), 'fell', planted))).toEqual([
+      'heights',
+      'paint',
+      'foliage',
+    ]);
   });
 });
 

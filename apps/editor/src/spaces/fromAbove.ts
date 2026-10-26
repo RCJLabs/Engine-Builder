@@ -20,6 +20,25 @@ function aboveRoofs(node: THREE.Object3D, roofs: number | undefined): boolean {
   return box.min.y > roofs;
 }
 
+/**
+ * What a bake hides, each now shown: the scene's children not kept, and inside those kept, what
+ * build.ts flags OFF_MAP and meshes wholly above `roofs`. The scene's matrices are brought up to date.
+ */
+export function leftOut(
+  scene: THREE.Scene,
+  keep: ReadonlySet<THREE.Object3D>,
+  roofs: number | undefined,
+): THREE.Object3D[] {
+  const hidden = scene.children.filter((child) => child.visible && !keep.has(child));
+  scene.updateMatrixWorld();
+  for (const root of keep) {
+    root.traverse((node) => {
+      if (node.visible && (node.userData[OFF_MAP] === true || aboveRoofs(node, roofs))) hidden.push(node);
+    });
+  }
+  return hidden;
+}
+
 /** How far below the camera the ground may be, beyond the shot's height. */
 const DEPTH = 1000;
 /** The eye the terrain's and foliage's levels are picked for: low over the middle, so the near ground is fine. */
@@ -41,13 +60,7 @@ export function drawFromAbove(
   camera.lookAt(cx, shot.top - 1, cz);
   camera.updateProjectionMatrix();
   camera.updateMatrixWorld();
-  const hidden = scene.children.filter((child) => child.visible && !keep.has(child));
-  scene.updateMatrixWorld();
-  for (const root of keep) {
-    root.traverse((node) => {
-      if (node.visible && (node.userData[OFF_MAP] === true || aboveRoofs(node, shot.roofs))) hidden.push(node);
-    });
-  }
+  const hidden = leftOut(scene, keep, shot.roofs);
   for (const child of hidden) child.visible = false;
   const fog = scene.fog;
   scene.fog = null;

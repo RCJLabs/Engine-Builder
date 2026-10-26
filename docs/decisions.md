@@ -2320,6 +2320,12 @@ Evan chose on 2026-10-26, from these options ([research/quest-ux.md](research/qu
 - **A bake is a step the author must remember,** as a navmesh's is; W154 says when it is out of date.
 - **The sim never learns where targets stand:** it holds targets as names and doors as uses and zones. The page turns them into points from the spaces the pack already carries, with the walk's own `objectPlaces`, so a bot can follow doors but not distances.
 
+**As built** (2026-10-26, [specs/markers.md](specs/markers.md#as-built-2026-10-26)):
+- **The compass shows only while there is a marker to point at.** With nothing tracked, or the setting off, the walk looks as it did before M6.6.
+- **Roofs, not a cut.** A space without terrain was to be drawn cut at 2.4 m over its highest spawn point. Seen from straight above, a wall cut below its top has no area, so the glen's buildings vanished. Each mesh wholly above that height is left out instead; a model made as one mesh, walls and roof, keeps its roof.
+- **A map is what a player sees.** The bake leaves out the editor's marks, zones and spawn points, and characters, which move. It is lit from high in the north-west, its shadows short.
+- **Its cost:** the glen's map, 38 m across, is 1024 px of WebP at 4 to 5 kB; a bake takes 0.8 to 1.3 s in the cloud container's headless Chromium, with no GPU (ROADMAP's Readings).
+
 ---
 
 ## Open

@@ -113,7 +113,9 @@ apps/editor/           the editor PWA
                        talk with the game's facts
   src/quests/          the quest map (M3.9, D47): questMap.ts (rows by steps from the first stage, where each stage
                        leads and how it ends, over the kit's quests/graph.ts; a job's outcomes and gone lines, M3.10)
-                       and QuestMap.tsx, above a quest's form; forms/refChoices.ts offers a quest's slots (M3.10)
+                       and QuestMap.tsx, above a quest's form; forms/refChoices.ts offers a quest's slots (M3.10);
+                       targetChoices.ts, what an objective's target offers (actors and actor slots, the spaces, the
+                       objects of the space it names, M6.6) and targetChecks.test.ts (E086 and W155 in the editor)
   src/scripts/         scripts in the editor (M3.2, D38): the script worker (script.worker.ts, jobs.ts: check and
                        play, protocol.ts, lockDown.ts) and its client with timeouts (scriptWorker.ts); trust.ts;
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
@@ -209,7 +211,9 @@ apps/editor/           the editor PWA
                        (latch: touching or flush within 12 px; dropBy), snapView.ts (each object's box as drawn, the
                        latch's wires); the toolbar's Grid step and Drop; M6.1 (D73): figureLook.ts (an NPC's look as
                        plain values: its figure, height and chest), figureView.ts (the figure in three; figuresIn, the
-                       hook's figures()); M6.2 (D74): navOverlay.ts (Show navigation's lines, the hook's nav())
+                       hook's figures()); M6.2 (D74): navOverlay.ts (Show navigation's lines, the hook's nav()); M6.6
+                       (D78): fromAbove.ts (a space drawn from straight above for Bake map; leftOut, what it hides),
+                       build.ts's OFF_MAP (marks, zones, spawn points and characters left off a map)
   src/nav/             navmeshes in the editor (M6.2, D74): geometry.ts (the solids and the terrain as Recast's soup of
                        triangles), lib.ts (Recast and Detour: a soup baked, a navmesh opened, paths, closest points, the
                        crowd), entry.ts (nav.js's, built by vite.nav.config.ts beside walk.js); bake.worker.ts,
@@ -218,6 +222,9 @@ apps/editor/           the editor PWA
                        scripts/bake.ts); navState.ts, navActions.ts (Bake navigation as a step of undo, the row's words)
                        and NavTools (the Scene toolbar's Navigation row); nav.test.ts, navChecks.test.ts (E076, E078,
                        E079 and W147 in the editor, as eb validate gives them)
+  src/spaceMaps/       Bake map (M6.6, D78): shot.ts (the ground a map covers, the camera's height and the roofs left
+                       out, as plain functions), mapActions.ts (the bake written as one step of undo; whether the map is
+                       stale, as W154 says), mapState.ts, MapTools.tsx (the Scene toolbar's Map row)
   src/terrain/         a space's terrain in the editor (M5.3, D65): plain functions with tests: grid.ts (heights in
                        metres and paint weights, from and to the two files; heightAt on the triangles drawn),
                        brushes.ts (one dab of each brush; dabs by distance), stroke.ts (a stroke's dabs, Flatten's
@@ -275,7 +282,10 @@ apps/editor/           the editor PWA
                        distance the crowd keeps, the hook's fight()); fight.test.ts, and camp.test.ts, the camp fought through
                        Rapier and Recast; M6.5 (D77): anims.ts (each body's animator and mixer, stepped every frame within
                        30 m, every other frame to 60 m and not beyond, by the motion's time; an NPC's speed from how far it
-                       moved; the hook's anims()), anims.test.ts
+                       moved; the hook's anims()), anims.test.ts; M6.6 (D78): markers.ts (each marker's point, a door
+                       standing in for another space, bearings and the compass strip), markerStage.ts and markerView.ts
+                       (the compass and the markers over the view, the hook's markers()), mapPins.ts (the Map screen's
+                       pins, run in walk.js), glenMarkers.test.ts (the glen's quests followed headless)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -412,9 +422,13 @@ apps/editor/           the editor PWA
                        animHelpers.ts, anim.spec.ts and animPhone.spec.ts are M6.5's, the camp's every frame read through
                        window.__ebWalk.anims() by keys and by touch at 360, 390 and sideways: idle, walk and run at their
                        paces, the air, a swing's phases, a bandit down; animEditor.spec.ts, a foreign rig's walk imported,
-                       an animator made in its outline and preview at 1280 and 390, and Ada playing it as her talk opens
+                       an animator made in its outline and preview at 1280 and 390, and Ada playing it as her talk opens;
+                       markerHelpers.ts, markers.spec.ts, markersPhone.spec.ts and markersEditor.spec.ts are M6.6's, the
+                       glen's quests followed by the compass and the markers by keys and by touch at 360, 390 and
+                       sideways, Track from the journal, the Map screen's pins and the setting; and the glen's map baked,
+                       W154 after a move and a target set with forms at 1280 and 390
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 13)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -435,7 +449,9 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        M6.2 (D74): npcs.ts (walk-to, world/npcs-at, world/npc-arrived, world.npc-at), the slice at
                        version 3 with npcs, format 11's navmeshes and actors (asFormat10 when there are none);
                        M6.3 (D75): follow and stand (npcs.ts), the slice at version 4;
-                       M6.4 (D76): attack and fall (npcs.ts), the slice at version 5, format 13's fighting (PackFighting)
+                       M6.4 (D76): attack and fall (npcs.ts), the slice at version 5, format 13's fighting (PackFighting);
+                       M6.6 (D78): doors.ts (doorsOf, doorToward: the fewest doors between spaces), packMaps.ts (format
+                       14's maps)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -487,7 +503,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        aiTypes.ts (behaviour, and an actor's behaviour, sight, cone and hearing), aiCheck.ts (E081 for
                        a node's units, hours, days and points, W148; W150, M6.4); M6.4: fightingTypes.ts (an item's
                        weapon, an actor's drops and on-fall, W151, checkFightingNames: E082); M6.5: animatorTypes.ts
-                       (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; not pure
+                       (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; M6.6: questTypes.ts's target, targetCheck.ts (E086,
+                       W155); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -526,7 +543,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        clock (manifest.ts, projectCheck.ts: E080, W149), packed as format 12, and E081 for a behaviour's
                        points and walking against its actor's space; M6.4: project.json's fighting (manifest.ts: E082),
                        packed as format 13 with the kit and a space; M6.5: world.ts packs an actor's animator and the
-                       models its clips come from (worldAnimators.test.ts), models.ts's W152; not pure
+                       models its clips come from (worldAnimators.test.ts), models.ts's W152; M6.6: mapFiles.ts (spaces/<id>.map.json read:
+                       E087, W154), mapInputs.ts (what a bake draws and its hash), world.ts packs the maps as format 14;
+                       not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -550,7 +569,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        and repeats (M3.10); slots.ts: slots filled, bound and gone (M3.10, D48); jobs.ts: jobs
                        rolled and kept as timers (M3.10); journal.ts: what a quest shows, start-quest's preview;
                        facts.ts; graph.ts: where stages lead, for the checks and the map; metrics.ts: kitMetrics,
-                       each quest's state for sweeps; module.ts); M4.6 (D56): maps/ (layered.ts: maps made from
+                       each quest's state for sweeps; module.ts; tracking.ts and targets.ts, the tracked quest and its
+                       targets, slice v3, M6.6); M4.6 (D56): maps/ (layered.ts: maps made from
                        a seed by rules; roads.ts: reach and the quickest road; travel.ts: travelOf, one price for
                        the action, its options and the widget; arrive.ts; sweep.ts: rules over 300 seeds; view.ts:
                        enter-map's preview, the map as the party sees it; facts.ts; module.ts, built knowing
@@ -570,7 +590,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
                        camp.ts (a hero and three bandits, M6.4): the records
                        and games the kit tests share;
-                       fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading;
+                       fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading,
+                       and dock-quests-v2.json, by its version 2 (M6.6);
                        fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1)
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
@@ -582,7 +603,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        audio.ts, the audio records, buzzes and ZzFX's arguments, M4.8);
                        session/ (play.ts: a game played and its view after each step, or resumed from a state, and
                        looked at for other wants, taking no step (M4.5); views.ts, the kits' views as lists;
-                       mapView.ts, the map in words from enter-map's preview (M4.6);
+                       mapView.ts, the map in words from enter-map's preview (M4.6); markers.ts, markersOf: the tracked
+                       quest's open targets for the stage (M6.6);
                        words.ts (fightText: a fight choice's odds from its preview, M4.7); say.ts, a step's beats in the feedback's words (M4.2); saving.ts, the save made
                        after each step (M4.3); records.ts, a codex's entries and the credits, sound.ts (M4.4);
                        fromPack.ts and host.ts, a pack opened in a worker (with the debug step for the editor's, whose
@@ -593,7 +615,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        and the announcer), screens.css; DesignFrame.tsx, one screen drawn inert at a device's size,
                        each widget in a box saying where it sits (M4.5); MapWidget.tsx and map.css (M4.6);
                        SpaceWidget.tsx and spaceHost.ts (M5.8: the box a page's host walks a space in, and the host's
-                       contract; the player's space when it names none, M5.9), placing.ts (where its stage starts);
+                       contract; the player's space when it names none, M5.9; the markers and the map's pins, M6.6),
+                       SpaceMapWidget.tsx and spaceMap.css (the Map screen's space from above, M6.6), placing.ts (where its stage starts);
                        stack.ts, fill.ts, layout.ts, mapLayout.ts and feedback.ts as plain functions; context.ts's
                        drawingUnder, a screen under another drawn paused, M6.1); input/ (M4.2, D52: spatial.ts, pad.ts and gestures.ts
                        as plain functions; focus.ts; the hooks useInput, useGamepad, useSwipes, useBackHistory);
@@ -678,7 +701,8 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        saves/trail-world-v1.json, a save by the world module's version 1 that must keep loading;
                        glen/, M5.9's gate: a glen with a rope, a bothy whose door is an interact and whose lamp is on
                        a table, a shed whose door is a zone, and a gate's zone that sets the supplies quest's stage,
-                       which glen.test.ts plays through the session to a save and a load; moor/, M5.10's gate: a
+                       which glen.test.ts plays through the session to a save and a load, and since M6.6 Find your feet,
+                       the supplies' targets and a Map and a Journal screen, which glenMarkers.test.ts follows; moor/, M5.10's gate: a
                        kilometre of terrain with about 1,350 starter kit pieces over all 256 cells, a road, a cairn's
                        zone and a chest, written only by `pnpm make:moor` from moor.ts (makeMoor.ts) and held to it
                        byte for byte by moor.test.ts; ford/, M6.1's gate: a smith and a ferry-keeper drawn as figures, a

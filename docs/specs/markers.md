@@ -70,7 +70,7 @@ The sim knows no coordinates ([D74](../decisions.md)); the page works out where 
 
 ## The compass and the marker
 
-- **The compass** is a strip across the top of the walk, under the safe area: the four points, north being −z, and a pip for each marker, placed by its bearing from the way the camera faces, with its distance in metres under it. A pip off the strip's 180° sits at its edge. The objective's text shows when its pip is within 10° of the middle.
+- **The compass** is a strip across the top of the walk, under the safe area: the four points, north being −z, and a pip for each marker, placed by its bearing from the way the camera faces, with its distance in metres under it. A pip off the strip's 180° sits at its edge. The objective's text shows when its pip is within 10° of the middle. The strip shows only while there is a marker to point at: with nothing tracked, or the setting off, the walk is as it was.
 - **The marker** is a diamond over a target that is in front of the camera and on screen, 0.5 m above an object's place and over an actor's head, with its distance. Behind the camera or off screen, only the compass shows it.
 - **A door** stands in for a target elsewhere: its pip and marker are the door's, its text the objective's.
 - **Neither takes a touch:** they never cover the stick, Jump or the prompt.
@@ -83,10 +83,10 @@ The sim knows no coordinates ([D74](../decisions.md)); the page works out where 
 
 **Bake map** in the Scene panel's toolbar, beside Bake navigation, draws the open space from above:
 
-- **What it draws:** the terrain, its foliage and water, and every object as it is drawn, through an orthographic camera looking down; no grid, gizmos, markers, labels or weather; lit by a fixed light from above, so a map reads the same at any hour.
+- **What it draws:** the terrain, its foliage and water, and every object as a player sees it, through an orthographic camera looking down; no grid, gizmos, labels or weather, and none of the editor's marks, zones or spawn points, nor characters, which move. Lit by a fixed light from high in the north-west, as maps are, its shadows short, so a map reads the same at any hour.
 - **Its bounds:** the terrain's, or the objects' footprints with 4 m round, squared up.
 - **Its size:** 1024 pixels on the longer side.
-- **A space with no terrain** is drawn cut at 2.4 m above its highest spawn point, so an interior shows its floor and not its roof.
+- **A space with no terrain** leaves out each mesh wholly above 2.4 m over its highest spawn point: a roof or a ceiling, so an interior shows its floor and its walls. Not a cut through everything at that height: seen from straight above, a wall cut below its top has no area. A model made as one mesh, walls and roof together, is drawn whole, roof and all.
 - **The files:** `spaces/<id>.map.json` holds the bounds (`[least x, least z, most x, most z]` in metres), the image's size in pixels, the image's file and the hash of what was drawn:
 
   ```json
@@ -121,6 +121,30 @@ The world gains `maps`: each baked space's bounds, size and image, the image amo
 - **Headless:** targets bound and read from counts; tracking, its action and its migration; `doorsOf` and `doorToward` over the glen's spaces; a marker's point against the walk's own places; pack format 14; E086, E087, W154 and W155 each broken once.
 - **By keys and by touch at 360, 390 and sideways:** the glen's supplies quest followed by its compass and marker, read through `window.__ebWalk.markers()`: the rope; the bothy's door, then the lamp inside; the way to the shed; a second quest tracked from the journal moving the compass; the setting hiding it; the Map screen's pins where the player and the targets stand.
 - **In the editor at 1280 and 390:** the glen's maps baked and W154 after a move; an objective's target set with forms.
+
+## As built (2026-10-26)
+
+- **Where it lives.**
+  - *The sim:* the quests kit's `tracked`, `quests/track` and migration 3; `doorsOf` and `doorToward` in core; targets checked by `packages/schema`'s `targetCheck.ts`.
+  - *The session:* `packages/ui`'s `markersOf` turns the tracked quest's preview into markers after each step.
+  - *The stage:* `apps/editor/src/walk/markers.ts` (points, bearings, the strip's arithmetic) and `markerStage.ts` and `markerView.ts` (the compass and the markers, a layer of the page's own DOM that takes no touch and is hidden from assistive tech, the journal saying the same). The pins are `mapPins.ts`, run in walk.js as the Map screen opens.
+  - *The bake:* `apps/editor/src/spaceMaps/` (the shot, the files, the Map row) and `spaces/fromAbove.ts`. It draws on the Scene view's own canvas at 1024 px and pixel ratio 1, copies the frame out in the same task, then puts the view back.
+- **A save from before an at-start quest** loads with that quest started as its steps replay, and so tracked, being the last started: the glen's version 2 save does this once Find your feet is added.
+- **The glen** is the gate's fixture, gaining:
+  - Find your feet, an at-start quest whose rope is read from its `world/used` count and whose gate is written;
+  - targets on the supplies quest;
+  - Map and Journal screens.
+- **What the gate found.**
+  - `withScreens` dropped the spaces' objects on the way to the record index. So in the editor a target's Object had no choices, and E086 never checked an object. `targetChecks.test.ts` now holds the editor to `eb validate`.
+  - The first bake drew the editor's own marks. A collider's wire box laid a diagonal across the glen's ground, and the spawn points' arrows and the zones showed too. `build.ts` flags them, and characters, as left off the map.
+  - The cut at 2.4 m took the top off every wall, so the glen's buildings showed only as their shadows. Roofs are now left out mesh by mesh.
+  - The sun's shadow camera stood 15.6 m from the origin with its near plane in front of it. In any space wider than that, a line crossed the ground where the near plane cut it, and with no bias every broad floor shadowed itself. Both are fixed for the editor's view and the walk alike.
+  - At 60% of the screen's height, the Map widget pushed the screen's bar off a 1280 by 800 screen. It is now 50%.
+- **Untested for feel:**
+  - the strip's 320 px and its 180°;
+  - the 10° for the text;
+  - the marker's size and its heights over an object and a head;
+  - the north-west light.
 
 ## Open questions
 
