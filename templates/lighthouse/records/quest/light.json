@@ -1,0 +1,74 @@
+{
+  "name": "Light the lamp",
+  "at-start": true,
+  "stages": [
+    {
+      "id": "log",
+      "log": "The keeper is gone and the lamp is dark. Their logbook will say why.",
+      "objectives": [
+        {
+          "id": "read",
+          "text": "Read the keeper’s logbook",
+          "done-when": "flag.on(read-log)",
+          "target": {
+            "space": "room",
+            "object": "logbook"
+          }
+        }
+      ],
+      "next": "key"
+    },
+    {
+      "id": "key",
+      "log": "The full cans are in the store, and its key is in the keeper’s chest.",
+      "objectives": [
+        {
+          "id": "key",
+          "text": "Find the store’s key",
+          "done-when": "inventory.count(item: key) >= 1",
+          "target": {
+            "space": "room",
+            "object": "chest"
+          }
+        }
+      ],
+      "next": "oil"
+    },
+    {
+      "id": "oil",
+      "log": "Unlock the store and fetch a can of oil.",
+      "objectives": [
+        {
+          "id": "oil",
+          "text": "Fetch a can of oil from the store",
+          "done-when": "inventory.count(item: oil) >= 1",
+          "target": {
+            "space": "store",
+            "object": "oil"
+          }
+        }
+      ],
+      "next": "lamp"
+    },
+    {
+      "id": "lamp",
+      "log": "Climb to the lamp room and light the lamp.",
+      "objectives": [
+        {
+          "id": "lit",
+          "text": "Light the lamp",
+          "done-when": "flag.on(lamp-lit)",
+          "target": {
+            "space": "lamp-room",
+            "object": "lamp"
+          }
+        }
+      ],
+      "next": "lit"
+    },
+    {
+      "id": "lit",
+      "log": "The light turns over the water. The ship will see it."
+    }
+  ]
+}

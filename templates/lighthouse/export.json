@@ -1,0 +1,15 @@
+{
+  "name": "The lighthouse",
+  "short-name": "Lighthouse",
+  "description": "The keeper is gone, the lamp is dark, and a ship is due before dawn.",
+  "orientation": "any",
+  "colors": {
+    "background": "#0b0e14",
+    "theme": "#1a1f2a"
+  },
+  "targets": {
+    "web": {},
+    "file": {},
+    "itch": {}
+  }
+}

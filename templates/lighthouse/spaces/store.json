@@ -1,0 +1,147 @@
+{
+  "name": "The store",
+  "environment": "lamplight",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [5, 0.2, 5],
+      "color": "#5a4a38",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "north",
+      "name": "Wall",
+      "shape": "box",
+      "at": [0, 0, -2.5],
+      "scale": [5, 2.6, 0.3],
+      "color": "#b8b0a0",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-2.5, 0, 0],
+      "scale": [0.3, 2.6, 5],
+      "color": "#b8b0a0",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [2.5, 0, 0],
+      "scale": [0.3, 2.6, 5],
+      "color": "#b8b0a0",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-1.65, 0, 2.5],
+      "scale": [1.7, 2.6, 0.3],
+      "color": "#b8b0a0",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [1.65, 0, 2.5],
+      "scale": [1.7, 2.6, 0.3],
+      "color": "#b8b0a0",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the door",
+      "shape": "box",
+      "at": [0, 0, 1.4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 2.9],
+      "scale": [1.6, 2.2, 0.6],
+      "color": "#1a1a1a",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "room",
+              "spawn": "store-step"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "shelf",
+      "name": "Shelf",
+      "shape": "box",
+      "at": [0, 0, -2],
+      "scale": [3, 1.6, 0.5],
+      "color": "#6a5238",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "barrel",
+      "name": "Barrel",
+      "record": "model:kit-barrel",
+      "at": [-1.6, 0, -1]
+    },
+    {
+      "id": "crate",
+      "name": "Crate",
+      "record": "model:kit-crate",
+      "at": [1.6, 0, -1]
+    },
+    {
+      "id": "oil",
+      "name": "Oil can",
+      "shape": "box",
+      "at": [0, 1.6, -2],
+      "scale": [0.3, 0.4, 0.2],
+      "color": "#a83a2a",
+      "components": {
+        "interact": {
+          "label": "Take a can of oil",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "oil"
+            }
+          ],
+          "takes": true
+        }
+      }
+    }
+  ]
+}

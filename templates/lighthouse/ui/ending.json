@@ -1,0 +1,51 @@
+{
+  "title": "Lit",
+  "shows": ["lit"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "The lighthouse",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The light turns over the water. Somewhere out there, the Mary Dunn alters course.",
+        "style": "heading"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  },
+  "ambience": "sea"
+}

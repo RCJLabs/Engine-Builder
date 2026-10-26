@@ -1,0 +1,229 @@
+{
+  "name": "The keeper’s room",
+  "environment": "lamplight",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [8, 0.2, 8],
+      "color": "#6a5238",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "north",
+      "name": "Wall",
+      "shape": "box",
+      "at": [0, 0, -4.0],
+      "scale": [8, 3, 0.3],
+      "color": "#cfc8b8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-4.0, 0, 0],
+      "scale": [0.3, 3, 8],
+      "color": "#cfc8b8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [4.0, 0, 0],
+      "scale": [0.3, 3, 8],
+      "color": "#cfc8b8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-2.4000000000000004, 0, 4.0],
+      "scale": [3.2, 3, 0.3],
+      "color": "#cfc8b8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [2.4000000000000004, 0, 4.0],
+      "scale": [3.2, 3, 0.3],
+      "color": "#cfc8b8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the door",
+      "shape": "box",
+      "at": [0, 0, 3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "store-step",
+      "name": "By the store door",
+      "shape": "box",
+      "at": [-2.6, 0, -1.6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "stair-foot",
+      "name": "At the foot of the stair",
+      "shape": "box",
+      "at": [2.6, 0, -1.6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 4.4],
+      "scale": [1.6, 2.2, 0.6],
+      "color": "#1a1a1a",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "rock",
+              "spawn": "tower-step"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "table",
+      "name": "Table",
+      "record": "model:kit-table",
+      "at": [0, 0, -0.5]
+    },
+    {
+      "id": "logbook",
+      "name": "Logbook",
+      "shape": "box",
+      "at": [0, 0.8, -0.5],
+      "scale": [0.4, 0.06, 0.3],
+      "color": "#5a2a1a",
+      "components": {
+        "interact": {
+          "label": "Read the logbook",
+          "effects": [
+            {
+              "effect": "open-talk",
+              "talk": "logbook"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bench",
+      "name": "Bench",
+      "record": "model:kit-bench",
+      "at": [0, 0, 0.6]
+    },
+    {
+      "id": "chest",
+      "name": "The keeper’s chest",
+      "record": "model:kit-chest",
+      "at": [-3, 0, 2.6],
+      "turn": [0, 90, 0],
+      "components": {
+        "interact": {
+          "label": "Open the chest",
+          "effects": [],
+          "holds": {
+            "key": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "bed",
+      "name": "Bed",
+      "shape": "box",
+      "at": [3, 0, 2.4],
+      "scale": [1.2, 0.5, 2.2],
+      "color": "#7a6a5a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "store-door",
+      "name": "Store door",
+      "shape": "box",
+      "at": [-2.6, 0, -3.8],
+      "scale": [1.2, 2.2, 0.15],
+      "color": "#3a2a1c",
+      "components": {
+        "interact": {
+          "label": "Unlock the store",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "store",
+              "spawn": "door"
+            }
+          ],
+          "when": "inventory.count(item: key) >= 1"
+        }
+      }
+    },
+    {
+      "id": "stair",
+      "name": "Stair",
+      "shape": "box",
+      "at": [2.6, 0, -3.6],
+      "scale": [1.4, 0.4, 0.6],
+      "color": "#8a7a62",
+      "components": {
+        "interact": {
+          "label": "Climb the stair",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "lamp-room",
+              "spawn": "stair-head"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

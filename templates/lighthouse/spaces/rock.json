@@ -1,0 +1,135 @@
+{
+  "name": "The rock",
+  "environment": "night",
+  "objects": [
+    {
+      "id": "sea",
+      "name": "The sea",
+      "shape": "box",
+      "at": [0, -0.8, 0],
+      "scale": [160, 0.1, 160],
+      "color": "#0c1a2a"
+    },
+    {
+      "id": "ground",
+      "name": "The rock",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [28, 0.2, 28],
+      "color": "#3a3a40",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "start",
+      "name": "The landing",
+      "shape": "box",
+      "at": [0, 0, 11],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true,
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "tower-step",
+      "name": "By the tower door",
+      "shape": "box",
+      "at": [0, 0, 5.2],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "view": "first"
+        }
+      }
+    },
+    {
+      "id": "tower",
+      "name": "The tower",
+      "shape": "box",
+      "at": [0, 0, 0],
+      "scale": [6, 14, 6],
+      "color": "#d8d4c8",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "gallery",
+      "name": "The gallery",
+      "shape": "box",
+      "at": [0, 14, 0],
+      "scale": [7, 0.3, 7],
+      "color": "#2a2a2a"
+    },
+    {
+      "id": "lantern",
+      "name": "The lantern",
+      "shape": "box",
+      "at": [0, 14.3, 0],
+      "scale": [3, 2.4, 3],
+      "color": "#22262c"
+    },
+    {
+      "id": "tower-door",
+      "name": "Tower door",
+      "shape": "box",
+      "at": [0, 0, 3.05],
+      "scale": [1.4, 2.2, 0.15],
+      "color": "#3a2a1c",
+      "components": {
+        "interact": {
+          "label": "Go in",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "room",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rock-1",
+      "name": "Rock",
+      "record": "model:kit-rock-large",
+      "at": [-8, 0, 6]
+    },
+    {
+      "id": "rock-2",
+      "name": "Rock",
+      "record": "model:kit-rock-large",
+      "at": [9, 0, -4]
+    },
+    {
+      "id": "rock-3",
+      "name": "Rock",
+      "record": "model:kit-rock-small",
+      "at": [6, 0, 8]
+    },
+    {
+      "id": "rock-4",
+      "name": "Rock",
+      "record": "model:kit-rock-small",
+      "at": [-10, 0, -8]
+    },
+    {
+      "id": "post",
+      "name": "Landing light",
+      "record": "model:kit-lamp-post",
+      "at": [2, 0, 12]
+    },
+    {
+      "id": "crate",
+      "name": "Washed-up crate",
+      "record": "model:kit-crate",
+      "at": [-4, 0, 10]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Lamplight",
+  "hour": 23,
+  "sky": "colour",
+  "zenith": "#0a0805",
+  "sun-strength": 0,
+  "ambient": "#e8c48a",
+  "ambient-strength": 0.9
+}

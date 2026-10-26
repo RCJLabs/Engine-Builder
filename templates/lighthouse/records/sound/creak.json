@@ -1,0 +1,13 @@
+{
+  "name": "Creak",
+  "voices": [
+    {
+      "volume": 0.35,
+      "frequency": 180,
+      "attack": 0.01,
+      "sustain": 0.08,
+      "release": 0.3,
+      "shape": "saw"
+    }
+  ]
+}

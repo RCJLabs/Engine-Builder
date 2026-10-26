@@ -1,0 +1,21 @@
+{
+  "name": "Sea on the rock",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "brown",
+      "filter": "lowpass",
+      "frequency": 400,
+      "gain": 0.5,
+      "sway": 0.7
+    },
+    {
+      "kind": "noise",
+      "colour": "pink",
+      "filter": "bandpass",
+      "frequency": 1800,
+      "gain": 0.1,
+      "sway": 0.9
+    }
+  ]
+}

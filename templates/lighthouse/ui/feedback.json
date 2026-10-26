@@ -1,0 +1,21 @@
+{
+  "lines": [
+    {
+      "on": "inventory/gained",
+      "say": "{.item}",
+      "sound": "creak",
+      "buzz": "tap"
+    },
+    {
+      "on": "quests/staged",
+      "say": "{.quest}",
+      "to": "log"
+    },
+    {
+      "on": "quests/done",
+      "say": "{.quest}",
+      "sound": "bell",
+      "buzz": "double"
+    }
+  ]
+}

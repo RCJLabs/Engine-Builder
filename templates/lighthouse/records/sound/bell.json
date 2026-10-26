@@ -1,0 +1,13 @@
+{
+  "name": "Bell",
+  "voices": [
+    {
+      "volume": 0.5,
+      "frequency": 523,
+      "attack": 0.002,
+      "sustain": 0.05,
+      "release": 1.4,
+      "shape": "sine"
+    }
+  ]
+}
