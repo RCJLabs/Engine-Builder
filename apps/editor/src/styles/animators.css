@@ -1,0 +1,60 @@
+/* An animator's preview (M6.5, D77): the view full width, its facts below, each a thumb's reach. */
+.anim-preview {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.anim-view {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.anim-canvas {
+  display: block;
+  width: 100%;
+  height: 240px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.anim-status {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.anim-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.anim-speed {
+  width: 100%;
+  min-height: var(--tap);
+}
+
+.anim-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+.anim-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  cursor: pointer;
+}
+
+.anim-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 8px;
+}

@@ -82,15 +82,23 @@ export interface Edited {
   readonly path: readonly (string | number)[];
 }
 
-/** A state added after the chosen state, its clip the first the model has. */
+/**
+ * A state added after the chosen state, its clip the first the model has; the layer starts in it
+ * when it starts in no state it has, as a new animator's doesn't.
+ */
 export function addState(value: unknown, layer: LayerName, after: number, clip: string | undefined): Edited {
   const at = layerOf(value);
   const states = listOf(at.states);
-  const id = freeId('state', new Set(states.map((s) => s.id)));
+  const ids = new Set(states.map((s) => s.id));
+  const id = freeId('state', ids);
   const index = Math.min(states.length, after + 1);
   const made: Item = clip === undefined ? { id } : { id, clip };
   return {
-    layer: { ...at, states: [...states.slice(0, index), made, ...states.slice(index)] },
+    layer: {
+      ...at,
+      start: ids.has(at.start) ? at.start : id,
+      states: [...states.slice(0, index), made, ...states.slice(index)],
+    },
     path: [layer, 'states', index],
   };
 }
@@ -148,6 +156,26 @@ export function removeRow(value: unknown, layer: LayerName, row: AnimRow): Edite
     path: [layer, 'states', Math.max(0, row.index - 1)],
   };
 }
+
+/** A state renamed, and the start and the transitions that named it with it. */
+export function renameState(value: unknown, index: number, to: string): Layer {
+  const at = layerOf(value);
+  const states = listOf(at.states);
+  const was = states[index]?.id;
+  const named = (id: unknown) => (id === was ? to : id);
+  return {
+    ...at,
+    start: named(at.start),
+    states: states.map((s, i) => (i === index ? { ...s, id: to } : s)),
+    ...(at.transitions
+      ? { transitions: listOf(at.transitions).map((t) => ({ ...t, from: named(t.from), to: named(t.to) })) }
+      : {}),
+  };
+}
+
+/** The ids of the layer's states, as written. */
+export const stateIds = (value: unknown): string[] =>
+  listOf(layerOf(value).states).flatMap((s) => (typeof s.id === 'string' ? [s.id] : []));
 
 /** The upper layer an animator starts with: one state with no clip, which gives way to the base. */
 export const UPPER_START: Layer = { start: 'none', states: [{ id: 'none' }] };

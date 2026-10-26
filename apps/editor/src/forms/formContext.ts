@@ -3,7 +3,7 @@
  * catalog, the record's problems, and the two ways a field writes. Also the field state shared by
  * every kind: when to show a problem. What is typed but not yet written is editing/draft.ts.
  */
-import { pointerSegment } from '@eb/core';
+import { type FactCatalog, pointerSegment } from '@eb/core';
 import type { Diagnostic, TypeFile } from '@eb/schema';
 import { createContext } from 'preact';
 import { useContext, useState } from 'preact/hooks';
@@ -24,6 +24,8 @@ export interface FormApi {
   readonly names?: (key: string) => string | undefined;
   /** A quest's slots a field at a pointer can name, with their records' types (M3.10): pickers offer them. */
   readonly slots?: (pointer: string) => Readonly<Record<string, string>>;
+  /** The facts its conditions read, when not the game's: an animator's are the stage's `anim.*` (M6.5). */
+  readonly facts?: FactCatalog;
   readonly typeFile: TypeFile;
   readonly id: string;
   problemsAt(pointer: string): readonly Diagnostic[];

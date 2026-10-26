@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { addState, addTransition, canMove, canRemove, moveRow, removeRow, rowsOf } from './outline.ts';
+import {
+  addState,
+  addTransition,
+  canMove,
+  canRemove,
+  moveRow,
+  removeRow,
+  renameState,
+  rowsOf,
+  stateIds,
+} from './outline.ts';
 
 const LAYER = {
   start: 'idle',
@@ -30,8 +40,14 @@ describe('an animator layer’s outline', () => {
     const added = addState(LAYER, 'base', 0, 'idle');
     expect(added.layer.states?.map((s) => s.id)).toEqual(['idle', 'state', 'walk']);
     expect(added.path).toEqual(['base', 'states', 1]);
+    expect(added.layer.start).toBe('idle');
     const again = addState(added.layer, 'base', 2, undefined);
     expect(again.layer.states?.at(-1)).toEqual({ id: 'state-2' });
+    // A new animator's layer starts in nothing yet: its first state is where it starts.
+    expect(addState({ start: '', states: [] }, 'base', -1, 'idle').layer).toEqual({
+      start: 'state',
+      states: [{ id: 'state', clip: 'idle' }],
+    });
     const moved = addTransition(LAYER, 'upper', 'walk');
     expect(moved.layer.transitions?.at(-1)).toEqual({ from: 'walk', to: 'idle', when: 'anim.speed > 0.2' });
     expect(moved.path).toEqual(['upper', 'transitions', 3]);
@@ -44,6 +60,13 @@ describe('an animator layer’s outline', () => {
     const up = moveRow(LAYER, 'base', last, -1);
     expect(up.layer.transitions?.map((t) => `${t.from}>${t.to}`)).toEqual(['idle>walk', 'walk>idle', '*>idle']);
     expect(up.path).toEqual(['base', 'transitions', 1]);
+  });
+
+  it('renames a state where the layer starts and where its transitions name it', () => {
+    const named = renameState(LAYER, 0, 'stand');
+    expect(named.start).toBe('stand');
+    expect(stateIds(named)).toEqual(['stand', 'walk']);
+    expect(named.transitions?.map((t) => `${t.from}>${t.to}`)).toEqual(['stand>walk', '*>stand', 'walk>stand']);
   });
 
   it('removes a state with its transitions both ways, the first left starting, and keeps one', () => {
