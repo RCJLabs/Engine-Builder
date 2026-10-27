@@ -78,7 +78,9 @@ export function createSimSide(
       if (paused || stopped) return;
       const entry = { path, sent: 'waiting' };
       used.push(entry);
-      void outbox.post({ type: 'world/use', space: ask.space, object: path }).then((sent) => {
+      // The player's press, ahead of the clock's and the folk's letters waiting, as the 3D walk's are
+      // (acts.ts): CI's tower run waited past 5 s for its bell behind them (M7.4).
+      void outbox.post({ type: 'world/use', space: ask.space, object: path }, true).then((sent) => {
         entry.sent = sent;
       });
       outbox.pump();
