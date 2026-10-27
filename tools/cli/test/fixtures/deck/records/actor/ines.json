@@ -1,0 +1,7 @@
+{
+  "name": "Ines, the pilot",
+  "description": "Walks between the bridge and the engines.",
+  "sprite": "figure-keeper",
+  "speed": 16,
+  "behaviour": "pilot"
+}

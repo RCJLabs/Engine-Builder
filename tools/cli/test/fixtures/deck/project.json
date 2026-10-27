@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "id": "deck",
+  "name": "The boarding deck",
+  "version": "0.1.0",
+  "kits": [
+    "stats",
+    "time",
+    "ai"
+  ],
+  "calendar": {
+    "ticksPerDay": 1440,
+    "units": {
+      "minutes": 1,
+      "hours": 60
+    },
+    "start": {
+      "tick": 480
+    }
+  },
+  "start-space": "deck"
+}

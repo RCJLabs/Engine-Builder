@@ -1,0 +1,25 @@
+{
+  "name": "The pilot's rounds",
+  "description": "Between the bridge and the engines; to the airlock when the alarm sounds.",
+  "do": {
+    "first": [
+      {
+        "if": "flag.on(alarm)",
+        "do": {
+          "travel": "airlock-1"
+        }
+      },
+      {
+        "do": {
+          "patrol": [
+            "bridge",
+            "engines"
+          ],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}
