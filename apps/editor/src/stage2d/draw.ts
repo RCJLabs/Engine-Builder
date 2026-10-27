@@ -4,9 +4,11 @@
  * holds is one of the sheets' own or a shape's colour. The page shows the canvas at a whole scale,
  * pixelated. Canvas 2D, not three: drawImage at whole pixels is exact by construction, and the stage
  * carries no renderer (D83's As built). The Scene panel's 2D view draws with it too. A tilemap
- * (M7.2) draws its tiles, edges and posts at its depth, only those inside the view.
+ * (M7.2) draws its tiles, edges and posts at its depth, only those inside the view; a building (M7.3)
+ * its rooms and then its stairs.
  */
 import type { SpriteRecord, TilesetRecord } from '@eb/schema';
+import { type BuildingLook, buildingPieces } from './building2d.ts';
 import { type Point, viewCorner } from './camera.ts';
 import { clipOf, frameAt, frameBox } from './clips.ts';
 import { drawnAt, onCanvas, type Rect, tiles, worldBox } from './place.ts';
@@ -111,6 +113,29 @@ function drawTilemap(
   }
 }
 
+/** A building's pieces, each its sprite's clip at `t`: a piece cut short shows its frame's left and bottom. */
+function drawBuilding(
+  ctx: CanvasRenderingContext2D,
+  look: BuildingLook,
+  at: Point,
+  ask: FrameAsk,
+  corner: Point,
+): void {
+  const [cols, rows] = ask.view;
+  for (const { sprite, box } of buildingPieces(look, at, (id) => ask.sheets.record(id))) {
+    const record = ask.sheets.record(sprite);
+    const image = ask.sheets.image(sprite);
+    if (!record || !image) continue;
+    const to = onCanvas(box, corner, rows);
+    if (to.x + to.w <= 0 || to.y + to.h <= 0 || to.x >= cols || to.y >= rows) continue;
+    const clip = clipOf(record);
+    const playing = clip === undefined ? undefined : record.clips[clip];
+    const frame = playing ? frameAt(playing, ask.t, 0, ask.still) : 0;
+    const src = frameBox(record, ask.sheets.width(sprite), frame);
+    ctx.drawImage(image, src.x, src.y + record.frame[1] - box.h, box.w, box.h, to.x, to.y, box.w, box.h);
+  }
+}
+
 /** One frame: every item drawn, and how each was. */
 export function drawFrame(ctx: CanvasRenderingContext2D, ask: FrameAsk): Drawn[] {
   const [cols, rows] = ask.view;
@@ -124,6 +149,11 @@ export function drawFrame(ctx: CanvasRenderingContext2D, ask: FrameAsk): Drawn[]
     const at: Point = walking ? [Math.round(walking.at[0]), Math.round(walking.at[1])] : drawnAt(item, ask.camera);
     if (item.look.kind === 'tilemap') {
       drawTilemap(ctx, item as Item & { look: { kind: 'tilemap' } }, at, ask.sheets, corner, ask.view);
+      drawn.push({ path: item.path, at, flip: false, box: onCanvas(worldBox(item, at, undefined), corner, rows) });
+      continue;
+    }
+    if (item.look.kind === 'building') {
+      drawBuilding(ctx, item.look, at, ask, corner);
       drawn.push({ path: item.path, at, flip: false, box: onCanvas(worldBox(item, at, undefined), corner, rows) });
       continue;
     }

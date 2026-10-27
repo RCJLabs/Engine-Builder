@@ -4,8 +4,11 @@
  * canvas's art pixels, the camera, each item as drawn (sprite, clip, frame, whole-pixel place,
  * flip), a frame count, the uses' buttons, the walkers and what was sent. Read only; `look` moves
  * the camera as a drag would. Since M7.2 each walker's route as tiles, and the space's tilemap: its
- * size, tile, corner and each layer's frame at each cell as drawn.
+ * size, tile, corner and each layer's frame at each cell as drawn. Since M7.3 each walker's route through a
+ * building as floors and x, and the building's pieces as drawn.
  */
+
+import type { BuildingPiece } from './building2d.ts';
 import type { Point } from './camera.ts';
 import type { Drawn } from './draw.ts';
 import type { Rect } from './place.ts';
@@ -26,7 +29,11 @@ export interface Stage2dHook {
     moving: boolean;
     flip: boolean;
     route?: readonly (readonly [number, number])[];
+    floors?: readonly (readonly [number, number])[];
   }[];
+  building():
+    | { readonly path: string; readonly at: Point; readonly slot: Point; readonly pieces: readonly BuildingPiece[] }
+    | undefined;
   tilemap():
     | {
         readonly path: string;

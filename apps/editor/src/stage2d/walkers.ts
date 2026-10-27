@@ -5,10 +5,13 @@
  * plays walk as it moves and idle as it stands, when its sprite has them. No navmesh: in a space
  * with no tilemap nothing is in the way. In one with a tilemap (M7.2, D84) it walks the four-way
  * route from its tile to the mark's, tile centre to tile centre, then on to the mark's own place;
- * with no route it stays where it is, and the sim never hears it arrive.
+ * with no route it stays where it is, and the sim never hears it arrive. In one with a building (M7.3,
+ * D85) it walks along its floor and climbs the stairs the core's route takes, when it and the mark both
+ * stand on the building; with no route it stays, and off the building it walks straight.
  */
-import { gridOf, type PackTiles, route, type Tile } from '@eb/core';
+import { type FloorPlace, gridOf, type PackBuilding, type PackTiles, route, type Tile } from '@eb/core';
 import type { NpcGoal } from '@eb/ui';
+import { buildingWay } from './building2d.ts';
 import type { Point } from './camera.ts';
 import { tileCentre, tileUnder } from './tilemap2d.ts';
 
@@ -24,6 +27,8 @@ export interface Walker {
   /** The tile centres it passes on its way there, the next first, and its route as tiles (M7.2). */
   path: Point[];
   route?: readonly Tile[];
+  /** Its route through a building as floors and x (M7.3). */
+  floors?: readonly FloorPlace[];
   /** The mark it reached last, said to the sim until heard. */
   arrived?: string;
   /** Mirrored: it last walked left. */
@@ -44,15 +49,21 @@ export function walkerOf(actor: string, placed: Point, speed: unknown, told: Npc
   };
 }
 
+/** The ground a space's walkers follow: its tilemap or its building, when it has one. */
+export interface Ground {
+  readonly tiles?: PackTiles;
+  readonly building?: PackBuilding;
+}
+
 /**
  * The sim's goal for it now: a new mark sets it walking, unless the sim already heard it arrive there;
- * across `tiles`, the space's tilemap, by its route.
+ * across the space's tilemap or through its building, by its route.
  */
 export function sendTo(
   walker: Walker,
   told: NpcGoal | undefined,
   places: ReadonlyMap<string, Point>,
-  tiles?: PackTiles,
+  { tiles, building }: Ground = {},
 ): void {
   const goal = told?.goal;
   if (goal === walker.goal) return;
@@ -60,8 +71,16 @@ export function sendTo(
   walker.target = goal === undefined ? undefined : places.get(goal);
   walker.path = [];
   walker.route = undefined;
+  walker.floors = undefined;
   if (goal !== undefined && told?.arrived === goal) walker.target = undefined;
-  if (!tiles || goal === undefined || walker.target === undefined) return;
+  if (goal === undefined || walker.target === undefined) return;
+  if (building) {
+    const way = buildingWay(building, walker.at, goal, walker.target);
+    if (way === null) walker.target = undefined;
+    else if (way) [walker.path, walker.floors] = [way.path, way.route];
+    return;
+  }
+  if (!tiles) return;
   const from = tileUnder(tiles, walker.at);
   const to = tiles.places[goal] ?? tileUnder(tiles, walker.target);
   const tiled = from && to ? route(gridOf(tiles), from, to) : null;
@@ -75,21 +94,21 @@ export function sendTo(
 
 /**
  * The stage's walkers as it starts: one for each actor placed in the space, standing where the sim last
- * said it stood and sent on toward its goal, round the tilemap's walls when there is one. A stage starts
- * mid-walk whenever a save is loaded or its screen is shown again.
+ * said it stood and sent on toward its goal, round the tilemap's walls or through the building when there
+ * is one. A stage starts mid-walk whenever a save is loaded or its screen is shown again.
  */
 export function walkersOf(
   items: readonly { readonly actor?: string; readonly at: Point }[],
   speedOf: (actor: string) => unknown,
   told: Readonly<Record<string, NpcGoal>> | undefined,
   places: ReadonlyMap<string, Point>,
-  tiles?: PackTiles,
+  ground: Ground = {},
 ): Map<string, Walker> {
   const walkers = new Map<string, Walker>();
   for (const item of items) {
     if (item.actor === undefined || walkers.has(item.actor)) continue;
     const walker = walkerOf(item.actor, item.at, speedOf(item.actor), told?.[item.actor]);
-    sendTo(walker, told?.[item.actor], places, tiles);
+    sendTo(walker, told?.[item.actor], places, ground);
     walkers.set(item.actor, walker);
   }
   return walkers;
