@@ -13,6 +13,7 @@ import { at, enterSpace, trigger, use } from './actions.ts';
 import { doorsBetween, doorsOf } from './doors.ts';
 import { attack, engaged, fall, follow, npcsAt, rise, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
+import { room } from './rooms/facts.ts';
 import { cover, sees } from './tiles/facts.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
@@ -142,6 +143,13 @@ export function worldModule(world: WorldData): Module {
         domain: COVER,
         label: 'the cover the first has against the second',
         read: (view, args) => cover(world, view.state, args),
+      },
+      // M7.3 (D85): the room of a building an object stands in.
+      room: {
+        args: { space: TEXT, of: TEXT },
+        domain: TEXT,
+        label: 'the room the object stands in',
+        read: (view, args) => room(world, view.state, args),
       },
       'npc-at': {
         args: { actor: TEXT },
