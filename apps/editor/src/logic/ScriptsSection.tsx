@@ -15,6 +15,7 @@ import { createTextFiles } from '../scripts/scriptEdits.ts';
 import { moduleTemplate, startFiles } from '../scripts/templates.ts';
 import { trust } from '../scripts/trust.ts';
 import { RunGame } from './RunGame.tsx';
+import { StagesList } from './StagesList.tsx';
 
 const count = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -93,6 +94,7 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
         </div>
       ) : null}
       {game.status === 'loaded' && game.catalog ? <RunGame project={project} catalog={game.catalog} /> : null}
+      <StagesList project={project} />
     </section>
   );
 }

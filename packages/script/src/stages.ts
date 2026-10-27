@@ -6,7 +6,7 @@
 import { isRecordId } from '@eb/core';
 import { scan, stageViolations } from '@eb/purity';
 import type { CheckedScript, ScriptProblem } from './check.ts';
-import { STAGE_API, STAGES_DIR, stageImport } from './stageLoad.ts';
+import { EB_STAGE, STAGES_DIR, stageImport } from './stageLoad.ts';
 import { transpileScript } from './transpile.ts';
 
 export type StageFile =
@@ -46,7 +46,7 @@ export function checkStage(source: string, file: string, files: ReadonlySet<stri
   for (const { line, rule } of stageViolations('', scanned.code)) problems.push({ code: 'E029', message: rule, line });
   const imports: string[] = [];
   for (const { spec, line } of scanned.imports) {
-    if (spec === STAGE_API) continue;
+    if (spec === EB_STAGE) continue;
     const target = stageImport(file, spec);
     if (target !== undefined && files.has(target)) {
       imports.push(target);
@@ -55,7 +55,7 @@ export function checkStage(source: string, file: string, files: ReadonlySet<stri
     const message =
       target !== undefined
         ? `Imports "${spec}", which is no stage file here`
-        : `Imports "${spec}": a stage may import "${STAGE_API}" and other files under stages/ ("./<name>")`;
+        : `Imports "${spec}": a stage may import "${EB_STAGE}" and other files under stages/ ("./<name>")`;
     problems.push({ code: 'E030', message, line });
   }
   return { ...(out.ok ? { js: out.js } : {}), imports, problems };

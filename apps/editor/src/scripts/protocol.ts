@@ -26,6 +26,8 @@ export interface CheckResult {
   readonly ran: boolean;
   /** What the game declares, when it ran and loaded. */
   readonly game: GameCatalog | null;
+  /** Every stage file by its path under stages/ without `.ts`, sorted (M7.4); their problems are among the diagnostics. */
+  readonly stages: readonly string[];
 }
 
 export type PlayResult =

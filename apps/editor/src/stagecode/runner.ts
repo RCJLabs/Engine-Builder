@@ -77,7 +77,7 @@ export function createStageRunner(post: (message: FromStage) => void, now: () =>
     const began = now();
     g.save();
     g.setTransform(f.dpr, 0, 0, f.dpr, 0, 0);
-    let drew: Drew | undefined | void;
+    let drew: Drew | undefined;
     try {
       drew = stage.frame(g as unknown as OffscreenCanvasRenderingContext2D, f);
     } finally {

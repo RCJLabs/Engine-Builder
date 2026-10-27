@@ -1,7 +1,7 @@
 /**
  * What `"eb/stage"` gives a stage (M7.4, D86, docs/specs/stages.md#the-api): `defineStage`, `svg`,
  * and the shapes of what a stage is handed and returns. The worker answers `require("eb/stage")`
- * with STAGE_API's values; these types are what the editor's completion and the docs describe.
+ * with the runner's StageModule (runner.ts); these types are what the editor's completion and the docs describe.
  */
 
 /** Two numbers: art pixels, or CSS pixels, as each field says. */
@@ -79,7 +79,7 @@ export interface Drew {
 /** A stage: `start` once, `frame` every frame, drawing on the canvas's 2D context. */
 export interface StageDef {
   start?(start: Start): void;
-  frame(g: OffscreenCanvasRenderingContext2D, frame: Frame): Drew | undefined | void;
+  frame(g: OffscreenCanvasRenderingContext2D, frame: Frame): Drew | undefined;
 }
 
 /** The names `"eb/stage"` exports, for completion. */

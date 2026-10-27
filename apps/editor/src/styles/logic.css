@@ -29,6 +29,20 @@
   font-size: 1rem;
 }
 
+/* The stages under the scripts (M7.4): a part of the section with a heading of its own. */
+.logic-subsection {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.logic-head h4 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 /* A heading's buttons side by side, wrapping on a narrow phone (New space and New 2D space, M7.1). */
 .logic-actions {
   display: flex;

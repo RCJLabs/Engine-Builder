@@ -11,7 +11,7 @@ import { fieldToFocus } from '../forms/focusField.ts';
 import { openRecord } from '../records/actions.ts';
 import { openScene } from '../scenes/open.ts';
 import { openUiFile } from '../screens/open.ts';
-import { openScript } from '../scripts/open.ts';
+import { openScript, openStage } from '../scripts/open.ts';
 import { openSpaceAt } from '../spaces/open.ts';
 import { designKind, designType } from '../types/open.ts';
 import type { Place } from './problemList.ts';
@@ -33,6 +33,9 @@ export function openPlace(place: Place): void {
       return;
     case 'script':
       openScript(place.id, place.line === undefined ? undefined : { line: place.line, column: place.column });
+      return;
+    case 'stage':
+      openStage(place.id, place.line === undefined ? undefined : { line: place.line, column: place.column });
       return;
     case 'scene':
       openScene(place.id, place.line === undefined ? undefined : { line: place.line, column: place.column });

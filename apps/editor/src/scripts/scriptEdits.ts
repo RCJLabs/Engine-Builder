@@ -4,7 +4,7 @@
  * the Scenes list make the same of ink scenes' files (M3.11).
  */
 import type { ProjectSource } from '@eb/compiler';
-import { scriptPath } from '@eb/script';
+import { scriptPath, stagePath } from '@eb/script';
 import { type FileChange, sameState } from '../editing/history.ts';
 
 const encoder = new TextEncoder();
@@ -38,3 +38,9 @@ export const setScriptText = (source: ProjectSource, id: string, text: string) =
   setFileText(source, scriptPath(id), text);
 
 export const deleteScript = (source: ProjectSource, id: string) => deleteFile(source, scriptPath(id));
+
+/** A stage file's text as typed, and a stage file deleted (M7.4): files under stages/, by their path there. */
+export const setStageText = (source: ProjectSource, id: string, text: string) =>
+  setFileText(source, stagePath(id), text);
+
+export const deleteStage = (source: ProjectSource, id: string) => deleteFile(source, stagePath(id));

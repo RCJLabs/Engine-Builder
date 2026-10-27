@@ -8,7 +8,7 @@
 import { type Diagnostic, type DiagnosticCode, severityOf } from '@eb/schema';
 import { type CheckedScript, checkStage, classifyStage, type ScriptProblem, STAGES_DIR, stagePath } from '@eb/script';
 import type { ProjectSource } from './source.ts';
-import { atLines, type SpaceFileRead } from './spaces.ts';
+import { atLines, readSpaces, type SpaceFileRead } from './spaces.ts';
 
 export interface StagesRead {
   /** Every stage file by its path under stages/ without `.ts`, sorted, sound or not. */
@@ -98,6 +98,18 @@ export function checkStages(
     if (js !== undefined) compiled[file] = js;
   }
   return { diagnostics, compiled };
+}
+
+/**
+ * The stage files and every problem with them, the spaces' stages among them, as eb validate gives
+ * them: what the editor's script worker reports, keeping the transpiler off the page (M7.4).
+ */
+export async function readStageProblems(
+  source: ProjectSource,
+): Promise<{ files: string[]; diagnostics: Diagnostic[] }> {
+  const read = await readStages(source);
+  const spaces = await readSpaces(source);
+  return { files: [...read.files], diagnostics: [...read.diagnostics, ...checkStages(read, spaces.files).diagnostics] };
 }
 
 const decode = (bytes: Uint8Array | undefined): string | undefined => {

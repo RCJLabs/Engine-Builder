@@ -9,6 +9,7 @@ const loaded: GameState = {
   ids: ['game'],
   status: 'loaded',
   problems: [],
+  stages: [],
   catalog: {
     modules: ['logic', 'flag', 'sheet', 'hold'],
     start: 'sea',

@@ -6,7 +6,8 @@
  * components follow, and a placement's parts (M5.2): a record's fields here, a prefab's objects,
  * each object inside one opening its own form, every change an override. With nothing chosen in a
  * space, its environment (M5.4) and, with a terrain, the terrain's form (M5.3) and its foliage (M5.6).
- * A space and each object have their tags (M6.7), which quests find them by.
+ * A space and each object have their tags (M6.7), which quests find them by. A 2D space has its
+ * Stage (M7.4).
  */
 import { is2d, SHAPES } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
@@ -21,6 +22,7 @@ import type { Transform } from './gizmoMath.ts';
 import { liveOf } from './live.ts';
 import { TextBox, Triple } from './ObjectFields.tsx';
 import { InsideList, InsideObject, RecordHere } from './PlacedParts.tsx';
+import { StageField } from './StageField.tsx';
 import { GREY, nameOf, type SpaceJson, type SpaceObject, transformOf } from './spaceFile.ts';
 import { inside, openSpace, openSpaceFile, picked } from './state.ts';
 import { TagsField } from './TagsField.tsx';
@@ -51,6 +53,7 @@ export function ObjectForm({ project }: { project: OpenProject }) {
             write={(tags) => void setSpaceTags(tags)}
           />
         ) : null}
+        {flat ? <StageField key={`${open.path}#stage`} project={project} stage={now.space.stage} /> : null}
         {open.kind === 'space' && !flat ? (
           <EnvironmentField
             key={`${open.path}#environment`}

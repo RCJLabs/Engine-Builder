@@ -77,6 +77,12 @@ export function withSpaceTags(space: SpaceJson, tags: readonly string[]): SpaceJ
   return tags.length > 0 ? { ...rest, tags: [...tags] } : rest;
 }
 
+/** A 2D space's stage (M7.4): a file under stages/ that draws it, or none, when stage2d does. */
+export function withSpaceStage(space: SpaceJson, stage: string | undefined): SpaceJson {
+  const { stage: _, ...rest } = space;
+  return stage === undefined ? rest : { ...rest, stage };
+}
+
 /** Its name: none when typed as nothing or as its id, which the outliner shows anyway. */
 export function renameObject(space: SpaceJson, id: string, typed: string): SpaceJson {
   const name = typed.trim().slice(0, 80);

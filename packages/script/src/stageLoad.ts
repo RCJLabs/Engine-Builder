@@ -6,7 +6,7 @@ import { headerLines, runModules } from './modules.ts';
 
 export const STAGES_DIR = 'stages';
 /** The stage API, as a stage imports it: `import { defineStage } from 'eb/stage'`. */
-export const STAGE_API = 'eb/stage';
+export const EB_STAGE = 'eb/stage';
 
 /** A stage file by its path under stages/, without `.ts`: `battle`, `space-wrecked/painter`. */
 export const stagePath = (file: string): string => `${STAGES_DIR}/${file}.ts`;
@@ -67,10 +67,10 @@ export function loadStage(
     {
       compiled,
       resolve(from, spec) {
-        if (spec === STAGE_API) return { builtin: api };
+        if (spec === EB_STAGE) return { builtin: api };
         const file = stageImport(from, spec);
         return file === undefined
-          ? { error: `A stage may import "${STAGE_API}" and stage files, not "${spec}"` }
+          ? { error: `A stage may import "${EB_STAGE}" and stage files, not "${spec}"` }
           : { id: file };
       },
       pathOf: stagePath,

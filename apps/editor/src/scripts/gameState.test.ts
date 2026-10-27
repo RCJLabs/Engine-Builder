@@ -93,6 +93,7 @@ describe('the open project’s game', () => {
       ids: ['game'],
       status: 'failed',
       catalog: null,
+      stages: [],
       problems: [
         {
           code: 'E031',

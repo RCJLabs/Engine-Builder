@@ -4,7 +4,7 @@
  * the project's own names: the game's facts, events and effects, its record types and records.
  */
 import type { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
-import { type ApiEntry, CTX_API, EB_API, MODULE_API, RNG_API } from '@eb/script';
+import { type ApiEntry, CTX_API, EB_API, FRAME_API, MODULE_API, RNG_API, STAGE_API, STAGE_DEF_API } from '@eb/script';
 
 /** The project's names a script may write in a string, as the editor knows them now. */
 export interface ProjectNames {
@@ -38,8 +38,8 @@ function namesIn(names: ProjectNames): Completion[] {
   return found;
 }
 
-/** Whether `from` starts a property's name in the object defineModule is given: `{` or `,` before it. */
-function inModuleDefinition(context: CompletionContext, from: number): boolean {
+/** Whether `from` starts a property's name in the object `define` (defineModule, defineStage) is given. */
+function inDefinition(context: CompletionContext, from: number, define = 'defineModule'): boolean {
   const before = context.state.sliceDoc(0, from);
   if (!/[{,]\s*$/.test(before)) return false;
   // The braces open at the last `{` not yet closed, which must follow defineModule( or defineModule<…>(.
@@ -48,7 +48,7 @@ function inModuleDefinition(context: CompletionContext, from: number): boolean {
     const c = before[i];
     if (c === '}') depth++;
     else if (c === '{' && depth > 0) depth--;
-    else if (c === '{') return /\bdefineModule\s*(<[^()]*>)?\s*\(\s*$/.test(before.slice(0, i));
+    else if (c === '{') return new RegExp(`\\b${define}\\s*(<[^()]*>)?\\s*\\(\\s*$`).test(before.slice(0, i));
   }
   return false;
 }
@@ -69,7 +69,24 @@ export function scriptCompletions(names: () => ProjectNames) {
     const from = word?.from ?? context.pos;
     // After a dot it is something else's member, which the lists don't know.
     if (context.state.sliceDoc(from - 1, from) === '.') return null;
-    if (inModuleDefinition(context, from)) return { from, options: MODULE_API.map(option), validFor: WORD };
+    if (inDefinition(context, from)) return { from, options: MODULE_API.map(option), validFor: WORD };
     return { from, options: EB_API.map(option), validFor: WORD };
+  };
+}
+
+/**
+ * What the editor offers in a stage file (M7.4, D86): `"eb/stage"`'s names, the parts of
+ * defineStage's braces, and a frame's fields after `f.`, the name the new stage's template gives it.
+ */
+export function stageCompletions() {
+  return (context: CompletionContext): CompletionResult | null => {
+    const member = context.matchBefore(/\bf\.\w*$/);
+    if (member) return { from: member.from + 'f.'.length, options: FRAME_API.map(option), validFor: WORD };
+    const word = context.matchBefore(/[\w$]+$/);
+    if (!word && !context.explicit) return null;
+    const from = word?.from ?? context.pos;
+    if (context.state.sliceDoc(from - 1, from) === '.') return null;
+    if (inDefinition(context, from, 'defineStage')) return { from, options: STAGE_DEF_API.map(option), validFor: WORD };
+    return { from, options: STAGE_API.map(option), validFor: WORD };
   };
 }

@@ -110,3 +110,77 @@ export function startFiles(ids: readonly string[]): [path: string, text: string]
     [scriptPath(first), firstModuleTemplate(first)],
   ];
 }
+
+/**
+ * A new stage (M7.4, D86): it draws the space plainly, so it plays at once and shows the API's every
+ * part: the tilemap as squares, or the objects as boxes; the walkers as dots; each use outlined, where
+ * the page puts its button; a drag to move the view. Sound by the stage rules as it stands.
+ */
+export const stageTemplate = (
+  id: string,
+): string => `// stages/${id}.ts: draws a 2D space each frame on its canvas, in CSS pixels. Name it as a space's
+// Stage, in the inspector with nothing chosen in the space, and Play draws the space with it.
+import { defineStage, type Start } from 'eb/stage';
+
+interface Tiles {
+  at: [number, number];
+  tile: [number, number];
+  size: [number, number];
+  cells: string[];
+}
+
+let space: Start;
+let pan = [0, 0];
+
+export default defineStage({
+  start(s) {
+    space = s;
+  },
+  frame(g, f) {
+    for (const event of f.input) if (event.kind === 'drag') pan = [pan[0] + event.dx, pan[1] + event.dy];
+    // The space fitted to the box, y up as the space has it.
+    const [w, h] = space.size;
+    const k = Math.min(f.w / w, f.h / h);
+    const at = (x: number, y: number) => [(f.w - w * k) / 2 + pan[0] + x * k, (f.h + h * k) / 2 + pan[1] - y * k];
+    g.fillStyle = '#10131c';
+    g.fillRect(0, 0, f.w, f.h);
+
+    const tiles = space.world.tiles as Tiles | undefined;
+    if (tiles) {
+      // A cell's rules are a hexadecimal digit: 1 is walkable.
+      tiles.cells.forEach((row, r) => {
+        [...row].forEach((rule, c) => {
+          g.fillStyle = parseInt(rule, 16) & 1 ? '#3b4258' : '#1c2030';
+          const [x, y] = at(tiles.at[0] + c * tiles.tile[0], tiles.at[1] + (tiles.size[1] - r) * tiles.tile[1]);
+          g.fillRect(x, y, tiles.tile[0] * k - 1, tiles.tile[1] * k - 1);
+        });
+      });
+    } else {
+      g.fillStyle = '#3b4258';
+      for (const [x, y] of Object.values(space.places)) {
+        const [sx, sy] = at(x, y);
+        g.fillRect(sx - 4, sy - 8, 8, 8);
+      }
+    }
+
+    g.fillStyle = '#f2c14e';
+    for (const walker of f.walkers) {
+      const [x, y] = at(walker.at[0], walker.at[1]);
+      g.beginPath();
+      g.arc(x, y - 4, 4, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    // Each use outlined; the page puts its button over the box returned.
+    const uses = Object.keys(space.world.uses)
+      .filter((object) => !f.taken.includes(object) && space.places[object])
+      .map((object) => {
+        const [x, y] = at(...space.places[object]);
+        return { object, box: [x - 12, y - 24, 24, 24] as [number, number, number, number] };
+      });
+    g.strokeStyle = '#7cc4ff';
+    for (const use of uses) g.strokeRect(...use.box);
+    return { uses };
+  },
+});
+`;

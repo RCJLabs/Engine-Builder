@@ -12,6 +12,8 @@ export type Chosen =
   | { readonly kind: 'new-type' }
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string }
+  /** A stage file under stages/ (M7.4), by its path there without `.ts`. */
+  | { readonly kind: 'stage'; readonly id: string }
   | { readonly kind: 'scene'; readonly id: string }
   | { readonly kind: 'ui'; readonly path: string }
   | { readonly kind: 'space'; readonly path: string }

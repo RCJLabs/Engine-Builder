@@ -82,19 +82,21 @@ export async function startCodeStage(
     places: Object.fromEntries(places),
     sheets: Object.fromEntries(await sheetsByPath(world)),
   };
-  const client =
-    typeof canvas.transferControlToOffscreen === 'function'
-      ? startStageWorker(canvas.transferControlToOffscreen(), world.stages ?? {}, entry, start, {
-          started: () => {},
-          drew: (uses, ms) => {
-            frames++;
-            lastMs = ms;
-            if (uses) placeUses(uses);
-          },
-          failed: fail,
-        })
-      : (fail('This browser can’t draw a stage off the page: it needs a 2D OffscreenCanvas (Safari 16.4 or newer)'),
-        undefined);
+  // Safari before 16.4 has no 2D OffscreenCanvas: the space goes on, saying why it isn't drawn.
+  const offscreen = typeof canvas.transferControlToOffscreen === 'function';
+  if (!offscreen)
+    fail('This browser can’t draw a stage off the page: it needs a 2D OffscreenCanvas (Safari 16.4 or newer)');
+  const client = offscreen
+    ? startStageWorker(canvas.transferControlToOffscreen(), world.stages ?? {}, entry, start, {
+        started: () => {},
+        drew: (uses, ms) => {
+          frames++;
+          lastMs = ms;
+          if (uses) placeUses(uses);
+        },
+        failed: fail,
+      })
+    : undefined;
 
   let size = { w: box.clientWidth, h: box.clientHeight };
   const sized = new ResizeObserver(() => {

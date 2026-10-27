@@ -169,6 +169,7 @@ export {
 } from './spaces.ts';
 export { FIT_DEFAULT, is2d, is2dValue } from './spaceView.ts';
 export { checkSprites, framesOf, sheetReader, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
+export { checkStages, readStageProblems, readStages, type StagesRead } from './stages.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
 export {
