@@ -8,7 +8,7 @@
  * space, its environment (M5.4) and, with a terrain, the terrain's form (M5.3) and its foliage (M5.6).
  * A space and each object have their tags (M6.7), which quests find them by.
  */
-import { SHAPES } from '@eb/compiler';
+import { is2d, SHAPES } from '@eb/compiler';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import { EnvironmentField } from '../environment/EnvironmentField.tsx';
@@ -34,6 +34,8 @@ export function ObjectForm({ project }: { project: OpenProject }) {
   if (!now?.space) return <p class="muted">{now?.problem ?? `Opening ${open.path}…`}</p>;
   const objects = now.space.objects.filter((o) => ids.includes(o.id));
   const known = projectTags(project.index?.flagsElsewhere?.tags);
+  // A 2D space (M7.1) has no environment or terrain, and its objects don't turn.
+  const flat = open.kind === 'space' && is2d(now.space);
   if (objects.length === 0) {
     const { terrain } = now.space;
     return (
@@ -49,7 +51,7 @@ export function ObjectForm({ project }: { project: OpenProject }) {
             write={(tags) => void setSpaceTags(tags)}
           />
         ) : null}
-        {open.kind === 'space' ? (
+        {open.kind === 'space' && !flat ? (
           <EnvironmentField
             key={`${open.path}#environment`}
             project={project}
@@ -87,7 +89,7 @@ export function ObjectForm({ project }: { project: OpenProject }) {
   if (place.inside.length > 0) return <InsideObject key={`${open.path}#${place.inside.join('/')}`} {...place} />;
   return (
     <>
-      <OneObject key={`${open.path}#${object.id}`} object={object} prefabs={now.prefabs} known={known} />
+      <OneObject key={`${open.path}#${object.id}`} object={object} prefabs={now.prefabs} known={known} flat={flat} />
       <ComponentsSection project={project} file={open.path} index={index} object={object} />
       {object.record !== undefined ? <RecordHere {...place} record={object.record} /> : null}
       {object.prefab !== undefined ? <InsideList {...place} /> : null}
@@ -99,9 +101,11 @@ interface OneProps {
   readonly object: SpaceObject;
   readonly prefabs: ReadonlyMap<string, SpaceJson>;
   readonly known: readonly string[];
+  /** In a 2D space: places in art pixels, z the depth, and no turn. */
+  readonly flat: boolean;
 }
 
-function OneObject({ object, prefabs, known }: OneProps) {
+function OneObject({ object, prefabs, known, flat }: OneProps) {
   const canEdit = editing.access.value.kind === 'editing';
   const t = transformOf(object);
   const place = (part: keyof Transform, what: string) => (axis: number, n: number) =>
@@ -139,8 +143,15 @@ function OneObject({ object, prefabs, known }: OneProps) {
           void setObject(object.id, { tags: tags.length > 0 ? [...tags] : undefined }, `Tags of ${object.id}`)
         }
       />
-      <Triple legend="Place, in metres" value={t.at} canEdit={canEdit} write={place('at', 'Move')} />
-      <Triple legend="Turn, in degrees" value={t.turn} canEdit={canEdit} write={place('turn', 'Turn')} />
+      <Triple
+        legend={flat ? 'Place, in art pixels: z is its depth' : 'Place, in metres'}
+        value={t.at}
+        canEdit={canEdit}
+        write={place('at', 'Move')}
+      />
+      {flat ? null : (
+        <Triple legend="Turn, in degrees" value={t.turn} canEdit={canEdit} write={place('turn', 'Turn')} />
+      )}
       <Triple legend="Scale" value={t.scale} canEdit={canEdit} above={0} write={place('scale', 'Scale')} />
       {object.shape !== undefined ? (
         <>

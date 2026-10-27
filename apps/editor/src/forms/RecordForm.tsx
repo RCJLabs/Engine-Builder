@@ -9,6 +9,7 @@ import {
   FOLIAGE,
   MATERIAL,
   MODEL,
+  SPRITE,
   slotScope,
   type TypeFile,
 } from '@eb/schema';
@@ -38,6 +39,7 @@ import { NameRecord } from '../records/NameRecord.tsx';
 import { copyName, nameIn, namesOf } from '../records/names.ts';
 import { RenameRecord } from '../records/RenameRecord.tsx';
 import { UsedBy } from '../records/UsedBy.tsx';
+import { SpritePreview } from '../sprites/SpritePreview.tsx';
 import { recordFile } from './catalog.ts';
 import { FieldView } from './FieldView.tsx';
 import { fieldToFocus, focusField } from './focusField.ts';
@@ -270,6 +272,8 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {type === FOLIAGE ? <FoliageStart /> : null}
         {/* An animator is tried on the starter character (M6.5). */}
         {type === ANIMATOR ? <AnimatorPreview project={project} value={value} /> : null}
+        {/* A sprite shows its sheet's frames and plays its clips (M7.1). */}
+        {type === SPRITE ? <SpritePreview project={project} value={value} /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

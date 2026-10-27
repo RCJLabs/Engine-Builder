@@ -107,6 +107,37 @@
   touch-action: none;
 }
 
+/* The 2D toolbar's zoom (M7.1), said between its buttons at a width that doesn't jump. */
+.scene-zoom {
+  align-self: center;
+  min-width: 3ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The 2D view (M7.1): its canvas at a whole number of device pixels an art pixel, from the box's corner. */
+.view2d-canvas {
+  position: absolute;
+  inset: 0 auto auto 0;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+.view2d-bounds,
+.view2d-chosen {
+  position: absolute;
+  pointer-events: none;
+}
+
+.view2d-bounds {
+  outline: 1px dashed var(--muted);
+}
+
+.view2d-chosen {
+  outline: 2px solid var(--focus);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 60%);
+}
+
 .scene-note {
   position: absolute;
   inset: auto 8px 8px;

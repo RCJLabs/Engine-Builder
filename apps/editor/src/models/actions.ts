@@ -107,3 +107,12 @@ export async function addStarterCharacterAction(): Promise<boolean> {
   const { characterFiles } = await import('./starterCharacter.ts');
   return addBundle('starter character', characterFiles());
 }
+
+/**
+ * The starter sprites added (M7.1, D83): sixteen sheets in one palette and their sprite records,
+ * for a 2D space to place. Resolves to whether anything was added.
+ */
+export async function addStarterSpritesAction(): Promise<boolean> {
+  const { spriteFiles } = await import('../sprites/starterSprites.ts');
+  return addBundle('starter sprites', spriteFiles());
+}

@@ -29,6 +29,13 @@
   font-size: 1rem;
 }
 
+/* A heading's buttons side by side, wrapping on a narrow phone (New space and New 2D space, M7.1). */
+.logic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .logic-list {
   display: grid;
   gap: 6px;

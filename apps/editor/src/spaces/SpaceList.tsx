@@ -23,7 +23,7 @@ const WORDS: Record<SpaceKind, { title: string; one: string; none: string }> = {
   space: {
     title: 'Spaces',
     one: 'space',
-    none: 'No spaces yet. A space is one place in a 3D world: a yard, a valley, the inside of a hut.',
+    none: 'No spaces yet. A space is one place in a world: a yard, a valley, the inside of a hut, or a 2D scene drawn in pixels.',
   },
   prefab: {
     title: 'Prefabs',
@@ -51,7 +51,8 @@ function Section({
   kind: SpaceKind;
   entries: readonly SpaceEntry[];
 }) {
-  const [naming, setNaming] = useState(false);
+  // A space is named for 3D, or for 2D (M7.1); a prefab is drawn as the space that places it.
+  const [naming, setNaming] = useState<'3d' | '2d' | null>(null);
   const heading = useUniqueId();
   const words = WORDS[kind];
   const canEdit = editing.access.value.kind === 'editing';
@@ -61,23 +62,30 @@ function Section({
       <div class="logic-head">
         <h3 id={heading}>{words.title}</h3>
         {canEdit ? (
-          <button type="button" class="button" onClick={() => setNaming(true)}>
-            New {words.one}
-          </button>
+          <span class="logic-actions">
+            <button type="button" class="button" onClick={() => setNaming('3d')}>
+              New {words.one}
+            </button>
+            {kind === 'space' ? (
+              <button type="button" class="button" onClick={() => setNaming('2d')}>
+                New 2D space
+              </button>
+            ) : null}
+          </span>
         ) : null}
       </div>
       {naming ? (
         <NameRecord
           type={kind}
           ids={entries.map((entry) => entry.id)}
-          label={`Name of the new ${words.one}`}
+          label={`Name of the new ${naming === '2d' ? '2D space' : words.one}`}
           action="Create"
           fileOf={(id) => spacePath(kind, id)}
           done={(id, typed) => {
-            setNaming(false);
-            void createSpace(kind, id, typed);
+            setNaming(null);
+            void createSpace(kind, id, typed, naming === '2d');
           }}
-          cancel={() => setNaming(false)}
+          cancel={() => setNaming(null)}
         />
       ) : null}
       {entries.length === 0 ? (
