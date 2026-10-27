@@ -52,12 +52,15 @@ export async function expectNothingOffscreen(page: Page): Promise<void> {
 /**
  * Visible controls inside `scope` (a CSS selector) narrower or shorter than 44 px, as "name w×h",
  * and anything marked `data-target`, such as the outline's drag handles (M4.5). The designer's
- * frame is a picture of a game, inert and scaled down: none of it is a target.
+ * frame is a picture of a game, inert and scaled down: none of it is a target. One gone from the
+ * page is none either: Playwright finds the controls and measures them in two round trips, and a
+ * step's view landing between them left the post's taken candle measured at 0×0 on CI (M6.10).
  */
 export function smallTargets(page: Page, scope: string): Promise<string[]> {
   const controls = 'button, input, select, textarea, a[href], [role="tab"], [role="option"], [data-target]';
   return page.locator(`${scope} :is(${controls}):not(.eb-designed *):visible`).evaluateAll((els) =>
     els
+      .filter((el) => el.isConnected)
       .map((el) => ({
         name: el.textContent?.trim() || el.getAttribute('aria-label') || el.id,
         box: el.getBoundingClientRect(),
