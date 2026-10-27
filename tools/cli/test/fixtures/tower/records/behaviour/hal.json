@@ -1,0 +1,22 @@
+{
+  "name": "Hal’s watch",
+  "description": "Between the watch room and the barracks; to the hall when the bell rings.",
+  "do": {
+    "first": [
+      {
+        "if": "flag.on(bell-rung)",
+        "do": {
+          "travel": "hall-c"
+        }
+      },
+      {
+        "do": {
+          "patrol": ["watch-b", "barracks-b"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

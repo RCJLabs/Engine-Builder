@@ -1,0 +1,17 @@
+{
+  "name": "Ladder",
+  "sheet": "starter-sprites/ladder.png",
+  "frame": [
+    8,
+    8
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

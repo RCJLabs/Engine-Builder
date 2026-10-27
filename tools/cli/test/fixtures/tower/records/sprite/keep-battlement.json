@@ -1,0 +1,17 @@
+{
+  "name": "Keep battlement",
+  "sheet": "starter-sprites/keep-battlement.png",
+  "frame": [
+    64,
+    12
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

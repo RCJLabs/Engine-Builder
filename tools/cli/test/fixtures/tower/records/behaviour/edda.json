@@ -1,0 +1,22 @@
+{
+  "name": "Edda’s watch",
+  "description": "Between the barracks and the watch room; to the hall when the bell rings.",
+  "do": {
+    "first": [
+      {
+        "if": "flag.on(bell-rung)",
+        "do": {
+          "travel": "hall-b"
+        }
+      },
+      {
+        "do": {
+          "patrol": ["barracks", "watch-a"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

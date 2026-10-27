@@ -1,0 +1,22 @@
+{
+  "name": "The warden’s rounds",
+  "description": "Between the chapel and the crypt; to the hall when the bell rings.",
+  "do": {
+    "first": [
+      {
+        "if": "flag.on(bell-rung)",
+        "do": {
+          "travel": "hall-a"
+        }
+      },
+      {
+        "do": {
+          "patrol": ["chapel", "crypt"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

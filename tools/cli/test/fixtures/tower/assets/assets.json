@@ -1,0 +1,116 @@
+{
+  "files": {
+    "starter-sprites/bell.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/figure-guard.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/figure-keeper.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/keep-battlement.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/ladder.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/ridge-far.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/ridge-near.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-barracks.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-chapel.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-crypt.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-hall.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-store.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/room-watch.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/sky-moon.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/sky-night.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/sky-stars.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    }
+  }
+}

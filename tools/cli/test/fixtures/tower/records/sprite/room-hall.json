@@ -1,0 +1,17 @@
+{
+  "name": "Hall",
+  "sheet": "starter-sprites/room-hall.png",
+  "frame": [
+    96,
+    32
+  ],
+  "clips": {
+    "flicker": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4
+    }
+  }
+}
