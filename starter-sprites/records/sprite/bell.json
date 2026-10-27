@@ -1,0 +1,24 @@
+{
+  "name": "Bell",
+  "sheet": "starter-sprites/bell.png",
+  "frame": [
+    16,
+    16
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    },
+    "ring": {
+      "frames": [
+        1,
+        2
+      ],
+      "fps": 6
+    }
+  }
+}

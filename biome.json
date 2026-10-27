@@ -16,6 +16,7 @@
       "!games/*/records",
       "!starter-kit",
       "!starter-character",
+      "!starter-sprites",
       "!tools/cli/test/fixtures/moor"
     ]
   },

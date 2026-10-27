@@ -1,0 +1,17 @@
+{
+  "name": "Banner",
+  "sheet": "starter-sprites/banner.png",
+  "frame": [
+    12,
+    20
+  ],
+  "clips": {
+    "wave": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 3
+    }
+  }
+}

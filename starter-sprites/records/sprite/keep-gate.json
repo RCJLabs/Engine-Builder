@@ -1,0 +1,17 @@
+{
+  "name": "Keep gate",
+  "sheet": "starter-sprites/keep-gate.png",
+  "frame": [
+    40,
+    44
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

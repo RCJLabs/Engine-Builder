@@ -14,6 +14,7 @@
     "import:space-wrecked": "node tools/import-space-wrecked/src/cli.ts",
     "make:starter-kit": "node tools/starter-kit/src/cli.ts",
     "make:starter-character": "node tools/starter-kit/src/character/cli.ts",
+    "make:starter-sprites": "node tools/starter-kit/src/sprites/cli.ts",
     "make:moor": "node tools/cli/test/fixtures/makeMoor.ts",
     "make:kaldvik": "node tools/make-kaldvik/src/cli.ts",
     "bake": "node apps/editor/scripts/bake.ts",
