@@ -125,6 +125,21 @@ describe('a 2D space', () => {
     ).toEqual(['E091 prefabs/torch.json /objects/0/components/sprite/clip']);
   });
 
+  it('packs as format 17, with each sprite drawn and its sheet', async () => {
+    const source = project({
+      'spaces/keep.json': KEEP,
+      'records/actor/guard.json': { name: 'Guard', sprite: 'guard' },
+      'assets/assets.json': {
+        files: { 'guard.png': { licence: 'own', source: 'Drawn for this test', date: '2026-10-27' } },
+      },
+    });
+    const { pack, diagnostics } = await compileProject(source, []);
+    expect(diagnostics).toEqual([]);
+    expect(pack?.format).toBe(17);
+    expect(Object.keys(pack?.world?.records ?? {})).toEqual(['actor:guard', 'sprite:guard']);
+    expect(Object.keys(pack?.world?.files ?? {})).toEqual(['assets/guard.png']);
+  });
+
   it('is E079 for the same walker in a 3D space with no navmesh', async () => {
     const { view: _, fit: _f, size: _s, backdrop: _b, ...solid } = KEEP;
     expect(await problems({ 'spaces/keep.json': { ...solid, objects: KEEP.objects.slice(1) } })).toContain(
