@@ -9,16 +9,15 @@ import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
+import { trustFirst } from '../scripts/gameState.ts';
 import { openStage } from '../scripts/open.ts';
 import { createTextFiles } from '../scripts/scriptEdits.ts';
 import { stageTemplate } from '../scripts/templates.ts';
-import { trust } from '../scripts/trust.ts';
 
 function newStage(project: OpenProject, id: string): void {
   // A stage the author writes here is theirs, as their first script is (D38).
-  if (project.game.ids.length === 0 && project.game.stages.length === 0) trust.trust(project.trustKey);
-  void editing
-    .edit(`New stage ${id}`, (copy) => createTextFiles(copy, [[stagePath(id), stageTemplate(id)]]))
+  void trustFirst(project.source, project.trustKey)
+    .then(() => editing.edit(`New stage ${id}`, (copy) => createTextFiles(copy, [[stagePath(id), stageTemplate(id)]])))
     .then(() => openStage(id));
 }
 

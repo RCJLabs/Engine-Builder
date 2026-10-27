@@ -16,6 +16,7 @@ import { type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
 import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, STAGES_DIR, scriptPath } from '@eb/script';
 import type { CheckResult, SentFile } from './protocol.ts';
 import { CHECK_MS, ScriptTimeout, type ScriptWorker } from './scriptWorker.ts';
+import { type TrustKey, type TrustStore, trust } from './trust.ts';
 
 export type GameStatus =
   /** No scripts at all. */
@@ -43,6 +44,16 @@ export interface GameState {
 }
 
 export const NO_SCRIPTS: GameState = { ids: [], status: 'none', problems: [], catalog: null, stages: [] };
+
+/**
+ * Before the first script or stage is written: a project with none is its author's own from then on,
+ * so its scripts run here (D38). Read from its files, never from the game's state, which a project
+ * just opened hasn't read yet: New stage on a zip just imported trusted its scripts unasked (M7.4).
+ */
+export async function trustFirst(source: ProjectSource, key: TrustKey, store: TrustStore = trust): Promise<void> {
+  const [scripts, stages] = await Promise.all([source.files(SCRIPTS_DIR), source.files(STAGES_DIR)]);
+  if (scripts.length === 0 && stages.length === 0) store.trust(key);
+}
 
 export const isScriptPath = (path: string): boolean => path === SCRIPTS_DIR || path.startsWith(`${SCRIPTS_DIR}/`);
 

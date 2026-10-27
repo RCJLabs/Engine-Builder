@@ -14,7 +14,7 @@ M3.2's place in the editor for a project's scripts ([scripts.md](scripts.md), D3
 
 ## Trust
 
-- **A project made here runs its scripts at once** (D38): its first script is made in the editor, and making it trusts the project.
+- **A project made here runs its scripts at once** (D38): its first script is made in the editor, and making it trusts the project. Whether it is the first is read from the project's files as the button is pressed, never from the game's state, which a project just opened hasn't read yet: New stage on a zip just imported trusted its scripts unasked that way (M7.4).
 - **A project imported from a zip or opened from a folder asks first, once.** Until then its scripts are checked but not run, its content is checked as if it had no game, and the Logic panel says so above the scripts with **Run its scripts**. One with no scripts, which then gets its first here, runs it without asking.
 - **The answers** are kept in localStorage under `eb-scripts-trusted`, by the project's key: `library:<folder>` for a project stored here, `folder:<n>` for an opened folder by its key in the recent list. A folder the list couldn't keep is trusted until the page closes. Deleting a project, or taking a folder off the list, forgets its answer, so a project copied in later under the same folder is asked about afresh. Copying a trusted folder into the browser trusts the copy.
 - **Answers that can't be read** (storage blocked, not JSON) count as none: those projects are asked again, which costs a tap, never a script run unasked.

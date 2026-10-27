@@ -99,6 +99,9 @@ for (const { viewport, touch } of [
         await expect.poll(() => storedText(page, FOLDER, 'stages/plain.ts')).toBe(PLAIN);
         // Until a space names it, it is left out of the pack, and W159 says so.
         await expect(logic.getByRole('button', { name: /^plain\.ts 1 problem/ })).toBeVisible();
+        // The stage is the author's, the deck's scripts still aren't: it asks before they run (D38). New stage
+        // pressed before the deck's scripts were first read trusted them unasked (CI, M7.4).
+        await expect(logic.getByRole('button', { name: 'Run its scripts' })).toBeVisible();
         const form = await showInspector(page, touch);
         const stage = form.getByRole('region', { name: 'Stage plain.ts' });
         await expect(stage.locator('.cm-content')).toContainText('defineStage');

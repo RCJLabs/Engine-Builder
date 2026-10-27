@@ -1,8 +1,9 @@
 import { memorySource } from '@eb/compiler';
 import { describe, expect, it } from 'vitest';
-import { NO_SCRIPTS, readGameState } from './gameState.ts';
+import { NO_SCRIPTS, readGameState, trustFirst } from './gameState.ts';
 import { checkJob } from './jobs.ts';
 import { CHECK_MS, ScriptTimeout, type ScriptWorker } from './scriptWorker.ts';
+import { libraryKey, trustStore } from './trust.ts';
 
 const MODULE = `import { defineModule } from 'eb';
 export const hold = defineModule({
@@ -104,5 +105,16 @@ describe('the open project’s game', () => {
         },
       ],
     });
+  });
+
+  it('trusts a project at its first script or stage, read from its files, not before its game is read', async () => {
+    const store = trustStore(null);
+    const key = libraryKey('deck');
+    // Just opened, its game is still NO_SCRIPTS: what is in its files decides (M7.4).
+    await trustFirst(project({ 'scripts/game.ts': GAME }), key, store);
+    await trustFirst(project({ 'stages/plain.ts': '' }), key, store);
+    expect(store.trusted(key)).toBe(false);
+    await trustFirst(project({}), key, store);
+    expect(store.trusted(key)).toBe(true);
   });
 });
