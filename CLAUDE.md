@@ -314,7 +314,11 @@ apps/editor/           the editor PWA
                        the keep's guards through a night headless and rings its bell; M7.2 (D84): tilemap2d.ts (each cell's
                        frame by the 4-bit mask, the edges and posts, the tile under a point and a tile's centre; tested in
                        tilemap2d.test.ts), walkers.ts's routes over the tiles by core's route, draw.ts's tilemap culled to
-                       the view; deck.test.ts walks the deck's crew through a shift headless, a tile at a time
+                       the view; deck.test.ts walks the deck's crew through a shift headless, a tile at a time; M7.3
+                       (D85): building2d.ts (a building's pieces, each room's sprite across it and the ladders up their
+                       floors; a walker's way through it by core's route, from its own floor's foot; tested in
+                       building2d.test.ts and drawBuilding.test.ts), walkers.ts's Ground (the tilemap or the building);
+                       tower.test.ts walks the tower's folk through a night headless and rings its bell
   src/spaces2d/        the Scene panel's 2D view (M7.1, D83): view2d.ts (the zoom, screen to world and back, a pan, a zoom
                        about a point, Frame) and pick2d.ts (the pick by a frame's box, moves in whole pixels, the arrows)
                        as plain functions with tests (view2d.test.ts); state2d.ts (where Add puts things, the zoom asked),
@@ -327,7 +331,13 @@ apps/editor/           the editor PWA
                        stroke kept to its first side's line), tiles2d.ts (the Tiles row's tool, layer, tile, edge kind and
                        Show rules), tileActions.ts (Add tilemap, strokes and Import ASCII as steps of undo), TilesRow2d.tsx
                        (its tile buttons drawn from the sheets the view decoded, not the asset browser's reader, which
-                       brings the record index into the Scene chunk), AddTilemap2d.tsx, rules2d.ts (Show rules)
+                       brings the record index into the Scene chunk), AddTilemap2d.tsx, rules2d.ts (Show rules); M7.3
+                       (D85): buildingEdits.ts (the slot and place under a point, rooms placed over a stroke's slots
+                       and those in the way replaced, erased, stairs set and taken out, floors added and taken off, as
+                       plain functions with tests), roomPainter.ts (Place, Erase and Stairs strokes, tested), rooms2d.ts
+                       (the Rooms row's tool and room), buildingActions.ts (Add building and the strokes as steps of
+                       undo), strokes2d.ts (the stroke a press starts, tiles or rooms), RoomsRow2d.tsx, AddBuilding2d.tsx;
+                       liveSprites.ts reads the room records
   src/sprites/         a sprite in the editor (M7.1, D83): SpritePreview.tsx (its sheet with the frame grid and each clip
                        playing, above its form), starterSprites.ts (starter-sprites/ bundled as a lazy chunk, for Add
                        starter sprites), spriteChecks.test.ts (E091 and E058's 2D rules in the editor, as eb validate
@@ -497,7 +507,12 @@ apps/editor/           the editor PWA
                        played through window.__ebStage2d: its joins as the mask says, the crew routed four ways through
                        doors and never through a wall, the alarm by a click, the keys and a tap at 360, 390 and sideways,
                        and exported as one file played offline; deckEditor.spec.ts, a deck built from the starter tileset
-                       in the Scene panel alone at 1280 and 390, Space-Wrecked's text imported, then played
+                       in the Scene panel alone at 1280 and 390, Space-Wrecked's text imported, then played;
+                       towerHelpers.ts, tower.spec.ts, towerPhone.spec.ts and towerExport.spec.ts are M7.3's, the tower
+                       played through window.__ebStage2d: each room's sprite across its slots and the ladders up their
+                       floors, the folk climbing only at the stairs, the bell by a click, the keys and a tap at 360, 390
+                       and sideways, the camera dragged, and exported as one file played offline; towerEditor.spec.ts, a
+                       tower raised from the starter rooms in the Scene panel alone at 1280 and 390, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 18)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -532,10 +547,14 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        format 17 (packWorld.ts's hasFlatSpace; flat.test.ts); M7.2 (D84): tiles/, a tilemap as the sim
                        reads it: grid.ts (format 18's cells and edges), mapText.ts (Space-Wrecked's map text read and
                        written), sight.ts, cover.ts and route.ts (Space-Wrecked's sight, cover and four-way routes, in
-                       whole numbers), facts.ts (world.sees and world.cover), pack.ts (format 18's tiles checked)
+                       whole numbers), facts.ts (world.sees and world.cover), pack.ts (format 18's tiles checked); M7.3
+                       (D85): rooms/, a building as the sim reads it: building.ts (format 19's building, a place's floor
+                       and x, the room it is in), route.ts (afterglass's Dijkstra over the stairs' ends, in whole numbers),
+                       facts.ts (world.room), pack.ts (format 19's buildings checked)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts; tileMaps.ts, Space-Wrecked's example
-                       ship and a packed tilemap from rows and map text (M7.2)
+                       ship and a packed tilemap from rows and map text (M7.2); towers.ts, the tower the room tests
+                       share (M7.3)
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
   test/fixtures/       salvage-run/: salvage run's content as a project folder, which eb sim plays;
                        saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
@@ -593,7 +612,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        origin and clips, E091's record rules), the sprite and parallax component kinds, an actor's sprite
                        and speed (npcFields.ts); M7.2: tilesetTypes.ts (tileset, an engine type: its sheet, tile, tiles
                        with their characters and rules, edge frames; legendOf; E092's record rules), the tilemap component
-                       kind, a type file's lists of `lines` (a text box a line); not pure
+                       kind, a type file's lists of `lines` (a text box a line); M7.3: roomTypes.ts (room, an engine
+                       type: a name and a sprite), the building component kind, E094 and W158; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -643,7 +663,9 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        packs a 2D space's sprites and sheets as format 17; M7.2: tilemaps.ts (a space's tilemaps through
                        prefabs, E093, W157, cellRules, format 18's tiles), flatPlaces.ts (each object's place in art
                        pixels, through prefabs), tilesets.ts (each tileset's sheet read to its PNG header: E092), world.ts
-                       packs a tileset and its sheet; not pure
+                       packs a tileset and its sheet; M7.3: buildings.ts (a space's building through prefabs, E094, W158,
+                       floorsReached, format 19's buildings), space2d.ts's E058 for a building in 3D, world.ts packs the
+                       rooms, their sprites and the stairs' with their sheets; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -844,7 +866,11 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        rules and a 2D walker's navmesh; deck/, M7.2's gate: Space-Wrecked's example ship as a boarding deck
                        from the starter tileset, stars in parallax, Ines and Oren on their rounds and an alarm that sends
                        both to the airlock, which deck.test.ts validates clean, builds as format 18 and breaks once each for
-                       E092, E093, E058 and W157
+                       E092, E093, E058 and W157; tower/, M7.3's gate: the keep seen side on from the starter rooms,
+                       four floors of two slots with a hall and the watch room across a floor each and ladders on
+                       alternate sides, a warden and two of the watch on their rounds, a bell that brings them to the
+                       hall and the HUD's line on the warden by world.room, which tower.test.ts validates clean, builds as
+                       format 19 and breaks once each for E094, E058 and W158
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json;
@@ -872,8 +898,8 @@ tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes
                        files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
                        starter-kit/ to it byte for byte and to eb validate; src/character/ and test/character.test.ts
                        the same for starter-character/ (M6.5); src/sprites/ (palette.ts, raster.ts, sky.ts, keep.ts,
-                       props.ts, figures.ts, sprites.ts, cli.ts; tiles.ts, the deck's tileset, M7.2) and test/sprites.test.ts
-                       the same for starter-sprites/ (M7.1)
+                       props.ts, figures.ts, sprites.ts, cli.ts; tiles.ts, the deck's tileset, M7.2; rooms.ts, the
+                       keep's rooms and ladder, M7.3) and test/sprites.test.ts the same for starter-sprites/ (M7.1)
 starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: 21 pieces dedicated
                        by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
 starter-character/     the starter character (M6.5, D77), written only by `pnpm make:starter-character` from
@@ -884,7 +910,9 @@ starter-sprites/       the starter sprites (M7.1, D83), written only by `pnpm ma
                        of 16 for a keep at night (figures with idle and walk, a torch, a bell, a banner, the keep's parts,
                        the sky, stars, moon and ridges), their sprite records and the log, dedicated by RCJLabs to CC0;
                        since M7.2 the deck's tileset (floor, an airlock, a crate, a console, a locker, machinery and the
-                       hull with their joins; walls, the hull, doors and hatches for edges); Add starter sprites copies it in
+                       hull with their joins; walls, the hull, doors and hatches for edges); since M7.3 the keep's rooms
+                       seen side on (a crypt, a store, a hall two slots wide, barracks, a chapel and a watch room, each a
+                       sprite and a room record) and a ladder; Add starter sprites copies it in
 tools/make-kaldvik/    the shore's generator (M6.10): shore.ts (heights, paint and foliage density by integer and
                        polynomial arithmetic, the pads level where the spaces stand things), cli.ts; test/shore.test.ts
                        holds games/kaldvik's files to it byte for byte

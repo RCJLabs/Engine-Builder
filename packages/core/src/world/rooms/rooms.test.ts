@@ -115,6 +115,8 @@ describe('a route through a building', () => {
     expect(buildingRoute(cut, [0, 5], [2, 50])).toBeNull();
     expect(buildingRoute(cut, [2, 50], [0, 5])).toBeNull();
     expect(buildingRoute(TOWER, [0, 5], [4, 5])).toBeNull();
+    // Not even by a stair that climbs from the top floor, which the pack refuses anyway.
+    expect(buildingRoute({ ...TOWER, stairs: [...TOWER.stairs, [3, 50]] }, [3, 50], [4, 50])).toBeNull();
     expect(buildingRoute(TOWER, [-1, 5], [0, 5])).toBeNull();
   });
 });

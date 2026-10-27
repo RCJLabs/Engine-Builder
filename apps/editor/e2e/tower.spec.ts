@@ -30,6 +30,10 @@ test('the tower drawn by its rooms, its folk climbing its stairs, and the bell b
     expect(scale).toBe(Math.max(1, Math.floor(Math.min((width * dpr) / 208, (height * dpr) / 176))));
     const colours = await coloursIn(page, box.locator('canvas'));
     expect([...colours.keys()].filter((c) => !PALETTE.includes(c))).toEqual([]);
+    const shown = [...colours.values()].reduce((sum, n) => sum + n, 0);
+    // The rooms' back walls, drawn by the stage: 12.0% of the view at 1280 (2026-10-27), where the sky, the
+    // ridges, the battlements and the figures alone show little of it.
+    expect((colours.get('#3b3c4f') ?? 0) / shown).toBeGreaterThan(0.06);
     const tower = await building(page);
     expect(tower?.path).toBe('tower');
     const of = (id: string) => tower?.pieces.filter((p) => p.of === id) ?? [];

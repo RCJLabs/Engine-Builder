@@ -57,6 +57,7 @@ All in the pure core, in whole numbers: the same in Node, a worker and every bro
 
 - **A place in a building** is a floor and an `x`. An object stands on the floor whose band its feet are in, at its own `x`.
 - **A route** from one place to another is the cheapest way along floors and up and down stairs. Walking along a floor costs the distance; a climb costs `climb`. Dijkstra over the start, both ends of every stair and the goal, in that order: the cheapest point next, the lowest-numbered of equal ones, a cost replacing another only when strictly lower. The same route every time.
+- **The climb's cost can't change a route to one goal:** every route climbs the same floors, and a detour through another floor never shortens the walk along x. It weighs the route's cost alone, which a choice among several goals (afterglass's, M7.5's) will read.
 - **None** if the goal's floor can't be reached. The walker stays where it is, and the sim never hears it arrive.
 - Ported from afterglass's `route` (`slice/geo.js:155-199`), without its lights and wards, in whole numbers and with the tie-break stated.
 
@@ -120,6 +121,18 @@ All in the pure core, in whole numbers: the same in Node, a worker and every bro
 - **The editor:** a tower built from the starter rooms in the Scene panel at 1280 and 390: a building added, rooms placed, one spanning two slots, stairs set, a floor added, a walker placed, then played.
 - **Budgets:** stage2d.js, the precache and the editor's start.
 - **Phones:** 360, 390 and sideways, every target 44 px, nothing past the edges and nothing axe finds.
+
+## As built (M7.3)
+
+- **The starter slot is 48 by 32,** not the 48 by 24 first written: a figure is 24 high, and a room's top four rows are the slab the floor above stands on, so 28 are left inside. Walkers stand on a floor's foot, which is the top of the slab below; nothing of the floor is drawn under their feet. The hall's sprite is two slots wide; the watch room's is one, drawn twice across its two.
+- **The core's names are `FloorPlace` and `floorPlaceOf`,** beside the replay runner's own `Place` and `placeOf`.
+- **A walker's way starts at its own floor's foot,** so one sent elsewhere halfway up a ladder climbs back down it before walking on. The stage's walkers take a `Ground`, the space's tilemap or building, and a route through a building is held by the hook as floors and x.
+- **Place keeps to its first press.** A Place stroke begun off the building places nothing, even if it crosses onto it; a stroke that changes nothing keeps no step. Found by the room painter's own test.
+- **Two planted bugs live on as equivalent mutants:** a climb costing nothing (see Routes: it can't change a route to one goal), and the route's guard that the goal is no stair's end (the goal's place in the list is no stair's).
+- **Stairs within 6 art pixels.** A Stairs press within 6 of a stair on that floor takes it out; elsewhere it adds one, never from the top floor.
+- **Remove top floor is refused** while a room stands on it, while a stair climbs to it, and for a building of one floor, each with its reason beside the row.
+- **The room records reach the 2D view** through the record index, as a placed actor's do; the Rooms row's buttons are drawn from the sheets the view already decoded, as the Tiles row's are.
+- **stage2d.js** is 22,262 bytes, 8,940 gzipped, up from 19,061 and 7,788: drawing buildings and the core's route through their stairs, with none of the schemas. Its budget is re-read with 5% room.
 
 ## Open questions
 

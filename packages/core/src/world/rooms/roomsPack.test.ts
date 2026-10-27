@@ -45,6 +45,10 @@ describe('format 19', () => {
     expect(pack(world()).format).toBe(17);
     expect(pack(world({})).format).toBe(17);
     expect(pack(world({})).world).not.toHaveProperty('buildings');
+    // A tilemap's pack with no building is format 18, and carries no buildings it can't hold.
+    const tiled = pack(world({}, { tiles: { deck: DECK } }));
+    expect(tiled.format).toBe(18);
+    expect(tiled.world).not.toHaveProperty('buildings');
     // A tilemap in one space and a building in another.
     const both = pack(world({ tower: TOWER }, { tiles: { deck: DECK } }));
     expect(both.format).toBe(19);
