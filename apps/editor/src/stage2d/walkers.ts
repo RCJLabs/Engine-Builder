@@ -73,6 +73,28 @@ export function sendTo(
   walker.path = tiled.slice(1).map((tile) => tileCentre(tiles, tile));
 }
 
+/**
+ * The stage's walkers as it starts: one for each actor placed in the space, standing where the sim last
+ * said it stood and sent on toward its goal, round the tilemap's walls when there is one. A stage starts
+ * mid-walk whenever a save is loaded or its screen is shown again.
+ */
+export function walkersOf(
+  items: readonly { readonly actor?: string; readonly at: Point }[],
+  speedOf: (actor: string) => unknown,
+  told: Readonly<Record<string, NpcGoal>> | undefined,
+  places: ReadonlyMap<string, Point>,
+  tiles?: PackTiles,
+): Map<string, Walker> {
+  const walkers = new Map<string, Walker>();
+  for (const item of items) {
+    if (item.actor === undefined || walkers.has(item.actor)) continue;
+    const walker = walkerOf(item.actor, item.at, speedOf(item.actor), told?.[item.actor]);
+    sendTo(walker, told?.[item.actor], places, tiles);
+    walkers.set(item.actor, walker);
+  }
+  return walkers;
+}
+
 /** One frame of `dt` seconds: the walker moved along its path, and the mark it arrived at, if it did. */
 export function stepWalker(walker: Walker, dt: number): string | undefined {
   let step = walker.speed * dt;

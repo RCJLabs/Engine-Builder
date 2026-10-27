@@ -8,7 +8,7 @@ import { edgesText, type PackTiles, readEdges } from '@eb/core';
 import type { TilesetRecord } from '@eb/schema';
 import { describe, expect, it } from 'vitest';
 import { cellFrames, joinMask, tileCentre, tileDraws, tileUnder } from './tilemap2d.ts';
-import { sendTo, stepWalker, walkerOf } from './walkers.ts';
+import { sendTo, stepWalker, walkerOf, walkersOf } from './walkers.ts';
 
 const TILESET: TilesetRecord = {
   sheet: 'deck.png',
@@ -173,6 +173,20 @@ describe('a walker on a tilemap', () => {
     expect(walker.route).toBeUndefined();
     for (let i = 0; i < 20; i++) expect(stepWalker(walker, 0.1)).toBeUndefined();
     expect(walker.at).toEqual([106, 20]);
+  });
+
+  it('routes from where the sim says it stands when the stage starts mid-walk, as after a load', () => {
+    const items = [{ actor: 'ines', at: [106, 20] as const }, { at: [0, 0] as const }];
+    const told = { ines: { goal: 'right', feet: [106, 20, 0] as const } };
+    const walkers = walkersOf(items, () => 16, told, places, TILES);
+    expect([...walkers.keys()]).toEqual(['ines']);
+    expect(walkers.get('ines')?.route).toEqual([
+      [0, 0],
+      [0, 1],
+      [1, 1],
+      [1, 0],
+    ]);
+    expect(walkersOf(items, () => 16, told, places).get('ines')?.route).toBeUndefined();
   });
 
   it('walks straight with no tilemap, as before', () => {

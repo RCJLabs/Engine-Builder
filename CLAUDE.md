@@ -305,8 +305,9 @@ apps/editor/           the editor PWA
                        camera.ts (kept within the size, at whole pixels), clips.ts (a clip's frame on the page's clock),
                        place.ts (where an item lands: its origin, flipped, a parallax layer at at + camera·(1 − f), tiled),
                        scene.ts (what a space draws, through prefabs, in draw order), start.ts (the fit, the size and the
-                       camera's first centre), walkers.ts (straight lines to the sim's marks, arrivals told back), uses.ts
-                       (a use's target, 44 px at least); with the page: draw.ts (Canvas 2D at whole pixels, smoothing off,
+                       camera's first centre), walkers.ts (straight lines to the sim's marks, arrivals told back;
+                       walkersOf, the stage's start, since M7.2), uses.ts (a use's target, 44 px at least); with the
+                       page: draw.ts (Canvas 2D at whole pixels, smoothing off,
                        which the Scene panel's 2D view draws with too), sheets.ts (the world's sheets decoded), view.ts (the
                        canvas shown pixelated), useButtons.ts (the uses as the page's own buttons), stage.ts (the loop, the
                        arrivals and the clock), hook.ts (window.__ebStage2d), entry.ts (stage2d.js's); keep.test.ts walks

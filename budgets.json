@@ -3,7 +3,7 @@
   "sizes": {
     "editor-start": {
       "budget": 131515,
-      "reading": 128630,
+      "reading": 128624,
       "read": "2026-10-27",
       "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own; re-read at M6.4, whose fighting kit's type files and words the catalog reads at the start, and M6.5, whose record form reads the animator's facts; and M6.6, whose quest form offers a target's choices and whose designer knows the space-map widget; and M6.7, whose Scene inspector's Tags field is in the start's chunks; and M6.8, whose start reads a shop's actor and a merchant's checks together; and M6.9, whose New project lists the two 3D templates and whose guide opens a space's object; and M7.1, whose Scene panel offers New 2D space and loads the 2D view and its toolbar; and M7.2, whose 2D toolbar offers Add → Tilemap… and the Tiles row"
     },
@@ -33,13 +33,13 @@
     },
     "stage2d": {
       "budget": 8168,
-      "reading": 7779,
+      "reading": 7788,
       "read": "2026-10-27",
       "of": "zlib's gzip at level 9 of runtime/stage2d.js (M7.1): the 2D stage on a Canvas 2D, its sheets decoded by the browser, the walkers, the clock and the uses' buttons, with none of the schemas; loaded only for a 2D space, in place of walk.js; re-read at M7.2, which draws tilemaps autotiled and walks the walkers along core's routes over the tiles, with about 5% room again"
     },
     "precache": {
       "budget": 15380766,
-      "reading": 14784311,
+      "reading": 14784356,
       "read": "2026-10-27",
       "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2; re-read at M6.5, with the starter character in walk.js, the editor and Add starter character's chunk; and M6.6, with the compass, the markers, the Map screen and Bake map; and M6.7, with the Tags field and the quests kit's world slots; and M6.8, with containers and merchants in the kits, the Container screen and its template; and M6.9, with the valley hamlet's and the lighthouse's chunks, their models and navmeshes inlined; and M7.1, with stage2d.js, the 2D view and the starter sprites' chunk; and M7.2, with the Tiles row, the tileset's preview and the starter tileset"
     },

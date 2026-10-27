@@ -20,7 +20,7 @@ import { spaceStart } from './start.ts';
 import { cellFrames } from './tilemap2d.ts';
 import { createUseButtons } from './useButtons.ts';
 import { createView } from './view.ts';
-import { sendTo, stepWalker, type Walker, walkerOf } from './walkers.ts';
+import { sendTo, stepWalker, walkersOf } from './walkers.ts';
 
 /** The most a frame moves anything, in seconds: a hidden tab's long gap isn't a leap. */
 const FRAME_CAP_S = 0.1;
@@ -36,14 +36,8 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   const { fit, size, start, backdrop } = spaceStart(space, items, sheets, ask);
 
   const outbox = createOutbox((action) => ask.send(action));
-  const walkers = new Map<string, Walker>();
-  for (const item of items) {
-    if (item.actor === undefined || walkers.has(item.actor)) continue;
-    const speed = (record(`actor:${item.actor}`) as { speed?: unknown } | undefined)?.speed;
-    const walker = walkerOf(item.actor, item.at, speed, ask.npcs?.[item.actor]);
-    sendTo(walker, ask.npcs?.[item.actor], places, tiles);
-    walkers.set(item.actor, walker);
-  }
+  const speedOf = (actor: string) => (record(`actor:${actor}`) as { speed?: unknown } | undefined)?.speed;
+  const walkers = walkersOf(items, speedOf, ask.npcs, places, tiles);
   const arrivals = new Map<string, string>();
   const tell = createNpcTell(ask, outbox, (actor, goal) => {
     if (arrivals.get(actor) === goal) arrivals.delete(actor);

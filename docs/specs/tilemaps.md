@@ -155,6 +155,16 @@ The world module reads them, in the player's space or the one named:
 - **Budgets:** stage2d.js, the precache and the editor's start.
 - **Phones:** 360, 390 and sideways, every target 44 px, nothing past the edges and nothing axe finds.
 
+## As built (M7.2)
+
+- **The legend is on the tiles.** The first design had a `legend` map from characters to tiles; a type file's map keys are names, and a legend's are `.` and `#`, so each tile carries its own `char` and `legendOf` reads them, the first tile in the file's order keeping a character two share (D84).
+- **Rows and edges are text boxes,** a line each in a monospace font: a type file's list of text can say `lines: true`, and the form shows it so. The tilemap's object is a box, as every object is a shape, a prefab or a record.
+- **The Tiles row draws its buttons from the sheets the 2D view already decoded.** Reading the sheet through the asset browser's reader brought that reader's edits, and through them the record index and the ink compiler, into the Scene panel's chunk: 417 KiB against its 383. Decoding the live copy's bytes instead, the chunk is 371 KiB.
+- **An edge stroke keeps to its first side's line,** north and south or east and west, so a drag along a wall never sets a stray side; a stroke fills the cells or sides between points half a tile apart.
+- **The walkers' start is `walkersOf`,** a plain function: a stage that starts mid-walk, as after a load or a screen shown again, sends each walker on round the walls from where the sim says it stands. A planted bug that sent them straight at the start survived the e2e, which only starts a new game.
+- **The deck's alarm is a panel object** with a use, not a console tile: a tile has no use, and the console tiles stay cover.
+- **stage2d.js** is 19,061 bytes, 7,788 gzipped, up from 13,932 and 5,885: the route search, the cells' rules, the autotile and the tile drawing. Its budget is re-read with 5% room.
+
 ## Open questions
 
 1. Doors opening and shutting, and welds: an edge's state in the sim (M7.5).
