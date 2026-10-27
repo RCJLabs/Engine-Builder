@@ -113,7 +113,8 @@ test('the keep at night, drawn whole, panned, walked and its bell rung by a clic
     const bell = box.getByRole('button', { name: 'Ring the bell' });
     await bell.click();
     await expect(game(page).getByText(RUNG)).toBeVisible();
-    await expect(game(page).getByText('The bell rings out over the keep.')).toBeAttached();
+    // Said as a toast and by the announcer, each for a while: one of them is enough.
+    await expect(game(page).getByText('The bell rings out over the keep.').first()).toBeAttached();
     expect((await stage2d(page)).used).toEqual([{ path: 'bell', sent: 'accepted' }]);
     await expectFits(page);
   });
