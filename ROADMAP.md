@@ -1511,6 +1511,15 @@ How to read this file:
     - **58 planted bugs,** 53 at the unit level and 5 through the built page; 12 survived at first, each now caught by a check written for it: E093's edge rows, edges with a tileset that has none and too many rows; the topmost layer's rule; E092 at the sheet's last frame, on edges and for a space as a character; sight across a north or south edge; cover from an attacker on the same row; a route to a tile that can't be walked, from that tile; a walker's step carried past a tile centre; and a stage started mid-walk, as after a load, sending its walkers straight through walls. That last one is why the walkers' start is now `walkersOf`, tested headless.
     - **Untested for feel** until you see the deck on your phone.
 - **M7.3 Side-view rooms.** Floors with room slots, stairs and route-finding.
+  - **As decided** (D85, your calls): the keep seen side on is the demo, drawn fresh in the starter sprites' palette; floors have equal slots and a room spans one slot or more; stairs are their own kind, placed by the author between a floor and the one above, taking no slot; building is the editor's for now (rooms raised in play are M7.5's base builder). A building is a component of an object in a 2D space, a room an engine record type, floors are counted from the ground up, and walkers route through the stairs by afterglass's Dijkstra in whole numbers, read from pack format 19 ([specs/rooms.md](docs/specs/rooms.md)).
+  - **Gate:**
+    - `eb validate` finds the tower clean and breaks once each for E094, E058 (a building in a 3D space) and W158;
+    - the starter sprites, with the rooms, held to their generator byte for byte, validating clean;
+    - unit tests for places, rooms, routes (along a floor, up and down, the cheaper of two stairs, ties the same way, none to a floor no stair reaches), the pack and `world.room`;
+    - the tower's folk walk their night headless, never leaving a floor but by a stair, the sim hearing each arrival, all three reaching the hall at the bell, and `world.room` following the warden;
+    - the tower played in the Play panel by mouse and keys and by touch at 360, 390 and sideways: drawn at a whole scale with only the palette's colours, the folk climbing the stairs, the bell by a click, a tap and the keyboard, the HUD's line following the warden; and exported as one file played from `file://`;
+    - a tower built from the starter rooms in the Scene panel at 1280 and 390 (a building added, rooms placed, one spanning two slots, stairs set, a floor added, a walker placed), then played;
+    - stage2d.js, the precache and the editor's start within their budgets.
 - **M7.4 Custom stages.** An API for renderers drawn in code (Canvas2D, SVG), so code-drawn styles keep working inside the engine.
 - **M7.5 Kits.** Grid tactics (cover, overwatch, sight), ranked squad, tower defense (paths, waves, towers, fixed tick), base/colony builder.
 - **M7.6 Templates.** Tactics, Squad roguelite, Tower defense, Side-view builder, Manager sim.
