@@ -355,7 +355,7 @@ packages/export     a game's exports from the runtime and its packs: targets, se
 packages/ui         runtime UI (M4.1 to M4.9): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, audio (the ZzFX port, renders, the mix, the player and buzzes), and the host the editor's debug tools reach into (M4.9), and the Space widget with its host's contract (M5.8)
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
-packages/stage2d    sprites, tilemaps, custom-stage API                   Phase 7
+apps/editor/src/stage2d  the 2D stage (M7.1, D83): sprites, clips and parallax in whole art pixels, built into stage2d.js beside walk.js; tilemaps (M7.2) and the custom-stage API (M7.4) later
 apps/editor         the editor PWA; the player page at /play/ (M4.1) and an exported game's runtime (src/game, M4.10) are built with it
 tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8), export | publish (M4.10), new (M4.11); test later
 tools/lint-boundaries

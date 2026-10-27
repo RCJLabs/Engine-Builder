@@ -2520,6 +2520,42 @@ Evan chose on 2026-10-27, from these options:
 
 ---
 
+### D83. 2D scenes are spaces drawn from the side in whole art pixels on the same three.js viewport: sprites from grid sheets with named clips, parallax layers, a starter sprite kit made in code, and a keep at night as the demo, shown, animated and tapped in play. LOCKED, 2026-10-27 (Evan's calls, M7.1)
+
+Evan chose on 2026-10-27, from these options:
+- **Demo scene:** a keep at night in afterglass's pixel-art style; Dirtbag's valley; Space-Wrecked's deck; or a new neutral scene.
+- **2D art:** a starter sprite kit made in code; CC0 packs such as Kenney's; or only what authors import.
+- **Play scope:** shown, animated and tapped; a player that walks top-down; a side view with jumping; or the editor only.
+- **Sheets:** a grid only for now; a grid plus Aseprite's JSON; or a grid, Aseprite and TexturePacker.
+
+**Decision.**
+- **The demo is a keep at night,** drawn fresh in afterglass's pixel-art style: a keep on a ridge, hills and sky in parallax, figures walking the wall, torches flickering. Nothing of afterglass is copied; its art is code and none of it is read.
+- **A starter sprite kit made in code.** A generator draws PNG sheets (figures with idle and walk, props, the keep's parts and parallax layers) dedicated by RCJLabs to CC0, held byte for byte by a test as the 3D starter kit is. Add starter sprites copies it into a project.
+- **Play: shown, animated, tapped.** A 2D space draws in Play and in exports. Figures move where the sim sends them, a tap on a sprite uses it, and there is no player avatar yet. Tiles come in M7.2 and side-view rooms in M7.3.
+- **Sheets are a grid.** A sprite record names its sheet, the frame size, and its clips as frame ranges with a rate. Other formats can come later.
+
+**Also settled, as the session's calls** (2026-10-27, engineering calls that follow from the above and from docs/research/2d.md):
+- **A 2D space is a space** with `"view": "2d"` in its file: the same objects, prefabs, components, uses and actors, measured in art pixels, y up, its `at`'s third number its depth (nearer in front). It is drawn by an orthographic camera on three's WebGPURenderer, as the ROADMAP says ("on the same viewport").
+- **Whole art pixels.** The view draws into a canvas of art pixels and lets the page scale it by a whole number with nearest-neighbour sampling: the largest whole scale at which the space's `fit` (the art pixels it wants in view) still fits the box, at least 1. Positions and the camera snap to whole art pixels as they are drawn; the sim's numbers are never rounded. From afterglass's layout rule (stage.js:34-59).
+- **Parallax is a component** (`parallax`: a factor across and up, and whether it repeats across). 0 stays with the camera, 1 moves with the world. From dirtbag's layers (view/render.ts:175-188) and climbing-world-traveler's factors (toon.ts:104-106).
+- **Clips play on the page's clock,** a frame at a time at the clip's rate, each object at its own phase; under reduced motion they hold their first frame. The sim never hears of a frame. From afterglass (people.js:143-147).
+- **Figures in a 2D space walk in straight lines** to the marks the sim sends them to, at their actor's speed, and the stage tells the sim when they arrive, as the crowd does in 3D. There is no navmesh in 2D; a 2D space needs none.
+- **The 2D stage is stage2d.js,** built beside walk.js and loaded the same way by the hosts, so the Play panel draws what an export ships. An export with no 2D space carries none of it.
+- **The pack is format 17** once a space is 2D. A sprite is an engine record type, and its sheet travels with the world's files.
+
+**Why.**
+- **The keep** uses all four of M7.1's parts and is the only pixel-art style among Evan's games.
+- **The starter kit in code** matches the 3D starter kit and starter character: art anyone may use, rebuilt from code, with nothing to license.
+- **Shown, animated and tapped** keeps M7.1 to drawing. Movement on tiles and side-view floors are M7.2's and M7.3's, and a platformer core isn't on the ROADMAP.
+- **A grid** is enough to make by hand and in code. None of Evan's games uses a sheet format, so there is none to follow.
+
+**Cost.**
+- **A second stage** to keep beside walk.js, with its own budget.
+- **A pack format** and the checks for a new record type.
+- **Untested for feel** until the keep is seen on a phone.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
