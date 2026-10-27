@@ -26,11 +26,12 @@ export interface RoomAsk {
 export function roomPainter(ask: RoomAsk): Painter {
   let change: BuildingChange | null = null;
   let label = '';
-  let first: { floor: number; slot: number } | undefined;
+  // The first press's floor and slot, or null when it was off the building: then the stroke does nothing.
+  let first: { floor: number; slot: number } | null | undefined;
   const slotOf = (p: Point) =>
     Math.min(ask.fields.slots - 1, Math.max(0, Math.floor((p[0] - ask.at[0]) / ask.fields.slot[0])));
   const place = (p: Point) => {
-    first ??= slotAt(ask.fields, ask.at, p);
+    if (first === undefined) first = slotAt(ask.fields, ask.at, p) ?? null;
     if (!first) return;
     const { floor, slot } = first;
     const to = slotOf(p);
