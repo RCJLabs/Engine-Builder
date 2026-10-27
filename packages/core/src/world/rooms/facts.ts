@@ -4,7 +4,7 @@
  * when it has arrived somewhere, else where it was placed, as the tile facts read it.
  */
 import type { WorldData } from '../types.ts';
-import { type Place, roomAt } from './building.ts';
+import { type FloorPlace, roomAt } from './building.ts';
 
 /** What the fact reads of the world's slice: the player's space and where each NPC last arrived. */
 export interface SliceStood {
@@ -16,7 +16,7 @@ const own = <T>(map: Readonly<Record<string, T>> | undefined, key: string): T | 
   map !== undefined && Object.hasOwn(map, key) ? map[key] : undefined;
 
 /** The place an object of a space stands on in its building, as the sim knows it now. */
-export function placeIn(world: WorldData, slice: SliceStood, space: string, object: string): Place | undefined {
+export function placeIn(world: WorldData, slice: SliceStood, space: string, object: string): FloorPlace | undefined {
   const building = own(world.buildings, space);
   if (!building) return undefined;
   const actor = Object.keys(world.actors).find((id) => {

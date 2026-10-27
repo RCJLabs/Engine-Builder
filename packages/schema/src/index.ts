@@ -191,6 +191,7 @@ export {
   SchemaError,
 } from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
+export { ROOM, ROOM_DATA, ROOM_TYPE_FILE, type RoomRecord } from './roomTypes.ts';
 export {
   checkSprite,
   defaultClipOf,

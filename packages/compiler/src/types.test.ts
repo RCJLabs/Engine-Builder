@@ -39,6 +39,7 @@ describe('a project made only of data', () => {
       'animator',
       'sprite',
       'tileset',
+      'room',
       'gladiator',
       'school',
       'weapon',
@@ -96,6 +97,7 @@ describe('type file problems', () => {
       'animator',
       'sprite',
       'tileset',
+      'room',
       'gladiator',
       'school',
     ]);

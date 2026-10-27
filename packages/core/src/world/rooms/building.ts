@@ -21,11 +21,11 @@ export interface PackBuilding {
   /** Each stair: the floor it climbs from and its x from the building's left, in the file's order. */
   readonly stairs: readonly (readonly [number, number])[];
   /** Each object of the space on the building, by path: its floor and x. */
-  readonly places: Readonly<Record<string, Place>>;
+  readonly places: Readonly<Record<string, FloorPlace>>;
 }
 
 /** A floor and an x from the building's left, in whole art pixels. */
-export type Place = readonly [number, number];
+export type FloorPlace = readonly [number, number];
 
 /** The most slots a floor has, and the most floors (E094). */
 export const SLOTS_MOST = 32;
@@ -38,10 +38,10 @@ export const widthOf = (building: Pick<PackBuilding, 'slot' | 'slots'>): number 
  * The place a point in art pixels (y up) stands on: the floor whose band its feet are in, at its own x, or
  * undefined off the building. A floor's band runs from its foot up to the next floor's.
  */
-export function placeOf(
+export function floorPlaceOf(
   building: Pick<PackBuilding, 'at' | 'slot' | 'slots' | 'floors'>,
   [x, y]: readonly [number, number],
-): Place | undefined {
+): FloorPlace | undefined {
   const dx = Math.floor(x - building.at[0]);
   const floor = Math.floor((y - building.at[1]) / building.slot[1]);
   if (dx < 0 || dx >= widthOf(building) || floor < 0 || floor >= building.floors) return undefined;
@@ -49,13 +49,13 @@ export function placeOf(
 }
 
 /** A place's point in art pixels: its floor's foot, at its x. */
-export const pointOf = (building: Pick<PackBuilding, 'at' | 'slot'>, [floor, x]: Place): [number, number] => [
+export const pointOf = (building: Pick<PackBuilding, 'at' | 'slot'>, [floor, x]: FloorPlace): [number, number] => [
   building.at[0] + x,
   building.at[1] + floor * building.slot[1],
 ];
 
 /** The id of the room a place is in, or "" on a bare slot. */
-export function roomAt(building: Pick<PackBuilding, 'slot' | 'rooms'>, [floor, x]: Place): string {
+export function roomAt(building: Pick<PackBuilding, 'slot' | 'rooms'>, [floor, x]: FloorPlace): string {
   const slot = Math.floor(x / building.slot[0]);
   for (const id of Object.keys(building.rooms).sort()) {
     const [f, first, span] = building.rooms[id] as readonly [number, number, number];

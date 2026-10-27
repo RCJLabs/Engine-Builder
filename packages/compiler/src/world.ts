@@ -15,9 +15,11 @@ import {
   MATERIAL,
   MODEL,
   packValue,
+  ROOM,
   TILESET,
 } from '@eb/schema';
 import { base64Of } from './audioFiles.ts';
+import { BUILDING, packBuildings } from './buildings.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
 import type { MapFileRead } from './mapFiles.ts';
@@ -197,6 +199,7 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
   // Where each actor is placed, which the world module walks it from (M6.2): one place each (E077).
   const actors: Record<string, { space: string; path: string }> = {};
   const tiles = packTiles(spaces, prefabs, sources.record);
+  const buildings = packBuildings(spaces, prefabs);
   for (const [actor, [first]] of actorPlaces(sources.files, prefabs)) {
     if (first) actors[actor] = { space: first.space, path: first.path };
   }
@@ -219,6 +222,8 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     places: placesOf(spaces, prefabs, sources.record),
     // Format 18 only with a tilemap (M7.2).
     ...(Object.keys(tiles).length > 0 ? { tiles } : {}),
+    // Format 19 only with a building (M7.3).
+    ...(Object.keys(buildings).length > 0 ? { buildings } : {}),
   };
 }
 
@@ -245,6 +250,19 @@ function sheetNeeds(key: string, sources: DrawnSources, keys: Set<string>, found
   if (typeof record.sheet === 'string') found.add(record.sheet);
 }
 
+/** A building's rooms and their sprites, and its stairs' sprite, each with its sheet (M7.3). */
+function buildingNeeds(building: Fields, sources: DrawnSources, keys: Set<string>, found: Set<string>): void {
+  const sprites = typeof building.stair === 'string' ? [building.stair] : [];
+  for (const room of Array.isArray(building.rooms) ? building.rooms : []) {
+    if (!isFields(room) || typeof room.room !== 'string') continue;
+    const record = sources.record(`${ROOM}:${room.room}`);
+    if (!isFields(record)) continue;
+    keys.add(`${ROOM}:${room.room}`);
+    if (typeof record.sprite === 'string') sprites.push(record.sprite);
+  }
+  for (const sprite of sprites) sheetNeeds(`${SPRITE}:${sprite}`, sources, keys, found);
+}
+
 /** What drawnFrom reads: the records and each type's model field. */
 export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
 
@@ -253,7 +271,8 @@ export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
  * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
  * Since M6.5 an actor's animator and the models its clips come from, and the player's actor; since
  * M6.6 a map's hash reads it too (mapInputs.ts); since M7.1 each sprite drawn, a component's or an
- * actor's, and its sheet among the files; since M7.2 each tilemap's tileset and its sheet.
+ * actor's, and its sheet among the files; since M7.2 each tilemap's tileset and its sheet; since M7.3 each
+ * building's rooms, their sprites and the stairs', with their sheets.
  */
 export function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
@@ -298,6 +317,8 @@ export function drawnFrom(
         if (typeof sprite === 'string') sheetNeeds(`${SPRITE}:${sprite}`, sources, keys, found);
         const tileset = seen.components?.[TILEMAP]?.tileset;
         if (typeof tileset === 'string') sheetNeeds(`${TILESET}:${tileset}`, sources, keys, found);
+        const building = seen.components?.[BUILDING];
+        if (isFields(building)) buildingNeeds(building, sources, keys, found);
       });
     for (const key of [...grown, ...actors]) visit(key, []);
     for (const material of needs.materials) keys.add(`${MATERIAL}:${material}`);

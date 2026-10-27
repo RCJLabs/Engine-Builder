@@ -284,6 +284,7 @@ describe('the engine’s types', () => {
       'animator',
       'sprite',
       'tileset',
+      'room',
       'item',
     ]);
   });

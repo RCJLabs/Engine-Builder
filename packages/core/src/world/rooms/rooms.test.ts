@@ -6,16 +6,16 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { TOWER } from '../../../test/towers.ts';
-import { type PackBuilding, type Place, placeOf, pointOf, roomAt, widthOf } from './building.ts';
+import { type FloorPlace, floorPlaceOf, type PackBuilding, pointOf, roomAt, widthOf } from './building.ts';
 import { buildingRoute, routeCost } from './route.ts';
 
 describe('a place in a building', () => {
   it('is the floor whose band the feet are in, at their x from the building’s left', () => {
     expect(widthOf(TOWER)).toBe(96);
-    expect(placeOf(TOWER, [32, 8])).toEqual([0, 0]);
-    expect(placeOf(TOWER, [82.5, 31.9])).toEqual([0, 50]);
-    expect(placeOf(TOWER, [82, 32])).toEqual([1, 50]);
-    expect(placeOf(TOWER, [127, 103])).toEqual([3, 95]);
+    expect(floorPlaceOf(TOWER, [32, 8])).toEqual([0, 0]);
+    expect(floorPlaceOf(TOWER, [82.5, 31.9])).toEqual([0, 50]);
+    expect(floorPlaceOf(TOWER, [82, 32])).toEqual([1, 50]);
+    expect(floorPlaceOf(TOWER, [127, 103])).toEqual([3, 95]);
     // Left of it, past its right edge, under its ground and above its top floor: off it.
     for (const point of [
       [31, 8],
@@ -23,12 +23,12 @@ describe('a place in a building', () => {
       [40, 7],
       [40, 104],
     ] as const)
-      expect(placeOf(TOWER, point)).toBeUndefined();
+      expect(floorPlaceOf(TOWER, point)).toBeUndefined();
   });
 
   it('stands at its floor’s foot', () => {
     expect(pointOf(TOWER, [2, 70])).toEqual([102, 56]);
-    expect(placeOf(TOWER, pointOf(TOWER, [2, 70]))).toEqual([2, 70]);
+    expect(floorPlaceOf(TOWER, pointOf(TOWER, [2, 70]))).toEqual([2, 70]);
   });
 
   it('is in the room on its slot, a room spanning slots in each, or none on a bare slot', () => {
@@ -64,8 +64,8 @@ describe('a route through a building', () => {
       [3, 12],
       [3, 50],
     ]);
-    expect(buildingRoute(TOWER, [3, 50], [0, 5])).toEqual([...(up as Place[])].reverse());
-    expect(routeCost(TOWER, up as Place[])).toBe(7 + 72 + 72 + 38 + 3 * 24);
+    expect(buildingRoute(TOWER, [3, 50], [0, 5])).toEqual([...(up as FloorPlace[])].reverse());
+    expect(routeCost(TOWER, up as FloorPlace[])).toBe(7 + 72 + 72 + 38 + 3 * 24);
   });
 
   it('leaves out a place the same as the one before, as a start at a stair', () => {
@@ -107,7 +107,7 @@ describe('a route through a building', () => {
   it('weighs a climb at the building’s cost', () => {
     // However steep: 10 along, the climb, 10 back.
     const steep: PackBuilding = { ...TOWER, floors: 2, climb: 1000, stairs: [[0, 10]] };
-    expect(routeCost(steep, buildingRoute(steep, [0, 0], [1, 0]) as Place[])).toBe(1020);
+    expect(routeCost(steep, buildingRoute(steep, [0, 0], [1, 0]) as FloorPlace[])).toBe(1020);
   });
 
   it('is none to a floor no stair reaches, or off the building', () => {
@@ -120,16 +120,16 @@ describe('a route through a building', () => {
 });
 
 /** The cheapest cost between two places by relaxing every edge until nothing changes, or -1. */
-function oracle(building: PackBuilding, from: Place, to: Place): number {
-  const points: Place[] = [
+function oracle(building: PackBuilding, from: FloorPlace, to: FloorPlace): number {
+  const points: FloorPlace[] = [
     from,
     to,
-    ...building.stairs.flatMap(([f, x]): Place[] => [
+    ...building.stairs.flatMap(([f, x]): FloorPlace[] => [
       [f, x],
       [f + 1, x],
     ]),
   ];
-  const cost = points.map((_, i) => (i === 0 ? 0 : -1));
+  const cost = points.map((_, i): number => (i === 0 ? 0 : -1));
   for (let changed = true; changed; ) {
     changed = false;
     points.forEach(([f, x], i) => {
@@ -180,7 +180,7 @@ describe('every route', () => {
         expect(route[0]).toEqual(from);
         expect(route[route.length - 1]).toEqual(to);
         for (let i = 1; i < route.length; i++) {
-          const [[f0, x0], [f1, x1]] = [route[i - 1] as Place, route[i] as Place];
+          const [[f0, x0], [f1, x1]] = [route[i - 1] as FloorPlace, route[i] as FloorPlace];
           const climbed = stairs.some(
             ([f, x]) => x === x0 && x === x1 && Math.min(f0, f1) === f && Math.abs(f1 - f0) === 1,
           );

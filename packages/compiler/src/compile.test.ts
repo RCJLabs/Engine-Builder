@@ -1070,6 +1070,74 @@ describe('the code table', () => {
       'W157 spaces/deck.json /objects/2/at It stands on tile 1, 0, which can’t be walked: it can only step off it',
       'E058 spaces/hold.json /objects/0/components/tilemap Only a 2D space draws a tilemap',
     ]);
+    // M7.3: a building with two rooms on one slot, one past its slots, a stair from its top floor, stairs
+    // with no sprite and floors no stair reaches; a second building; a building in a 3D space.
+    const room = (id: string, floor: number, slot: number, span?: number) => ({
+      id,
+      room: 'hall',
+      floor,
+      slot,
+      ...(span === undefined ? {} : { span }),
+    });
+    const building = (rooms: object[], stairs: object[] = []) => ({
+      slot: [48, 24],
+      slots: 2,
+      floors: 3,
+      rooms,
+      stairs,
+    });
+    const built = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'tower', name: 'Tower', version: '0.1.0' }),
+        'assets/hall.png': pngOf(48, 24, 8, 6),
+        'records/sprite/hall.json': JSON.stringify({
+          sheet: 'hall.png',
+          frame: [48, 24],
+          clips: { still: { frames: [0, 0], fps: 1 } },
+        }),
+        'records/room/hall.json': JSON.stringify({ name: 'Hall', sprite: 'hall' }),
+        'spaces/tower.json': JSON.stringify({
+          name: 'Tower',
+          view: '2d',
+          objects: [
+            {
+              id: 'keep',
+              shape: 'box',
+              components: {
+                building: building(
+                  [
+                    room('crypt', 0, 0),
+                    room('store', 0, 1),
+                    room('hall', 0, 1),
+                    room('wide', 1, 1, 2),
+                    room('top', 2, 0),
+                  ],
+                  [{ floor: 2, x: 12 }],
+                ),
+              },
+            },
+            { id: 'again', shape: 'box', components: { building: building([]) } },
+          ],
+        }),
+        'spaces/yard.json': JSON.stringify({
+          name: 'Yard',
+          objects: [{ id: 'keep', shape: 'box', components: { building: building([]) } }],
+        }),
+      }),
+      [],
+    );
+    const buildingCodes = brief(built.diagnostics).filter((d) => d.code !== 'E019');
+    const where = 'spaces/tower.json /objects/0/components/building';
+    expect(buildingCodes.map((d) => `${d.code} ${d.file} ${d.path} ${d.message}`)).toEqual([
+      `E094 ${where}/rooms/2 It is on floor 0, slot 1, which “store” takes`,
+      `E094 ${where}/rooms/3 It runs to slot 2: a floor has slots 0 to 1`,
+      `E094 ${where}/stair It has stairs and no sprite to draw them with`,
+      `W158 ${where}/stairs No stair reaches floor 1 from the ground: its rooms can’t be walked to`,
+      `W158 ${where}/stairs No stair reaches floor 2 from the ground: its rooms can’t be walked to`,
+      `E094 ${where}/stairs/0/floor A stair climbs from a floor to the one above: the top floor is 2`,
+      'E094 spaces/tower.json /objects/1/components/building A space has one building: “keep” is its first',
+      'E058 spaces/yard.json /objects/0/components/building Only a 2D space draws a building',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -1107,6 +1175,7 @@ describe('the code table', () => {
       bartered,
       sprited,
       tiled,
+      built,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

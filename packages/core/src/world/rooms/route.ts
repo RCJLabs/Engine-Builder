@@ -6,7 +6,7 @@
  * and a cost replaces another only when strictly lower, so a route is the same every time. Whole numbers
  * throughout, where afterglass's are floats.
  */
-import type { PackBuilding, Place } from './building.ts';
+import type { FloorPlace, PackBuilding } from './building.ts';
 
 /**
  * The places a walker turns at from `from` to `to`, both included: along a floor to a stair's end, up or
@@ -15,13 +15,13 @@ import type { PackBuilding, Place } from './building.ts';
  */
 export function buildingRoute(
   building: Pick<PackBuilding, 'floors' | 'climb' | 'stairs'>,
-  from: Place,
-  to: Place,
-): Place[] | null {
-  const inside = ([floor]: Place) => floor >= 0 && floor < building.floors;
+  from: FloorPlace,
+  to: FloorPlace,
+): FloorPlace[] | null {
+  const inside = ([floor]: FloorPlace) => floor >= 0 && floor < building.floors;
   if (!inside(from) || !inside(to)) return null;
   // The points: the start, each stair's foot and head, and the goal.
-  const points: Place[] = [from];
+  const points: FloorPlace[] = [from];
   for (const [floor, x] of building.stairs) points.push([floor, x], [floor + 1, x]);
   points.push(to);
   const goal = points.length - 1;
@@ -34,10 +34,10 @@ export function buildingRoute(
     const here = cheapest(cost, done);
     if (here === -1 || here === goal) break;
     done[here] = true;
-    const [floor, x] = points[here] as Place;
+    const [floor, x] = points[here] as FloorPlace;
     for (let next = 0; next < points.length; next++) {
       if (done[next]) continue;
-      const [f, nx] = points[next] as Place;
+      const [f, nx] = points[next] as FloorPlace;
       // Up or down the stair this point is an end of, or along the floor.
       const climbs = here > 0 && next > 0 && next < goal && stairOf(here) === stairOf(next);
       const step = climbs ? building.climb : f === floor ? Math.abs(nx - x) : -1;
@@ -50,9 +50,9 @@ export function buildingRoute(
     }
   }
   if (cost[goal] === -1) return null;
-  const route: Place[] = [];
+  const route: FloorPlace[] = [];
   for (let at = goal; at !== -1; at = came[at] as number) {
-    const place = points[at] as Place;
+    const place = points[at] as FloorPlace;
     const last = route[route.length - 1];
     if (last === undefined || last[0] !== place[0] || last[1] !== place[1]) route.push(place);
   }
@@ -73,11 +73,11 @@ function cheapest(cost: readonly number[], done: readonly boolean[]): number {
 const stairOf = (point: number) => Math.floor((point - 1) / 2);
 
 /** What a route costs, walked: the distances along floors and a climb for each change of floor. */
-export function routeCost(building: Pick<PackBuilding, 'climb'>, route: readonly Place[]): number {
+export function routeCost(building: Pick<PackBuilding, 'climb'>, route: readonly FloorPlace[]): number {
   let total = 0;
   for (let i = 1; i < route.length; i++) {
-    const [f0, x0] = route[i - 1] as Place;
-    const [f1, x1] = route[i] as Place;
+    const [f0, x0] = route[i - 1] as FloorPlace;
+    const [f1, x1] = route[i] as FloorPlace;
     total += f0 === f1 ? Math.abs(x1 - x0) : building.climb * Math.abs(f1 - f0);
   }
   return total;

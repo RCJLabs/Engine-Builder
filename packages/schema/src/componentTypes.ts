@@ -4,7 +4,7 @@
  * and its fields checked as a record's are. Nothing runs them until M5.8, which fills in what a
  * file leaves out: a light is white, of intensity 1 and range 10 m; a collider a still box; a sound
  * plays at volume 1 to 10 m; water is #3a6d8c, of clarity 0.6 (M5.3). A sprite and a parallax
- * layer are a 2D space's (M7.1, D83), and so is a tilemap (M7.2, D84).
+ * layer are a 2D space's (M7.1, D83), and so are a tilemap (M7.2, D84) and a building (M7.3, D85).
  */
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -182,6 +182,70 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
         optional: true,
         label: 'Edges',
         description: 'Space-Wrecked’s map text: - | a wall, = I the hull, / a door, o a hatch, + where they meet',
+      },
+    },
+  },
+  // M7.3 (D85): floors of rooms seen side on, and the stairs between them.
+  building: {
+    title: 'Building',
+    description: 'Floors of rooms seen side on in a 2D space, from the object’s place up, with stairs between them.',
+    fields: {
+      slot: {
+        kind: 'list',
+        of: { kind: 'int', min: 1, max: 1024 },
+        min: 2,
+        max: 2,
+        label: 'Slot',
+        description: 'A slot’s width and a floor’s height in art pixels, the floor under it included',
+      },
+      slots: { kind: 'int', min: 1, max: 32, label: 'Slots', description: 'Slots a floor, the same on every floor' },
+      floors: { kind: 'int', min: 1, max: 64, label: 'Floors', description: 'Counted from the ground, floor 0, up' },
+      rooms: {
+        kind: 'list',
+        label: 'Rooms',
+        description: 'A slot no room takes is bare: walkers cross it and nothing is drawn there',
+        of: {
+          kind: 'group',
+          fields: {
+            id: { kind: 'text', min: 1, label: 'Id', description: 'What world.room says of a walker in it' },
+            room: { kind: 'ref', to: 'room', label: 'Room' },
+            floor: { kind: 'int', min: 0, label: 'Floor' },
+            slot: { kind: 'int', min: 0, label: 'Slot', description: 'Its first slot from the left, from 0' },
+            span: {
+              kind: 'int',
+              min: 1,
+              optional: true,
+              label: 'Span',
+              description: 'The slots it takes: 1 when left out',
+            },
+          },
+        },
+      },
+      stairs: {
+        kind: 'list',
+        label: 'Stairs',
+        description: 'Each from a floor to the one above, taking no slot',
+        of: {
+          kind: 'group',
+          fields: {
+            floor: { kind: 'int', min: 0, label: 'From floor' },
+            x: { kind: 'int', min: 0, label: 'At', description: 'Art pixels from the building’s left' },
+          },
+        },
+      },
+      stair: {
+        kind: 'ref',
+        to: 'sprite',
+        optional: true,
+        label: 'Stairs drawn with',
+        description: 'Repeated up from the lower floor to the upper',
+      },
+      climb: {
+        kind: 'int',
+        min: 1,
+        optional: true,
+        label: 'Climb',
+        description: 'What a climb costs a route, in art pixels walked: a floor’s height when left out',
       },
     },
   },
