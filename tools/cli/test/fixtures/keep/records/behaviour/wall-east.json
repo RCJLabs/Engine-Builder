@@ -4,15 +4,9 @@
   "do": {
     "first": [
       {
-        "hours": [
-          20,
-          6
-        ],
+        "hours": [20, 6],
         "do": {
-          "patrol": [
-            "walk-e1",
-            "walk-e2"
-          ],
+          "patrol": ["walk-e1", "walk-e2"],
           "dwell": {
             "minutes": 20
           }

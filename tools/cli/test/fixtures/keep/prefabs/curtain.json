@@ -4,16 +4,8 @@
     {
       "id": "wall",
       "shape": "box",
-      "at": [
-        0,
-        0,
-        0
-      ],
-      "scale": [
-        1,
-        1,
-        1
-      ],
+      "at": [0, 0, 0],
+      "scale": [1, 1, 1],
       "color": "#3b3c4f",
       "components": {
         "sprite": {
@@ -24,11 +16,7 @@
     {
       "id": "battlement",
       "shape": "box",
-      "at": [
-        0,
-        32,
-        2
-      ],
+      "at": [0, 32, 2],
       "color": "#3b3c4f",
       "components": {
         "sprite": {

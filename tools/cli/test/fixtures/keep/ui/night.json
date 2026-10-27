@@ -1,8 +1,6 @@
 {
   "title": "The keep at night",
-  "shows": [
-    "night"
-  ],
+  "shows": ["night"],
   "top": {
     "widget": "stack",
     "direction": "row",
