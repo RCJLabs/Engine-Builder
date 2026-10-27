@@ -1,0 +1,36 @@
+{
+  "lines": [
+    {
+      "on": "fighting/hit",
+      "say": "{.on} takes {.hurt}.",
+      "to": "log",
+      "sound": "thud",
+      "buzz": "tap"
+    },
+    {
+      "on": "fighting/fell",
+      "say": "{.actor} falls.",
+      "buzz": "double"
+    },
+    {
+      "on": "quests/started",
+      "say": "{.quest}",
+      "sound": "clang"
+    },
+    {
+      "on": "quests/done",
+      "say": "{.quest}",
+      "sound": "clang",
+      "buzz": "double"
+    },
+    {
+      "on": "quests/failed",
+      "say": "{.quest}: {.why}"
+    },
+    {
+      "on": "inventory/gained",
+      "say": "+{.count} {.item}",
+      "to": "log"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Wenna",
+  "description": "The smith, who trades from her bench.",
+  "talk": "smith",
+  "carries": {
+    "bread": 4,
+    "whetstone": 2
+  },
+  "purse": {
+    "coin": 30
+  },
+  "figure": {
+    "height": 1.7,
+    "clothes": "#7a4a2a",
+    "trim": "#2f2f2f",
+    "skin": "#b07a52"
+  }
+}

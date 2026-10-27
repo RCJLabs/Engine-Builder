@@ -1,0 +1,19 @@
+{
+  "name": "Lamp post",
+  "file": "starter-kit/lamp-post.glb",
+  "materials": [
+    {
+      "slot": "metal",
+      "material": "kit-metal"
+    },
+    {
+      "slot": "glow",
+      "material": "kit-glow"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [0, 1.415, 0],
+    "size": [0.3112, 2.83, 0.3112]
+  }
+}

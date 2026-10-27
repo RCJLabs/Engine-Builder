@@ -26,7 +26,7 @@ import {
   withPackWorld,
   worldModule,
 } from '@eb/core';
-import { kitMetrics, kitModules, kitsInWorld } from '@eb/kits';
+import { kitMetrics, kitModules, kitsInWorld, walkedStage } from '@eb/kits';
 import { type GameModule, UsageError } from './modules.ts';
 import { formatResult } from './report.ts';
 import { formatGolden } from './simReport.ts';
@@ -82,8 +82,23 @@ export async function runSim(source: ProjectSource, loaded: GameModule, flags: S
   const { maxTurns } = settings;
   // The kits' metrics come after the game's own (M3.9): each quest's state at the end.
   const metrics = [...loaded.metrics, ...kitMetrics(project.kits, sim.content)];
-  const { report, runs } = sweep(game, sim, { seeds: settings.seeds, policy, maxTurns, metrics });
-  const now = goldenOf({ game: pack.project.id, content: pack.hash, policy: policy.name, maxTurns }, runs);
+  // A walked game moves by what its stage sends (M6.9, D81): the bot plays it as the walk would.
+  const stage = walkedStage(pack.project, pack.world);
+  if (golden && !flags.update && golden.stage !== stage?.name) {
+    const played = (name: string | undefined) => (name === undefined ? 'with no stage' : `with the ${name} stage`);
+    throw new UsageError(
+      `${flags.golden} holds runs played ${played(golden.stage)}, and this game plays ${played(stage?.name)}: run with --update to write them again`,
+    );
+  }
+  const { report, runs } = sweep(game, sim, {
+    seeds: settings.seeds,
+    policy,
+    maxTurns,
+    metrics,
+    ...(stage ? { stage } : {}),
+  });
+  const info = { game: pack.project.id, content: pack.hash, policy: policy.name, maxTurns };
+  const now = goldenOf({ ...info, ...(stage ? { stage: stage.name } : {}) }, runs);
   let comparison: GoldenComparison | 'wrote' | undefined;
   if (flags.golden && flags.update) {
     await mkdir(dirname(resolve(flags.golden)), { recursive: true });

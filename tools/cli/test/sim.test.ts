@@ -71,6 +71,34 @@ describe('eb sim', () => {
     expect(lines.at(-1)).toBe('If the change is meant, run again with --update to write the new runs.');
   });
 
+  it('plays a walked game with its stage, as the walk would send (M6.9, D81), and keeps the stage in its golden', () => {
+    for (const [project, stage] of [
+      ['camp', 'walk and fight'],
+      ['post', 'walk'],
+    ]) {
+      const run = eb(['sim', resolve(import.meta.dirname, 'fixtures', project as string), '--seeds', '10']);
+      expect(run).toMatchObject({ code: 0, err: '' });
+      const lines = run.out.trim().split('\n');
+      expect(lines[0]).toBe(
+        `${project}: 10 runs with the random policy and the ${stage} stage, at most 1000 turns each.`,
+      );
+      expect(lines.at(-1)).toBe('Refused offers: none.');
+    }
+    const golden = join(scratch(), 'camp.golden.json');
+    const camp = resolve(import.meta.dirname, 'fixtures/camp');
+    expect(eb(['sim', camp, '--seeds', '5', '--golden', golden, '--update']).code).toBe(0);
+    expect(readGolden(JSON.parse(readFileSync(golden, 'utf8'))).stage).toBe('walk+fight');
+    expect(eb(['sim', camp, '--golden', golden]).out.trim().split('\n').at(-1)).toBe(`All 5 runs match ${golden}.`);
+    // A golden played without the stage is other runs: refused, not compared.
+    const unstaged = JSON.parse(readFileSync(golden, 'utf8'));
+    delete unstaged.stage;
+    writeFileSync(golden, JSON.stringify(unstaged));
+    expect(eb(['sim', camp, '--golden', golden])).toMatchObject({
+      code: 2,
+      err: expect.stringContaining('holds runs played with no stage, and this game plays with the walk+fight stage'),
+    });
+  }, 60_000);
+
   it('says when every run ends in the same state, as with a game the seed cannot touch', () => {
     const door = resolve(import.meta.dirname, 'fixtures/door');
     const run = eb(['sim', door, '--game', resolve(import.meta.dirname, 'fixtures/door-game.ts'), '--seeds', '20']);

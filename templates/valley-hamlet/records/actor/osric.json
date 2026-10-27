@@ -1,0 +1,11 @@
+{
+  "name": "Osric",
+  "description": "The hamlet’s reeve.",
+  "talk": "reeve",
+  "figure": {
+    "height": 1.74,
+    "clothes": "#5a4a6a",
+    "trim": "#c9a227",
+    "skin": "#c99872"
+  }
+}

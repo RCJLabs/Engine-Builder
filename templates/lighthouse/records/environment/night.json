@@ -1,0 +1,17 @@
+{
+  "name": "Night on the rock",
+  "hour": 23,
+  "sky": "gradient",
+  "zenith": "#05070d",
+  "horizon": "#1a2436",
+  "ground": "#06080c",
+  "sun": "#9fb4d8",
+  "sun-strength": 0.35,
+  "ambient": "#6a7a96",
+  "ambient-strength": 0.7,
+  "fog": {
+    "color": "#101622",
+    "near": 20,
+    "far": 120
+  }
+}

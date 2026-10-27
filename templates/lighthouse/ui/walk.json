@@ -1,0 +1,23 @@
+{
+  "title": "The lighthouse",
+  "shows": ["out"],
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  },
+  "ambience": "sea"
+}

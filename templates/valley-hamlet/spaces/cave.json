@@ -1,0 +1,176 @@
+{
+  "name": "The cave",
+  "tags": ["cave"],
+  "environment": "cave",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [20, 0.2, 20],
+      "color": "#5a5348",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the mouth",
+      "shape": "box",
+      "at": [0, 0, 7],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {}
+      }
+    },
+    {
+      "id": "north",
+      "name": "Rock",
+      "shape": "box",
+      "at": [0, 0, -10],
+      "scale": [20, 4, 1],
+      "color": "#4a443c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "west",
+      "name": "Rock",
+      "shape": "box",
+      "at": [-10, 0, 0],
+      "scale": [1, 4, 20],
+      "color": "#4a443c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "east",
+      "name": "Rock",
+      "shape": "box",
+      "at": [10, 0, 0],
+      "scale": [1, 4, 20],
+      "color": "#4a443c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-west",
+      "name": "Rock",
+      "shape": "box",
+      "at": [-6, 0, 10],
+      "scale": [8, 4, 1],
+      "color": "#4a443c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "south-east",
+      "name": "Rock",
+      "shape": "box",
+      "at": [6, 0, 10],
+      "scale": [8, 4, 1],
+      "color": "#4a443c",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "way-out",
+      "name": "Way out",
+      "shape": "box",
+      "at": [0, 0, 9.6],
+      "scale": [3, 2.5, 0.6],
+      "color": "#3b2a1c",
+      "components": {
+        "trigger": {
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "green",
+              "spawn": "cave-step"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "rock-1",
+      "name": "Rock",
+      "record": "model:kit-rock-large",
+      "at": [-6, 0, -1]
+    },
+    {
+      "id": "rock-2",
+      "name": "Rock",
+      "record": "model:kit-rock-large",
+      "at": [6.5, 0, 2]
+    },
+    {
+      "id": "chest",
+      "name": "Old chest",
+      "record": "model:kit-chest",
+      "at": [-7, 0, -7],
+      "turn": [0, 45, 0],
+      "tags": ["cache"],
+      "components": {
+        "interact": {
+          "label": "Take the supplies",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "supplies"
+            }
+          ],
+          "takes": true
+        }
+      }
+    },
+    {
+      "id": "crate",
+      "name": "Carter’s crate",
+      "record": "model:kit-crate",
+      "at": [7, 0, -7],
+      "tags": ["cache"],
+      "components": {
+        "interact": {
+          "label": "Take the supplies",
+          "effects": [
+            {
+              "effect": "give-item",
+              "item": "supplies"
+            }
+          ],
+          "takes": true
+        }
+      }
+    },
+    {
+      "id": "den-a",
+      "name": "By the back wall",
+      "shape": "box",
+      "at": [-3, 0, -4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#5a5348"
+    },
+    {
+      "id": "den-b",
+      "name": "By the rock",
+      "shape": "box",
+      "at": [3, 0, -3],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#5a5348"
+    },
+    {
+      "id": "gorm",
+      "name": "Gorm",
+      "record": "actor:gorm",
+      "at": [0, 0, -5]
+    }
+  ]
+}

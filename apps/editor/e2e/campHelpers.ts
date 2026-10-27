@@ -161,13 +161,15 @@ export async function closeOn(steer: Steer, me: Walked, at: readonly number[], w
 
 /**
  * The fight steered until `done`: each round turned to the nearest bandit standing, the engaged
- * first, walked up to within reach and struck. The hero falling ends it, as the game does.
+ * first, walked up to within reach and struck. The hero falling ends it, as the game does. With
+ * `foes`, only those are fought: a space with others in it, as M6.9's hamlet has its villagers.
  */
 export async function fightUntil(
   page: Page,
   steer: Steer,
   done: (seen: Seen) => boolean,
   timeout = 120_000,
+  foes?: readonly string[],
 ): Promise<Seen> {
   const started = Date.now();
   for (;;) {
@@ -175,7 +177,9 @@ export async function fightUntil(
     if (done(seen)) return seen;
     if (Date.now() - started > timeout) throw new Error(`The fight went on past ${timeout} ms`);
     const down = new Set(fallenOf(seen.fight));
-    const standing = seen.agents.filter((a) => !down.has(a.actor) && a.state !== 'away');
+    const standing = seen.agents.filter(
+      (a) => !down.has(a.actor) && a.state !== 'away' && (foes === undefined || foes.includes(a.actor)),
+    );
     const engaged = standing.filter((a) => seen.fight.engaged.includes(a.actor));
     const nearest = (engaged.length > 0 ? engaged : standing).sort(
       (a, b) => acrossTo(a.at, seen.me.feet) - acrossTo(b.at, seen.me.feet),
@@ -232,15 +236,16 @@ export async function searchAll(
 /**
  * Fingers on one touch screen, as a phone has them: every touch through one DevTools session that
  * lists each finger still down, so a thumb on the stick stays down while the other taps a button.
- * A finger left out of the list is lifted.
+ * A finger is lifted by a touchEnd that names it alone: one left out of a touchMove stays down, and
+ * its next press would only move it (M6.9 found the look's finger never lifted under a held Attack).
  */
 export async function hands(page: Page) {
   const cdp = await page.context().newCDPSession(page);
   const down = new Map<number, { x: number; y: number }>();
-  const send = (type: 'touchStart' | 'touchMove' | 'touchEnd') =>
+  const send = (type: 'touchStart' | 'touchMove') =>
     cdp.send('Input.dispatchTouchEvent', {
       type,
-      touchPoints: type === 'touchEnd' ? [] : [...down].map(([id, at]) => ({ ...at, id })),
+      touchPoints: [...down].map(([id, at]) => ({ ...at, id })),
     });
   const centre = async (target: Locator) => {
     await target.scrollIntoViewIfNeeded();
@@ -263,8 +268,10 @@ export async function hands(page: Page) {
       }
     },
     async lift(id: number) {
+      const at = down.get(id);
+      if (!at) return;
       down.delete(id);
-      await send(down.size === 0 ? 'touchEnd' : 'touchMove');
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [{ ...at, id }] });
     },
     /** A tap on a button by a finger of its own. */
     async tap(target: Locator, id = 9) {

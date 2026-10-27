@@ -1,0 +1,358 @@
+{
+  "name": "The green",
+  "tags": ["village"],
+  "environment": "valley-morning",
+  "objects": [
+    {
+      "id": "ground",
+      "name": "Ground",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [60, 0.2, 60],
+      "color": "#6f8f4e",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "start",
+      "name": "Where you come in",
+      "shape": "box",
+      "at": [0, 0, 14],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    },
+    {
+      "id": "smithy-step",
+      "name": "Outside the smithy",
+      "shape": "box",
+      "at": [9, 0, 6.5],
+      "turn": [0, 180, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {}
+      }
+    },
+    {
+      "id": "cave-step",
+      "name": "Outside the cave",
+      "shape": "box",
+      "at": [-10.5, 0, -6],
+      "turn": [0, -90, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": {
+        "spawn": {}
+      }
+    },
+    {
+      "id": "reeve-house",
+      "name": "The reeve’s house",
+      "shape": "box",
+      "at": [-9, 0, 2],
+      "scale": [5, 3, 4],
+      "color": "#b0a690",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "reeve-roof",
+      "name": "Its roof",
+      "shape": "box",
+      "at": [-9, 3, 2],
+      "scale": [5.6, 0.5, 4.6],
+      "color": "#7a4a2a"
+    },
+    {
+      "id": "smithy",
+      "name": "The smithy",
+      "shape": "box",
+      "at": [9, 0, 2],
+      "scale": [5, 3, 4],
+      "color": "#8c8278",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "smithy-roof",
+      "name": "Its roof",
+      "shape": "box",
+      "at": [9, 3, 2],
+      "scale": [5.6, 0.5, 4.6],
+      "color": "#4a4a4a"
+    },
+    {
+      "id": "smithy-door",
+      "name": "Smithy door",
+      "shape": "box",
+      "at": [9, 0, 4.1],
+      "scale": [1.4, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go in",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "smithy",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "well",
+      "name": "The well",
+      "shape": "box",
+      "at": [0, 0, 4],
+      "scale": [1.4, 0.9, 1.4],
+      "color": "#8a8a8a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "barrel",
+      "name": "Barrel",
+      "record": "model:kit-barrel",
+      "at": [12.5, 0, 5]
+    },
+    {
+      "id": "crate",
+      "name": "Crate",
+      "record": "model:kit-crate",
+      "at": [12.5, 0, 6.6]
+    },
+    {
+      "id": "bench",
+      "name": "Bench",
+      "record": "model:kit-bench",
+      "at": [-10.5, 0, 6.5]
+    },
+    {
+      "id": "osric",
+      "name": "Osric",
+      "record": "actor:osric",
+      "at": [-6, 0, 5.5],
+      "turn": [0, 30, 0]
+    },
+    {
+      "id": "edda",
+      "name": "Edda",
+      "record": "actor:edda",
+      "at": [5, 0, 10]
+    },
+    {
+      "id": "pasture-a",
+      "name": "Pasture",
+      "shape": "box",
+      "at": [7, 0, 13],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6f8f4e"
+    },
+    {
+      "id": "pasture-b",
+      "name": "Pasture’s far end",
+      "shape": "box",
+      "at": [11, 0, 10],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6f8f4e"
+    },
+    {
+      "id": "well-side",
+      "name": "By the well",
+      "shape": "box",
+      "at": [1.8, 0, 5.8],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6f8f4e"
+    },
+    {
+      "id": "fence-1",
+      "name": "Fence",
+      "record": "model:kit-fence",
+      "at": [7, 0, 16]
+    },
+    {
+      "id": "fence-2",
+      "name": "Fence",
+      "record": "model:kit-fence",
+      "at": [9, 0, 16]
+    },
+    {
+      "id": "fence-3",
+      "name": "Fence",
+      "record": "model:kit-fence",
+      "at": [11, 0, 16]
+    },
+    {
+      "id": "fence-4",
+      "name": "Fence",
+      "record": "model:kit-fence",
+      "at": [13, 0, 15],
+      "turn": [0, 90, 0]
+    },
+    {
+      "id": "hill",
+      "name": "The hill",
+      "shape": "box",
+      "at": [-16, 0, -6],
+      "scale": [7, 4, 7],
+      "color": "#7d8a6a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "hill-rock",
+      "name": "Rock",
+      "record": "model:kit-rock-large",
+      "at": [-13, 0, -2.5]
+    },
+    {
+      "id": "cave-door",
+      "name": "Cave mouth",
+      "shape": "box",
+      "at": [-12.4, 0, -6],
+      "scale": [0.2, 2.2, 1.4],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go into the cave",
+          "effects": [
+            {
+              "effect": "enter-space",
+              "space": "cave",
+              "spawn": "door"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fire",
+      "name": "The bandits’ fire",
+      "shape": "box",
+      "at": [0, 0, -12],
+      "scale": [1, 0.4, 1],
+      "color": "#6a3a2a",
+      "components": {
+        "collider": {}
+      }
+    },
+    {
+      "id": "den-a",
+      "name": "By the fire",
+      "shape": "box",
+      "at": [-3.5, 0, -10.5],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6f8f4e"
+    },
+    {
+      "id": "den-b",
+      "name": "Under the trees",
+      "shape": "box",
+      "at": [4, 0, -11],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6f8f4e"
+    },
+    {
+      "id": "brand",
+      "name": "Brand",
+      "record": "actor:brand",
+      "at": [-3, 0, -13]
+    },
+    {
+      "id": "fen",
+      "name": "Fen",
+      "record": "actor:fen",
+      "at": [3, 0, -13.5]
+    },
+    {
+      "id": "tree-1",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [-20, 0, -18]
+    },
+    {
+      "id": "tree-2",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [-14, 0, -20]
+    },
+    {
+      "id": "tree-3",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [-8, 0, -19]
+    },
+    {
+      "id": "tree-4",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [-3, 0, -21]
+    },
+    {
+      "id": "tree-5",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [2, 0, -18.5]
+    },
+    {
+      "id": "tree-6",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [7, 0, -20]
+    },
+    {
+      "id": "tree-7",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [12, 0, -18]
+    },
+    {
+      "id": "tree-8",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [17, 0, -21]
+    },
+    {
+      "id": "tree-9",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [21, 0, -17]
+    },
+    {
+      "id": "tree-10",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [-24, 0, -14]
+    },
+    {
+      "id": "tree-11",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [24, 0, -12]
+    },
+    {
+      "id": "tree-12",
+      "name": "Tree",
+      "record": "model:kit-pine",
+      "at": [22, 0, 6]
+    },
+    {
+      "id": "tree-13",
+      "name": "Tree",
+      "record": "model:kit-oak",
+      "at": [-22, 0, 10]
+    }
+  ]
+}

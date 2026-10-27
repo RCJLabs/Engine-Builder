@@ -1,0 +1,20 @@
+{
+  "name": "Barrel",
+  "file": "starter-kit/barrel.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    },
+    {
+      "slot": "metal",
+      "material": "kit-metal"
+    }
+  ],
+  "collider": {
+    "shape": "capsule",
+    "center": [0, 0.5, 0],
+    "radius": 0.36,
+    "height": 1.3219
+  }
+}

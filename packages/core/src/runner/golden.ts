@@ -24,6 +24,8 @@ export interface Golden {
   readonly content: string;
   readonly policy: string;
   readonly maxTurns: number;
+  /** The stage its runs played with, a walked game's (M6.9): none for a game without spaces. */
+  readonly stage?: string;
   /** By seed, in the order played. */
   readonly runs: Readonly<Record<string, GoldenRun>>;
 }
@@ -36,7 +38,13 @@ export class GoldenError extends Error {
 }
 
 export function goldenOf(
-  info: { readonly game: string; readonly content: string; readonly policy: string; readonly maxTurns: number },
+  info: {
+    readonly game: string;
+    readonly content: string;
+    readonly policy: string;
+    readonly maxTurns: number;
+    readonly stage?: string;
+  },
   runs: readonly RunSummary[],
 ): Golden {
   return {
@@ -61,6 +69,9 @@ export function readGolden(raw: unknown): Golden {
   if (typeof raw.content !== 'string') fail('no content hash');
   if (!isRecordId(raw.policy)) fail('no policy name');
   if (!Number.isSafeInteger(raw.maxTurns) || (raw.maxTurns as number) < 1) fail('no turn cap');
+  if (raw.stage !== undefined && !(typeof raw.stage === 'string' && raw.stage.split('+').every(isRecordId))) {
+    fail('a stage that is not stage names joined by "+"');
+  }
   if (!isObject(raw.runs) || Object.keys(raw.runs).length === 0) fail('no runs');
   for (const [seed, run] of Object.entries(raw.runs as Record<string, unknown>)) {
     const ok =
@@ -93,15 +104,16 @@ export interface GoldenComparison {
 
 /**
  * Compares runs played now with a golden file. Both must cover the same seeds with the same
- * policy and cap, which `eb sim` ensures by playing the golden's own settings.
+ * policy, cap and stage, which `eb sim` ensures by playing the golden's own settings.
  */
 export function compareGolden(golden: Golden, now: Golden): GoldenComparison {
   const seeds = Object.keys(golden.runs);
   const playedSeeds = Object.keys(now.runs);
   const sameSeeds = seeds.length === playedSeeds.length && seeds.every((seed, i) => playedSeeds[i] === seed);
-  if (!sameSeeds || golden.policy !== now.policy || golden.maxTurns !== now.maxTurns || golden.game !== now.game) {
+  const same = golden.policy === now.policy && golden.maxTurns === now.maxTurns && golden.game === now.game;
+  if (!sameSeeds || !same || golden.stage !== now.stage) {
     throw new GoldenError(
-      "compareGolden(): the runs were not played with the golden file's game, seeds, policy and cap",
+      "compareGolden(): the runs were not played with the golden file's game, seeds, policy, cap and stage",
     );
   }
   const differences: GoldenDifference[] = [];

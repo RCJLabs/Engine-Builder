@@ -8,5 +8,15 @@
     "id": "last-ferry",
     "title": "Story and choices",
     "blurb": "One night on the last ferry: four passengers, choices that set flags, and three endings, written as ink scenes."
+  },
+  {
+    "id": "valley-hamlet",
+    "title": "Open-world RPG",
+    "blurb": "A hamlet in a green valley, in third person: the reeve’s quest against bandits in the woods and a cave, a smith who trades, and a job that finds its own cave."
+  },
+  {
+    "id": "lighthouse",
+    "title": "First-person adventure",
+    "blurb": "A lighthouse at night, in first person: the keeper’s log, a chest with a key, a locked store, and a lamp to light before the ship comes."
   }
 ]

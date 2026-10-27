@@ -1,0 +1,59 @@
+{
+  "name": "Supplies",
+  "repeats": true,
+  "slots": [
+    {
+      "id": "cave",
+      "type": "space",
+      "tags": ["cave"],
+      "pick": "nearest"
+    },
+    {
+      "id": "cache",
+      "type": "object",
+      "in": "@cave",
+      "tags": ["cache"]
+    }
+  ],
+  "stages": [
+    {
+      "id": "fetch",
+      "log": "Wenna wants the supplies left in {cave}.",
+      "objectives": [
+        {
+          "id": "take",
+          "text": "Take the supplies from the {cache} in {cave}",
+          "count": {
+            "event": "world/used",
+            "args": {
+              "space": "@cave",
+              "object": "@cache"
+            },
+            "to": 1
+          }
+        }
+      ],
+      "next": "bring"
+    },
+    {
+      "id": "bring",
+      "log": "Take the supplies to Wenna at the smithy.",
+      "objectives": [
+        {
+          "id": "hand",
+          "text": "Bring the supplies to Wenna",
+          "count": {
+            "event": "inventory/lost",
+            "args": {
+              "item": "supplies"
+            },
+            "to": 1
+          },
+          "target": {
+            "actor": "wenna"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -272,6 +272,7 @@ export {
   type StatRange,
   type Trait,
 } from './roster/types.ts';
+export { walkedStage } from './stages.ts';
 export { statsModule } from './stats/module.ts';
 export {
   ACTOR,

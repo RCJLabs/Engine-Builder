@@ -1,0 +1,28 @@
+{
+  "name": "Gorm",
+  "description": "One of the bandits.",
+  "stats": {
+    "health": 12,
+    "armour": 1
+  },
+  "wears": {
+    "hand": "cudgel"
+  },
+  "carries": {
+    "pelt": 1
+  },
+  "behaviour": "bandit",
+  "figure": {
+    "height": 1.85,
+    "clothes": "#5a3a2a",
+    "trim": "#2a2a2a",
+    "skin": "#c09070"
+  },
+  "on-fall": [
+    {
+      "effect": "add-resource",
+      "resource": "coin",
+      "by": 3
+    }
+  ]
+}

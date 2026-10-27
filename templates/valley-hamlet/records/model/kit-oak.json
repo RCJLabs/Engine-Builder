@@ -1,0 +1,20 @@
+{
+  "name": "Oak",
+  "file": "starter-kit/oak.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    },
+    {
+      "slot": "leaves",
+      "material": "kit-leaves"
+    }
+  ],
+  "collider": {
+    "shape": "capsule",
+    "center": [0, 1.75, 0],
+    "radius": 1.4,
+    "height": 4.1001
+  }
+}

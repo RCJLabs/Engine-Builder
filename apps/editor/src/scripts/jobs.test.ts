@@ -8,6 +8,7 @@ import type { SentFile } from './protocol.ts';
 const ROOT = resolve(import.meta.dirname, '../../../..');
 const HOLD = join(ROOT, 'tools/cli/test/fixtures/hold');
 const HANGAR = join(ROOT, 'tools/cli/test/fixtures/hangar');
+const POST = join(ROOT, 'tools/cli/test/fixtures/post');
 const CLI = join(ROOT, 'tools/cli/src/cli.ts');
 
 /** A folder's files as the page sends them, paths from its root. */
@@ -82,6 +83,16 @@ describe('Run in the worker', () => {
     expect(cli.status).toBe(0);
     expect(played).toEqual({ kind: 'played', ok: true, lines: cli.stdout.trimEnd().split('\n') });
   });
+
+  it('plays a walked game with eb sim’s stage, its containers the pack’s (M6.9)', async () => {
+    const played = await playJob(folderFiles(POST), 10, 'random');
+    const cli = spawnSync(process.execPath, [CLI, 'sim', POST, '--seeds', '10'], { encoding: 'utf8' });
+    expect(cli.status).toBe(0);
+    expect(played).toEqual({ kind: 'played', ok: true, lines: cli.stdout.trimEnd().split('\n') });
+    expect(played.kind === 'played' && played.lines[0]).toBe(
+      'post: 10 runs with the random policy and the walk stage, at most 1000 turns each.',
+    );
+  }, 60_000);
 
   it('names the bots there are when asked for another', async () => {
     await expect(playJob(hold(), 5, 'lazy')).rejects.toThrow('No bot "lazy": this game has random, greedy');

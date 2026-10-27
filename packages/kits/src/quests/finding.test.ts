@@ -98,6 +98,7 @@ function cavesWith(quests: Record<string, object>, places: WorldPlaces = PLACES)
     step,
     apply: (state: GameState, ...effects: Effect[]) => step(state, { type: 'test/do', effects }),
     tryApply: (state: GameState, ...effects: Effect[]) => game.reduce(state, { type: 'test/do', effects }, sim),
+    canStart: (state: GameState, quest: string) => game.fact(state, 'quests.can-start', { quest }, sim),
     shown: (state: GameState, quest: string) =>
       game.preview(state, [{ effect: 'start-quest', quest }], sim)[0] as unknown as {
         log?: string[];
@@ -217,6 +218,39 @@ describe('slots that find in the world', () => {
     }
     const only = caves.apply(caves.apply(caves.start(), start('visit')), start('visit'));
     expect(slotsOf(only, 'visit')).toEqual({ cave: 'den' });
+  });
+
+  it('says whether start-quest would start a quest now, its slots found (quests.can-start, M6.9)', () => {
+    const fetch = {
+      name: 'Fetch',
+      repeats: true,
+      slots: [
+        { id: 'cave', type: 'space', tags: ['cave'] },
+        { id: 'cache', type: 'object', in: '@cave', tags: ['cache'] },
+      ],
+      stages: [stage],
+    };
+    // With no objectives, each is done as it starts: one repeats and one doesn't.
+    const again = {
+      name: 'Again',
+      repeats: true,
+      slots: [{ id: 'cave', type: 'space', tags: ['cave'] }],
+      stages: [{ id: 'go', log: 'Go.' }],
+    };
+    const once = { name: 'Once', stages: [{ id: 'go', log: 'Go.' }] };
+    const caves = cavesWith({ again, fetch, once });
+    let state = caves.start();
+    expect(['again', 'fetch', 'once'].map((q) => caves.canStart(state, q))).toEqual([true, true, true]);
+    state = caves.apply(state, start('again'), start('once'));
+    expect(caves.canStart(state, 'again')).toBe(true);
+    expect(caves.canStart(state, 'once')).toBe(false);
+    expect(caves.canStart(caves.apply(state, start('fetch')), 'fetch')).toBe(false);
+    // Both caches taken: nothing left to fill its slots, and start-quest is refused as the fact says.
+    state = caves.step(caves.apply(state, into('barrow')), use('barrow', 'cache'));
+    state = caves.step(caves.apply(state, into('mine')), use('mine', 'stash/chest'));
+    expect(caves.canStart(state, 'fetch')).toBe(false);
+    expect(caves.tryApply(state, start('fetch')).accepted).toBe(false);
+    expect(caves.canStart(state, 'again')).toBe(true);
   });
 
   it('finds an actor placed In a space slot, by its placement’s tags, never one fallen', () => {

@@ -1,0 +1,62 @@
+{
+  "name": "The bandits",
+  "stages": [
+    {
+      "id": "woods",
+      "log": "Osric wants the bandits gone from the woods above the green.",
+      "objectives": [
+        {
+          "id": "brand",
+          "text": "Drive off Brand",
+          "done-when": "world.npc-down(actor: brand)",
+          "target": {
+            "actor": "brand"
+          }
+        },
+        {
+          "id": "fen",
+          "text": "Drive off Fen",
+          "done-when": "world.npc-down(actor: fen)",
+          "target": {
+            "actor": "fen"
+          }
+        }
+      ],
+      "next": "cave"
+    },
+    {
+      "id": "cave",
+      "log": "One more holes up in the cave under the hill.",
+      "objectives": [
+        {
+          "id": "gorm",
+          "text": "Drive off Gorm in the cave",
+          "done-when": "world.npc-down(actor: gorm)",
+          "target": {
+            "actor": "gorm"
+          }
+        }
+      ],
+      "next": "report"
+    },
+    {
+      "id": "report",
+      "log": "The woods and the cave are clear. Osric will want to know.",
+      "objectives": [
+        {
+          "id": "tell",
+          "text": "Tell Osric",
+          "done-when": "flag.on(told-reeve)",
+          "target": {
+            "actor": "osric"
+          }
+        }
+      ],
+      "next": "thanked"
+    },
+    {
+      "id": "thanked",
+      "log": "The hamlet is safe again."
+    }
+  ]
+}

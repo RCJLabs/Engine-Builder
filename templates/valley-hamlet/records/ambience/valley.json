@@ -1,0 +1,21 @@
+{
+  "name": "Valley air",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "pink",
+      "filter": "lowpass",
+      "frequency": 500,
+      "gain": 0.25,
+      "sway": 0.5
+    },
+    {
+      "kind": "noise",
+      "colour": "white",
+      "filter": "bandpass",
+      "frequency": 3200,
+      "gain": 0.05,
+      "sway": 0.9
+    }
+  ]
+}

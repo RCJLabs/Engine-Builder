@@ -1,0 +1,22 @@
+{
+  "name": "A bandit’s day",
+  "description": "Lounges about the den until alerted, and then attacks.",
+  "do": {
+    "first": [
+      {
+        "if": "ai.level(actor: @self) == alerted",
+        "do": {
+          "attack": "player"
+        }
+      },
+      {
+        "do": {
+          "sandbox": ["den-a", "den-b"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

@@ -15,7 +15,7 @@ import {
   sweep,
   withPackWorld,
 } from '@eb/core';
-import { kitMetrics, kitsInWorld } from '@eb/kits';
+import { kitMetrics, kitsInWorld, walkedStage } from '@eb/kits';
 import { compareDiagnostics, type Diagnostic } from '@eb/schema';
 import type { GameCatalog } from '@eb/script';
 import type { CheckResult, PlayResult, SentFile } from './protocol.ts';
@@ -53,7 +53,15 @@ export async function playJob(files: readonly SentFile[], seeds: number, policyN
   const sim = { content: createRecordStore(compiled.pack.records) };
   // The kits' metrics come after the game's own, as eb sim's do (M3.9).
   const all = [...metrics, ...kitMetrics(compiled.pack.project.kits ?? [], sim.content)];
-  const { report } = sweep(game, sim, { seeds: seedsOf(seeds, 'seed'), policy, maxTurns: MAX_TURNS, metrics: all });
+  // A walked game's bots play with eb sim's stage (M6.9, D81).
+  const stage = walkedStage(compiled.pack.project, world);
+  const { report } = sweep(game, sim, {
+    seeds: seedsOf(seeds, 'seed'),
+    policy,
+    maxTurns: MAX_TURNS,
+    metrics: all,
+    ...(stage ? { stage } : {}),
+  });
   return {
     kind: 'played',
     lines: formatSweep(compiled.pack.project.id, report, MAX_TURNS),

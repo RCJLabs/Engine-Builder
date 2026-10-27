@@ -69,11 +69,16 @@ export function walkSteer(page: Page, view: Locator, fingers: Awaited<ReturnType
     return { x: area.x + area.width * across, y: area.y + (bottom - area.y) * down };
   };
   return {
+    // A long turn as drags of 45° at most, each kept on the view, as a thumb lifts and goes again.
     turn: async (degrees) => {
-      const at = await onView(0.7, 0.3);
-      await fingers.press(2, at.x, at.y);
-      await fingers.slide(2, Math.round(-degrees / 0.3), 0);
-      await fingers.lift(2);
+      for (let left = degrees; Math.abs(left) >= 1; ) {
+        const step = Math.max(-45, Math.min(45, left));
+        const at = await onView(0.7, 0.3);
+        await fingers.press(2, at.x, at.y);
+        await fingers.slide(2, Math.round(-step / 0.3), 0);
+        await fingers.lift(2);
+        left -= step;
+      }
     },
     walk: async (ms) => {
       const at = await onView(0.25, 0.6);

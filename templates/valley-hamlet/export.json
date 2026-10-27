@@ -1,0 +1,15 @@
+{
+  "name": "The valley hamlet",
+  "short-name": "Hamlet",
+  "description": "Bandits in the woods above a hamlet, a reeve, a smith and a goatherd.",
+  "orientation": "any",
+  "colors": {
+    "background": "#14181a",
+    "theme": "#222a2c"
+  },
+  "targets": {
+    "web": {},
+    "file": {},
+    "itch": {}
+  }
+}

@@ -5,13 +5,21 @@
  * M3.10 (D48) fills a quest's slots as it starts, runs it again when it repeats, and seals its jobs.
  * M6.7 (D79) builds it with the pack's places, where its slots can find spaces and what is in them.
  */
-import { defineModule, type Module, type ModuleDef, NO_PLACES, type RecordStore, type WorldPlaces } from '@eb/core';
+import {
+  defineModule,
+  evaluate,
+  type Module,
+  type ModuleDef,
+  NO_PLACES,
+  type RecordStore,
+  type WorldPlaces,
+} from '@eb/core';
 import { own } from '../own.ts';
 import { facts, QUEST_ARG, TEXT } from './facts.ts';
 import { questShown } from './journal.ts';
 import { namedStage, questRecord } from './records.ts';
 import { fail } from './run.ts';
-import { hear, setStage, startQuest, startWaiting } from './start.ts';
+import { canStart, hear, setStage, startQuest, startWaiting } from './start.ts';
 import { track, withTracked } from './tracking.ts';
 import { QUEST, QUESTS, type QuestsSlice } from './types.ts';
 
@@ -47,7 +55,27 @@ export function questsModule(places: WorldPlaces = NO_PLACES): Module {
         if (questRecord(ctx.content, id)['at-start'] === true) startQuest(ctx, id);
       startWaiting(ctx);
     },
-    facts,
+    facts: {
+      ...facts,
+      // M6.9: whether start-quest would start it now, its slots found in the places.
+      'can-start': {
+        args: QUEST_ARG,
+        domain: { type: 'bool' },
+        label: 'can start',
+        describe: (test) => (test.op === undefined ? `${String(test.args?.quest)} can start` : undefined),
+        read: ({ content, state, fact }, { quest }) =>
+          canStart(
+            {
+              content,
+              places,
+              read: () => state,
+              fact,
+              check: (condition) => evaluate(condition, (test) => fact(test.fact, test.args)),
+            },
+            questKey(content, quest),
+          ),
+      },
+    },
     events,
     actions: {
       // The journal's Track (M6.6): outside play, so it takes no mode's leave and no bot takes it.

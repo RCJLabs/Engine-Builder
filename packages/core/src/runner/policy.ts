@@ -12,10 +12,14 @@ import type { Game } from '../sim/game.ts';
 import type { FactArgs } from '../sim/module.ts';
 import { matches } from '../sim/registry.ts';
 import type { Action, Effect, EffectPreview, GameState, ModeFrame, SimContext } from '../sim/types.ts';
+import { type Stage, stageOptions } from './stage.ts';
 
 /** What a policy sees when it is its turn to choose. */
 export interface Turn {
-  /** What the game offers now, from `game.options`. Never empty: a run ends when nothing is offered. */
+  /**
+   * What the game offers now, from `game.options`, then what a run's stage could send and the sim
+   * takes (M6.9). Never empty: a run ends when nothing is offered.
+   */
   readonly options: readonly Action[];
   /** The current mode, with its data: the screen the player is on. */
   readonly mode: ModeFrame;
@@ -33,9 +37,10 @@ export interface Turn {
 }
 
 /** The turn a policy gets in `state`: what playRun hands it, for tests and for a "suggest a move" button. */
-export function turnFor(game: Game, sim: SimContext, state: GameState, rng: Rng, turn = 0): Turn {
+export function turnFor(game: Game, sim: SimContext, state: GameState, rng: Rng, turn = 0, stage?: Stage): Turn {
+  const offered = game.options(state, sim);
   return {
-    options: game.options(state, sim),
+    options: stage === undefined ? offered : [...offered, ...stageOptions(stage, game, sim, state)],
     mode: state.kernel.modes[state.kernel.modes.length - 1] as ModeFrame,
     content: sim.content,
     fact: (id, args) => game.fact(state, id, args, sim),

@@ -2,20 +2,20 @@
  * The templates (M4.11, D61): each a small game New project starts from. eb validates each clean
  * and plays it to its golden runs; over those seeds, its own bot reaches every stage of every
  * quest and every ending, with no offer refused, so a template that changes stays one that plays.
+ * The 3D two (M6.9, D81) play through the headless stage, as eb sim plays them.
  */
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { compileWithGame, projectGame } from '@eb/compiler';
-import { createGame, createRecordStore, type ModeFrame, playRun } from '@eb/core';
-import { QUEST, type QuestRecord } from '@eb/kits';
+import { createGame, createRecordStore, type ModeFrame, playRun, withPackWorld } from '@eb/core';
+import { kitsInWorld, QUEST, type QuestRecord, walkedStage } from '@eb/kits';
 import { describe, expect, it } from 'vitest';
 import { folderSource } from '../src/folderSource.ts';
 
 const CLI = resolve(import.meta.dirname, '../src/cli.ts');
 const TEMPLATES = resolve(import.meta.dirname, '../../../templates');
-const SEEDS = 500;
 
 interface Listed {
   readonly id: string;
@@ -25,10 +25,22 @@ interface Listed {
 
 const LISTED = JSON.parse(readFileSync(join(TEMPLATES, 'templates.json'), 'utf8')) as Listed[];
 
-/** Each template's bot, and the modes its endings are. */
-const PLAYED: Readonly<Record<string, { readonly policy: string; readonly endings: readonly string[] }>> = {
-  'salvage-coast': { policy: 'skipper', endings: ['free', 'lost', 'seized'] },
-  'last-ferry': { policy: 'ferryman', endings: ['ashore'] },
+interface Played {
+  readonly policy: string;
+  /** The modes its endings are. */
+  readonly endings: readonly string[];
+  readonly seeds: number;
+}
+
+/**
+ * Each template's bot, its endings and its seeds: 500, but 200 for the hamlet, whose 500 took 31 s
+ * through the stage on the dev container (2026-10-26), and the test plays them twice.
+ */
+const PLAYED: Readonly<Record<string, Played>> = {
+  'salvage-coast': { policy: 'skipper', endings: ['free', 'lost', 'seized'], seeds: 500 },
+  'last-ferry': { policy: 'ferryman', endings: ['ashore'], seeds: 500 },
+  'valley-hamlet': { policy: 'wanderer', endings: ['ended'], seeds: 200 },
+  lighthouse: { policy: 'keeper', endings: ['lit'], seeds: 500 },
 };
 
 function eb(args: readonly string[]) {
@@ -41,8 +53,12 @@ async function load(folder: string) {
   const scripted = await projectGame(source);
   const compiled = await compileWithGame(source, scripted);
   if (scripted.kind !== 'loaded' || !compiled.pack) throw new Error(`${folder} does not load`);
-  const game = createGame({ modules: scripted.game.modules, start: scripted.game.start });
-  return { game, policies: scripted.game.policies ?? [], sim: { content: createRecordStore(compiled.pack.records) } };
+  const { world, project } = compiled.pack;
+  const modules = withPackWorld(kitsInWorld(scripted.game.modules, world), world);
+  const game = createGame({ modules, start: scripted.game.start });
+  const stage = walkedStage(project, world);
+  const sim = { content: createRecordStore(compiled.pack.records) };
+  return { game, policies: scripted.game.policies ?? [], sim, ...(stage ? { stage } : {}) };
 }
 
 it('lists every template there is, each with a title and a blurb', () => {
@@ -52,7 +68,7 @@ it('lists every template there is, each with a title and a blurb', () => {
 
 describe.each(LISTED.map((t) => t.id))('the %s template', (id) => {
   const folder = join(TEMPLATES, id);
-  const { policy, endings } = PLAYED[id] as (typeof PLAYED)[string];
+  const { policy, endings, seeds } = PLAYED[id] as Played;
   const golden = resolve(import.meta.dirname, `fixtures/${id}-${policy}.golden.json`);
 
   it('validates clean: no errors and no warnings', () => {
@@ -61,25 +77,29 @@ describe.each(LISTED.map((t) => t.id))('the %s template', (id) => {
     expect(checked.out).toMatch(/^\d+ records: no problems, hash [0-9a-f]{16}\.$/m);
   });
 
-  it(`plays ${SEEDS} seeds with its own bot to its golden runs, with no offer refused`, () => {
-    // The golden file holds its seeds and its policy: written with `--policy <bot> --seeds 500 --update`.
+  it(`plays ${seeds} seeds with its own bot to its golden runs, with no offer refused`, () => {
+    // The golden file holds its seeds and its policy: written with `--policy <bot> --seeds <n> --update`.
     const run = eb(['sim', folder, '--golden', golden]);
     expect(run.code, run.out + run.err).toBe(0);
-    expect(run.out).toContain(`Ends: ${SEEDS} ended`);
+    expect(run.out).toContain(`Ends: ${seeds} ended`);
     expect(run.out).toContain('Refused offers: none.');
-    expect(run.out.trim().split('\n').at(-1)).toBe(`All ${SEEDS} runs match ${golden}.`);
+    expect(run.out.trim().split('\n').at(-1)).toBe(`All ${seeds} runs match ${golden}.`);
   }, 60_000);
 
   it('reaches every stage of every quest, and every ending, over those seeds', async () => {
-    const { game, policies, sim } = await load(folder);
+    const { game, policies, sim, stage } = await load(folder);
     const bot = policies.find((p) => p.name === policy);
     if (!bot) throw new Error(`${id} has no policy "${policy}"`);
     const quests = sim.content.entries(QUEST) as [string, QuestRecord][];
     const stages = quests.flatMap(([quest, record]) => record.stages.map((stage) => `${quest}/${stage.id}`));
     const reached = new Set<string>();
     const ended = new Set<string>();
-    for (let seed = 1; seed <= SEEDS; seed++) {
-      const { state, end, refused } = playRun(game, sim, { seed: String(seed), policy: bot });
+    for (let seed = 1; seed <= seeds; seed++) {
+      const { state, end, refused } = playRun(game, sim, {
+        seed: String(seed),
+        policy: bot,
+        ...(stage ? { stage } : {}),
+      });
       expect({ seed, end, refused }).toEqual({ seed, end: 'ended', refused: [] });
       ended.add((state.kernel.modes.at(-1) as ModeFrame).id);
       for (const at of stages) {
@@ -108,6 +128,17 @@ describe('eb new', () => {
     expect(readFileSync(join(folder, 'scripts/harbour.ts'), 'utf8')).toBe(
       readFileSync(join(TEMPLATES, 'salvage-coast/scripts/harbour.ts'), 'utf8'),
     );
+    expect(eb(['validate', folder]).out).toMatch(/: no problems, hash /);
+  });
+
+  it('writes a 3D template’s models and navmeshes byte for byte (M6.9)', () => {
+    const folder = join(made(), 'beacon');
+    expect(eb(['new', folder, '--template', 'valley-hamlet', '--name', 'Beacon Fell']).code).toBe(0);
+    for (const file of ['assets/starter-kit/oak.glb', 'spaces/green.nav', 'spaces/cave.nav']) {
+      expect(readFileSync(join(folder, file)).equals(readFileSync(join(TEMPLATES, 'valley-hamlet', file))), file).toBe(
+        true,
+      );
+    }
     expect(eb(['validate', folder]).out).toMatch(/: no problems, hash /);
   });
 

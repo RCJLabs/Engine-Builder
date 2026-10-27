@@ -1,0 +1,48 @@
+{
+  "title": "A talk",
+  "shows": ["talking"],
+  "modal": true,
+  "main": {
+    "widget": "stack",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{talk.speaker}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "{talk.text}"
+      },
+      {
+        "widget": "list",
+        "of": "talk",
+        "item": {
+          "widget": "button",
+          "label": "{.label}",
+          "detail": "{.odds}",
+          "action": {
+            "take": "entry"
+          }
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Go on",
+        "style": "primary",
+        "action": {
+          "take": "dialogue/go-on"
+        }
+      }
+    ]
+  },
+  "ambience": "valley"
+}

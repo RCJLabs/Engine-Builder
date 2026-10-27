@@ -1,0 +1,83 @@
+{
+  "title": "Make it yours",
+  "steps": [
+    {
+      "id": "name",
+      "title": "Name your game",
+      "text": "Its name is in the project’s settings. The title screen and an exported game show it.",
+      "open": {
+        "file": "project.json"
+      }
+    },
+    {
+      "id": "reeve",
+      "title": "Rewrite what Osric asks",
+      "text": "A talk is lines and the options under them. Change his request, or add an answer of your own.",
+      "open": {
+        "file": "records/talk/reeve.json",
+        "at": "/lines"
+      }
+    },
+    {
+      "id": "quest",
+      "title": "Change the main quest",
+      "text": "Each stage is what the journal says and what must be done before the next. The game ends when it’s done.",
+      "open": {
+        "file": "records/quest/bandits.json",
+        "at": "/stages"
+      }
+    },
+    {
+      "id": "camp",
+      "title": "Move the bandits’ camp",
+      "text": "The green opens in the Scene panel at the bandits’ fire. Drag it, and Brand and Fen, somewhere else, then bake its navigation again.",
+      "open": {
+        "file": "spaces/green.json",
+        "at": "/objects/25"
+      }
+    },
+    {
+      "id": "gorm",
+      "title": "Make the cave’s bandit tougher",
+      "text": "Gorm’s health and armour are his stats. What he wields is in his hand.",
+      "open": {
+        "file": "records/actor/gorm.json",
+        "at": "/stats"
+      }
+    },
+    {
+      "id": "smithy",
+      "title": "Change what Wenna trades",
+      "text": "She sells from her bag and pays from her purse. Her bench restocks bread each day.",
+      "open": {
+        "file": "records/actor/wenna.json",
+        "at": "/carries"
+      }
+    },
+    {
+      "id": "job",
+      "title": "Give Wenna’s job another cave",
+      "text": "Supplies finds the nearest space tagged cave and an object in it tagged cache. Tag another space cave and it can send you there.",
+      "open": {
+        "file": "records/quest/supplies.json",
+        "at": "/slots"
+      }
+    },
+    {
+      "id": "colours",
+      "title": "Recolour it",
+      "text": "Six colours, a typeface and a size are the whole theme.",
+      "open": {
+        "file": "ui/theme.json"
+      }
+    },
+    {
+      "id": "play",
+      "title": "Play it",
+      "text": "Play it in the Play panel, then export it from the Project panel.",
+      "open": {
+        "panel": "play"
+      }
+    }
+  ]
+}

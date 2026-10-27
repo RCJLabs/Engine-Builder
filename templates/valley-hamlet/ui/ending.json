@@ -1,0 +1,54 @@
+{
+  "title": "The end",
+  "shows": ["ended"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "The valley hamlet",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The green sleeps easy again.",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Coin {economy.amount(resource: coin)} · Supplies brought {quests.times(quest: supplies, state: done)}"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  }
+}

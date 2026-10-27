@@ -1,0 +1,23 @@
+{
+  "name": "Edda with her goats",
+  "speaker": "edda",
+  "starts": [
+    {
+      "if": "quests.state(quest: bandits) == done",
+      "line": "after"
+    },
+    {
+      "line": "before"
+    }
+  ],
+  "lines": [
+    {
+      "id": "before",
+      "text": "The goats won’t go up to the high grass while those men are in the woods. Neither will I."
+    },
+    {
+      "id": "after",
+      "text": "The goats are up on the high grass again. Osric says it was you. Thank you."
+    }
+  ]
+}

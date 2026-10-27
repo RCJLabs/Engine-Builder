@@ -1,0 +1,81 @@
+{
+  "title": "Make it yours",
+  "steps": [
+    {
+      "id": "name",
+      "title": "Name your game",
+      "text": "Its name is in the project’s settings. The title screen and an exported game show it.",
+      "open": {
+        "file": "project.json"
+      }
+    },
+    {
+      "id": "log",
+      "title": "Rewrite the keeper’s log",
+      "text": "The logbook is an ink scene. Its last choice sets the flag the lamp waits for.",
+      "open": {
+        "file": "scenes/logbook.ink"
+      }
+    },
+    {
+      "id": "quest",
+      "title": "Change what lighting the lamp takes",
+      "text": "Each stage is what the journal says, what must be done, and where its marker points.",
+      "open": {
+        "file": "records/quest/light.json",
+        "at": "/stages"
+      }
+    },
+    {
+      "id": "chest",
+      "title": "Put something else in the chest",
+      "text": "The keeper’s room opens at the chest. What it holds is on its Interact.",
+      "open": {
+        "file": "spaces/room.json",
+        "at": "/objects/13"
+      }
+    },
+    {
+      "id": "lock",
+      "title": "Change what opens the store",
+      "text": "The store door opens only when its When holds. Make it need something else.",
+      "open": {
+        "file": "spaces/room.json",
+        "at": "/objects/15"
+      }
+    },
+    {
+      "id": "rock",
+      "title": "Build on the rock",
+      "text": "The rock opens in the Scene panel. Add starter kit pieces, or move the landing.",
+      "open": {
+        "file": "spaces/rock.json",
+        "at": "/objects/2"
+      }
+    },
+    {
+      "id": "night",
+      "title": "Change the night",
+      "text": "The hour, the sky and the fog are the night’s environment.",
+      "open": {
+        "file": "records/environment/night.json"
+      }
+    },
+    {
+      "id": "colours",
+      "title": "Recolour it",
+      "text": "Six colours, a typeface and a size are the whole theme.",
+      "open": {
+        "file": "ui/theme.json"
+      }
+    },
+    {
+      "id": "play",
+      "title": "Play it",
+      "text": "Play it in the Play panel, then export it from the Project panel.",
+      "open": {
+        "panel": "play"
+      }
+    }
+  ]
+}
