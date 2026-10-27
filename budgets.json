@@ -32,10 +32,10 @@
       "of": "zlib's gzip at level 9 of runtime/nav.js (M6.2): Recast and Detour through recast-navigation-js, their wasm inline, loaded beside walk.js only for a space with a navmesh, and by Bake navigation's worker"
     },
     "stage2d": {
-      "budget": 9387,
-      "reading": 8940,
+      "budget": 14085,
+      "reading": 13414,
       "read": "2026-10-27",
-      "of": "zlib's gzip at level 9 of runtime/stage2d.js (M7.1): the 2D stage on a Canvas 2D, its sheets decoded by the browser, the walkers, the clock and the uses' buttons, with none of the schemas; loaded only for a 2D space, in place of walk.js; re-read at M7.2, which draws tilemaps autotiled and walks the walkers along core's routes over the tiles, with about 5% room again; re-read at M7.3, which draws buildings, rooms and ladders and walks the walkers up and down their stairs by core's route, with about 5% room again"
+      "of": "zlib's gzip at level 9 of runtime/stage2d.js (M7.1): the 2D stage on a Canvas 2D, its sheets decoded by the browser, the walkers, the clock and the uses' buttons, with none of the schemas; loaded only for a 2D space, in place of walk.js; re-read at M7.2, which draws tilemaps autotiled and walks the walkers along core's routes over the tiles, with about 5% room again; re-read at M7.3, which draws buildings, rooms and ladders and walks the walkers up and down their stairs by core's route, with about 5% room again; re-read at M7.4, which carries a stage's code drawer and its worker inlined (the worker runs the stage's compiled TypeScript on an OffscreenCanvas; the page passes input and places the uses' buttons), with about 5% room again"
     },
     "precache": {
       "budget": 15380766,
