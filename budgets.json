@@ -31,6 +31,12 @@
       "read": "2026-10-25",
       "of": "zlib's gzip at level 9 of runtime/nav.js (M6.2): Recast and Detour through recast-navigation-js, their wasm inline, loaded beside walk.js only for a space with a navmesh, and by Bake navigation's worker"
     },
+    "stage2d": {
+      "budget": 6180,
+      "reading": 5885,
+      "read": "2026-10-27",
+      "of": "zlib's gzip at level 9 of runtime/stage2d.js (M7.1): the 2D stage on a Canvas 2D, its sheets decoded by the browser, the walkers, the clock and the uses' buttons, with none of the schemas; loaded only for a 2D space, in place of walk.js"
+    },
     "precache": {
       "budget": 15380766,
       "reading": 14655351,
