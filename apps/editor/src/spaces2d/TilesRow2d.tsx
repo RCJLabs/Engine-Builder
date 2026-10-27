@@ -37,8 +37,8 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
   return (
     <fieldset class="scene-toolbar tiles-row">
       <legend class="visually-hidden">Tiles</legend>
-      <label class="scene-step" for={layerId}>
-        Layer
+      <span class="scene-step">
+        <label for={layerId}>Layer</label>
         <select
           id={layerId}
           class="form-select"
@@ -53,7 +53,7 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
             </option>
           ))}
         </select>
-      </label>
+      </span>
       {tileset ? (
         <TileButtons project={project} tileset={tileset} />
       ) : (
@@ -86,8 +86,8 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
       >
         Edges
       </button>
-      <label class="scene-step" for={kindId}>
-        Edge
+      <span class="scene-step">
+        <label for={kindId}>Edge</label>
         <select
           id={kindId}
           class="form-select"
@@ -103,7 +103,7 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
             </option>
           ))}
         </select>
-      </label>
+      </span>
       <button
         type="button"
         class="button"

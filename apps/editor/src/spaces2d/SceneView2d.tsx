@@ -87,6 +87,8 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
   }, [space]);
   // The tilemap chosen alone (M7.2): what the Tiles row paints, and what Show rules draws over.
   const mapId = ids.length === 1 && tilemapOf(space, ids[0] as string) ? (ids[0] as string) : null;
+  // Read in render, so a press of Show rules draws the view again.
+  const rules = showRules.value;
   const placed = useMemo(() => Object.fromEntries(prefabs), [prefabs]);
   const shown = useMemo(() => {
     const moved = moving ? placeObjects(space, movedBy(space, ids, moving)) : space;
@@ -149,7 +151,7 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
       still: true,
       backdrop,
     });
-    const mapItem = mapId && showRules.value ? items.find((i) => i.path === mapId) : undefined;
+    const mapItem = mapId && rules ? items.find((i) => i.path === mapId) : undefined;
     const tileset = mapItem?.look.kind === 'tilemap' ? sheets.tileset?.(mapItem.look.map.tileset) : undefined;
     if (mapItem?.look.kind === 'tilemap' && tileset)
       drawRules(ctx, mapItem.look.map, tileset.record, mapItem.at, viewCorner(view.centre, art), art[1]);
