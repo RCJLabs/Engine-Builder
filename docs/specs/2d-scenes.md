@@ -22,7 +22,7 @@ A sprite is an engine record type, like a model:
 ```json
 {
   "name": "Guard",
-  "sheet": "assets/sprites/figure-guard.png",
+  "sheet": "starter-sprites/figure-guard.png",
   "frame": [16, 24],
   "origin": [8, 0],
   "clips": {
@@ -33,7 +33,7 @@ A sprite is an engine record type, like a model:
 }
 ```
 
-- **The sheet** is a PNG among the project's assets, cut into frames of `frame` pixels, numbered across and then down from 0.
+- **The sheet** is a PNG among the project's assets, named from `assets/` as a model's file is, cut into frames of `frame` pixels, numbered across and then down from 0.
 - **`origin`** is the frame's pixel that stands at the object's `at`: its bottom centre if left out.
 - **A clip** is a run of frames, `[first, last]`, played at `fps` (1 to 60) and looping unless `loop` is false, when it holds its last frame. `clip` is the one played when nothing names another: the first clip if left out.
 - **E091** is a sprite that can't be drawn as written: a sheet missing or not a PNG; a sheet not a whole number of frames across and down; a clip running past the sheet; a clip named that the sprite doesn't have. The compiler reads only the PNG's header for its size, as it does a terrain's.

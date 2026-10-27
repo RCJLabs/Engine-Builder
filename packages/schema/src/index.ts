@@ -191,6 +191,16 @@ export {
   SchemaError,
 } from './recordType.ts';
 export { REF_KEY, type RefTarget, ref, refAny } from './refs.ts';
+export {
+  checkSprite,
+  defaultClipOf,
+  FPS_MOST,
+  SPRITE,
+  SPRITE_DATA,
+  SPRITE_TYPE_FILE,
+  type SpriteClip,
+  type SpriteRecord,
+} from './spriteTypes.ts';
 export { calendarSchema, cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';
 export { timeEffectFiles } from './timeEffects.ts';
 export {

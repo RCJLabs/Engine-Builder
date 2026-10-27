@@ -149,6 +149,7 @@ export {
   readSpaces,
   type SpaceFileRead,
 } from './spaces.ts';
+export { checkSprites, framesOf, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';

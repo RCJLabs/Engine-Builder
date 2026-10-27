@@ -35,6 +35,7 @@ import { checkModel, MODEL, type ModelRecord } from './modelTypes.ts';
 import { checkCounts } from './questCheck.ts';
 import type { RecordType } from './recordType.ts';
 import { checkSheet } from './sheetCheck.ts';
+import { checkSprite, SPRITE, type SpriteRecord } from './spriteTypes.ts';
 import { checkTargets } from './targetCheck.ts';
 import { checkEnterSpace, checkWalkTo, type SpaceSpawns, type Walkers } from './worldCheck.ts';
 import type { SpaceTags } from './worldSlots.ts';
@@ -207,6 +208,7 @@ export function validateRecords(
     if (record.type === FLAG && sound) flags.declare(record.id, record.value as FlagRecord, report);
     if (record.type === ENVIRONMENT && sound) checkEnvironment(record.value as EnvironmentRecord, report);
     if (record.type === MODEL && sound) checkModel(record.value as ModelRecord, report);
+    if (record.type === SPRITE && sound) checkSprite(record.value as SpriteRecord, report);
     if (record.type === FOLIAGE && sound) checkFoliage(record.value as FoliageRecord, report);
     if (record.type === ANIMATOR && sound) {
       checkAnimator(record.value as AnimatorRecord, report);
