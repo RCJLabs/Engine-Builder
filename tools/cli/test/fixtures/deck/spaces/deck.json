@@ -1,35 +1,22 @@
 {
   "name": "The boarding deck",
   "view": "2d",
-  "fit": [
-    208,
-    112
-  ],
-  "size": [
-    208,
-    112
-  ],
+  "fit": [208, 112],
+  "size": [208, 112],
   "backdrop": "#0a0b14",
   "objects": [
     {
       "id": "stars",
       "name": "Stars",
       "shape": "box",
-      "at": [
-        0,
-        16,
-        -100
-      ],
+      "at": [0, 16, -100],
       "color": "#0a0b14",
       "components": {
         "sprite": {
           "sprite": "sky-stars"
         },
         "parallax": {
-          "factor": [
-            0.25,
-            0.25
-          ],
+          "factor": [0.25, 0.25],
           "repeat": true
         }
       }
@@ -38,29 +25,16 @@
       "id": "deck",
       "name": "The ship's deck",
       "shape": "box",
-      "at": [
-        16,
-        16,
-        0
-      ],
+      "at": [16, 16, 0],
       "color": "#3b3c4f",
       "components": {
         "tilemap": {
           "tileset": "deck",
-          "size": [
-            11,
-            5
-          ],
+          "size": [11, 5],
           "layers": [
             {
               "id": "deck",
-              "rows": [
-                "   hh....",
-                " #.....#..c",
-                " #.........",
-                " #.H.aac%.c",
-                " #."
-              ]
+              "rows": ["   hh....", " #.....#..c", " #.........", " #.H.aac%.c", " #."]
             }
           ],
           "edges": [
@@ -83,93 +57,57 @@
       "id": "bridge",
       "name": "The bridge",
       "shape": "box",
-      "at": [
-        168,
-        72,
-        1
-      ],
+      "at": [168, 72, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "engines",
       "name": "The engines",
       "shape": "box",
-      "at": [
-        56,
-        72,
-        1
-      ],
+      "at": [56, 72, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "quarters",
       "name": "The quarters",
       "shape": "box",
-      "at": [
-        168,
-        40,
-        1
-      ],
+      "at": [168, 40, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "hold",
       "name": "The hold",
       "shape": "box",
-      "at": [
-        104,
-        88,
-        1
-      ],
+      "at": [104, 88, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "airlock-1",
       "name": "The airlock",
       "shape": "box",
-      "at": [
-        104,
-        40,
-        1
-      ],
+      "at": [104, 40, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "airlock-2",
       "name": "The airlock",
       "shape": "box",
-      "at": [
-        120,
-        40,
-        1
-      ],
+      "at": [120, 40, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "hatch",
       "name": "The hatch",
       "shape": "box",
-      "at": [
-        104,
-        33,
-        1
-      ],
+      "at": [104, 33, 1],
       "color": "#3b3c4f"
     },
     {
       "id": "alarm",
       "name": "The alarm",
       "shape": "box",
-      "at": [
-        184,
-        70,
-        2
-      ],
-      "scale": [
-        4,
-        4,
-        1
-      ],
+      "at": [184, 70, 2],
+      "scale": [4, 4, 1],
       "color": "#7d2233",
       "components": {
         "interact": {
@@ -187,20 +125,12 @@
     {
       "id": "ines",
       "record": "actor:ines",
-      "at": [
-        168,
-        72,
-        3
-      ]
+      "at": [168, 72, 3]
     },
     {
       "id": "oren",
       "record": "actor:oren",
-      "at": [
-        168,
-        40,
-        3
-      ]
+      "at": [168, 40, 3]
     }
   ]
 }

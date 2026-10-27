@@ -11,10 +11,7 @@
       },
       {
         "do": {
-          "patrol": [
-            "bridge",
-            "engines"
-          ],
+          "patrol": ["bridge", "engines"],
           "dwell": {
             "minutes": 10
           }

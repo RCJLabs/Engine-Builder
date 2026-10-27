@@ -11,10 +11,7 @@
       },
       {
         "do": {
-          "patrol": [
-            "quarters",
-            "hold"
-          ],
+          "patrol": ["quarters", "hold"],
           "dwell": {
             "minutes": 10
           }

@@ -1,8 +1,6 @@
 {
   "title": "The boarding deck",
-  "shows": [
-    "shift"
-  ],
+  "shows": ["shift"],
   "top": {
     "widget": "stack",
     "direction": "row",
