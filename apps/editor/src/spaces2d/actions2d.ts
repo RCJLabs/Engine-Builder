@@ -19,11 +19,12 @@ export type Added2d =
   | { readonly record: string }
   | { readonly mark: true };
 
+/** An object is a shape, a prefab or a record (E058): a sprite is drawn over its box, which a mark is alone. */
 function baseOf(what: Added2d): SpaceObject {
-  if ('sprite' in what) return { id: what.sprite, components: { sprite: { sprite: what.sprite } } };
+  if ('sprite' in what) return { id: what.sprite, shape: 'box', components: { sprite: { sprite: what.sprite } } };
   if ('prefab' in what) return { id: what.prefab, prefab: what.prefab };
   if ('record' in what) return { id: what.record.slice(what.record.indexOf(':') + 1), record: what.record };
-  return { id: 'mark' };
+  return { id: 'mark', shape: 'box' };
 }
 
 /** Put in the middle of the view at depth 0, at whole pixels, and chosen. */
