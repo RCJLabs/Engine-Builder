@@ -1,0 +1,7 @@
+{
+  "name": "Hal of the watch",
+  "description": "Between the watch room and the barracks.",
+  "sprite": "figure-guard",
+  "speed": 16,
+  "behaviour": "hal"
+}

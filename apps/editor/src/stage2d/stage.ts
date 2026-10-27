@@ -3,7 +3,8 @@
  * box, its clips playing on the page's clock, its figures walked to the marks the sim sends them to
  * and their arrivals told back, its uses as buttons over their sprites, and the game's clock run as
  * it is shown, as the 3D walk does. stage2d.js carries it; the hosts load it for a 2D space. Since
- * M7.2 a space's tilemap is drawn and its walkers route round its walls.
+ * M7.2 a space's tilemap is drawn and its walkers route round its walls; since M7.3 a building is drawn
+ * and its walkers climb its stairs.
  */
 import type { SpaceJson } from '@eb/compiler';
 import type { PackWorld } from '@eb/core';
@@ -11,6 +12,7 @@ import type { NpcGoal, SpaceAsk, SpaceDrawn } from '@eb/ui';
 import { createGameClock } from '../walk/gameClock.ts';
 import { createNpcTell } from '../walk/npcTell.ts';
 import { createOutbox } from '../walk/outbox.ts';
+import { buildingPieces } from './building2d.ts';
 import { type Drawn, drawFrame } from './draw.ts';
 import { publishHook } from './hook.ts';
 import { worldBox } from './place.ts';
@@ -33,11 +35,13 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   let items = sceneOf(space, world.prefabs, record, taken);
   const places = placesOf(space, world.prefabs);
   const tiles = world.tiles?.[ask.space];
+  const building = world.buildings?.[ask.space];
+  const ground = { ...(tiles ? { tiles } : {}), ...(building ? { building } : {}) };
   const { fit, size, start, backdrop } = spaceStart(space, items, sheets, ask);
 
   const outbox = createOutbox((action) => ask.send(action));
   const speedOf = (actor: string) => (record(`actor:${actor}`) as { speed?: unknown } | undefined)?.speed;
-  const walkers = walkersOf(items, speedOf, ask.npcs, places, tiles);
+  const walkers = walkersOf(items, speedOf, ask.npcs, places, ground);
   const arrivals = new Map<string, string>();
   const tell = createNpcTell(ask, outbox, (actor, goal) => {
     if (arrivals.get(actor) === goal) arrivals.delete(actor);
@@ -133,7 +137,14 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
         moving: w.moving,
         flip: w.flip,
         ...(w.route ? { route: w.route.map(([c, r]) => [c, r] as const) } : {}),
+        ...(w.floors ? { floors: w.floors.map(([f, x]) => [f, x] as const) } : {}),
       })),
+    building: () => {
+      const item = building ? items.find((i) => i.path === building.object) : undefined;
+      if (!building || !item || item.look.kind !== 'building') return undefined;
+      const pieces = buildingPieces(item.look, item.at, (id) => sheets.record(id));
+      return { path: item.path, at: building.at, slot: building.slot, pieces };
+    },
     tilemap: () => {
       const item = tiles ? items.find((i) => i.path === tiles.object) : undefined;
       const tileset = item?.look.kind === 'tilemap' ? sheets.tileset?.(item.look.map.tileset) : undefined;
@@ -173,7 +184,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     npcs(next: Readonly<Record<string, NpcGoal>>) {
       for (const [actor, told] of Object.entries(next)) {
         const walker = walkers.get(actor);
-        if (walker) sendTo(walker, told, places, tiles);
+        if (walker) sendTo(walker, told, places, ground);
       }
     },
     stop() {

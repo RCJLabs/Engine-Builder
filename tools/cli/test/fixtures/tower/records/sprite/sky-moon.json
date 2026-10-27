@@ -1,0 +1,17 @@
+{
+  "name": "Moon",
+  "sheet": "starter-sprites/sky-moon.png",
+  "frame": [
+    24,
+    24
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

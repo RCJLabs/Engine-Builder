@@ -2603,6 +2603,41 @@ Evan chose on 2026-10-27, from these options:
 - **Map text is two characters a tile,** wider than the rows a plain grid would take; the editor's forms and the import hide it, and the tiles themselves are one character each.
 - **Untested for feel** until the deck is seen on a phone.
 
+### D85. Side-view rooms are a building component of a 2D space: floors of equal slots counted from the ground, rooms that span one slot or more, stairs placed by the author between floors, and walkers routed through the stairs in whole numbers; the keep seen side on is the demo. LOCKED, 2026-10-27 (Evan's calls, M7.3)
+
+Evan chose on 2026-10-27, from these options:
+- **Demo:** the keep in side view; a Space-Wrecked ship in cross-section; or a Dirtbag climbing hut.
+- **Room width:** slots, a room spanning one or more; one slot a room; or any width in pixels.
+- **Stairs:** their own kind, placed by the author; a room kind that takes a slot; or at both ends of every floor.
+- **Who builds:** the editor only for now; or players too, in play, with costs.
+
+**Decision.**
+- **The demo is the keep seen side on:** its floors and rooms inside, drawn fresh in the starter sprites' palette, with its folk climbing between them. afterglass's keep is the model (docs/research/rooms.md); none of its art or text is copied.
+- **Floors have equal slots, and a room spans one slot or more.** A hall can take a whole floor while a store takes one slot, without free widths that would need overlap and gap checks.
+- **Stairs are their own kind,** placed by the author at an `x` between a floor and the one above, and take no slot, as afterglass's ladders don't.
+- **Building is the editor's for now.** Rooms raised in play, with costs and rules as data, are M7.5's base builder kit.
+
+**Also settled, as the session's calls** (2026-10-27, engineering calls that follow from the above and from docs/research/rooms.md):
+- **A building is a component** of an object in a 2D space: the slot's width and the floor's height in art pixels, slots a floor, floors, its rooms (an id, a room record, a floor, a first slot and a span), its stairs (a floor and an `x`), the stairs' sprite and a climb's cost. One a space, and not beside a tilemap: a walker follows one ground.
+- **A room is an engine record type,** like a sprite and a tileset: a name and a sprite drawn across it. What a room does (workers, costs, what may stand beside it) is the kits'.
+- **Floors count from the ground up.** afterglass counts from the top and renumbers every floor when one is built; counting up, a floor added on top renumbers nothing a save or a quest names.
+- **Routes are afterglass's,** ported to the pure core in whole numbers: Dijkstra over the start, both ends of every stair and the goal, walking costing the distance along a floor and a climb its cost, the floor's height unless the building says otherwise. Ties go to the lower-numbered point, so a route is the same every time. afterglass's wards and light are left to the kits that need them.
+- **The pack is format 19** once a space has a building: its geometry, its rooms by id, its stairs and where each object stands, worked out by the compiler, so the sim's fact and the stage's routes read the same building.
+- **One fact, `world.room`:** the room an object stands in, read as `world.sees` reads tiles: an actor where its NPC last arrived.
+- **Checks:** E094 for a building that doesn't fit itself; E058 for a building in a 3D space; W158 for a floor no stair reaches from the ground.
+
+**Why.**
+- **The keep** is the side view Evan's own game already has, so the model is tested against a design that plays.
+- **Slots** keep rooms aligned and the checks simple, and a span covers halls without a second shape.
+- **Stairs placed by the author** keep the walls of rooms whole and let a building choose its own climbs.
+- **Editor only** keeps M7.3 to geometry and routes; costs and rules belong with the kit that sells them.
+
+**Cost.**
+- **A third engine record type for 2D** and a pack format.
+- **Straight ladders only:** stairs with a run and lifts are open questions in the spec.
+- **No doors between rooms:** walkers cross any room on a floor.
+- **Untested for feel** until the keep is seen on a phone.
+
 ---
 
 ## Open

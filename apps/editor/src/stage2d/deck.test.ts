@@ -78,7 +78,7 @@ function deck() {
   const tell = () => {
     for (const [actor, walker] of walkers) {
       const before = walker.route;
-      sendTo(walker, play.view.world?.npcs?.[actor], places, tiles);
+      sendTo(walker, play.view.world?.npcs?.[actor], places, { tiles });
       if (walker.route && walker.route !== before) routes.push(walker.route);
     }
   };

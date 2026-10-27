@@ -2,13 +2,15 @@
  * The starter sprites' files (M7.1, D83, docs/specs/2d-scenes.md#the-starter-sprite-kit), as a
  * project folder: each sheet a PNG under assets/starter-sprites/, its sprite record with its frame,
  * origin and clips, and the provenance log that says they are RCJLabs's, dedicated to CC0. Since
- * M7.2 the deck's tileset too (tiles.ts), its sheet beside the sprites'.
+ * M7.2 the deck's tileset too (tiles.ts), its sheet beside the sprites'; since M7.3 the keep's rooms
+ * (rooms.ts), each a sprite and a room record, and a ladder for stairs.
  */
 import type { SpriteClip, SpriteRecord } from '@eb/schema';
 import { FIGURE_CLIPS, figureSheet, LOOKS } from './figures.ts';
 import { battlementSheet, gateSheet, towerSheet, wallSheet, windowSheet } from './keep.ts';
 import { bannerSheet, bellSheet, torchSheet } from './props.ts';
 import type { Sheet } from './raster.ts';
+import { ladderSheet, ROOMS, roomSheet } from './rooms.ts';
 import { moonSheet, ridgeFarSheet, ridgeNearSheet, skySheet, starsSheet } from './sky.ts';
 import { deckSheet, deckTileset } from './tiles.ts';
 
@@ -50,6 +52,14 @@ export const MADE: readonly Made[] = [
   { id: 'sky-moon', name: 'Moon', sheet: moonSheet, clips: STILL },
   { id: 'ridge-far', name: 'Far ridge', sheet: ridgeFarSheet, clips: STILL },
   { id: 'ridge-near', name: 'Near ridge', sheet: ridgeNearSheet, clips: STILL },
+  // M7.3: the keep's rooms, and the ladder its stairs are drawn with.
+  ...Object.entries(ROOMS).map(([id, art]) => ({
+    id: `room-${id}`,
+    name: art.name,
+    sheet: () => roomSheet(art),
+    clips: art.frames === 2 ? { flicker: { frames: [0, 1] as [number, number], fps: 4 } } : STILL,
+  })),
+  { id: 'ladder', name: 'Ladder', sheet: ladderSheet, clips: STILL },
 ];
 
 /** The tilesets (M7.2), by id: each sheet's file is `<id>-tiles.png`. */
@@ -76,6 +86,8 @@ export function makeSprites(): SpriteFile[] {
     files.push({ path: `assets/${tilesetSheet(id)}`, bytes: sheet().png() });
     files.push({ path: `records/tileset/${id}.json`, bytes: json(deckTileset(tilesetSheet(id))) });
   }
+  for (const [id, art] of Object.entries(ROOMS))
+    files.push({ path: `records/room/${id}.json`, bytes: json({ name: art.name, sprite: `room-${id}` }) });
   const entry = {
     licence: 'CC0-1.0',
     author: 'RCJLabs',

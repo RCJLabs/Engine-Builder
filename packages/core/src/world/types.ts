@@ -5,6 +5,7 @@
 import type { Condition } from '../logic/types.ts';
 import type { Effect } from '../sim/types.ts';
 import type { WorldPlaces } from './places.ts';
+import type { PackBuilding } from './rooms/building.ts';
 import type { PackTiles } from './tiles/grid.ts';
 
 /** The world module's id, and its slice's key. */
@@ -56,6 +57,8 @@ export interface WorldData {
   readonly places?: WorldPlaces;
   /** M7.2 (D84): each space's tilemap, whose sight and cover the facts read. */
   readonly tiles?: Readonly<Record<string, PackTiles>>;
+  /** M7.3 (D85): each space's building, whose rooms the facts read. */
+  readonly buildings?: Readonly<Record<string, PackBuilding>>;
 }
 
 /** Where the player stood as the stage last said: in a space, the feet's place and the way they faced. */

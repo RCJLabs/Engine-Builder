@@ -2,7 +2,7 @@
  * What a space's view draws (M7.1, D83, docs/specs/2d-scenes.md#a-2d-space): E058 for what a 2D
  * space has no use for (terrain, an environment, a cylinder or a plane, a scale that isn't whole, a
  * turn, water, a placed model) and for what only a 2D space draws (a fit, a size, a backdrop, a
- * sprite, a parallax layer, a tilemap since M7.2). Each object is held to its space's view as placed, through prefabs and
+ * sprite, a parallax layer, a tilemap since M7.2, a building since M7.3). Each object is held to its space's view as placed, through prefabs and
  * overrides: a prefab has no view of its own, so what one places is its space's to answer for.
  */
 import { type Diagnostic, MODEL, severityOf } from '@eb/schema';
@@ -19,7 +19,7 @@ function objectProblems(object: SpaceObject, flat: boolean): [string, string][] 
   const found: [string, string][] = [];
   const components = object.components ?? {};
   if (!flat) {
-    for (const kind of ['sprite', 'parallax', 'tilemap'])
+    for (const kind of ['sprite', 'parallax', 'tilemap', 'building'])
       if (isFields(components[kind])) found.push([`components/${kind}`, `Only a 2D space draws a ${kind}`]);
     return found;
   }

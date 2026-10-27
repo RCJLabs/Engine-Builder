@@ -1,0 +1,301 @@
+{
+  "name": "The tower at night",
+  "view": "2d",
+  "fit": [208, 176],
+  "size": [320, 176],
+  "backdrop": "#131a33",
+  "objects": [
+    {
+      "id": "sky",
+      "name": "The night sky",
+      "shape": "box",
+      "at": [0, 0, -100],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-night"
+        },
+        "parallax": {
+          "factor": [0, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "stars",
+      "name": "Stars",
+      "shape": "box",
+      "at": [0, 84, -90],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-stars"
+        },
+        "parallax": {
+          "factor": [0.05, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "moon",
+      "name": "The moon",
+      "shape": "box",
+      "at": [60, 150, -80],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-moon"
+        },
+        "parallax": {
+          "factor": [0.1, 1]
+        }
+      }
+    },
+    {
+      "id": "ridge-far",
+      "name": "The far ridge",
+      "shape": "box",
+      "at": [0, 40, -70],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "ridge-far"
+        },
+        "parallax": {
+          "factor": [0.3, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "ridge-near",
+      "name": "The near ridge",
+      "shape": "box",
+      "at": [0, 16, -60],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "ridge-near"
+        },
+        "parallax": {
+          "factor": [0.6, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "The ground",
+      "shape": "box",
+      "at": [160, -400, -10],
+      "scale": [640, 416, 1],
+      "color": "#0a0b14"
+    },
+    {
+      "id": "tower",
+      "name": "The tower",
+      "shape": "box",
+      "at": [112, 16, 0],
+      "color": "#3b3c4f",
+      "components": {
+        "building": {
+          "slot": [48, 32],
+          "slots": 2,
+          "floors": 4,
+          "rooms": [
+            {
+              "id": "crypt",
+              "room": "crypt",
+              "floor": 0,
+              "slot": 0
+            },
+            {
+              "id": "store",
+              "room": "store",
+              "floor": 0,
+              "slot": 1
+            },
+            {
+              "id": "hall",
+              "room": "hall",
+              "floor": 1,
+              "slot": 0,
+              "span": 2
+            },
+            {
+              "id": "barracks",
+              "room": "barracks",
+              "floor": 2,
+              "slot": 0
+            },
+            {
+              "id": "chapel",
+              "room": "chapel",
+              "floor": 2,
+              "slot": 1
+            },
+            {
+              "id": "watch",
+              "room": "watch",
+              "floor": 3,
+              "slot": 0,
+              "span": 2
+            }
+          ],
+          "stairs": [
+            {
+              "floor": 0,
+              "x": 12
+            },
+            {
+              "floor": 1,
+              "x": 84
+            },
+            {
+              "floor": 2,
+              "x": 12
+            }
+          ],
+          "stair": "ladder"
+        }
+      }
+    },
+    {
+      "id": "battlement-west",
+      "name": "The tower’s west battlement",
+      "shape": "box",
+      "at": [144, 144, 2],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "keep-battlement"
+        }
+      }
+    },
+    {
+      "id": "battlement-east",
+      "name": "The tower’s east battlement",
+      "shape": "box",
+      "at": [176, 144, 2],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "keep-battlement"
+        }
+      }
+    },
+    {
+      "id": "crypt",
+      "name": "The crypt’s door",
+      "shape": "box",
+      "at": [140, 16, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "chapel",
+      "name": "The chapel’s altar",
+      "shape": "box",
+      "at": [184, 80, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "barracks",
+      "name": "Edda’s bunk",
+      "shape": "box",
+      "at": [142, 80, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "barracks-b",
+      "name": "Hal’s bunk",
+      "shape": "box",
+      "at": [152, 80, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "watch-a",
+      "name": "The west window",
+      "shape": "box",
+      "at": [142, 112, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "watch-b",
+      "name": "The east window",
+      "shape": "box",
+      "at": [182, 112, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "hall-a",
+      "name": "The warden’s place at the table",
+      "shape": "box",
+      "at": [142, 48, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "hall-b",
+      "name": "Edda’s place at the table",
+      "shape": "box",
+      "at": [160, 48, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "hall-c",
+      "name": "Hal’s place at the table",
+      "shape": "box",
+      "at": [178, 48, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "wynn",
+      "record": "actor:wynn",
+      "at": [184, 80, 3]
+    },
+    {
+      "id": "edda",
+      "record": "actor:edda",
+      "at": [142, 80, 3]
+    },
+    {
+      "id": "hal",
+      "record": "actor:hal",
+      "at": [182, 112, 3]
+    },
+    {
+      "id": "bell",
+      "name": "The bell",
+      "shape": "box",
+      "at": [72, 16, 5],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "bell"
+        },
+        "interact": {
+          "label": "Ring the bell",
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "bell-rung",
+              "to": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "start",
+      "name": "Where the night is first seen",
+      "shape": "box",
+      "at": [160, 0, -20],
+      "color": "#0a0b14",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    }
+  ]
+}

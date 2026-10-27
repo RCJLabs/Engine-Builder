@@ -138,7 +138,7 @@ describe('a walker on a tilemap', () => {
 
   it('walks its route round the wall, tile centre to tile centre, then to the mark', () => {
     const walker = walkerOf('ines', [106, 20], 16, undefined);
-    sendTo(walker, { goal: 'right' }, places, TILES);
+    sendTo(walker, { goal: 'right' }, places, { tiles: TILES });
     expect(walker.route).toEqual([
       [0, 0],
       [0, 1],
@@ -161,7 +161,7 @@ describe('a walker on a tilemap', () => {
 
   it('carries what is left of a frame’s step past each tile centre', () => {
     const walker = walkerOf('ines', [106, 20], 1000, undefined);
-    sendTo(walker, { goal: 'right' }, places, TILES);
+    sendTo(walker, { goal: 'right' }, places, { tiles: TILES });
     expect(stepWalker(walker, 1)).toBe('right');
     expect(walker.at).toEqual([126, 26]);
   });
@@ -169,7 +169,7 @@ describe('a walker on a tilemap', () => {
   it('stays where it is, and never arrives, when no route reaches the mark', () => {
     const walled: PackTiles = { ...TILES, edges: edgesText(readEdges(['', ' .|.', '', ' .|.'], 2, 2), 2, 2) };
     const walker = walkerOf('ines', [106, 20], 16, undefined);
-    sendTo(walker, { goal: 'right' }, places, walled);
+    sendTo(walker, { goal: 'right' }, places, { tiles: walled });
     expect(walker.route).toBeUndefined();
     for (let i = 0; i < 20; i++) expect(stepWalker(walker, 0.1)).toBeUndefined();
     expect(walker.at).toEqual([106, 20]);
@@ -178,7 +178,7 @@ describe('a walker on a tilemap', () => {
   it('routes from where the sim says it stands when the stage starts mid-walk, as after a load', () => {
     const items = [{ actor: 'ines', at: [106, 20] as const }, { at: [0, 0] as const }];
     const told = { ines: { goal: 'right', feet: [106, 20, 0] as const } };
-    const walkers = walkersOf(items, () => 16, told, places, TILES);
+    const walkers = walkersOf(items, () => 16, told, places, { tiles: TILES });
     expect([...walkers.keys()]).toEqual(['ines']);
     expect(walkers.get('ines')?.route).toEqual([
       [0, 0],

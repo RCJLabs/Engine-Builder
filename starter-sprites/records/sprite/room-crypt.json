@@ -1,0 +1,17 @@
+{
+  "name": "Crypt",
+  "sheet": "starter-sprites/room-crypt.png",
+  "frame": [
+    48,
+    32
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

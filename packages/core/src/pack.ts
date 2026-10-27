@@ -25,12 +25,13 @@ export type { PackWorld } from './world/packWorld.ts';
  * while its spaces are walked, navmeshes or none; format 13 (M6.4) project.json's fighting, the player
  * and the combat record a walked space's fights read, clock or none; format 14 (M6.6) the spaces' maps;
  * format 15 (M6.7) the tags of the spaces and their objects, maps or none; format 16 (M6.8) what a use holds;
- * format 17 (M7.1) a 2D space, holding or none; format 18 (M7.2) a tilemap.
+ * format 17 (M7.1) a 2D space, holding or none; format 18 (M7.2) a tilemap; format 19 (M7.3) a building,
+ * tilemap or none.
  * A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 18;
+export const PACK_FORMAT = 19;
 
 export interface PackProject {
   readonly id: string;
@@ -81,7 +82,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -117,7 +118,7 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
  * when there are any (format 7), the music's files (format 8) and the spaces (format 9), with
  * their uses, spawn points and start (format 10), their navmeshes (format 11), the clock (format 12),
  * the fighting (format 13), the maps (format 14), the tags (format 15), what uses hold (format 16)
- * a 2D space (format 17) and a tilemap (format 18).
+ * a 2D space (format 17), a tilemap (format 18) and a building (format 19).
  */
 export function createPack(
   project: PackProject,
@@ -141,6 +142,7 @@ export function createPack(
   const held = walked && holdsAny(world.uses);
   const flat = walked && hasFlatSpace(world.spaces);
   const tiled = walked && world.tiles !== undefined && Object.keys(world.tiles).length > 0;
+  const built = walked && world.buildings !== undefined && Object.keys(world.buildings).length > 0;
   const kitted = hasKits
     ? {
         ...plain,
@@ -154,30 +156,32 @@ export function createPack(
   const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
-  const later = clocked || fought || mapped || tagged || held || flat || tiled;
+  const later = clocked || fought || mapped || tagged || held || flat || tiled || built;
   const ten = walked && !later ? asFormat10(withoutMaps(world)) : undefined;
   const nine = ten !== undefined ? asFormat9(ten) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
   const format = walked
-    ? tiled
-      ? 18
-      : flat
-        ? 17
-        : held
-          ? 16
-          : tagged
-            ? 15
-            : mapped
-              ? 14
-              : fought
-                ? 13
-                : clocked
-                  ? 12
-                  : ten === undefined
-                    ? 11
-                    : nine === undefined
-                      ? 10
-                      : 9
+    ? built
+      ? 19
+      : tiled
+        ? 18
+        : flat
+          ? 17
+          : held
+            ? 16
+            : tagged
+              ? 15
+              : mapped
+                ? 14
+                : fought
+                  ? 13
+                  : clocked
+                    ? 12
+                    : ten === undefined
+                      ? 11
+                      : nine === undefined
+                        ? 10
+                        : 9
     : sounded
       ? 8
       : credited
@@ -206,11 +210,15 @@ export function createPack(
   return { ...content, hash: packHash(content) };
 }
 
-// Formats 12 to 18 keep format 11's navmeshes and actors, none or not, so a clocked, fought, mapped,
+// Formats 12 to 19 keep format 11's navmeshes and actors, none or not, so a clocked, fought, mapped,
 // tagged or holding pack has one world shape; format 14 and up keep the maps, and 15 and up the places,
 // every space untagged for a world given none.
 function worldIn(format: number, world: PackWorld): PackWorld {
-  // Format 18 and up keep the tilemaps; an older format, which can't hold one, has none.
+  // Format 19 keeps the buildings, and 18 and up the tilemaps; an older format, which can't hold one, has none.
+  if (format < 19 && world.buildings !== undefined) {
+    const { buildings, ...unbuilt } = world;
+    return worldIn(format, unbuilt);
+  }
   if (format < 18 && world.tiles !== undefined) {
     const { tiles, ...untiled } = world;
     return worldIn(format, untiled);
@@ -258,7 +266,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`

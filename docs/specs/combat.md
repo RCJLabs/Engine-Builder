@@ -134,6 +134,13 @@ M6.10 (D82), for the townsfolk a world can't lose:
   player's chest, and closes when it hasn't.
 - **The stage times it** on the walk's fixed steps; the sim only hears the hits, so a headless run
   through Rapier in Node fights the same as the page.
+- **At the sim's pace** (M7.3): no swing or draw starts, the player's or an NPC's, while a hit or a
+  shot the stage sent is still waiting for the sim's answer. Where the sim keeps up, an answer comes
+  long before the swing it ended has recovered, and nothing changes. Where it lags, as on CI's
+  software renderer at about one step a second, a fight run ahead of its view kept striking a foe
+  the sim had felled while the one left standing struck freely: the player fell in Kaldvík's howe
+  with blows refused and letters 50 deep. Held to the sim's pace, the howe fought with one letter
+  answered a second leaves the stranger 29 of 60, as against 26 when every letter is answered at once.
 
 ## State and saves
 

@@ -1,0 +1,7 @@
+{
+  "name": "Wynn, the warden",
+  "description": "Keeps the chapel’s lamp and the crypt’s door.",
+  "sprite": "figure-keeper",
+  "speed": 18,
+  "behaviour": "warden"
+}

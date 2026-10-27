@@ -51,6 +51,7 @@ export { type Doors, doorsBetween, doorsOf, doorToward } from './world/doors.ts'
 export { ENGAGED_MOST, engaged as npcEngaged } from './world/npcs.ts';
 export { hasFlatSpace, worldDataOf } from './world/packWorld.ts';
 export { hasTags, NO_PLACES, type PackPlaces, type PlacedTags, type WorldPlaces } from './world/places.ts';
+export * from './world/rooms/index.ts';
 export { spaceOf, worldStage } from './world/stage.ts';
 export * from './world/tiles/index.ts';
 export {

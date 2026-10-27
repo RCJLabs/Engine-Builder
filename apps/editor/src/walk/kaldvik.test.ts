@@ -69,8 +69,10 @@ const settled = async () => {
 /**
  * One space of Kaldvík walked: the session, its navmesh and crowd, Rapier with its terrain, and the
  * stage's fight, every step the stage sends going straight to the sim. `at`, where the stranger stands.
+ * With `lag`, the fight's letters wait and the sim answers one every `lag` fixed steps, as a slow
+ * device's does: 60, one a second, about what CI's software renderer gave (M7.3).
  */
-function walked(spaceId: string, at: Vec3, play = startPlay(opened.setup, 'kaldvik')) {
+function walked(spaceId: string, at: Vec3, play = startPlay(opened.setup, 'kaldvik'), lag = 0) {
   const space = walkSpace(world, spaceId);
   if (!space) throw new Error(`No space ${spaceId}`);
   const sent: { action: Action; accepted: boolean }[] = [];
@@ -79,11 +81,18 @@ function walked(spaceId: string, at: Vec3, play = startPlay(opened.setup, 'kaldv
     sent.push({ action, accepted });
     return accepted;
   };
+  const waiting: { action: Action; done: (sent: 'accepted' | 'refused') => void }[] = [];
+  const answer = (a: Action) => (act(a) ? 'accepted' : 'refused');
   const outbox: Outbox = {
-    post: (a) => Promise.resolve(act(a) ? 'accepted' : 'refused'),
+    post: (a) => (lag > 0 ? new Promise((done) => waiting.push({ action: a, done })) : Promise.resolve(answer(a))),
     pump() {},
     close() {},
     size: 0,
+  };
+  let ticks = 0;
+  const pump = () => {
+    const letter = lag > 0 && ++ticks % lag === 0 ? waiting.shift() : undefined;
+    letter?.done(answer(letter.action));
   };
   const nav = openNav(navmeshOf(Uint8Array.from(atob(world.navmeshes?.[spaceId] ?? ''), (c) => c.charCodeAt(0))));
   const places = objectPlaces(space.space, space.prefabs);
@@ -121,6 +130,7 @@ function walked(spaceId: string, at: Vec3, play = startPlay(opened.setup, 'kaldv
       if (placed && n.state !== 'away' && n.state !== 'down') walker.npcAt(n.path, sub(n.at, placed));
     }
     yaw = fight?.step(attack, feet, yaw) ?? yaw;
+    pump();
     if (crowd.arrivals().size > 0 && act(npcsAt(spaceId, crowd.list(), crowd.arrivals()) as unknown as Action)) {
       for (const [actor, goal] of crowd.arrivals()) {
         heard.push(`${actor} ${goal}`);
@@ -134,7 +144,7 @@ function walked(spaceId: string, at: Vec3, play = startPlay(opened.setup, 'kaldv
     nav.free();
     walker.free();
   };
-  return { play, act, sent, step, tell, heard, crowd, walker, fight, free };
+  return { play, act, sent, step, tell, heard, crowd, walker, fight, free, waiting };
 }
 
 describe('Kaldvík walked', () => {
@@ -193,10 +203,11 @@ describe('Kaldvík walked', () => {
     );
   }, 240_000);
 
-  it('fights Hallkel and his two in the howe until all three lie, then takes the key and the silver', async () => {
+  /** The howe entered and its three heard, then fought, turned each step to the nearest the view has standing. */
+  const fightHowe = async (lag = 0) => {
     const play = startPlay(opened.setup, 'kaldvik');
     expect(play.act({ type: 'world/use', space: 'shore', object: 'howe-door' }).accepted).toBe(true);
-    const h = walked('howe', [0, 0, 4.5], play);
+    const h = walked('howe', [0, 0, 4.5], play, lag);
     h.act({
       type: 'ai/sensed',
       space: 'howe',
@@ -205,13 +216,20 @@ describe('Kaldvík walked', () => {
     });
     h.tell();
     const fallen = () => play.view.world?.fight?.fallen ?? [];
-    for (let i = 0; i < 60 * 60 && fallen().length < 3 && play.view.modes.at(-1) === 'out'; i++) {
+    let most = 0;
+    for (let i = 0; i < 60 * 180 && fallen().length < 3 && play.view.modes.at(-1) === 'out'; i++) {
       const standing = h.crowd.list().filter((n) => !fallen().includes(n.actor));
       const feet = h.walker.feet();
       const nearest = standing.sort((a, b) => across(a.at, feet) - across(b.at, feet))[0];
       h.step(true, nearest?.at);
+      most = Math.max(most, h.waiting.length);
       await settled();
     }
+    return { play, h, fallen, most };
+  };
+
+  it('fights Hallkel and his two in the howe until all three lie, then takes the key and the silver', async () => {
+    const { play, h, fallen } = await fightHowe();
     expect([...fallen()].sort()).toEqual(['hallkel', 'orm', 'vigi']);
     const health = fact(play, 'stats.current', { actor: 'stranger', stat: 'health' });
     console.info(`the howe: the stranger at ${String(health)} of 60`);
@@ -222,6 +240,23 @@ describe('Kaldvík walked', () => {
     expect(h.act({ type: 'world/use', space: 'howe', object: 'chest' })).toBe(true);
     expect(h.act({ type: 'inventory/take-all' })).toBe(true);
     expect(fact(play, 'inventory.count', { item: 'hoard' })).toBe(1);
+    h.free();
+  }, 120_000);
+
+  it('fights the howe as well with the sim a second behind the stage, never striking the fallen', async () => {
+    // With no swing started while a hit waits, the fight keeps the sim's pace. Run ahead of its view,
+    // it struck foes the sim had felled while the one standing struck freely: the stranger fell with
+    // 11 blows refused and 52 letters waiting (main's CI after M7.2, and this test at 40 and 60).
+    const { play, h, fallen, most } = await fightHowe(60);
+    expect([...fallen()].sort()).toEqual(['hallkel', 'orm', 'vigi']);
+    const blows = h.sent.filter(
+      (s) => s.action.type === 'fighting/hit' && 'by' in s.action && s.action.by === 'stranger',
+    );
+    expect(blows.filter((s) => !s.accepted)).toEqual([]);
+    expect(most).toBeLessThanOrEqual(3);
+    const health = fact(play, 'stats.current', { actor: 'stranger', stat: 'health' }) as number;
+    console.info(`the howe a second behind: the stranger at ${health} of 60, ${most} letters waiting at most`);
+    expect(health).toBeGreaterThanOrEqual(20);
     h.free();
   }, 120_000);
 

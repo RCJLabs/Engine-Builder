@@ -3,6 +3,21 @@
  * It runs in the editor and in the CLI with the same results. Not pure: it imports zod through
  * @eb/schema. The runtime never imports it; it reads packs through @eb/core's readPack.
  */
+
+export {
+  BUILDING,
+  type BuildingFields,
+  type BuildingRoom,
+  buildingProblems,
+  buildingsIn,
+  checkBuildingFields,
+  checkBuildingSpace,
+  type FoundBuilding,
+  floorsReached,
+  isBuilding,
+  packBuildingOf,
+  packBuildings,
+} from './buildings.ts';
 export { type CompileOptions, type CompileResult, compileProject } from './compile.ts';
 export { type ComponentKinds, readComponentKinds } from './components.ts';
 export { type ParsedFile, parseJsonFile } from './decode.ts';

@@ -1,0 +1,7 @@
+{
+  "name": "Edda of the watch",
+  "description": "Between the barracks and the watch room.",
+  "sprite": "figure-guard",
+  "speed": 20,
+  "behaviour": "edda"
+}

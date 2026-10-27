@@ -1,0 +1,17 @@
+{
+  "name": "Watch room",
+  "sheet": "starter-sprites/room-watch.png",
+  "frame": [
+    48,
+    32
+  ],
+  "clips": {
+    "flicker": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4
+    }
+  }
+}

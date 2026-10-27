@@ -30,6 +30,7 @@ import {
   type Walkers,
   z,
 } from '@eb/schema';
+import { BUILDING, checkBuildingFields, checkBuildingSpace } from './buildings.ts';
 import { checkActorPlaces } from './npcPlaces.ts';
 import { type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
 import { clipProblem } from './space2d.ts';
@@ -110,6 +111,7 @@ export function checkSpaceParts(
       foliageOf(walk(''), space);
       diagnostics.push(...starts(read.file, space, prefabs));
       diagnostics.push(...checkTilemapSpace(read.file, space, Object.fromEntries(prefabs), tilesetOf));
+      diagnostics.push(...checkBuildingSpace(read.file, space, Object.fromEntries(prefabs)));
     }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
@@ -186,6 +188,7 @@ function checkComponent(walk: Walk, kind: string, fields: unknown, at: string, o
       only,
       (path, why) => report(walk, 'E093', at + path, why),
     );
+  if (kind === BUILDING) checkBuildingFields(fields, only, (path, why) => report(walk, 'E094', at + path, why));
 }
 
 /**

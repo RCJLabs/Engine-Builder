@@ -4,12 +4,15 @@
  * it is drawn (depth, the nearer last; equal depths in the file's order). A placement moves what it
  * places by its `at` and scales it by its `scale`; nothing turns in 2D. A sprite comes from the
  * object's sprite component, or a placed actor's sprite; a box or a sphere is drawn as a flat shape;
- * a tilemap (M7.2) is drawn in place of its object's box, its tile the tileset's.
+ * a tilemap (M7.2) is drawn in place of its object's box, its tile the tileset's, and so is a building
+ * (M7.3), each room's sprite its room record's.
  */
 import {
+  type BuildingFields,
   eachFlat,
   type Fields,
   flatPlacesOf,
+  isBuilding,
   isFields,
   isTilemap,
   type Point,
@@ -18,6 +21,7 @@ import {
   type SpaceObject,
   type TilemapFields,
 } from '@eb/compiler';
+import type { BuildingLook } from './building2d.ts';
 
 export type { Point };
 
@@ -30,7 +34,8 @@ export type Look =
       readonly phase: number;
     }
   | { readonly kind: 'box' | 'sphere'; readonly colour: string }
-  | { readonly kind: 'tilemap'; readonly map: TilemapFields; readonly tile: Point };
+  | { readonly kind: 'tilemap'; readonly map: TilemapFields; readonly tile: Point }
+  | BuildingLook;
 
 export interface Item {
   /** The ids that lead to it: "gate/bell" inside a prefab. */
@@ -56,9 +61,21 @@ function tileOf(tileset: unknown): Point {
     : [16, 16];
 }
 
+/** Each room record a building names, by id, and the sprite it draws with. */
+function roomSprites(building: BuildingFields, record: (key: string) => unknown): Record<string, string> {
+  const sprites: Record<string, string> = {};
+  for (const { room } of building.rooms) {
+    const value = record(`room:${room}`);
+    if (isFields(value) && typeof value.sprite === 'string') sprites[room] = value.sprite;
+  }
+  return sprites;
+}
+
 function lookOf(object: SpaceObject, actor: Fields | undefined, record: (key: string) => unknown): Look | undefined {
   const map = object.components?.tilemap;
   if (isTilemap(map)) return { kind: 'tilemap', map, tile: tileOf(record(`tileset:${map.tileset}`)) };
+  const building = object.components?.building;
+  if (isBuilding(building)) return { kind: 'building', building, sprites: roomSprites(building, record) };
   const sprite = object.components?.sprite;
   if (isFields(sprite) && typeof sprite.sprite === 'string')
     return {

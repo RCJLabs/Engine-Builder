@@ -1,0 +1,17 @@
+{
+  "name": "Chapel",
+  "sheet": "starter-sprites/room-chapel.png",
+  "frame": [
+    48,
+    32
+  ],
+  "clips": {
+    "flicker": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4
+    }
+  }
+}

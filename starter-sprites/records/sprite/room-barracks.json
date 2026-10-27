@@ -1,0 +1,17 @@
+{
+  "name": "Barracks",
+  "sheet": "starter-sprites/room-barracks.png",
+  "frame": [
+    48,
+    32
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}
