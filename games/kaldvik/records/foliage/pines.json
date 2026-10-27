@@ -1,0 +1,9 @@
+{
+  "name": "Pines",
+  "model": "kit-pine",
+  "density": 1.2,
+  "smallest": 0.8,
+  "largest": 1.4,
+  "steepest": 35,
+  "distance": 300
+}

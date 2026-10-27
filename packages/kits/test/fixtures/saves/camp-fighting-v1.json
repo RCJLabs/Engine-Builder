@@ -1,0 +1,135 @@
+{
+  "format": 1,
+  "game": "camp",
+  "edition": "test",
+  "build": "fixture-fighting-v1",
+  "savedAt": 1761552000000,
+  "snapshot": {
+    "kernel": {
+      "seed": "fixture",
+      "step": 0,
+      "modes": [
+        {
+          "id": "out"
+        }
+      ],
+      "streams": {
+        "ai/npc-crow": {
+          "seed": "fixture\u001fai/npc-crow",
+          "s": [3714989327, 1557307876, 1358070796, 1254476795]
+        },
+        "ai/npc-rook": {
+          "seed": "fixture\u001fai/npc-rook",
+          "s": [674700318, 2657116562, 3544478057, 740766270]
+        },
+        "ai/npc-wren": {
+          "seed": "fixture\u001fai/npc-wren",
+          "s": [4031358178, 1535527302, 2152747893, 286745953]
+        }
+      },
+      "versions": {
+        "ai": 1,
+        "camp": 1,
+        "encounters": 1,
+        "fighting": 1,
+        "flag": 1,
+        "gear": 1,
+        "inventory": 3,
+        "logic": 1,
+        "sheet": 1,
+        "stats": 1,
+        "time": 1,
+        "world": 5
+      }
+    },
+    "logic": {},
+    "flag": {
+      "values": {}
+    },
+    "sheet": {
+      "fired": []
+    },
+    "inventory": {
+      "bag": {},
+      "bags": {},
+      "held": {}
+    },
+    "stats": {
+      "actors": {}
+    },
+    "gear": {
+      "worn": {}
+    },
+    "time": {
+      "tick": 0,
+      "carry": 0,
+      "next": 0,
+      "timers": []
+    },
+    "encounters": {
+      "fought": {},
+      "won": {},
+      "lost": {}
+    },
+    "ai": {
+      "npcs": {
+        "crow": {
+          "leaf": "1.0",
+          "step": 0,
+          "at": "tent"
+        },
+        "rook": {
+          "leaf": "1.0",
+          "step": 0,
+          "at": "fire"
+        },
+        "wren": {
+          "leaf": "1.0",
+          "step": 0,
+          "at": "fire"
+        }
+      },
+      "aware": {}
+    },
+    "fighting": {
+      "fallen": [],
+      "searched": []
+    },
+    "world": {
+      "fired": [],
+      "taken": [],
+      "space": "camp",
+      "npcs": {
+        "crow": {
+          "space": "camp",
+          "goal": "tent"
+        },
+        "rook": {
+          "space": "camp",
+          "goal": "fire"
+        },
+        "wren": {
+          "space": "camp",
+          "goal": "fire"
+        }
+      }
+    },
+    "camp": {}
+  },
+  "log": [
+    {
+      "type": "fighting/hit",
+      "by": "hero",
+      "on": "rook",
+      "weapon": "sword"
+    },
+    {
+      "type": "fighting/hit",
+      "by": "hero",
+      "on": "rook",
+      "weapon": "sword"
+    }
+  ],
+  "hash": "a57a8b9e06b60db5",
+  "check": "67366cbac0ef4403"
+}

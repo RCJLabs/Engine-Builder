@@ -63,8 +63,13 @@ export function createPrompt(box: HTMLElement): Prompt {
   const click = (event: MouseEvent) => {
     if (event.detail === 0) pressed = true;
   };
+  // A touch makes no click: the click a tap makes lands where the finger lifts, and what the use
+  // opened (a chest, a talk) can be drawn there by then. Main's CI took all a chest held that way,
+  // its Take all under a thumb held on the prompt (M6.10). Cancelling pointerdown doesn't stop it.
+  const touched = (event: TouchEvent) => event.preventDefault();
   button.addEventListener('pointerdown', press);
   button.addEventListener('click', click);
+  button.addEventListener('touchstart', touched, { passive: false });
 
   return {
     show(label, keyName) {
@@ -89,6 +94,7 @@ export function createPrompt(box: HTMLElement): Prompt {
     dispose() {
       button.removeEventListener('pointerdown', press);
       button.removeEventListener('click', click);
+      button.removeEventListener('touchstart', touched);
       button.remove();
     },
   };

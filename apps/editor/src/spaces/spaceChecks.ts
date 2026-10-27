@@ -45,11 +45,17 @@ export const NO_FLAG_USES: FlagUses = { set: new Map(), read: new Map() };
 
 const splitKey = (key: string): [string, string] => [key.slice(0, key.indexOf(':')), key.slice(key.indexOf(':') + 1)];
 
-/** project.json's fighting against the records and where each actor stands (E082, M6.4), as compileProject checks it. */
+/**
+ * project.json's fighting against the records and where each actor stands (E082, M6.4), its player
+ * never essential (E090, M6.10), as compileProject checks it.
+ */
 function fightingProblems(catalog: Catalog, index: RecordIndex, walkers: Walkers): Diagnostic[] {
   if (!catalog.fighting) return [];
   const has = (type: string, id: string) => index.records.has(`${type}:${id}`);
-  return checkFightingNames(catalog.fighting, has, (actor) => walkers.get(actor)?.space).map((problem) => ({
+  const essential = (actor: string) =>
+    (index.records.get(`actor:${actor}`)?.value as { essential?: unknown } | undefined)?.essential === true;
+  const placed = (actor: string) => walkers.get(actor)?.space;
+  return checkFightingNames(catalog.fighting, has, placed, essential).map((problem) => ({
     ...problem,
     severity: 'error',
     file: MANIFEST_FILE,

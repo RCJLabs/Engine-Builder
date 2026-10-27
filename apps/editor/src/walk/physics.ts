@@ -63,6 +63,8 @@ export interface Walker {
   cast(from: Vec3, dir: Vec3, most: number, except: string | null): Cast | null;
   /** An NPC fallen (M6.4): its body taken out of the way, so the walk and arrows pass over it. */
   fell(path: string): void;
+  /** An essential NPC down (M6.10), or up again: its body kept, but out of the way while down. */
+  knocked(path: string, down: boolean): void;
   /** The solids of these top-level objects, taken down with their cells. */
   drop(tops: ReadonlySet<string>): void;
   /** How many bodies the world holds, the character's left out. */
@@ -150,6 +152,8 @@ export function createWalker(
   const npcs = new Map<string, { body: RAPIER_NS.RigidBody; from: Vec3 }>();
   /** Each NPC's path by its body's handle, for what a cast met. */
   const npcBodies = new Map<number, string>();
+  /** The essential NPCs down: a body built again while one is, as its cell comes near, is built down. */
+  const knocked = new Set<string>();
   const add = (solids: readonly Solid[]) => {
     for (const solid of solids) {
       const body = addSolid(rapier, world, solid);
@@ -158,6 +162,7 @@ export function createWalker(
       if (body && solid.npc && solid.kind !== 'hull') {
         npcs.set(solid.path, { body, from: solid.center });
         npcBodies.set(body.handle, solid.path);
+        if (knocked.has(solid.path)) body.setEnabled(false);
       }
     }
   };
@@ -286,6 +291,11 @@ export function createWalker(
     },
     fell(path) {
       takeOut((p) => p === path);
+    },
+    knocked(path, down) {
+      if (down) knocked.add(path);
+      else knocked.delete(path);
+      npcs.get(path)?.body.setEnabled(!down);
     },
     bodies: () => bodies.length,
     teleport(at) {

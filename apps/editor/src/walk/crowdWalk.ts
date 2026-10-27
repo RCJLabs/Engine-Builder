@@ -9,7 +9,8 @@
  * the player it follows: a far NPC is wherever its schedule says.
  * M6.4 (D76, docs/specs/combat.md#an-npc-fighting): one sent to attack keeps the distance `keep` gives
  * it from the player, as a follower keeps its own, and faces them, backing off to it when `keep` says
- * so (one waiting its turn); one fallen leaves the crowd and lies where it fell.
+ * so (one waiting its turn); one fallen leaves the crowd and lies where it fell, and an essential one
+ * down (M6.10) joins it again where it lay once the sim stands it up.
  * Plain logic over nav/lib.ts, so Node's tests walk the crowd the page does.
  */
 import type { Agent, NavCrowd, NavWorld } from '../nav/lib.ts';
@@ -43,7 +44,7 @@ export interface NpcTold {
   readonly follow?: number;
   /** M6.3: standing, turned to the player. */
   readonly facing?: 'player';
-  /** M6.4: its turn among those sent to attack the player, and fallen. */
+  /** M6.4: its turn among those sent to attack the player, and fallen (or down for now, M6.10). */
   readonly fight?: number;
   readonly down?: true;
 }
@@ -147,6 +148,11 @@ export function createCrowdWalk(
     for (const w of walking.values()) {
       const said = Object.hasOwn(next, w.npc.actor) ? next[w.npc.actor] : undefined;
       if (said?.down === true && !w.down) fell(w);
+      // Up again (M6.10): an essential NPC stood up is walked from where it lay, as it is built.
+      else if (said?.down !== true && w.down) {
+        w.down = false;
+        w.stood = true;
+      }
       if (w.down) continue;
       w.facing = said?.facing === 'player';
       w.fight = said?.fight;
@@ -196,7 +202,7 @@ export function createCrowdWalk(
     const near = nav.closest(away);
     w.target = near ? (w.agent.walkTo(near) ?? undefined) : undefined;
   };
-  /** Fallen: out of the crowd, where it stands now, never walked again. */
+  /** Fallen: out of the crowd, where it stands now, walked again only if the sim stands it up (M6.10). */
   const fell = (w: Walking) => {
     w.down = true;
     if (w.agent) {

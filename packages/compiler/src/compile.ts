@@ -154,10 +154,13 @@ export async function compileProject(
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));
   // A placed record, and every reference in a component or an override, names one (M5.2).
   diagnostics.push(...checkProjectSpaces(spaces.files, spaces.terrains), ...parts.diagnostics);
-  // project.json's fighting names its player and its combat record, the player placed nowhere (M6.4).
+  // project.json's fighting names its player and its combat record, the player placed nowhere (M6.4)
+  // and never essential (M6.10).
   const fighting = files.project?.fighting;
+  const essential = (actor: string) =>
+    (recordValues(records)('actor', actor) as { essential?: unknown } | undefined)?.essential === true;
   if (fighting)
-    for (const problem of checkFightingNames(fighting, index.has, (actor) => walkers.get(actor)?.space))
+    for (const problem of checkFightingNames(fighting, index.has, (actor) => walkers.get(actor)?.space, essential))
       diagnostics.push({ ...problem, severity: 'error', file: MANIFEST_FILE });
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));

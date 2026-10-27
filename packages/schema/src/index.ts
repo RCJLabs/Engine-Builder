@@ -102,6 +102,7 @@ export {
   type Weather,
 } from './environmentTypes.ts';
 export {
+  checkEssential,
   checkFightingNames,
   checkWeapon,
   FALLING_FIELDS,

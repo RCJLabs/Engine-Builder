@@ -1,0 +1,15 @@
+{
+  "name": "The stranger",
+  "description": "Off a trading ship, with a sword and a little silver.",
+  "stats": {
+    "health": 60,
+    "might": 1,
+    "armour": 1
+  },
+  "wears": {
+    "hand": "sword"
+  },
+  "carries": {
+    "bread": 2
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "The howe",
+  "hour": 12,
+  "sky": "colour",
+  "zenith": "#0c0d0e",
+  "sun-strength": 0.2,
+  "ambient": "#8a9aa8",
+  "ambient-strength": 0.9
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Ulf’s day",
+  "description": "The anvil by day, his bench in the evening, his bed at night.",
+  "do": {
+    "first": [
+      {
+        "hours": [
+          8,
+          18
+        ],
+        "do": {
+          "work": "anvil-side"
+        }
+      },
+      {
+        "hours": [
+          18,
+          22
+        ],
+        "do": {
+          "work": "bench-side"
+        }
+      },
+      {
+        "do": {
+          "sleep": "bed-side"
+        }
+      }
+    ]
+  }
+}

@@ -11,7 +11,7 @@ import type { Domain } from '../logic/types.ts';
 import { defineModule, type Module } from '../sim/module.ts';
 import { at, enterSpace, trigger, use } from './actions.ts';
 import { doorsBetween, doorsOf } from './doors.ts';
-import { attack, engaged, fall, follow, npcsAt, stand, walkTo } from './npcs.ts';
+import { attack, engaged, fall, follow, npcsAt, rise, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
@@ -76,6 +76,7 @@ export function worldModule(world: WorldData): Module {
       // Not `fight`, the encounters kit's turn-based fight, which the fighting kit needs beside it.
       attack: { run: (ctx, effect) => attack(world, ctx, effect) },
       fall: { run: (ctx, effect) => fall(world, ctx, effect) },
+      rise: { run: (ctx, effect) => rise(world, ctx, effect) },
     },
     facts: {
       fired: {
@@ -121,7 +122,7 @@ export function worldModule(world: WorldData): Module {
       'npc-down': {
         args: { actor: TEXT },
         domain: BOOL,
-        label: 'the NPC has fallen',
+        label: 'the NPC is down',
         read: (view, args) =>
           typeof args.actor === 'string' &&
           Object.hasOwn(view.state.npcs, args.actor) &&

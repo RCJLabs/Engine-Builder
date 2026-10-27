@@ -148,6 +148,8 @@ The survey behind them is [research/templates.md](../research/templates.md).
   - *Osric the reeve:* his talk starts the main quest and ends it.
   - *Wenna the smith:* she keeps the smithy's shop from her bag and purse, and gives the supplies job.
   - *Edda the goatherd:* only talks.
+
+  All three are essential since M6.10 (D82): struck to nothing, they go down and get up ten seconds later, so the main quest can always end.
 - **Quests:**
   - **The bandits,** the main quest: the reeve's job. Drive off the bandits in the woods, then the one in the cave, then tell the reeve. Done, the game ends on its ending screen.
   - **Supplies,** a radiant job (M6.7): Wenna wants the cache from the nearest cave, a slot of tagged objects in a tagged space. It repeats.
@@ -218,5 +220,5 @@ A template's records are mostly the kits' types, whose references the project's 
 2. Should templates have a third, 3D, kind once Phase 5 lands? Answered by M6.9 (D81): the valley hamlet and the lighthouse.
 3. W108 (a flag set and never read) doesn't count a screen's `shows-when` or text as reading a flag, so a flag only a screen reads is flagged. The ferry reads its ending through a quest as well. Should screens count? Logged under Phase 4.
 4. Renaming a record leaves conditions, screens' text, scenes and scripts that name it. Should the rename offer to change those it can parse, such as a condition's `@id` or an ink `EXTERNAL`'s argument?
-5. The player can strike the hamlet's own and fell them, Osric included, and the main quest then can't end. Should an actor be able to say it can't be struck or can't fall, as Bethesda's essential NPCs can? M6.10's world has the same gap.
+5. The player could strike the hamlet's own and fell them, Osric included, and the main quest then couldn't end. Should an actor be able to say it can't fall, as Bethesda's essential NPCs can? Answered by M6.10 (D82): Osric, Wenna and Edda are essential, and go down and get up.
 6. Feedback names the player in the third person: "The wayfarer takes 2." Should a line be able to say "you" when the actor is the player?

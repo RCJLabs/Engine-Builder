@@ -1,0 +1,37 @@
+{
+  "name": "Tove’s day",
+  "description": "Her nets on the beach by day, the drying racks in the evening, her hut at night.",
+  "do": {
+    "first": [
+      {
+        "hours": [
+          7,
+          17
+        ],
+        "do": {
+          "sandbox": [
+            "nets-a",
+            "nets-b"
+          ],
+          "dwell": {
+            "minutes": 30
+          }
+        }
+      },
+      {
+        "hours": [
+          17,
+          22
+        ],
+        "do": {
+          "work": "racks"
+        }
+      },
+      {
+        "do": {
+          "sleep": "hut-door"
+        }
+      }
+    ]
+  }
+}

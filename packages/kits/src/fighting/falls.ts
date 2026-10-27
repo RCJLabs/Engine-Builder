@@ -8,20 +8,51 @@ import type { Action, ModuleContext } from '@eb/core';
 import { bind } from '../quests/slots.ts';
 import { ACTOR } from '../stats/types.ts';
 import { FALLEN, type FightingActor, type FightingDef, type FightingSlice } from './types.ts';
+import { combatOf } from './weapons.ts';
 
 type Ctx = ModuleContext<FightingSlice>;
 
-/** The actor falls, once: `by` is who struck the last blow, "" for a fall no hit made. */
+/**
+ * The actor falls, once: `by` is who struck the last blow, "" for a fall no hit made. An essential
+ * NPC is down instead (M6.10, D82): nothing dropped or run, no body, and it rises later.
+ */
 export function fall(ctx: Ctx, def: FightingDef, actor: string, by: string): void {
-  if (ctx.read().fallen.includes(actor)) return;
+  if (ctx.read().fallen.includes(actor) || ctx.read().down.includes(actor)) return;
+  const record = (ctx.content.get(ACTOR, actor) ?? {}) as FightingActor;
+  if (record.essential === true && actor !== def.player) {
+    knockDown(ctx, actor, by);
+    return;
+  }
   const slice = ctx.write() as { fallen: readonly string[] };
   slice.fallen = [...slice.fallen, actor];
   ctx.emit('fell', { actor, by });
-  const record = (ctx.content.get(ACTOR, actor) ?? {}) as FightingActor;
   if (record.drops !== undefined) ctx.apply({ effect: 'roll-loot', actor, table: record.drops });
   for (const effect of record['on-fall'] ?? []) ctx.apply(bind(effect, { self: actor }));
   if (actor === def.player) ctx.modes.push(FALLEN);
   else if (ctx.fact('world.npc-space', { actor }) !== undefined) ctx.apply({ effect: 'fall', actor });
+}
+
+/** An essential NPC down where it stands: the world module lays it as it lays the fallen. */
+function knockDown(ctx: Ctx, actor: string, by: string): void {
+  const slice = ctx.write() as { down: readonly string[] };
+  slice.down = [...slice.down, actor].sort();
+  ctx.emit('downed', { actor, by });
+  if (ctx.fact('world.npc-space', { actor }) !== undefined) ctx.apply({ effect: 'fall', actor });
+}
+
+/**
+ * `fighting/rise { actor }`, the stage's: a down NPC stands again at full health. The stage sends it
+ * ten seconds after the NPC went down (RISE_S in the walk's knocked.ts).
+ */
+export function rise(ctx: Ctx, def: FightingDef | undefined, action: Action): void {
+  if (def === undefined) ctx.refuse('not-walked');
+  const { actor } = action as Action & { actor?: unknown };
+  if (typeof actor !== 'string' || !ctx.read().down.includes(actor)) ctx.refuse('not-down', { actor });
+  const slice = ctx.write() as { down: readonly string[] };
+  slice.down = slice.down.filter((a) => a !== actor);
+  ctx.apply({ effect: 'heal-stat', actor, stat: combatOf(ctx.content, def).health });
+  if (ctx.fact('world.npc-space', { actor }) !== undefined) ctx.apply({ effect: 'rise', actor });
+  ctx.emit('rose', { actor });
 }
 
 /** `fighting/search { actor }`: a fallen NPC's bag opened, to take from and put into. */

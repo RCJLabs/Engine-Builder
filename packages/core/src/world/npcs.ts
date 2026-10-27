@@ -6,7 +6,7 @@
  * M6.3 (D75, docs/specs/ai.md#the-world-module-at-version-4): `follow` sends one after the player and
  * `stand` stops it, turned to them or not; each replaces the others.
  * M6.4 (D76, docs/specs/combat.md#an-npc-fighting): `attack` sends one at the player, the first two
- * sent engaged and the rest circling, and `fall` puts one down for good.
+ * sent engaged and the rest circling, and `fall` puts one down: for good, or until `rise` (M6.10).
  */
 import type { ModuleContext } from '../sim/module.ts';
 import type { Action, Effect } from '../sim/types.ts';
@@ -86,6 +86,16 @@ export function attack(world: WorldData, ctx: ModuleContext<WorldSlice>, effect:
 export function fall(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
   const { npcs, actor, was } = stillOf(world, ctx, effect, 'fall');
   npcs[actor] = { ...was, down: true };
+}
+
+/**
+ * Stands it up where it lay (M6.10, D82): an essential NPC down for a while, not fallen. Its goals
+ * stay cleared, so its behaviour sends it on again.
+ */
+export function rise(world: WorldData, ctx: ModuleContext<WorldSlice>, effect: Effect): void {
+  const { npcs, actor, was } = stillOf(world, ctx, effect, 'rise');
+  const { down: _down, ...up } = was;
+  npcs[actor] = up;
 }
 
 /** Whether the NPC is one of the first ENGAGED_MOST of those fighting, by turn and then by id. */

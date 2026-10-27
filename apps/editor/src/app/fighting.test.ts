@@ -108,6 +108,26 @@ describe('fighting’s checks in the editor', () => {
     expect(w150(problems)).toEqual(['records/actor/crow.json /behaviour']);
   });
 
+  it('include E090 for an essential actor with an on-fall and an essential player, as eb validate gives it (M6.10)', async () => {
+    const files = withProject(() => {});
+    const essential = (file: string) => {
+      const actor = JSON.parse(decode(files[file] as Uint8Array) as string);
+      return JSON.stringify({ ...actor, essential: true });
+    };
+    const { source, problems } = await checked({
+      ...files,
+      'records/actor/crow.json': essential('records/actor/crow.json'),
+      'records/actor/hero.json': essential('records/actor/hero.json'),
+    });
+    const e090 = (list: readonly { code: string; file?: string; path?: string }[]) =>
+      list
+        .filter((d) => d.code === 'E090')
+        .map((d) => `${d.file} ${d.path}`)
+        .sort();
+    expect(e090(problems)).toEqual(e090((await compileProject(source, [])).diagnostics));
+    expect(e090(problems)).toEqual(['project.json /fighting/player', 'records/actor/crow.json /on-fall']);
+  });
+
   it('go to the form’s fields, the one that says it is missing to the whole form', async () => {
     const placed = await checked(
       withProject((p) => Object.assign(p, { fighting: { player: 'rook', combat: 'fists' } })),
@@ -121,7 +141,7 @@ describe('fighting’s checks in the editor', () => {
     const { catalog } = await checked(withProject(() => {}));
     expect(Object.keys(catalog.types.get('item')?.file.fields ?? {})).toContain('weapon');
     expect(Object.keys(catalog.types.get('actor')?.file.fields ?? {})).toEqual(
-      expect.arrayContaining(['drops', 'on-fall']),
+      expect.arrayContaining(['drops', 'on-fall', 'essential']),
     );
     expect(catalog.fighting).toEqual({ player: 'hero', combat: 'blades' });
   });

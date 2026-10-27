@@ -1,0 +1,121 @@
+{
+  "name": "The howe",
+  "tags": ["howe"],
+  "environment": "howe",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [14, 0.2, 14],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "north",
+      "name": "Wall",
+      "shape": "box",
+      "at": [0, 0, -7],
+      "scale": [14, 3.4, 0.4],
+      "color": "#6a6460",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-7, 0, 0],
+      "scale": [0.4, 3.4, 14],
+      "color": "#6a6460",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [7, 0, 0],
+      "scale": [0.4, 3.4, 14],
+      "color": "#6a6460",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "south-w",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-3.9, 0, 7],
+      "scale": [6.2, 3.4, 0.4],
+      "color": "#6a6460",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "south-e",
+      "name": "Wall",
+      "shape": "box",
+      "at": [3.9, 0, 7],
+      "scale": [6.2, 3.4, 0.4],
+      "color": "#6a6460",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "out",
+      "name": "The door",
+      "shape": "box",
+      "at": [0, 0, 6.9],
+      "scale": [1.6, 2.4, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go out",
+          "effects": [{ "effect": "enter-space", "space": "shore", "spawn": "howe-step" }]
+        }
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the door",
+      "shape": "box",
+      "at": [0, 0, 5.4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": {} }
+    },
+    {
+      "id": "chest",
+      "name": "The chest",
+      "shape": "box",
+      "at": [0, 0, -5.8],
+      "scale": [1.4, 0.8, 0.9],
+      "color": "#5a3a24",
+      "components": {
+        "collider": {},
+        "interact": {
+          "label": "Open the chest",
+          "when": "inventory.count(item: howe-key) >= 1",
+          "effects": [],
+          "holds": { "hoard": 1, "ring": 2 }
+        }
+      }
+    },
+    {
+      "id": "howe-a",
+      "name": "By the old stones",
+      "shape": "box",
+      "at": [-3, 0, -2.5],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6a6460"
+    },
+    {
+      "id": "howe-b",
+      "name": "By the old stones",
+      "shape": "box",
+      "at": [3, 0, -2.5],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#6a6460"
+    },
+    { "id": "rock-1", "name": "Fallen stone", "record": "model:kit-rock-large", "at": [-5, 0, 4] },
+    { "id": "hallkel", "name": "Hallkel", "record": "actor:hallkel", "at": [0, 0, -3.6] },
+    { "id": "vigi", "name": "Vigi", "record": "actor:vigi", "at": [-3, 0, -1] },
+    { "id": "orm", "name": "Orm", "record": "actor:orm", "at": [3, 0, -1] }
+  ]
+}

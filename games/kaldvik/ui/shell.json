@@ -1,0 +1,5 @@
+{
+  "title": "Kaldvík",
+  "tagline": "A steading on a cold coast, and its silver gone into the howe",
+  "slot-line": "Health {stats.current(actor: stranger, stat: health)} · Silver {economy.amount(resource: silver)}"
+}

@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "id": "kaldvik",
+  "name": "Kaldvík",
+  "version": "0.1.0",
+  "kits": ["inventory", "economy", "stats", "gear", "dialogue", "quests", "time", "encounters", "ai", "fighting"],
+  "calendar": {
+    "ticksPerDay": 1440,
+    "units": {
+      "minutes": 1,
+      "hours": 60
+    },
+    "start": {
+      "tick": 480
+    }
+  },
+  "clock": {
+    "rate": 20
+  },
+  "fighting": {
+    "player": "stranger",
+    "combat": "blades"
+  },
+  "start-space": "shore"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@eb/make-kaldvik",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Writes Kaldvík's shore terrain (heights, paint and foliage density) from code (M6.10, D82).",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eb/export": "workspace:*"
+  }
+}

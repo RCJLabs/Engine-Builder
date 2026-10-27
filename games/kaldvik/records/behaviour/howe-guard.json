@@ -1,0 +1,25 @@
+{
+  "name": "The howe’s guard",
+  "description": "Idles about its fire until alerted, then attacks.",
+  "do": {
+    "first": [
+      {
+        "if": "ai.level(actor: @self) == alerted",
+        "do": {
+          "attack": "player"
+        }
+      },
+      {
+        "do": {
+          "sandbox": [
+            "howe-a",
+            "howe-b"
+          ],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

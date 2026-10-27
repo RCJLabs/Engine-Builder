@@ -1,0 +1,13 @@
+{
+  "name": "Halvard",
+  "description": "Keeps the watch at the gate.",
+  "talk": "halvard",
+  "behaviour": "halvard-watch",
+  "figure": {
+    "height": 1.85,
+    "clothes": "#3a4048",
+    "trim": "#8a8a8a",
+    "skin": "#b8906a"
+  },
+  "essential": true
+}

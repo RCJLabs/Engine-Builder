@@ -1,0 +1,22 @@
+{
+  "name": "Ulf’s forge",
+  "description": "Iron for silver, and silver for hides and metal.",
+  "currency": "silver",
+  "buys": {
+    "tags": [
+      "hide",
+      "metal"
+    ]
+  },
+  "actor": "ulf",
+  "stock": {
+    "items": [
+      {
+        "item": "whetstone"
+      }
+    ],
+    "every": {
+      "days": 1
+    }
+  }
+}

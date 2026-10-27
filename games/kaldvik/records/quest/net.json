@@ -1,0 +1,52 @@
+{
+  "name": "Tove’s Net",
+  "stages": [
+    {
+      "id": "find",
+      "log": "Tove’s net went out with the tide. It may have fetched up at the wreck on the far beach.",
+      "objectives": [
+        {
+          "id": "take",
+          "text": "Find the net at the wreck",
+          "done-when": "inventory.count(item: net) >= 1",
+          "target": {
+            "space": "shore",
+            "object": "net"
+          }
+        }
+      ],
+      "next": "back"
+    },
+    {
+      "id": "back",
+      "log": "Take the net back to Tove.",
+      "objectives": [
+        {
+          "id": "give",
+          "text": "Give Tove her net",
+          "done-when": "flag.on(net-home)",
+          "target": {
+            "actor": "tove"
+          }
+        }
+      ],
+      "next": "mended"
+    },
+    {
+      "id": "mended",
+      "log": "Tove has her net back, and paid in fish and silver.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "silver",
+          "by": 5
+        },
+        {
+          "effect": "give-item",
+          "item": "dried-fish",
+          "count": 2
+        }
+      ]
+    }
+  ]
+}

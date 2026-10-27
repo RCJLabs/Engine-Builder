@@ -1,0 +1,42 @@
+{
+  "name": "The Watch",
+  "repeats": true,
+  "slots": [
+    {
+      "id": "outlaw",
+      "type": "actor",
+      "in": "shore",
+      "tags": [
+        "camp"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "id": "deal",
+      "log": "Halvard wants {outlaw} seen off from the outlaws’ fire.",
+      "objectives": [
+        {
+          "id": "down",
+          "text": "Deal with {outlaw}",
+          "done-when": "world.npc-down(actor: @outlaw)",
+          "target": {
+            "actor": "@outlaw"
+          }
+        }
+      ],
+      "next": "paid"
+    },
+    {
+      "id": "paid",
+      "log": "{outlaw} is dealt with, and Halvard paid from the watch’s purse.",
+      "effects": [
+        {
+          "effect": "add-resource",
+          "resource": "silver",
+          "by": 4
+        }
+      ]
+    }
+  ]
+}

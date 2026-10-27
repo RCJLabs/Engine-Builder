@@ -1,0 +1,22 @@
+{
+  "name": "Hallkel",
+  "description": "Who led them to the howe, and keeps its key.",
+  "stats": {
+    "health": 16,
+    "might": 1
+  },
+  "wears": {
+    "hand": "sword"
+  },
+  "carries": {
+    "howe-key": 1,
+    "ring": 1
+  },
+  "behaviour": "howe-guard",
+  "figure": {
+    "height": 1.9,
+    "clothes": "#2a2a2a",
+    "trim": "#b23b2e",
+    "skin": "#a07858"
+  }
+}

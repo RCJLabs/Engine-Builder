@@ -2,12 +2,14 @@
  * The walk's fights without a world (M6.4, D76): a stand-in for Rapier's ray, so what fight.ts sends
  * is all there is to read. An engaged archer draws and looses at the player; its arrow, landing,
  * sends its hit only while the archer is still in the fight and standing, as the sim would take it.
- * And the distance the crowd keeps each fighter at, and a fallen NPC laid down as a body to search.
+ * And the distance the crowd keeps each fighter at, a fallen NPC laid down as a body to search, and an
+ * essential one laid down and stood up again (M6.10).
  */
 import { type FightView, type SpaceAsk, weaponView } from '@eb/ui';
 import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../spaces/vec.ts';
 import { createFight, WAITING_M } from './fight.ts';
+import { RISE_STEPS } from './knocked.ts';
 import type { Outbox } from './outbox.ts';
 import type { Walker } from './physics.ts';
 
@@ -20,6 +22,7 @@ function archer(after: (view: FightView) => FightView) {
     player: 'hero',
     weapons: { hero: SWORD, wren: BOW },
     fallen: [],
+    down: [],
     searched: [],
     emptied: [],
     engaged: ['wren'],
@@ -71,11 +74,26 @@ describe('an archer’s arrow landing', () => {
 });
 
 describe('the fight’s other duties', () => {
-  function camp(view: FightView) {
+  function camp(start: FightView) {
+    let view = start;
     const fell: string[] = [];
+    const knocks: string[] = [];
+    const posted: string[] = [];
     let bodies: readonly { readonly path: string; readonly label: string }[] = [];
-    const walker = { cast: () => null, fell: (path: string) => fell.push(path) } as unknown as Walker;
-    const outbox: Outbox = { post: () => Promise.resolve('accepted'), pump() {}, close() {}, size: 0 };
+    const walker = {
+      cast: () => null,
+      fell: (path: string) => fell.push(path),
+      knocked: (path: string, down: boolean) => knocks.push(`${path} ${down ? 'down' : 'up'}`),
+    } as unknown as Walker;
+    const outbox: Outbox = {
+      post: (action) => {
+        posted.push(`${action.type} ${String(action.actor ?? action.by)}`);
+        return Promise.resolve('accepted');
+      },
+      pump() {},
+      close() {},
+      size: 0,
+    };
     const fight = createFight({ fight: () => view } as SpaceAsk, outbox, {
       walker,
       npcs: () => [
@@ -87,12 +105,16 @@ describe('the fight’s other duties', () => {
       },
     });
     if (!fight) throw new Error('No fight');
-    return { fight, fell, bodies: () => bodies };
+    const set = (next: FightView) => {
+      view = next;
+    };
+    return { fight, fell, knocks, posted, set, bodies: () => bodies };
   }
   const base: FightView = {
     player: 'hero',
     weapons: { hero: SWORD, rook: SWORD, wren: BOW },
     fallen: [],
+    down: [],
     searched: [],
     emptied: [],
     engaged: ['rook'],
@@ -140,6 +162,38 @@ describe('the fight’s other duties', () => {
     fight.frame();
     expect(bodies().map((b) => `${b.path} ${b.label}`)).toEqual(['rook Search', 'wren Nothing left']);
   });
+
+  it('lays an essential NPC down with no body to search, asks for its rise each 10 s, and stands it up (M6.10)', () => {
+    const { fight, knocks, posted, set, bodies } = camp({ ...base, down: ['rook'], engaged: [] });
+    const feet: Vec3 = [0, 0, 5];
+    const rises = () => posted.filter((p) => p === 'fighting/rise rook').length;
+    fight.step(false, feet, 0);
+    fight.frame();
+    expect(knocks).toEqual(['rook down']);
+    expect(bodies()).toEqual([]);
+    expect(fight.anim('rook').down).toBe(true);
+    expect(fight.hook().knocked).toEqual([{ actor: 'rook', since: 1 }]);
+    // Not struck while down: the player's swing passes it by.
+    for (let i = 1; i < RISE_STEPS; i++) fight.step(false, feet, 0);
+    expect(rises()).toBe(0);
+    fight.step(false, feet, 0);
+    expect(rises()).toBe(1);
+    // Still down 10 s on (a rise refused under a talk): asked again.
+    for (let i = 0; i < RISE_STEPS; i++) fight.step(false, feet, 0);
+    expect(rises()).toBe(2);
+    set({ ...base, engaged: [] });
+    fight.step(false, feet, 0);
+    expect(knocks).toEqual(['rook down', 'rook up']);
+    expect(fight.anim('rook').down).toBe(false);
+    expect(fight.hook().knocked).toEqual([]);
+  });
+
+  it('never swings at an essential NPC down, nor lets one down strike', () => {
+    const { fight, posted } = camp({ ...base, down: ['rook'] });
+    const feet: Vec3 = [0, 0, -1.6];
+    for (let i = 0; i < 200; i++) fight.step(true, feet, 0);
+    expect(posted.filter((p) => p.startsWith('fighting/hit'))).toEqual([]);
+  });
 });
 
 describe('what an animator reads of a fighter (M6.5)', () => {
@@ -148,6 +202,7 @@ describe('what an animator reads of a fighter (M6.5)', () => {
       player: 'hero',
       weapons: { hero: SWORD, wren: BOW },
       fallen: [],
+      down: [],
       searched: [],
       emptied: [],
       engaged: ['wren'],

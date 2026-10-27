@@ -2,8 +2,8 @@
  * The walk's fights (M6.4, D76, docs/specs/combat.md): the player's Attack swings or draws their
  * weapon, soft-aimed at the foe in front; an engaged NPC closes, winds up and strikes, or an archer
  * shoots from where it stands; every hit the swing or the arrow finds goes to the sim as
- * fighting/hit, which decides it. Fallen NPCs lie where they fell and are searched by Interact. All
- * on the walk's fixed steps, so a headless run in Node fights as the page does. Since M6.5 (D77) the
+ * fighting/hit, which decides it. Fallen NPCs lie where they fell and are searched by Interact;
+ * essential ones lie down and get up again (knocked.ts, M6.10). All on the walk's fixed steps, so a headless run in Node fights as the page does. Since M6.5 (D77) the
  * animators read each fighter's phase from here, which M6.4's leans stood in for.
  */
 import type { Action } from '@eb/core';
@@ -15,6 +15,7 @@ import { type Arrow, aimedVelocity, loose, stepArrows } from './arrows.ts';
 import type { Keep } from './crowdWalk.ts';
 import { yawToward } from './facing.ts';
 import { forwardOf } from './interact.ts';
+import { createKnocked } from './knocked.ts';
 import { STEP } from './motion.ts';
 import type { Outbox } from './outbox.ts';
 import { BODY, type Walker } from './physics.ts';
@@ -55,6 +56,8 @@ export interface WalkFight {
   /** Each hit with whether the view had its striker in the fight as it was sent (`engaged`, an NPC's alone). */
   readonly sent: readonly { readonly action: Action; readonly sent: Sent | 'waiting'; readonly engaged?: boolean }[];
   readonly bodies: readonly { readonly actor: string; readonly label: string }[];
+  /** Essential NPCs laid down (M6.10), with the fixed step each went down on. */
+  readonly knocked: readonly { readonly actor: string; readonly since: number }[];
 }
 
 export interface FightStage {
@@ -110,9 +113,12 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       return result;
     });
   };
+  const knocked = createKnocked(to.walker, (action) => void post(action));
   const weaponOf = (actor: string): WeaponView | undefined => view()?.weapons[actor];
   const fallen = (actor: string) => view()?.fallen.includes(actor) === true;
-  const standing = () => to.npcs().filter((n) => n.here && !fallen(n.actor));
+  // Fallen, or an essential NPC down for now (M6.10): neither strikes nor is struck.
+  const out = (actor: string) => fallen(actor) || view()?.down.includes(actor) === true;
+  const standing = () => to.npcs().filter((n) => n.here && !out(n.actor));
   const pathOf = (actor: string) => to.npcs().find((n) => n.actor === actor)?.path;
   const actorAt = (path: string) => to.npcs().find((n) => n.path === path)?.actor;
   const targetOf = (n: FightNpc): Target => ({ actor: n.actor, feet: n.at, height: n.height, radius: FIGURE.radius });
@@ -223,12 +229,12 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       if (!met) return null;
       if (met.player === true) return { toi: met.toi, actor: me };
       const actor = met.npc === undefined ? undefined : actorAt(met.npc);
-      return actor === undefined || fallen(actor) ? { toi: met.toi } : { toi: met.toi, actor };
+      return actor === undefined || out(actor) ? { toi: met.toi } : { toi: met.toi, actor };
     });
     arrows = stepped.flying;
     // An NPC's arrow landing after it fell or left the fight hurts no one: the sim would refuse it.
     const fighting = new Set(view()?.engaged ?? []);
-    for (const h of stepped.hits) if (h.by === me || (fighting.has(h.by) && !fallen(h.by))) hit(h.by, h.on, h.weapon);
+    for (const h of stepped.hits) if (h.by === me || (fighting.has(h.by) && !out(h.by))) hit(h.by, h.on, h.weapon);
   };
 
   return {
@@ -237,8 +243,9 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       const turned = playerStep(attack, feet, yaw);
       const engaged = new Set(view()?.engaged ?? []);
       for (const n of standing()) if (engaged.has(n.actor)) npcStep(n, feet);
-      for (const actor of [...npcSwings.keys()]) if (!engaged.has(actor) || fallen(actor)) npcSwings.delete(actor);
+      for (const actor of [...npcSwings.keys()]) if (!engaged.has(actor) || out(actor)) npcSwings.delete(actor);
       arrowStep();
+      knocked.step(steps, to.npcs(), view()?.down ?? []);
       outbox.pump();
       return turned;
     },
@@ -285,7 +292,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
         draw: s && ranged ? (s.phase === 'windup' ? 'draw' : 'loose') : 'none',
         weapon: kind,
         ...(s ? { phase: phaseOf(s) } : {}),
-        down: fallen(actor),
+        down: out(actor),
         hit: hitNow,
       };
     },
@@ -297,7 +304,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       npcs: to.npcs().map((n) => ({
         actor: n.actor,
         swing: npcSwings.get(n.actor)?.phase ?? null,
-        down: fallen(n.actor),
+        down: out(n.actor),
       })),
       arrows: arrows.map((a) => ({ by: a.by, at: a.at })),
       sent: sent.map((s) => ({ ...s })),
@@ -305,6 +312,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
         .npcs()
         .filter((n) => fallen(n.actor))
         .map((n) => ({ actor: n.actor, label: view()?.emptied.includes(n.actor) ? 'Nothing left' : 'Search' })),
+      knocked: knocked.list(),
     }),
   };
 }

@@ -1,0 +1,14 @@
+{
+  "name": "Bearded axe",
+  "description": "A wood axe made for more than wood.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 6,
+    "reach": 1.8
+  },
+  "tags": [
+    "metal"
+  ],
+  "value": 18
+}

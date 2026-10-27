@@ -1,0 +1,54 @@
+{
+  "title": "The end",
+  "shows": ["ended"],
+  "main": {
+    "widget": "stack",
+    "gap": 2,
+    "children": [
+      {
+        "widget": "text",
+        "text": "Kaldvík",
+        "style": "title"
+      },
+      {
+        "widget": "text",
+        "text": "The silver is home, and the steading sleeps.",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "Silver {economy.amount(resource: silver)} · Outlaws seen off for the watch {quests.times(quest: watch, state: done)}"
+      },
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      }
+    ]
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "New game",
+        "action": {
+          "shell": "new"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Back to title",
+        "style": "primary",
+        "action": {
+          "shell": "title"
+        }
+      }
+    ]
+  }
+}

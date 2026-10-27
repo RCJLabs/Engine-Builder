@@ -4,7 +4,8 @@
  * Rapier, by the stage's own fight.ts on the walk's fixed steps. A player who keeps turning to the
  * nearest bandit and swinging fights all three: Rook and Crow close and strike while Wren waits its
  * turn at 5 m, then shoots once it is engaged; each falls and each body is searched. A player who
- * stands still falls. And the hero's own arrows fly under gravity to the nearest.
+ * stands still falls. And the hero's own arrows fly under gravity to the nearest. Since M6.10 (D82),
+ * Crow made essential goes down, its body out of the way, and gets up ten seconds later.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -21,6 +22,7 @@ import { createCrowdWalk } from './crowdWalk.ts';
 import { yawToward } from './facing.ts';
 import { createFight, type FightNpc, WAITING_M } from './fight.ts';
 import { objectPlaces } from './goals.ts';
+import { RISE_S } from './knocked.ts';
 import { STEP } from './motion.ts';
 import { npcsOf } from './navStage.ts';
 import type { Outbox } from './outbox.ts';
@@ -46,15 +48,27 @@ function filesOf(root: string): Record<string, Uint8Array> {
 
 let opened: Opened;
 let world: PackWorld;
+/** The camp with Crow essential (M6.10): its on-fall gone, as E090 asks. */
+let essential: Opened;
+
+async function openCamp(files: Record<string, Uint8Array>) {
+  const compiled = await compileWithGame(memorySource(files));
+  expect(compiled.diagnostics).toEqual([]);
+  const open = openPack(JSON.parse(JSON.stringify(compiled.pack)));
+  if (!open.ok) throw new Error(open.message);
+  if (!compiled.pack?.world) throw new Error('The camp has no world');
+  return { opened: open.opened, world: compiled.pack.world };
+}
+
 beforeAll(async () => {
   await readyNav();
   await RAPIER.init();
-  const compiled = await compileWithGame(memorySource(filesOf(CAMP)));
-  const open = openPack(JSON.parse(JSON.stringify(compiled.pack)));
-  if (!open.ok) throw new Error(open.message);
-  opened = open.opened;
-  if (!compiled.pack?.world) throw new Error('The camp has no world');
-  world = compiled.pack.world;
+  ({ opened, world } = await openCamp(filesOf(CAMP)));
+  const files = filesOf(CAMP);
+  const crow = JSON.parse(new TextDecoder().decode(files['records/actor/crow.json']));
+  delete crow['on-fall'];
+  files['records/actor/crow.json'] = new TextEncoder().encode(JSON.stringify({ ...crow, essential: true }));
+  essential = (await openCamp(files)).opened;
 }, 30_000);
 
 const across = (a: Vec3, b: Vec3) => Math.hypot(a[0] - b[0], a[2] - b[2]);
@@ -64,10 +78,10 @@ const settled = async () => {
 };
 
 /** The camp walked with the hero standing at `at`; every step the stage sends goes straight to the sim. */
-function camp(at: Vec3) {
+function camp(at: Vec3, open = opened) {
   const space = walkSpace(world, 'camp');
   if (!space) throw new Error('No space camp');
-  const play = startPlay(opened.setup, 'camp');
+  const play = startPlay(open.setup, 'camp');
   const sent: { action: Action; accepted: boolean }[] = [];
   const act = (action: Action) => {
     const accepted = play.act(action).accepted;
@@ -114,7 +128,8 @@ function camp(at: Vec3) {
    */
   const step = (attack: boolean, close = true, most = 1.5) => {
     const was = walker.feet();
-    const standing = list().filter((n) => !play.view.world?.fight?.fallen.includes(n.actor));
+    const out = [...(play.view.world?.fight?.fallen ?? []), ...(play.view.world?.fight?.down ?? [])];
+    const standing = list().filter((n) => !out.includes(n.actor));
     // Those striking them first, as a player would turn to them; any standing when none is.
     const engaged = standing.filter((n) => play.view.world?.fight?.engaged.includes(n.actor));
     const nearest = (engaged.length > 0 ? engaged : standing).sort((a, b) => across(a.at, was) - across(b.at, was))[0];
@@ -144,7 +159,7 @@ function camp(at: Vec3) {
     nav.free();
     walker.free();
   };
-  return { play, act, step, alert, fallen, hits, sent, crowd, bodies: () => bodies, free, walker };
+  return { play, act, step, alert, fallen, hits, sent, crowd, bodies: () => bodies, free, walker, fight };
 }
 
 describe('the camp fought', () => {
@@ -219,6 +234,55 @@ describe('the camp fought', () => {
     expect(loosed.length).toBeGreaterThan(0);
     expect(c.hits('hero')[0]).toMatchObject({ weapon: 'bow' });
     expect(c.play.view.facts['inventory.count(item: arrow)']).toBe(10 - loosed.length);
+    c.free();
+  }, 60_000);
+
+  it('lays Crow, made essential, down with its body out of the way, and stands it up 10 s later (M6.10)', async () => {
+    const c = camp([-2, 0, -1], essential);
+    c.alert('crow');
+    const down = () => c.play.view.world?.fight?.down ?? [];
+    for (let i = 0; i < 60 * 30 && !down().includes('crow'); i++) {
+      c.step(true);
+      await settled();
+    }
+    expect(down()).toEqual(['crow']);
+    expect(c.fallen()).not.toContain('crow');
+    // The stage hears it on its next step, and lays Crow down.
+    c.step(false, false);
+    const crow = () => c.crowd.list().find((n) => n.actor === 'crow');
+    const lay = crow()?.at as Vec3;
+    expect(crow()?.state).toBe('down');
+    /** What a ray from the hero's chest to Crow's, standing where it lies, meets first. */
+    const metAt = () => {
+      const feet = c.walker.feet();
+      const from: Vec3 = [feet[0], feet[1] + 1.4, feet[2]];
+      const to = crow()?.at ?? lay;
+      const d = sub([to[0], to[1] + 1.2, to[2]], from);
+      const most = Math.hypot(...d);
+      return c.walker.cast(from, [d[0] / most, d[1] / most, d[2] / most], most + 0.5, null)?.npc;
+    };
+    expect(metAt()).not.toBe('crow');
+    // No Search: an essential NPC leaves no body (Rook, struck beside it, may have fallen).
+    expect(c.bodies().map((b) => b.path)).not.toContain('crow');
+    expect(c.fight?.hook().knocked.map((k) => k.actor)).toEqual(['crow']);
+    let lying = 0;
+    for (let i = 0; i < 60 * 11 && down().includes('crow'); i++) {
+      c.step(false, false);
+      await settled();
+      lying += STEP;
+    }
+    expect(down()).toEqual([]);
+    // Ten seconds from the step that laid it down, not sooner.
+    expect(lying).toBeGreaterThan(RISE_S - 0.1);
+    const rose = c.sent.find((s) => s.action.type === 'fighting/rise');
+    expect(rose).toMatchObject({ action: { actor: 'crow' }, accepted: true });
+    expect(c.play.view.facts['stats.current(actor: crow, stat: health)']).toBe(9);
+    // Up where it lay, back in the crowd, its body in the way again once Rapier's world steps.
+    c.step(false, false);
+    c.step(false, false);
+    expect(crow()?.state).not.toBe('down');
+    expect(across(crow()?.at as Vec3, lay)).toBeLessThan(0.5);
+    expect(metAt()).toBe('crow');
     c.free();
   }, 60_000);
 });

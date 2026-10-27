@@ -21,8 +21,9 @@ export function hit(ctx: Ctx, def: FightingDef | undefined, action: Action): voi
   if (typeof by !== 'string' || typeof on !== 'string' || typeof weapon !== 'string') ctx.refuse('bad-hit');
   // The player strikes an NPC or an NPC the player: NPCs don't fight each other yet (D76).
   if ((by === def.player) === (on === def.player)) ctx.refuse('bad-hit', { by, on });
-  const { fallen } = ctx.read();
+  const { fallen, down } = ctx.read();
   if (fallen.includes(by) || fallen.includes(on)) ctx.refuse('fallen', { by, on });
+  if (down.includes(by) || down.includes(on)) ctx.refuse('down', { by, on });
   for (const actor of [by, on]) if (!present(ctx, def, actor)) ctx.refuse('elsewhere', { actor });
   // Only an engaged NPC strikes: one circling waits its turn (D76).
   if (by !== def.player && ctx.fact('world.npc-engaged', { actor: by }) !== true) ctx.refuse('not-fighting', { by });

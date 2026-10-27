@@ -1,0 +1,13 @@
+{
+  "name": "Cudgel",
+  "description": "A knotted branch, heavier at one end.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 3
+  },
+  "tags": [
+    "wood"
+  ],
+  "value": 2
+}

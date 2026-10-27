@@ -1,0 +1,17 @@
+{
+  "name": "Kaldvík, fair",
+  "hour": 10,
+  "sky": "gradient",
+  "zenith": "#3e6a96",
+  "horizon": "#c8d6dc",
+  "ground": "#3f5a35",
+  "sun": "#fff0d8",
+  "sun-strength": 1.8,
+  "ambient": "#d0dce4",
+  "ambient-strength": 1.25,
+  "fog": {
+    "color": "#b4c4ca",
+    "near": 70,
+    "far": 300
+  }
+}

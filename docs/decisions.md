@@ -689,14 +689,14 @@ The specs are [specs/scripts.md](specs/scripts.md) and [specs/editor-scripts.md]
 **Decision.**
 - **No limit of one milestone a session** (Evan's call, 2026-10-18: "we'll do as many as we can per session"). CLAUDE.md's rule is gone.
 - **Still one at a time, in ROADMAP order.** A milestone is done, its gates passing and its marker, Readings and decisions updated, before the next one starts, as CLAUDE.md's other session rules already say.
-- **Merge on green and go on** (Evan's call). When a milestone's PR is green, Claude merges it with a merge commit, confirms the deploy, and starts the next milestone. Product calls still go to Evan, each with a recommendation, and a session stops at a milestone whose gate needs his phone.
+- **Merge on green and go on** (Evan's call). When a milestone's PR is green, Claude merges it with a merge commit, confirms the deploy, and starts the next milestone. Product calls still go to Evan, each with a recommendation, and a session stops at a milestone whose gate needs their phone.
 
-Evan chose on 2026-10-18 between merging on green and going on, and waiting for his word on each PR.
+Evan chose on 2026-10-18 between merging on green and going on, and waiting for their word on each PR.
 
 **Why.** The gates, not the session, say when a milestone is done. The rule had also stopped a session with time left after a milestone merged, and waiting for a word on each green PR would stop the next one the same way.
 
 **Cost.**
-- **More lands between Evan's looks**, and on the live editor before he has seen it. Each milestone's product calls still wait on him, so a session can queue questions while it builds what doesn't depend on them.
+- **More lands between Evan's looks**, and on the live editor before they have seen it. Each milestone's product calls still wait on them, so a session can queue questions while it builds what doesn't depend on them.
 - **A long session's context is summarized** along the way, and a summary can drop detail. What carries a milestone is in the repo (ROADMAP's marker, its specs and decisions), not in the session's memory.
 
 ### D40. The roadmap ends with art tools and a new small game made only in the editor, by following a tutorial. LOCKED, 2026-10-18 (Evan's calls)
@@ -1196,7 +1196,7 @@ Evan chose on 2026-10-19, from these options:
 - words: `ui/feedback.json`; the engine's own words for every kit event, overridable; or each event's label with its arguments;
 - the log: a widget kept for the play; saved with the game; or a drawer the engine draws on every game;
 - gestures: Back and tab swipes; Back only; or those and a long press for an entry's details;
-- the gate: the hut by keys, pad and touch, all automated; or that and a TalkBack run on his phone.
+- the gate: the hut by keys, pad and touch, all automated; or that and a TalkBack run on their phone.
 
 **Why.**
 - **Feedback as data.** The engine picks no tone for a game, the lines are checked against the events they name, and a game's words stay in one file a translation can replace.
@@ -1432,7 +1432,7 @@ Evan chose on 2026-10-23, from these options:
 - how the tools change a game: run any effect; read-only; or edit the state's JSON;
 - replay: replay after edits; a scrubber only; or a bug-report bundle;
 - time: calendar steps and step back; calendar steps only; or a wall-clock warp too;
-- the gate: the hut, checked by machine; the hut, plus his phone; or the drift.
+- the gate: the hut, checked by machine; the hut, plus their phone; or the drift.
 
 **Why.**
 - **Effects can't make a state the sim couldn't reach,** and they are what content is already made of, with forms and previews. Raw JSON edits make impossible states; read-only tools can't reach day 9 or a late quest stage quickly.
@@ -2411,7 +2411,7 @@ Evan chose on 2026-10-26, from these options:
 - **The RPG template:** a valley hamlet; a border fort; or a labelled skeleton with no setting.
 - **The first-person template:** a lighthouse at night; an empty manor; or a labelled skeleton.
 - **Size:** about ten minutes each; about twenty; or a few minutes.
-- **Gate:** all by machine, as D61; or that, plus Evan playing each on his phone before it merges.
+- **Gate:** all by machine, as D61; or that, plus Evan playing each on their phone before it merges.
 
 **Decision.**
 - **The valley hamlet** ("Open-world RPG"), in third person:
@@ -2458,8 +2458,69 @@ Evan chose on 2026-10-26, from these options:
 
 ---
 
+### D82. Proof #2 is Kaldvík, a steading on Landnam's coast: a ~250 m terrain exterior and three interiors, five scheduled townsfolk who are essential, three quests, combat and barter, deployed at /games/kaldvik/; essential NPCs go down and get up. LOCKED, 2026-10-27 (Evan's calls, M6.10)
+
+Evan chose on 2026-10-27, from these options:
+- **Setting:** Landnam's coast; Wasteland Protocol's desert; Dirtbag's valley; or something new.
+- **Exterior:** a ~250 m terrain with a shore, foliage and weather; a streamed ~1 km; or a flat green like the hamlet's.
+- **Quest-givers the player can fell:** essential NPCs that go down and get up; actors that can't be struck; or leave it to authors.
+- **Where it lives:** a web export at `/games/<id>/`; or a fixture only.
+
+**Decision.**
+- **Kaldvík, on Landnam's coast** (open question 3 settled). Late summer on a coast with no name the settlers know; winter comes on the forty-ninth day. The text is written fresh in the setting: Landnam grants no reuse of its text or art, and none is copied. Kaldvík's text is all rights reserved, RCJLabs, as Space-Wrecked's is.
+- **One exterior, about 250 m:** the shore of a fjord. A sculpted and painted terrain with the fjord's water, a beach, the steading on its rise behind a palisade, pine woods as foliage, the knoll with the howe's door, and two outlaw camps in the woods. Fair weather and sea fog.
+- **Three interiors:** the hall, the smithy and the howe.
+- **Five townsfolk, each on a day's schedule with a talk, all essential:**
+  - Ragnhild, who holds the steading;
+  - Ulf the smith;
+  - Gudrun, who trades from her booth on the shore from her bag and purse;
+  - Tove, who fishes;
+  - Halvard, who keeps the watch.
+- **Three quests:**
+  - *The Howe,* the main quest: outlaws have taken the steading's silver to the old howe. Win it back and bring it to Ragnhild; done, the game ends on its ending screen.
+  - *Tove's Net,* the side quest: her net is lost to the tide; find it at the wreck on the far beach.
+  - *The Watch,* Halvard's radiant job: deal with the outlaw at the nearest camp. It repeats while a camp has one.
+- **Combat** against the outlaws (M6.4), and **barter** with Gudrun and Ulf (M6.8).
+- **Essential NPCs go down and get up.** An actor marked `essential` whose health runs out is down, not fallen. It drops nothing, runs no on-fall and leaves no body to search. After a while it gets up at full health. The hamlet's three villagers become essential too.
+- **Deployed at `engine.rcjlabs.com/games/kaldvik/`,** a web export beside Space-Wrecked's, where Evan takes Phase 6's 30 fps reading.
+
+**Also settled, as the session's calls** (2026-10-27, engineering calls that follow from the above):
+- **Down and up.**
+  - *In the sim:* the fighting kit keeps `down` beside `fallen` (slice version 2, migrated from 1 with no one down; an old save fixture). `fighting/rise { actor }`, the stage's, brings a down actor up at full health. A down actor can't strike or be struck.
+  - *In the world module:* `rise` stands the NPC up again, so `world.npc-down` is true only while it is down.
+  - *On the stage:* the stage lays a down NPC as it lays a fallen one, and sends its rise 10 seconds later. The headless stage offers the rise to bots.
+  - *Checks:* the player can't be essential, nor can an actor with drops or on-fall; both are errors.
+- **Kaldvík is a project folder at `games/kaldvik/`,** written by hand like Space-Wrecked's, with its NOTICE.
+  - Its terrain's heights, paint and foliage density come from `pnpm make:kaldvik`. A test holds them to the generator byte for byte, as the moor's are held.
+  - Its pieces are the starter kit's, and its people the starter character's.
+- **The gate:**
+  - Bots finish the main quest and reach every stage of every quest headless, with nothing refused.
+  - Rapier and Recast walk Kaldvík in Node: the townsfolk's day, the fight in the howe, and an essential NPC down and up.
+  - The e2e plays the web export: by keys to the ending, and by touch on a phone.
+  - The export sits within a size budget, and CI's confirm job loads it live.
+
+**Why.**
+- **Landnam's coast fits the shape:** a steading, outlaws, a howe and a trader's booth are what a Bethesda-style mini world needs. The setting suits the starter kit's timber and stone, and the hamlet already shows its systems small.
+- **A terrain of about 250 m** shows Phase 5's tools (terrain, foliage, water, weather) without a streaming stress test, so the phone reading measures a world a player would walk.
+- **Essential NPCs** close the gap M6.9 found: the hamlet's main quest could be broken by felling Osric.
+
+**Cost.**
+- **Another game to keep working,** with a golden file, an e2e and a size budget.
+- **A save version** for the fighting kit.
+- **Untested for feel** until Evan walks it on their phone.
+
+**As built** (M6.10, 2026-10-27; [specs/kaldvik.md](specs/kaldvik.md#as-built-m610)):
+- **Its people are M6.1's figures,** not the starter character: no actor names a model.
+- **The stage walks only the player's space,** as the world module refuses arrivals anywhere else. The townsfolk keep their day where the player is.
+- **The stranger has 60 health,** not 40: the howe's three left 6 of 40 in the headless fight, and leave 26 of 60. Untested for feel.
+- **A shop's stock is a top-up** of its keeper's bag, since a merchant's shelf is both (D80). Kaldvík's first stocks repeated the keepers' goods, and Gudrun's six flatbreads showed as twelve.
+- **The bot is not perfect.** Over 100 seeds it brings the silver home in 71, and 26 reach the 1,000-turn cap still at it. The gate asks for most runs, and every stage of every quest reached in some run.
+- **The walk's prompt makes no click on touch.** Main's CI found the click a tap makes landing on the chest the tap had opened. The prompt cancels its touchstart.
+- **The e2e by keys runs at 800×600,** where CI's software renderer draws about 20 fps against 9 at 1280×900. It walks the 250 m and back in 4.3 minutes alone.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
-- **Theme of proof #2** (ROADMAP open question 3).
 - **Theme and genre of proof #4** (ROADMAP open question 7).

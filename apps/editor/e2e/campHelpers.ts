@@ -239,6 +239,9 @@ export async function searchAll(
  * A finger is lifted by a touchEnd that names it alone: one left out of a touchMove stays down, and
  * its next press would only move it (M6.9 found the look's finger never lifted under a held Attack).
  */
+/** How long a tap on the prompt is held: long enough for a body's bag or a talk to open under it (M6.10). */
+export const PROMPT_HOLD_MS = 400;
+
 export async function hands(page: Page) {
   const cdp = await page.context().newCDPSession(page);
   const down = new Map<number, { x: number; y: number }>();
@@ -273,10 +276,11 @@ export async function hands(page: Page) {
       down.delete(id);
       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [{ ...at, id }] });
     },
-    /** A tap on a button by a finger of its own. */
-    async tap(target: Locator, id = 9) {
+    /** A tap on a button by a finger of its own, held `ms` as a slow thumb holds it. */
+    async tap(target: Locator, id = 9, ms = 0) {
       const at = await centre(target);
       await self.press(id, at.x, at.y);
+      if (ms > 0) await page.waitForTimeout(ms);
       await self.lift(id);
     },
     close: () => cdp.detach(),
@@ -335,6 +339,6 @@ export function touchSteer(page: Page, camp: Locator, fingers: Awaited<ReturnTyp
     attack: async () => {
       if (await attack.isVisible()) await fingers.tap(attack);
     },
-    use: () => fingers.tap(camp.locator('.walk-use')),
+    use: () => fingers.tap(camp.locator('.walk-use'), 9, PROMPT_HOLD_MS),
   };
 }
