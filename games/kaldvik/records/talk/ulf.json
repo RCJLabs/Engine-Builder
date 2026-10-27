@@ -1,0 +1,41 @@
+{
+  "name": "Ulf at the anvil",
+  "speaker": "ulf",
+  "starts": [
+    {
+      "line": "greet"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "text": "Mind the sparks. You’ll want iron, or you’ve come to sell me something.",
+      "options": [
+        {
+          "id": "trade",
+          "label": "Show me what you have",
+          "effects": [
+            {
+              "effect": "open-shop",
+              "shop": "forge"
+            }
+          ]
+        },
+        {
+          "id": "howe",
+          "label": "What do you know of Hallkel?",
+          "if": "quests.state(quest: howe) == active",
+          "next": "hallkel"
+        },
+        {
+          "id": "bye",
+          "label": "Another time"
+        }
+      ]
+    },
+    {
+      "id": "hallkel",
+      "text": "That he can use a sword, and he took the one I was making for Halvard. Hit him before he hits you."
+    }
+  ]
+}

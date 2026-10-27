@@ -1,0 +1,27 @@
+{
+  "name": "Crate",
+  "file": "starter-kit/crate.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    },
+    {
+      "slot": "metal",
+      "material": "kit-metal"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      0.4,
+      0
+    ],
+    "size": [
+      0.84,
+      0.8,
+      0.84
+    ]
+  }
+}

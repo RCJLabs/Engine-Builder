@@ -1,0 +1,30 @@
+{
+  "name": "Halvard’s watch",
+  "description": "The gate by day, the palisade by night.",
+  "do": {
+    "first": [
+      {
+        "hours": [
+          6,
+          20
+        ],
+        "do": {
+          "work": "gate"
+        }
+      },
+      {
+        "do": {
+          "patrol": [
+            "wall-nw",
+            "wall-ne",
+            "wall-se",
+            "wall-sw"
+          ],
+          "dwell": {
+            "minutes": 5
+          }
+        }
+      }
+    ]
+  }
+}

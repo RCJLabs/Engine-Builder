@@ -1,0 +1,83 @@
+{
+  "name": "Tove on the beach",
+  "speaker": "tove",
+  "starts": [
+    {
+      "if": "quests.state(quest: net) == done",
+      "line": "mended"
+    },
+    {
+      "if": "quests.stage(quest: net) == back",
+      "line": "back"
+    },
+    {
+      "if": "quests.state(quest: net) == active",
+      "line": "waiting"
+    },
+    {
+      "line": "ask"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "The tide took my good net in the night. If it fetched up anywhere it’ll be at the wreck, on the far beach to the south. I can’t leave the lines.",
+      "options": [
+        {
+          "id": "accept",
+          "label": "I’ll look for it",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "net"
+            }
+          ],
+          "next": "thanks-ahead"
+        },
+        {
+          "id": "decline",
+          "label": "I can’t"
+        }
+      ]
+    },
+    {
+      "id": "thanks-ahead",
+      "text": "The wreck is past the end of the shingle. Watch the rocks."
+    },
+    {
+      "id": "waiting",
+      "text": "Nothing yet? The wreck, to the south."
+    },
+    {
+      "id": "back",
+      "text": "Is that it?",
+      "options": [
+        {
+          "id": "give",
+          "label": "Here’s your net",
+          "if": "inventory.count(item: net) >= 1",
+          "effects": [
+            {
+              "effect": "take-item",
+              "item": "net"
+            },
+            {
+              "effect": "set-flag",
+              "flag": "net-home",
+              "to": true
+            }
+          ],
+          "next": "mended"
+        },
+        {
+          "id": "later",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "mended",
+      "text": "It wants mending, but it’ll hold. Take some fish, and this for your trouble."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "Halvard at the gate",
+  "speaker": "halvard",
+  "starts": [
+    {
+      "line": "greet"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "text": "Outlaws camp in the woods, north and east. Every one you see off is one less over the wall.",
+      "options": [
+        {
+          "id": "watch",
+          "label": "I’ll see to one",
+          "if": "quests.can-start(quest: watch)",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "watch"
+            }
+          ],
+          "next": "named"
+        },
+        {
+          "id": "bye",
+          "label": "Keep watching"
+        }
+      ]
+    },
+    {
+      "id": "named",
+      "text": "One of them was seen at their fire, a bowshot into the woods. Deal with them and I’ll pay you from the watch’s purse. Your journal will name them."
+    }
+  ]
+}

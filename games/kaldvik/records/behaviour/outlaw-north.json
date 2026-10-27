@@ -1,0 +1,25 @@
+{
+  "name": "The north camp",
+  "description": "Idles about its fire until alerted, then attacks.",
+  "do": {
+    "first": [
+      {
+        "if": "ai.level(actor: @self) == alerted",
+        "do": {
+          "attack": "player"
+        }
+      },
+      {
+        "do": {
+          "sandbox": [
+            "north-a",
+            "north-b"
+          ],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

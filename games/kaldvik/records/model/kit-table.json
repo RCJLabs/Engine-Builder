@@ -1,0 +1,23 @@
+{
+  "name": "Table",
+  "file": "starter-kit/table.glb",
+  "materials": [
+    {
+      "slot": "wood",
+      "material": "kit-wood"
+    }
+  ],
+  "collider": {
+    "shape": "box",
+    "center": [
+      0,
+      0.4,
+      0
+    ],
+    "size": [
+      1.2,
+      0.8,
+      0.8
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Clang",
+  "voices": [
+    {
+      "volume": 0.4,
+      "frequency": 660,
+      "attack": 0.001,
+      "sustain": 0.02,
+      "release": 0.5,
+      "shape": "triangle"
+    }
+  ]
+}

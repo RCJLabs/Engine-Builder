@@ -1,0 +1,13 @@
+{
+  "name": "Ulf’s blade",
+  "description": "Pattern-welded, the best thing to come off Ulf’s anvil this year.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 7
+  },
+  "tags": [
+    "metal"
+  ],
+  "value": 30
+}

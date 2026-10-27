@@ -1,0 +1,25 @@
+{
+  "name": "Gudrun’s booth",
+  "description": "Food for the road, and she buys what you carry.",
+  "currency": "silver",
+  "buys": {},
+  "actor": "gudrun",
+  "stock": {
+    "items": [
+      {
+        "item": "bread",
+        "count": 6
+      },
+      {
+        "item": "dried-fish",
+        "count": 6
+      },
+      {
+        "item": "whetstone"
+      }
+    ],
+    "every": {
+      "days": 1
+    }
+  }
+}

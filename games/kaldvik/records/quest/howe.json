@@ -1,0 +1,87 @@
+{
+  "name": "The Howe",
+  "stages": [
+    {
+      "id": "go",
+      "log": "Outlaws carried Kaldvík’s silver into the old howe on the knoll. Ragnhild wants it back.",
+      "objectives": [
+        {
+          "id": "enter",
+          "text": "Go into the howe",
+          "done-when": "world.in(space: howe)",
+          "target": {
+            "space": "shore",
+            "object": "howe-door"
+          }
+        }
+      ],
+      "next": "clear"
+    },
+    {
+      "id": "clear",
+      "log": "Hallkel and two of his men hold the howe.",
+      "objectives": [
+        {
+          "id": "hallkel",
+          "text": "Deal with Hallkel",
+          "done-when": "world.npc-down(actor: hallkel)",
+          "target": {
+            "actor": "hallkel"
+          }
+        },
+        {
+          "id": "vigi",
+          "text": "Deal with Vigi",
+          "done-when": "world.npc-down(actor: vigi)",
+          "target": {
+            "actor": "vigi"
+          }
+        },
+        {
+          "id": "orm",
+          "text": "Deal with Orm",
+          "done-when": "world.npc-down(actor: orm)",
+          "target": {
+            "actor": "orm"
+          }
+        }
+      ],
+      "next": "silver"
+    },
+    {
+      "id": "silver",
+      "log": "The silver is in the chest at the back of the howe. Hallkel had the key.",
+      "objectives": [
+        {
+          "id": "take",
+          "text": "Take the silver from the chest",
+          "done-when": "inventory.count(item: hoard) >= 1",
+          "target": {
+            "space": "howe",
+            "object": "chest"
+          }
+        }
+      ],
+      "next": "home"
+    },
+    {
+      "id": "home",
+      "log": "Bring the silver home to Ragnhild.",
+      "objectives": [
+        {
+          "id": "give",
+          "text": "Bring the silver to Ragnhild",
+          "done-when": "flag.on(silver-home)",
+          "target": {
+            "actor": "ragnhild"
+          }
+        }
+      ],
+      "next": "thanked"
+    },
+    {
+      "id": "thanked",
+      "log": "The silver is back at Kaldvík."
+    }
+  ]
+}

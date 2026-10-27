@@ -1,0 +1,15 @@
+{
+  "name": "Kaldvík",
+  "short-name": "Kaldvík",
+  "description": "A steading on a cold coast, its silver stolen into an old howe.",
+  "orientation": "any",
+  "colors": {
+    "background": "#14181a",
+    "theme": "#2e5468"
+  },
+  "targets": {
+    "web": {},
+    "file": {},
+    "itch": {}
+  }
+}

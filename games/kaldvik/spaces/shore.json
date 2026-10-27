@@ -1,0 +1,522 @@
+{
+  "name": "Kaldvík",
+  "tags": ["steading"],
+  "environment": "shore-day",
+  "terrain": {
+    "size": 129,
+    "spacing": 2,
+    "low": -6,
+    "high": 26,
+    "layers": [
+      { "name": "Grass", "color": "#6f8a4e" },
+      { "name": "Shingle", "color": "#9a9184" },
+      { "name": "Earth", "color": "#7a6448" }
+    ],
+    "foliage": ["pines", "scrub"]
+  },
+  "objects": [
+    {
+      "id": "start",
+      "name": "Where you come ashore",
+      "shape": "box",
+      "at": [-26, 6, 0],
+      "turn": [0, -90, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": { "start": true } }
+    },
+    {
+      "id": "wall-n",
+      "name": "Palisade",
+      "shape": "box",
+      "at": [0, 6, -20],
+      "scale": [40.5, 3, 0.5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "wall-s",
+      "name": "Palisade",
+      "shape": "box",
+      "at": [0, 6, 20],
+      "scale": [40.5, 3, 0.5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "wall-e",
+      "name": "Palisade",
+      "shape": "box",
+      "at": [20, 6, 0],
+      "scale": [0.5, 3, 40.5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "wall-wn",
+      "name": "Palisade",
+      "shape": "box",
+      "at": [-20, 6, -11.75],
+      "scale": [0.5, 3, 17.5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "wall-ws",
+      "name": "Palisade",
+      "shape": "box",
+      "at": [-20, 6, 11.75],
+      "scale": [0.5, 3, 17.5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "gate-n",
+      "name": "Gatepost",
+      "shape": "box",
+      "at": [-20, 6, -3.3],
+      "scale": [0.7, 3.6, 0.7],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "gate-s",
+      "name": "Gatepost",
+      "shape": "box",
+      "at": [-20, 6, 3.3],
+      "scale": [0.7, 3.6, 0.7],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "gate",
+      "name": "The gate",
+      "shape": "box",
+      "at": [-17.5, 6, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "wall-nw",
+      "name": "The palisade, north-west",
+      "shape": "box",
+      "at": [-17, 6, -17],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "wall-ne",
+      "name": "The palisade, north-east",
+      "shape": "box",
+      "at": [17, 6, -17],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "wall-se",
+      "name": "The palisade, south-east",
+      "shape": "box",
+      "at": [17, 6, 17],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "wall-sw",
+      "name": "The palisade, south-west",
+      "shape": "box",
+      "at": [-17, 6, 17],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "hall",
+      "name": "The hall",
+      "shape": "box",
+      "at": [0, 6, -11],
+      "scale": [14, 4, 7],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "hall-roof",
+      "name": "Its roof",
+      "shape": "box",
+      "at": [0, 10, -11],
+      "scale": [15, 0.8, 8],
+      "color": "#4a3a2c"
+    },
+    {
+      "id": "hall-door",
+      "name": "Hall door",
+      "shape": "box",
+      "at": [0, 6, -7.35],
+      "scale": [1.6, 2.4, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go into the hall",
+          "effects": [{ "effect": "enter-space", "space": "hall", "spawn": "door" }]
+        }
+      }
+    },
+    {
+      "id": "hall-step",
+      "name": "Outside the hall",
+      "shape": "box",
+      "at": [0, 6, -5.4],
+      "turn": [0, 180, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": {} }
+    },
+    {
+      "id": "smithy",
+      "name": "The smithy",
+      "shape": "box",
+      "at": [12, 6, 6],
+      "scale": [6, 3, 5],
+      "color": "#8c8278",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "smithy-roof",
+      "name": "Its roof",
+      "shape": "box",
+      "at": [12, 9, 6],
+      "scale": [6.6, 0.6, 5.6],
+      "color": "#4a4a4a"
+    },
+    {
+      "id": "smithy-door",
+      "name": "Smithy door",
+      "shape": "box",
+      "at": [12, 6, 8.65],
+      "scale": [1.4, 2.2, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go into the smithy",
+          "effects": [{ "effect": "enter-space", "space": "smithy", "spawn": "door" }]
+        }
+      }
+    },
+    {
+      "id": "smithy-step",
+      "name": "Outside the smithy",
+      "shape": "box",
+      "at": [12, 6, 10.6],
+      "turn": [0, 180, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": {} }
+    },
+    {
+      "id": "hut",
+      "name": "Tove’s hut",
+      "shape": "box",
+      "at": [-12, 6, 12],
+      "scale": [5, 2.6, 4],
+      "color": "#9a8a6a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "hut-roof",
+      "name": "Its roof",
+      "shape": "box",
+      "at": [-12, 8.6, 12],
+      "scale": [5.6, 0.5, 4.6],
+      "color": "#4a3a2c"
+    },
+    {
+      "id": "hut-door",
+      "name": "Tove’s door",
+      "shape": "box",
+      "at": [-12, 6, 15.2],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "rack-1",
+      "name": "Drying rack",
+      "shape": "box",
+      "at": [-14, 6, 2],
+      "scale": [2.2, 1.8, 0.3],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "rack-2",
+      "name": "Drying rack",
+      "shape": "box",
+      "at": [-11, 6, 2],
+      "scale": [2.2, 1.8, 0.3],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "rack-3",
+      "name": "Drying rack",
+      "shape": "box",
+      "at": [-8, 6, 2],
+      "scale": [2.2, 1.8, 0.3],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "racks",
+      "name": "By the racks",
+      "shape": "box",
+      "at": [-11, 6, 4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "fire",
+      "name": "The fire by the racks",
+      "shape": "box",
+      "at": [-6, 6, 7],
+      "scale": [1, 0.35, 1],
+      "color": "#6a3a2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "racks-fire",
+      "name": "At the fire",
+      "shape": "box",
+      "at": [-6, 6, 8.6],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    { "id": "barrel-1", "name": "Barrel", "record": "model:kit-barrel", "at": [15.6, 6, 11.2] },
+    { "id": "crate-1", "name": "Crate", "record": "model:kit-crate", "at": [8.2, 6, 11] },
+    { "id": "bench-1", "name": "Bench", "record": "model:kit-bench", "at": [-4, 6, 10.4] },
+    { "id": "halvard", "name": "Halvard", "record": "actor:halvard", "at": [-17.5, 6, 1.4], "turn": [0, -90, 0] },
+    { "id": "booth-table", "name": "Gudrun’s table", "record": "model:kit-table", "at": [-51.6, 2.5, 11] },
+    { "id": "booth-barrel", "name": "Barrel", "record": "model:kit-barrel", "at": [-52.6, 2.5, 13.2] },
+    { "id": "booth-crate", "name": "Crate", "record": "model:kit-crate", "at": [-48, 2.5, 9.6] },
+    {
+      "id": "booth",
+      "name": "At the booth",
+      "shape": "box",
+      "at": [-50, 2.5, 12.2],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "gudrun-tent",
+      "name": "Gudrun’s tent",
+      "shape": "box",
+      "at": [-45, 2.5, 16.5],
+      "scale": [3, 2, 3],
+      "color": "#b9a173",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "tent",
+      "name": "Gudrun’s tent",
+      "shape": "box",
+      "at": [-45, 2.5, 14.4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    { "id": "gudrun", "name": "Gudrun", "record": "actor:gudrun", "at": [-50, 2.5, 12.2], "turn": [0, 180, 0] },
+    {
+      "id": "nets-a",
+      "name": "The nets, north",
+      "shape": "box",
+      "at": [-58, 1, -14],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "nets-b",
+      "name": "The nets, south",
+      "shape": "box",
+      "at": [-60, 0.83, 30],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "boat-1",
+      "name": "Boat",
+      "shape": "box",
+      "at": [-68, -0.19, -6],
+      "turn": [0, 12, 0],
+      "scale": [1.6, 0.7, 5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "boat-2",
+      "name": "Boat",
+      "shape": "box",
+      "at": [-69, -0.36, 22],
+      "turn": [0, -8, 0],
+      "scale": [1.6, 0.7, 5],
+      "color": "#6b4a2b",
+      "components": { "collider": {} }
+    },
+    { "id": "rock-1", "name": "Rock", "record": "model:kit-rock-large", "at": [-62, 0.67, 54] },
+    { "id": "rock-2", "name": "Rock", "record": "model:kit-rock-small", "at": [-56, 1.17, -40] },
+    { "id": "tove", "name": "Tove", "record": "actor:tove", "at": [-58, 1, -14] },
+    {
+      "id": "fjord",
+      "name": "The fjord",
+      "shape": "plane",
+      "at": [-100, 0, 0],
+      "scale": [56, 1, 256],
+      "components": { "water": { "color": "#2e5468", "clarity": 0.6 } }
+    },
+    {
+      "id": "wreck",
+      "name": "The wreck",
+      "shape": "box",
+      "at": [-63, 0.8, 101],
+      "turn": [0, 20, 0],
+      "scale": [3, 1.2, 9],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "wreck-mast",
+      "name": "Its mast",
+      "shape": "box",
+      "at": [-61, 0.8, 96.5],
+      "turn": [0, 0, 25],
+      "scale": [0.3, 4, 0.3],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "net",
+      "name": "Tove’s net",
+      "shape": "box",
+      "at": [-59.4, 0.8, 99],
+      "scale": [1, 0.25, 0.8],
+      "color": "#8a8a6a",
+      "components": {
+        "interact": {
+          "label": "Take the net",
+          "when": "quests.stage(quest: net) == find",
+          "effects": [{ "effect": "give-item", "item": "net" }],
+          "takes": true
+        }
+      }
+    },
+    {
+      "id": "camp-n-fire",
+      "name": "The outlaws’ fire",
+      "shape": "box",
+      "at": [14, 8, -86],
+      "scale": [1, 0.4, 1],
+      "color": "#6a3a2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "camp-n-tent",
+      "name": "A tent",
+      "shape": "box",
+      "at": [18.5, 8, -81.5],
+      "scale": [2.5, 1.8, 2.5],
+      "color": "#5a5a4a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "north-a",
+      "name": "By the fire",
+      "shape": "box",
+      "at": [11, 8, -83],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "north-b",
+      "name": "Under the pines",
+      "shape": "box",
+      "at": [17, 8, -89],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    { "id": "ketil", "name": "Ketil", "record": "actor:ketil", "at": [11, 8, -88], "tags": ["camp"] },
+    { "id": "bersi", "name": "Bersi", "record": "actor:bersi", "at": [17, 8, -84.5], "tags": ["camp"] },
+    {
+      "id": "camp-e-fire",
+      "name": "The outlaws’ fire",
+      "shape": "box",
+      "at": [92, 9.5, -14],
+      "scale": [1, 0.4, 1],
+      "color": "#6a3a2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "camp-e-tent",
+      "name": "A tent",
+      "shape": "box",
+      "at": [96.5, 9.5, -9.5],
+      "scale": [2.5, 1.8, 2.5],
+      "color": "#5a5a4a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "east-a",
+      "name": "By the fire",
+      "shape": "box",
+      "at": [89, 9.5, -11],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "east-b",
+      "name": "Under the pines",
+      "shape": "box",
+      "at": [95, 9.5, -17],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    { "id": "grim", "name": "Grim", "record": "actor:grim", "at": [89, 9.5, -16], "tags": ["camp"] },
+    { "id": "atli", "name": "Atli", "record": "actor:atli", "at": [95.5, 9.5, -12.5], "tags": ["camp"] },
+    {
+      "id": "howe-stone-l",
+      "name": "Standing stone",
+      "shape": "box",
+      "at": [61, 7, 64.2],
+      "scale": [0.9, 3, 0.9],
+      "color": "#7a7a74",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "howe-stone-r",
+      "name": "Standing stone",
+      "shape": "box",
+      "at": [64.2, 7, 61],
+      "scale": [0.9, 3, 0.9],
+      "color": "#7a7a74",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "howe-door",
+      "name": "The howe’s door",
+      "shape": "box",
+      "at": [62.6, 7, 62.6],
+      "turn": [0, 45, 0],
+      "scale": [1.8, 2.4, 0.4],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go into the howe",
+          "effects": [{ "effect": "enter-space", "space": "howe", "spawn": "door" }]
+        }
+      }
+    },
+    {
+      "id": "howe-step",
+      "name": "Outside the howe",
+      "shape": "box",
+      "at": [59, 7, 59],
+      "turn": [0, 45, 0],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": {} }
+    }
+  ]
+}

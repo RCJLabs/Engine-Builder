@@ -1,0 +1,26 @@
+{
+  "name": "Atli",
+  "description": "An outlaw, sent from his own country and not welcome in this one.",
+  "stats": {
+    "health": 9
+  },
+  "wears": {
+    "hand": "sword"
+  },
+  "carries": {
+    "ring": 1
+  },
+  "behaviour": "outlaw-east",
+  "figure": {
+    "clothes": "#3a3a34",
+    "trim": "#6a3a2e",
+    "skin": "#a07858"
+  },
+  "on-fall": [
+    {
+      "effect": "add-resource",
+      "resource": "silver",
+      "by": 2
+    }
+  ]
+}

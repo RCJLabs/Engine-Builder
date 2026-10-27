@@ -1,0 +1,13 @@
+{
+  "name": "Ragnhild",
+  "description": "She holds Kaldvík, and the silver was hers to keep.",
+  "talk": "ragnhild",
+  "behaviour": "ragnhild-day",
+  "figure": {
+    "height": 1.72,
+    "clothes": "#6a2f2a",
+    "trim": "#d3a441",
+    "skin": "#e0b898"
+  },
+  "essential": true
+}

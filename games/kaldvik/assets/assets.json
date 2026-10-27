@@ -1,0 +1,74 @@
+{
+  "files": {
+    "starter-kit/barrel.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/bench.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/bush.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/chest.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/crate.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/fence.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/pine.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/rock-large.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/rock-small.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    },
+    "starter-kit/table.glb": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Made in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-24",
+      "tool": "tools/starter-kit"
+    }
+  }
+}

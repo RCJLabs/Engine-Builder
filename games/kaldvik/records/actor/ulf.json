@@ -1,0 +1,21 @@
+{
+  "name": "Ulf",
+  "description": "The smith.",
+  "talk": "ulf",
+  "behaviour": "ulf-day",
+  "carries": {
+    "axe": 1,
+    "blade": 1,
+    "whetstone": 2
+  },
+  "purse": {
+    "silver": 40
+  },
+  "figure": {
+    "height": 1.8,
+    "clothes": "#4a3a2c",
+    "trim": "#2f2f2f",
+    "skin": "#c99872"
+  },
+  "essential": true
+}

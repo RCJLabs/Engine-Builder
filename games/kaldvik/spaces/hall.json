@@ -1,0 +1,138 @@
+{
+  "name": "The hall",
+  "tags": ["indoors"],
+  "environment": "hall",
+  "objects": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "shape": "box",
+      "at": [0, -0.2, 0],
+      "scale": [16, 0.2, 10],
+      "color": "#4a3a2c",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "north",
+      "name": "Wall",
+      "shape": "box",
+      "at": [0, 0, -5],
+      "scale": [16, 4, 0.4],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "west",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-8, 0, 0],
+      "scale": [0.4, 4, 10],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "east",
+      "name": "Wall",
+      "shape": "box",
+      "at": [8, 0, 0],
+      "scale": [0.4, 4, 10],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "south-w",
+      "name": "Wall",
+      "shape": "box",
+      "at": [-4.4, 0, 5],
+      "scale": [7.2, 4, 0.4],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "south-e",
+      "name": "Wall",
+      "shape": "box",
+      "at": [4.4, 0, 5],
+      "scale": [7.2, 4, 0.4],
+      "color": "#7a6448",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "out",
+      "name": "The door",
+      "shape": "box",
+      "at": [0, 0, 4.9],
+      "scale": [1.6, 2.4, 0.2],
+      "color": "#5b3a24",
+      "components": {
+        "interact": {
+          "label": "Go out",
+          "effects": [{ "effect": "enter-space", "space": "shore", "spawn": "hall-step" }]
+        }
+      }
+    },
+    {
+      "id": "door",
+      "name": "Inside the door",
+      "shape": "box",
+      "at": [0, 0, 3.4],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#d9d9d9",
+      "components": { "spawn": {} }
+    },
+    {
+      "id": "high-seat",
+      "name": "The high seat",
+      "shape": "box",
+      "at": [0, 0, -4.2],
+      "scale": [1.6, 1.2, 0.8],
+      "color": "#6a2f2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "seat",
+      "name": "Before the high seat",
+      "shape": "box",
+      "at": [0, 0, -3.1],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "hearth",
+      "name": "The long hearth",
+      "shape": "box",
+      "at": [0, 0, 0],
+      "scale": [1.2, 0.3, 4],
+      "color": "#6a3a2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "hearth-side",
+      "name": "By the hearth",
+      "shape": "box",
+      "at": [1.6, 0, 1.5],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    {
+      "id": "closet",
+      "name": "Ragnhild’s bed-closet",
+      "shape": "box",
+      "at": [-6, 0, -3.7],
+      "scale": [2.6, 2.2, 1.8],
+      "color": "#5a3a2a",
+      "components": { "collider": {} }
+    },
+    {
+      "id": "closet-side",
+      "name": "Before the bed-closet",
+      "shape": "box",
+      "at": [-6, 0, -2.2],
+      "scale": [0.6, 0.05, 0.6],
+      "color": "#7a6448"
+    },
+    { "id": "bench-w", "name": "Bench", "record": "model:kit-bench", "at": [-4.5, 0, 0], "turn": [0, 90, 0] },
+    { "id": "bench-e", "name": "Bench", "record": "model:kit-bench", "at": [4.5, 0, 0], "turn": [0, 90, 0] },
+    { "id": "ragnhild", "name": "Ragnhild", "record": "actor:ragnhild", "at": [0, 0, -3.1], "turn": [0, 180, 0] }
+  ]
+}

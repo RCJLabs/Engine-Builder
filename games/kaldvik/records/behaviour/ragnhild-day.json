@@ -1,0 +1,31 @@
+{
+  "name": "Ragnhild’s day",
+  "description": "The high seat by day, the hearth in the evening, her bed-closet at night.",
+  "do": {
+    "first": [
+      {
+        "hours": [
+          8,
+          18
+        ],
+        "do": {
+          "work": "seat"
+        }
+      },
+      {
+        "hours": [
+          18,
+          22
+        ],
+        "do": {
+          "work": "hearth-side"
+        }
+      },
+      {
+        "do": {
+          "sleep": "closet-side"
+        }
+      }
+    ]
+  }
+}

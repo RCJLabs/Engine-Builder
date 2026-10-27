@@ -1,0 +1,13 @@
+{
+  "name": "Sword",
+  "description": "Straight and plain, the edge kept.",
+  "slot": "hand",
+  "weapon": {
+    "kind": "melee",
+    "damage": 5
+  },
+  "tags": [
+    "metal"
+  ],
+  "value": 12
+}

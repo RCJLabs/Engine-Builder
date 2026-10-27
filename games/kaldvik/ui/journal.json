@@ -1,0 +1,54 @@
+{
+  "title": "Journal",
+  "modal": true,
+  "main": {
+    "widget": "list",
+    "of": "journal",
+    "empty": "Nothing in the journal yet.",
+    "item": {
+      "widget": "panel",
+      "children": [
+        {
+          "widget": "text",
+          "text": "{.name}",
+          "style": "heading"
+        },
+        {
+          "widget": "text",
+          "text": "{.tracked}",
+          "style": "caption"
+        },
+        {
+          "widget": "text",
+          "text": "{.log}"
+        },
+        {
+          "widget": "text",
+          "text": "{.objectives}",
+          "style": "caption"
+        },
+        {
+          "widget": "button",
+          "label": "Track",
+          "action": {
+            "take": "entry"
+          }
+        }
+      ]
+    }
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Close",
+        "action": {
+          "close": true
+        }
+      }
+    ]
+  }
+}

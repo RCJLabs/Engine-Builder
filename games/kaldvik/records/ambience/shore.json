@@ -1,0 +1,21 @@
+{
+  "name": "The shore",
+  "layers": [
+    {
+      "kind": "noise",
+      "colour": "pink",
+      "filter": "lowpass",
+      "frequency": 420,
+      "gain": 0.3,
+      "sway": 0.7
+    },
+    {
+      "kind": "noise",
+      "colour": "white",
+      "filter": "bandpass",
+      "frequency": 2600,
+      "gain": 0.04,
+      "sway": 0.9
+    }
+  ]
+}

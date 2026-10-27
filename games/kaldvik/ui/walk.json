@@ -1,0 +1,35 @@
+{
+  "title": "Kaldvík",
+  "shows": ["out"],
+  "top": {
+    "widget": "text",
+    "text": "Health {stats.current(actor: stranger, stat: health)} · Silver {economy.amount(resource: silver)}",
+    "style": "heading"
+  },
+  "main": {
+    "widget": "space"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "wrap": true,
+    "children": [
+      {
+        "widget": "button",
+        "label": "Journal",
+        "action": {
+          "open": "journal"
+        }
+      },
+      {
+        "widget": "button",
+        "label": "Wait an hour",
+        "action": {
+          "take": "kaldvik/wait"
+        }
+      }
+    ]
+  },
+  "ambience": "shore"
+}

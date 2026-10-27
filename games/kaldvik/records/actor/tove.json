@@ -1,0 +1,13 @@
+{
+  "name": "Tove",
+  "description": "She fishes the fjord, and mends nets when she can’t.",
+  "talk": "tove",
+  "behaviour": "tove-day",
+  "figure": {
+    "height": 1.62,
+    "clothes": "#5a6a4a",
+    "trim": "#b9a173",
+    "skin": "#e8c0a0"
+  },
+  "essential": true
+}

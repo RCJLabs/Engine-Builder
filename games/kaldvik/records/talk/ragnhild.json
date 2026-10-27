@@ -1,0 +1,83 @@
+{
+  "name": "Ragnhild at the high seat",
+  "speaker": "ragnhild",
+  "starts": [
+    {
+      "if": "quests.state(quest: howe) == done",
+      "line": "thanks"
+    },
+    {
+      "if": "quests.stage(quest: howe) == home",
+      "line": "home"
+    },
+    {
+      "if": "quests.state(quest: howe) == active",
+      "line": "waiting"
+    },
+    {
+      "line": "ask"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "text": "Three nights ago men came over the palisade while the watch was at the far wall. They took the steading’s silver, every ring of it, and carried it up to the old howe on the knoll. The dead there won’t mind them. I do.",
+      "options": [
+        {
+          "id": "accept",
+          "label": "I’ll bring it back",
+          "effects": [
+            {
+              "effect": "start-quest",
+              "quest": "howe"
+            }
+          ],
+          "next": "advice"
+        },
+        {
+          "id": "decline",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "advice",
+      "text": "Hallkel leads them. He keeps the key to the chest round his neck. Ulf will sell you a better edge than that one, if you have the silver for it."
+    },
+    {
+      "id": "waiting",
+      "text": "The knoll is south and east, past the woods. The howe’s door faces the steading, as if the dead were watching us."
+    },
+    {
+      "id": "home",
+      "text": "You have it?",
+      "options": [
+        {
+          "id": "give",
+          "label": "Lay the silver at her seat",
+          "if": "inventory.count(item: hoard) >= 1",
+          "effects": [
+            {
+              "effect": "take-item",
+              "item": "hoard"
+            },
+            {
+              "effect": "set-flag",
+              "flag": "silver-home",
+              "to": true
+            }
+          ],
+          "next": "thanks"
+        },
+        {
+          "id": "later",
+          "label": "Not yet"
+        }
+      ]
+    },
+    {
+      "id": "thanks",
+      "text": "Every ring of it. Sit by the fire tonight, stranger. You have a place at Kaldvík while I hold it."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Gudrun’s day",
+  "description": "Her booth by day, the fire by the racks in the evening, her tent at night.",
+  "do": {
+    "first": [
+      {
+        "hours": [
+          8,
+          18
+        ],
+        "do": {
+          "work": "booth"
+        }
+      },
+      {
+        "hours": [
+          18,
+          22
+        ],
+        "do": {
+          "work": "racks-fire"
+        }
+      },
+      {
+        "do": {
+          "sleep": "tent"
+        }
+      }
+    ]
+  }
+}

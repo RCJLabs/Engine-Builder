@@ -1,0 +1,21 @@
+{
+  "name": "Gudrun",
+  "description": "Trades from a booth on the shingle.",
+  "talk": "gudrun",
+  "behaviour": "gudrun-day",
+  "carries": {
+    "bread": 6,
+    "dried-fish": 6,
+    "whetstone": 1
+  },
+  "purse": {
+    "silver": 30
+  },
+  "figure": {
+    "height": 1.66,
+    "clothes": "#2e5468",
+    "trim": "#e8dcc0",
+    "skin": "#d8a882"
+  },
+  "essential": true
+}

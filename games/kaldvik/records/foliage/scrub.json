@@ -1,0 +1,8 @@
+{
+  "name": "Scrub",
+  "model": "kit-bush",
+  "density": 3,
+  "lean": 0.2,
+  "lowest": 1,
+  "distance": 120
+}
