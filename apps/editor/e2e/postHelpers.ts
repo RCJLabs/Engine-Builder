@@ -5,7 +5,7 @@
  */
 import { join } from 'node:path';
 import { expect, type Locator, type Page } from '@playwright/test';
-import { closeOn, type hands, type Steer } from './campHelpers.ts';
+import { closeOn, type hands, PROMPT_HOLD_MS, type Steer } from './campHelpers.ts';
 import { offered } from './glenHelpers.ts';
 import { importZip } from './hollowsHelpers.ts';
 import { game, newGame, showPlay } from './hutScreens.ts';
@@ -88,7 +88,8 @@ export function walkSteer(page: Page, view: Locator, fingers: Awaited<ReturnType
       await fingers.lift(1);
     },
     attack: async () => {},
-    use: () => fingers.tap(view.locator('.walk-use')),
+    // Held as a thumb holds it: what the use opens is drawn under the finger before it lifts (M6.10).
+    use: () => fingers.tap(view.locator('.walk-use'), 9, PROMPT_HOLD_MS),
   };
 }
 
