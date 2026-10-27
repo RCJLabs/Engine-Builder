@@ -8,14 +8,7 @@
     "items": [
       {
         "item": "bread",
-        "count": 6
-      },
-      {
-        "item": "dried-fish",
-        "count": 6
-      },
-      {
-        "item": "whetstone"
+        "count": 2
       }
     ],
     "every": {

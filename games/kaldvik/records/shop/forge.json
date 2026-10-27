@@ -12,14 +12,7 @@
   "stock": {
     "items": [
       {
-        "item": "axe"
-      },
-      {
-        "item": "blade"
-      },
-      {
-        "item": "whetstone",
-        "count": 2
+        "item": "whetstone"
       }
     ],
     "every": {

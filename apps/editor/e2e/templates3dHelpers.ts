@@ -79,7 +79,7 @@ export async function useAt(page: Page, steer: Steer, object: string, at: readon
 }
 
 /** The walk in `space`, its view drawn again after a door or a zone. */
-async function arrived(page: Page, space: string): Promise<void> {
+export async function arrived(page: Page, space: string): Promise<void> {
   await expect.poll(async () => (await walked(page)).space, { timeout: 30_000 }).toBe(space);
   await settled(page);
 }
