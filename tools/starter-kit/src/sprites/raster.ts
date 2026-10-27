@@ -29,9 +29,10 @@ export class Sheet {
     return this.frameHeight * this.down;
   }
 
-  /** Frame `n`, counted across and then down, as a drawing surface of its own. */
+  /** Frame `n`, counted across and then down from the sheet's top as the stage reads it, as a drawing surface of its own. */
   frame(n: number): Frame {
-    return new Frame(this, (n % this.across) * this.frameWidth, Math.floor(n / this.across) * this.frameHeight);
+    const row = this.down - 1 - Math.floor(n / this.across);
+    return new Frame(this, (n % this.across) * this.frameWidth, row * this.frameHeight);
   }
 
   png(): Uint8Array {

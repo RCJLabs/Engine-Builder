@@ -3,20 +3,23 @@
  * object, through its prefabs and their overrides, at its place in whole art pixels, in the order
  * it is drawn (depth, the nearer last; equal depths in the file's order). A placement moves what it
  * places by its `at` and scales it by its `scale`; nothing turns in 2D. A sprite comes from the
- * object's sprite component, or a placed actor's sprite; a box or a sphere is drawn as a flat shape.
+ * object's sprite component, or a placed actor's sprite; a box or a sphere is drawn as a flat shape;
+ * a tilemap (M7.2) is drawn in place of its object's box, its tile the tileset's.
  */
 import {
+  eachFlat,
   type Fields,
+  flatPlacesOf,
   isFields,
-  overridden,
-  passedOn,
-  placedObjects,
+  isTilemap,
+  type Point,
   recordHere,
   type SpaceJson,
   type SpaceObject,
+  type TilemapFields,
 } from '@eb/compiler';
 
-export type Point = readonly [number, number];
+export type { Point };
 
 export type Look =
   | {
@@ -26,7 +29,8 @@ export type Look =
       readonly flip: boolean;
       readonly phase: number;
     }
-  | { readonly kind: 'box' | 'sphere'; readonly colour: string };
+  | { readonly kind: 'box' | 'sphere'; readonly colour: string }
+  | { readonly kind: 'tilemap'; readonly map: TilemapFields; readonly tile: Point };
 
 export interface Item {
   /** The ids that lead to it: "gate/bell" inside a prefab. */
@@ -42,26 +46,19 @@ export interface Item {
 
 /** A shape's colour when it names none: the palette's stone. */
 export const SHAPE_COLOUR = '#5e6072';
-const DEEPEST = 8;
 const ACTOR = 'actor:';
 
-interface Place {
-  readonly at: Point;
-  readonly depth: number;
-  readonly scale: Point;
+/** A tileset's tile size, or 16 by 16 while it can't be read. */
+function tileOf(tileset: unknown): Point {
+  const tile = isFields(tileset) ? tileset.tile : undefined;
+  return Array.isArray(tile) && tile.length === 2 && tile.every((n) => Number.isInteger(n) && n >= 1)
+    ? [tile[0], tile[1]]
+    : [16, 16];
 }
 
-const placeIn = (parent: Place, object: SpaceObject): Place => {
-  const [x, y, d] = object.at ?? [0, 0, 0];
-  const [sx, sy] = object.scale ?? [1, 1, 1];
-  return {
-    at: [parent.at[0] + x * parent.scale[0], parent.at[1] + y * parent.scale[1]],
-    depth: parent.depth + d,
-    scale: [parent.scale[0] * sx, parent.scale[1] * sy],
-  };
-};
-
-function lookOf(object: SpaceObject, actor: Fields | undefined): Look | undefined {
+function lookOf(object: SpaceObject, actor: Fields | undefined, record: (key: string) => unknown): Look | undefined {
+  const map = object.components?.tilemap;
+  if (isTilemap(map)) return { kind: 'tilemap', map, tile: tileOf(record(`tileset:${map.tileset}`)) };
   const sprite = object.components?.sprite;
   if (isFields(sprite) && typeof sprite.sprite === 'string')
     return {
@@ -84,7 +81,7 @@ function parallaxOf(object: SpaceObject): Item['parallax'] {
   return { factor: [fx ?? 1, fy ?? 1], repeat: layer.repeat === true };
 }
 
-/** Every object the space draws, in draw order, leaving out what `taken` names. */
+/** Every object the space draws, in draw order, leaving out what `taken` names and all it places. */
 export function sceneOf(
   space: SpaceJson,
   prefabs: Readonly<Record<string, unknown>>,
@@ -92,14 +89,11 @@ export function sceneOf(
   taken: ReadonlySet<string> = new Set(),
 ): Item[] {
   const found: (Item & { order: number })[] = [];
-  const walk = (object: SpaceObject, layers: readonly unknown[], ids: string[], parent: Place, depth: number) => {
-    const path = ids.join('/');
-    if (taken.has(path)) return;
-    const seen = overridden(object, layers);
-    const passed = passedOn(object, layers);
-    const place = placeIn(parent, seen);
+  const gone = (path: string) => [...taken].some((t) => path === t || path.startsWith(`${t}/`));
+  eachFlat(space, prefabs, (path, seen, place, passed) => {
+    if (gone(path)) return;
     const actor = seen.record?.startsWith(ACTOR) ? recordHere(record(seen.record), passed) : undefined;
-    const look = lookOf(seen, actor);
+    const look = lookOf(seen, actor, record);
     const parallax = parallaxOf(seen);
     if (look)
       found.push({
@@ -110,27 +104,9 @@ export function sceneOf(
         ...(actor ? { actor: (seen.record as string).slice(ACTOR.length) } : {}),
         order: found.length,
       });
-    const prefab = seen.prefab === undefined ? undefined : prefabs[seen.prefab];
-    if (!isFields(prefab) || depth >= DEEPEST) return;
-    for (const inner of placedObjects(prefab as unknown as SpaceJson, passed))
-      walk(inner.object, inner.layers, [...ids, inner.object.id], place, depth + 1);
-  };
-  for (const object of space.objects) walk(object, [], [object.id], { at: [0, 0], depth: 0, scale: [1, 1] }, 0);
+  });
   return found.sort((a, b) => a.depth - b.depth || a.order - b.order).map(({ order: _, ...item }) => item);
 }
 
 /** Where each object stands, by path, for a walker's goal: placed objects drawn or not. */
-export function placesOf(space: SpaceJson, prefabs: Readonly<Record<string, unknown>>): Map<string, Point> {
-  const places = new Map<string, Point>();
-  const walk = (object: SpaceObject, layers: readonly unknown[], ids: string[], parent: Place, depth: number) => {
-    const seen = overridden(object, layers);
-    const place = placeIn(parent, seen);
-    places.set(ids.join('/'), place.at);
-    const prefab = seen.prefab === undefined ? undefined : prefabs[seen.prefab];
-    if (!isFields(prefab) || depth >= DEEPEST) return;
-    for (const inner of placedObjects(prefab as unknown as SpaceJson, passedOn(object, layers)))
-      walk(inner.object, inner.layers, [...ids, inner.object.id], place, depth + 1);
-  };
-  for (const object of space.objects) walk(object, [], [object.id], { at: [0, 0], depth: 0, scale: [1, 1] }, 0);
-  return places;
-}
+export const placesOf = flatPlacesOf;

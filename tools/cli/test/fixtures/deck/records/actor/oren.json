@@ -1,0 +1,7 @@
+{
+  "name": "Oren, the engineer",
+  "description": "Walks between the quarters and the hold.",
+  "sprite": "figure-guard",
+  "speed": 16,
+  "behaviour": "engineer"
+}

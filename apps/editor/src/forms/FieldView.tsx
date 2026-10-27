@@ -3,6 +3,7 @@ import type { FieldProps } from './FieldShell.tsx';
 import { BoolField, ColourField, EnumField } from './fields/ChoiceFields.tsx';
 import { ConditionField } from './fields/ConditionField.tsx';
 import { GroupField } from './fields/GroupField.tsx';
+import { LinesField } from './fields/LinesField.tsx';
 import { ListField } from './fields/ListField.tsx';
 import { MapField } from './fields/MapField.tsx';
 import { NumberField } from './fields/NumberField.tsx';
@@ -44,7 +45,12 @@ function FieldOfKind(props: FieldProps) {
     case 'ref':
       return <RefField {...props} def={def} />;
     case 'list':
-      return <ListField {...props} def={def} />;
+      // A list of text lines is one box (M7.2): a tilemap's rows read as the picture they are.
+      return def.lines === true && def.of.kind === 'text' ? (
+        <LinesField {...props} def={def} />
+      ) : (
+        <ListField {...props} def={def} />
+      );
     case 'map':
       return <MapField {...props} def={def} />;
     case 'group':

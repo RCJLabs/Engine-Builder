@@ -1,0 +1,8 @@
+{
+  "lines": [
+    {
+      "on": "world/used",
+      "say": "The alarm sounds through the deck."
+    }
+  ]
+}

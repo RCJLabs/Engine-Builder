@@ -305,23 +305,34 @@ apps/editor/           the editor PWA
                        camera.ts (kept within the size, at whole pixels), clips.ts (a clip's frame on the page's clock),
                        place.ts (where an item lands: its origin, flipped, a parallax layer at at + camera·(1 − f), tiled),
                        scene.ts (what a space draws, through prefabs, in draw order), start.ts (the fit, the size and the
-                       camera's first centre), walkers.ts (straight lines to the sim's marks, arrivals told back), uses.ts
-                       (a use's target, 44 px at least); with the page: draw.ts (Canvas 2D at whole pixels, smoothing off,
+                       camera's first centre), walkers.ts (straight lines to the sim's marks, arrivals told back;
+                       walkersOf, the stage's start, since M7.2), uses.ts (a use's target, 44 px at least); with the
+                       page: draw.ts (Canvas 2D at whole pixels, smoothing off,
                        which the Scene panel's 2D view draws with too), sheets.ts (the world's sheets decoded), view.ts (the
                        canvas shown pixelated), useButtons.ts (the uses as the page's own buttons), stage.ts (the loop, the
                        arrivals and the clock), hook.ts (window.__ebStage2d), entry.ts (stage2d.js's); keep.test.ts walks
-                       the keep's guards through a night headless and rings its bell
+                       the keep's guards through a night headless and rings its bell; M7.2 (D84): tilemap2d.ts (each cell's
+                       frame by the 4-bit mask, the edges and posts, the tile under a point and a tile's centre; tested in
+                       tilemap2d.test.ts), walkers.ts's routes over the tiles by core's route, draw.ts's tilemap culled to
+                       the view; deck.test.ts walks the deck's crew through a shift headless, a tile at a time
   src/spaces2d/        the Scene panel's 2D view (M7.1, D83): view2d.ts (the zoom, screen to world and back, a pan, a zoom
                        about a point, Frame) and pick2d.ts (the pick by a frame's box, moves in whole pixels, the arrows)
                        as plain functions with tests (view2d.test.ts); state2d.ts (where Add puts things, the zoom asked),
                        actions2d.ts (Add and moves as steps of undo, arrow presses in a row one step), liveSprites.ts and
                        sheets2d.ts (the sprites and sheets read, decoded by hash), gestures2d.ts (a drag on the chosen
                        moves them, elsewhere pans; the wheel and a pinch zoom), hook2d.ts (window.__ebView2d),
-                       SceneView2d.tsx and Toolbar2d.tsx, loaded with the first 2D space opened
+                       SceneView2d.tsx and Toolbar2d.tsx, loaded with the first 2D space opened; M7.2 (D84):
+                       tilemapEdits.ts (the cell and side under a point, painting, edges, Import ASCII, a new tilemap, as
+                       plain functions with tests), painter2d.ts (a stroke's cells or sides, filled between points, an edge
+                       stroke kept to its first side's line), tiles2d.ts (the Tiles row's tool, layer, tile, edge kind and
+                       Show rules), tileActions.ts (Add tilemap, strokes and Import ASCII as steps of undo), TilesRow2d.tsx
+                       (its tile buttons drawn from the sheets the view decoded, not the asset browser's reader, which
+                       brings the record index into the Scene chunk), AddTilemap2d.tsx, rules2d.ts (Show rules)
   src/sprites/         a sprite in the editor (M7.1, D83): SpritePreview.tsx (its sheet with the frame grid and each clip
                        playing, above its form), starterSprites.ts (starter-sprites/ bundled as a lazy chunk, for Add
                        starter sprites), spriteChecks.test.ts (E091 and E058's 2D rules in the editor, as eb validate
-                       gives them, and no E079 for a 2D walker)
+                       gives them, and no E079 for a 2D walker); M7.2: TilesetPreview.tsx (a tileset's sheet with its
+                       tile grid, each tile and edge named, above its form), TileFrame.tsx, useSheet.ts
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -481,9 +492,14 @@ apps/editor/           the editor PWA
                        parallax at its factors, clips advancing, the guards arriving, the bell rung by a click, the keys and
                        a tap at 360, 390 and sideways, the camera dragged, and exported as one file and as a web build, each
                        played offline; keepEditorHelpers.ts and keepEditor.spec.ts, a 2D space built from the starter
-                       sprites in the Scene panel alone at 1280 and 390 through window.__ebView2d, then played
+                       sprites in the Scene panel alone at 1280 and 390 through window.__ebView2d, then played;
+                       deckHelpers.ts, deck.spec.ts, deckPhone.spec.ts and deckExport.spec.ts are M7.2's, the boarding deck
+                       played through window.__ebStage2d: its joins as the mask says, the crew routed four ways through
+                       doors and never through a wall, the alarm by a click, the keys and a tap at 360, 390 and sideways,
+                       and exported as one file played offline; deckEditor.spec.ts, a deck built from the starter tileset
+                       in the Scene panel alone at 1280 and 390, Space-Wrecked's text imported, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 17)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 18)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -513,9 +529,13 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts);
                        M6.9 (D81): stage.ts, the world's stage for bots (the uses, then the zones, of the player's space);
                        M6.10 (D82): rise (npcs.ts), and a down NPC answers no use (actions.ts); M7.1 (D83): a 2D space in
-                       format 17 (packWorld.ts's hasFlatSpace; flat.test.ts)
+                       format 17 (packWorld.ts's hasFlatSpace; flat.test.ts); M7.2 (D84): tiles/, a tilemap as the sim
+                       reads it: grid.ts (format 18's cells and edges), mapText.ts (Space-Wrecked's map text read and
+                       written), sight.ts, cover.ts and route.ts (Space-Wrecked's sight, cover and four-way routes, in
+                       whole numbers), facts.ts (world.sees and world.cover), pack.ts (format 18's tiles checked)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
-                       salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
+                       salvage-, sat-, time-, save-, sweep- and trigger-bench.ts; tileMaps.ts, Space-Wrecked's example
+                       ship and a packed tilemap from rows and map text (M7.2)
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
   test/fixtures/       salvage-run/: salvage run's content as a project folder, which eb sim plays;
                        saves/salvage-v1.json: a format-1 save that must keep loading to its golden hash
@@ -571,7 +591,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        actor's purse (npcFields.ts), a shop's actor (kitTypes.ts), W156 (kitCheck.ts); M6.10: an actor's
                        essential (fightingTypes.ts), E090; M7.1: spriteTypes.ts (sprite, an engine type: its sheet, frame,
                        origin and clips, E091's record rules), the sprite and parallax component kinds, an actor's sprite
-                       and speed (npcFields.ts); not pure
+                       and speed (npcFields.ts); M7.2: tilesetTypes.ts (tileset, an engine type: its sheet, tile, tiles
+                       with their characters and rules, edge frames; legendOf; E092's record rules), the tilemap component
+                       kind, a type file's lists of `lines` (a text box a line); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -618,7 +640,10 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        game's stand-in container (projectGame.ts's HOLDING_WORLD); M7.1: sprites.ts (each sprite's sheet
                        read to its PNG header: E091), space2d.ts (E058's 2D rules, a sprite component's clip: E091),
                        spaceView.ts (is2d, apart from the checks), npcPlaces.ts (a 2D walker needs no navmesh), world.ts
-                       packs a 2D space's sprites and sheets as format 17; not pure
+                       packs a 2D space's sprites and sheets as format 17; M7.2: tilemaps.ts (a space's tilemaps through
+                       prefabs, E093, W157, cellRules, format 18's tiles), flatPlaces.ts (each object's place in art
+                       pixels, through prefabs), tilesets.ts (each tileset's sheet read to its PNG header: E092), world.ts
+                       packs a tileset and its sheet; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -816,7 +841,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        keep/, M7.1's gate: a keep at night from the starter sprites, 960 art pixels wide, its sky, stars,
                        moon and ridges in parallax, four torches, two guards walking the wall walk and a bell to ring,
                        which keep.test.ts validates clean, builds as format 17 and breaks once each for E091, E058's 2D
-                       rules and a 2D walker's navmesh
+                       rules and a 2D walker's navmesh; deck/, M7.2's gate: Space-Wrecked's example ship as a boarding deck
+                       from the starter tileset, stars in parallax, Ines and Oren on their rounds and an alarm that sends
+                       both to the airlock, which deck.test.ts validates clean, builds as format 18 and breaks once each for
+                       E092, E093, E058 and W157
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json;
@@ -844,7 +872,8 @@ tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes
                        files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
                        starter-kit/ to it byte for byte and to eb validate; src/character/ and test/character.test.ts
                        the same for starter-character/ (M6.5); src/sprites/ (palette.ts, raster.ts, sky.ts, keep.ts,
-                       props.ts, figures.ts, sprites.ts, cli.ts) and test/sprites.test.ts the same for starter-sprites/ (M7.1)
+                       props.ts, figures.ts, sprites.ts, cli.ts; tiles.ts, the deck's tileset, M7.2) and test/sprites.test.ts
+                       the same for starter-sprites/ (M7.1)
 starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: 21 pieces dedicated
                        by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
 starter-character/     the starter character (M6.5, D77), written only by `pnpm make:starter-character` from
@@ -854,7 +883,8 @@ starter-character/     the starter character (M6.5, D77), written only by `pnpm 
 starter-sprites/       the starter sprites (M7.1, D83), written only by `pnpm make:starter-sprites`: sheets in a palette
                        of 16 for a keep at night (figures with idle and walk, a torch, a bell, a banner, the keep's parts,
                        the sky, stars, moon and ridges), their sprite records and the log, dedicated by RCJLabs to CC0;
-                       Add starter sprites copies it in
+                       since M7.2 the deck's tileset (floor, an airlock, a crate, a console, a locker, machinery and the
+                       hull with their joins; walls, the hull, doors and hatches for edges); Add starter sprites copies it in
 tools/make-kaldvik/    the shore's generator (M6.10): shore.ts (heights, paint and foliage density by integer and
                        polynomial arithmetic, the pads level where the spaces stand things), cli.ts; test/shore.test.ts
                        holds games/kaldvik's files to it byte for byte

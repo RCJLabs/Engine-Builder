@@ -1,0 +1,69 @@
+{
+  "name": "Deck",
+  "sheet": "starter-sprites/deck-tiles.png",
+  "tile": [
+    16,
+    16
+  ],
+  "tiles": {
+    "floor": {
+      "char": ".",
+      "frame": 0,
+      "walk": true
+    },
+    "airlock": {
+      "char": "a",
+      "frame": 1,
+      "walk": true
+    },
+    "crate": {
+      "char": "h",
+      "frame": 2,
+      "cover": "half"
+    },
+    "console": {
+      "char": "c",
+      "frame": 3,
+      "cover": "half"
+    },
+    "locker": {
+      "char": "H",
+      "frame": 4,
+      "cover": "full",
+      "blocksSight": true
+    },
+    "machinery": {
+      "char": "#",
+      "frame": 16,
+      "cover": "full",
+      "blocksSight": true,
+      "joins": true
+    },
+    "hull": {
+      "char": "%",
+      "frame": 32,
+      "cover": "full",
+      "blocksSight": true,
+      "joins": true
+    }
+  },
+  "edges": {
+    "wall": {
+      "across": 48,
+      "down": 49
+    },
+    "hull": {
+      "across": 50,
+      "down": 51
+    },
+    "door": {
+      "across": 52,
+      "down": 53
+    },
+    "hatch": {
+      "across": 54,
+      "down": 55
+    },
+    "post": 56
+  }
+}

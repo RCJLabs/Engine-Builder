@@ -18,6 +18,8 @@
       "!starter-character",
       "!starter-sprites",
       "!tools/cli/test/fixtures/keep/records/sprite",
+      "!tools/cli/test/fixtures/deck/records/sprite",
+      "!tools/cli/test/fixtures/deck/records/tileset",
       "!tools/cli/test/fixtures/moor"
     ]
   },

@@ -213,7 +213,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 | --- | --- | --- |
 | Node-graph maps | 4 | Sector, valley, coast and county maps. The maps kit (M4.6, D56, [specs/maps.md](specs/maps.md)): layered maps made from a seed by rules written as data (counts, weights and layer windows, such as "a camp within 2 of the boss"), checked over 300 seeds; maps drawn by hand with roads; travel as an action whose cost, time and effects show by the sim's own preview; and the map widget, up a phone and across anything wider. |
 | 3D worldspaces | 5–6 | Exterior worldspaces in chunks, streamed by distance; interiors as separate scenes joined by load doors; persistent references. |
-| 2D scenes | 7 | Tilemaps (autotile, ASCII import, walk/cover/sight per tile), side-view floors and rooms, sprites, parallax. |
+| 2D scenes | 7 | Sprites, clips and parallax in whole art pixels (M7.1, D83, [specs/2d-scenes.md](specs/2d-scenes.md)). Tilemaps (M7.2, D84, [specs/tilemaps.md](specs/tilemaps.md)): a tileset record, a tilemap component of layers of characters with walls, the hull, doors and hatches on the edges in Space-Wrecked's map text, a 4-bit autotile, and walk, cover and sight per tile worked out by the compiler into pack format 18; sight and cover are the facts `world.sees` and `world.cover`, and walkers route four ways round the walls by the pure core's routes. Side-view floors and rooms later. |
 | Custom stages | 7 | Renderers drawn in code (Canvas2D, SVG) behind a small API, so code-drawn art keeps working. |
 
 **3D stack**
@@ -355,7 +355,7 @@ packages/export     a game's exports from the runtime and its packs: targets, se
 packages/ui         runtime UI (M4.1 to M4.9): the screens', feedback's, shell's and audio's format, the session that plays a game in a worker, words its beats and cues, makes its saves and is looked at for the designer, the Preact renderer and its design frame, input (focus, gamepad, swipes, Back), the play shell, audio (the ZzFX port, renders, the mix, the player and buzzes), and the host the editor's debug tools reach into (M4.9), and the Space widget with its host's contract (M5.8)
 packages/platform   save slots and storage (M1.8); SW/update gate, haptics, wake lock later
 packages/stage3d    three.js + Rapier + recast (lazy-loaded)              Phase 5
-apps/editor/src/stage2d  the 2D stage (M7.1, D83): sprites, clips and parallax in whole art pixels on Canvas 2D, built into stage2d.js beside walk.js; the Scene panel's 2D view (src/spaces2d) draws with it; tilemaps (M7.2) and the custom-stage API (M7.4) later
+apps/editor/src/stage2d  the 2D stage (M7.1, D83): sprites, clips and parallax in whole art pixels on Canvas 2D, built into stage2d.js beside walk.js; the Scene panel's 2D view (src/spaces2d) draws with it; tilemaps (M7.2, D84), autotiled, with walkers routed over their tiles; the custom-stage API (M7.4) later
 apps/editor         the editor PWA; the player page at /play/ (M4.1) and an exported game's runtime (src/game, M4.10) are built with it
 tools/cli           eb validate | build (M1.4), sim (M1.9), schemas (M2.8), export | publish (M4.10), new (M4.11); test later
 tools/lint-boundaries

@@ -116,9 +116,11 @@ describe('the keep at night', () => {
 
   it('rings the bell when its use is sent, as its button sends it', () => {
     const k = keep();
-    expect(k.play.view.facts['flag.on(bell-rung)'] ?? false).toBe(false);
+    // The HUD's line on the bell, a condition its screen reads.
+    expect(k.play.view.conditions['flag.on(bell-rung)']).toBe(false);
     const rung = k.take({ type: 'world/use', space: 'keep', object: 'bell' });
     expect(rung.beats.some((b) => b.type === 'world/used')).toBe(true);
+    expect(k.play.view.conditions['flag.on(bell-rung)']).toBe(true);
     expect(world.uses?.keep?.bell?.label).toBe('Ring the bell');
   });
 });

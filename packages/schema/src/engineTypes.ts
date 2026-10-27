@@ -23,6 +23,7 @@ import { MATERIAL_DATA } from './materialTypes.ts';
 import { MODEL_DATA } from './modelTypes.ts';
 import { defineRecordType, type RecordType } from './recordType.ts';
 import { SPRITE_DATA } from './spriteTypes.ts';
+import { TILESET_DATA } from './tilesetTypes.ts';
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
 
@@ -131,8 +132,8 @@ export const SHEET_DATA: DataType = Object.freeze({
 
 /**
  * The engine's own types' forms and checks: flags and sheets (M3.1), sound, ambience and music
- * (M4.8), environments (M5.4), materials and models (M5.5), foliage (M5.6), animators (M6.5) and
- * sprites (M7.1).
+ * (M4.8), environments (M5.4), materials and models (M5.5), foliage (M5.6), animators (M6.5),
+ * sprites (M7.1) and tilesets (M7.2).
  */
 export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   FLAG_TYPE,
@@ -144,6 +145,7 @@ export const ENGINE_DATA: readonly DataType[] = Object.freeze([
   FOLIAGE_DATA,
   ANIMATOR_DATA,
   SPRITE_DATA,
+  TILESET_DATA,
 ]);
 
 export const ENGINE_TYPES: readonly RecordType[] = Object.freeze(ENGINE_DATA.map((d) => d.recordType));

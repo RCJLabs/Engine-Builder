@@ -56,25 +56,32 @@ export function spriteDiagnostics(record: RecordInput, header: PngHeader | null)
   return found;
 }
 
-/** E091 over the project's sprite records, each sheet read once. */
-export async function checkSprites(
-  source: ProjectSource,
-  records: readonly RecordInput[],
-  assets: ReadonlySet<string>,
-): Promise<Diagnostic[]> {
+/** A sheet's PNG header by its path inside assets/, each read once: null when it isn't a PNG. */
+export function sheetReader(source: ProjectSource): (sheet: string) => Promise<PngHeader | null> {
   const headers = new Map<string, PngHeader | null>();
-  const diagnostics: Diagnostic[] = [];
-  for (const record of records) {
-    if (record.type !== SPRITE || record.unreadable) continue;
-    const sheet = spriteSheetOf(record.value, assets);
-    if (sheet === null) continue;
+  return async (sheet) => {
     let header = headers.get(sheet);
     if (header === undefined) {
       const bytes = await source.read(`assets/${sheet}`);
       header = bytes ? pngHeader(bytes) : null;
       headers.set(sheet, header);
     }
-    diagnostics.push(...spriteDiagnostics(record, header));
+    return header;
+  };
+}
+
+/** E091 over the project's sprite records, each sheet read once. */
+export async function checkSprites(
+  source: ProjectSource,
+  records: readonly RecordInput[],
+  assets: ReadonlySet<string>,
+): Promise<Diagnostic[]> {
+  const read = sheetReader(source);
+  const diagnostics: Diagnostic[] = [];
+  for (const record of records) {
+    if (record.type !== SPRITE || record.unreadable) continue;
+    const sheet = spriteSheetOf(record.value, assets);
+    if (sheet !== null) diagnostics.push(...spriteDiagnostics(record, await read(sheet)));
   }
   return diagnostics;
 }

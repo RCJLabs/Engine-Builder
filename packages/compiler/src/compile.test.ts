@@ -1028,6 +1028,48 @@ describe('the code table', () => {
       'E091 records/sprite/guard.json /clips/idle/frames',
       'E091 records/sprite/odd.json /frame',
     ]);
+    // M7.2: a tileset whose joins run past its sheet; a tilemap with a character its legend lacks, a
+    // second one, and a walker on a crate; a tilemap in a 3D space.
+    const tile = (char: string, frame: number, extra: object = {}) => ({ char, frame, ...extra });
+    const tilemap = (rows: string[]) => ({ tileset: 'deck', size: [3, 1], layers: [{ id: 'floor', rows }] });
+    const tiled = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'deck', name: 'Deck', version: '0.1.0', kits: ['stats'] }),
+        'assets/deck.png': pngOf(64, 32, 8, 6),
+        'records/tileset/deck.json': JSON.stringify({
+          sheet: 'deck.png',
+          tile: [16, 16],
+          tiles: {
+            floor: tile('.', 0, { walk: true }),
+            crate: tile('c', 1, { cover: 'half' }),
+            pipe: tile('p', 2, { joins: true }),
+          },
+        }),
+        'records/actor/ines.json': JSON.stringify({ name: 'Ines' }),
+        'spaces/deck.json': JSON.stringify({
+          name: 'Deck',
+          view: '2d',
+          objects: [
+            { id: 'map', shape: 'box', components: { tilemap: tilemap(['.c?']) } },
+            { id: 'again', shape: 'box', components: { tilemap: tilemap(['...']) } },
+            { id: 'ines', at: [24, 8, 1], record: 'actor:ines' },
+          ],
+        }),
+        'spaces/hold.json': JSON.stringify({
+          name: 'Hold',
+          objects: [{ id: 'map', shape: 'box', components: { tilemap: tilemap(['...']) } }],
+        }),
+      }),
+      [],
+    );
+    const tileCodes = brief(tiled.diagnostics).filter((d) => d.code !== 'E019');
+    expect(tileCodes.map((d) => `${d.code} ${d.file} ${d.path} ${d.message}`)).toEqual([
+      'E092 records/tileset/deck.json /tiles/pipe/frame Its 16 joins run to frame 17: the sheet has 8, from 0 to 7',
+      'E093 spaces/deck.json /objects/0/components/tilemap/layers/0/rows/0 “?” is no tile of the tileset',
+      'E093 spaces/deck.json /objects/1/components/tilemap A space has one tilemap: “map” is its first',
+      'W157 spaces/deck.json /objects/2/at It stands on tile 1, 0, which can’t be walked: it can only step off it',
+      'E058 spaces/hold.json /objects/0/components/tilemap Only a 2D space draws a tilemap',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -1064,6 +1106,7 @@ describe('the code table', () => {
       radiant,
       bartered,
       sprited,
+      tiled,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

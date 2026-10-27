@@ -26,6 +26,7 @@ import {
   type SpaceSpawns,
   schemaIssues,
   severityOf,
+  TILESET,
   type Walkers,
   z,
 } from '@eb/schema';
@@ -35,6 +36,7 @@ import { clipProblem } from './space2d.ts';
 import { starts, waters } from './spaceLints.ts';
 import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 import { atLines, type SpaceFileRead } from './spaces.ts';
+import { checkTilemapFields, checkTilemapSpace, TILEMAP, tilesetIn } from './tilemaps.ts';
 
 export interface SpacePartsContext {
   /** Every record type there is, by name. */
@@ -98,6 +100,7 @@ export function checkSpaceParts(
   const uses: SpaceUse[] = [];
   const flags = { set: new Map<string, Set<string>>(), read: new Map<string, Set<string>>() };
   const held: Walk['held'] = { effects: [], conditions: [] };
+  const tilesetOf = (id: string) => tilesetIn(ctx.value(TILESET, id));
   for (const read of sound) {
     const space = read.value as SpaceJson;
     const walk = (object: string): Walk => ({ ctx, file: read.file, object, prefabs, diagnostics, uses, flags, held });
@@ -106,6 +109,7 @@ export function checkSpaceParts(
       environmentOf(walk(''), space);
       foliageOf(walk(''), space);
       diagnostics.push(...starts(read.file, space, prefabs));
+      diagnostics.push(...checkTilemapSpace(read.file, space, Object.fromEntries(prefabs), tilesetOf));
     }
     diagnostics.push(...waters(read.file, space, prefabs));
   }
@@ -175,6 +179,13 @@ function checkComponent(walk: Walk, kind: string, fields: unknown, at: string, o
     const problem = clipProblem(fields.clip, walk.ctx.value(SPRITE, fields.sprite));
     if (problem) report(walk, 'E091', `${at}/clip`, problem);
   }
+  if (kind === TILEMAP)
+    checkTilemapFields(
+      fields,
+      (id) => walk.ctx.value(TILESET, id),
+      only,
+      (path, why) => report(walk, 'E093', at + path, why),
+    );
 }
 
 /**

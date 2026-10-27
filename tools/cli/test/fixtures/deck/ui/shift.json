@@ -1,0 +1,71 @@
+{
+  "title": "The boarding deck",
+  "shows": ["shift"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{time.clock}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "All quiet aboard.",
+        "shows-when": "not flag.on(alarm)"
+      },
+      {
+        "widget": "text",
+        "text": "The alarm is sounding.",
+        "shows-when": "flag.on(alarm)"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space",
+    "space": "deck",
+    "label": "The boarding deck"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "stack",
+        "direction": "column",
+        "children": [
+          {
+            "widget": "text",
+            "text": "Ines can see the hatch.",
+            "shows-when": "world.sees(space: deck, from: ines, to: hatch)"
+          },
+          {
+            "widget": "text",
+            "text": "Ines can’t see the hatch.",
+            "shows-when": "not world.sees(space: deck, from: ines, to: hatch)"
+          },
+          {
+            "widget": "text",
+            "text": "Oren can see the hatch.",
+            "shows-when": "world.sees(space: deck, from: oren, to: hatch)"
+          },
+          {
+            "widget": "text",
+            "text": "Oren can’t see the hatch.",
+            "shows-when": "not world.sees(space: deck, from: oren, to: hatch)"
+          }
+        ]
+      },
+      {
+        "widget": "button",
+        "label": "Wait an hour",
+        "action": {
+          "take": "deck/wait"
+        }
+      }
+    ]
+  }
+}

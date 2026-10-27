@@ -11,7 +11,7 @@ import { decodePng } from '@eb/export';
 import { describe, expect, it } from 'vitest';
 import { folderSource } from '../../cli/src/folderSource.ts';
 import { PALETTE_HEX } from '../src/sprites/palette.ts';
-import { MADE, makeSprites, SPRITES_FOLDER } from '../src/sprites/sprites.ts';
+import { MADE, makeSprites, SPRITES_FOLDER, TILESETS, tilesetSheet } from '../src/sprites/sprites.ts';
 
 const FOLDER = resolve(import.meta.dirname, '../../../starter-sprites');
 
@@ -43,8 +43,9 @@ describe('the starter sprites', () => {
     const palette = new Set(PALETTE_HEX);
     expect(palette.size).toBe(16);
     const used = new Set<string>();
-    for (const { id } of MADE) {
-      const { width, height, data } = decodePng(readFileSync(join(FOLDER, `assets/${SPRITES_FOLDER}/${id}.png`)));
+    const sheets = [...MADE.map(({ id }) => `${SPRITES_FOLDER}/${id}.png`), ...Object.keys(TILESETS).map(tilesetSheet)];
+    for (const id of sheets) {
+      const { width, height, data } = decodePng(readFileSync(join(FOLDER, `assets/${id}`)));
       for (let at = 0; at < width * height * 4; at += 4) {
         const alpha = data[at + 3];
         expect([0, 255], id).toContain(alpha);
@@ -70,5 +71,25 @@ describe('the starter sprites', () => {
       expect(hex(data, at(9, 16)), who).toBe('#0a0b14');
       expect(hex(data, at(8, 16)), who).toBe('#d8a27c');
     }
+  });
+
+  it('give the deck a tileset in Space-Wrecked’s characters, its joins drawn as their masks say', () => {
+    const record = JSON.parse(readFileSync(join(FOLDER, 'records/tileset/deck.json'), 'utf8'));
+    expect(record.sheet).toBe(tilesetSheet('deck'));
+    const chars = Object.values(record.tiles as Record<string, { char: string }>).map((tile) => tile.char);
+    expect(chars.sort()).toEqual(['#', '%', '.', 'H', 'a', 'c', 'h']);
+    const { width, data } = decodePng(readFileSync(join(FOLDER, `assets/${tilesetSheet('deck')}`)));
+    // The pixel at (x, y) of frame n, y down from the frame's top as the PNG holds it.
+    const at = (n: number, x: number, y: number) =>
+      hex(data, ((Math.floor(n / 16) * 16 + y) * width + (n % 16) * 16 + x) * 4);
+    const INK = '#0a0b14';
+    for (const first of [record.tiles.machinery.frame, record.tiles.hull.frame])
+      for (let mask = 0; mask < 16; mask++) {
+        // Ink rims the sides it doesn't join (north 1, east 2, south 4, west 8), and no side it does.
+        expect(at(first + mask, 8, 0) === INK, `${first}+${mask} north`).toBe((mask & 1) === 0);
+        expect(at(first + mask, 15, 8) === INK, `${first}+${mask} east`).toBe((mask & 2) === 0);
+        expect(at(first + mask, 8, 15) === INK, `${first}+${mask} south`).toBe((mask & 4) === 0);
+        expect(at(first + mask, 0, 8) === INK, `${first}+${mask} west`).toBe((mask & 8) === 0);
+      }
   });
 });

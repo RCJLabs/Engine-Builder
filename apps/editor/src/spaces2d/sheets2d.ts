@@ -19,6 +19,12 @@ function decode(hash: string, bytes: Uint8Array): Promise<ImageBitmap | null> {
   return found;
 }
 
+/** One sheet the live copy read, decoded (the Tiles row's buttons draw from it); null when it isn't a PNG. */
+export const sheetOf = (live: LiveSprites, path: string): Promise<ImageBitmap | null> => {
+  const read = live.sheets.get(path);
+  return read ? decode(read.hash, read.bytes) : Promise.resolve(null);
+};
+
 export async function sheetsOf(live: LiveSprites): Promise<Sheets> {
   const images = new Map<string, ImageBitmap>();
   await Promise.all(
@@ -32,5 +38,10 @@ export async function sheetsOf(live: LiveSprites): Promise<Sheets> {
     const found = record(sprite);
     return found ? images.get(found.sheet) : undefined;
   };
-  return { record, image, width: (sprite) => image(sprite)?.width ?? 0 };
+  const tileset = (id: string) => {
+    const found = live.tilesets.get(id);
+    const sheet = found ? images.get(found.sheet) : undefined;
+    return found && sheet ? { record: found, image: sheet } : undefined;
+  };
+  return { record, image, width: (sprite) => image(sprite)?.width ?? 0, tileset };
 }

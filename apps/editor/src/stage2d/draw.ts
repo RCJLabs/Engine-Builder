@@ -3,19 +3,25 @@
  * backdrop, then each item in draw order at whole pixels, smoothing off, so every pixel the canvas
  * holds is one of the sheets' own or a shape's colour. The page shows the canvas at a whole scale,
  * pixelated. Canvas 2D, not three: drawImage at whole pixels is exact by construction, and the stage
- * carries no renderer (D83's As built). The Scene panel's 2D view draws with it too.
+ * carries no renderer (D83's As built). The Scene panel's 2D view draws with it too. A tilemap
+ * (M7.2) draws its tiles, edges and posts at its depth, only those inside the view.
  */
-import type { SpriteRecord } from '@eb/schema';
+import type { SpriteRecord, TilesetRecord } from '@eb/schema';
 import { type Point, viewCorner } from './camera.ts';
 import { clipOf, frameAt, frameBox } from './clips.ts';
 import { drawnAt, onCanvas, type Rect, tiles, worldBox } from './place.ts';
 import type { Item } from './scene.ts';
+import { type TileDraw, tileDraws } from './tilemap2d.ts';
 
 export interface Sheets {
   record(sprite: string): SpriteRecord | undefined;
   image(sprite: string): CanvasImageSource | undefined;
   /** The sheet's width in pixels, for a frame's place on it. */
   width(sprite: string): number;
+  /** A tileset and its decoded sheet (M7.2); a view that draws no tilemaps leaves it out. */
+  tileset?(
+    id: string,
+  ): { readonly record: TilesetRecord; readonly image: CanvasImageSource & { width: number } } | undefined;
 }
 
 /** Where a walker stands now, by its actor, and how it looks: the stage's own, never the sim's. */
@@ -77,6 +83,34 @@ function shape(ctx: CanvasRenderingContext2D, kind: 'box' | 'sphere', colour: st
   }
 }
 
+/** What each tilemap draws, worked out again only when its fields, its tileset or its place change. */
+const drawsOf = new WeakMap<object, { tileset: TilesetRecord; at: Point; draws: TileDraw[] }>();
+
+function drawTilemap(
+  ctx: CanvasRenderingContext2D,
+  item: Item & { look: { kind: 'tilemap' } },
+  at: Point,
+  sheets: Sheets,
+  corner: Point,
+  view: Point,
+): void {
+  const found = sheets.tileset?.(item.look.map.tileset);
+  if (!found) return;
+  let known = drawsOf.get(item.look.map);
+  if (!known || known.tileset !== found.record || known.at[0] !== at[0] || known.at[1] !== at[1]) {
+    known = { tileset: found.record, at, draws: tileDraws(item.look.map, found.record, at) };
+    drawsOf.set(item.look.map, known);
+  }
+  const [w, h] = found.record.tile;
+  const across = Math.max(1, Math.floor(found.image.width / w));
+  for (const { frame, box } of known.draws) {
+    const to = onCanvas(box, corner, view[1]);
+    if (to.x + to.w <= 0 || to.y + to.h <= 0 || to.x >= view[0] || to.y >= view[1]) continue;
+    const src = { x: (frame % across) * w, y: Math.floor(frame / across) * h, w, h };
+    ctx.drawImage(found.image, src.x, src.y, w, h, to.x, to.y, w, h);
+  }
+}
+
 /** One frame: every item drawn, and how each was. */
 export function drawFrame(ctx: CanvasRenderingContext2D, ask: FrameAsk): Drawn[] {
   const [cols, rows] = ask.view;
@@ -88,6 +122,11 @@ export function drawFrame(ctx: CanvasRenderingContext2D, ask: FrameAsk): Drawn[]
   for (const item of ask.items) {
     const walking = item.actor === undefined ? undefined : ask.walking.get(item.actor);
     const at: Point = walking ? [Math.round(walking.at[0]), Math.round(walking.at[1])] : drawnAt(item, ask.camera);
+    if (item.look.kind === 'tilemap') {
+      drawTilemap(ctx, item as Item & { look: { kind: 'tilemap' } }, at, ask.sheets, corner, ask.view);
+      drawn.push({ path: item.path, at, flip: false, box: onCanvas(worldBox(item, at, undefined), corner, rows) });
+      continue;
+    }
     if (item.look.kind !== 'sprite') {
       const box = onCanvas(worldBox(item, at, undefined), corner, rows);
       shape(ctx, item.look.kind, item.look.colour, box);

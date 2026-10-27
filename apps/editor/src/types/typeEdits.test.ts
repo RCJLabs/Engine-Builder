@@ -458,5 +458,7 @@ describe('any run of renames', () => {
       }),
       { numRuns: 60 },
     );
-  });
+    // Hundreds of compiles: 2.8 to 3.3 s alone since M7.2 (2.4 to 2.9 s before), and past 5 s once on
+    // CI's runner busy with the whole suite (2026-10-27).
+  }, 30_000);
 });

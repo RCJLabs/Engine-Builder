@@ -1,0 +1,22 @@
+{
+  "name": "The engineer's rounds",
+  "description": "Between the quarters and the hold; to the airlock when the alarm sounds.",
+  "do": {
+    "first": [
+      {
+        "if": "flag.on(alarm)",
+        "do": {
+          "travel": "airlock-2"
+        }
+      },
+      {
+        "do": {
+          "patrol": ["quarters", "hold"],
+          "dwell": {
+            "minutes": 10
+          }
+        }
+      }
+    ]
+  }
+}

@@ -95,6 +95,8 @@ export const DIAGNOSTIC_CODES = {
   E089: 'An interact holds items and takes the object, which then could never be opened again; or holds items with the inventory kit off',
   E090: 'An essential actor with drops or an on-fall, which would never run, or the player marked essential',
   E091: "A sprite that can't be drawn as written: its sheet missing or not a PNG, not a whole number of frames, a clip past the sheet or backwards, or a clip named it doesn't have",
+  E092: "A tileset that can't be drawn as written: its sheet not a PNG or not a whole number of tiles, a frame or a tile's joins past the sheet, no tiles, or a tile's character that isn't one character or is another tile's",
+  E093: "A tilemap that doesn't fit its tileset or its size: a row too long or too many, a character no tile is written as, edges of the wrong shape or with a tileset that has none, or two tilemaps in one space",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -151,6 +153,7 @@ export const DIAGNOSTIC_CODES = {
   W154: "A space's map is out of date: the space has changed since it was baked",
   W155: "An objective's target is an actor placed in no space, so its marker can't show",
   W156: 'A shop whose actor carries nothing and whose stock is empty: it never has anything to sell',
+  W157: "A walker placed in a tilemap's space where it can't stand: on a cell that isn't walkable, or off the map",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;

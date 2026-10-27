@@ -111,6 +111,13 @@
       "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
       "date": "2026-10-27",
       "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/deck-tiles.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
     }
   }
 }

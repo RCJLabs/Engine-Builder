@@ -141,6 +141,13 @@ textarea.form-input {
   font-family: var(--mono);
 }
 
+/* A tilemap's rows and edges (M7.2): a picture in characters, never wrapped, scrolled across instead. */
+.form-lines {
+  font-family: var(--mono);
+  white-space: pre;
+  overflow-x: auto;
+}
+
 .form-pick {
   display: flex;
   align-items: center;
