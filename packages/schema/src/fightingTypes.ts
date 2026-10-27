@@ -90,7 +90,25 @@ export const FALLING_FIELDS: Fields = {
     label: 'On fall',
     description: 'What happens as it falls: @self is the actor',
   },
+  essential: {
+    kind: 'bool',
+    optional: true,
+    label: 'Essential',
+    description: 'Struck to nothing, it goes down and gets up again rather than falling (M6.10)',
+  },
 };
+
+/**
+ * E090: an essential actor never falls, so its drops and on-fall would never run (M6.10, D82). The
+ * player's essential is caught with project.json's fighting, by checkFightingNames.
+ */
+export function checkEssential(actor: unknown, report: (code: 'E090', path: string, message: string) => void): void {
+  const value = actor as { essential?: unknown; drops?: unknown; 'on-fall'?: unknown } | null;
+  if (value?.essential !== true) return;
+  for (const field of ['drops', 'on-fall'] as const)
+    if (value[field] !== undefined)
+      report('E090', `/${field}`, `An essential actor never falls, so its ${field} would never run`);
+}
 
 const MELEE_ONLY = ['reach', 'arc', 'windup', 'strike'] as const;
 const RANGED_ONLY = ['range', 'speed', 'draw', 'ammo'] as const;
@@ -112,7 +130,7 @@ export function checkWeapon(item: unknown, report: (code: 'W151', path: string, 
 }
 
 export interface FightingProblem {
-  readonly code: 'E082';
+  readonly code: 'E082' | 'E090';
   readonly path: string;
   readonly message: string;
 }
@@ -125,6 +143,7 @@ export function checkFightingNames(
   fighting: { readonly player: string; readonly combat: string },
   has: (type: string, id: string) => boolean,
   placed: (actor: string) => string | undefined,
+  essential: (actor: string) => boolean = () => false,
 ): FightingProblem[] {
   const problems: FightingProblem[] = [];
   const { player, combat } = fighting;
@@ -135,6 +154,12 @@ export function checkFightingNames(
       message: `There is no actor "${player}" to be the player`,
     });
   else {
+    if (essential(player))
+      problems.push({
+        code: 'E090',
+        path: '/fighting/player',
+        message: `"${player}" is essential, but the player falls as the game ends: only an NPC can be essential`,
+      });
     const space = placed(player);
     if (space !== undefined)
       problems.push({

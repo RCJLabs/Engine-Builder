@@ -1,7 +1,8 @@
 /**
  * The world module at version 5 (M6.4, D76, docs/specs/combat.md#an-npc-fighting): attack sends a
  * placed actor at the player, the first two sent engaged and the rest waiting their turn; fall puts
- * one down, its goals gone and no goal effect moving it after. A version 4 slice loads as it was.
+ * one down, its goals gone and no goal effect moving it after, until rise stands it up (M6.10). A
+ * version 4 slice loads as it was.
  */
 import { describe, expect, it } from 'vitest';
 import { createRecordStore } from '../records.ts';
@@ -24,6 +25,9 @@ const WORLD: WorldData = {
       'rook-follow': effects({ effect: 'follow', actor: 'rook' }),
       'rook-stand': effects({ effect: 'stand', actor: 'rook', facing: 'player' }),
       'crow-again': effects({ effect: 'attack', actor: 'crow' }),
+      'rook-rises': effects({ effect: 'rise', actor: 'rook' }),
+      // Rook's own path: a Talk, as the compiler makes one for an actor with a talk.
+      rook: { label: 'Talk', effects: [] },
     },
   },
   spawns: { camp: [] },
@@ -100,6 +104,20 @@ describe('fall', () => {
       expect(p.use(object).accepted).toBe(true);
     expect(p.npcs().rook).toEqual({ space: 'camp', feet: [3, 0, 4], yaw: 90, down: true });
     expect(p.down('crow')).toBe(false);
+  });
+
+  it('stands an NPC up on rise, where it lay and free to walk again; down, it answers no use (M6.10)', () => {
+    const p = play();
+    p.at({ rook: { feet: [3, 0, 4], yaw: 90 } });
+    expect(p.use('rook').accepted).toBe(true);
+    p.use('rook-falls');
+    expect(p.use('rook').beats).toEqual([expect.objectContaining({ reason: 'down', actor: 'rook' })]);
+    expect(p.use('rook-rises').accepted).toBe(true);
+    expect(p.down('rook')).toBe(false);
+    expect(p.npcs().rook).toEqual({ space: 'camp', feet: [3, 0, 4], yaw: 90 });
+    expect(p.use('rook').accepted).toBe(true);
+    p.use('rook-home');
+    expect(p.npcs().rook?.goal).toBe('tent');
   });
 
   it('loads a version 4 slice as it was, no one fighting or down', () => {

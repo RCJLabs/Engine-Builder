@@ -25,7 +25,7 @@ import { checkPart, type PartContext } from './checkValue.ts';
 import { compareDiagnostics, compareText, type Diagnostic, type DiagnosticCode, severityOf } from './diagnostics.ts';
 import { withEngineTypes } from './engineTypes.ts';
 import { checkEnvironment, ENVIRONMENT, type EnvironmentRecord } from './environmentTypes.ts';
-import { checkWeapon } from './fightingTypes.ts';
+import { checkEssential, checkWeapon } from './fightingTypes.ts';
 import { FlagChecks, type FlagUses, type HeldElsewhere } from './flagCheck.ts';
 import { checkFoliage, FOLIAGE, type FoliageRecord } from './foliageTypes.ts';
 import { KitChecks } from './kitCheck.ts';
@@ -216,6 +216,7 @@ export function validateRecords(
     if (sound && on.includes(AI) && (record.type === BEHAVIOUR || record.type === ACTOR || record.type === ITEM))
       behaving.push({ type: record.type, id: record.id, value: record.value, report });
     if (sound && record.type === ITEM && on.includes(FIGHTING)) checkWeapon(record.value, report);
+    if (sound && record.type === ACTOR && on.includes(FIGHTING)) checkEssential(record.value, report);
     if (sound) {
       kits.record(record.type, record.id, record.value, report);
       for (const flag of kits.flagsRead(record.type, record.value)) flags.heard(flag, from);

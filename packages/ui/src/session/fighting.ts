@@ -1,7 +1,7 @@
 /**
  * What the stage reads of a walked space's fights (M6.4, D76, docs/specs/combat.md): who the player
- * is, what each fighter here wields with its numbers filled in, who has fallen, who has been searched
- * and which two NPCs are engaged. The sim decides every hit; this only tells the stage how to time and
+ * is, what each fighter here wields with its numbers filled in, who has fallen, who is down for now
+ * (M6.10), who has been searched and which two NPCs are engaged. The sim decides every hit; this only tells the stage how to time and
  * aim one, and where the bodies lie.
  */
 import { type GameState, npcEngaged, type PackFighting, type RecordStore, WORLD, type WorldSlice } from '@eb/core';
@@ -30,6 +30,8 @@ export interface FightView {
   /** The player's and each NPC's of the player's space, by actor. */
   readonly weapons: Readonly<Record<string, WeaponView>>;
   readonly fallen: readonly string[];
+  /** Essential NPCs down for now (M6.10): laid down, no body to search, stood up again by the stage's rise. */
+  readonly down: readonly string[];
   readonly searched: readonly string[];
   /** The bodies searched with nothing left in their bags (M6.8): a search opens what is left. */
   readonly emptied: readonly string[];
@@ -79,6 +81,7 @@ export function fightOf(
     player: fighting.player,
     weapons,
     fallen: slice.fallen,
+    down: slice.down,
     searched: slice.searched,
     emptied: slice.searched.filter((actor) =>
       content.ids('item').every((item) => fact('inventory.carried', { actor, item }) === 0),

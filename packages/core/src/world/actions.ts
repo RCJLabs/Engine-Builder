@@ -48,6 +48,11 @@ export function use(world: WorldData, ctx: ModuleContext<WorldSlice>, action: Ac
   if (slice.taken.includes(key)) ctx.refuse('taken');
   if (found.once === true && slice.fired.includes(key)) ctx.refuse('spent');
   if (found.when !== undefined && ctx.check(found.when) !== true) ctx.refuse('unmet');
+  // An NPC down, fallen or an essential one until it gets up (M6.10), answers no use: no talk with it.
+  const actor = Object.keys(world.actors).find(
+    (a) => world.actors[a]?.space === space && world.actors[a]?.path === object,
+  );
+  if (actor !== undefined && own(slice.npcs, actor)?.down === true) ctx.refuse('down', { actor });
   ctx.emit('used', { space, object });
   // Taken before its effects run, so an enter-space among them leaves the place as it should be.
   if (found.takes === true) remember(ctx.write().taken as string[], key);

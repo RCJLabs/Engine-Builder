@@ -52,6 +52,8 @@ const WALKED = new Set([
   'fighting/hit',
   'fighting/loosed',
   'fighting/search',
+  // An essential NPC down gets up as the stage says, ten seconds on (M6.10).
+  'fighting/rise',
 ]);
 /** The journal's Track (M6.6): it takes no time and no mode offers it, as looking at the journal doesn't. */
 const TRACK = 'quests/track';

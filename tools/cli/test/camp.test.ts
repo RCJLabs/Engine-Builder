@@ -173,4 +173,15 @@ describe('the camp broken', () => {
     );
     expect(found).toEqual([['W150', 'records/actor/crow.json', '/behaviour']]);
   });
+
+  it('is E090 for an essential bandit with an on-fall, and for an essential player (M6.10)', async () => {
+    const crow = await broken((folder) =>
+      edit(folder, 'records/actor/crow.json', (a) => Object.assign(a, { essential: true })),
+    );
+    expect(crow).toEqual([['E090', 'records/actor/crow.json', '/on-fall']]);
+    const hero = await broken((folder) =>
+      edit(folder, 'records/actor/hero.json', (a) => Object.assign(a, { essential: true })),
+    );
+    expect(hero).toEqual([['E090', 'project.json', '/fighting/player']]);
+  });
 });

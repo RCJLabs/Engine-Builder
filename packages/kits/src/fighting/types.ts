@@ -68,6 +68,8 @@ export interface FightingActor {
   readonly drops?: string;
   /** Run as it falls, `@self` the actor. */
   readonly 'on-fall'?: readonly Effect[];
+  /** M6.10 (D82): its health run out, it is down rather than fallen, and gets up again. */
+  readonly essential?: boolean;
 }
 
 export interface FightingSlice {
@@ -75,4 +77,6 @@ export interface FightingSlice {
   readonly fallen: readonly string[];
   /** The fallen NPCs searched, sorted. */
   readonly searched: readonly string[];
+  /** Essential NPCs down for now, sorted (M6.10, D82): out of the fight until they rise. */
+  readonly down: readonly string[];
 }

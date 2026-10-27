@@ -85,6 +85,25 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
   its own key, `checkpoint/<slot>`; the save made by the fatal step is never kept. Fallen's button
   says where it goes back to: "Back to the camp".
 
+## Essential actors
+
+M6.10 (D82), for the townsfolk a world can't lose:
+
+- **An actor with `essential`** whose health runs out is down, not fallen.
+  - The kit keeps it in its `down` list, raises `fighting/downed { actor, by }` and runs the world
+    module's `fall`, so its goal is cleared and its behaviour stops as a fallen NPC's does.
+  - It drops nothing, runs no `on-fall` and leaves no body: Search is refused `not-fallen`.
+  - E090 says so for an essential actor with `drops` or `on-fall`, which would never run.
+- **Down,** it neither strikes nor is struck: either hit is refused `down`. `fighting.down` reads
+  it, and `world.npc-down` is true as for the fallen ("the NPC is down"), so a quest's "deal with"
+  objective is met by knocking an essential actor down.
+- **Getting up.** The stage lays it down as it lays a body, and ten seconds later sends
+  `fighting/rise { actor }`: it leaves `down`, its health is healed to full, and the world module's
+  `rise` lets its behaviour run again. A rise for an actor not down is refused `not-down`. The
+  headless stage sends the rise at once, as a bot can't wait.
+- **The player** is never essential: marked so, they still fall and the game stops, and E090 says so
+  at project.json's `fighting.player`.
+
 ## Aiming
 
 - **Soft aim.** As a swing or a draw starts, the player turns toward the nearest standing foe
@@ -119,7 +138,8 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 ## State and saves
 
 - **The fighting slice** at version 1: `{ fallen: [actor], searched: [actor] }`, the player among
-  the fallen once they fall.
+  the fallen once they fall. Version 2 (M6.10) adds `down: [actor]`, sorted; a version 1 save
+  migrates with no one down, and `camp-fighting-v1.json`, saved by version 1, keeps loading.
 - **The world slice** at version 5 adds to each NPC `fight` (its turn: the order it was sent to
   attack, which an attack sent again keeps) and `down` (fallen, set by the world module's
   `fall { actor }`, which clears its goal). `world.npc-engaged` reads the first two standing by turn. A version 4 save
@@ -135,6 +155,8 @@ is its weapon (the first such slot, by slot id); one wearing none fights with fi
 - **W150** an actor with an attack leaf that wears no weapon: it fights with its fists.
 - **W151** a weapon's field its kind doesn't read: a reach, an arc, a wind-up or a strike on a ranged
   weapon; a range, a speed, a draw or ammo on a melee one.
+- **E090** (M6.10) an essential actor with `drops` or `on-fall`, at each; and the player actor marked
+  essential, at project.json's `fighting.player`.
 
 ## The editor
 

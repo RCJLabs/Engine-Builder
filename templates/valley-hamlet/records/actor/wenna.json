@@ -14,5 +14,6 @@
     "clothes": "#7a4a2a",
     "trim": "#2f2f2f",
     "skin": "#b07a52"
-  }
+  },
+  "essential": true
 }

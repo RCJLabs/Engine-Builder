@@ -860,6 +860,21 @@ describe('the code table', () => {
       'E081 records/actor/rook.json /behaviour',
       'E081 records/behaviour/bandit.json /do/attack',
     ]);
+    // M6.10: an essential bandit with an on-fall, which would never run, and an essential player.
+    const kept = await kitted(
+      FIGHT_KITS,
+      {
+        ...camp,
+        'records/actor/rook.json': '{ "name": "Rook", "behaviour": "bandit", "essential": true, "on-fall": [] }',
+        'records/actor/hero.json': '{ "name": "Hero", "essential": true }',
+      },
+      { calendar: { ticksPerDay: 1440 }, fighting: { player: 'hero', combat: 'blades' } },
+    );
+    expect(
+      brief(kept.diagnostics)
+        .filter((d) => d.code === 'E090')
+        .map((d) => `${d.file} ${d.path}`),
+    ).toEqual(['project.json /fighting/player', 'records/actor/rook.json /on-fall']);
     // M6.5: a skinned model off the rig, an animator playing a clip its model lacks, a state twice
     // and one nothing reaches, and an actor whose animator is on the model off the rig.
     const animated = await compileProject(
@@ -1022,6 +1037,7 @@ describe('the code table', () => {
       unsaid,
       armed,
       unarmed,
+      kept,
       animated,
       marked,
       radiant,
