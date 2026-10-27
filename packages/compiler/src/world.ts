@@ -7,7 +7,16 @@
  */
 import type { PackMap, PackWorld, TriggerZone, WorldUse } from '@eb/core';
 import type { SpaceSpawns } from '@eb/schema';
-import { type DataType, ENVIRONMENT, FOLIAGE, type KnownOptions, MATERIAL, MODEL, packValue } from '@eb/schema';
+import {
+  type DataType,
+  ENVIRONMENT,
+  FOLIAGE,
+  type KnownOptions,
+  MATERIAL,
+  MODEL,
+  packValue,
+  TILESET,
+} from '@eb/schema';
 import { base64Of } from './audioFiles.ts';
 import { gltfSummary } from './gltf.ts';
 import { ASSETS_DIR } from './layout.ts';
@@ -22,6 +31,7 @@ import { SPACES_DIR } from './spaceFiles.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
 import type { TerrainFileRead } from './terrains.ts';
+import { packTiles, TILEMAP } from './tilemaps.ts';
 
 /** The record type an NPC is placed as (M6.1). */
 const ACTOR = 'actor';
@@ -186,6 +196,7 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
   }
   // Where each actor is placed, which the world module walks it from (M6.2): one place each (E077).
   const actors: Record<string, { space: string; path: string }> = {};
+  const tiles = packTiles(spaces, prefabs, sources.record);
   for (const [actor, [first]] of actorPlaces(sources.files, prefabs)) {
     if (first) actors[actor] = { space: first.space, path: first.path };
   }
@@ -206,6 +217,8 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     ...(Object.keys(maps).length > 0 ? { maps } : {}),
     // Format 15 only once a space or an object has a tag (M6.7): createPack leaves them out otherwise.
     places: placesOf(spaces, prefabs, sources.record),
+    // Format 18 only with a tilemap (M7.2).
+    ...(Object.keys(tiles).length > 0 ? { tiles } : {}),
   };
 }
 
@@ -224,12 +237,12 @@ function animatorNeeds(id: string, sources: DrawnSources, keys: Set<string>, fou
   }
 }
 
-/** A sprite's record and its sheet (M7.1). */
-function spriteNeeds(id: string, sources: DrawnSources, keys: Set<string>, found: Set<string>): void {
-  const sprite = sources.record(`${SPRITE}:${id}`);
-  if (!isFields(sprite)) return;
-  keys.add(`${SPRITE}:${id}`);
-  if (typeof sprite.sheet === 'string') found.add(sprite.sheet);
+/** A sprite's record and its sheet (M7.1), or a tileset's (M7.2). */
+function sheetNeeds(key: string, sources: DrawnSources, keys: Set<string>, found: Set<string>): void {
+  const record = sources.record(key);
+  if (!isFields(record)) return;
+  keys.add(key);
+  if (typeof record.sheet === 'string') found.add(record.sheet);
 }
 
 /** What drawnFrom reads: the records and each type's model field. */
@@ -240,7 +253,7 @@ export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
  * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
  * Since M6.5 an actor's animator and the models its clips come from, and the player's actor; since
  * M6.6 a map's hash reads it too (mapInputs.ts); since M7.1 each sprite drawn, a component's or an
- * actor's, and its sheet among the files.
+ * actor's, and its sheet among the files; since M7.2 each tilemap's tileset and its sheet.
  */
 export function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
@@ -276,13 +289,15 @@ export function drawnFrom(
       if (model) keys.add(`${MODEL}:${model.id}`);
       const actor = key.startsWith(`${ACTOR}:`) ? recordHere(sources.record(key), passed) : {};
       if (typeof actor.animator === 'string') animatorNeeds(actor.animator, sources, keys, found);
-      if (typeof actor.sprite === 'string') spriteNeeds(actor.sprite, sources, keys, found);
+      if (typeof actor.sprite === 'string') sheetNeeds(`${SPRITE}:${actor.sprite}`, sources, keys, found);
     };
     eachPlacedRecord(space, prefabs, visit);
     for (const object of space.objects)
       eachPlaced(object, prefabs, (seen) => {
         const sprite = seen.components?.[SPRITE]?.[SPRITE];
-        if (typeof sprite === 'string') spriteNeeds(sprite, sources, keys, found);
+        if (typeof sprite === 'string') sheetNeeds(`${SPRITE}:${sprite}`, sources, keys, found);
+        const tileset = seen.components?.[TILEMAP]?.tileset;
+        if (typeof tileset === 'string') sheetNeeds(`${TILESET}:${tileset}`, sources, keys, found);
       });
     for (const key of [...grown, ...actors]) visit(key, []);
     for (const material of needs.materials) keys.add(`${MATERIAL}:${material}`);

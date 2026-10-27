@@ -34,6 +34,7 @@ import {
   type RecordType,
   SPRITE,
   severityOf,
+  TILESET,
 } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
 
@@ -184,9 +185,9 @@ export async function readCatalog(source: ProjectSource): Promise<Catalog> {
 /**
  * The engine's flag and sheet live in the Logic panel (D36); its sounds, ambiences and music
  * (M4.8), its environments (M5.4), its materials and models (M5.5), its foliage (M5.6), its
- * animators (M6.5) and its sprites (M7.1) are tables like a project's own.
+ * animators (M6.5), its sprites (M7.1) and its tilesets (M7.2) are tables like a project's own.
  */
-const ENGINE_ORDER = [SOUND, AMBIENCE, MUSIC, ENVIRONMENT, MATERIAL, MODEL, FOLIAGE, ANIMATOR, SPRITE];
+const ENGINE_ORDER = [SOUND, AMBIENCE, MUSIC, ENVIRONMENT, MATERIAL, MODEL, FOLIAGE, ANIMATOR, SPRITE, TILESET];
 const ENGINE_TABLES: ReadonlySet<string> = new Set(ENGINE_ORDER);
 
 /** The spaces and prefabs, read and checked as the compiler reads and checks them for eb validate (compiler/spaces.ts). */

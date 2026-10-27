@@ -23,6 +23,7 @@ export {
   type TargetName,
 } from './exportFile.ts';
 export { SCREENS, screenReads, withScreens } from './flagUses.ts';
+export { eachFlat, type FlatPlace, flatPlacesOf, type Point, placeIn } from './flatPlaces.ts';
 export {
   type GltfSummary,
   gltfJson,
@@ -152,9 +153,25 @@ export {
   type SpaceFileRead,
 } from './spaces.ts';
 export { FIT_DEFAULT, is2d, is2dValue } from './spaceView.ts';
-export { checkSprites, framesOf, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
+export { checkSprites, framesOf, sheetReader, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
+export {
+  cellRules,
+  checkTilemapFields,
+  checkTilemapSpace,
+  type FoundTilemap,
+  isTilemap,
+  packTiles,
+  packTilesOf,
+  TILEMAP,
+  type TilemapFields,
+  tileAt,
+  tilemapProblems,
+  tilemapsIn,
+  tilesetIn,
+} from './tilemaps.ts';
+export { checkTilesets, tilesetDiagnostics } from './tilesets.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';

@@ -201,6 +201,20 @@ export {
   type SpriteClip,
   type SpriteRecord,
 } from './spriteTypes.ts';
+export {
+  checkTileset,
+  type EdgeFrames,
+  JOIN_FRAMES,
+  lastFrameOf,
+  legendOf,
+  TILESET,
+  TILESET_DATA,
+  TILESET_TYPE_FILE,
+  type TileCover,
+  type TilesetEdges,
+  type TilesetRecord,
+  type TilesetTile,
+} from './tilesetTypes.ts';
 export { calendarSchema, cancelTimerEffect, scheduleEffect, waitEffect } from './time.ts';
 export { timeEffectFiles } from './timeEffects.ts';
 export {

@@ -283,6 +283,7 @@ describe('the engine’s types', () => {
       'foliage',
       'animator',
       'sprite',
+      'tileset',
       'item',
     ]);
   });

@@ -4,7 +4,7 @@
  * and its fields checked as a record's are. Nothing runs them until M5.8, which fills in what a
  * file leaves out: a light is white, of intensity 1 and range 10 m; a collider a still box; a sound
  * plays at volume 1 to 10 m; water is #3a6d8c, of clarity 0.6 (M5.3). A sprite and a parallax
- * layer are a 2D space's (M7.1, D83).
+ * layer are a 2D space's (M7.1, D83), and so is a tilemap (M7.2, D84).
  */
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -140,6 +140,47 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
         description: 'Across and up: 0 stays with the camera, 1 moves with the world, between them farther off',
       },
       repeat: { kind: 'bool', optional: true, label: 'Repeats', description: 'Tiled across the view' },
+    },
+  },
+  // M7.2 (D84): a grid of tiles, its layers through a tileset's legend and its edges in Space-Wrecked's map text.
+  tilemap: {
+    title: 'Tilemap',
+    description: 'A grid of tiles in a 2D space, drawn through a tileset, with walls and doors on its edges.',
+    fields: {
+      tileset: { kind: 'ref', to: 'tileset', label: 'Tileset' },
+      size: {
+        kind: 'list',
+        of: { kind: 'int', min: 1, max: 256 },
+        min: 2,
+        max: 2,
+        label: 'Size',
+        description: 'Its columns and rows',
+      },
+      layers: {
+        kind: 'list',
+        min: 1,
+        label: 'Layers',
+        description: 'Later layers draw over earlier ones; a cell’s rules are its topmost tile’s',
+        of: {
+          kind: 'group',
+          fields: {
+            id: { kind: 'text', min: 1, label: 'Layer' },
+            rows: {
+              kind: 'list',
+              of: { kind: 'text' },
+              label: 'Rows',
+              description: 'One character a tile, through the tileset’s legend; a space is no tile',
+            },
+          },
+        },
+      },
+      edges: {
+        kind: 'list',
+        of: { kind: 'text' },
+        optional: true,
+        label: 'Edges',
+        description: 'Space-Wrecked’s map text: - | a wall, = I the hull, / a door, o a hatch, + where they meet',
+      },
     },
   },
   sound: {

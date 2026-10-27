@@ -12,11 +12,10 @@ A tileset is an engine record type, as a sprite is:
   "sheet": "starter-sprites/deck-tiles.png",
   "tile": [16, 16],
   "tiles": {
-    "floor": { "frame": 0, "walk": true },
-    "console": { "frame": 4, "cover": "half" },
-    "machinery": { "frame": 16, "cover": "full", "blocksSight": true, "joins": true }
+    "floor": { "char": ".", "frame": 0, "walk": true },
+    "console": { "char": "c", "frame": 4, "cover": "half" },
+    "machinery": { "char": "#", "frame": 16, "cover": "full", "blocksSight": true, "joins": true }
   },
-  "legend": { ".": "floor", "c": "console", "#": "machinery" },
   "edges": {
     "wall": { "across": 48, "down": 49 },
     "hull": { "across": 50, "down": 51 },
@@ -28,14 +27,15 @@ A tileset is an engine record type, as a sprite is:
 ```
 
 - **The sheet** is a PNG among the project's assets, cut into frames of `tile` pixels, numbered across and then down from 0, as a sprite's sheet is.
-- **A tile** has its `frame` and its rules:
+- **A tile** has its `char`, its `frame` and its rules:
   - `walk`: a walker can stand on it (false if left out);
   - `cover`: `"half"` or `"full"` given to whoever stands beside it (none if left out);
   - `blocksSight`: a line of sight can't cross it (false if left out);
   - `joins`: it has 16 frames from `frame`, one for each way its neighbours join it (see [Autotiling](#autotiling)).
-- **The legend** gives each tile one character to be written as. A space is never in it: a space is no tile. A tile need not be in the legend, but then no layer can hold it.
+- **`char`** is the one character the tile is written as in a tilemap's rows. A space is never one: a space is no tile. The tiles' characters are the tileset's legend. They sit on the tiles because a type file's map keys are names, and a legend's are `.` and `#`.
+- **The tilemap's object** is a box, as a sprite object is (E058 asks every object to be a shape, a prefab or a record). The stage draws the tilemap and not the box.
 - **`edges`** gives the frames an edge is drawn with: for each kind, `across` (an edge between a tile and the one above or below it) and `down` (between a tile and the one beside it), and `post`, drawn where edges meet. A tileset with no `edges` can't draw them, and a tilemap that has any is E093.
-- **E092** is a tileset that can't be drawn as written: a sheet missing or not a PNG; a sheet not a whole number of tiles across and down; a frame past the sheet, or 16 joined frames that run past it; a legend key that isn't one character, or is a space; a legend naming a tile the tileset doesn't have. The compiler reads only the PNG's header, as it does a sprite's.
+- **E092** is a tileset that can't be drawn as written: a sheet missing or not a PNG; a sheet not a whole number of tiles across and down; a frame past the sheet, or 16 joined frames that run past it, or an edge's or the post's frame past it; no tiles; a tile's `char` that isn't one character, is a space, or is another tile's already. The compiler reads only the PNG's header, as it does a sprite's.
 
 ## A tilemap
 
@@ -59,7 +59,7 @@ A tilemap is a component of an object in a 2D space:
 
 - **`size`** is its columns and rows. Row 0 is the top one, as text is read; column 0 is on the left.
 - **The object's `at`** is the map's bottom-left corner in art pixels. The tile at column `c` and row `r` covers `x` from `at.x + c·w` and `y` from `at.y + (rows − 1 − r)·h`, for a tile `w` by `h`.
-- **Each layer** has an `id` and `rows`: one string a row, one character a tile, through the tileset's legend. A space is no tile. A row may stop short and leave the rest empty, and a layer may have fewer rows than `size`. Later layers draw over earlier ones.
+- **Each layer** has an `id` and `rows`: one string a row, one character a tile, through its tiles' characters. A space is no tile. A row may stop short and leave the rest empty, and a layer may have fewer rows than `size`. Later layers draw over earlier ones.
 - **`edges`** is Space-Wrecked's map text (`mapText.js`), 2 × rows + 1 lines:
   - even lines are edge rows: a tile's north edge at column `2c + 1`, a corner at `2c`;
   - odd lines hold a tile's west edge at column `2c` and the tile at `2c + 1`, which is blank here: the tiles are the layers';
@@ -68,7 +68,7 @@ A tilemap is a component of an object in a 2D space:
 - **A cell's rules are its topmost layer's tile.** A cell no layer fills is empty: nobody stands on it, it gives no cover, and sight passes over it.
 - **Edges are Space-Wrecked's four kinds.** A wall, the hull and a hatch block walking and sight; a door blocks sight and lets walkers through. A door's opening and shutting is M7.5's.
 - **One tilemap a space.** A second is E093.
-- **E093** is a tilemap that doesn't fit its tileset or its size: an unknown tileset; a size not whole numbers from 1 to 256; a row longer than `size`, or more rows; a character not in the legend; edges of the wrong shape (more lines than 2 × rows + 1, a line longer than 2 × columns + 1, a character on a tile's place, a corner that isn't `+` or a space, an edge character not one of the seven); edges with a tileset that has none; two tilemaps in one space. Each is reported at its layer, row and column.
+- **E093** is a tilemap that doesn't fit its tileset or its size: a size not whole numbers from 1 to 256; a row longer than `size`, or more rows; a character no tile is written as; edges of the wrong shape (more lines than 2 × rows + 1, a line longer than 2 × columns + 1, a character on a tile's place, a corner that isn't `+` or a space, an edge across that isn't `-`, `=`, `/`, `o` or a space, or one down that isn't `|`, `I`, `/`, `o` or a space); edges with a tileset that has none; two tilemaps in one space. Each is reported at its layer and row, or its edges' line. A tileset that isn't there is the tileset field's own missing reference, as any record field's is.
 - **E058** is a tilemap in a 3D space, as a sprite is.
 - **W157** is a walker that can't walk where it stands: an actor placed in a tilemap's space on a cell that isn't walkable, or off the map.
 
