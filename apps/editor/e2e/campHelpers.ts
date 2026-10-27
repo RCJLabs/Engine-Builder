@@ -31,12 +31,22 @@ export interface FightSeen {
   readonly bodies: readonly { readonly actor: string; readonly label: string }[];
 }
 
+/**
+ * What the walk says of its fights. A fall takes the walk with the game (the Fallen screen is all
+ * there is), so with no walk it says what the shell shows: main after M7.1 failed in the howe with
+ * only "Nothing fights", which a fall and a walk that never started both read as.
+ */
 export async function fought(page: Page): Promise<FightSeen> {
-  const seen = await page.evaluate(
-    () => (window as unknown as { __ebWalk?: { fight(): unknown } }).__ebWalk?.fight() ?? null,
-  );
-  if (!seen) throw new Error('Nothing fights in the space walked');
-  return seen as FightSeen;
+  const seen = await page.evaluate(() => {
+    const walk = (window as unknown as { __ebWalk?: { fight(): unknown } }).__ebWalk;
+    const shell = document.querySelector('[data-shell-screen]')?.getAttribute('data-shell-screen') ?? null;
+    return { fight: walk?.fight() ?? null, walking: walk !== undefined, shell };
+  });
+  if (seen.fight) return seen.fight as FightSeen;
+  if (seen.walking) throw new Error('Nothing fights in the space walked');
+  if (seen.shell === 'fallen')
+    throw new Error('The player fell: the Fallen screen is up and the walk went with the game');
+  throw new Error(`No space is walked: the shell shows ${seen.shell ?? 'nothing'}`);
 }
 
 /** The hits the sim took, by whom. */
