@@ -100,6 +100,10 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
   // The step each actor was last hit on, once the sim took the hit: anim.hit (M6.5).
   let steps = 0;
   const struck = new Map<string, number>();
+  // Hits and shots the sim hasn't answered. No swing starts while one waits: where the sim lags the
+  // stage, as on CI's software renderer, a fight run ahead of its view kept striking a foe the sim had
+  // felled while the one left standing struck freely, and the player fell in Kaldvík's howe (M7.3).
+  let unanswered = 0;
 
   const post = (action: Action, engaged?: boolean): Promise<Sent> => {
     const entry: { action: Action; sent: Sent | 'waiting'; engaged?: boolean } = {
@@ -108,7 +112,10 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
       ...(engaged === undefined ? {} : { engaged }),
     };
     sent.push(entry);
+    const counted = action.type === 'fighting/hit' || action.type === 'fighting/loosed';
+    if (counted) unanswered++;
     return outbox.post(action).then((result) => {
+      if (counted) unanswered--;
       entry.sent = result;
       return result;
     });
@@ -160,7 +167,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
     const me = view()?.player;
     const weapon = me === undefined ? undefined : weaponOf(me);
     if (!me || !weapon || fallen(me)) return yaw;
-    if (!swing && attack) {
+    if (!swing && attack && unanswered === 0) {
       swing = startSwing(weapon);
       const foes = standing().map((n) => ({ actor: n.actor, path: n.path, at: n.at }));
       const foe = aimAt(foes, feet, yaw, weapon);
@@ -202,7 +209,7 @@ export function createFight(ask: SpaceAsk, outbox: Outbox, to: FightTo): FightSt
     const target = player(feet);
     const chest = chestOf(n.at, n.height);
     const across = Math.hypot(feet[0] - n.at[0], feet[2] - n.at[2]);
-    if (!s) {
+    if (!s && unanswered === 0) {
       const near = weapon.kind === 'melee' ? across - BODY.radius <= weapon.reach : across <= weapon.range;
       if (near && clearTo(chest, target, n.path)) s = startSwing(weapon);
     }

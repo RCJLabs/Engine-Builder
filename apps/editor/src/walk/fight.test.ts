@@ -2,8 +2,8 @@
  * The walk's fights without a world (M6.4, D76): a stand-in for Rapier's ray, so what fight.ts sends
  * is all there is to read. An engaged archer draws and looses at the player; its arrow, landing,
  * sends its hit only while the archer is still in the fight and standing, as the sim would take it.
- * And the distance the crowd keeps each fighter at, a fallen NPC laid down as a body to search, and an
- * essential one laid down and stood up again (M6.10).
+ * And the distance the crowd keeps each fighter at, a fallen NPC laid down as a body to search, an
+ * essential one laid down and stood up again (M6.10), and no swing started while a hit waits (M7.3).
  */
 import { type FightView, type SpaceAsk, weaponView } from '@eb/ui';
 import { describe, expect, it } from 'vitest';
@@ -238,5 +238,48 @@ describe('what an animator reads of a fighter (M6.5)', () => {
     expect(fight.anim('hero').hit).toBe(true);
     fight.step(false, feet, 0);
     expect(fight.anim('hero').hit).toBe(false);
+  });
+});
+
+describe('the fight’s pace', () => {
+  it('starts no swing, the player’s or an engaged NPC’s, while a hit waits for the sim', async () => {
+    const view: FightView = {
+      player: 'hero',
+      weapons: { hero: SWORD, rook: SWORD },
+      fallen: [],
+      down: [],
+      searched: [],
+      emptied: [],
+      engaged: ['rook'],
+    };
+    const waiting: (() => void)[] = [];
+    const outbox: Outbox = {
+      post: () => new Promise((done) => waiting.push(() => done('accepted'))),
+      pump() {},
+      close() {},
+      size: 0,
+    };
+    const walker = { cast: () => null, fell() {} } as unknown as Walker;
+    const fight = createFight({ fight: () => view } as SpaceAsk, outbox, {
+      walker,
+      npcs: () => [{ actor: 'rook', path: 'rook', at: [0, 0, -1.2] as Vec3, height: 1.75, here: true }],
+      bodies() {},
+    });
+    if (!fight) throw new Error('No fight');
+    const feet: Vec3 = [0, 0, 0];
+    const hits = () => fight.hook().sent.filter((s) => s.action.type === 'fighting/hit').length;
+    // A second with Attack held: one swing each, face to face, and both hits wait.
+    for (let i = 0; i < 60; i++) fight.step(true, feet, 0);
+    expect(hits()).toBe(2);
+    // Two seconds more, and neither starts another while the sim hasn't answered.
+    for (let i = 0; i < 120; i++) fight.step(true, feet, 0);
+    expect(hits()).toBe(2);
+    expect(fight.hook().swing).toBeNull();
+    expect(fight.anim('rook').swing).toBe('none');
+    // Answered, both swing again.
+    for (const done of waiting.splice(0)) done();
+    for (let i = 0; i < 4; i++) await Promise.resolve();
+    for (let i = 0; i < 60; i++) fight.step(true, feet, 0);
+    expect(hits()).toBe(4);
   });
 });

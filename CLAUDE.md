@@ -290,7 +290,7 @@ apps/editor/           the editor PWA
                        guard's senses through Rapier; M6.4 (D76): swing.ts (a swing's wind-up, strike and recovery on fixed
                        steps), strike.ts (what a swing reaches), aim.ts (soft aim), arrows.ts (arrows under gravity) and
                        arrowView.ts, fight.ts (the player's and the NPCs' swings and arrows, hits sent, bodies to search, the
-                       distance the crowd keeps, the hook's fight()); fight.test.ts, and camp.test.ts, the camp fought through
+                       distance the crowd keeps, the hook's fight(); no swing started while a hit waits for the sim, M7.3); fight.test.ts, and camp.test.ts, the camp fought through
                        Rapier and Recast; M6.5 (D77): anims.ts (each body's animator and mixer, stepped every frame within
                        30 m, every other frame to 60 m and not beyond, by the motion's time; an NPC's speed from how far it
                        moved; the hook's anims()), anims.test.ts; M6.6 (D78): markers.ts (each marker's point, a door
@@ -298,7 +298,8 @@ apps/editor/           the editor PWA
                        (the compass and the markers over the view, the hook's markers()), mapPins.ts (the Map screen's
                        pins, run in walk.js), glenMarkers.test.ts (the glen's quests followed headless); M6.10 (D82):
                        knocked.ts (a down NPC's body out of Rapier's way, its rise asked for 10 s on), kaldvik.test.ts
-                       (Kaldvík walked headless: the townsfolk's day, the howe fought, Halvard down and up); M7.1 (D83):
+                       (Kaldvík walked headless: the townsfolk's day, the howe fought, and again with the sim a second
+                       behind, M7.3; Halvard down and up); M7.1 (D83):
                        host.ts and hosts.ts load stage2d.js beside walk.js and pick the stage by the space's view
   src/stage2d/         a 2D space in play (M7.1, D83), built into stage2d.js by vite.stage2d.config.ts: plain functions
                        with tests (stage2d.test.ts): scale.ts (the scale rule: the largest whole scale the fit allows),
