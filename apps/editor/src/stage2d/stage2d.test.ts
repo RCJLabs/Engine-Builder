@@ -54,6 +54,8 @@ describe('a clip', () => {
     const walk = GUARD.clips.walk as SpriteRecord['clips'][string];
     expect([0, 0.124, 0.125, 0.25, 0.5].map((t) => frameAt(walk, t))).toEqual([2, 2, 3, 4, 2]);
     expect(frameAt(walk, 0, 3)).toBe(5);
+    // A moment before the clip began wraps back from its last frame, never past its first.
+    expect(frameAt(walk, -0.125)).toBe(5);
     expect(frameAt(walk, 0.4, 0, true)).toBe(2);
     expect(frameAt({ ...walk, loop: false }, 10)).toBe(5);
   });

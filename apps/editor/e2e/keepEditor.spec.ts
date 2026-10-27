@@ -69,6 +69,13 @@ for (const { viewport, touch } of [
         await expect
           .poll(async () => (await placed(page, 'keep-wall'))?.at)
           .toEqual([(moved[0] as number) + 3, (moved[1] as number) + 8, 0]);
+        // Presses in a row are one step: one undo takes all four back, and one redo puts them again.
+        await page.keyboard.press('Control+z');
+        await expect.poll(async () => (await placed(page, 'keep-wall'))?.at).toEqual([moved[0], moved[1], 0]);
+        await page.keyboard.press('Control+Shift+Z');
+        await expect
+          .poll(async () => (await placed(page, 'keep-wall'))?.at)
+          .toEqual([(moved[0] as number) + 3, (moved[1] as number) + 8, 0]);
       });
 
       await test.step('zoomed in a whole step, and framed on the wall', async () => {

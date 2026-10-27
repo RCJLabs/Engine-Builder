@@ -2554,6 +2554,18 @@ Evan chose on 2026-10-27, from these options:
 - **A pack format** and the checks for a new record type.
 - **Untested for feel** until the keep is seen on a phone.
 
+**As built** (M7.1, 2026-10-27; [specs/2d-scenes.md](specs/2d-scenes.md#as-built-m71)):
+- **Canvas 2D, not three.js.** The session's call put 2D on three's WebGPURenderer with an orthographic camera. Both the stage and the Scene panel's 2D view draw with Canvas 2D's `drawImage` at whole pixels, smoothing off, as afterglass does.
+  - It is exact by construction: the e2e holds every pixel of the keep's canvas to the palette.
+  - stage2d.js carries no renderer and is 5,885 bytes gzipped.
+  - The cost: light as a shader would need a WebGL layer later.
+  - The title's "same three.js viewport" stands corrected. The Scene panel is still the one place a space is edited, 2D or 3D.
+- **In the Scene panel,** a press on a chosen object and a drag moves the chosen; a press anywhere else and a drag pans. Arrow presses in a row are one step of undo.
+- **A sprite object is a box with a sprite component,** since every object is a shape, a prefab or a record (E058). The sprite draws over the box.
+- **New 2D space writes only `view: "2d"`:** `fit`, `size` and `backdrop` keep their defaults until set.
+- **Uses are buttons of the page's own** over their sprites, 44 px at least, not a ring drawn on the canvas.
+- **The keep is 960 art pixels wide,** three screens at its fit, so its parallax can be seen moving as the camera pans.
+
 ---
 
 ## Open

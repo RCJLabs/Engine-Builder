@@ -40,13 +40,14 @@ pnpm check        # typecheck → lint → unit tests → build → budgets → 
 pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
-pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js and nav.js beside it (M5.8, M6.2), then apps/editor/dist
+pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js, nav.js and stage2d.js beside it (M5.8, M6.2,
+                  # M7.1), then apps/editor/dist
                   # (the player page at play/ and the runtime at runtime/ with it), then the 3D spike into
                   # apps/editor/dist/spikes/3d, then pnpm build:games: Space-Wrecked's web export into
                   # apps/editor/dist/games/space-wrecked (M4.12), the trail's into apps/editor/dist/games/trail (M5.8)
                   # and Kaldvík's into apps/editor/dist/games/kaldvik (M6.10)
 pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, walk.js, nav.js,
-                  # the precache, the exports; and the runtime the service worker must keep (M5.8, M6.2)
+                  # stage2d.js, the precache, the exports; and the runtime the service worker must keep (M5.8, M6.2, M7.1)
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
 pnpm format       # Biome autofix
 pnpm eb validate <project> [--types <module>]  # check a project folder or zip (paths from the repo root)
@@ -59,6 +60,7 @@ pnpm eb new <folder> --template <id> [--name <text>]  # a project from a templat
 pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/records/ from the original's data (M4.12)
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
 pnpm make:starter-character                            # starter-character/ from tools/starter-kit/src/character (M6.5)
+pnpm make:starter-sprites                              # starter-sprites/ from tools/starter-kit/src/sprites (M7.1)
 pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
 pnpm make:kaldvik                                      # games/kaldvik/spaces/shore.*.png from tools/make-kaldvik (M6.10)
 pnpm bake <project> <space>                            # spaces/<space>.nav baked in Node, as Bake navigation bakes it (M6.2);
@@ -296,7 +298,30 @@ apps/editor/           the editor PWA
                        (the compass and the markers over the view, the hook's markers()), mapPins.ts (the Map screen's
                        pins, run in walk.js), glenMarkers.test.ts (the glen's quests followed headless); M6.10 (D82):
                        knocked.ts (a down NPC's body out of Rapier's way, its rise asked for 10 s on), kaldvik.test.ts
-                       (Kaldvík walked headless: the townsfolk's day, the howe fought, Halvard down and up)
+                       (Kaldvík walked headless: the townsfolk's day, the howe fought, Halvard down and up); M7.1 (D83):
+                       host.ts and hosts.ts load stage2d.js beside walk.js and pick the stage by the space's view
+  src/stage2d/         a 2D space in play (M7.1, D83), built into stage2d.js by vite.stage2d.config.ts: plain functions
+                       with tests (stage2d.test.ts): scale.ts (the scale rule: the largest whole scale the fit allows),
+                       camera.ts (kept within the size, at whole pixels), clips.ts (a clip's frame on the page's clock),
+                       place.ts (where an item lands: its origin, flipped, a parallax layer at at + camera·(1 − f), tiled),
+                       scene.ts (what a space draws, through prefabs, in draw order), start.ts (the fit, the size and the
+                       camera's first centre), walkers.ts (straight lines to the sim's marks, arrivals told back), uses.ts
+                       (a use's target, 44 px at least); with the page: draw.ts (Canvas 2D at whole pixels, smoothing off,
+                       which the Scene panel's 2D view draws with too), sheets.ts (the world's sheets decoded), view.ts (the
+                       canvas shown pixelated), useButtons.ts (the uses as the page's own buttons), stage.ts (the loop, the
+                       arrivals and the clock), hook.ts (window.__ebStage2d), entry.ts (stage2d.js's); keep.test.ts walks
+                       the keep's guards through a night headless and rings its bell
+  src/spaces2d/        the Scene panel's 2D view (M7.1, D83): view2d.ts (the zoom, screen to world and back, a pan, a zoom
+                       about a point, Frame) and pick2d.ts (the pick by a frame's box, moves in whole pixels, the arrows)
+                       as plain functions with tests (view2d.test.ts); state2d.ts (where Add puts things, the zoom asked),
+                       actions2d.ts (Add and moves as steps of undo, arrow presses in a row one step), liveSprites.ts and
+                       sheets2d.ts (the sprites and sheets read, decoded by hash), gestures2d.ts (a drag on the chosen
+                       moves them, elsewhere pans; the wheel and a pinch zoom), hook2d.ts (window.__ebView2d),
+                       SceneView2d.tsx and Toolbar2d.tsx, loaded with the first 2D space opened
+  src/sprites/         a sprite in the editor (M7.1, D83): SpritePreview.tsx (its sheet with the frame grid and each clip
+                       playing, above its form), starterSprites.ts (starter-sprites/ bundled as a lazy chunk, for Add
+                       starter sprites), spriteChecks.test.ts (E091 and E058's 2D rules in the editor, as eb validate
+                       gives them, and no E079 for a 2D walker)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -450,9 +475,15 @@ apps/editor/           the editor PWA
                        touch at 360, 390 and sideways (Attack held through the hamlet's fights), and exported as one file;
                        kaldvikHelpers.ts, kaldvik.spec.ts and kaldvikPhone.spec.ts are M6.10's, Kaldvík's web export at
                        games/kaldvik/ played by keys from New game to the ending, and by touch at 390 and sideways (a
-                       talk, a flatbread bought from Gudrun, the hall's door), talks aimed at the NPC where the crowd has them
+                       talk, a flatbread bought from Gudrun, the hall's door), talks aimed at the NPC where the crowd has them;
+                       keepHelpers.ts, keep.spec.ts, keepPhone.spec.ts and keepExport.spec.ts are M7.1's, the keep played
+                       through window.__ebStage2d: drawn at the scale rule's whole scale with only the palette's colours,
+                       parallax at its factors, clips advancing, the guards arriving, the bell rung by a click, the keys and
+                       a tap at 360, 390 and sideways, the camera dragged, and exported as one file and as a web build, each
+                       played offline; keepEditorHelpers.ts and keepEditor.spec.ts, a 2D space built from the starter
+                       sprites in the Scene panel alone at 1280 and 390 through window.__ebView2d, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 17)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -481,7 +512,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors; M6.8 (D80):
                        containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts);
                        M6.9 (D81): stage.ts, the world's stage for bots (the uses, then the zones, of the player's space);
-                       M6.10 (D82): rise (npcs.ts), and a down NPC answers no use (actions.ts)
+                       M6.10 (D82): rise (npcs.ts), and a down NPC answers no use (actions.ts); M7.1 (D83): a 2D space in
+                       format 17 (packWorld.ts's hasFlatSpace; flat.test.ts)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -537,7 +569,9 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        W155); M6.7: worldSlots.ts (slots that find in the world: E088, W127), targetCheck.ts's @slot
                        space and object, spaceShape's tags (E058); M6.8: the interact's holds (componentTypes.ts), an
                        actor's purse (npcFields.ts), a shop's actor (kitTypes.ts), W156 (kitCheck.ts); M6.10: an actor's
-                       essential (fightingTypes.ts), E090; not pure
+                       essential (fightingTypes.ts), E090; M7.1: spriteTypes.ts (sprite, an engine type: its sheet, frame,
+                       origin and clips, E091's record rules), the sprite and parallax component kinds, an actor's sprite
+                       and speed (npcFields.ts); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -581,7 +615,10 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        M6.7: places.ts (placesOf: the tags through prefabs and overrides, and `{slot}`'s names, packed
                        as format 15; spaceTagsOf, what the checks read), tags in spaceShape.ts and spaces.ts (E058);
                        M6.8: E089 (spaceParts.ts's checkHolds), KitSettings.holds (projectCheck.ts) and the checking
-                       game's stand-in container (projectGame.ts's HOLDING_WORLD); not pure
+                       game's stand-in container (projectGame.ts's HOLDING_WORLD); M7.1: sprites.ts (each sprite's sheet
+                       read to its PNG header: E091), space2d.ts (E058's 2D rules, a sprite component's clip: E091),
+                       spaceView.ts (is2d, apart from the checks), npcPlaces.ts (a 2D walker needs no navmesh), world.ts
+                       packs a 2D space's sprites and sheets as format 17; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -687,7 +724,8 @@ packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the 
                        icons.ts (PNG in and out, 16-bit greyscale for a terrain's heights since M5.3, icons scaled
                        or drawn), hash.ts (the build's hash), leaks.ts (the
                        leak check and its control), workflows.ts and readme.ts (Publish's), exportGame.ts (one
-                       export, start to end, and the zip); walk.js beside the page, or inside a single one (M5.8)
+                       export, start to end, and the zip); walk.js beside the page, or inside a single one (M5.8), and
+                       stage2d.js the same for a game with a 2D space (M7.1, stage2d.test.ts)
   test/                hut.ts (the hut with a map of the summit and a taster), export-bench.ts
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
                        engine to them, the compiler a project's scripts (M3.2)
@@ -774,7 +812,11 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        through the cache prefab) and a bandit, Supplies and the bounty repeating on the nearest, which
                        hollows.test.ts plays through the session and breaks once each for E088, W127 and E086; post/,
                        M6.8's gate: a yard where Hild trades from her bag and purse, a chest of bread and a candle and an
-                       empty barrel, which post.test.ts plays through the session and breaks once each for E089 and W156
+                       empty barrel, which post.test.ts plays through the session and breaks once each for E089 and W156;
+                       keep/, M7.1's gate: a keep at night from the starter sprites, 960 art pixels wide, its sky, stars,
+                       moon and ridges in parallax, four torches, two guards walking the wall walk and a bell to ring,
+                       which keep.test.ts validates clean, builds as format 17 and breaks once each for E091, E058's 2D
+                       rules and a 2D walker's navmesh
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json;
@@ -801,13 +843,18 @@ tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes
                        shapes), kit.ts (the
                        files: GLBs packed as import packs, records, the log), cli.ts; test/kit.test.ts holds
                        starter-kit/ to it byte for byte and to eb validate; src/character/ and test/character.test.ts
-                       the same for starter-character/ (M6.5)
+                       the same for starter-character/ (M6.5); src/sprites/ (palette.ts, raster.ts, sky.ts, keep.ts,
+                       props.ts, figures.ts, sprites.ts, cli.ts) and test/sprites.test.ts the same for starter-sprites/ (M7.1)
 starter-kit/           the kit as a project folder, written only by `pnpm make:starter-kit`: 21 pieces dedicated
                        by RCJLabs to CC0, their model and material records and the log; Add starter kit copies it in
 starter-character/     the starter character (M6.5, D77), written only by `pnpm make:starter-character` from
                        tools/starter-kit/src/character (skeleton, body, poses, clips, ground, the stock animator):
                        372 triangles on the rig, 16 clips, its model, materials and stock animator, dedicated by RCJLabs
                        to CC0; walk.js and the editor carry it, Add starter character copies it in
+starter-sprites/       the starter sprites (M7.1, D83), written only by `pnpm make:starter-sprites`: sheets in a palette
+                       of 16 for a keep at night (figures with idle and walk, a torch, a bell, a banner, the keep's parts,
+                       the sky, stars, moon and ridges), their sprite records and the log, dedicated by RCJLabs to CC0;
+                       Add starter sprites copies it in
 tools/make-kaldvik/    the shore's generator (M6.10): shore.ts (heights, paint and foliage density by integer and
                        polynomial arithmetic, the pads level where the spaces stand things), cli.ts; test/shore.test.ts
                        holds games/kaldvik's files to it byte for byte
