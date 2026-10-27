@@ -1,0 +1,17 @@
+{
+  "name": "Store",
+  "sheet": "starter-sprites/room-store.png",
+  "frame": [
+    48,
+    32
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

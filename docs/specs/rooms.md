@@ -24,7 +24,7 @@ A building is a component of an object in a 2D space:
   "at": [32, 8, 0],
   "components": {
     "building": {
-      "slot": [48, 24],
+      "slot": [48, 32],
       "slots": 2,
       "floors": 4,
       "rooms": [
@@ -33,7 +33,7 @@ A building is a component of an object in a 2D space:
         { "id": "hall", "room": "hall", "floor": 1, "slot": 0, "span": 2 }
       ],
       "stairs": [{ "floor": 0, "x": 12 }, { "floor": 1, "x": 84 }],
-      "stair": "stair-ladder"
+      "stair": "ladder"
     }
   }
 }
@@ -93,7 +93,7 @@ All in the pure core, in whole numbers: the same in Node, a worker and every bro
 
 ## The starter rooms
 
-- **In the starter sprites,** in their palette of 16: the keep's interior seen side on, a slot 48 by 24 art pixels: a hall, a crypt, a store, barracks, a chapel and a watch room, and a ladder for the stairs. Each room's record is in `records/room/`.
+- **In the starter sprites,** in their palette of 16: the keep's interior seen side on, a slot 48 by 32 art pixels (a figure is 24 high): a hall two slots wide, a crypt, a store, barracks, a chapel and a watch room, and a ladder eight pixels high for the stairs, which tiles up a floor. A room's top four rows are the slab the floor above stands on, so walkers stand on its foot. Each room's record is in `records/room/`.
 - **Dedicated by RCJLabs to CC0,** drawn fresh, each sheet in the provenance log.
 
 ## The tower (the gate's fixture)
