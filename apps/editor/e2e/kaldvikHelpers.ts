@@ -9,6 +9,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { closeOn, type Steer, yawTo } from './campHelpers.ts';
 import { newGame } from './hutScreens.ts';
 import { agentOf, nav } from './squareHelpers.ts';
+import { pressUse } from './templates3dHelpers.ts';
 import { drawing, settled, walked } from './walkHelpers.ts';
 
 const EXPORT = resolve(import.meta.dirname, '../dist/games/kaldvik');
@@ -88,21 +89,21 @@ const promptOf = (page: Page) =>
 
 /**
  * Walked up to `actor` wherever the crowd has them, until their Talk is the prompt offered, then
- * used. A fixed point won't do: the crowd steps an NPC aside as the player comes, and the prompt
- * wants them within 60° of where the player faces (Halvard stood beside the player at 390×844).
+ * used, pressed again if it missed. A fixed point won't do: the crowd steps an NPC aside as the player
+ * comes, and the prompt wants them within 60° of where the player faces (Halvard stood beside the
+ * player at 390×844).
  */
 export async function talkTo(page: Page, steer: Steer, actor: string, timeout = 60_000): Promise<void> {
   const started = Date.now();
   for (;;) {
     const [prompt, me, seen] = await Promise.all([promptOf(page), walked(page), nav(page)]);
-    if (prompt === actor) break;
+    if (prompt === actor && (await pressUse(page, steer, actor))) return;
     const agent = agentOf(seen, actor);
     if (!agent) throw new Error(`No ${actor} here`);
     if (Date.now() - started > timeout)
       throw new Error(`Never offered ${actor}'s talk: ${across(me.feet, agent.at).toFixed(1)} m off`);
-    await closeOn(steer, me, agent.at, 1.2, 10);
+    if (prompt !== actor) await closeOn(steer, me, agent.at, 1.2, 10);
   }
-  await steer.use();
 }
 
 /** The export opened from its title, a new game started in Slot 1, and the shore drawn. */
