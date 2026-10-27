@@ -1490,6 +1490,15 @@ How to read this file:
     - **Main's run on the merge failed once more in the howe,** with "Nothing fights in the space walked" just after the door: the walk was gone. A fall takes the walk with the game (the fallen mode has no screen, so its fallback is drawn alone), and nothing else in the howe can. Not reproduced: three local runs with Chromium's CPU slowed 4×, 6× beside the phone spec and 8× each won the fight with 51 to 60 of 60 health, every space's stage started once, and PR #69's CI passed the same tree. The failed job was run again once. `fought()` now says when the player fell (camp.spec holds it; one planted bug, caught), so a repeat names its cause.
     - **Untested for feel** until you see the keep on your phone.
 - **M7.2 Tilemaps.** Layers, autotiling, ASCII import, and walk/cover/sight per tile.
+  - **As decided** (D84, your calls): Space-Wrecked's example ship as a boarding deck is the demo, its battle map imported from Space-Wrecked's own text; walls stand on tiles and on the edges between them; a starter tileset made in code in the starter sprites' palette; in play the map is drawn, the walkers the sim sends route round its walls, and sight and cover are facts the sim reads. A tileset is an engine record type (tiles with their rules, a legend, edge frames); a tilemap is a component of an object in a 2D space, its layers rows of characters and its edges Space-Wrecked's map text; autotiling is a 4-bit mask; sight, cover and four-way routes are Space-Wrecked's, ported to the pure core; the pack is format 18 ([specs/tilemaps.md](docs/specs/tilemaps.md)).
+  - **Gate:**
+    - `eb validate` finds the deck clean and breaks once each for E092, E093, E058 (a tilemap in a 3D space) and W157;
+    - the starter sprites, with the tileset, held to their generator byte for byte, validating clean;
+    - unit tests for the map text, layers, the autotile mask, sight, cover, routes, the pack and the facts;
+    - the deck's crew walk their shift headless, every step one tile across an open edge, the sim hearing each arrival, and both reach the airlock after the alarm;
+    - the deck played in the Play panel by mouse and keys and by touch at 360, 390 and sideways: drawn at a whole scale with only the palette's colours and the joins the mask gives, the crew routed through doors and never across a wall, the alarm by a click, a tap and the keyboard, the HUD's line on the hatch following them; and exported as one file played from `file://`;
+    - a deck built from the starter tileset in the Scene panel at 1280 and 390, Space-Wrecked's text imported, then played;
+    - stage2d.js, the precache and the editor's start within their budgets.
 - **M7.3 Side-view rooms.** Floors with room slots, stairs and route-finding.
 - **M7.4 Custom stages.** An API for renderers drawn in code (Canvas2D, SVG), so code-drawn styles keep working inside the engine.
 - **M7.5 Kits.** Grid tactics (cover, overwatch, sight), ranked squad, tower defense (paths, waves, towers, fixed tick), base/colony builder.

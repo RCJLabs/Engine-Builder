@@ -2568,6 +2568,43 @@ Evan chose on 2026-10-27, from these options:
 
 ---
 
+### D84. Tilemaps are a component of a 2D space: layers of characters through a tileset's legend, walls and doors on the edges in Space-Wrecked's map text, a 4-bit autotile, a starter tileset made in code, and Space-Wrecked's example ship as a boarding deck whose crew route round its walls. LOCKED, 2026-10-27 (Evan's calls, M7.2)
+
+Evan chose on 2026-10-27, from these options:
+- **Demo map:** a Space-Wrecked boarding deck; the keep's courtyard top-down; or a 2060td siege board.
+- **Walls:** on tiles and on the edges between them; or on tiles only.
+- **Tile art:** a starter tileset made in code; flat colours only; or imports only.
+- **Play scope:** drawn, with walkers routing round walls and sight and cover as facts; drawn only; or that plus a tap-to-move avatar.
+
+**Decision.**
+- **The demo is a boarding deck:** Space-Wrecked's example ship, its battle map imported from its own text format (D62 lets its content in). It feeds M7.5's tactics kit and M7.7's boarding fight.
+- **Walls stand on tiles and on edges.** A tile can block, and a wall, the hull, a door or a hatch can stand on the edge between two tiles, as Space-Wrecked's maps have them. M7.7 needs edges, so they come now rather than as a format change later.
+- **A starter tileset made in code,** in the starter sprites' palette: deck floor, an airlock, a crate, a locker, a console, machinery and the hull with their joins, and walls, hull, doors and hatches for the edges. It is dedicated by RCJLabs to CC0 and held to its generator byte for byte. Add starter sprites brings it with the rest.
+- **Play: drawn, and walkers route.** A tilemap draws in play and in exports. NPCs the sim sends route round blocked tiles and shut edges. Sight and cover are pure functions the sim reads as facts. Turns, moves and shots are M7.5's.
+
+**Also settled, as the session's calls** (2026-10-27, engineering calls that follow from the above and from docs/research/tilemaps.md):
+- **A tileset is an engine record type,** like a sprite: its sheet, its tile size, each tile's frame and rules (walk, cover none, half or full, blocks sight, joins), a legend of one character per tile, and the frames for each kind of edge.
+- **A tilemap is a component** of an object in a 2D space: its tileset, its size in tiles, its layers as rows of characters through the legend, and its edges in Space-Wrecked's map text (two characters a tile each way, `+` at the corners). The text is what's stored, so a map reads and diffs as a picture, and the ASCII import is a copy of its tiles into a layer and its edges into the edges.
+- **A cell's rules are its topmost layer's tile.** A cell no layer fills is empty: nobody stands on it, it gives no cover, and sight passes over it.
+- **Edges are Space-Wrecked's four:** a wall (`-` `|`), the hull (`=` `I`), a door (`/`) and a hatch (`o`). A door lets walkers through and blocks sight; the other three block both. Doors opening and shutting is M7.5's.
+- **Autotiling is a 4-bit mask.** A tile that joins has 16 frames from its first, the frame picked by which of its four neighbours in the same layer are the same tile, as 2060td's walls join (glyphs.ts:76-84). No 47-tile blob: none of Evan's games uses one.
+- **Sight and cover are Space-Wrecked's,** ported to the pure core: a line between tile centres in whole numbers, round a corner if either way is clear (sight.js); and cover on the side facing the attacker, full from an edge, else the tile beyond's (cover.js). They are the facts `world.sees` and `world.cover`.
+- **Routes are four-way steps on the tiles,** as Space-Wrecked's moves are (moves.js): each step costs 1, a wall, the hull or a hatch is in the way and a door isn't, and equal routes tie the same way, trying north, east, south, west. The same route every time, in Node and in every browser, and the rule M7.5's tactics will move by.
+- **One tilemap a space,** and the pack is format 18 once a space has one: its cells' rules, its edges and where each object stands, worked out by the compiler, so the sim's facts and the stage's routes read the same grid.
+
+**Why.**
+- **The boarding deck** is the map M7.5 and M7.7 build on, and importing a real one proves the import on data nobody wrote for it.
+- **Edges now** because Space-Wrecked's ships have them on every room, and a later change would bump the pack and every saved map.
+- **The starter tileset** keeps 2D's art in one palette and one kit, made the way the starter sprites are.
+- **Routing and facts, no avatar:** walkers that cross walls would make the tilemap a picture; turns and a player's moves belong with the tactics kit.
+
+**Cost.**
+- **A second engine record type for 2D** and a pack format.
+- **Map text is two characters a tile,** wider than the rows a plain grid would take; the editor's forms and the import hide it, and the tiles themselves are one character each.
+- **Untested for feel** until the deck is seen on a phone.
+
+---
+
 ## Open
 
 - **Engine licence** (ROADMAP open question 2).
