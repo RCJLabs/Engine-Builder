@@ -43,7 +43,8 @@ pnpm test         # Vitest
 pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js and nav.js beside it (M5.8, M6.2), then apps/editor/dist
                   # (the player page at play/ and the runtime at runtime/ with it), then the 3D spike into
                   # apps/editor/dist/spikes/3d, then pnpm build:games: Space-Wrecked's web export into
-                  # apps/editor/dist/games/space-wrecked (M4.12) and the trail's into apps/editor/dist/games/trail (M5.8)
+                  # apps/editor/dist/games/space-wrecked (M4.12), the trail's into apps/editor/dist/games/trail (M5.8)
+                  # and Kaldvík's into apps/editor/dist/games/kaldvik (M6.10)
 pnpm budgets      # after the build, each size against budgets.json (M5.7): the start, the 3D chunks, walk.js, nav.js,
                   # the precache, the exports; and the runtime the service worker must keep (M5.8, M6.2)
 pnpm e2e          # Playwright against `vite preview` at / (the editor's own domain, D28)
@@ -59,6 +60,7 @@ pnpm import:space-wrecked [--from <data folder>]      # games/space-wrecked/reco
 pnpm make:starter-kit                                  # starter-kit/ from tools/starter-kit's code (M5.5)
 pnpm make:starter-character                            # starter-character/ from tools/starter-kit/src/character (M6.5)
 pnpm make:moor                                         # tools/cli/test/fixtures/moor/ from moor.ts (M5.10)
+pnpm make:kaldvik                                      # games/kaldvik/spaces/shore.*.png from tools/make-kaldvik (M6.10)
 pnpm bake <project> <space>                            # spaces/<space>.nav baked in Node, as Bake navigation bakes it (M6.2);
                                                        # give the project as an absolute path under pnpm -C
 ```
@@ -292,7 +294,9 @@ apps/editor/           the editor PWA
                        moved; the hook's anims()), anims.test.ts; M6.6 (D78): markers.ts (each marker's point, a door
                        standing in for another space, bearings and the compass strip), markerStage.ts and markerView.ts
                        (the compass and the markers over the view, the hook's markers()), mapPins.ts (the Map screen's
-                       pins, run in walk.js), glenMarkers.test.ts (the glen's quests followed headless)
+                       pins, run in walk.js), glenMarkers.test.ts (the glen's quests followed headless); M6.10 (D82):
+                       knocked.ts (a down NPC's body out of Rapier's way, its rise asked for 10 s on), kaldvik.test.ts
+                       (Kaldvík walked headless: the townsfolk's day, the howe fought, Halvard down and up)
   src/environment/     a space's environment in the editor (M5.4, D66): plain functions with tests: look.ts (the sun
                        and the sky's light from the hour, every field left out filled in), presets.ts (the seven),
                        weather.ts (each drop's place from its seed, the moment and where the camera looks) and
@@ -443,7 +447,10 @@ apps/editor/           the editor PWA
                        Purse, the shop's Actor and the Container screen made with forms alone at 1280 and 390, then played;
                        templates3dHelpers.ts, templates3d.spec.ts and templates3dPhone.spec.ts are M6.9's, a project
                        from each 3D template, its guide followed to each place, walked to its ending by keys and by
-                       touch at 360, 390 and sideways (Attack held through the hamlet's fights), and exported as one file
+                       touch at 360, 390 and sideways (Attack held through the hamlet's fights), and exported as one file;
+                       kaldvikHelpers.ts, kaldvik.spec.ts and kaldvikPhone.spec.ts are M6.10's, Kaldvík's web export at
+                       games/kaldvik/ played by keys from New game to the ending, and by touch at 390 and sideways (a
+                       talk, a flatbread bought from Gudrun, the hall's door), talks aimed at the NPC where the crowd has them
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -473,7 +480,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        14's maps); M6.7 (D79): places.ts (format 15's places: every space's tags and each tagged
                        object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors; M6.8 (D80):
                        containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts);
-                       M6.9 (D81): stage.ts, the world's stage for bots (the uses, then the zones, of the player's space)
+                       M6.9 (D81): stage.ts, the world's stage for bots (the uses, then the zones, of the player's space);
+                       M6.10 (D82): rise (npcs.ts), and a down NPC answers no use (actions.ts)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -528,7 +536,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        (animator, the anim.* facts, E083 to E085, W153), modelTypes.ts's rig and clips; M6.6: questTypes.ts's target, targetCheck.ts (E086,
                        W155); M6.7: worldSlots.ts (slots that find in the world: E088, W127), targetCheck.ts's @slot
                        space and object, spaceShape's tags (E058); M6.8: the interact's holds (componentTypes.ts), an
-                       actor's purse (npcFields.ts), a shop's actor (kitTypes.ts), W156 (kitCheck.ts); not pure
+                       actor's purse (npcFields.ts), a shop's actor (kitTypes.ts), W156 (kitCheck.ts); M6.10: an actor's
+                       essential (fightingTypes.ts), E090; not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -617,7 +626,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        kit built with the pack's containers, slice v3), bags.ts's restock-bag; economy/purses.ts (slice
                        v2) and shop.ts's merchants (a shop's actor's bag and purse); M6.9 (D81): fighting/stage.ts (the
                        blows and searches a bot may send), stages.ts (walkedStage: walk, or walk+fight), and
-                       quests/start.ts's canStart (quests.can-start)
+                       quests/start.ts's canStart (quests.can-start); M6.10 (D82): fighting/falls.ts's knockDown and the
+                       kit's rise (an essential actor down, not fallen, and up again; slice v2)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
@@ -626,7 +636,8 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        fixtures/saves/dock-quests-v1.json, a save by the quests kit's version 1 that must keep loading,
                        and dock-quests-v2.json, by its version 2 (M6.6);
                        fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1), and
-                       market-inventory-v2.json, by its version 2 and the economy kit's version 1 (M6.8)
+                       market-inventory-v2.json, by its version 2 and the economy kit's version 1 (M6.8);
+                       fixtures/saves/camp-fighting-v1.json, by the fighting kit's version 1 (M6.10)
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
                        conditions.ts (ink conditions as the engine's, through EXTERNALs), tags.ts and fx.ts,
@@ -659,7 +670,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        ImportSave and SetAside, Pause, SettingsScreen, Stopped), crash.ts in plain DOM, shell.css; stepLine.ts,
                        the stage's steps and the player's presses on one line to the worker, M6.3; Fallen.tsx, the fallen
                        player's screen and its checkpoint, M6.4); session/fighting.ts, the fight as the stage reads it (M6.4,
-                       and the bodies emptied, M6.8); session/containers.ts, each container's name (M6.8)
+                       and the bodies emptied, M6.8); session/containers.ts, each container's name (M6.8),
+                       and fighting.ts's down (M6.10)
 packages/models/       3D models (M5.5, D67), not pure, in the browser and in Node: io.ts (gltf-transform's reader and
                        writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
                        (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
@@ -694,7 +706,9 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        valley-hamlet-wanderer.golden.json and lighthouse-keeper.golden.json through the stage, M6.9) and every stage
                        and ending reached; test/spaceWrecked.test.ts is M4.12's gate (its two warnings, 500 seeds to
                        fixtures/space-wrecked-captain.golden.json with every act 1–2 stage reached, and every
-                       action on offer as the captain plays a button its screens draw)
+                       action on offer as the captain plays a button its screens draw); test/kaldvik.test.ts is
+                       M6.10's (no problems, 50 seeds through the stage to fixtures/kaldvik-stranger.golden.json, every
+                       stage of every quest reached, Halvard down with no talk and up)
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
@@ -776,6 +790,12 @@ games/space-wrecked/   Proof #1 (M4.12, D62): Space-Wrecked's acts 1–2 as a pr
                        the crew screen's facts), board.ts (act 1's job board as made records), run.ts and voyage.ts
                        (act 2: jumps, supplies, hunters, quest events, docking), shared.ts, captain.ts (the bot),
                        game.ts; ui/, its screens, theme, feedback and shell; export.json
+games/kaldvik/         Proof #2 (M6.10, D82): Kaldvík, a steading on Landnam's coast, deployed at /games/kaldvik/; its
+                       text is written fresh and all rights reserved, RCJLabs (NOTICE). spaces/: the shore (a 256 m
+                       terrain from `pnpm make:kaldvik`), the hall, the smithy and the howe, each with its navmesh;
+                       records/: five essential townsfolk and their days, seven outlaws, The Howe, Tove's Net and The
+                       Watch, Gudrun's and Ulf's shops; scripts/: kaldvik.ts (Wait an hour, the ending), stranger.ts
+                       (the bot), game.ts; ui/, the hamlet's screens made its own; export.json
 tools/starter-kit/     the starter kit's generator (M5.5, D67): shapes.ts (boxes, cylinders, cones, a wedge, flat faces),
                        pieces.ts (the 21 pieces, the grass since M5.6, their parts by material and their colliders'
                        shapes), kit.ts (the
@@ -788,6 +808,9 @@ starter-character/     the starter character (M6.5, D77), written only by `pnpm 
                        tools/starter-kit/src/character (skeleton, body, poses, clips, ground, the stock animator):
                        372 triangles on the rig, 16 clips, its model, materials and stock animator, dedicated by RCJLabs
                        to CC0; walk.js and the editor carry it, Add starter character copies it in
+tools/make-kaldvik/    the shore's generator (M6.10): shore.ts (heights, paint and foliage density by integer and
+                       polynomial arithmetic, the pads level where the spaces stand things), cli.ts; test/shore.test.ts
+                       holds games/kaldvik's files to it byte for byte
 tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/records/ from source/, one file per
                        family (ship.ts: parts, the hull and shops; crew.ts; fights.ts; events.ts; quests.ts; board.ts;
                        run.ts), importAll.ts and records.ts (the files as written); test/import.test.ts holds the
@@ -795,7 +818,8 @@ tools/import-space-wrecked/ the import (M4.12): src/ writes games/space-wrecked/
 tools/lint-boundaries/ purity lint: the rules from packages/purity, which packages are pure, fixtures/{bad,good}
 tools/site-check/      the deploy check CI's confirm job runs: the live page and every file it loads, by origin and type
 tools/budgets/         pnpm budgets (M5.7, D69): measure.ts (a chunk's static imports, the start, the precache, gzip
-                       -9 a file), budgets.ts (budgets.json read, the eight sizes measured and held to it), cli.ts;
+                       -9 a file), budgets.ts (budgets.json read, the nine sizes measured and held to it, Kaldvík's
+                       export since M6.10), cli.ts;
                        test/budgets.test.ts on a made-up build, and budgets.json to its readings' margins
 budgets.json           each size and count budget with its reading, date and what it measures (M5.7)
 docs/                  architecture.md, decisions.md, research/, specs/ (exact algorithms + golden vectors for ports)

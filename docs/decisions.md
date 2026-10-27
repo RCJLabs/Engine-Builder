@@ -2509,6 +2509,15 @@ Evan chose on 2026-10-27, from these options:
 - **A save version** for the fighting kit.
 - **Untested for feel** until Evan walks it on their phone.
 
+**As built** (M6.10, 2026-10-27; [specs/kaldvik.md](specs/kaldvik.md#as-built-m610)):
+- **Its people are M6.1's figures,** not the starter character: no actor names a model.
+- **The stage walks only the player's space,** as the world module refuses arrivals anywhere else. The townsfolk keep their day where the player is.
+- **The stranger has 60 health,** not 40: the howe's three left 6 of 40 in the headless fight, and leave 26 of 60. Untested for feel.
+- **A shop's stock is a top-up** of its keeper's bag, since a merchant's shelf is both (D80). Kaldvík's first stocks repeated the keepers' goods, and Gudrun's six flatbreads showed as twelve.
+- **The bot is not perfect.** Over 100 seeds it brings the silver home in 71, and 26 reach the 1,000-turn cap still at it. The gate asks for most runs, and every stage of every quest reached in some run.
+- **The walk's prompt makes no click on touch.** Main's CI found the click a tap makes landing on the chest the tap had opened. The prompt cancels its touchstart.
+- **The e2e by keys runs at 800×600,** where CI's software renderer draws about 20 fps against 9 at 1280×900. It walks the 250 m and back in 4.3 minutes alone.
+
 ---
 
 ## Open

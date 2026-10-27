@@ -3,13 +3,13 @@
   "sizes": {
     "editor-start": {
       "budget": 131515,
-      "reading": 125253,
+      "reading": 125429,
       "read": "2026-10-27",
       "of": "zlib's gzip at level 9 of index.html, its module, every chunk that module imports statically, and its stylesheets, each file on its own; re-read at M6.4, whose fighting kit's type files and words the catalog reads at the start, and M6.5, whose record form reads the animator's facts; and M6.6, whose quest form offers a target's choices and whose designer knows the space-map widget; and M6.7, whose Scene inspector's Tags field is in the start's chunks; and M6.8, whose start reads a shop's actor and a merchant's checks together; and M6.9, whose New project lists the two 3D templates and whose guide opens a space's object"
     },
     "scene-view": {
       "budget": 392066,
-      "reading": 373397,
+      "reading": 373610,
       "read": "2026-10-27",
       "of": "zlib's gzip at level 9 of the SceneView chunk and the chunks it imports statically that the start doesn't: three, the view and its parts; re-read at M6.5, whose figures are drawn as the starter character, copied on bones of their own; and M6.6, whose view bakes a space's map from above; and M6.7, whose inspector tags a space and its objects; and M6.8, whose inspector sets an interact's Holds; and M6.9, 163 bytes larger with what it shares with the start"
     },
@@ -21,8 +21,8 @@
     },
     "walk": {
       "budget": 2721470,
-      "reading": 2591877,
-      "read": "2026-10-26",
+      "reading": 2592183,
+      "read": "2026-10-27",
       "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space; re-read at M6.5, which carries the starter character, its clips and the mixers; and M6.6, which draws the compass and the markers and works out the map's pins"
     },
     "nav": {
@@ -33,19 +33,19 @@
     },
     "precache": {
       "budget": 15380766,
-      "reading": 14648349,
+      "reading": 14655351,
       "read": "2026-10-27",
       "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2; re-read at M6.5, with the starter character in walk.js, the editor and Add starter character's chunk; and M6.6, with the compass, the markers, the Map screen and Bake map; and M6.7, with the Tags field and the quests kit's world slots; and M6.8, with containers and merchants in the kits, the Container screen and its template; and M6.9, with the valley hamlet's and the lighthouse's chunks, their models and navmeshes inlined"
     },
     "space-wrecked-web": {
       "budget": 600000,
-      "reading": 576842,
+      "reading": 578137,
       "read": "2026-10-27",
       "of": "bytes of every file of Space-Wrecked's web export (M4.12), with about 4% room for its content; re-read at M6.3, whose ai kit every export's runtime carries; re-read at M6.6, whose runtime carries the markers' session and the Map screen's widget; re-read at M6.7, whose runtime's quests kit finds slots in the world; re-read at M6.8, whose runtime's kits open containers and keep purses, with about 4% room again; re-read at M6.9, whose runtime's quests kit says whether a quest can start"
     },
     "trail-web": {
       "budget": 7844921,
-      "reading": 7471354,
+      "reading": 7473429,
       "read": "2026-10-27",
       "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page; re-read at M6.5, whose walk.js carries the starter character; and M6.6, whose walk.js draws the compass and the markers; and M6.7, whose runtime's quests kit finds slots in the world; and M6.8, whose runtime's kits open containers and keep purses; and M6.9, whose runtime's quests kit says whether a quest can start"
     },

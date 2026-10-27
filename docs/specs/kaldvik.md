@@ -4,7 +4,7 @@ Proof #2: a Bethesda-style mini world on Landnam's coast. One exterior and three
 
 ## Where it lives
 
-- **`games/kaldvik/`** is an ordinary project folder: project.json, export.json, guide-free, records/, scenes/ if any, scripts/, spaces/, prefabs/, ui/, the starter kit's pieces and the starter character it places. Its NOTICE says the game's text is all rights reserved, RCJLabs (D82).
+- **`games/kaldvik/`** is an ordinary project folder: project.json, export.json, records/, scripts/, spaces/ (each space's navmesh beside it, and the shore's terrain files), ui/, and assets/ with the starter kit's pieces. It has no guide, no ink scenes and no prefabs. Its NOTICE says the game's text is all rights reserved, RCJLabs (D82).
 - **`pnpm make:kaldvik`** writes the shore's terrain files: the heights, the paint and the foliage density PNGs, from `tools/make-kaldvik`. A test holds them to the generator byte for byte, as the moor's are held. Everything else is written by hand.
 - **The web export** is written by `pnpm build` (`pnpm build:games`) into the editor's `dist/games/kaldvik/`, deployed at `engine.rcjlabs.com/games/kaldvik/` and loaded live by CI's confirm job.
 
@@ -43,8 +43,9 @@ An NPC lives in one space (open question 1), so each keeps a day within their ow
 
 ## Combat and barter
 
-- **The outlaws** wander their camps until they see the player, then fight (M6.3, M6.4). Hallkel carries the howe's key; the others a few coins.
-- **The player** starts with a sword and a little silver. Ulf sells an axe and a better sword, and buys pelts. Gudrun sells bread, dried fish and arrows, and buys what the outlaws carried.
+- **The outlaws** wander their camps until they see the player, then fight (M6.3, M6.4). Hallkel carries the howe's key and a ring; the others a pelt or a ring, found on their bodies.
+- **The player** starts with a sword, 60 health, 6 silver and two flatbreads. Ulf sells an axe, a blade and a whetstone, and buys hides and metal. Gudrun sells flatbread, dried fish and a whetstone, and buys anything.
+- **A shop's stock tops up its keeper's bag** (D80): each restock puts the keeper's `carries` back and adds the stock's items. Gudrun carries six flatbreads and her booth's stock adds the day's two.
 
 ## Essential NPCs
 
@@ -61,6 +62,19 @@ See [combat.md](combat.md#essential-actors). An actor with `essential` is down w
 - **The export** stays within its size budget, `kaldvik-web` in budgets.json.
 - **On your phone:** walked from Pages at Low and Medium, for Phase 6's 30 fps. Evan's check.
 
+## As built (M6.10)
+
+- **The stage walks only the player's space.** The world module refuses `world/npcs-at` for any other, so the townsfolk keep their day only where the player is. The headless test walks the stranger through the doors to each space in turn to watch them.
+- **Talks name no slots.** Halvard's talk can't say which outlaw The Watch picked; the journal names them.
+- **The stranger's health is 60.** At 40, the headless howe fight left them at 6. At 60, it leaves them at 26. Untested for feel.
+- **Each shop listed its keeper's goods twice.** Both the actor's `carries` and the shop's stock named the same goods, and a merchant's shelf is both, so Gudrun's six flatbreads showed as twelve. Each stock is now a top-up. The bot's golden runs were rewritten: with fewer flatbreads to eat, the silver comes home in 35 of their 50 runs where it came home in 41.
+- **The prompt made a ghost click on touch.** Main's CI found a chest emptied under a thumb held on the prompt: the click a tap makes lands where the finger lifts, on what the use opened. The prompt cancels its touchstart now (`src/walk/prompt.ts`), and the e2e holds a prompt tap for 400 ms.
+- **The e2e by keys runs at 800×600.** CI's software renderer draws the shore at about 20 fps there and 9 at 1280×900, and the walk slows with its frames. It takes 4.3 minutes alone.
+- **Talks aim at the NPC, not their mark.** The crowd steps an NPC aside as the player comes, and the prompt wants them within 60° of where the player faces. At 390×844 Halvard stood beside the player at his mark and was never offered.
+- **Readings** are in ROADMAP.md's Readings: the bot runs, the headless walk, the e2e and the export's size.
+
 ## Open questions
 
 1. Should the townsfolk follow their schedules into the hall through its door, rather than each space keeping its own people? Today an NPC lives in one space.
+2. The stranger bot brings the silver home in 71 of 100 runs; 26 reach the 1,000-turn cap still at it. Should the bot head for the main quest sooner, or is a bot that wanders a fair stand-in for a player?
+3. Is 60 health right for a player who fights the howe's three at once, or should the howe let them be fought one at a time? Only play on a phone can say.
