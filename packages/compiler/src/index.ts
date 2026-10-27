@@ -114,6 +114,7 @@ export { classifyScene, SCENES_DIR, type SceneFile, scenePath } from './sceneFil
 export { atSceneLine, readScenes, type ScenesRead } from './scenes.ts';
 export { readScripts, type ScriptsRead } from './scripts.ts';
 export { isHiddenName, memorySource, type ProjectSource } from './source.ts';
+export { checkView } from './space2d.ts';
 export {
   COMPONENTS_DIR,
   type ComponentFile,
@@ -142,6 +143,7 @@ export {
   TERRAIN_SIZES,
   type TerrainJson,
   terrainSchema,
+  VIEWS,
 } from './spaceShape.ts';
 export {
   checkProjectSpaces,
@@ -149,6 +151,8 @@ export {
   readSpaces,
   type SpaceFileRead,
 } from './spaces.ts';
+export { FIT_DEFAULT, is2d, is2dValue } from './spaceView.ts';
+export { checkSprites, framesOf, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';

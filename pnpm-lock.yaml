@@ -354,6 +354,9 @@ importers:
       '@eb/compiler':
         specifier: workspace:*
         version: link:../../packages/compiler
+      '@eb/export':
+        specifier: workspace:*
+        version: link:../../packages/export
       '@eb/models':
         specifier: workspace:*
         version: link:../../packages/models

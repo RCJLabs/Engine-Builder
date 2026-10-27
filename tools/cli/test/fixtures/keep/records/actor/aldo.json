@@ -1,0 +1,7 @@
+{
+  "name": "Aldo of the west wall",
+  "description": "Keeps the west wall walk by night.",
+  "sprite": "figure-guard",
+  "speed": 20,
+  "behaviour": "wall-west"
+}

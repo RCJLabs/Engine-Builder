@@ -45,16 +45,20 @@ describe('the stats and gear kits’ types', () => {
       'model',
       'figure',
       'animator',
+      'sprite',
+      'speed',
     ]);
     expect(fields(ALL, 'actor')).toEqual([
       ...['name', 'description', 'stats', 'statuses', 'slots', 'wears'],
-      ...['model', 'figure', 'animator', 'carries'],
+      ...['model', 'figure', 'animator', 'sprite', 'speed', 'carries'],
     ]);
     // An NPC's talk and faction (M6.1, D73) with their kits on, in the kits' order.
     expect(fields(['stats', 'factions', 'dialogue'], 'actor').slice(4)).toEqual([
       'model',
       'figure',
       'animator',
+      'sprite',
+      'speed',
       'talk',
       'faction',
     ]);

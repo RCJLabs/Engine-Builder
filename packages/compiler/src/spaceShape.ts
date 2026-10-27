@@ -103,8 +103,22 @@ export const terrainSchema = z
   })
   .refine((t) => t.low < t.high, { error: 'High is above low', path: ['high'] });
 
+/** Art pixels across and up (M7.1, D83): whole, as a 2D space is drawn in whole pixels. */
+const pixels = z.tuple([
+  z.int({ error: 'Whole art pixels' }).min(1).max(8192),
+  z.int({ error: 'Whole art pixels' }).min(1).max(8192),
+]);
+
+/** What a space is drawn as (M7.1, D83): 3D when left out. */
+export const VIEWS = ['3d', '2d'] as const;
+
 export const spaceSchema = z.strictObject({
   name: z.string().min(1).max(80),
+  /** A 2D space's own (M7.1, D83, docs/specs/2d-scenes.md): its view, the art pixels it wants in view, the art pixels the camera keeps within, the colour behind it all. */
+  view: z.enum(VIEWS).optional(),
+  fit: pixels.optional(),
+  size: pixels.optional(),
+  backdrop: colour.optional(),
   /** A space's tags (M6.7): a prefab's are E058, as a placement of it carries its own. */
   tags: tags.optional(),
   /** The id of the environment record it is drawn under (M5.4, D66): a space's alone. */

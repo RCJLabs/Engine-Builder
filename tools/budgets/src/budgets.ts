@@ -13,6 +13,7 @@ export const SIZES = [
   'models-view',
   'walk',
   'nav',
+  'stage2d',
   'precache',
   'space-wrecked-web',
   'trail-web',
@@ -59,6 +60,8 @@ export function measureSizes(dist: string): Record<SizeId, number> {
     walk: gzipped([join(dist, 'runtime/walk.js')]),
     // nav.js (M6.2): Recast and Detour with their wasm inside, loaded only for a space with a navmesh.
     nav: gzipped([join(dist, 'runtime/nav.js')]),
+    // stage2d.js (M7.1): the 2D stage on a Canvas 2D, loaded only for a 2D space.
+    stage2d: gzipped([join(dist, 'runtime/stage2d.js')]),
     precache: precached(dist).reduce((sum, path) => sum + statSync(join(dist, path)).size, 0),
     'space-wrecked-web': bytesIn(join(dist, 'games/space-wrecked')),
     'trail-web': bytesIn(join(dist, 'games/trail')),
@@ -83,20 +86,21 @@ export function checkSizes(budgets: Budgets, measured: Record<SizeId, number>): 
 
 /**
  * The runtime the editor keeps for Export and walks spaces with (runtime/files.json's files,
- * walk.js since M5.8 and nav.js since M6.2) that its service worker doesn't precache: each would
+ * walk.js since M5.8, nav.js since M6.2 and stage2d.js since M7.1) that its service worker doesn't precache: each would
  * need the network. Workbox leaves out anything over its size limit without a word, and walk.js is
  * about 7 MB.
  */
 export function runtimeUncached(dist: string): string[] {
   const list = join(dist, 'runtime/files.json');
   if (!existsSync(list)) return ['runtime/files.json'];
-  const { files, walk, nav } = JSON.parse(readFileSync(list, 'utf8')) as {
+  const { files, walk, nav, stage2d } = JSON.parse(readFileSync(list, 'utf8')) as {
     files: string[];
     walk?: string;
     nav?: string;
+    stage2d?: string;
   };
   const kept = new Set(precached(dist));
-  return ['files.json', ...files, ...(walk ? [walk] : []), ...(nav ? [nav] : [])]
+  return ['files.json', ...files, ...[walk, nav, stage2d].filter((f): f is string => f !== undefined)]
     .map((f) => `runtime/${f}`)
     .filter((f) => !kept.has(f));
 }

@@ -1,0 +1,7 @@
+{
+  "name": "Brun of the east wall",
+  "description": "Keeps the east wall walk by night.",
+  "sprite": "figure-guard",
+  "speed": 16,
+  "behaviour": "wall-east"
+}

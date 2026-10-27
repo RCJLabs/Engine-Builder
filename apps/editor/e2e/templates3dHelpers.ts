@@ -66,16 +66,57 @@ export async function goTo(page: Page, steer: Steer, at: readonly number[], with
   }
 }
 
-/** Walked up to `object` at `at` until its prompt is the one offered, then used. */
+type Used = { readonly object: string; readonly sent: 'accepted' | 'refused' | 'dropped' | 'waiting' };
+
+/** The uses the walk has sent in the space it walks now: a door's own space starts a new list. */
+const usedOf = (page: Page) =>
+  page.evaluate(() => {
+    const hook = (window as unknown as { __ebWalk?: { space: string; used(): Used[] } }).__ebWalk;
+    return { space: hook?.space, used: hook?.used() ?? [] };
+  });
+
+/**
+ * Interact pressed while the prompt offers `object`: true once the walk sent its use and the sim took
+ * it, false when the press found nothing faced. The press lands a round trip after the prompt was
+ * read, and on CI's software renderer the player can drift, or the crowd step an NPC aside, out of
+ * the prompt's reach by then (main after M6.10, 2026-10-27): a player presses again, and so do we.
+ * A use sent to something else, or one the sim refused, is no such miss, and fails.
+ */
+export async function pressUse(page: Page, steer: Steer, object: string): Promise<boolean> {
+  const before = await usedOf(page);
+  await steer.use();
+  const started = Date.now();
+  for (;;) {
+    const now = await usedOf(page);
+    // Through a door: the use was taken, and the list it went into is gone with the space.
+    if (now.space !== before.space) return true;
+    const sent = now.used.slice(before.used.length);
+    const other = sent.find((u) => u.object !== object);
+    if (other) throw new Error(`Interact on ${object} used ${other.object}`);
+    const mine = sent[0];
+    if (mine && mine.sent !== 'waiting') {
+      if (mine.sent !== 'accepted') throw new Error(`${object}'s use was ${mine.sent}`);
+      return true;
+    }
+    // A press is taken on the next frame, a few at most at CI's frame rates; the outbox may hold a sent use longer.
+    if (!mine && Date.now() - started > 2_000) return false;
+    if (Date.now() - started > 15_000) throw new Error(`${object}'s use never answered`);
+    await page.waitForTimeout(100);
+  }
+}
+
+/** Walked up to `object` at `at` until its prompt is the one offered, then used, pressed again if it missed. */
 export async function useAt(page: Page, steer: Steer, object: string, at: readonly number[], timeout = 60_000) {
   const started = Date.now();
-  while ((await promptOf(page)) !== object) {
-    const me = await walked(page);
-    if (Date.now() - started > timeout)
-      throw new Error(`Never offered ${object}: ${across(me.feet, at).toFixed(1)} m off`);
-    await closeOn(steer, me, at, 1.2, 10);
+  for (;;) {
+    while ((await promptOf(page)) !== object) {
+      const me = await walked(page);
+      if (Date.now() - started > timeout)
+        throw new Error(`Never offered ${object}: ${across(me.feet, at).toFixed(1)} m off`);
+      await closeOn(steer, me, at, 1.2, 10);
+    }
+    if (await pressUse(page, steer, object)) return;
   }
-  await steer.use();
 }
 
 /** The walk in `space`, its view drawn again after a door or a zone. */

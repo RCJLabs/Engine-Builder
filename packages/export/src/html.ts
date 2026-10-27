@@ -14,12 +14,16 @@ export interface Boot {
   readonly walk?: string;
   /** nav.js (M6.2), for a game whose spaces have a navmesh: its file, or "#eb-nav". */
   readonly nav?: string;
+  /** stage2d.js (M7.1), for a game with a 2D space: its file, or "#eb-stage2d". */
+  readonly stage2d?: string;
 }
 
 /** The single page's element that holds walk.js as text, run only once a Space widget draws. */
 export const WALK_ELEMENT = 'eb-walk';
 /** The single page's element that holds nav.js as text, run only once a space with a navmesh is walked. */
 export const NAV_ELEMENT = 'eb-nav';
+/** The single page's element that holds stage2d.js as text, run only once a 2D space is drawn. */
+export const STAGE2D_ELEMENT = 'eb-stage2d';
 
 /**
  * JSON safe inside a script tag: `<`, `>` and `&` as \u escapes, so no "</script>" or "<!--" can
@@ -63,6 +67,8 @@ export interface PageParts {
   readonly walk?: string;
   /** nav.js inside a single page (M6.2). */
   readonly nav?: string;
+  /** stage2d.js inside a single page (M7.1). */
+  readonly stage2d?: string;
 }
 
 /** The page. Parts are joined, never put in with String.replace, whose "$&" would read a pattern. */
@@ -107,6 +113,9 @@ export function gamePage(parts: PageParts): string {
     ...(parts.nav === undefined
       ? []
       : [`<script type="text/plain" id="${NAV_ELEMENT}">${inlineScript(parts.nav)}</script>`]),
+    ...(parts.stage2d === undefined
+      ? []
+      : [`<script type="text/plain" id="${STAGE2D_ELEMENT}">${inlineScript(parts.stage2d)}</script>`]),
     // After the page's script, which as a module runs only once the page is read, this included.
     `<script type="application/json" id="eb-game">${scriptJson(parts.boot)}</script>`,
     '</body>',

@@ -21,6 +21,17 @@ export interface WalkStage {
 
 export type LoadStage = () => Promise<WalkStage>;
 
+/** The 2D stage (M7.1, D83): stage2d.js's, or the editor's own chunk. */
+export interface Stage2d {
+  startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn>;
+}
+
+export type LoadFlat = () => Promise<Stage2d>;
+
+/** Whether a space of the world is drawn in 2D. */
+const isFlat = (world: PackWorld, id: string): boolean =>
+  Object.hasOwn(world.spaces, id) && (world.spaces[id] as { view?: unknown }).view === '2d';
+
 /** The space's name, as the Space widget names it for assistive tech when it has no label. */
 export function spaceName(world: PackWorld, id: string): string | undefined {
   const space = Object.hasOwn(world.spaces, id) ? (world.spaces[id] as { name?: unknown }) : undefined;
@@ -42,7 +53,7 @@ function loadingIn(box: HTMLElement, name: string): HTMLElement {
   return screen;
 }
 
-export function walkHost(world: PackWorld, load: LoadStage, nav?: LoadNav): SpaceHost {
+export function walkHost(world: PackWorld, load: LoadStage, nav?: LoadNav, flat?: LoadFlat): SpaceHost {
   return {
     name: (space) => spaceName(world, space),
     map: (ask) => load().then((stage) => stage.mapOf(world, ask)),
@@ -54,8 +65,14 @@ export function walkHost(world: PackWorld, load: LoadStage, nav?: LoadNav): Spac
       let taken = ask.taken;
       let npcs = ask.npcs;
       const loading = loadingIn(box, spaceName(world, ask.space) ?? ask.space);
-      void load()
-        .then((stage) => stage.startStage(box, { ...ask, quality, taken, ...(npcs ? { npcs } : {}) }, world, nav))
+      // A 2D space is stage2d.js's (M7.1): the same ask, the same handle.
+      const started = (asked: SpaceAsk): Promise<SpaceDrawn> =>
+        isFlat(world, ask.space)
+          ? flat
+            ? flat().then((stage) => stage.startStage2d(box, asked, world))
+            : Promise.reject(new Error('This page has no 2D stage'))
+          : load().then((stage) => stage.startStage(box, asked, world, nav));
+      void started({ ...ask, quality, taken, ...(npcs ? { npcs } : {}) })
         .then((made) => {
           // The stage resolves once its first frame is drawn: the space is there to see.
           loading.remove();

@@ -32,10 +32,12 @@ export function editOpen(label: string, change: (space: SpaceJson) => SpaceJson,
   return editing.edit(label, (copy) => changeSpaceFile(copy, open.path, change), group);
 }
 
-export async function createSpace(kind: SpaceKind, id: string, typed: string): Promise<void> {
+/** A new space or prefab, opened; a 2D space (M7.1) says so and leaves its fit and size to their defaults. */
+export async function createSpace(kind: SpaceKind, id: string, typed: string, flat = false): Promise<void> {
   const name = (typed.trim() || id).slice(0, 80);
-  await editing.edit(`New ${kind} ${name}`, (copy) =>
-    createSpaceFile(copy, spacePath(kind, id), { name, objects: [] }),
+  const space: SpaceJson = flat ? { name, view: '2d', objects: [] } : { name, objects: [] };
+  await editing.edit(`New ${flat ? '2D ' : ''}${kind} ${name}`, (copy) =>
+    createSpaceFile(copy, spacePath(kind, id), space),
   );
   openSpaceFile(kind, id);
 }

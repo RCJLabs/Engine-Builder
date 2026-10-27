@@ -159,6 +159,49 @@ describe('the outbox', () => {
     expect(asked.map((a) => (a.action.feet as number[])[0])).toEqual([1, 3]);
   });
 
+  it('sends a player’s press ahead of the stage’s waiting letters, never the one on its way, the player’s in order (M7.1)', async () => {
+    const { asked, send } = sender();
+    const box = createOutbox(send);
+    void box.post({ type: 'time/elapse', ms: 1000 });
+    box.pump();
+    void box.post({ type: 'ai/sensed', space: 'glen', ms: 1000, npcs: {} });
+    void box.post({ type: 'time/elapse', ms: 1000 });
+    const stand = box.post({ type: 'world/at', space: 'glen', feet: [1, 0, 0], yaw: 0 }, true);
+    const used = box.post({ type: 'world/use', space: 'glen', object: 'rope' }, true);
+    const types = () => asked.map((a) => a.action.type);
+    for (let i = 0; i < 5; i++) {
+      asked[i]?.answer('accepted');
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+    expect(types()).toEqual(['time/elapse', 'world/at', 'world/use', 'ai/sensed', 'time/elapse']);
+    expect(await stand).toBe('accepted');
+    expect(await used).toBe('accepted');
+  });
+
+  it('keeps a use’s stand when the stage says a newer one, so the use never goes first (M7.1)', async () => {
+    const { asked, send } = sender();
+    const box = createOutbox(send);
+    const at = (x: number) => ({ type: 'world/at', space: 'glen', feet: [x, 0, 0], yaw: 0 });
+    void box.post({ type: 'time/elapse', ms: 1000 });
+    box.pump();
+    const stand = box.post(at(1), true);
+    void box.post({ type: 'world/use', space: 'glen', object: 'rope' }, true);
+    void box.post(at(2));
+    for (let i = 0; i < 4; i++) {
+      asked[i]?.answer('accepted');
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+    expect(await stand).toBe('accepted');
+    expect(asked.map((a) => [a.action.type, (a.action.feet as number[] | undefined)?.[0]])).toEqual([
+      ['time/elapse', undefined],
+      ['world/at', 1],
+      ['world/use', undefined],
+      ['world/at', 2],
+    ]);
+  });
+
   it('sends nothing once closed, and drops what waits', async () => {
     const { asked, send } = sender();
     const box = createOutbox(send);
@@ -229,6 +272,30 @@ describe('the acts', () => {
     acts.frame([0, 0, 0], 0, false, 'keys', 40);
     expect(p.shown).toBeUndefined();
     expect(acts.prompt()).toBeNull();
+  });
+
+  it('sends a use and the stand said with it ahead of the stage’s letters waiting (M7.1)', async () => {
+    const sent: Action[] = [];
+    const answers: ((sent: Sent) => void)[] = [];
+    const send = (action: Action) => {
+      sent.push(action);
+      return new Promise<Sent>((answer) => answers.push(answer));
+    };
+    const outbox = createOutbox(send);
+    const ask: SpaceAsk = { space: 'glen', quality: 'auto', taken: [], here: () => true, send };
+    const acts = createActs(ask, outbox, [use('rope', [0, -1])], prompt(), { feet: [0, 0, 0], time: 0 });
+    // The clock's and the senses' letters, one on its way and two waiting, as on a slow phone.
+    void outbox.post({ type: 'time/elapse', ms: 1000 });
+    outbox.pump();
+    void outbox.post({ type: 'ai/sensed', space: 'glen', ms: 1000, npcs: {} });
+    void outbox.post({ type: 'time/elapse', ms: 1000 });
+    acts.frame([0, 0, 0], 0, true, 'keys', 10);
+    for (let i = 0; i < 4; i++) {
+      answers[i]?.('accepted');
+      await flush();
+      acts.frame([0, 0, 0], 0, false, 'keys', 20);
+    }
+    expect(sent.map((a) => a.type)).toEqual(['time/elapse', 'world/at', 'world/use', 'ai/sensed', 'time/elapse']);
   });
 
   it('uses by the prompt pressed, as a tap on a phone', async () => {

@@ -40,6 +40,7 @@ import type { ProjectSource } from './source.ts';
 import { checkProjectSpaceParts } from './spaceParts.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import { atLines, checkProjectSpaces, readSpaces } from './spaces.ts';
+import { checkSprites } from './sprites.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
 import { packWorld, spaceSpawns } from './world.ts';
 
@@ -164,6 +165,8 @@ export async function compileProject(
       diagnostics.push({ ...problem, severity: 'error', file: MANIFEST_FILE });
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));
+  // A sprite record's sheet, as far as its PNG header (M7.1).
+  diagnostics.push(...(await checkSprites(source, records, files.assets)));
   // A navmesh baked from the space as it stands now (M6.2): its hash against the inputs' now.
   const recordOf = (key: string) => {
     const colon = key.indexOf(':');

@@ -94,6 +94,7 @@ export const DIAGNOSTIC_CODES = {
   E088: "A quest's slot that finds in the world can't be read: its type, In, Tags or Pick don't hold together",
   E089: 'An interact holds items and takes the object, which then could never be opened again; or holds items with the inventory kit off',
   E090: 'An essential actor with drops or an on-fall, which would never run, or the player marked essential',
+  E091: "A sprite that can't be drawn as written: its sheet missing or not a PNG, not a whole number of frames, a clip past the sheet or backwards, or a clip named it doesn't have",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',

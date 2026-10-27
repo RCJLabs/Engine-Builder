@@ -3,7 +3,8 @@
  * carry, each a type file as a project's own kinds in components/ are, so a kind's form is drawn
  * and its fields checked as a record's are. Nothing runs them until M5.8, which fills in what a
  * file leaves out: a light is white, of intensity 1 and range 10 m; a collider a still box; a sound
- * plays at volume 1 to 10 m; water is #3a6d8c, of clarity 0.6 (M5.3).
+ * plays at volume 1 to 10 m; water is #3a6d8c, of clarity 0.6 (M5.3). A sprite and a parallax
+ * layer are a 2D space's (M7.1, D83).
  */
 import type { TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
@@ -106,6 +107,39 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
         label: 'Clarity',
         description: 'How far the eye sees into it, 0 to 1: 0.6 when left out',
       },
+    },
+  },
+  // M7.1 (D83): what a 2D space draws.
+  sprite: {
+    title: 'Sprite',
+    description: 'A sprite drawn at the object in a 2D space, its origin on the object’s place.',
+    fields: {
+      sprite: { kind: 'ref', to: 'sprite', label: 'Sprite' },
+      clip: { kind: 'text', min: 1, optional: true, label: 'Clip', description: 'The sprite’s own when left out' },
+      flip: { kind: 'bool', optional: true, label: 'Flip', description: 'Drawn mirrored across' },
+      phase: {
+        kind: 'number',
+        optional: true,
+        min: 0,
+        max: 1000,
+        label: 'Phase',
+        description: 'Where in its clip it starts, in frames: 0 when left out',
+      },
+    },
+  },
+  parallax: {
+    title: 'Parallax',
+    description: 'A layer of a 2D space that moves at a share of the camera’s movement, for depth.',
+    fields: {
+      factor: {
+        kind: 'list',
+        of: { kind: 'number', min: 0, max: 4 },
+        min: 2,
+        max: 2,
+        label: 'Factor',
+        description: 'Across and up: 0 stays with the camera, 1 moves with the world, between them farther off',
+      },
+      repeat: { kind: 'bool', optional: true, label: 'Repeats', description: 'Tiled across the view' },
     },
   },
   sound: {

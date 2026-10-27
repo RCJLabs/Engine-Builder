@@ -1,0 +1,17 @@
+{
+  "name": "Night sky",
+  "sheet": "starter-sprites/sky-night.png",
+  "frame": [
+    16,
+    180
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

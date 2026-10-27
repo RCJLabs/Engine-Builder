@@ -4,7 +4,7 @@ import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import { step } from '../editing/step.ts';
 import { chosen } from '../forms/selection.ts';
-import { addStarterCharacterAction, addStarterKitAction } from '../models/actions.ts';
+import { addStarterCharacterAction, addStarterKitAction, addStarterSpritesAction } from '../models/actions.ts';
 import type { OpenProject } from '../projects/opened.ts';
 import '../styles/assets.css';
 import { AssetTile } from './AssetTile.tsx';
@@ -82,6 +82,9 @@ export function AssetBrowser({ project }: { project: OpenProject }) {
           </button>
           <button type="button" class="button" onClick={() => void addStarterCharacterAction()}>
             Add starter character
+          </button>
+          <button type="button" class="button" onClick={() => void addStarterSpritesAction()}>
+            Add starter sprites
           </button>
         </div>
       ) : null}

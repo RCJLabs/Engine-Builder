@@ -1,0 +1,17 @@
+{
+  "name": "Near ridge",
+  "sheet": "starter-sprites/ridge-near.png",
+  "frame": [
+    256,
+    48
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

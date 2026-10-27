@@ -7,6 +7,7 @@ import { type Diagnostic, severityOf, type Walkers } from '@eb/schema';
 import { eachPlaced } from './overrides.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
+import { is2dValue } from './spaceView.ts';
 
 /** The record type an NPC is placed as. */
 const ACTOR = 'actor';
@@ -73,6 +74,7 @@ export function checkActorPlaces(
 /**
  * Where each placed actor stands, for walk-to (E079, M6.2): its first place's space, every object
  * path in that space through its prefabs, and whether the space has a navmesh (`navmeshes`, by id).
+ * A 2D space's walkers walk in straight lines and need none (M7.1, D83): it counts as having one.
  */
 export function walkersOf(
   files: readonly SpaceFileRead[],
@@ -80,13 +82,14 @@ export function walkersOf(
   navmeshes: ReadonlySet<string>,
 ): Walkers {
   const objects = spaceObjectsOf(files, prefabs);
+  const flat = new Set(files.filter((f) => f.kind === 'space' && is2dValue(f.value)).map((f) => f.id));
   const walkers = new Map<string, { space: string; objects: ReadonlySet<string>; navmesh: boolean }>();
   for (const [actor, [first]] of actorPlaces(files, prefabs)) {
     if (!first) continue;
     walkers.set(actor, {
       space: first.space,
       objects: objects.get(first.space) ?? new Set(),
-      navmesh: navmeshes.has(first.space),
+      navmesh: navmeshes.has(first.space) || flat.has(first.space),
     });
   }
   return walkers;

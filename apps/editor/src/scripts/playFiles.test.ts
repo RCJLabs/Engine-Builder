@@ -47,4 +47,18 @@ describe('what Run sends the worker', () => {
     // Art no model names still goes by name alone.
     expect(files.get('assets/art/portrait.png')).toEqual(new Uint8Array());
   });
+
+  it('sends the sheets sprite records name whole, which a 2D space draws in play (M7.1)', async () => {
+    const sheet = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    const project = {
+      'project.json': '{}',
+      'records/sprite/guard.json': JSON.stringify({ sheet: 'sprites/guard.png', frame: [16, 24], clips: {} }),
+      'records/sprite/broken.json': '{ not json',
+      'assets/sprites/guard.png': sheet,
+      'assets/sprites/unused.png': sheet,
+    };
+    const files = new Map(await playFiles(memorySource(project)));
+    expect(files.get('assets/sprites/guard.png')).toEqual(sheet);
+    expect(files.get('assets/sprites/unused.png')).toEqual(new Uint8Array());
+  });
 });

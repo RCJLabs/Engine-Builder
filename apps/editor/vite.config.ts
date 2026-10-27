@@ -60,17 +60,21 @@ function gameRuntime(): Plugin {
       const list = resolve(dir, 'files.json');
       if (!existsSync(list))
         this.error('No game runtime in dist-game/: build it first (vite build -c vite.game.config.ts)');
-      const { files, walk, nav } = JSON.parse(readFileSync(list, 'utf8')) as {
+      const { files, walk, nav, stage2d } = JSON.parse(readFileSync(list, 'utf8')) as {
         files: string[];
         walk?: string;
         nav?: string;
+        stage2d?: string;
       };
       // walk.js too (M5.8): the Play panel and the player page walk spaces with it.
       if (walk === undefined)
         this.error('No walk.js in dist-game/: build it first (vite build -c vite.walk.config.ts)');
       // And nav.js (M6.2): NPCs walk with it, and Bake navigation bakes with it.
       if (nav === undefined) this.error('No nav.js in dist-game/: build it first (vite build -c vite.nav.config.ts)');
-      for (const file of ['files.json', ...files, walk, nav]) {
+      // And stage2d.js (M7.1): the Play panel and the player page draw 2D spaces with it.
+      if (stage2d === undefined)
+        this.error('No stage2d.js in dist-game/: build it first (vite build -c vite.stage2d.config.ts)');
+      for (const file of ['files.json', ...files, walk, nav, stage2d]) {
         this.emitFile({ type: 'asset', fileName: `runtime/${file}`, source: readFileSync(resolve(dir, file)) });
       }
     },

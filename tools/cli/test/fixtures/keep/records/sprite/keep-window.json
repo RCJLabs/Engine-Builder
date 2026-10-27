@@ -1,0 +1,17 @@
+{
+  "name": "Lit window",
+  "sheet": "starter-sprites/keep-window.png",
+  "frame": [
+    8,
+    12
+  ],
+  "clips": {
+    "lit": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 3
+    }
+  }
+}

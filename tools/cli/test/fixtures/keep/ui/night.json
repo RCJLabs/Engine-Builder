@@ -1,0 +1,45 @@
+{
+  "title": "The keep at night",
+  "shows": ["night"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "{time.clock}",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "The watch hasn’t rung the bell.",
+        "shows-when": "not flag.on(bell-rung)"
+      },
+      {
+        "widget": "text",
+        "text": "The watch has rung the bell.",
+        "shows-when": "flag.on(bell-rung)"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space",
+    "space": "keep",
+    "label": "The keep at night"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "end",
+    "children": [
+      {
+        "widget": "button",
+        "label": "Wait an hour",
+        "action": {
+          "take": "keep/wait"
+        }
+      }
+    ]
+  }
+}

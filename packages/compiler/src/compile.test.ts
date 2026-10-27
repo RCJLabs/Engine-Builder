@@ -1007,6 +1007,27 @@ describe('the code table', () => {
       'W156 records/shop/post.json /actor',
       'E089 spaces/yard.json /objects/0/components/interact/holds',
     ]);
+    // M7.1: a sheet that isn't whole frames, a clip past its sheet, and a sheet that isn't a PNG.
+    const sprite = (sheet: string, last: number) =>
+      JSON.stringify({ sheet, frame: [16, 24], clips: { idle: { frames: [0, last], fps: 2 } } });
+    const sprited = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'keep', name: 'Keep', version: '0.1.0' }),
+        'assets/guard.png': pngOf(64, 48, 8, 6),
+        'assets/odd.png': pngOf(60, 48, 8, 6),
+        'assets/flat.jpg': new Uint8Array([255, 216, 255, 224]),
+        'records/sprite/guard.json': sprite('guard.png', 8),
+        'records/sprite/odd.json': sprite('odd.png', 1),
+        'records/sprite/flat.json': sprite('flat.jpg', 1),
+      }),
+      [],
+    );
+    const sheetCodes = brief(sprited.diagnostics).filter((d) => d.code !== 'E019');
+    expect(sheetCodes.map((d) => `${d.code} ${d.file} ${d.path}`)).toEqual([
+      'E091 records/sprite/flat.json /sheet',
+      'E091 records/sprite/guard.json /clips/idle/frames',
+      'E091 records/sprite/odd.json /frame',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -1042,6 +1063,7 @@ describe('the code table', () => {
       marked,
       radiant,
       bartered,
+      sprited,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

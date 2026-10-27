@@ -6,6 +6,7 @@
  */
 import {
   classifySpaceFile,
+  is2d,
   mapPath,
   modelFieldOf,
   navPath,
@@ -27,6 +28,7 @@ import { effect, signal } from '@preact/signals';
 import { editing } from '../editing/current.ts';
 import { type LiveModels, readLiveModels } from '../models/liveModels.ts';
 import { current, type OpenProject, revision } from '../projects/opened.ts';
+import { type LiveSprites, readLiveSprites } from '../spaces2d/liveSprites.ts';
 import type { FoliageShown } from './foliageView.ts';
 import { readSpace, type SpaceJson } from './spaceFile.ts';
 import { type OpenSpace, openSpace, picked } from './state.ts';
@@ -58,6 +60,8 @@ export interface LiveSpace {
   readonly nav?: Uint8Array | null;
   /** A space's map's JSON as it is (M6.6), null when it has none. */
   readonly map?: Uint8Array | null;
+  /** A 2D space's sprites and their sheets (M7.1), which its view draws. */
+  readonly sprites?: LiveSprites;
 }
 
 export const live = signal<LiveSpace | null>(null);
@@ -72,6 +76,8 @@ async function readLive(project: OpenProject, open: OpenSpace): Promise<LiveSpac
   const { source } = project;
   const read = await readSpaceAndPrefabs(source, open);
   if (!read.space) return read;
+  // A 2D space draws sprites, not models (M7.1).
+  if (open.kind === 'space' && is2d(read.space)) return { ...read, sprites: await readLiveSprites(source) };
   const fieldOf = (type: string) => {
     const file = project.catalog.types.get(type)?.file;
     return file ? modelFieldOf(file) : null;

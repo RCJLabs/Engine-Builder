@@ -23,6 +23,8 @@ ladder climbs and decays. Research: [docs/research/ai.md](../research/ai.md). It
   dropped one carried is owed to the next, so no time is lost or counted twice; the time module
   carries what falls short of a tick. Like the other stage actions it is never on offer, and the
   session lets it past its guard. No elapse carries more than the 2,000 ms cap: the rest stays owed.
+  One elapse waits at a time (M7.1): what is walked meanwhile rides on the next, and a pause asked
+  while one waits sends the rest as soon as it is answered.
 - **Rest and Wait** (the time kit's `wait` effect, from any action) still jump the clock.
 - **On a HUD:** with an `hours` unit the time kit gives `time.hour`, the hour of the day a guard's
   `hours` reads, and with `minutes` too `time.clock`, the face as `"09:05"`.
@@ -121,7 +123,9 @@ ladder climbs and decays. Research: [docs/research/ai.md](../research/ai.md). It
 - **Said to the sim** once a real second while the walk runs in a space with such an NPC, through
   the outbox: `ai/sensed { space, ms, npcs: { <actor>: { seen?: [cm…], heard?: n } } }`, each
   sighting's distance in centimetres and the noises heard. Never on offer, let past the session's
-  guard. A report for a space the player isn't in is refused.
+  guard. A report for a space the player isn't in is refused. One report waits at a time (M7.1):
+  those made meanwhile are held as one, their time added and each NPC's sightings and noises joined
+  within what the sim takes (2,000 ms, the newest 12 sightings, 20 noises).
 - **Awareness**, a whole number from 0 to 100 an NPC, kept by the sim:
   - Each sighting adds `2 + ⌊6 × (sight − d) / (sight − 100)⌋` (d and sight in cm), from 8 at arm's
     length to 2 at the edge: 40 a second close by, 10 far off.

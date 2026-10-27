@@ -1,0 +1,27 @@
+/* Above a sprite's form (M7.1): its sheet with the frame grid, and each clip playing. */
+.sprite-head {
+  display: grid;
+  gap: 8px;
+}
+
+.sprite-sheet,
+.sprite-frame {
+  max-width: 100%;
+  image-rendering: pixelated;
+  background: var(--surface-2);
+}
+
+.sprite-clips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sprite-clip {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}

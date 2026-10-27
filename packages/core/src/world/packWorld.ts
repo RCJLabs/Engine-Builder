@@ -80,6 +80,10 @@ export function asFormat10(world: PackWorld): PackWorld | undefined {
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/** Whether any space is drawn in 2D (M7.1, D83): format 17's, which an older engine must refuse. */
+export const hasFlatSpace = (spaces: Readonly<Record<string, unknown>>): boolean =>
+  Object.values(spaces).some((space) => isObject(space) && space.view === '2d');
+
 const allOf = (value: unknown, each: (entry: unknown) => boolean): value is Readonly<Record<string, unknown>> =>
   isObject(value) && Object.values(value).every(each);
 
@@ -107,6 +111,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
   const { spaces, prefabs, triggers, files, records, fields } = world;
   if (!allOf(spaces, isObject) || Object.keys(spaces).length === 0) return 'A format 9 pack has no spaces';
+  if (format < 17 && hasFlatSpace(spaces)) return `A 2D space is format 17's, not format ${format}'s`;
   if (!allOf(prefabs, isObject)) return "The pack's prefabs are not objects";
   const named = [...Object.keys(spaces), ...Object.keys(prefabs)].find((id) => !isRecordId(id));
   if (named !== undefined) return `"${named}" is not a valid space or prefab name`;

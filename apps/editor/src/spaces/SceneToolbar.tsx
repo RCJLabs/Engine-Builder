@@ -3,10 +3,10 @@
  * Add, Select more, Group into prefab, Delete and Frame, and in a space Terrain, whose row holds the
  * terrain tools (M5.3), Navigation, whose row bakes and shows the navmesh (M6.2), and Map, whose row
  * bakes the space's map (M6.6); then Quality,
- * whose row holds the tier and Stats (M5.7). Every button is 44 px; on a phone the bar wraps rather
- * than scrolls.
+ * whose row holds the tier and Stats (M5.7). A 2D space has its own (Toolbar2d, M7.1). Every button
+ * is 44 px; on a phone the bar wraps rather than scrolls.
  */
-import { SHAPES, spacePath } from '@eb/compiler';
+import { is2d, SHAPES, spacePath } from '@eb/compiler';
 import { MODEL } from '@eb/schema';
 import { useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
@@ -18,6 +18,7 @@ import type { OpenProject } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
 import { namesOf } from '../records/names.ts';
 import { MapTools } from '../spaceMaps/MapTools.tsx';
+import { Toolbar2d } from '../spaces2d/Toolbar2d.tsx';
 import { TerrainTools } from '../terrain/TerrainTools.tsx';
 import { addHere, deleteChosen, dropChosen, groupChosen } from './actions.ts';
 import type { Mode } from './gizmoMath.ts';
@@ -48,6 +49,7 @@ export function SceneToolbar({ project }: { project: OpenProject }) {
     setShown(shown === what ? null : what);
   const open = openSpace.value;
   const space = liveOf(open)?.space;
+  if (space && is2d(space)) return <Toolbar2d project={project} />;
   return (
     <>
       <fieldset class="scene-toolbar">

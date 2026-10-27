@@ -27,6 +27,8 @@ import type { TerrainFileRead } from './terrains.ts';
 const ACTOR = 'actor';
 /** An actor's animator (M6.5): the walk plays its states on the actor's model. */
 const ANIMATOR = 'animator';
+/** What a 2D space draws (M7.1): a sprite component's, or an actor's. */
+const SPRITE = 'sprite';
 
 export interface WorldSources {
   readonly files: readonly SpaceFileRead[];
@@ -222,6 +224,14 @@ function animatorNeeds(id: string, sources: DrawnSources, keys: Set<string>, fou
   }
 }
 
+/** A sprite's record and its sheet (M7.1). */
+function spriteNeeds(id: string, sources: DrawnSources, keys: Set<string>, found: Set<string>): void {
+  const sprite = sources.record(`${SPRITE}:${id}`);
+  if (!isFields(sprite)) return;
+  keys.add(`${SPRITE}:${id}`);
+  if (typeof sprite.sheet === 'string') found.add(sprite.sheet);
+}
+
 /** What drawnFrom reads: the records and each type's model field. */
 export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
 
@@ -229,7 +239,8 @@ export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
  * What the spaces draw from: every model file, placed or grown as a terrain's foliage, by its path
  * inside assets/, sorted; the records the stage reads, by "type:id"; and each placed type's model field.
  * Since M6.5 an actor's animator and the models its clips come from, and the player's actor; since
- * M6.6 a map's hash reads it too (mapInputs.ts).
+ * M6.6 a map's hash reads it too (mapInputs.ts); since M7.1 each sprite drawn, a component's or an
+ * actor's, and its sheet among the files.
  */
 export function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
@@ -263,10 +274,16 @@ export function drawnFrom(
       keys.add(key);
       const model = modelHere(key, passed, models);
       if (model) keys.add(`${MODEL}:${model.id}`);
-      const animator = key.startsWith(`${ACTOR}:`) ? recordHere(sources.record(key), passed).animator : undefined;
-      if (typeof animator === 'string') animatorNeeds(animator, sources, keys, found);
+      const actor = key.startsWith(`${ACTOR}:`) ? recordHere(sources.record(key), passed) : {};
+      if (typeof actor.animator === 'string') animatorNeeds(actor.animator, sources, keys, found);
+      if (typeof actor.sprite === 'string') spriteNeeds(actor.sprite, sources, keys, found);
     };
     eachPlacedRecord(space, prefabs, visit);
+    for (const object of space.objects)
+      eachPlaced(object, prefabs, (seen) => {
+        const sprite = seen.components?.[SPRITE]?.[SPRITE];
+        if (typeof sprite === 'string') spriteNeeds(sprite, sources, keys, found);
+      });
     for (const key of [...grown, ...actors]) visit(key, []);
     for (const material of needs.materials) keys.add(`${MATERIAL}:${material}`);
     for (const file of needs.files) found.add(file);

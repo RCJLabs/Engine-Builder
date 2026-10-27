@@ -49,7 +49,7 @@ export * from './time/index.ts';
 export { type Containers, containerKey, containersOf, holdsAny, NO_CONTAINERS } from './world/containers.ts';
 export { type Doors, doorsBetween, doorsOf, doorToward } from './world/doors.ts';
 export { ENGAGED_MOST, engaged as npcEngaged } from './world/npcs.ts';
-export { worldDataOf } from './world/packWorld.ts';
+export { hasFlatSpace, worldDataOf } from './world/packWorld.ts';
 export { hasTags, NO_PLACES, type PackPlaces, type PlacedTags, type WorldPlaces } from './world/places.ts';
 export { spaceOf, worldStage } from './world/stage.ts';
 export {

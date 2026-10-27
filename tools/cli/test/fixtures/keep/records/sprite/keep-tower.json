@@ -1,0 +1,17 @@
+{
+  "name": "Keep tower",
+  "sheet": "starter-sprites/keep-tower.png",
+  "frame": [
+    48,
+    112
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

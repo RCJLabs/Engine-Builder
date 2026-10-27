@@ -4,14 +4,14 @@
  * down), Interact pressed (not held), sent once a second through the outbox while the walk runs.
  */
 import type { Action, PackWorld } from '@eb/core';
-import { CONE_DEG, HEARING_M, SIGHT_M } from '@eb/kits';
+import { CONE_DEG, HEARING_M, SENSED_MOST, SIGHT_M } from '@eb/kits';
 import type { Sent } from '@eb/ui';
 import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../spaces/vec.ts';
 import type { Intent } from './controls.ts';
 import type { Outbox } from './outbox.ts';
 import type { Standing } from './senses.ts';
-import { createWalkSenses, sensersIn } from './walkSenses.ts';
+import { createWalkSenses, mergeSensed, sensersIn } from './walkSenses.ts';
 import type { WalkSpace } from './world.ts';
 
 const world = {
@@ -59,6 +59,33 @@ describe('sensersIn', () => {
   });
 });
 
+describe('mergeSensed', () => {
+  const report = (ms: number, npcs: Record<string, object>): Action => ({
+    type: 'ai/sensed',
+    space: 'green',
+    ms,
+    npcs,
+  });
+
+  it('adds the time and joins each NPC’s sightings and noises, within what the sim takes', () => {
+    const older = report(1000, { guard: { seen: [300, 250] }, smith: { heard: 1 } });
+    const newer = report(1000, { guard: { seen: [200], heard: 1 } });
+    expect(mergeSensed(older, newer)).toEqual(
+      report(2000, { guard: { seen: [300, 250, 200], heard: 1 }, smith: { heard: 1 } }),
+    );
+    const many = (n: number) => Array.from({ length: n }, (_, i) => 100 + i);
+    const full = mergeSensed(
+      report(1500, { guard: { seen: many(10), heard: 15 } }),
+      report(1500, { guard: { seen: many(10), heard: 15 } }),
+    );
+    expect(full.ms).toBe(SENSED_MOST.ms);
+    const guard = (full.npcs as Record<string, { seen: number[]; heard: number }>).guard;
+    expect(guard?.seen).toHaveLength(SENSED_MOST.sightings);
+    expect(guard?.seen.at(-1)).toBe(109);
+    expect(guard?.heard).toBe(SENSED_MOST.noises);
+  });
+});
+
 describe('a walk’s senses', () => {
   const walked = (running = () => true) => {
     const posted: Action[] = [];
@@ -81,15 +108,49 @@ describe('a walk’s senses', () => {
   const heardBy = (posted: Action[]) =>
     posted.map((a) => (a.npcs as Record<string, { heard?: number }>).smith?.heard ?? 0);
 
-  it('hears a run on the ground and an Interact pressed, once each a report', () => {
+  it('hears a run on the ground and an Interact pressed, once each a report', async () => {
     const { senses, posted } = walked();
     const running: Intent = { ...still, move: [0, 1], run: true, use: true };
     for (let i = 0; i < 50; i++) senses.frame(20, feet, running, true);
     expect(posted).toHaveLength(1);
     expect(heardBy(posted)).toEqual([2]);
+    await Promise.resolve();
     // Run held without moving, or Interact still held: no noise.
     for (let i = 0; i < 50; i++) senses.frame(20, feet, { ...still, run: true, use: true }, true);
     expect(heardBy(posted)).toEqual([2, 0]);
+  });
+
+  it('keeps one report waiting at a time, those made meanwhile held as one and sent once it is answered (M7.1)', async () => {
+    const posted: Action[] = [];
+    const answers: ((sent: Sent) => void)[] = [];
+    const outbox: Outbox = {
+      post: (action) => {
+        posted.push(action);
+        return new Promise<Sent>((answer) => answers.push(answer));
+      },
+      pump: () => {},
+      close: () => {},
+      size: 0,
+    };
+    const built = (): Standing[] => [{ path: 'yard/smith', at: [0, 0, 3], yaw: 0 }];
+    const senses = createWalkSenses(
+      space,
+      world,
+      outbox,
+      () => true,
+      built,
+      () => null,
+    );
+    const running: Intent = { ...still, move: [0, 1], run: true };
+    for (let second = 0; second < 3; second++) {
+      for (let i = 0; i < 50; i++) senses?.frame(20, feet, i === 0 ? still : running, true);
+    }
+    expect(posted.map((a) => a.ms)).toEqual([1000]);
+    answers[0]?.('accepted');
+    await Promise.resolve();
+    // The second and third seconds as one: their time and the smith's two runs heard.
+    expect(posted.map((a) => a.ms)).toEqual([1000, 2000]);
+    expect(heardBy(posted)).toEqual([1, 2]);
   });
 
   it('hears a landing after a fall, and not after a step down', () => {

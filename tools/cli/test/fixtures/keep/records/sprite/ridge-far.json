@@ -1,0 +1,17 @@
+{
+  "name": "Far ridge",
+  "sheet": "starter-sprites/ridge-far.png",
+  "frame": [
+    256,
+    64
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

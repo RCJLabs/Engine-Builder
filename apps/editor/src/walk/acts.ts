@@ -56,7 +56,8 @@ export function createActs(
   const stood: { feet: readonly number[]; yaw: number; sent: Sent | 'waiting' }[] = [];
 
   let said = '';
-  const stand = (feet: Vec3, yaw: number, now: number) => {
+  /** `player`: said just before a use, so it goes with the use ahead of the stage's letters. */
+  const stand = (feet: Vec3, yaw: number, now: number, player = false) => {
     // A stage drawing a space the sim hasn't the player in says nothing of where they stand.
     if (!ask.here()) return;
     const action = standing(ask.space, feet, yaw);
@@ -68,15 +69,16 @@ export function createActs(
     };
     stood.push(entry);
     told = { feet, time: now };
-    void outbox.post(action).then((sent) => {
+    void outbox.post(action, player).then((sent) => {
       entry.sent = sent;
     });
   };
   const use = (target: UsePoint, feet: Vec3, yaw: number, now: number) => {
-    stand(feet, yaw, now);
+    stand(feet, yaw, now, true);
     const entry: { object: string; sent: Sent | 'waiting' } = { object: target.path, sent: 'waiting' };
     used.push(entry);
-    void outbox.post(target.send ?? { type: 'world/use', space: ask.space, object: target.path }).then((sent) => {
+    const action = target.send ?? { type: 'world/use', space: ask.space, object: target.path };
+    void outbox.post(action, true).then((sent) => {
       entry.sent = sent;
     });
     onUse(target.path, feet);

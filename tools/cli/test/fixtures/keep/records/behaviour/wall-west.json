@@ -1,0 +1,22 @@
+{
+  "name": "The west wall's watch",
+  "description": "Walks the west wall walk, from the tower to the gatehouse and back, all night; stands at the gatehouse by day.",
+  "do": {
+    "first": [
+      {
+        "hours": [20, 6],
+        "do": {
+          "patrol": ["walk-w1", "walk-w2"],
+          "dwell": {
+            "minutes": 20
+          }
+        }
+      },
+      {
+        "do": {
+          "work": "walk-w2"
+        }
+      }
+    ]
+  }
+}

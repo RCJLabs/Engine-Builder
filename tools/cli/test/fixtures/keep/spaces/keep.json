@@ -1,0 +1,408 @@
+{
+  "name": "The keep at night",
+  "view": "2d",
+  "fit": [320, 180],
+  "size": [960, 180],
+  "backdrop": "#131a33",
+  "objects": [
+    {
+      "id": "sky",
+      "name": "The night sky",
+      "shape": "box",
+      "at": [0, 0, -100],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-night"
+        },
+        "parallax": {
+          "factor": [0, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "stars",
+      "name": "Stars",
+      "shape": "box",
+      "at": [0, 84, -90],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-stars"
+        },
+        "parallax": {
+          "factor": [0.05, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "moon",
+      "name": "The moon",
+      "shape": "box",
+      "at": [40, 130, -80],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "sky-moon"
+        },
+        "parallax": {
+          "factor": [0.1, 1]
+        }
+      }
+    },
+    {
+      "id": "ridge-far",
+      "name": "The far ridge",
+      "shape": "box",
+      "at": [0, 40, -70],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "ridge-far"
+        },
+        "parallax": {
+          "factor": [0.3, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "ridge-near",
+      "name": "The near ridge",
+      "shape": "box",
+      "at": [0, 16, -60],
+      "color": "#131a33",
+      "components": {
+        "sprite": {
+          "sprite": "ridge-near"
+        },
+        "parallax": {
+          "factor": [0.6, 1],
+          "repeat": true
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "name": "The ground",
+      "shape": "box",
+      "at": [240, -400, -10],
+      "scale": [1600, 416, 1],
+      "color": "#0a0b14"
+    },
+    {
+      "id": "curtain-0",
+      "prefab": "curtain",
+      "at": [32, 16, 10]
+    },
+    {
+      "id": "curtain-1",
+      "prefab": "curtain",
+      "at": [96, 16, 10]
+    },
+    {
+      "id": "curtain-2",
+      "prefab": "curtain",
+      "at": [160, 16, 10]
+    },
+    {
+      "id": "curtain-3",
+      "prefab": "curtain",
+      "at": [224, 16, 10]
+    },
+    {
+      "id": "curtain-4",
+      "prefab": "curtain",
+      "at": [288, 16, 10]
+    },
+    {
+      "id": "curtain-5",
+      "prefab": "curtain",
+      "at": [352, 16, 10]
+    },
+    {
+      "id": "curtain-6",
+      "prefab": "curtain",
+      "at": [416, 16, 10]
+    },
+    {
+      "id": "curtain-7",
+      "prefab": "curtain",
+      "at": [480, 16, 10]
+    },
+    {
+      "id": "curtain-8",
+      "prefab": "curtain",
+      "at": [544, 16, 10]
+    },
+    {
+      "id": "curtain-9",
+      "prefab": "curtain",
+      "at": [608, 16, 10]
+    },
+    {
+      "id": "curtain-10",
+      "prefab": "curtain",
+      "at": [672, 16, 10]
+    },
+    {
+      "id": "curtain-11",
+      "prefab": "curtain",
+      "at": [736, 16, 10]
+    },
+    {
+      "id": "curtain-12",
+      "prefab": "curtain",
+      "at": [800, 16, 10]
+    },
+    {
+      "id": "curtain-13",
+      "prefab": "curtain",
+      "at": [864, 16, 10]
+    },
+    {
+      "id": "curtain-14",
+      "prefab": "curtain",
+      "at": [928, 16, 10]
+    },
+    {
+      "id": "walk-w1",
+      "name": "A mark on the wall walk",
+      "shape": "box",
+      "at": [70, 48, 0],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "walk-w2",
+      "name": "A mark on the wall walk",
+      "shape": "box",
+      "at": [440, 48, 0],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "walk-e1",
+      "name": "A mark on the wall walk",
+      "shape": "box",
+      "at": [520, 48, 0],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "walk-e2",
+      "name": "A mark on the wall walk",
+      "shape": "box",
+      "at": [890, 48, 0],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "aldo",
+      "record": "actor:aldo",
+      "at": [70, 48, 11]
+    },
+    {
+      "id": "brun",
+      "record": "actor:brun",
+      "at": [890, 48, 11]
+    },
+    {
+      "id": "tower-west",
+      "name": "The west tower",
+      "shape": "box",
+      "at": [24, 16, 20],
+      "color": "#3b3c4f",
+      "components": {
+        "sprite": {
+          "sprite": "keep-tower"
+        }
+      }
+    },
+    {
+      "id": "tower-east",
+      "name": "The east tower",
+      "shape": "box",
+      "at": [936, 16, 20],
+      "color": "#3b3c4f",
+      "components": {
+        "sprite": {
+          "sprite": "keep-tower"
+        }
+      }
+    },
+    {
+      "id": "window-west",
+      "name": "A lit window",
+      "shape": "box",
+      "at": [24, 74, 21],
+      "color": "#ffd36b",
+      "components": {
+        "sprite": {
+          "sprite": "keep-window"
+        }
+      }
+    },
+    {
+      "id": "window-east",
+      "name": "A lit window",
+      "shape": "box",
+      "at": [936, 74, 21],
+      "color": "#ffd36b",
+      "components": {
+        "sprite": {
+          "sprite": "keep-window",
+          "phase": 1
+        }
+      }
+    },
+    {
+      "id": "banner-west",
+      "name": "The west banner",
+      "shape": "box",
+      "at": [30, 128, 21],
+      "color": "#7d2233",
+      "components": {
+        "sprite": {
+          "sprite": "banner"
+        }
+      }
+    },
+    {
+      "id": "banner-east",
+      "name": "The east banner",
+      "shape": "box",
+      "at": [942, 128, 21],
+      "color": "#7d2233",
+      "components": {
+        "sprite": {
+          "sprite": "banner",
+          "phase": 1,
+          "flip": true
+        }
+      }
+    },
+    {
+      "id": "gatehouse",
+      "name": "The gatehouse",
+      "shape": "box",
+      "at": [480, 16, 15],
+      "color": "#3b3c4f",
+      "components": {
+        "sprite": {
+          "sprite": "keep-gate"
+        }
+      }
+    },
+    {
+      "id": "bell",
+      "name": "The bell",
+      "shape": "box",
+      "at": [480, 60, 16],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "bell"
+        },
+        "interact": {
+          "label": "Ring the bell",
+          "effects": [
+            {
+              "effect": "set-flag",
+              "flag": "bell-rung",
+              "to": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "torch-1",
+      "name": "A torch",
+      "shape": "box",
+      "at": [120, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 0
+        }
+      }
+    },
+    {
+      "id": "torch-2",
+      "name": "A torch",
+      "shape": "box",
+      "at": [250, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 1
+        }
+      }
+    },
+    {
+      "id": "torch-3",
+      "name": "A torch",
+      "shape": "box",
+      "at": [380, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 2
+        }
+      }
+    },
+    {
+      "id": "torch-4",
+      "name": "A torch",
+      "shape": "box",
+      "at": [580, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 0.5
+        }
+      }
+    },
+    {
+      "id": "torch-5",
+      "name": "A torch",
+      "shape": "box",
+      "at": [710, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 1.5
+        }
+      }
+    },
+    {
+      "id": "torch-6",
+      "name": "A torch",
+      "shape": "box",
+      "at": [840, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 2.5
+        }
+      }
+    },
+    {
+      "id": "start",
+      "name": "Where the watch is first seen",
+      "shape": "box",
+      "at": [480, 0, -20],
+      "color": "#0a0b14",
+      "components": {
+        "spawn": {
+          "start": true
+        }
+      }
+    }
+  ]
+}

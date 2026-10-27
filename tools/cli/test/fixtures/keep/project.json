@@ -1,0 +1,18 @@
+{
+  "format": 1,
+  "id": "keep",
+  "name": "The keep",
+  "version": "0.1.0",
+  "kits": ["stats", "time", "ai"],
+  "calendar": {
+    "ticksPerDay": 1440,
+    "units": {
+      "minutes": 1,
+      "hours": 60
+    },
+    "start": {
+      "tick": 1260
+    }
+  },
+  "start-space": "keep"
+}

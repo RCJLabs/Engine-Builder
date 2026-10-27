@@ -1,0 +1,17 @@
+{
+  "name": "Keep wall",
+  "sheet": "starter-sprites/keep-wall.png",
+  "frame": [
+    64,
+    32
+  ],
+  "clips": {
+    "still": {
+      "frames": [
+        0,
+        0
+      ],
+      "fps": 1
+    }
+  }
+}

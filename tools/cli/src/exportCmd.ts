@@ -37,23 +37,27 @@ async function readRuntime(dir = DEFAULT_RUNTIME): Promise<Runtime> {
       `No game runtime in ${dir}: build it with "pnpm -C apps/editor exec vite build -c vite.game.config.ts", or name one with --runtime`,
     );
   }
-  const { version, files, walk, nav } = JSON.parse(await readFile(list, 'utf8')) as {
+  const { version, files, walk, nav, stage2d } = JSON.parse(await readFile(list, 'utf8')) as {
     version: string;
     files: string[];
     walk?: string;
     nav?: string;
+    stage2d?: string;
   };
   const [js, css] = await Promise.all(files.map((file) => readFile(join(dir, file), 'utf8')));
   // walk.js, for a game with spaces (M5.8): apps/editor builds it beside the runtime.
   const walked = walk === undefined ? undefined : await readFile(join(dir, walk), 'utf8');
   // nav.js, for a game whose spaces have navmeshes (M6.2), built beside walk.js.
   const navved = nav === undefined ? undefined : await readFile(join(dir, nav), 'utf8');
+  // stage2d.js, for a game with a 2D space (M7.1), built beside them.
+  const flat = stage2d === undefined ? undefined : await readFile(join(dir, stage2d), 'utf8');
   return {
     version,
     js: js as string,
     css: css as string,
     ...(walked === undefined ? {} : { walk: walked }),
     ...(navved === undefined ? {} : { nav: navved }),
+    ...(flat === undefined ? {} : { stage2d: flat }),
   };
 }
 

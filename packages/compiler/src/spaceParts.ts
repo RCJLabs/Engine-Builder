@@ -22,6 +22,7 @@ import {
   type Known,
   type PartContext,
   type RecordType,
+  SPRITE,
   type SpaceSpawns,
   schemaIssues,
   severityOf,
@@ -30,6 +31,7 @@ import {
 } from '@eb/schema';
 import { checkActorPlaces } from './npcPlaces.ts';
 import { type Fields, isFields, overridden, passedOn, recordHere } from './overrides.ts';
+import { clipProblem } from './space2d.ts';
 import { starts, waters } from './spaceLints.ts';
 import { placeFields, type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 import { atLines, type SpaceFileRead } from './spaces.ts';
@@ -168,6 +170,11 @@ function checkComponent(walk: Walk, kind: string, fields: unknown, at: string, o
   }
   checkPart(type.recordType.schema, fields, at, partContext(walk, at, only, 'E063'));
   if (kind === INTERACT && isFields(fields)) checkHolds(walk, fields, at, only);
+  // A sprite's clip, against its sprite's clips (M7.1): E091, as the sprite's own default is.
+  if (kind === SPRITE && isFields(fields) && typeof fields.sprite === 'string' && (!only || only.has('clip'))) {
+    const problem = clipProblem(fields.clip, walk.ctx.value(SPRITE, fields.sprite));
+    if (problem) report(walk, 'E091', `${at}/clip`, problem);
+  }
 }
 
 /**

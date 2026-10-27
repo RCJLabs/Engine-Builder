@@ -1,0 +1,8 @@
+{
+  "lines": [
+    {
+      "on": "world/used",
+      "say": "The bell rings out over the keep."
+    }
+  ]
+}

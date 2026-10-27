@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build -c vite.game.config.ts && vite build -c vite.walk.config.ts && vite build -c vite.nav.config.ts && vite build",
+    "build": "vite build -c vite.game.config.ts && vite build -c vite.walk.config.ts && vite build -c vite.nav.config.ts && vite build -c vite.stage2d.config.ts && vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
     "icons": "node scripts/icons.ts"
