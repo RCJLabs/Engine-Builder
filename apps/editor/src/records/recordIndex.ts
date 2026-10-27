@@ -90,7 +90,7 @@ export interface RecordIndex {
   readonly spaces?: readonly Diagnostic[];
   /** What in spaces/ and prefabs/ names each "type:id" (M5.2): a placed record, a ref in a component or an override. */
   readonly spaceUsers?: ReadonlyMap<string, readonly SpaceUse[]>;
-  /** The model records' files' problems (M5.5), E070 and W146, checked once the records are (modelChecks.ts). */
+  /** The model records' files' problems (M5.5), E070 and W146, and the sprites' sheets' E091 (M7.1), checked once the records are (modelChecks.ts). */
   readonly models?: readonly Diagnostic[];
 }
 
