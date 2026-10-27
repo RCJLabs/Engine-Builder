@@ -64,11 +64,12 @@ describe('the keep', () => {
   });
 
   it('draws the starter sprites as the kit writes them, byte for byte', () => {
-    // Each sheet the keep holds, as the kit has it: the kit's tileset (M7.2) came after the keep.
+    // Each sheet and sprite the keep holds, as the kit has it: the kit's tileset (M7.2) and rooms (M7.3) came
+    // after the keep.
     const sheets = join(STARTER, 'assets/starter-sprites');
     for (const name of readdirSync(join(KEEP, 'assets/starter-sprites')))
       expect(readFileSync(join(KEEP, 'assets/starter-sprites', name)), name).toEqual(readFileSync(join(sheets, name)));
-    for (const name of readdirSync(join(STARTER, 'records/sprite')))
+    for (const name of readdirSync(join(KEEP, 'records/sprite')))
       expect(readFileSync(join(KEEP, 'records/sprite', name), 'utf8'), name).toBe(
         readFileSync(join(STARTER, 'records/sprite', name), 'utf8'),
       );
