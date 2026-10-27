@@ -232,6 +232,13 @@ export async function searchAll(
 ): Promise<void> {
   const started = Date.now();
   let last = { actor: '', d: Number.POSITIVE_INFINITY, stuck: 0 };
+  // The way the search went, its last steps, for a timeout to say: CI's Kaldvík runs failed twice
+  // after M7.3 and neither ran again here, at any load (M7.4).
+  const steps: string[] = [];
+  const note = (step: string) => {
+    steps.push(`${Date.now() - started} ms ${step}`);
+    if (steps.length > 12) steps.shift();
+  };
   for (;;) {
     const seen = await look(page);
     const left = seen.fight.bodies.filter((b) => b.label === 'Search').map((b) => b.actor);
@@ -245,10 +252,13 @@ export async function searchAll(
     if (Date.now() - started > timeout)
       throw new Error(
         `Bodies left unsearched: ${left.join(', ')}; the player at ${place(seen.me.feet)} facing ${seen.me.yaw.toFixed(0)}°, ` +
-          `the prompt ${prompt ?? 'none'}; ${bodies.map((b) => `${b.actor} at ${place(b.at)}`).join(', ')}`,
+          `the prompt ${prompt ?? 'none'}; ${bodies.map((b) => `${b.actor} at ${place(b.at)}`).join(', ')}; ` +
+          `its last steps: ${steps.join('; ')}`,
       );
     if (!nearest) continue;
+    const at = `at ${place(seen.me.feet)} facing ${seen.me.yaw.toFixed(0)}°, the prompt ${prompt ?? 'none'}`;
     if (prompt === 'Search') {
+      note(`searched ${at}`);
       await steer.use();
       await takeAllAndClose(page, press);
       continue;
@@ -256,10 +266,14 @@ export async function searchAll(
     const d = acrossTo(nearest.at, seen.me.feet);
     last = { actor: nearest.actor, d, stuck: last.actor === nearest.actor && d > last.d - 0.05 ? last.stuck + 1 : 0 };
     if (last.stuck >= 4) {
+      note(`stepped aside ${at}, ${nearest.actor} ${d.toFixed(1)} m off`);
       await steer.turn(70);
       await steer.walk(300);
       last = { ...last, stuck: 0 };
-    } else await closeOn(steer, seen.me, nearest.at, prompt === null ? 1.2 : 0.4, 10);
+    } else {
+      note(`to ${nearest.actor}, ${d.toFixed(1)} m ${at}`);
+      await closeOn(steer, seen.me, nearest.at, prompt === null ? 1.2 : 0.4, 10);
+    }
   }
 }
 

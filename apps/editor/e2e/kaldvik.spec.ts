@@ -69,7 +69,8 @@ test('Kaldvík by keys: from New game to the silver laid at Ragnhild’s seat', 
   });
 
   await test.step('the key from Hallkel, the silver from the chest', async () => {
-    await searchAll(page, steer, click);
+    // 15 to 27 s here, beside the phone specs or six CPU hogs (2026-10-27, N=3); CI's runners are slower.
+    await searchAll(page, steer, click, 120_000);
     await useAt(page, steer, 'chest', AT.chest);
     await takeAllAndClose(page, click);
     await useAt(page, steer, 'out', AT.howeOut);
