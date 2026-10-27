@@ -6,9 +6,10 @@
  * arrow keys a pixel, or 8 with Shift; a drag elsewhere pans; the wheel, a pinch, + and − and the
  * toolbar's buttons zoom in whole steps; Frame fits the chosen, or the space. Loaded with the first
  * 2D space opened. Since M7.2 a chosen tilemap is painted by a press and a drag while a tile tool is
- * on, the stroke shown as it goes and kept as one step, and its rules shown over it when asked.
+ * on, the stroke shown as it goes and kept as one step, and its rules shown over it when asked; since
+ * M7.3 a chosen building takes rooms and stairs the same way while a room tool is on.
  */
-import { FIT_DEFAULT, type TilemapFields } from '@eb/compiler';
+import { FIT_DEFAULT } from '@eb/compiler';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { editing } from '../editing/current.ts';
 import { deleteChosen } from '../spaces/actions.ts';
@@ -21,18 +22,17 @@ import { drawnAt, onCanvas, type Rect, worldBox } from '../stage2d/place.ts';
 import { sceneOf } from '../stage2d/scene.ts';
 import { BACKDROP_DEFAULT, coveredBy } from '../stage2d/start.ts';
 import { moveChosen } from './actions2d.ts';
-import type { Painter } from './gestures2d.ts';
+import { buildingOf } from './buildingActions.ts';
 import { attachGestures } from './gestures2d.ts';
 import { publishView2d } from './hook2d.ts';
 import type { LiveSprites } from './liveSprites.ts';
-import { tilePainter } from './painter2d.ts';
 import { movedBy, nudgeOf, pickAt, topOf } from './pick2d.ts';
 import { drawRules } from './rules2d.ts';
 import { sheetsOf } from './sheets2d.ts';
 import { aim2d, askZoom, zoomAsked, zoomShown } from './state2d.ts';
-import { edgeStroke, paintStroke, tilemapOf } from './tileActions.ts';
-import { withTilemap } from './tilemapEdits.ts';
-import { edgeKind, showRules, tileChar, tileLayer, tileTool } from './tiles2d.ts';
+import { painterNow, type Stroke, withStroke } from './strokes2d.ts';
+import { tilemapOf } from './tileActions.ts';
+import { showRules } from './tiles2d.ts';
 import { artSize, framed, type View2d, zoomedAt } from './view2d.ts';
 
 interface Props {
@@ -54,7 +54,7 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
   const [view, setView] = useState<View2d | null>(null);
   const [sheets, setSheets] = useState<Sheets>(NO_SHEETS);
   const [moving, setMoving] = useState<Point | null>(null);
-  const [stroke, setStroke] = useState<{ id: string; fields: TilemapFields } | null>(null);
+  const [stroke, setStroke] = useState<Stroke | null>(null);
   const drawn = useRef<Drawn[]>([]);
   const frames = useRef(0);
   const ids = picked.value;
@@ -92,7 +92,7 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
   const placed = useMemo(() => Object.fromEntries(prefabs), [prefabs]);
   const shown = useMemo(() => {
     const moved = moving ? placeObjects(space, movedBy(space, ids, moving)) : space;
-    return stroke ? withTilemap(moved, stroke.id, stroke.fields) : moved;
+    return withStroke(moved, stroke);
   }, [space, moving, ids, stroke]);
   const items = useMemo(() => sceneOf(shown, placed, record), [shown, placed, record]);
   const repeats = useMemo(() => new Set(items.filter((i) => i.parallax?.repeat).map((i) => i.path)), [items]);
@@ -102,8 +102,9 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
   const fit = (space.fit ?? FIT_DEFAULT) as Point;
   const whole: Rect[] = [bounds, { x: 0, y: 0, w: fit[0], h: fit[1] }];
 
-  const latest = useRef({ view, css, ids, canEdit, repeats, size, items, space, mapId });
-  latest.current = { view, css, ids, canEdit, repeats, size, items, space, mapId };
+  const only = ids.length === 1 ? (ids[0] as string) : null;
+  const latest = useRef({ view, css, ids, canEdit, repeats, size, items, space, mapId, only });
+  latest.current = { view, css, ids, canEdit, repeats, size, items, space, mapId, only };
   const chosenBoxes = (centre: Point): Rect[] =>
     items
       .filter((item) => ids.includes(topOf(item.path)))
@@ -197,6 +198,11 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
           const fields = id ? tilemapOf(now, id) : undefined;
           return id && fields ? { id, ...fields } : undefined;
         },
+        building: () => {
+          const { only: id, space: now } = latest.current;
+          const fields = id ? buildingOf(now, id) : undefined;
+          return id && fields ? { id, ...fields } : undefined;
+        },
       }),
     [open.id],
   );
@@ -245,7 +251,8 @@ export function SceneView2d({ space, prefabs, open, sprites, record }: Props) {
       <p class="muted scene-help">
         Tap or click to choose; drag what is chosen to move it, anywhere else to pan; pinch or the wheel to zoom. On a
         keyboard, arrows move the chosen a pixel, 8 with Shift; + and − zoom, F frames, Delete deletes. With a tilemap
-        chosen and Paint, Erase or Edges on, a press and a drag paint it instead.
+        chosen and Paint, Erase or Edges on, a press and a drag paint it instead; with a building chosen and Place,
+        Erase or Stairs on, a press places a room (a drag along a floor spans it), erases one or sets a stair.
       </p>
     </>
   );
@@ -262,39 +269,4 @@ function pageBoxes(el: HTMLElement | null, view: View2d | null, drawn: readonly 
     at: d.at,
     page: { x: x0 + d.box.x * k, y: y0 + d.box.y * k, w: d.box.w * k, h: d.box.h * k },
   }));
-}
-
-interface PaintNow {
-  readonly canEdit: boolean;
-  readonly mapId: string | null;
-  readonly items: ReturnType<typeof sceneOf>;
-  readonly space: SpaceJson;
-}
-
-/** The painter a press starts (M7.2): while a tile tool is on and a tilemap is chosen alone, else none. */
-function painterNow(
-  now: PaintNow,
-  setStroke: (s: { id: string; fields: TilemapFields } | null) => void,
-): Painter | null {
-  const tool = tileTool.peek();
-  const id = now.mapId;
-  const item = id ? now.items.find((i) => i.path === id) : undefined;
-  const fields = id ? tilemapOf(now.space, id) : undefined;
-  if (!tool || !now.canEdit || !id || !fields || item?.look.kind !== 'tilemap') return null;
-  const ch = tileChar.peek();
-  if (tool === 'paint' && ch === null) return null;
-  const layer = Math.min(tileLayer.peek(), fields.layers.length - 1);
-  return tilePainter({
-    place: { at: item.at, size: fields.size, tile: item.look.tile },
-    fields,
-    tool,
-    layer,
-    ch: ch ?? ' ',
-    kind: edgeKind.peek(),
-    preview: (next) => setStroke(next ? { id, fields: next } : null),
-    commit: (cells, sides) =>
-      void (tool === 'edges'
-        ? edgeStroke(id, sides, edgeKind.peek())
-        : paintStroke(id, layer, cells, tool === 'erase' ? ' ' : (ch as string))),
-  });
 }
