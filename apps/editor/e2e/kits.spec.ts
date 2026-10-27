@@ -44,8 +44,9 @@ test('kits turned on, their records made with forms, a row giving an item, and t
     'Model (0)',
     'Foliage (0)',
     'Animator (0)',
-    // M7.1's sprites, an engine type of their own.
+    // M7.1's sprites, an engine type of their own, and M7.2's tilesets.
     'Sprite (0)',
+    'Tileset (0)',
   ]);
   const medkit = await newRecord(page, 'item', 'Item', 'Medkit');
   await medkit.getByLabel(/^Value/).fill('30');
