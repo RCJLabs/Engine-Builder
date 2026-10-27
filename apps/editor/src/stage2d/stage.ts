@@ -4,31 +4,31 @@
  * and their arrivals told back, its uses as buttons over their sprites, and the game's clock run as
  * it is shown, as the 3D walk does. stage2d.js carries it; the hosts load it for a 2D space. Since
  * M7.2 a space's tilemap is drawn and its walkers route round its walls; since M7.3 a building is drawn
- * and its walkers climb its stairs.
+ * and its walkers climb its stairs. Since M7.4 a space with a stage is drawn by its own code
+ * (stagecode/codeStage.ts), on the same sim side (simSide.ts).
  */
 import type { SpaceJson } from '@eb/compiler';
 import type { PackWorld } from '@eb/core';
-import type { NpcGoal, SpaceAsk, SpaceDrawn } from '@eb/ui';
-import { createGameClock } from '../walk/gameClock.ts';
-import { createNpcTell } from '../walk/npcTell.ts';
-import { createOutbox } from '../walk/outbox.ts';
+import type { SpaceAsk, SpaceDrawn } from '@eb/ui';
+import { startCodeStage } from '../stagecode/codeStage.ts';
 import { buildingPieces } from './building2d.ts';
 import { type Drawn, drawFrame } from './draw.ts';
 import { publishHook } from './hook.ts';
 import { worldBox } from './place.ts';
 import { placesOf, sceneOf } from './scene.ts';
 import { loadSheets } from './sheets.ts';
+import { createSimSide } from './simSide.ts';
 import { spaceStart } from './start.ts';
 import { cellFrames } from './tilemap2d.ts';
 import { createUseButtons } from './useButtons.ts';
 import { createView } from './view.ts';
-import { sendTo, stepWalker, walkersOf } from './walkers.ts';
 
 /** The most a frame moves anything, in seconds: a hidden tab's long gap isn't a leap. */
 const FRAME_CAP_S = 0.1;
 
 export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackWorld): Promise<SpaceDrawn> {
   const space = world.spaces[ask.space] as SpaceJson;
+  if (space.stage !== undefined) return startCodeStage(box, ask, world, space.stage);
   const sheets = await loadSheets(world);
   const record = (key: string) => (Object.hasOwn(world.records, key) ? world.records[key] : undefined);
   let taken = new Set(ask.taken);
@@ -39,58 +39,24 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   const ground = { ...(tiles ? { tiles } : {}), ...(building ? { building } : {}) };
   const { fit, size, start, backdrop } = spaceStart(space, items, sheets, ask);
 
-  const outbox = createOutbox((action) => ask.send(action));
-  const speedOf = (actor: string) => (record(`actor:${actor}`) as { speed?: unknown } | undefined)?.speed;
-  const walkers = walkersOf(items, speedOf, ask.npcs, places, ground);
-  const arrivals = new Map<string, string>();
-  const tell = createNpcTell(ask, outbox, (actor, goal) => {
-    if (arrivals.get(actor) === goal) arrivals.delete(actor);
-  });
-  const clock = createGameClock(() => ask.clocked?.() === true && !paused, outbox);
+  const sim = createSimSide(ask, world, items, places, ground);
+  const { walkers } = sim;
   const still = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 
-  let paused = false;
   let stopped = false;
   let frames = 0;
   let last = performance.now();
   const born = last;
   let drawn: Drawn[] = [];
-  const used: { path: string; sent: string }[] = [];
-  const use = (path: string) => {
-    if (paused || stopped) return;
-    const entry = { path, sent: 'waiting' };
-    used.push(entry);
-    void outbox.post({ type: 'world/use', space: ask.space, object: path }).then((sent) => {
-      entry.sent = sent;
-    });
-    outbox.pump();
-  };
   const view = createView(box, fit, size, start, () => {});
-  const buttons = createUseButtons(box, use, (centre) => view.look(centre));
-  const usesHere = () =>
-    Object.entries(world.uses?.[ask.space] ?? {})
-      .filter(([path]) => items.some((i) => i.path === path))
-      .map(([path, u]) => ({ path, label: u.label }));
+  const buttons = createUseButtons(box, sim.use, (centre) => view.look(centre));
+  const usesHere = () => sim.usesOf(new Set(items.map((i) => i.path)));
   buttons.set(usesHere());
 
-  // The sim keeps a 2D figure's place as feet [x, y, 0] and its facing as a yaw: 90 right, 270 left.
-  const list = () =>
-    [...walkers.values()].map((w) => ({
-      actor: w.actor,
-      at: [w.at[0], w.at[1], 0] as [number, number, number],
-      yaw: w.flip ? 270 : 90,
-    }));
   const frame = (now: number) => {
     const dt = Math.min(FRAME_CAP_S, (now - last) / 1000);
     last = now;
-    if (!paused) {
-      for (const walker of walkers.values()) {
-        const arrived = stepWalker(walker, dt);
-        if (arrived !== undefined) arrivals.set(walker.actor, arrived);
-      }
-      tell.frame(list(), arrivals, now);
-      clock.frame(dt * 1000);
-    }
+    sim.step(dt, now);
     const { scale, cols, rows, dpr } = view.scaled();
     drawn = drawFrame(view.ctx, {
       items,
@@ -106,12 +72,6 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     buttons.place(new Map(drawn.map((d) => [d.path, d])), scale, dpr, corner, rows);
     frames++;
   };
-  const hidden = () => {
-    if (document.visibilityState !== 'hidden') return;
-    clock.flush();
-    tell.stand(list(), arrivals, performance.now());
-  };
-  document.addEventListener('visibilitychange', hidden);
 
   let raf = 0;
   const loop = (now: number) => {
@@ -128,7 +88,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     drawn: () => drawn,
     frames: () => frames,
     uses: () => buttons.shown(),
-    used: () => used.map((u) => ({ ...u })),
+    used: sim.used,
     walkers: () =>
       [...walkers.values()].map((w) => ({
         actor: w.actor,
@@ -157,8 +117,8 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
         frames: cellFrames(item.look.map, tileset.record),
       };
     },
-    npcsSent: () => tell.sent(),
-    clock: () => clock.hook(),
+    npcsSent: sim.tellSent,
+    clock: sim.clockHook,
     look: (at) => view.look(at),
     boxOf: (path) => {
       const item = items.find((i) => i.path === path);
@@ -168,30 +128,18 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   });
 
   return {
-    pause(on) {
-      paused = on;
-      if (on) {
-        clock.flush();
-        tell.stand(list(), arrivals, performance.now());
-      }
-    },
+    pause: sim.pause,
     quality() {},
     taken(paths) {
       taken = new Set(paths);
       items = sceneOf(space, world.prefabs, record, taken);
       buttons.set(usesHere());
     },
-    npcs(next: Readonly<Record<string, NpcGoal>>) {
-      for (const [actor, told] of Object.entries(next)) {
-        const walker = walkers.get(actor);
-        if (walker) sendTo(walker, told, places, ground);
-      }
-    },
+    npcs: sim.npcs,
     stop() {
       stopped = true;
       cancelAnimationFrame(raf);
-      document.removeEventListener('visibilitychange', hidden);
-      outbox.close();
+      sim.stop();
       buttons.stop();
       view.stop();
       unhook();
