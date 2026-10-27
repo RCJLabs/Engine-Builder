@@ -31,6 +31,10 @@ test('the deck drawn by its tiles, its crew routed round its walls, and the alar
     expect(scale).toBe(Math.max(1, Math.floor(Math.min((width * dpr) / 208, (height * dpr) / 112))));
     const colours = await coloursIn(page, box.locator('canvas'));
     expect([...colours.keys()].filter((c) => !PALETTE.includes(c))).toEqual([]);
+    // The deck's plating, drawn by its tiles: 8.4% of the view at 1280 (2026-10-27), where the stars, the
+    // backdrop and the figures alone show next to none.
+    const shown = [...colours.values()].reduce((sum, n) => sum + n, 0);
+    expect((colours.get('#3b3c4f') ?? 0) / shown).toBeGreaterThan(0.04);
     const map = await tilemap(page);
     expect(map?.size).toEqual([11, 5]);
     expect(map?.tile).toEqual([16, 16]);

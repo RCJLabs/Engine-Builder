@@ -16,7 +16,7 @@ import { expectFits, game, newGame, showPlay } from './hutScreens.ts';
 import { showPanel } from './keepEditorHelpers.ts';
 import { createProject, kitsBox, newRecord, stored } from './kitHelpers.ts';
 import { showAssets, showProject } from './ludus.ts';
-import { scenePanel, showScene } from './spaceHelpers.ts';
+import { showScene } from './spaceHelpers.ts';
 
 const FOLDER = 'deck-build';
 type Box = { x: number; y: number; w: number; h: number };

@@ -79,6 +79,10 @@ describe('sight', () => {
     expect(lineOfSight(open, [0, 0], [1, 0])).toBe(true);
     for (const edge of ['|', 'I', '/', 'o'])
       expect(lineOfSight(gridOf(packed(['..'], ['', ` .${edge}.`])), [0, 0], [1, 0])).toBe(false);
+    // And on the edges between rows: a north or south side.
+    expect(lineOfSight(gridOf(packed(['.', '.'], [])), [0, 0], [0, 1])).toBe(true);
+    for (const edge of ['-', '=', '/', 'o'])
+      expect(lineOfSight(gridOf(packed(['.', '.'], ['', '', ` ${edge}`])), [0, 1], [0, 0])).toBe(false);
   });
 
   it('is blocked by a tile that blocks sight on the way, never by its two ends', () => {
@@ -100,6 +104,8 @@ describe('cover', () => {
     expect(coverFrom(grid, [1, 1], [0, 0])).toBe('half');
     expect(coverFrom(grid, [1, 1], [1, 2])).toBe('none');
     expect(coverFrom(grid, [1, 1], [2, 2])).toBe('none');
+    // From due east, on the same row, the crate to the north faces nobody.
+    expect(coverFrom(grid, [1, 1], [2, 1])).toBe('none');
     const walled = gridOf(packed(['.c.', '...', '...'], ['', '', '', '  |']));
     expect(coverFrom(walled, [1, 1], [0, 2])).toBe('full');
     expect(coverFrom(gridOf(packed(['.H.', '...'], [])), [1, 1], [1, 0])).toBe('full');
@@ -161,6 +167,7 @@ describe('routes', () => {
     expect(route(grid, [0, 0], [2, 0])).toBeNull();
     expect(route(grid, [0, 0], [5, 0])).toBeNull();
     expect(route(grid, [0, 0], [0, 0])).toEqual([[0, 0]]);
+    expect(route(grid, [1, 0], [1, 0])).toBeNull();
     // A walker standing on what it can't stand on may still step off it.
     expect(route(grid, [1, 0], [2, 0])).toEqual([
       [1, 0],

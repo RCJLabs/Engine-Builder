@@ -135,9 +135,9 @@ The world module reads them, in the player's space or the one named:
 
 - **The tilemap** is `tests/golden/example-ship.map.txt` from Space-Wrecked, imported as it is: 11 by 5 tiles, its rooms, doors, hull and hatch. Its text is RCJLabs' (D62).
 - **The stars** behind it in parallax.
-- **Two crew** walk between the bridge, the engines and the quarters through the doors on a behaviour.
-- **A console** sounds the alarm: a flag, a feedback line, and both crew go to the airlock.
-- **The HUD** says who can see the hatch, by `world.sees`.
+- **Two crew** on their rounds by behaviours, 10 minutes at each end: Ines between the bridge and the engines, Oren between the quarters and the hold, each through the doors.
+- **An alarm panel** at the deck's right edge sounds the alarm: its use sets the `alarm` flag, a feedback line says so, and both crew go to the airlock's two tiles.
+- **The HUD** says whether each of them can see the hatch, by `world.sees`, and has a Wait button that moves the clock on.
 
 ## The gate
 

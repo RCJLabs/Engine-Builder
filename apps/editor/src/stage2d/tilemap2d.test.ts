@@ -159,6 +159,13 @@ describe('a walker on a tilemap', () => {
     expect(seen.every(([x, y]) => !(y >= 16 && x > 108 && x < 124))).toBe(true);
   });
 
+  it('carries what is left of a frame’s step past each tile centre', () => {
+    const walker = walkerOf('ines', [106, 20], 1000, undefined);
+    sendTo(walker, { goal: 'right' }, places, TILES);
+    expect(stepWalker(walker, 1)).toBe('right');
+    expect(walker.at).toEqual([126, 26]);
+  });
+
   it('stays where it is, and never arrives, when no route reaches the mark', () => {
     const walled: PackTiles = { ...TILES, edges: edgesText(readEdges(['', ' .|.', '', ' .|.'], 2, 2), 2, 2) };
     const walker = walkerOf('ines', [106, 20], 16, undefined);
