@@ -41,6 +41,8 @@ export type PlayReply =
       readonly audio: AudioPack;
       /** Its spaces and what they draw from, sent once, for the page's stage (M5.8): none without spaces. */
       readonly world?: PackWorld;
+      /** What its screens' image widgets show, as data URLs by asset path (M7.4): none without any. */
+      readonly images?: Readonly<Record<string, string>>;
     }
   | { readonly id: number; readonly kind: 'started'; readonly view: View; readonly save: SaveFile }
   | {

@@ -41,8 +41,10 @@ import { checkProjectSpaceParts } from './spaceParts.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import { atLines, checkProjectSpaces, readSpaces } from './spaces.ts';
 import { checkSprites } from './sprites.ts';
+import { checkStages, readStages } from './stages.ts';
 import { checkTilesets } from './tilesets.ts';
 import { checkProjectUi, packUi, readUi } from './ui.ts';
+import { withImages } from './uiImages.ts';
 import { packWorld, spaceSpawns } from './world.ts';
 
 export interface CompileResult {
@@ -90,6 +92,7 @@ export async function compileProject(
   const scenes = await readScenes(source, grounds.facts, files.kits);
   const ui = await readUi(source);
   const spaces = await readSpaces(source);
+  const stages = await readStages(source);
   const components = await readComponentKinds(source, new Set(known.types.map((t) => t.type)));
   const diagnostics: Diagnostic[] = [
     ...files.diagnostics,
@@ -97,6 +100,7 @@ export async function compileProject(
     ...scenes.diagnostics,
     ...ui.diagnostics,
     ...spaces.diagnostics,
+    ...stages.diagnostics,
     ...components.diagnostics,
   ];
   // A scene beside a talk record of its id is E004 at both, and isn't checked: one problem, as the editor has it.
@@ -156,6 +160,9 @@ export async function compileProject(
   diagnostics.push(...atLines(spaces.files, validation.diagnostics).map((d) => atSceneLine(d, scenes.maps)));
   // A placed record, and every reference in a component or an override, names one (M5.2).
   diagnostics.push(...checkProjectSpaces(spaces.files, spaces.terrains), ...parts.diagnostics);
+  // Each 2D space's stage names a file under stages/, and every file there is reached (M7.4).
+  const staged = checkStages(stages, spaces.files);
+  diagnostics.push(...staged.diagnostics);
   // project.json's fighting names its player and its combat record, the player placed nowhere (M6.4)
   // and never essential (M6.10).
   const fighting = files.project?.fighting;
@@ -202,9 +209,10 @@ export async function compileProject(
   diagnostics.push(...uiDiagnostics);
   diagnostics.sort(compareDiagnostics);
   const failed = files.project === null || diagnostics.some((d) => d.severity === 'error');
-  const packedUi = packUi(ui);
+  // The screens' images go with them as data URLs, so a screen shows one wherever it plays (M7.4).
+  const packedUi = failed ? packUi(ui) : await withImages(source, packUi(ui));
   const audio = failed ? {} : await audioFiles(source, records);
-  const world = failed
+  const walked = failed
     ? undefined
     : await packWorld(source, {
         files: spaces.files,
@@ -218,6 +226,9 @@ export async function compileProject(
         start,
         ...(fighting?.player === undefined ? {} : { player: fighting.player }),
       });
+  // The stage files the spaces' stages reach, compiled: the page runs them, the sim never (M7.4).
+  const world =
+    walked !== undefined && Object.keys(staged.compiled).length > 0 ? { ...walked, stages: staged.compiled } : walked;
   return {
     diagnostics,
     pack:

@@ -97,9 +97,11 @@ export default defineStage({
 ## The pack
 
 - **Format 20:**
-  - `world.stages`: each stage a space names, as `{ entry, files }`, with each file compiled to JavaScript by the scripts' transpiler and keyed by its path under `stages/`.
-  - `ui.images`: the assets the screens' image widgets name, as data URLs (PNG, SVG and the other image types an asset may be).
-- **Earlier formats** are read as before. A pack has format 20 only when it has a stage or a screen's image.
+  - `world.stages`: every stage file the spaces' stages reach, compiled to JavaScript by the scripts' transpiler and keyed by its path under `stages/` without `.ts` (`battle`, `space-wrecked/board`). Each space's own `stage` names its entry. Two stages that share a file carry it once.
+  - `ui.images`: the assets the screens' image widgets name, as data URLs (PNG, SVG and the other image types an asset may be), by their path inside `assets/`.
+- **Either or both:** a pack is format 20 when a space names a stage or a screen shows an image. A game of screens alone may be format 20 with no world.
+- **`readPack` refuses** a format 20 pack with neither, a space whose stage the pack lacks, and an image that isn't an image type's data URL.
+- **Earlier formats** are read as before, and a pack with neither keeps its format and its hash.
 
 ## Screens' images
 
@@ -111,7 +113,8 @@ A screen's image widget shows its asset in play and in exports, a PNG or an SVG,
 |---|---|
 | E058 | A 3D space has a `stage`. |
 | E095 | A space's `stage` names no `stages/<id>.ts`. |
-| E028, E029, E030 | A stage file doesn't parse, breaks a stage rule, or imports what it may not. |
+| E028, E029, E030 | A stage file doesn't parse, breaks a stage rule, imports what it may not, or has a name that isn't an id. |
+| E047 | A screen's image widget names a file that isn't an image (since M7.4). |
 | W159 | A stage file no space's stage reaches. |
 
 ## The editor

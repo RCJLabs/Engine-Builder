@@ -119,6 +119,8 @@ export const spaceSchema = z.strictObject({
   fit: pixels.optional(),
   size: pixels.optional(),
   backdrop: colour.optional(),
+  /** A 2D space's stage (M7.4, D86, docs/specs/stages.md): stages/<id>.ts draws it instead of stage2d. */
+  stage: id.optional(),
   /** A space's tags (M6.7): a prefab's are E058, as a placement of it carries its own. */
   tags: tags.optional(),
   /** The id of the environment record it is drawn under (M5.4, D66): a space's alone. */

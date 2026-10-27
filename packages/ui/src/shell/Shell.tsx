@@ -82,6 +82,7 @@ export function Shell(props: ShellProps) {
           <GameScreens
             screens={opened.screens}
             theme={opened.theme}
+            assetUrl={(path) => opened.images?.[path]}
             view={play.view}
             said={play.said}
             audio={audio}

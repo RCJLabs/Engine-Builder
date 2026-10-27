@@ -1138,6 +1138,19 @@ describe('the code table', () => {
       'E094 spaces/tower.json /objects/1/components/building A space has one building: “keep” is its first',
       'E058 spaces/yard.json /objects/0/components/building Only a 2D space draws a building',
     ]);
+    // A 2D space's stage that names no file (E095), and a stage file nothing reaches (W159, M7.4).
+    const staged = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({ format: 1, id: 'deck', name: 'Deck', version: '0.1.0' }),
+        'spaces/deck.json': JSON.stringify({ name: 'Deck', view: '2d', stage: 'battle', objects: [] }),
+        'stages/board.ts': 'export const board = 1;',
+      }),
+      [],
+    );
+    expect(brief(staged.diagnostics).map((d) => `${d.code} ${d.file} ${d.path} ${d.message}`)).toEqual([
+      'E095 spaces/deck.json /stage There is no stage stages/battle.ts',
+      "W159 stages/board.ts  No space's stage imports it, directly or through another, so nothing draws with it",
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -1176,6 +1189,7 @@ describe('the code table', () => {
       sprited,
       tiled,
       built,
+      staged,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's
