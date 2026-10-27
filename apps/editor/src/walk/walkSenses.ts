@@ -2,10 +2,12 @@
  * The senses in a walk (M6.3, D75, docs/specs/ai.md#perception): which NPCs of the space sense, from
  * the pack's actor records (a behaviour, and sight, cone and hearing or the kit's defaults); the
  * player's noises read off the walk each frame (running, landing from a fall, Interact); and the
- * reports sent through the outbox while the game's mode runs it.
+ * reports sent through the outbox while the game's mode runs it. One report waits at a time (M7.1):
+ * those made meanwhile are held as one, merged within what the sim takes, so a slow phone's outbox
+ * never queues them up ahead of a use.
  */
 import type { Action, PackWorld } from '@eb/core';
-import { CONE_DEG, HEARING_M, SIGHT_M } from '@eb/kits';
+import { CONE_DEG, HEARING_M, SENSED_MOST, SIGHT_M } from '@eb/kits';
 import type { Sent } from '@eb/ui';
 import { FIGURE } from '../spaces/figureLook.ts';
 import type { Vec3 } from '../spaces/vec.ts';
@@ -42,6 +44,24 @@ export function sensersIn(world: PackWorld, space: WalkSpace): Senser[] {
   });
 }
 
+type Sensing = { readonly seen?: readonly number[]; readonly heard?: number };
+
+/**
+ * Two ai/sensed reports of a space as one: their time added, each NPC's sightings and noises joined,
+ * kept within what the sim takes (the newest sightings kept), so the gains of both still count.
+ */
+export function mergeSensed(older: Action, newer: Action): Action {
+  const npcs: Record<string, Sensing> = { ...(older.npcs as Record<string, Sensing>) };
+  for (const [actor, now] of Object.entries(newer.npcs as Record<string, Sensing>)) {
+    const was = npcs[actor] ?? {};
+    const seen = [...(was.seen ?? []), ...(now.seen ?? [])].slice(-SENSED_MOST.sightings);
+    const heard = Math.min((was.heard ?? 0) + (now.heard ?? 0), SENSED_MOST.noises);
+    npcs[actor] = { ...(seen.length > 0 ? { seen } : {}), ...(heard > 0 ? { heard } : {}) };
+  }
+  const ms = Math.min((older.ms as number) + (newer.ms as number), SENSED_MOST.ms);
+  return { ...newer, ms, npcs };
+}
+
 export interface WalkSenses {
   frame(ms: number, feet: Vec3, intent: Intent, grounded: boolean): void;
   /** For the hook: each report sent, what the sim made of it, and the last looks. */
@@ -64,12 +84,23 @@ export function createWalkSenses(
   const senses = createSenses(space.id, sensers);
   const log: { npcs: object; sent: Sent | 'waiting' }[] = [];
   let [air, using] = [0, false];
+  let waiting = false;
+  let held: Action | undefined;
   const post = (action: Action) => {
+    if (waiting) {
+      held = held ? mergeSensed(held, action) : action;
+      return;
+    }
+    waiting = true;
     const entry: { npcs: object; sent: Sent | 'waiting' } = { npcs: action.npcs as object, sent: 'waiting' };
     log.push(entry);
     if (log.length > KEPT) log.shift();
     void outbox.post(action).then((sent) => {
       entry.sent = sent;
+      waiting = false;
+      const next = held;
+      held = undefined;
+      if (next && running()) post(next);
     });
     outbox.pump();
   };

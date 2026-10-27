@@ -92,7 +92,10 @@ A new component kind, `interact`:
 - **The outbox:** the shell drops a step asked for while another is on its way, so the stage's
   `world/at`, `world/use` and the zones' `world/trigger` go one at a time (`walk/outbox.ts`). A
   dropped one is tried again 50 ms later, up to 60 times, by a timer, so a hidden page still sends
-  it; a newer `world/at` takes the place of one still waiting.
+  it; a newer `world/at` takes the place of one still waiting. A use, with the `world/at` said just
+  before it, goes ahead of the stage's letters still waiting, never ahead of the one on its way, and
+  a stage's newer `world/at` never takes its stand's place (M7.1): on CI's software renderer the clock's and the senses' letters queued up to eleven deep,
+  and a use waited 15 s behind them.
 - **A stage a step behind** says nothing of where the player stands in a space the sim hasn't them
   in; a `world/at` that arrives anyway is refused `elsewhere`.
 

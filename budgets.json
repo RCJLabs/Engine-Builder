@@ -21,9 +21,9 @@
     },
     "walk": {
       "budget": 2721470,
-      "reading": 2592183,
+      "reading": 2592431,
       "read": "2026-10-27",
-      "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space; re-read at M6.5, which carries the starter character, its clips and the mixers; and M6.6, which draws the compass and the markers and works out the map's pins"
+      "of": "zlib's gzip at level 9 of runtime/walk.js (M5.8): three, Rapier's compat build with its wasm inline, the Draco and Basis decoders, and the stage, the one file every page loads to walk a space; re-read at M6.5, which carries the starter character, its clips and the mixers; and M6.6, which draws the compass and the markers and works out the map's pins; and M7.1, whose outbox sends a use ahead of the stage's letters"
     },
     "nav": {
       "budget": 241910,
@@ -39,7 +39,7 @@
     },
     "precache": {
       "budget": 15380766,
-      "reading": 14725778,
+      "reading": 14726580,
       "read": "2026-10-27",
       "of": "bytes of every file the service worker precaches, as a device keeps them; walk.js (6.9 MB) since M5.8, nav.js (0.8 MB) since M6.2; re-read at M6.5, with the starter character in walk.js, the editor and Add starter character's chunk; and M6.6, with the compass, the markers, the Map screen and Bake map; and M6.7, with the Tags field and the quests kit's world slots; and M6.8, with containers and merchants in the kits, the Container screen and its template; and M6.9, with the valley hamlet's and the lighthouse's chunks, their models and navmeshes inlined; and M7.1, with stage2d.js, the 2D view and the starter sprites' chunk"
     },
@@ -51,13 +51,13 @@
     },
     "trail-web": {
       "budget": 7844921,
-      "reading": 7474445,
+      "reading": 7475088,
       "read": "2026-10-27",
       "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page; re-read at M6.5, whose walk.js carries the starter character; and M6.6, whose walk.js draws the compass and the markers; and M6.7, whose runtime's quests kit finds slots in the world; and M6.8, whose runtime's kits open containers and keep purses; and M6.9, whose runtime's quests kit says whether a quest can start; and M7.1, whose runtime loads stage2d.js for a 2D space"
     },
     "kaldvik-web": {
       "budget": 9226000,
-      "reading": 8787612,
+      "reading": 8788255,
       "read": "2026-10-27",
       "of": "bytes of every file of Kaldvík's web export (M6.10, D82), proof #2: walk.js and nav.js beside the runtime, and in the page the shore's terrain, its four navmeshes and the starter kit's pieces; about 5% room; re-read at M7.1, whose runtime loads stage2d.js for a 2D space"
     }

@@ -13,6 +13,8 @@ const MOST_MS = 2000;
 /** The stage looks five times a second. */
 const MOST_SIGHTINGS = 12;
 const MOST_NOISES = 20;
+/** The most one ai/sensed may hold, past which it is refused: what a stage merging reports keeps to. */
+export const SENSED_MOST = { ms: MOST_MS, sightings: MOST_SIGHTINGS, noises: MOST_NOISES } as const;
 const NEAR_CM = 100;
 const NEAR_GAIN = 8;
 const FAR_GAIN = 2;

@@ -1,5 +1,5 @@
 /** The ai kit (M6.3, D75, docs/specs/ai.md): behaviours, their run and awareness. */
-export { sightGain } from './aware.ts';
+export { SENSED_MOST, sightGain } from './aware.ts';
 export { chooseLeaf, type Now, withinHours } from './choose.ts';
 export { aiModule } from './module.ts';
 export { childPath, childrenOf, kindOf, lastIndex, type NodeKind, nodeAt, parentOf, pathsTo } from './nodes.ts';

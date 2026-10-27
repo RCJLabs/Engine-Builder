@@ -104,15 +104,47 @@ describe('the game clock in a walk (M6.3)', () => {
     const settle = () => new Promise((done) => setTimeout(done, 0));
     clock.frame(1500);
     await settle();
-    // The 1500 dropped and 1700 walked: 3200 owed, sent as the cap allows, 2000 then 1200.
+    // The 1500 dropped and 1700 walked: 3200 owed, sent as the cap allows, 2000 first.
     clock.frame(1700);
     await settle();
-    expect(sent.map((a) => a.ms)).toEqual([1500, 2000, 1200]);
-    // The 2000 was dropped too: owed again, and sent at the next second's frame.
-    expect(clock.hook().owed).toBe(2000);
+    expect(sent.map((a) => a.ms)).toEqual([1500, 2000]);
+    // The 2000 was dropped too: owed again, and sent at the next frames, 2000 then the 1200 left.
+    expect(clock.hook().owed).toBe(3200);
     clock.frame(0);
     await settle();
-    expect(sent.map((a) => a.ms)).toEqual([1500, 2000, 1200, 2000]);
+    clock.frame(0);
+    await settle();
+    expect(sent.map((a) => a.ms)).toEqual([1500, 2000, 2000, 1200]);
     expect(clock.hook().owed).toBe(0);
+  });
+
+  it('keeps one elapse waiting at a time, what is walked meanwhile riding on the next (M7.1)', async () => {
+    const answers: ((sent: Sent) => void)[] = [];
+    const sent: Action[] = [];
+    const clock = createGameClock(() => true, {
+      post: (action) => {
+        sent.push(action);
+        return new Promise<Sent>((answer) => answers.push(answer));
+      },
+      pump() {},
+      close() {},
+      size: 0,
+    });
+    const settle = () => new Promise((done) => setTimeout(done, 0));
+    clock.frame(1000);
+    clock.frame(1000);
+    clock.frame(1000);
+    expect(sent.map((a) => a.ms)).toEqual([1000]);
+    answers[0]?.('accepted');
+    await settle();
+    clock.frame(0);
+    expect(sent.map((a) => a.ms)).toEqual([1000, 2000]);
+    // The walk pauses while that one waits: what is owed goes as soon as it is answered.
+    clock.frame(300);
+    clock.flush();
+    expect(sent).toHaveLength(2);
+    answers[1]?.('accepted');
+    await settle();
+    expect(sent.map((a) => a.ms)).toEqual([1000, 2000, 300]);
   });
 });
