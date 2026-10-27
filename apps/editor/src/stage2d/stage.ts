@@ -2,7 +2,8 @@
  * The 2D stage (M7.1, D83, docs/specs/2d-scenes.md#play): a 2D space drawn in its Space widget's
  * box, its clips playing on the page's clock, its figures walked to the marks the sim sends them to
  * and their arrivals told back, its uses as buttons over their sprites, and the game's clock run as
- * it is shown, as the 3D walk does. stage2d.js carries it; the hosts load it for a 2D space.
+ * it is shown, as the 3D walk does. stage2d.js carries it; the hosts load it for a 2D space. Since
+ * M7.2 a space's tilemap is drawn and its walkers route round its walls.
  */
 import type { SpaceJson } from '@eb/compiler';
 import type { PackWorld } from '@eb/core';
@@ -16,6 +17,7 @@ import { worldBox } from './place.ts';
 import { placesOf, sceneOf } from './scene.ts';
 import { loadSheets } from './sheets.ts';
 import { spaceStart } from './start.ts';
+import { cellFrames } from './tilemap2d.ts';
 import { createUseButtons } from './useButtons.ts';
 import { createView } from './view.ts';
 import { sendTo, stepWalker, type Walker, walkerOf } from './walkers.ts';
@@ -30,6 +32,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   let taken = new Set(ask.taken);
   let items = sceneOf(space, world.prefabs, record, taken);
   const places = placesOf(space, world.prefabs);
+  const tiles = world.tiles?.[ask.space];
   const { fit, size, start, backdrop } = spaceStart(space, items, sheets, ask);
 
   const outbox = createOutbox((action) => ask.send(action));
@@ -38,7 +41,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     if (item.actor === undefined || walkers.has(item.actor)) continue;
     const speed = (record(`actor:${item.actor}`) as { speed?: unknown } | undefined)?.speed;
     const walker = walkerOf(item.actor, item.at, speed, ask.npcs?.[item.actor]);
-    sendTo(walker, ask.npcs?.[item.actor], places);
+    sendTo(walker, ask.npcs?.[item.actor], places, tiles);
     walkers.set(item.actor, walker);
   }
   const arrivals = new Map<string, string>();
@@ -129,7 +132,26 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     uses: () => buttons.shown(),
     used: () => used.map((u) => ({ ...u })),
     walkers: () =>
-      [...walkers.values()].map((w) => ({ actor: w.actor, at: w.at, goal: w.goal, moving: w.moving, flip: w.flip })),
+      [...walkers.values()].map((w) => ({
+        actor: w.actor,
+        at: w.at,
+        goal: w.goal,
+        moving: w.moving,
+        flip: w.flip,
+        ...(w.route ? { route: w.route.map(([c, r]) => [c, r] as const) } : {}),
+      })),
+    tilemap: () => {
+      const item = tiles ? items.find((i) => i.path === tiles.object) : undefined;
+      const tileset = item?.look.kind === 'tilemap' ? sheets.tileset?.(item.look.map.tileset) : undefined;
+      if (!tiles || !item || item.look.kind !== 'tilemap' || !tileset) return undefined;
+      return {
+        path: item.path,
+        size: tiles.size,
+        tile: tiles.tile,
+        at: tiles.at,
+        frames: cellFrames(item.look.map, tileset.record),
+      };
+    },
     npcsSent: () => tell.sent(),
     clock: () => clock.hook(),
     look: (at) => view.look(at),
@@ -157,7 +179,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     npcs(next: Readonly<Record<string, NpcGoal>>) {
       for (const [actor, told] of Object.entries(next)) {
         const walker = walkers.get(actor);
-        if (walker) sendTo(walker, told, places);
+        if (walker) sendTo(walker, told, places, tiles);
       }
     },
     stop() {

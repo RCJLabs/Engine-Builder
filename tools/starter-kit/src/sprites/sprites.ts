@@ -1,7 +1,8 @@
 /**
  * The starter sprites' files (M7.1, D83, docs/specs/2d-scenes.md#the-starter-sprite-kit), as a
  * project folder: each sheet a PNG under assets/starter-sprites/, its sprite record with its frame,
- * origin and clips, and the provenance log that says they are RCJLabs's, dedicated to CC0.
+ * origin and clips, and the provenance log that says they are RCJLabs's, dedicated to CC0. Since
+ * M7.2 the deck's tileset too (tiles.ts), its sheet beside the sprites'.
  */
 import type { SpriteClip, SpriteRecord } from '@eb/schema';
 import { FIGURE_CLIPS, figureSheet, LOOKS } from './figures.ts';
@@ -9,6 +10,7 @@ import { battlementSheet, gateSheet, towerSheet, wallSheet, windowSheet } from '
 import { bannerSheet, bellSheet, torchSheet } from './props.ts';
 import type { Sheet } from './raster.ts';
 import { moonSheet, ridgeFarSheet, ridgeNearSheet, skySheet, starsSheet } from './sky.ts';
+import { deckSheet, deckTileset } from './tiles.ts';
 
 export interface SpriteFile {
   readonly path: string;
@@ -50,6 +52,10 @@ export const MADE: readonly Made[] = [
   { id: 'ridge-near', name: 'Near ridge', sheet: ridgeNearSheet, clips: STILL },
 ];
 
+/** The tilesets (M7.2), by id: each sheet's file is `<id>-tiles.png`. */
+export const TILESETS = { deck: deckSheet } as const;
+export const tilesetSheet = (id: string) => `${SPRITES_FOLDER}/${id}-tiles.png`;
+
 const json = (value: unknown) => new TextEncoder().encode(`${JSON.stringify(value, null, 2)}\n`);
 
 /** Every file of the starter sprites, sorted by path. */
@@ -66,6 +72,10 @@ export function makeSprites(): SpriteFile[] {
     files.push({ path: `assets/${SPRITES_FOLDER}/${made.id}.png`, bytes: sheet.png() });
     files.push({ path: `records/sprite/${made.id}.json`, bytes: json(record) });
   }
+  for (const [id, sheet] of Object.entries(TILESETS)) {
+    files.push({ path: `assets/${tilesetSheet(id)}`, bytes: sheet().png() });
+    files.push({ path: `records/tileset/${id}.json`, bytes: json(deckTileset(tilesetSheet(id))) });
+  }
   const entry = {
     licence: 'CC0-1.0',
     author: 'RCJLabs',
@@ -73,7 +83,11 @@ export function makeSprites(): SpriteFile[] {
     date: SPRITES_DATE,
     tool: 'tools/starter-kit (sprites)',
   };
-  const log = Object.fromEntries(MADE.map((made) => [`${SPRITES_FOLDER}/${made.id}.png`, entry]));
+  const sheets = [
+    ...MADE.map((made) => `${SPRITES_FOLDER}/${made.id}.png`),
+    ...Object.keys(TILESETS).map(tilesetSheet),
+  ];
+  const log = Object.fromEntries(sheets.map((sheet) => [sheet, entry]));
   files.push({ path: 'assets/assets.json', bytes: json({ files: log }) });
   files.push({
     path: 'project.json',

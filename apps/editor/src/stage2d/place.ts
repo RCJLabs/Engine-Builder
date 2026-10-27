@@ -2,7 +2,8 @@
  * Where an item lands on the canvas (M7.1, D83, docs/specs/2d-scenes.md#the-view), in whole art
  * pixels, y down as a canvas has it: a sprite's frame with its origin on the item's place, mirrored
  * across that origin when flipped; a box or a sphere standing on its place; a parallax layer at
- * `at + camera·(1 − factor)`, tiled across the view when it repeats.
+ * `at + camera·(1 − factor)`, tiled across the view when it repeats; a tilemap (M7.2) up and to the
+ * right of its place, its bottom-left corner.
  */
 import type { SpriteRecord } from '@eb/schema';
 import type { Point } from './camera.ts';
@@ -27,6 +28,10 @@ export function drawnAt(item: Item, camera: Point): Point {
 
 /** The item's box in world art pixels (x right, y up from its foot), standing at `at`. */
 export function worldBox(item: Item, at: Point, sprite: SpriteRecord | undefined): Rect {
+  if (item.look.kind === 'tilemap') {
+    const [cols, rows] = item.look.map.size;
+    return { x: at[0], y: at[1], w: cols * item.look.tile[0], h: rows * item.look.tile[1] };
+  }
   const [sx, sy] = [Math.max(1, Math.round(item.scale[0])), Math.max(1, Math.round(item.scale[1]))];
   if (item.look.kind === 'sprite' && sprite) {
     const [ox, oy] = originOf(sprite);

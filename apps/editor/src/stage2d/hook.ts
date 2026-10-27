@@ -3,7 +3,8 @@
  * e2e and the editor's tools to read as they read window.__ebWalk: the space, the scale and the
  * canvas's art pixels, the camera, each item as drawn (sprite, clip, frame, whole-pixel place,
  * flip), a frame count, the uses' buttons, the walkers and what was sent. Read only; `look` moves
- * the camera as a drag would.
+ * the camera as a drag would. Since M7.2 each walker's route as tiles, and the space's tilemap: its
+ * size, tile, corner and each layer's frame at each cell as drawn.
  */
 import type { Point } from './camera.ts';
 import type { Drawn } from './draw.ts';
@@ -18,7 +19,24 @@ export interface Stage2dHook {
   frames(): number;
   uses(): readonly { path: string; label: string; box: Rect }[];
   used(): readonly { path: string; sent: string }[];
-  walkers(): readonly { actor: string; at: Point; goal?: string; moving: boolean; flip: boolean }[];
+  walkers(): readonly {
+    actor: string;
+    at: Point;
+    goal?: string;
+    moving: boolean;
+    flip: boolean;
+    route?: readonly (readonly [number, number])[];
+  }[];
+  tilemap():
+    | {
+        readonly path: string;
+        readonly size: Point;
+        readonly tile: Point;
+        readonly at: Point;
+        /** `frames[layer][row][col]`, -1 where a layer draws none. */
+        readonly frames: readonly (readonly (readonly number[])[])[];
+      }
+    | undefined;
   npcsSent(): readonly { arrived: Readonly<Record<string, string>>; sent: string }[];
   clock(): { readonly owed: number; readonly sent: readonly { readonly ms: number; readonly sent: string }[] };
   look(at: Point): void;

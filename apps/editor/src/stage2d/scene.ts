@@ -3,17 +3,20 @@
  * object, through its prefabs and their overrides, at its place in whole art pixels, in the order
  * it is drawn (depth, the nearer last; equal depths in the file's order). A placement moves what it
  * places by its `at` and scales it by its `scale`; nothing turns in 2D. A sprite comes from the
- * object's sprite component, or a placed actor's sprite; a box or a sphere is drawn as a flat shape.
+ * object's sprite component, or a placed actor's sprite; a box or a sphere is drawn as a flat shape;
+ * a tilemap (M7.2) is drawn in place of its object's box, its tile the tileset's.
  */
 import {
   eachFlat,
   type Fields,
   flatPlacesOf,
   isFields,
+  isTilemap,
   type Point,
   recordHere,
   type SpaceJson,
   type SpaceObject,
+  type TilemapFields,
 } from '@eb/compiler';
 
 export type { Point };
@@ -26,7 +29,8 @@ export type Look =
       readonly flip: boolean;
       readonly phase: number;
     }
-  | { readonly kind: 'box' | 'sphere'; readonly colour: string };
+  | { readonly kind: 'box' | 'sphere'; readonly colour: string }
+  | { readonly kind: 'tilemap'; readonly map: TilemapFields; readonly tile: Point };
 
 export interface Item {
   /** The ids that lead to it: "gate/bell" inside a prefab. */
@@ -44,7 +48,17 @@ export interface Item {
 export const SHAPE_COLOUR = '#5e6072';
 const ACTOR = 'actor:';
 
-function lookOf(object: SpaceObject, actor: Fields | undefined): Look | undefined {
+/** A tileset's tile size, or 16 by 16 while it can't be read. */
+function tileOf(tileset: unknown): Point {
+  const tile = isFields(tileset) ? tileset.tile : undefined;
+  return Array.isArray(tile) && tile.length === 2 && tile.every((n) => Number.isInteger(n) && n >= 1)
+    ? [tile[0], tile[1]]
+    : [16, 16];
+}
+
+function lookOf(object: SpaceObject, actor: Fields | undefined, record: (key: string) => unknown): Look | undefined {
+  const map = object.components?.tilemap;
+  if (isTilemap(map)) return { kind: 'tilemap', map, tile: tileOf(record(`tileset:${map.tileset}`)) };
   const sprite = object.components?.sprite;
   if (isFields(sprite) && typeof sprite.sprite === 'string')
     return {
@@ -79,7 +93,7 @@ export function sceneOf(
   eachFlat(space, prefabs, (path, seen, place, passed) => {
     if (gone(path)) return;
     const actor = seen.record?.startsWith(ACTOR) ? recordHere(record(seen.record), passed) : undefined;
-    const look = lookOf(seen, actor);
+    const look = lookOf(seen, actor, record);
     const parallax = parallaxOf(seen);
     if (look)
       found.push({
