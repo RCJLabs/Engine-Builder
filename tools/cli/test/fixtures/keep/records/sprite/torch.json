@@ -1,0 +1,17 @@
+{
+  "name": "Torch",
+  "sheet": "starter-sprites/torch.png",
+  "frame": [
+    8,
+    16
+  ],
+  "clips": {
+    "burn": {
+      "frames": [
+        0,
+        2
+      ],
+      "fps": 9
+    }
+  }
+}
