@@ -84,7 +84,8 @@ apps/editor/           the editor PWA
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
                        opened.ts is the open project (M2.3); templates.ts, the templates New project offers, each
-                       bundled from templates/ as a lazy chunk (templateFiles/, M4.11)
+                       bundled from templates/ as a lazy chunk (templateFiles/, M4.11; a 3D one's GLBs and
+                       navmeshes inlined as data URLs, M6.9)
   src/editing/         editing safety (M2.3): the command log (history.ts), layout-keeping JSON edits, the working
                        copy, autosave, the journal, folder saves, the project lock and tab hand-over; current.ts is
                        the app's one Editing; draft.ts holds typed text until its edit lands
@@ -439,7 +440,10 @@ apps/editor/           the editor PWA
                        forms alone at 1280 and 390, then played; postHelpers.ts, barter.spec.ts, barterPhone.spec.ts and
                        barterEditor.spec.ts are M6.8's, the post's chest taken from and put into and Hild's lamp bought
                        and the candle sold, by keys and by touch at 360, 390 and sideways, and the chest's Holds, Hild's
-                       Purse, the shop's Actor and the Container screen made with forms alone at 1280 and 390, then played
+                       Purse, the shop's Actor and the Container screen made with forms alone at 1280 and 390, then played;
+                       templates3dHelpers.ts, templates3d.spec.ts and templates3dPhone.spec.ts are M6.9's, a project
+                       from each 3D template, its guide followed to each place, walked to its ending by keys and by
+                       touch at 360, 390 and sideways (Attack held through the hamlet's fights), and exported as one file
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 14)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -448,7 +452,9 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
   src/save/            save files: createSaveFile, verifySaveFile, loadSave, SAVE_VERSION
   src/runner/          the headless runner: policies, playRun, sweep, stats (Wilson, t), golden files, and the
                        sweep's report as lines (report.ts: formatSweep, eb sim's and the editor's Run's);
-                       replay.ts, a recording played on another build and where it parts (M4.9)
+                       replay.ts, a recording played on another build and where it parts (M4.9); stage.ts, a
+                       walked game's stage for bots (stageOptions, joinStages: what a stage could send, each kept only
+                       when the sim takes it, M6.9, D81)
   src/logic/           conditions: check, text form, evaluate, describe, the lint (sat.ts), logicModule's roll
   src/time/            calendars, timers and wall-clock settling: timeModule; starts.ts, the start-of events (M3.5);
                        clock.ts (project.json's clock as ms a tick, M6.3); time.hour and time.clock
@@ -466,7 +472,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        M6.6 (D78): doors.ts (doorsOf, doorToward: the fewest doors between spaces), packMaps.ts (format
                        14's maps); M6.7 (D79): places.ts (format 15's places: every space's tags and each tagged
                        object's, worldPlacesOf, hasTags), doors.ts's doorsBetween and world.doors; M6.8 (D80):
-                       containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts)
+                       containers.ts (format 16's holds: containersOf, holdsAny), a use that holds opening it (actions.ts);
+                       M6.9 (D81): stage.ts, the world's stage for bots (the uses, then the zones, of the player's space)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts
                        (timings); kernel-modules.ts, logic-catalog.ts (the facts the condition tests use)
@@ -537,7 +544,7 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        with screens); M4.8: audioFiles.ts (the stems a music names, as base64, packed as format
                        8); M4.10: exportFile.ts (export.json's shape, editions and targets), exportCheck.ts (E055,
                        E056, W138, W139) and edition.ts (editionSource: the files an edition keeps); M4.11: guide.ts
-                       (guide.json: E057, W140, opensInEditor) and template.ts (fromTemplate, idFromName,
+                       (guide.json: E057, W140, opensInEditor, a space or a prefab since M6.9) and template.ts (fromTemplate, idFromName,
                        shortNameOf: a template's files under the author's name); M5.1: spaces.ts (spaces/ and
                        prefabs/ read and checked: E058 to E061, not packed yet) and spaceFiles.ts (where they sit,
                        W141); M5.2: spaceShape.ts (an object's shape), overrides.ts (what a placement's layers make
@@ -608,7 +615,9 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        turn on), modules.ts (kitModules, apart from the list so reading it costs no sim code; kitsInWorld, M6.7);
                        M6.8 (D80): inventory/containers.ts (containers and bodies opened, taken from and put into, the
                        kit built with the pack's containers, slice v3), bags.ts's restock-bag; economy/purses.ts (slice
-                       v2) and shop.ts's merchants (a shop's actor's bag and purse)
+                       v2) and shop.ts's merchants (a shop's actor's bag and purse); M6.9 (D81): fighting/stage.ts (the
+                       blows and searches a bot may send), stages.ts (walkedStage: walk, or walk+fight), and
+                       quests/start.ts's canStart (quests.can-start)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
@@ -681,7 +690,8 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        --types and --game, a project's game.ts without them (M3.2); schemas.ts is eb schemas; sim.ts
                        and simReport.ts are eb sim; exportCmd.ts is eb export and eb publish (M4.10); newCmd.ts is
                        eb new (M4.11); test/templates.test.ts holds each template to no problems, its golden file
-                       (fixtures/salvage-coast-skipper.golden.json, last-ferry-ferryman.golden.json) and every stage
+                       (fixtures/salvage-coast-skipper.golden.json, last-ferry-ferryman.golden.json; the 3D two's
+                       valley-hamlet-wanderer.golden.json and lighthouse-keeper.golden.json through the stage, M6.9) and every stage
                        and ending reached; test/spaceWrecked.test.ts is M4.12's gate (its two warnings, 500 seeds to
                        fixtures/space-wrecked-captain.golden.json with every act 1–2 stage reached, and every
                        action on offer as the captain plays a button its screens draw)
@@ -753,7 +763,11 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        empty barrel, which post.test.ts plays through the session and breaks once each for E089 and W156
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
-                       and choices: ink scenes, flags, three endings), each a project folder with its guide.json
+                       and choices: ink scenes, flags, three endings), each a project folder with its guide.json;
+                       M6.9 (D81): valley-hamlet/ (the Open-world RPG in third person: the green, the smithy and the
+                       cave, Osric's job against three bandits, Wenna's shop and her supplies job, scripts/wanderer.ts
+                       its bot) and lighthouse/ (the First-person adventure: the rock and three rooms, the logbook in
+                       ink, the keeper's chest, the store and the lamp), their starter kit pieces and navmeshes with them
 games/space-wrecked/   Proof #1 (M4.12, D62): Space-Wrecked's acts 1–2 as a project folder, deployed at
                        /games/space-wrecked/; its text is all rights reserved, RCJLabs (NOTICE). source/, the
                        original's data files the import reads; records/, written only by the import; types/, the

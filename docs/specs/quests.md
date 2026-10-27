@@ -285,6 +285,7 @@ A count objective shows its count and target too: `{ "id": "scrap", "text": "Sal
 | `quests.slot(quest, slot)` | text: the record in the slot; no value before the quest has started | "the man of booking is varro" |
 | `quests.away(record)` | bool: the record is in a slot that goes of an active quest | "varro is away" |
 | `quests.times(quest, state)` | int from 0: the runs that ended `done`, or `failed`, this one included once it has | "the times booking was done is at least 2" |
+| `quests.can-start(quest)` | bool: start-quest would start it now. It is waiting, or has ended and repeats, and its slots fill as the journal's preview fills them (M6.9) | "supplies can start" |
 
 A stage or an objective its quest doesn't have, named in a fact, throws; validation stops it in content (E043). So does a slot (E044).
 

@@ -2447,6 +2447,15 @@ Evan chose on 2026-10-26, from these options:
 - **The headless stage ignores distance and sight.** A bot can use a chest across the space; the e2e plays the distances, the bots the logic.
 - **Untested for feel** until someone new to the editor plays them.
 
+**As built** (M6.9, 2026-10-27; [specs/templates.md](specs/templates.md#as-built-m69)):
+- **The hamlet's kits include encounters,** whose combat records the fighting kit reads. Its hero is "The wayfarer", as the feedback's `{.actor} falls.` read "You falls." with the hero named "You".
+- **A new fact, `quests.can-start(quest)`,** guards Wenna's offer of the supplies job. Without it the talk offered a job no cave could fill, and the bot's choice was refused.
+- **A guide step may open a space or a prefab,** landing on the object it names in the Scene panel.
+- **Template binaries bundle as data URLs.** The text glob's exclusions name the template's folder: a bare `!**/*.glb` bundled the GLBs as text in the production build only.
+- **The hamlet's bot plays 200 seeds,** not 500, as its runs through the stage are slower; one of the 200 ends with the wanderer fallen. The wanderer strikes only bandits, as the stage offers a blow at anyone standing.
+- **The e2e's touch fingers had never lifted one of two:** a touchMove that leaves a finger out keeps it down in Chrome. They lift by a touchEnd that names the finger now. The camp's, the post's and the animation's phone specs pass with it.
+- **The player can fell the hamlet's own,** Osric included, and the main quest then can't end. Logged as a question for M6.10 (templates.md question 5).
+
 ---
 
 ## Open
