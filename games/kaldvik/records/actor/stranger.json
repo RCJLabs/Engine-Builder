@@ -2,7 +2,7 @@
   "name": "The stranger",
   "description": "Off a trading ship, with a sword and a little silver.",
   "stats": {
-    "health": 40,
+    "health": 60,
     "might": 1,
     "armour": 1
   },
