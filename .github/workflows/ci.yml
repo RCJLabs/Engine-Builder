@@ -62,13 +62,15 @@ jobs:
   e2e:
     needs: verify
     runs-on: ubuntu-24.04
-    # A third of the suite each, side by side: about 14 minutes of M6.4's 40.
-    timeout-minutes: 30
+    # A quarter of the suite each, side by side. Playwright splits by count, not by time, so the
+    # walked games' long specs bunch up: M6.10's third shard passed in 29.3 minutes of its 30 and
+    # was cancelled, its 126 tests all green (shards 1 and 2 took 14 and 20).
+    timeout-minutes: 40
     strategy:
       # Every shard runs to its end, so one red run shows every failure.
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
 
@@ -88,7 +90,7 @@ jobs:
 
       # Installs the Chromium that matches the pinned @playwright/test.
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm e2e --shard=${{ matrix.shard }}/3
+      - run: pnpm e2e --shard=${{ matrix.shard }}/4
 
       - if: failure()
         uses: actions/upload-artifact@v7
