@@ -5,7 +5,7 @@
  */
 import { type ExportJson, FULL } from '@eb/compiler';
 import { buildHash, sha256, utf8 } from './hash.ts';
-import { type Boot, gamePage, inlineScript, inlineStyle, NAV_ELEMENT, WALK_ELEMENT } from './html.ts';
+import { type Boot, gamePage, inlineScript, inlineStyle, NAV_ELEMENT, STAGE2D_ELEMENT, WALK_ELEMENT } from './html.ts';
 import { iconFiles, readIcon } from './icons.ts';
 import type { PackContent } from './leaks.ts';
 import { readme } from './readme.ts';
@@ -16,7 +16,8 @@ import { androidWorkflow, pagesWorkflow, twaManifest, twaPackageJson } from './w
 /**
  * The engine's player for an exported game: apps/editor's game page, built (vite.game.config.ts),
  * and walk.js, the stage of a game with spaces (vite.walk.config.ts, M5.8), and nav.js, the
- * navigation of one whose spaces have navmeshes (vite.nav.config.ts, M6.2).
+ * navigation of one whose spaces have navmeshes (vite.nav.config.ts, M6.2), and stage2d.js, the
+ * stage of one with a 2D space (vite.stage2d.config.ts, M7.1).
  */
 export interface Runtime {
   readonly version: string;
@@ -24,6 +25,14 @@ export interface Runtime {
   readonly css: string;
   readonly walk?: string;
   readonly nav?: string;
+  readonly stage2d?: string;
+}
+
+/** The scripts a build ships beside the runtime, each only when its game needs it. */
+interface Scripts {
+  readonly walk?: string;
+  readonly nav?: string;
+  readonly stage2d?: string;
 }
 
 /** A pack as the build reads it: its project, records and theme, and its world when it has spaces. */
@@ -75,17 +84,25 @@ const isDark = (colour: string): boolean => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5;
 };
 
-const boot = (input: BuildInput, sw: boolean, walk?: string, nav?: string): Boot => ({
+const boot = (input: BuildInput, sw: boolean, named: Scripts): Boot => ({
   edition: input.edition,
   pack: input.pack,
   sw,
-  ...(walk === undefined ? {} : { walk }),
-  ...(nav === undefined ? {} : { nav }),
+  ...(named.walk === undefined ? {} : { walk: named.walk }),
+  ...(named.nav === undefined ? {} : { nav: named.nav }),
+  ...(named.stage2d === undefined ? {} : { stage2d: named.stage2d }),
 });
 
-/** walk.js for a game with spaces, none for one without; a runtime built without it can't export one. */
+/** The pack's spaces' views: whether any is 3D, and whether any is 2D (M7.1). */
+function viewsOf(input: BuildInput): { solid: boolean; flat: boolean } {
+  const spaces = Object.values((input.pack.world as { spaces?: Record<string, unknown> } | undefined)?.spaces ?? {});
+  const flat = (space: unknown) => (space as { view?: unknown } | null)?.view === '2d';
+  return { solid: spaces.some((s) => !flat(s)), flat: spaces.some(flat) };
+}
+
+/** walk.js for a game with a 3D space, none for one without; a runtime built without it can't export one. */
 function walkOf(input: BuildInput): string | undefined {
-  if (input.pack.world === undefined) return undefined;
+  if (input.pack.world === undefined || !viewsOf(input).solid) return undefined;
   if (input.runtime.walk === undefined) {
     throw new Error(
       'This game has spaces, and the runtime it is exported with has no walk.js: build it with the editor',
@@ -93,6 +110,27 @@ function walkOf(input: BuildInput): string | undefined {
   }
   return input.runtime.walk;
 }
+
+/** stage2d.js for a game with a 2D space (M7.1), none for the rest. */
+function stage2dOf(input: BuildInput): string | undefined {
+  if (input.pack.world === undefined || !viewsOf(input).flat) return undefined;
+  if (input.runtime.stage2d === undefined) {
+    throw new Error(
+      'This game has a 2D space, and the runtime it is exported with has no stage2d.js: build it with the editor',
+    );
+  }
+  return input.runtime.stage2d;
+}
+
+/** The scripts a game needs from the runtime. */
+const scriptsOf = (input: BuildInput): Scripts => {
+  const [walk, nav, stage2d] = [walkOf(input), navOf(input), stage2dOf(input)];
+  return {
+    ...(walk === undefined ? {} : { walk }),
+    ...(nav === undefined ? {} : { nav }),
+    ...(stage2d === undefined ? {} : { stage2d }),
+  };
+};
 
 /** nav.js for a game whose spaces have a navmesh (M6.2), none for the rest. */
 function navOf(input: BuildInput): string | undefined {
@@ -107,20 +145,25 @@ function navOf(input: BuildInput): string | undefined {
 }
 
 /** The runtime's files, named by their content so a browser never pairs an old script with a new page. */
-async function runtimeNames(
-  runtime: Runtime,
-  walk: string | undefined,
-  nav: string | undefined,
-): Promise<{ js: string; css: string; walk?: string; nav?: string }> {
+async function runtimeNames(runtime: Runtime, scripts: Scripts): Promise<{ js: string; css: string } & Scripts> {
   const named = async (text: string, name: string, ext: string) =>
     `${name}.${(await sha256(utf8.encode(text))).slice(0, 8)}.${ext}`;
+  const { walk, nav, stage2d } = scripts;
   return {
     js: await named(runtime.js, 'game', 'js'),
     css: await named(runtime.css, 'game', 'css'),
     ...(walk === undefined ? {} : { walk: await named(walk, 'walk', 'js') }),
     ...(nav === undefined ? {} : { nav: await named(nav, 'nav', 'js') }),
+    ...(stage2d === undefined ? {} : { stage2d: await named(stage2d, 'stage2d', 'js') }),
   };
 }
+
+/** Each script the build ships, under its name. */
+const scriptFiles = (scripts: Scripts, names: Scripts): [string, Uint8Array][] =>
+  (['walk', 'nav', 'stage2d'] as const).flatMap((key) => {
+    const [text, name] = [scripts[key], names[key]];
+    return text === undefined || name === undefined ? [] : [[name, utf8.encode(text)] as [string, Uint8Array]];
+  });
 
 /** The engine's own texts as each target holds them: what the leak check takes out before it reads. */
 export const engineTexts = (runtime: Runtime): string[] => [
@@ -130,6 +173,7 @@ export const engineTexts = (runtime: Runtime): string[] => [
   inlineStyle(runtime.css),
   ...(runtime.walk === undefined ? [] : [runtime.walk, inlineScript(runtime.walk)]),
   ...(runtime.nav === undefined ? [] : [runtime.nav, inlineScript(runtime.nav)]),
+  ...(runtime.stage2d === undefined ? [] : [runtime.stage2d, inlineScript(runtime.stage2d)]),
 ];
 
 function icons(input: BuildInput) {
@@ -140,16 +184,15 @@ function icons(input: BuildInput) {
 /** The web build: installable, offline after its first visit, with its service worker and version.json. */
 export async function webFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
-  const walk = walkOf(input);
-  const nav = navOf(input);
-  const names = await runtimeNames(input.runtime, walk, nav);
+  const scripts = scriptsOf(input);
+  const names = await runtimeNames(input.runtime, scripts);
   const files: Files = new Map();
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, true, names.walk, names.nav),
+    boot: boot(input, true, names),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: true,
@@ -157,8 +200,7 @@ export async function webFiles(input: BuildInput): Promise<Files> {
   files.set('index.html', utf8.encode(page));
   files.set(names.js, utf8.encode(input.runtime.js));
   files.set(names.css, utf8.encode(input.runtime.css));
-  if (walk !== undefined && names.walk) files.set(names.walk, utf8.encode(walk));
-  if (nav !== undefined && names.nav) files.set(names.nav, utf8.encode(nav));
+  for (const [name, bytes] of scriptFiles(scripts, names)) files.set(name, bytes);
   files.set('manifest.webmanifest', utf8.encode(webManifest(info)));
   for (const [path, bytes] of icons(input)) files.set(path, bytes);
   const android = input.settings?.targets?.android;
@@ -174,15 +216,14 @@ export async function webFiles(input: BuildInput): Promise<Files> {
 /** The itch.io build: relative paths, no service worker or manifest, since itch serves every game from one origin. */
 export async function itchFiles(input: BuildInput): Promise<Files> {
   const info = gameInfo(input);
-  const walk = walkOf(input);
-  const nav = navOf(input);
-  const names = await runtimeNames(input.runtime, walk, nav);
+  const scripts = scriptsOf(input);
+  const names = await runtimeNames(input.runtime, scripts);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(input, false, names.walk, names.nav),
+    boot: boot(input, false, names),
     runtime: names,
     favicon: 'icons/favicon.png',
     installable: false,
@@ -191,8 +232,7 @@ export async function itchFiles(input: BuildInput): Promise<Files> {
     ['index.html', utf8.encode(page)],
     [names.js, utf8.encode(input.runtime.js)],
     [names.css, utf8.encode(input.runtime.css)],
-    ...(walk !== undefined && names.walk ? [[names.walk, utf8.encode(walk)] as [string, Uint8Array]] : []),
-    ...(nav !== undefined && names.nav ? [[names.nav, utf8.encode(nav)] as [string, Uint8Array]] : []),
+    ...scriptFiles(scripts, names),
     ['icons/favicon.png', icons(input).get('icons/favicon.png') as Uint8Array],
   ]);
 }
@@ -207,22 +247,19 @@ const base64 = (bytes: Uint8Array): string => {
 export function singleFile(input: BuildInput): { readonly name: string; readonly bytes: Uint8Array } {
   const info = gameInfo(input);
   const favicon = icons(input).get('icons/favicon.png') as Uint8Array;
-  const walk = walkOf(input);
-  const nav = navOf(input);
+  const scripts = scriptsOf(input);
   const page = gamePage({
     title: info.name,
     ...(info.description ? { description: info.description } : {}),
     themeColour: info.theme,
     dark: isDark(info.background),
-    boot: boot(
-      input,
-      false,
-      walk === undefined ? undefined : `#${WALK_ELEMENT}`,
-      nav === undefined ? undefined : `#${NAV_ELEMENT}`,
-    ),
+    boot: boot(input, false, {
+      ...(scripts.walk === undefined ? {} : { walk: `#${WALK_ELEMENT}` }),
+      ...(scripts.nav === undefined ? {} : { nav: `#${NAV_ELEMENT}` }),
+      ...(scripts.stage2d === undefined ? {} : { stage2d: `#${STAGE2D_ELEMENT}` }),
+    }),
     runtime: { inline: { js: input.runtime.js, css: input.runtime.css } },
-    ...(walk === undefined ? {} : { walk }),
-    ...(nav === undefined ? {} : { nav }),
+    ...scripts,
     favicon: `data:image/png;base64,${base64(favicon)}`,
     installable: false,
   });

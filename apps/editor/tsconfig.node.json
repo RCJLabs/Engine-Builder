@@ -10,6 +10,7 @@
     "vite.game.config.ts",
     "vite.walk.config.ts",
     "vite.nav.config.ts",
+    "vite.stage2d.config.ts",
     "vite.classic.ts",
     "vite.draco.ts",
     "scripts"

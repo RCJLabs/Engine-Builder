@@ -7,9 +7,12 @@
  */
 import type { Action } from '@eb/core';
 import type { Sent, SpaceAsk } from '@eb/ui';
-import type { WalkingNpc } from './crowdWalk.ts';
+import type { WalkingNpc as Crowded } from './crowdWalk.ts';
 import type { Outbox } from './outbox.ts';
 import { dueAt, standing, type Told } from './stood.ts';
+
+/** What the tell reads of an NPC: the crowd's in 3D, the 2D stage's walkers (M7.1). */
+type WalkingNpc = Pick<Crowded, 'actor' | 'at' | 'yaw'>;
 
 /** How long a refused arrival waits before it is said again. */
 export const AGAIN_MS = 1000;
