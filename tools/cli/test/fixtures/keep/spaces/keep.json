@@ -89,7 +89,7 @@
       "name": "The ground",
       "shape": "box",
       "at": [240, -400, -10],
-      "scale": [480, 416, 1],
+      "scale": [1600, 416, 1],
       "color": "#0a0b14"
     },
     {

@@ -5,9 +5,9 @@
  */
 import { type Diagnostic, severityOf, type Walkers } from '@eb/schema';
 import { eachPlaced } from './overrides.ts';
-import { is2dValue } from './space2d.ts';
 import type { SpaceJson } from './spaceShape.ts';
 import type { SpaceFileRead } from './spaces.ts';
+import { is2dValue } from './spaceView.ts';
 
 /** The record type an NPC is placed as. */
 const ACTOR = 'actor';

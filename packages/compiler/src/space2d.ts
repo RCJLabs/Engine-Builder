@@ -9,15 +9,7 @@ import { type Diagnostic, MODEL, severityOf } from '@eb/schema';
 import { eachPlaced, isFields } from './overrides.ts';
 import type { SpaceKind } from './spaceFiles.ts';
 import type { SpaceJson, SpaceObject } from './spaceShape.ts';
-
-/** The art pixels a 2D space wants in view when it doesn't say. */
-export const FIT_DEFAULT: readonly [number, number] = [320, 180];
-
-export const is2d = (space: Pick<SpaceJson, 'view'>): boolean => space.view === '2d';
-
-/** Whether a file's value, read but perhaps not sound, is a 2D space's. */
-export const is2dValue = (value: unknown): boolean =>
-  typeof value === 'object' && value !== null && (value as { view?: unknown }).view === '2d';
+import { is2d } from './spaceView.ts';
 
 const ONLY_2D = ['fit', 'size', 'backdrop'] as const;
 const FLAT_SHAPES = new Set(['box', 'sphere']);

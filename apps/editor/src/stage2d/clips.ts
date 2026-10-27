@@ -3,7 +3,7 @@
  * `first + floor(t·fps + phase) mod n`, held at the last when the clip doesn't loop, and at the first
  * under reduced motion. The sim never hears of a frame. From afterglass (slice/people.js:143-147).
  */
-import { defaultClipOf, type SpriteClip, type SpriteRecord } from '@eb/schema';
+import type { SpriteClip, SpriteRecord } from '@eb/schema';
 
 /** The frame a clip shows `t` seconds in, `phase` frames along. */
 export function frameAt(clip: SpriteClip, t: number, phase = 0, still = false): number {
@@ -14,9 +14,13 @@ export function frameAt(clip: SpriteClip, t: number, phase = 0, still = false): 
   return first + (clip.loop === false ? Math.min(Math.max(k, 0), n - 1) : ((k % n) + n) % n);
 }
 
-/** The clip a sprite plays: the one asked for when it has it, else its own. */
+/**
+ * The clip a sprite plays: the one asked for when it has it, else its own, else its first (as
+ * @eb/schema's defaultClipOf, kept here so the stage carries none of the schemas).
+ */
 export function clipOf(sprite: SpriteRecord, wanted?: string): string | undefined {
-  return wanted !== undefined && Object.hasOwn(sprite.clips, wanted) ? wanted : defaultClipOf(sprite);
+  if (wanted !== undefined && Object.hasOwn(sprite.clips, wanted)) return wanted;
+  return sprite.clip ?? Object.keys(sprite.clips)[0];
 }
 
 /** Where frame `n` sits on its sheet: across and then down. */
