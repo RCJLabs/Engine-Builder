@@ -92,8 +92,11 @@ test('the glen by keys and the mouse: takes, a door each way of each kind, the g
   await test.step('out by the bothy’s way out: the glen at its door, the rope still gone', async () => {
     const bothy = page.locator('[data-eb-walk]');
     await bothy.focus();
-    await faceTowards(page, bothy, 0, 10);
-    await holdUntilPast(page, ['KeyW'], 'z', { atLeast: 1.2 });
+    // At the way out itself and on to z 1.8, short of the wall: the strafe before the save goes
+    // further on a slow runner, and facing up the room from there, stopped at z 1.2, the way out was
+    // past reach (CI, M7.4). From against the east wall this still comes within 1.2 m of it.
+    await faceTowards(page, bothy, 0, 2.45);
+    await holdUntilPast(page, ['KeyW'], 'z', { atLeast: 1.8 });
     await offered(page, 'way-out');
     await page.keyboard.press('KeyE');
     await drawing(page, 'glen', 'The glen');
