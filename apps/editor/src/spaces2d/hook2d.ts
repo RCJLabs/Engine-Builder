@@ -1,8 +1,10 @@
 /**
  * window.__ebView2d (M7.1, D83): what the Scene panel's 2D view drew, for the e2e to read as it
  * reads window.__ebViewport: the space, the zoom, the view's middle in world art pixels, the space's
- * size, each item as drawn with its box on the page, and the chosen. Read only.
+ * size, each item as drawn with its box on the page, and the chosen. Read only. Since M7.2 the
+ * tilemap chosen alone: its tileset, size, layers and edges as its file holds them.
  */
+import type { TilemapFields } from '@eb/compiler';
 import type { Point } from '../stage2d/camera.ts';
 import type { Rect } from '../stage2d/place.ts';
 
@@ -16,6 +18,7 @@ export interface View2dHook {
   picked(): readonly string[];
   /** Times drawn, so a test can wait for the next. */
   frames(): number;
+  tilemap(): (TilemapFields & { readonly id: string }) | undefined;
 }
 
 declare global {

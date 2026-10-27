@@ -168,6 +168,7 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
             rows: {
               kind: 'list',
               of: { kind: 'text' },
+              lines: true,
               label: 'Rows',
               description: 'One character a tile, through the tileset’s legend; a space is no tile',
             },
@@ -177,6 +178,7 @@ const KINDS: Readonly<Record<string, TypeFile>> = {
       edges: {
         kind: 'list',
         of: { kind: 'text' },
+        lines: true,
         optional: true,
         label: 'Edges',
         description: 'Space-Wrecked’s map text: - | a wall, = I the hull, / a door, o a hatch, + where they meet',

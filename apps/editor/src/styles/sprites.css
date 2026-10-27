@@ -25,3 +25,23 @@
   justify-items: start;
   gap: 4px;
 }
+
+/* Above a tileset's form, and the Tiles row's buttons (M7.2): tiles drawn pixel for pixel. */
+.tile-frame {
+  image-rendering: pixelated;
+  background: var(--surface-2);
+}
+
+.tileset-tiles {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tileset-tile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

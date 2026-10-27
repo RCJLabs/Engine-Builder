@@ -11,6 +11,7 @@ import {
   MODEL,
   SPRITE,
   slotScope,
+  TILESET,
   type TypeFile,
 } from '@eb/schema';
 import { AMBIENCE, MUSIC, SOUND } from '@eb/ui/format';
@@ -40,6 +41,7 @@ import { copyName, nameIn, namesOf } from '../records/names.ts';
 import { RenameRecord } from '../records/RenameRecord.tsx';
 import { UsedBy } from '../records/UsedBy.tsx';
 import { SpritePreview } from '../sprites/SpritePreview.tsx';
+import { TilesetPreview } from '../sprites/TilesetPreview.tsx';
 import { recordFile } from './catalog.ts';
 import { FieldView } from './FieldView.tsx';
 import { fieldToFocus, focusField } from './focusField.ts';
@@ -274,6 +276,7 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
         {type === ANIMATOR ? <AnimatorPreview project={project} value={value} /> : null}
         {/* A sprite shows its sheet's frames and plays its clips (M7.1). */}
         {type === SPRITE ? <SpritePreview project={project} value={value} /> : null}
+        {type === TILESET ? <TilesetPreview project={project} value={value} /> : null}
         {fields.map(([name, def]) => {
           const held =
             typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[name] : undefined;

@@ -32,5 +32,10 @@ export async function sheetsOf(live: LiveSprites): Promise<Sheets> {
     const found = record(sprite);
     return found ? images.get(found.sheet) : undefined;
   };
-  return { record, image, width: (sprite) => image(sprite)?.width ?? 0 };
+  const tileset = (id: string) => {
+    const found = live.tilesets.get(id);
+    const sheet = found ? images.get(found.sheet) : undefined;
+    return found && sheet ? { record: found, image: sheet } : undefined;
+  };
+  return { record, image, width: (sprite) => image(sprite)?.width ?? 0, tileset };
 }

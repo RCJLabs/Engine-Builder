@@ -3,11 +3,19 @@
  * editor). A press on a chosen object and a drag moves the chosen, in whole art pixels; a press
  * anywhere else and a drag pans, the world following the finger; a press let go where it began
  * chooses what is under it, or nothing. Two fingers pinch the zoom in whole steps, and the wheel
- * zooms a step at the pointer. The middle and right buttons always pan.
+ * zooms a step at the pointer. The middle and right buttons always pan. While a tile tool is on
+ * (M7.2), a press and a drag go to its painter instead, world point by world point.
  */
 import type { Point } from '../stage2d/camera.ts';
 import { dragBy } from './pick2d.ts';
 import { panned, pinchSteps, toWorld, type View2d, zoomedAt } from './view2d.ts';
+
+/** A stroke of a tile tool (M7.2): each world point the pointer crosses, then its end, or its cancel by a second finger. */
+export interface Painter {
+  at(world: Point): void;
+  end(): void;
+  cancel(): void;
+}
 
 export interface Gesture2d {
   /** The top-level object under a point of the box, in CSS pixels from its top-left. */
@@ -22,6 +30,8 @@ export interface Gesture2d {
   /** A drag of the chosen let go, `by` whole art pixels from where it began. */
   dropped(by: Point): void;
   tapped(id: string | null, many: boolean): void;
+  /** The painter a press starts while a tile tool is on and a tilemap is chosen, or null. */
+  paint?(): Painter | null;
 }
 
 /** A press that travels less than this, in CSS pixels, is a tap. */
@@ -30,7 +40,8 @@ const TAP = 4;
 type Held =
   | { kind: 'move'; start: Point; view: View2d; by: Point }
   | { kind: 'pan'; start: Point; view: View2d; moved: boolean; hit: string | null; many: boolean }
-  | { kind: 'pinch'; spread: number; mid: Point; view: View2d };
+  | { kind: 'pinch'; spread: number; mid: Point; view: View2d }
+  | { kind: 'paint'; painter: Painter; view: View2d };
 
 const spreadOf = (a: Point, b: Point) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 
@@ -50,12 +61,19 @@ export function attachGestures(box: HTMLElement, on: Gesture2d): () => void {
     points.set(e.pointerId, at(e));
     if (points.size === 2) {
       if (held?.kind === 'move') on.dragging(null);
+      if (held?.kind === 'paint') held.painter.cancel();
       const [a, b] = [...points.values()] as [Point, Point];
       held = { kind: 'pinch', spread: spreadOf(a, b), mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], view };
       return;
     }
     if (points.size > 2) return;
     const start = at(e);
+    const painter = e.button === 0 ? (on.paint?.() ?? null) : null;
+    if (painter) {
+      held = { kind: 'paint', painter, view };
+      painter.at(toWorld(view, start, on.css(), dpr()));
+      return;
+    }
     const hit = e.button === 0 ? on.hit(start) : null;
     held =
       hit !== null && on.chosen().includes(hit) && on.canMove()
@@ -73,6 +91,10 @@ export function attachGestures(box: HTMLElement, on: Gesture2d): () => void {
       if (!b) return;
       const steps = pinchSteps(held.spread, spreadOf(a, b), held.view.zoom);
       on.setView(zoomedAt(held.view, steps, held.mid, on.css(), dpr()));
+      return;
+    }
+    if (held.kind === 'paint') {
+      held.painter.at(toWorld(held.view, now, on.css(), dpr()));
       return;
     }
     const by: Point = [now[0] - held.start[0], now[1] - held.start[1]];
@@ -96,7 +118,8 @@ export function attachGestures(box: HTMLElement, on: Gesture2d): () => void {
       return;
     }
     held = null;
-    if (was?.kind === 'move') {
+    if (was?.kind === 'paint') was.painter.end();
+    else if (was?.kind === 'move') {
       // A drop keeps its preview: the view lets it go once the file comes back moved.
       if (was.by[0] !== 0 || was.by[1] !== 0) on.dropped(was.by);
       else {

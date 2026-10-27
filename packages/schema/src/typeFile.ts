@@ -55,7 +55,8 @@ export type ValueDef =
   | { readonly kind: 'bool' }
   | EnumDef
   | RefDef
-  | ({ readonly kind: 'list'; readonly of: ValueDef } & Bounds)
+  /** `lines` (M7.2): a list of text shown as one box, an item a line, in a monospace font. */
+  | ({ readonly kind: 'list'; readonly of: ValueDef; readonly lines?: boolean } & Bounds)
   | { readonly kind: 'map'; readonly key?: RefDef | EnumDef; readonly of: ValueDef }
   | { readonly kind: 'group'; readonly fields: Fields }
   | { readonly kind: 'colour' }
@@ -110,7 +111,7 @@ const SHAPES: Record<FieldKind, z.core.$ZodShape> = {
   bool: {},
   enum: enumShape,
   ref: refShape,
-  list: { of: z.lazy(() => valueDef), min: count.optional(), max: count.optional() },
+  list: { of: z.lazy(() => valueDef), min: count.optional(), max: count.optional(), lines: z.boolean().optional() },
   map: { key: z.lazy(() => keyDef).optional(), of: z.lazy(() => valueDef) },
   group: { fields: z.lazy(() => fieldsDef) },
   colour: {},

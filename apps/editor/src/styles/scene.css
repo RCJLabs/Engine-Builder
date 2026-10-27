@@ -58,8 +58,42 @@
   gap: 6px;
 }
 
-.scene-step select {
+.scene-step select,
+.scene-step input {
   min-height: var(--tap);
+}
+
+.scene-step input {
+  width: 6em;
+}
+
+/* The Tiles row (M7.2): the tileset's tiles as buttons drawn with their frames, wrapping on a phone. */
+.tiles-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tile-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+}
+
+.tiles-import {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+.tiles-import textarea {
+  flex: 1 1 100%;
 }
 
 .scene-toolbar [aria-pressed="true"],

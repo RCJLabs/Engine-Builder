@@ -2,7 +2,8 @@
  * The Scene panel's toolbar over a 2D space (M7.1, D83, docs/specs/2d-scenes.md#the-editor): Add
  * (a sprite, a mark for walkers to go to, a prefab, a record), Select more, Group into prefab,
  * Delete, Frame, and the zoom by whole steps, said beside its buttons. No gizmo modes, grid, Drop,
- * terrain, navigation, map or quality: a 2D space has none of them. Every button is 44 px.
+ * terrain, navigation, map or quality: a 2D space has none of them. Every button is 44 px. Since M7.2
+ * Add offers a tilemap too, and a chosen tilemap has its Tiles row under the toolbar.
  */
 import { spacePath } from '@eb/compiler';
 import { SPRITE } from '@eb/schema';
@@ -18,8 +19,11 @@ import { liveOf } from '../spaces/live.ts';
 import { places } from '../spaces/spaceEdits.ts';
 import { nameOf } from '../spaces/spaceFile.ts';
 import { frameAsked, openSpace, picked, selectMore } from '../spaces/state.ts';
+import { AddTilemap2d } from './AddTilemap2d.tsx';
 import { type Added2d, addFlat } from './actions2d.ts';
 import { askZoom, zoomShown } from './state2d.ts';
+import { TilesRow2d } from './TilesRow2d.tsx';
+import { tilemapOf } from './tileActions.ts';
 import { ZOOM_MOST } from './view2d.ts';
 
 export function Toolbar2d({ project }: { project: OpenProject }) {
@@ -28,6 +32,8 @@ export function Toolbar2d({ project }: { project: OpenProject }) {
   const chosen = picked.value.length;
   const zoom = zoomShown.value;
   const toggle = (what: 'add' | 'group') => setShown(shown === what ? null : what);
+  const now = liveOf(openSpace.value);
+  const map = chosen === 1 && tilemapOf(now?.space ?? undefined, picked.value[0] as string) ? picked.value[0] : null;
   return (
     <>
       <fieldset class="scene-toolbar">
@@ -83,6 +89,7 @@ export function Toolbar2d({ project }: { project: OpenProject }) {
         </button>
       </fieldset>
       {shown === 'add' && canEdit ? <AddRow2d project={project} done={() => setShown(null)} /> : null}
+      {map ? <TilesRow2d project={project} id={map} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (
         <NameRecord
           type="prefab"
@@ -103,7 +110,7 @@ export function Toolbar2d({ project }: { project: OpenProject }) {
 
 /** What Add puts in the middle of a 2D view: a sprite, a mark, a prefab that doesn't place the file open, a record. */
 function AddRow2d({ project, done }: { project: OpenProject; done: () => void }) {
-  const [choosing, setChoosing] = useState<'sprite' | 'record' | null>(null);
+  const [choosing, setChoosing] = useState<'sprite' | 'record' | 'tilemap' | null>(null);
   const open = openSpace.value;
   const now = liveOf(open);
   const prefabs = [...(now?.prefabs ?? new Map())].filter(
@@ -122,6 +129,9 @@ function AddRow2d({ project, done }: { project: OpenProject; done: () => void })
       <button type="button" class="button" onClick={() => add({ mark: true })}>
         Mark
       </button>
+      <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing('tilemap')}>
+        Tilemap…
+      </button>
       {prefabs.map(([id, prefab]) => (
         <button key={id} type="button" class="button" onClick={() => add({ prefab: id })}>
           {nameOf({ id, name: prefab.name, prefab: id })}
@@ -130,7 +140,8 @@ function AddRow2d({ project, done }: { project: OpenProject; done: () => void })
       <button type="button" class="button" aria-haspopup="dialog" onClick={() => setChoosing('record')}>
         Record…
       </button>
-      {choosing ? (
+      {choosing === 'tilemap' ? <AddTilemap2d project={project} done={done} /> : null}
+      {choosing === 'sprite' || choosing === 'record' ? (
         <Picker
           title={choosing === 'sprite' ? 'Place a sprite' : 'Place a record'}
           choices={refChoices(
