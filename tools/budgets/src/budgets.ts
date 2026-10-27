@@ -16,6 +16,7 @@ export const SIZES = [
   'precache',
   'space-wrecked-web',
   'trail-web',
+  'kaldvik-web',
 ] as const;
 export type SizeId = (typeof SIZES)[number];
 
@@ -61,6 +62,7 @@ export function measureSizes(dist: string): Record<SizeId, number> {
     precache: precached(dist).reduce((sum, path) => sum + statSync(join(dist, path)).size, 0),
     'space-wrecked-web': bytesIn(join(dist, 'games/space-wrecked')),
     'trail-web': bytesIn(join(dist, 'games/trail')),
+    'kaldvik-web': bytesIn(join(dist, 'games/kaldvik')),
   };
 }
 

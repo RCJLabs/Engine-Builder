@@ -165,3 +165,9 @@ jobs:
         env:
           SITE: ${{ needs.deploy.outputs.page_url }}
         run: node tools/site-check/src/cli.ts "${SITE}games/trail/"
+
+      # Kaldvík's web export, proof #2 (M6.10, D82): its page, files and worker, where Evan walks it.
+      - name: Kaldvík loads its files
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+        run: node tools/site-check/src/cli.ts "${SITE}games/kaldvik/"

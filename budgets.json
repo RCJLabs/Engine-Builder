@@ -48,6 +48,12 @@
       "reading": 7471354,
       "read": "2026-10-27",
       "of": "bytes of every file of the trail's web export (M5.8): walk.js beside the runtime, and the trail's world in the page; re-read at M6.5, whose walk.js carries the starter character; and M6.6, whose walk.js draws the compass and the markers; and M6.7, whose runtime's quests kit finds slots in the world; and M6.8, whose runtime's kits open containers and keep purses; and M6.9, whose runtime's quests kit says whether a quest can start"
+    },
+    "kaldvik-web": {
+      "budget": 9226000,
+      "reading": 8786701,
+      "read": "2026-10-27",
+      "of": "bytes of every file of Kaldvík's web export (M6.10, D82), proof #2: walk.js and nav.js beside the runtime, and in the page the shore's terrain, its four navmeshes and the starter kit's pieces; about 5% room"
     }
   },
   "counts": {

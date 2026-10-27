@@ -34,6 +34,8 @@ function dist(): string {
     'runtime/nav.js': 'const recast="AGFzbQ";'.repeat(25),
     'games/trail/index.html': 'z'.repeat(70),
     'games/trail/walk.0a1b2c3d.js': 'w'.repeat(30),
+    'games/kaldvik/index.html': 'k'.repeat(60),
+    'games/kaldvik/nav.0a1b2c3d.js': 'n'.repeat(20),
   };
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(join(dir, path, '..'), { recursive: true });
@@ -77,6 +79,7 @@ describe('the size budgets', () => {
     expect(sizes.nav).toBe(gz(read('runtime/nav.js')));
     expect(sizes['space-wrecked-web']).toBe(150);
     expect(sizes['trail-web']).toBe(100);
+    expect(sizes['kaldvik-web']).toBe(80);
   });
 
   it('say which is over its budget, and refuse a budgets.json without one', () => {
