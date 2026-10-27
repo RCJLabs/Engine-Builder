@@ -1,0 +1,63 @@
+Space-Wrecked's battle board, ported as stage code (M7.4, D86)
+
+Copyright RCJLabs. All rights reserved.
+
+The code in this folder is ported from Space-Wrecked, RCJLabs's own game:
+the space-wrecked repository at commit a2b4f62d2ecb3049cca8f5b55dbbdc43ede2f2e6
+(2026-10-16). It is used here with its owner's permission (decision D86 in
+docs/decisions.md). It is not covered by the engine's licence, and may not be
+copied, changed or shared apart from this repository without RCJLabs's
+permission.
+
+Only this folder is the port. stages/battle.ts and stages/deck/, which read
+the deck's tilemap and walkers and hand them to the board, were written for
+the engine.
+
+What was ported, from the repository's src/ unless said:
+- core/rng.js, whole.
+- sim/grid.js, sim/mapText.js and sim/cover.js, whole.
+- sim/mapFromShip.js: the map's shape, MARGIN, WRECKS, wallAt and edgeKey.
+- sim/terrain.js: tileRule and edgeAt, which cover.js reads.
+- sim/gen/site.js: regions().
+- tools/battle-map.js (the repository's tools/): renderMap and parseMap.
+- render/: battleView.js, battleScene.js, units.js, orbit.js, painter.js,
+  solid.js, palette.js, layer.js, frameBudget.js, starfield.js, and
+  shipView.js's drawSpace.
+- render/figures/: every file.
+- data/content.ts: the values the board reads from data/modules.json (the
+  tiles legend), data/jobs.json (each job's look and weapon) and
+  data/weapons.json (each weapon's held shape), copied as they stand.
+
+The changes:
+- Files renamed to the stage's naming: lowercase words joined by hyphens
+  (battleView.js is render/battle-view.ts, mapFromShip.js is
+  sim/map-from-ship.ts), and imported by those names.
+- JavaScript given the types TypeScript needs: interfaces for the map, faces,
+  glows, cameras and figures, and casts where a value can't be missing.
+  Space-Wrecked's layout is kept, so each file reads line for line against its
+  source: each opens with a line telling the engine's formatter to leave it,
+  and the fittings' unused parameter g is named _g, as the engine's linter asks.
+- document.createElement('canvas') changed to new OffscreenCanvas, in layer.js's
+  paintLayer, figures/sprites.js's defaultCanvas and starfield.js's
+  paintBackdrop: a stage draws in a worker, which has no document.
+- window.devicePixelRatio changed to the frame's: the board reads the pixel
+  ratio from the context's transform, which the stage's runner sets to the
+  frame's. canvas.js, which read window.devicePixelRatio, is not ported.
+- performance.now() changed to a clock that stands still (frame-budget.ts's
+  STILL_CLOCK), in frameBudget.js and figures/sprites.js: a stage may read no
+  clock but its frame's, which doesn't move during a frame. So every frame is
+  a full one, every figure is drawn when first needed, and the page drops the
+  frames a slow stage can't keep up with.
+- The ship's exterior, which the board doesn't draw, left out: shipView.js keeps
+  only drawSpace; exterior.js, hull.js, hullShape.js, pieces.js, props.js,
+  shipScene.js, mesh.js, blueprintStyles.js and the builder's sim are not
+  ported. solid.js leaves out solidCylinder, solidTube and placeFaces, and
+  painter.js the blueprint's batchModel and paintBatches and the builder's
+  paintLabels, which only the outside and the builder use.
+- palette.js leaves out applyCssVars, which sets CSS on the page, and the
+  colony's grounds and buildings and the portraits' colors, which the board
+  never draws. Its skins are made from a yard object first, to name their type.
+- parseMap gives each area the walls and doors close off a room of its own by
+  site.js's regions(), so its floor takes its own tint, where Space-Wrecked's
+  puts every tile in room 1; each hatch takes its tile's room. regions() leaves
+  space and the hull out of every room, as parseMap did, as well as rock.
