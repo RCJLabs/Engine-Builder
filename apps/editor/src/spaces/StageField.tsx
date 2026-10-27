@@ -21,33 +21,34 @@ export function StageField({ project, stage }: { project: OpenProject; stage: st
   return (
     <div class="form-field">
       <label for={field}>Stage</label>
-      <div class="field-row">
-        <select
-          id={field}
-          aria-describedby={help}
-          value={stage ?? NONE}
-          disabled={!canEdit}
-          onChange={(event) => {
-            const next = (event.target as HTMLSelectElement).value;
-            void setSpaceStage(next === NONE ? undefined : next);
-          }}
-        >
-          <option value={NONE}>None: the engine draws it</option>
-          {offered.map((id) => (
-            <option key={id} value={id}>{`${id}.ts`}</option>
-          ))}
-        </select>
-        {stage !== undefined && files.includes(stage) ? (
-          <button type="button" class="button" onClick={() => openStage(stage)}>
-            Open
-          </button>
-        ) : null}
-      </div>
+      <select
+        id={field}
+        class="field form-select"
+        aria-describedby={help}
+        value={stage ?? NONE}
+        disabled={!canEdit}
+        onChange={(event) => {
+          const next = (event.target as HTMLSelectElement).value;
+          void setSpaceStage(next === NONE ? undefined : next);
+        }}
+      >
+        <option value={NONE}>None: the engine draws it</option>
+        {offered.map((id) => (
+          <option key={id} value={id}>{`${id}.ts`}</option>
+        ))}
+      </select>
       <p id={help} class="form-help">
         {files.length === 0
           ? 'A stage draws this space in code, in play. Make one with New stage in the Logic panel.'
           : 'A stage draws this space in code, in play; the Scene panel draws it as ever.'}
       </p>
+      {stage !== undefined && files.includes(stage) ? (
+        <div class="form-actions">
+          <button type="button" class="button" onClick={() => openStage(stage)}>
+            {`Open ${stage}.ts`}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

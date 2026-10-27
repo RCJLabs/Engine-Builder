@@ -91,6 +91,7 @@ my-game/
   components/<kind>.json   the project's own component kinds, as type files (M5.2)
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
+  stages/<id>.ts           a 2D space's own drawing, in code, named by the space's stage (M7.4)
   scenes/<id>.ink          ink scenes, compiled into talks (M3.11)
   assets/…                 images, audio, models (one packed GLB each, M5.5), fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)

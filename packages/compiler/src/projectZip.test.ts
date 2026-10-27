@@ -18,12 +18,22 @@ const inRepo = memorySource({
   'records/item/notes.md': 'kept: inside a project folder',
   'records/.gitkeep': '',
   'assets/icon.svg': '<svg/>',
+  'components/crane.json': '{}',
+  'stages/battle.ts': 'export default {};',
 });
 
 describe('projectFiles', () => {
   it('takes project.json, export.json, guide.json and the project’s folders, sorted, and nothing else', async () => {
     expect(await projectFiles(inRepo)).toEqual(
-      [...Object.keys(fixture), 'assets/icon.svg', 'export.json', 'guide.json', 'records/item/notes.md'].sort(),
+      [
+        ...Object.keys(fixture),
+        'assets/icon.svg',
+        'components/crane.json',
+        'export.json',
+        'guide.json',
+        'records/item/notes.md',
+        'stages/battle.ts',
+      ].sort(),
     );
   });
 
@@ -39,6 +49,8 @@ describe('projectFiles', () => {
       'locales',
       'spaces',
       'prefabs',
+      'components',
+      'stages',
     ]);
   });
 });
