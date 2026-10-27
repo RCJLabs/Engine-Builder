@@ -52,6 +52,7 @@ export { ENGAGED_MOST, engaged as npcEngaged } from './world/npcs.ts';
 export { hasFlatSpace, worldDataOf } from './world/packWorld.ts';
 export { hasTags, NO_PLACES, type PackPlaces, type PlacedTags, type WorldPlaces } from './world/places.ts';
 export { spaceOf, worldStage } from './world/stage.ts';
+export * from './world/tiles/index.ts';
 export {
   EMPTY_WORLD,
   placeKey,

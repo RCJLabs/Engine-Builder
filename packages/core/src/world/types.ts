@@ -5,6 +5,7 @@
 import type { Condition } from '../logic/types.ts';
 import type { Effect } from '../sim/types.ts';
 import type { WorldPlaces } from './places.ts';
+import type { PackTiles } from './tiles/grid.ts';
 
 /** The world module's id, and its slice's key. */
 export const WORLD = 'world';
@@ -53,6 +54,8 @@ export interface WorldData {
    * a quest's slot can find. A world made by hand, as a test's, may leave them out.
    */
   readonly places?: WorldPlaces;
+  /** M7.2 (D84): each space's tilemap, whose sight and cover the facts read. */
+  readonly tiles?: Readonly<Record<string, PackTiles>>;
 }
 
 /** Where the player stood as the stage last said: in a space, the feet's place and the way they faced. */

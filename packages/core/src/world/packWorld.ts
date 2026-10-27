@@ -2,6 +2,8 @@ import { isRecordId } from '../records.ts';
 import { holdsProblem } from './containers.ts';
 import { mapsProblem, type PackMap } from './packMaps.ts';
 import { type PackPlaces, packPlacesProblem, worldPlacesOf } from './places.ts';
+import type { PackTiles } from './tiles/grid.ts';
+import { tilesProblem } from './tiles/pack.ts';
 import type { Placed, Triggers, Uses, WorldData } from './types.ts';
 
 /**
@@ -40,6 +42,8 @@ export interface PackWorld {
   readonly maps?: Readonly<Record<string, PackMap>>;
   /** Format 15 (M6.7): every space's tags and each tagged object's, through prefabs and overrides. */
   readonly places?: PackPlaces;
+  /** Format 18 (M7.2): each space's tilemap, its cells' rules, its edges and where its objects stand. */
+  readonly tiles?: Readonly<Record<string, PackTiles>>;
 }
 
 /** What the world module is built from. A format 9 pack has no uses, and starts in its first space. */
@@ -52,6 +56,7 @@ export function worldDataOf(world: PackWorld): WorldData {
     start: world.start ?? (spaces[0] as string),
     actors: world.actors ?? {},
     places: worldPlacesOf(world.spaces, world.places, world.actors),
+    ...(world.tiles !== undefined ? { tiles: world.tiles } : {}),
   };
 }
 
@@ -106,6 +111,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
     ...(format >= 11 ? ['navmeshes', 'actors'] : []),
     ...(format >= 14 ? ['maps'] : []),
     ...(format >= 15 ? ['places'] : []),
+    ...(format >= 18 ? ['tiles'] : []),
   ];
   const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields', ...placed]);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
@@ -135,7 +141,9 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
     (format >= 11 ? walkersProblem(world, format) : undefined) ??
     // Format 15 is the format for tags, which a world without a map may carry.
     (format === 14 || (format >= 15 && world.maps !== undefined) ? mapsProblem(world) : undefined) ??
-    (format >= 15 ? packPlacesProblem(world) : undefined)
+    (format >= 15 ? packPlacesProblem(world) : undefined) ??
+    // Format 18 is the format for tilemaps, so it has one.
+    (format >= 18 ? tilesIn(spaces, world.tiles, format) : undefined)
   );
 }
 
@@ -213,4 +221,10 @@ function zoneProblem(key: string, path: string, zone: unknown): string | undefin
   if (zone.once !== undefined && typeof zone.once !== 'boolean')
     return `The trigger zone "${key}"'s once is not true or false`;
   return undefined;
+}
+
+function tilesIn(spaces: Readonly<Record<string, unknown>>, tiles: unknown, format: number): string | undefined {
+  if (format === 18 && (!isObject(tiles) || Object.keys(tiles).length === 0)) return 'A format 18 pack has no tilemap';
+  if (tiles === undefined) return undefined;
+  return tilesProblem(spaces, tiles);
 }

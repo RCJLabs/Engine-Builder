@@ -13,6 +13,7 @@ import { at, enterSpace, trigger, use } from './actions.ts';
 import { doorsBetween, doorsOf } from './doors.ts';
 import { attack, engaged, fall, follow, npcsAt, rise, stand, walkTo } from './npcs.ts';
 import { type PackWorld, worldDataOf } from './packWorld.ts';
+import { cover, sees } from './tiles/facts.ts';
 import { placeKey, WORLD, WORLD_VERSION, type WorldData, type WorldSlice } from './types.ts';
 
 export * from './types.ts';
@@ -24,6 +25,7 @@ const TEXT: Domain = { type: 'text' };
 const BOOL: Domain = { type: 'bool' };
 const DOORS: Domain = { type: 'int', min: 0 };
 const PLACE = { space: TEXT, object: TEXT };
+const COVER: Domain = { type: 'enum', values: ['none', 'half', 'full'] };
 
 const placeIn = (list: readonly string[], args: Readonly<Record<string, unknown>>) =>
   typeof args.space === 'string' && typeof args.object === 'string' && list.includes(placeKey(args.space, args.object));
@@ -127,6 +129,19 @@ export function worldModule(world: WorldData): Module {
           typeof args.actor === 'string' &&
           Object.hasOwn(view.state.npcs, args.actor) &&
           view.state.npcs[args.actor]?.down === true,
+      },
+      // M7.2 (D84): a tilemap's sight and cover between two objects of a space.
+      sees: {
+        args: { space: TEXT, from: TEXT, to: TEXT },
+        domain: BOOL,
+        label: 'there is a line of sight between the two',
+        read: (view, args) => sees(world, view.state, args),
+      },
+      cover: {
+        args: { space: TEXT, at: TEXT, from: TEXT },
+        domain: COVER,
+        label: 'the cover the first has against the second',
+        read: (view, args) => cover(world, view.state, args),
       },
       'npc-at': {
         args: { actor: TEXT },
