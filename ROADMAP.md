@@ -1838,6 +1838,7 @@ Each number names its instrument, date and N, and gets re-taken before anything 
 | The starter sprites (M7.2) | 17 sheets, 6,314 bytes of PNG in all; the deck's tiles 1,228 bytes, 256×64 | `du -cb` and `wc -c` over `starter-sprites/assets/starter-sprites/` | 2026-10-27 | 1 |
 | stage2d.js (M7.2) | 19,061 bytes, 7,788 gzipped at level 9 | `wc -c` and `pnpm budgets` after `pnpm build` | 2026-10-27 | 1 build |
 | Size budgets (M7.2) | `editor-start` 128,624 bytes, up 1,015 (Add → Tilemap… and the Tiles row); `scene-view` 380,194, up 4,456, and 427,239 while the Tiles row read sheets through the asset browser's reader; `stage2d` 7,788, up 1,903, its budget raised to 8,168; `precache` 14,784,356, up 57,776; `space-wrecked-web` 583,707, `trail-web` 7,479,690 and `kaldvik-web` 8,792,857, each about 4.6 kB up from the runtime's format 18 reading and its facts | `pnpm budgets` after `pnpm build`; the closures listed per chunk by `tools/budgets/src/measure.ts`, against a build of main | 2026-10-27 | 1 build each |
+| The renames property test (M7.2) | 2.8, 3.3 and 2.8 s alone on this branch; 2.9, 2.4 and 2.8 s on main before it; past Vitest's default 5 s once on CI with the whole suite running, so it now carries a 30 s timeout as the walk tests do | `vitest run apps/editor/src/types/typeEdits.test.ts -t "any run of renames"`, in the cloud container; CI run 40528117919 | 2026-10-27 | 3 runs each |
 
 ## Open questions
 
