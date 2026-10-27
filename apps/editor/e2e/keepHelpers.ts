@@ -110,6 +110,12 @@ export async function playKeep(page: Page, touch = false): Promise<Locator> {
   const play = panel.getByRole('button', { name: 'Play', exact: true });
   await expect(play).toBeEnabled();
   await how(play);
+  return startKeep(page, touch);
+}
+
+/** A new game of the keep from the title, in Slot 1: the keep drawn, some frames on. */
+export async function startKeep(page: Page, touch = false): Promise<Locator> {
+  const how = (button: Locator) => (touch ? button.tap() : button.click());
   await newGame(page, how);
   await expect(game(page).getByRole('heading', { name: '21:00' })).toBeVisible();
   const box = page.getByRole('application', { name: 'The keep at night' });
@@ -133,9 +139,34 @@ export async function openKeep(page: Page, touch = false): Promise<Locator> {
   return playKeep(page, touch);
 }
 
-/** The colours a box of the page shows, from a screenshot of it: each pixel's hex, counted. */
+/**
+ * The part of an element the page shows: its box cut by every ancestor that clips and by the
+ * viewport, a pixel in from each edge so no border's blend is counted.
+ */
+async function shownOf(element: Locator): Promise<{ x: number; y: number; width: number; height: number }> {
+  return element.evaluate((el) => {
+    let { left, top, right, bottom } = el.getBoundingClientRect();
+    right = Math.min(right, window.innerWidth);
+    bottom = Math.min(bottom, window.innerHeight);
+    for (let up = el.parentElement; up; up = up.parentElement) {
+      if (getComputedStyle(up).overflow === 'visible') continue;
+      const r = up.getBoundingClientRect();
+      left = Math.max(left, r.left);
+      top = Math.max(top, r.top);
+      right = Math.min(right, r.right);
+      bottom = Math.min(bottom, r.bottom);
+    }
+    const x = Math.ceil(left) + 1;
+    const y = Math.ceil(top) + 1;
+    return { x, y, width: Math.floor(right) - 1 - x, height: Math.floor(bottom) - 1 - y };
+  });
+}
+
+/** The colours the page shows of an element, from a screenshot of what is shown: each pixel's hex, counted. */
 export async function coloursIn(page: Page, box: Locator): Promise<Map<string, number>> {
-  const shot = await box.screenshot();
+  const clip = await shownOf(box);
+  expect(clip.width * clip.height).toBeGreaterThan(0);
+  const shot = await page.screenshot({ clip });
   const counted = await page.evaluate(
     async (bytes) => {
       const blob = new Blob([new Uint8Array(bytes)], { type: 'image/png' });

@@ -96,7 +96,7 @@ describe('the keep', () => {
       await broken('prefabs/curtain.json', (curtain) => {
         curtain.objects[0].shape = 'cylinder';
       }),
-    ).toEqual([0, 1, 2, 3, 4, 5, 6, 7].map((k) => `E058 spaces/keep.json ${at(`curtain-${k}`)}`).sort());
+    ).toEqual([...Array(15).keys()].map((k) => `E058 spaces/keep.json ${at(`curtain-${k}`)}`).sort());
     expect(
       await broken('spaces/keep.json', (space) => {
         space.view = undefined;

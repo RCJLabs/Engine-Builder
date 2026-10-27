@@ -18,7 +18,7 @@ import { sendTo, stepWalker, type Walker, walkerOf } from './walkers.ts';
 const KEEP = join(import.meta.dirname, '../../../../tools/cli/test/fixtures/keep');
 /** A frame of the stage, in seconds, and the clock's real milliseconds told with each. */
 const FRAME_S = 0.1;
-const ELAPSE_MS = 2000;
+const ELAPSE_MS = 1000;
 
 function filesOf(root: string): Record<string, Uint8Array> {
   const files: Record<string, Uint8Array> = {};
@@ -92,7 +92,7 @@ describe('the keep at night', () => {
     expect(k.play.view.facts['time.clock']).toBe('21:00');
     const seen = new Set<string>();
     let moved = 0;
-    for (let i = 0; i < 900 && k.play.view.facts['time.clock'] !== '06:30'; i++) {
+    for (let i = 0; i < 2000 && k.play.view.facts['time.clock'] !== '06:30'; i++) {
       const before = [...k.walkers.values()].map((w) => w.at.join());
       k.step();
       if ([...k.walkers.values()].some((w, n) => w.at.join() !== before[n])) moved++;
@@ -102,12 +102,12 @@ describe('the keep at night', () => {
     const count = (said: string) => k.heard.filter((h) => h === said).length;
     // Each guard reaches each end of its stretch of wall again and again through the night.
     for (const said of ['aldo walk-w1', 'aldo walk-w2', 'brun walk-e1', 'brun walk-e2'])
-      expect(count(said), said).toBeGreaterThanOrEqual(3);
+      expect(count(said), said).toBeGreaterThanOrEqual(2);
     // They walk both ways, facing the way they go, and spend most of the night between marks or dwelling.
     expect([...seen].sort()).toEqual(['aldo left', 'aldo right', 'brun left', 'brun right']);
     expect(moved).toBeGreaterThan(200);
     // By day each stands at the gatehouse end of their stretch, as the sim heard and the walkers stand.
-    for (let i = 0; i < 300 && k.play.view.facts['time.clock'] !== '07:30'; i++) k.step();
+    for (let i = 0; i < 600 && k.play.view.facts['time.clock'] !== '07:30'; i++) k.step();
     expect(k.play.view.world?.npcs?.aldo?.arrived).toBe('walk-w2');
     expect(k.play.view.world?.npcs?.brun?.arrived).toBe('walk-e1');
     expect(k.walkers.get('aldo')?.at).toEqual(k.places.get('walk-w2'));

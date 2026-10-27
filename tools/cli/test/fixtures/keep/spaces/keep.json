@@ -2,7 +2,7 @@
   "name": "The keep at night",
   "view": "2d",
   "fit": [320, 180],
-  "size": [480, 180],
+  "size": [960, 180],
   "backdrop": "#131a33",
   "objects": [
     {
@@ -133,6 +133,41 @@
       "at": [480, 16, 10]
     },
     {
+      "id": "curtain-8",
+      "prefab": "curtain",
+      "at": [544, 16, 10]
+    },
+    {
+      "id": "curtain-9",
+      "prefab": "curtain",
+      "at": [608, 16, 10]
+    },
+    {
+      "id": "curtain-10",
+      "prefab": "curtain",
+      "at": [672, 16, 10]
+    },
+    {
+      "id": "curtain-11",
+      "prefab": "curtain",
+      "at": [736, 16, 10]
+    },
+    {
+      "id": "curtain-12",
+      "prefab": "curtain",
+      "at": [800, 16, 10]
+    },
+    {
+      "id": "curtain-13",
+      "prefab": "curtain",
+      "at": [864, 16, 10]
+    },
+    {
+      "id": "curtain-14",
+      "prefab": "curtain",
+      "at": [928, 16, 10]
+    },
+    {
       "id": "walk-w1",
       "name": "A mark on the wall walk",
       "shape": "box",
@@ -143,21 +178,21 @@
       "id": "walk-w2",
       "name": "A mark on the wall walk",
       "shape": "box",
-      "at": [196, 48, 0],
+      "at": [440, 48, 0],
       "color": "#3b3c4f"
     },
     {
       "id": "walk-e1",
       "name": "A mark on the wall walk",
       "shape": "box",
-      "at": [284, 48, 0],
+      "at": [520, 48, 0],
       "color": "#3b3c4f"
     },
     {
       "id": "walk-e2",
       "name": "A mark on the wall walk",
       "shape": "box",
-      "at": [410, 48, 0],
+      "at": [890, 48, 0],
       "color": "#3b3c4f"
     },
     {
@@ -168,7 +203,7 @@
     {
       "id": "brun",
       "record": "actor:brun",
-      "at": [410, 48, 11]
+      "at": [890, 48, 11]
     },
     {
       "id": "tower-west",
@@ -186,7 +221,7 @@
       "id": "tower-east",
       "name": "The east tower",
       "shape": "box",
-      "at": [456, 16, 20],
+      "at": [936, 16, 20],
       "color": "#3b3c4f",
       "components": {
         "sprite": {
@@ -210,7 +245,7 @@
       "id": "window-east",
       "name": "A lit window",
       "shape": "box",
-      "at": [456, 74, 21],
+      "at": [936, 74, 21],
       "color": "#ffd36b",
       "components": {
         "sprite": {
@@ -235,7 +270,7 @@
       "id": "banner-east",
       "name": "The east banner",
       "shape": "box",
-      "at": [462, 128, 21],
+      "at": [942, 128, 21],
       "color": "#7d2233",
       "components": {
         "sprite": {
@@ -249,7 +284,7 @@
       "id": "gatehouse",
       "name": "The gatehouse",
       "shape": "box",
-      "at": [240, 16, 15],
+      "at": [480, 16, 15],
       "color": "#3b3c4f",
       "components": {
         "sprite": {
@@ -261,7 +296,7 @@
       "id": "bell",
       "name": "The bell",
       "shape": "box",
-      "at": [240, 60, 16],
+      "at": [480, 60, 16],
       "color": "#e5772a",
       "components": {
         "sprite": {
@@ -283,7 +318,7 @@
       "id": "torch-1",
       "name": "A torch",
       "shape": "box",
-      "at": [100, 24, 13],
+      "at": [120, 24, 13],
       "color": "#e5772a",
       "components": {
         "sprite": {
@@ -296,7 +331,7 @@
       "id": "torch-2",
       "name": "A torch",
       "shape": "box",
-      "at": [180, 24, 13],
+      "at": [250, 24, 13],
       "color": "#e5772a",
       "components": {
         "sprite": {
@@ -309,7 +344,7 @@
       "id": "torch-3",
       "name": "A torch",
       "shape": "box",
-      "at": [300, 24, 13],
+      "at": [380, 24, 13],
       "color": "#e5772a",
       "components": {
         "sprite": {
@@ -322,7 +357,7 @@
       "id": "torch-4",
       "name": "A torch",
       "shape": "box",
-      "at": [380, 24, 13],
+      "at": [580, 24, 13],
       "color": "#e5772a",
       "components": {
         "sprite": {
@@ -332,10 +367,36 @@
       }
     },
     {
+      "id": "torch-5",
+      "name": "A torch",
+      "shape": "box",
+      "at": [710, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 1.5
+        }
+      }
+    },
+    {
+      "id": "torch-6",
+      "name": "A torch",
+      "shape": "box",
+      "at": [840, 24, 13],
+      "color": "#e5772a",
+      "components": {
+        "sprite": {
+          "sprite": "torch",
+          "phase": 2.5
+        }
+      }
+    },
+    {
       "id": "start",
       "name": "Where the watch is first seen",
       "shape": "box",
-      "at": [240, 0, -20],
+      "at": [480, 0, -20],
       "color": "#0a0b14",
       "components": {
         "spawn": {
