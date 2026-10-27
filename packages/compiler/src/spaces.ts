@@ -11,6 +11,7 @@ import { placeOfPointer } from './jsonLines.ts';
 import { type MapFileRead, readMapFile } from './mapFiles.ts';
 import { type NavFileRead, navHeader } from './navFiles.ts';
 import type { ProjectSource } from './source.ts';
+import { checkView } from './space2d.ts';
 import { classifySpaceFile, PREFABS_DIR, SPACES_DIR, type SpaceKind } from './spaceFiles.ts';
 import { type SpaceJson, type SpaceObject, spaceSchema } from './spaceShape.ts';
 import { checkTerrains, pngHeader, type TerrainFileRead } from './terrains.ts';
@@ -62,6 +63,11 @@ export function checkSpaces(files: readonly SpaceFileRead[], terrains: readonly 
     }
     sound.set(read.file, { read, space });
   }
+  // What each space's view draws (M7.1), its prefabs' objects as placed there.
+  const placed = new Map(
+    [...sound.values()].filter(({ read }) => read.kind === 'prefab').map(({ read, space }) => [read.id, space]),
+  );
+  for (const { read, space } of sound.values()) diagnostics.push(...checkView(read.file, read.kind, space, placed));
   const spaces = [...sound.values()].filter(({ read }) => read.kind === 'space');
   diagnostics.push(
     ...checkTerrains(

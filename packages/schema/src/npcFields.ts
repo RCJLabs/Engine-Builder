@@ -1,6 +1,6 @@
 /**
  * What an actor gains to stand in a space as an NPC (M6.1, D73, docs/specs/npcs.md#the-actors-fields):
- * its look, always, and with each kit on, its talk, its faction and what it carries; with the ai
+ * its look, always (a sprite and a speed for a 2D space since M7.1, D83), and with each kit on, its talk, its faction and what it carries; with the ai
  * kit (M6.3, D75), its behaviour and its senses; with the fighting kit (M6.4, D76), its drops and
  * what happens as it falls, which the player's actor has too; with the economy kit (M6.8, D80), its purse.
  */
@@ -23,6 +23,7 @@ import {
 import { ANIMATOR } from './animatorTypes.ts';
 import { FALLING_FIELDS } from './fightingTypes.ts';
 import { MODEL } from './modelTypes.ts';
+import { SPRITE } from './spriteTypes.ts';
 import type { Fields } from './typeFile.ts';
 
 const LOOK: Fields = {
@@ -58,6 +59,22 @@ const LOOK: Fields = {
     optional: true,
     label: 'Animator',
     description: 'How it moves (M6.5): the engine’s stock animator when left out',
+  },
+  // M7.1 (D83): what it draws as in a 2D space, and how fast it walks there.
+  sprite: {
+    kind: 'ref',
+    to: SPRITE,
+    optional: true,
+    label: 'Sprite',
+    description: 'What it draws as in a 2D space: it plays walk as it moves and idle as it stands, when it has them',
+  },
+  speed: {
+    kind: 'number',
+    min: 1,
+    max: 1000,
+    optional: true,
+    label: 'Speed',
+    description: 'In a 2D space, art pixels a second: 24 when left out',
   },
 };
 
