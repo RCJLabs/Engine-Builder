@@ -1532,6 +1532,25 @@ How to read this file:
     - **Main's red after M7.2, carried here:** the player fell in Kaldvík's howe on CI, as after M7.1, where the message hadn't said so. The cause: CI's sim answers about a step a second, and a fight's hits came faster, so the stage fought on from a view seconds old, its letters 50 deep, striking foes the sim had felled while the one left standing struck freely. A slow phone would lose the same way. Now no swing starts, the player's or an NPC's, while a hit waits for the sim's answer ([specs/combat.md](docs/specs/combat.md#an-npc-fighting)). Fought headless with one letter answered every 40, 60 or 90 fixed steps, the howe was lost each time before and is won with 29 to 31 of 60 now; answered at once, it is unchanged at 26. Three planted bugs, each caught by the new tests in `kaldvik.test.ts` and `fight.test.ts`.
     - **Untested for feel** until you see the tower on your phone.
 - **M7.4 Custom stages.** An API for renderers drawn in code (Canvas2D, SVG), so code-drawn styles keep working inside the engine.
+  - **As decided** (D86, your calls):
+    - **The demo** is M7.2's boarding deck drawn by Space-Wrecked's own battle painter, ported as the project's stage code. It is the first piece of Proof #3.
+    - **Drawing code runs off the page,** in a worker locked down as the game's is, on a canvas the page hands it.
+    - **Canvas 2D only:** SVG is drawn as images, in a stage and in screens' image widgets.
+    - **Stages are edited in the script editor and seen in Play.**
+    - **How it fits:** a 2D space's `stage` names `stages/<id>.ts`, which replaces only the drawing. The sim, the walkers, the clock and the uses go on as for any 2D space. Stages and screens' images are packed as format 20 ([specs/stages.md](docs/specs/stages.md)).
+  - **Gate:**
+    - `eb validate` finds the boarding deck clean and breaks it once each for E095, E058 (a stage on a 3D space), E029 (a stage file using `document`) and W159;
+    - unit tests for the stage rules, the loader with `eb/stage`, format 20, the frame built from stage2d's walkers and input, the worker's protocol, the use boxes made buttons, and a screen's PNG and SVG images;
+    - the port held still: the battle map built from the deck's tilemap gives the same faces every time (a golden hash), its walls, doors and fittings counted against the ship's map text;
+    - the boarding deck played in the Play panel by mouse and keys and by touch at 360, 390 and sideways:
+      - drawn by the worker in Space-Wrecked's palette;
+      - the crew walking their rounds;
+      - the alarm by a click, a tap and the keyboard;
+      - the board turned by a drag, a twist and the arrow keys;
+      - the HUD's SVG shown;
+    - exported as one file and played from `file://`;
+    - a stage made with New stage in the editor alone at 1280 and 390: a problem shown at its line, then fixed, set as a space's stage, and played;
+    - stage2d.js, stagework.js, the precache and the editor's start within their budgets.
 - **M7.5 Kits.** Grid tactics (cover, overwatch, sight), ranked squad, tower defense (paths, waves, towers, fixed tick), base/colony builder.
 - **M7.6 Templates.** Tactics, Squad roguelite, Tower defense, Side-view builder, Manager sim.
 - **M7.7 Proof #3: Space-Wrecked's ship builder and a boarding fight,** rebuilt on the engine.
