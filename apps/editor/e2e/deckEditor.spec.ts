@@ -133,6 +133,9 @@ for (const { viewport, touch } of [
         await expect
           .poll(() => chosenMap(page))
           .toMatchObject({ id: 'tilemap', size: [11, 5], layers: [{ id: 'floor', rows: [] }] });
+        // Each of the deck's seven tiles a button drawn with its frame, from the sheet the view decoded.
+        await expect(panel.locator('.tile-button canvas')).toHaveCount(7);
+        await expect(panel.locator('[data-tile="hull"] canvas')).toHaveAttribute('data-frame', '32');
         // Centred on the view's middle, 160 by 90 in a new space: its corner 88 and 40 less.
         await expect
           .poll(

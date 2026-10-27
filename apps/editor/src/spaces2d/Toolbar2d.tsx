@@ -89,7 +89,7 @@ export function Toolbar2d({ project }: { project: OpenProject }) {
         </button>
       </fieldset>
       {shown === 'add' && canEdit ? <AddRow2d project={project} done={() => setShown(null)} /> : null}
-      {map ? <TilesRow2d project={project} id={map} /> : null}
+      {map ? <TilesRow2d id={map} /> : null}
       {shown === 'group' && canEdit && chosen > 0 ? (
         <NameRecord
           type="prefab"

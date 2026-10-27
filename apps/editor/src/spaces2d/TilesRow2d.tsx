@@ -7,20 +7,20 @@
  */
 import type { EdgeKind } from '@eb/core';
 import type { TilesetRecord } from '@eb/schema';
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
-import type { OpenProject } from '../projects/opened.ts';
 import { liveOf } from '../spaces/live.ts';
 import { openSpace } from '../spaces/state.ts';
 import { TileFrame } from '../sprites/TileFrame.tsx';
-import { useSheetImage } from '../sprites/useSheet.ts';
+import type { LiveSprites } from './liveSprites.ts';
+import { sheetOf } from './sheets2d.ts';
 import { importAscii, tilemapOf } from './tileActions.ts';
 import { edgeKind, showRules, type TileTool, tileChar, tileLayer, tileTool } from './tiles2d.ts';
 
 const KINDS: readonly (EdgeKind | null)[] = ['wall', 'hull', 'door', 'hatch', null];
 
-export function TilesRow2d({ project, id }: { project: OpenProject; id: string }) {
+export function TilesRow2d({ id }: { id: string }) {
   const now = liveOf(openSpace.value);
   const fields = tilemapOf(now?.space ?? undefined, id);
   const tileset = fields ? now?.sprites?.tilesets.get(fields.tileset) : undefined;
@@ -55,7 +55,7 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
         </select>
       </span>
       {tileset ? (
-        <TileButtons project={project} tileset={tileset} />
+        <TileButtons live={now?.sprites ?? undefined} tileset={tileset} />
       ) : (
         <p class="muted">No tileset “{fields.tileset}”.</p>
       )}
@@ -130,8 +130,24 @@ export function TilesRow2d({ project, id }: { project: OpenProject; id: string }
   );
 }
 
-function TileButtons({ project, tileset }: { project: OpenProject; tileset: TilesetRecord }) {
-  const image = useSheetImage(project, tileset.sheet);
+/**
+ * The sheet as the view decoded it, from the live copy's bytes rather than the asset browser's
+ * reader: that one brings the record index into the Scene panel's chunk.
+ */
+function useLiveSheet(live: LiveSprites | undefined, path: string): ImageBitmap | null {
+  const [image, setImage] = useState<ImageBitmap | null>(null);
+  useEffect(() => {
+    let on = true;
+    if (live) void sheetOf(live, path).then((found) => on && setImage(found));
+    return () => {
+      on = false;
+    };
+  }, [live, path]);
+  return image;
+}
+
+function TileButtons({ live, tileset }: { live: LiveSprites | undefined; tileset: TilesetRecord }) {
+  const image = useLiveSheet(live, tileset.sheet);
   const zoom = Math.max(1, Math.floor(32 / Math.max(...tileset.tile)));
   return (
     <fieldset class="tiles-choices">
