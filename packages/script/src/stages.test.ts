@@ -50,12 +50,13 @@ describe('the stage rules', () => {
     expect(checked.js).toContain('Math.hypot');
   });
 
-  it('refuse Math.random, Date, the DOM and self, each at its line', () => {
+  it('refuse Math.random, Date, the DOM, self and postMessage, each at its line', () => {
     const source = [
       'const a = Math.random();',
       'const b = Date.now();',
       "const c = document.createElement('canvas');",
       'self.postMessage(1);',
+      'postMessage(2);',
     ].join('\n');
     const lines = checkStage(source, 'battle', files).problems.map((p) => [p.code, p.line]);
     expect(lines).toEqual([
@@ -63,6 +64,7 @@ describe('the stage rules', () => {
       ['E029', 2],
       ['E029', 3],
       ['E029', 4],
+      ['E029', 5],
     ]);
   });
 

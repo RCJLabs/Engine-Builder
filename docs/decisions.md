@@ -2677,6 +2677,11 @@ Evan chose on 2026-10-27, from these options:
 - **No custom fonts** until Phase 10.
 - **Untested for feel** until the deck is seen on a phone.
 
+**As built** (M7.4, 2026-10-27; [specs/stages.md](specs/stages.md#as-built-m74)):
+- **No stagework.js.** The stage's worker is built into stage2d.js, so a stage runs from `file://` and from every export with nothing beside it. It also takes away `postMessage` and the event listeners from stage code, which can speak to the page only through what `frame` returns.
+- **The port is 3,080 lines,** the types added, each file in Space-Wrecked's own layout. Its camera's input (a drag turns and tilts, a twist turns, the wheel and a pinch zoom, the arrows turn) is the port's own choice, since Space-Wrecked pans with one finger.
+- **A browser with no 2D OffscreenCanvas** (Safari before 16.4) shows why over the box, and the space goes on without its drawing.
+
 ---
 
 ## Open

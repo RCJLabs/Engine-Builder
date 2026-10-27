@@ -165,6 +165,22 @@ A screen's image widget shows its asset in play and in exports, a PNG or an SVG,
 - **In the editor alone** at 1280 and 390: a stage made with New stage, a problem shown at its line, then fixed, set as a 2D space's stage in its inspector, and played.
 - **Budgets:** stage2d.js, stagework.js, the precache and the editor's start.
 
+## As built (M7.4)
+
+- **No stagework.js.** The stage's worker is built into stage2d.js (Vite's `?worker&inline`, as one script), so a stage runs from `file://` and from every export with nothing beside stage2d.js. It locks itself down before loading the stage, as the game's worker does, and also takes away `postMessage`, `addEventListener`, `removeEventListener` and `close`, so stage code can't speak to the page but through what `frame` returns. stage2d.js is 13,414 bytes gzipped, up from 8,940, its budget re-read with 5% room.
+- **The pack's `world.stages`** is a record of each file's JavaScript by its path under `stages/` without `.ts`, every file a space's stage reaches. The loader's module name is `EB_STAGE` (`"eb/stage"`).
+- **The page's side** is `apps/editor/src/stagecode/`. The canvas takes focus on a press, so the arrow keys and + and − reach the stage and not the shell's spatial focus; Tab moves on. A frame's pixel ratio is the device's, 2 at most. The input waits for a frame the worker will take, so none is lost to a dropped frame. Drags, twists and wheels in a row are joined into one.
+- **A browser with no 2D OffscreenCanvas** (Safari before 16.4) shows why over the box, and the space goes on without its drawing.
+- **The port is 3,080 lines,** not about 2,500: the types added. Each file opens with `// biome-ignore-all format`, so it keeps Space-Wrecked's own layout and reads line for line against its source; Biome still lints it. `performance.now()` in the frame budget and the figures' sprite cache became a clock that stands still, since a stage reads only its frame's time. The rest of the changes are listed in its NOTICE.
+- **The battle map** is rebuilt from the deck's tilemap with a tile of space round what stands on it, as Space-Wrecked's `mapFromShip` does. Its text equals Space-Wrecked's example ship line for line, and its faces and glows hash to `216c091d776c22bd`.
+- **The camera's input** is the port's own choice, Space-Wrecked having only a one-finger pan. A drag turns (0.01 radians a pixel) and tilts (0.005), the pitch held between 35° and 88°. A twist turns, a pinch and the wheel zoom between 0.6 and 3 times the fitted view, an arrow turns 15° or tilts 5°, and + and − zoom by 1.25. Untested for feel.
+- **The crew** face the way they last moved, take a stride every two tiles and stand under reduced motion. Their suits come from their jobs: Ines a skinsuit with a pistol, Oren an EVA suit with a shotgun.
+- **A use's box** is its tile's bounds on screen, from the deck to the top of what stands there.
+- **Three bugs the gate's specs found:**
+  - The project's folder list (`PROJECT_FOLDERS`) lacked `stages/`, and `components/` since M5.2. Play, Export and a project's zip dropped them, and Play said the project had an error while Problems showed none.
+  - `playFiles`, which Play and Export send their workers, sent the asset an image widget shows by name alone, so the pack carried an empty data URL and the HUD drew nothing.
+  - The Stage select was 19 px tall. It is now the form's own select, with Open below it.
+
 ## Open questions
 
 1. Whether a stage should read the view's facts (a quest's stage, a flag) to draw by. M7.4 gives what the Space widget reads.
