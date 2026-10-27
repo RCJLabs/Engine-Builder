@@ -216,7 +216,14 @@ export async function takeAllAndClose(page: Page, press: (button: Locator) => Pr
   await expect(close).toBeHidden();
 }
 
-/** Each body walked up to and searched: its bag taken from and closed, its label "Nothing left" once it is empty. */
+const place = (at: readonly number[]) => `(${at.map((n) => n.toFixed(1)).join(', ')})`;
+
+/**
+ * Each body walked up to and searched: its bag taken from and closed, its label "Nothing left" once it
+ * is empty. Within reach of a body while the prompt names another use (a chest nearer the player, as
+ * the howe's can be), the player steps on over the body; walked into something and not getting nearer,
+ * it steps aside first (main's Kaldvík run after M7.3 timed out by a body, the trace out of reach).
+ */
 export async function searchAll(
   page: Page,
   steer: Steer,
@@ -224,22 +231,35 @@ export async function searchAll(
   timeout = 60_000,
 ): Promise<void> {
   const started = Date.now();
+  let last = { actor: '', d: Number.POSITIVE_INFINITY, stuck: 0 };
   for (;;) {
     const seen = await look(page);
     const left = seen.fight.bodies.filter((b) => b.label === 'Search').map((b) => b.actor);
     if (left.length === 0) return;
-    if (Date.now() - started > timeout) throw new Error(`Bodies left unsearched: ${left.join(', ')}`);
     const bodies = seen.agents.filter((a) => left.includes(a.actor));
     const nearest = bodies.sort((a, b) => acrossTo(a.at, seen.me.feet) - acrossTo(b.at, seen.me.feet))[0];
-    if (!nearest) continue;
     const prompt = await page.evaluate(
       () =>
         (window as unknown as { __ebWalk?: { prompt(): { label: string } | null } }).__ebWalk?.prompt()?.label ?? null,
     );
+    if (Date.now() - started > timeout)
+      throw new Error(
+        `Bodies left unsearched: ${left.join(', ')}; the player at ${place(seen.me.feet)} facing ${seen.me.yaw.toFixed(0)}°, ` +
+          `the prompt ${prompt ?? 'none'}; ${bodies.map((b) => `${b.actor} at ${place(b.at)}`).join(', ')}`,
+      );
+    if (!nearest) continue;
     if (prompt === 'Search') {
       await steer.use();
       await takeAllAndClose(page, press);
-    } else await closeOn(steer, seen.me, nearest.at, 1.2, 10);
+      continue;
+    }
+    const d = acrossTo(nearest.at, seen.me.feet);
+    last = { actor: nearest.actor, d, stuck: last.actor === nearest.actor && d > last.d - 0.05 ? last.stuck + 1 : 0 };
+    if (last.stuck >= 4) {
+      await steer.turn(70);
+      await steer.walk(300);
+      last = { ...last, stuck: 0 };
+    } else await closeOn(steer, seen.me, nearest.at, prompt === null ? 1.2 : 0.4, 10);
   }
 }
 
