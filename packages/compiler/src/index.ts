@@ -191,5 +191,6 @@ export { checkTilesets, tilesetDiagnostics } from './tilesets.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
+export { imageAssetsOf } from './uiImages.ts';
 export { type DrawnSources, spaceSpawns } from './world.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';
