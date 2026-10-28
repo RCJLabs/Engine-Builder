@@ -82,6 +82,22 @@ describe("a stage's run in its worker", () => {
     expect(sent[2]).toEqual({ kind: 'drew', ms: 0, uses: [{ object: 'alarm', box: [10, 20, 8, 8] }] });
   });
 
+  it('tells the page the tile a battle’s tap landed on, and nothing of one without a battle', () => {
+    const stage = [
+      "import { defineStage } from 'eb/stage';",
+      'export default defineStage({ frame(g, f) {',
+      "  const tap = f.input.find((e) => e.kind === 'tap');",
+      '  return f.battle && tap ? { uses: [], picked: [Math.floor(tap.x / 16), Math.floor(tap.y / 16)] } : { uses: [] };',
+      '} });',
+    ].join('\n');
+    const { sent, take } = run({ battle: js(stage) });
+    const battle = { side: 'crew', round: 1, units: [], reach: [], targets: [], playing: false, inset: 0 };
+    take({ kind: 'frame', frame: frame({ battle, input: [{ kind: 'tap', x: 50, y: 20 }] }) });
+    expect(sent.at(-1)).toEqual({ kind: 'drew', ms: 0, uses: [], picked: [3, 1] });
+    take({ kind: 'frame', frame: frame({ input: [{ kind: 'tap', x: 50, y: 20 }] }) });
+    expect(sent.at(-1)).toEqual({ kind: 'drew', ms: 0, uses: [] });
+  });
+
   it('asks the page to draw an SVG, and hands the stage the bitmap it sends back', async () => {
     const stage = [
       "import { defineStage, svg } from 'eb/stage';",
@@ -187,6 +203,14 @@ describe('the frame the page builds', () => {
       taken: ['alarm', 'crate'],
       input: [{ kind: 'tap', x: 1, y: 2 }],
     });
+  });
+
+  it('carries a battle as the page shows it, and no battle key without one', () => {
+    const facts = { now: 0, born: 0, sentAt: 0, box: { w: 1, h: 1 }, devicePixelRatio: 1, still: false };
+    const battle = { side: 'foes', round: 2, units: [], reach: [], targets: [], playing: true, inset: 120 } as const;
+    const base = { ...facts, walkers: [], world: undefined, taken: [], input: [] };
+    expect(frameOf({ ...base, battle }).battle).toEqual(battle);
+    expect('battle' in frameOf(base)).toBe(false);
   });
 });
 

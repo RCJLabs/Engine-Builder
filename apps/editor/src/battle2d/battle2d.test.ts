@@ -12,6 +12,7 @@ import { type Action, canonicalJson } from '@eb/core';
 import type { BattleView } from '@eb/kits';
 import { type Opened, openPack, type Play, startPlay } from '@eb/ui/session';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { stageBattleOf } from './forStage.ts';
 import { actionOf, cancel, choicesOf, type Picking, previewsOf, settle, stepCursor, tap } from './pick.ts';
 import { actsOf, lengthOf, playAt, TILE_MS } from './playback.ts';
 import { beatLine, namesOf, oddsText, previewLine } from './words.ts';
@@ -143,6 +144,32 @@ describe('playback', () => {
     for (const unit of play.view.world?.battle?.view?.units ?? [])
       if (unit.status === 'active') expect(end.units.get(unit.id)?.at, unit.id).toEqual(unit.at);
     expect(lengthOf(actsOf(told, true))).toBe(0);
+  });
+});
+
+describe('the battle a stage in code is handed', () => {
+  it('gives the units where the playback has them, the chosen’s reach and targets, and the preview’s tiles', () => {
+    const { view } = fight();
+    const step = choicesOf(view(), 'c1')?.moves.find((m) => m.ap === 2);
+    if (!step) throw new Error('Ines can dash nowhere');
+    const units = new Map(view().units.map((u) => [u.id, { at: u.at, status: u.status, hp: u.hp }]));
+    units.set('e1', { at: [3.5, 2], status: 'down', hp: 0 });
+    const picking: Picking = { selected: 'c1', preview: { kind: 'move', unit: 'c1', step }, cursor: [1, 2] };
+    const now = { view: view(), units, picking, playing: false };
+    const shown = stageBattleOf(now, 96);
+    expect(shown).toMatchObject({ side: 'crew', round: 1, selected: 'c1', cursor: [1, 2], playing: false, inset: 96 });
+    expect(shown.units.find((u) => u.id === 'e1')).toMatchObject({
+      actor: 'pirate',
+      at: [3.5, 2],
+      status: 'down',
+      hp: 0,
+    });
+    expect(shown.reach).toEqual(choicesOf(view(), 'c1')?.moves.map((m) => ({ to: m.to, ap: m.ap })));
+    expect(shown.targets).toEqual(choicesOf(view(), 'c1')?.shots.map((s) => s.target));
+    expect(shown.preview).toEqual({ kind: 'move', unit: 'c1', path: step.path, to: step.to });
+    // While a step plays back, nothing is offered to tap.
+    const playing = stageBattleOf({ ...now, playing: true, shot: { from: 'e2', to: 'c1', hit: true } }, 96);
+    expect([playing.reach, playing.targets, playing.shot]).toEqual([[], [], { from: 'e2', to: 'c1', hit: true }]);
   });
 });
 

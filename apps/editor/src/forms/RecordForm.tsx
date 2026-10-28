@@ -1,5 +1,19 @@
 import { pointerSegment, SHEET } from '@eb/core';
-import { ACTOR, AI, BEHAVIOUR, DIALOGUE, ENCOUNTER, ENCOUNTERS, MAP, MAPS, QUEST, QUESTS, TALK } from '@eb/kits';
+import {
+  ACTOR,
+  AI,
+  BATTLE,
+  BEHAVIOUR,
+  DIALOGUE,
+  ENCOUNTER,
+  ENCOUNTERS,
+  MAP,
+  MAPS,
+  QUEST,
+  QUESTS,
+  TACTICS,
+  TALK,
+} from '@eb/kits';
 import {
   ANIM_FACTS,
   ANIMATOR,
@@ -20,6 +34,7 @@ import { AnimatorOutline } from '../animators/AnimatorOutline.tsx';
 import { AnimatorPreview } from '../animators/AnimatorPreview.tsx';
 import { LoopPreview } from '../audio/LoopPreview.tsx';
 import { SoundPreview } from '../audio/SoundPreview.tsx';
+import { battleChoices } from '../battles/battleChoices.ts';
 import { BehaviourOutline, settingsFor } from '../behaviours/BehaviourOutline.tsx';
 import { behaviourPointers } from '../behaviours/nodeFields.ts';
 import { TalkMap } from '../dialogue/TalkMap.tsx';
@@ -208,6 +223,10 @@ function Form({ project, data, id, value }: { project: OpenProject; data: DataTy
           // An objective's target: the actors and the quest's slots, the spaces, and the chosen space's objects (M6.6).
           textChoices: (path) => targetChoices(value, targetSources(project), path),
         }
+      : {}),
+    // A battle's space, and each unit's post among that space's objects (M7.5).
+    ...(type === BATTLE && catalog.kits.includes(TACTICS)
+      ? { textChoices: (path) => battleChoices(value, targetSources(project), path) }
       : {}),
     // A behaviour's conditions name the NPC running it as @self (M6.3).
     ...(behaviour ? { slots: () => SELF } : {}),

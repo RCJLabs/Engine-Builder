@@ -200,7 +200,8 @@ export type PressTile = (page: Page, tile: Tile, touch: boolean) => Promise<void
 
 /**
  * One action played as a player would: its unit chosen in the bar; a move by its tile pressed twice on the deck,
- * anything else by its button pressed and then Confirm, or pressed twice; then the crew's turn waited for.
+ * anything else by its button pressed and then Confirm, or pressed twice; then the crew's turn waited for. A shot's
+ * button says the odds the battle's view gives, the same shotOdds the roll reads.
  */
 export async function playAction(
   page: Page,
@@ -231,6 +232,13 @@ export async function playAction(
             : verb === 'order'
               ? `order:${action.target ?? action.side ?? ''}`
               : verb;
+    if (verb === 'shoot') {
+      const shot = (await battle(page))?.view?.choices
+        .find((c) => c.unit === unit)
+        ?.shots.find((s) => s.target === action.target);
+      expect(shot, `${unit} can't shoot ${action.target}`).toBeDefined();
+      await expect(barButton(page, key)).toContainText(`${shot?.hit}% to hit, ${shot?.crit}% to crit`);
+    }
     await how(barButton(page, key));
     await how(barButton(page, 'confirm'));
   }

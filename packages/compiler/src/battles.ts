@@ -88,8 +88,8 @@ export function checkBattles(
         const rule = Number.parseInt(tiles.cells[r]?.[c] ?? '0', 16);
         const other = held.get(`${c},${r}`);
         if ((rule & WALK) === 0) report(at, `“${post.at}” is on tile ${c}, ${r}, which can’t be walked`);
-        else if (other !== undefined) report(at, `“${post.at}” is on tile ${c}, ${r}, where “${other}” stands`);
-        else held.set(`${c},${r}`, post.at);
+        else if (other !== undefined) report(at, `“${post.at}” is on tile ${c}, ${r}, where “${other}” already stands`);
+        else held.set(`${c},${r}`, post.actor);
       }
   }
   return found;
