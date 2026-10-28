@@ -104,6 +104,20 @@
       "color": "#3b3c4f"
     },
     {
+      "id": "bridge-door",
+      "name": "The bridge door",
+      "shape": "box",
+      "at": [168, 56, 1],
+      "color": "#3b3c4f"
+    },
+    {
+      "id": "airlock-door",
+      "name": "The airlock door",
+      "shape": "box",
+      "at": [88, 40, 1],
+      "color": "#3b3c4f"
+    },
+    {
       "id": "alarm",
       "name": "The alarm",
       "shape": "box",

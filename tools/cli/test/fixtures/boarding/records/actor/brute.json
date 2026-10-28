@@ -1,0 +1,12 @@
+{
+  "name": "Pirate brute",
+  "description": "The boarders’ heavy, through the airlock door.",
+  "stats": {
+    "health": 11,
+    "aim": 55,
+    "defense": 0,
+    "armor": 1,
+    "mobility": 3
+  },
+  "gun": "shotgun"
+}

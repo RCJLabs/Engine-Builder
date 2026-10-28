@@ -247,7 +247,8 @@ export function createBattle2d(o: BattleOptions): Battle2d {
     },
     tapTile,
     key(e) {
-      if (!now) return false;
+      // With a modifier held a key is the stage's: Shift and the arrows still turn a board in code.
+      if (!now || e.shiftKey || e.altKey || e.ctrlKey || e.metaKey) return false;
       const by = ARROWS[e.key];
       if (by) {
         update(stepCursor(now.view, picking, by, o.tiles.size));

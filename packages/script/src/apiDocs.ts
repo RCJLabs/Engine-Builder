@@ -136,8 +136,8 @@ export const STAGE_DEF_API: readonly ApiEntry[] = [
   fn('start', '(s: Start) => void', 'Once, before the first frame: s.space, s.size, s.world, s.places, s.sheets.'),
   fn(
     'frame',
-    '(g: CanvasRenderingContext2D, f: Frame) => { uses? } | void',
-    'Each frame: draw in CSS pixels; return { uses: [{ object, box: [x, y, w, h] }] } for the use buttons.',
+    '(g: CanvasRenderingContext2D, f: Frame) => { uses?, picked? } | void',
+    'Each frame: draw in CSS pixels; return { uses: [{ object, box: [x, y, w, h] }] } for the use buttons, and in a battle { picked: [column, row] }, the tile a tap landed on.',
   ),
 ];
 
@@ -154,6 +154,11 @@ export const FRAME_API: readonly ApiEntry[] = [
     'world',
     '{ here, fight?, markers? }',
     'What the Space widget reads: the player here, the fights, the markers.',
+  ),
+  value(
+    'battle',
+    '{ side, round, units, selected?, reach, targets, preview?, cursor?, shot?, playing, inset } | undefined',
+    'A battle on the space’s tilemap (M7.5): units at [column, row], what the chosen can reach and shoot, what is previewed; keep the board above inset, the bar’s CSS pixels.',
   ),
   value('taken', 'string[]', 'The objects taken from the space, by path.'),
   value(

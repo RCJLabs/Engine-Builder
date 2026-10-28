@@ -1,0 +1,15 @@
+{
+  "name": "Rifle",
+  "damage": {
+    "least": 3,
+    "most": 5
+  },
+  "accuracy": {
+    "close": 0,
+    "mid": 10,
+    "long": 0
+  },
+  "crit": 10,
+  "crit-damage": 2,
+  "clip": 4
+}

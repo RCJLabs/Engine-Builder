@@ -1,0 +1,45 @@
+{
+  "name": "The boarders",
+  "rules": "boarding",
+  "space": "deck",
+  "crew": [
+    {
+      "actor": "ines",
+      "at": "bridge"
+    },
+    {
+      "actor": "oren",
+      "at": "bridge-door"
+    }
+  ],
+  "foes": [
+    {
+      "actor": "pirate",
+      "at": "airlock-1"
+    },
+    {
+      "actor": "pirate",
+      "at": "airlock-2"
+    },
+    {
+      "actor": "brute",
+      "at": "airlock-door"
+    }
+  ],
+  "press": true,
+  "win": [
+    {
+      "effect": "set-flag",
+      "flag": "won",
+      "to": true
+    }
+  ],
+  "lose": [
+    {
+      "effect": "set-flag",
+      "flag": "lost",
+      "to": true
+    }
+  ],
+  "falls": "hurt"
+}
