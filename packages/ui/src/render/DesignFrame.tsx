@@ -13,6 +13,7 @@ import { ScreenView } from './Screen.tsx';
 import './screens.css';
 import './map.css';
 import './spaceMap.css';
+import './battle.css';
 
 export interface DesignFrameProps {
   readonly id: string;

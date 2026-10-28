@@ -5,11 +5,13 @@
  * it is shown, as the 3D walk does. stage2d.js carries it; the hosts load it for a 2D space. Since
  * M7.2 a space's tilemap is drawn and its walkers route round its walls; since M7.3 a building is drawn
  * and its walkers climb its stairs. Since M7.4 a space with a stage is drawn by its own code
- * (stagecode/codeStage.ts), on the same sim side (simSide.ts).
+ * (stagecode/codeStage.ts), on the same sim side (simSide.ts). Since M7.5 a battle on its tilemap is drawn
+ * over it and played through its bar (battle2d/).
  */
 import type { SpaceJson } from '@eb/compiler';
 import type { PackWorld } from '@eb/core';
 import type { SpaceAsk, SpaceDrawn } from '@eb/ui';
+import { battleOnStage } from '../battle2d/onStage.ts';
 import { startCodeStage } from '../stagecode/codeStage.ts';
 import { buildingPieces } from './building2d.ts';
 import { type Drawn, drawFrame } from './draw.ts';
@@ -51,12 +53,22 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
   const view = createView(box, fit, size, start, () => {});
   const buttons = createUseButtons(box, sim.use, (centre) => view.look(centre));
   const usesHere = () => sim.usesOf(new Set(items.map((i) => i.path)));
-  buttons.set(usesHere());
+  // While a battle is fought its bar is the only thing to press (M7.5).
+  let fighting = false;
+  const showUses = () => buttons.set(fighting ? [] : usesHere());
+  showUses();
+  const battle = tiles
+    ? battleOnStage(box, view, ask, world, sheets, tiles, (on) => {
+        fighting = on;
+        showUses();
+      })
+    : undefined;
 
   const frame = (now: number) => {
     const dt = Math.min(FRAME_CAP_S, (now - last) / 1000);
     last = now;
     sim.step(dt, now);
+    battle?.fit();
     const { scale, cols, rows, dpr } = view.scaled();
     drawn = drawFrame(view.ctx, {
       items,
@@ -68,6 +80,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
       still,
       backdrop,
     });
+    battle?.draw(now, (now - born) / 1000);
     const corner = [view.camera()[0] - Math.floor(cols / 2), view.camera()[1] - Math.floor(rows / 2)] as const;
     buttons.place(new Map(drawn.map((d) => [d.path, d])), scale, dpr, corner, rows);
     frames++;
@@ -117,6 +130,7 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
         frames: cellFrames(item.look.map, tileset.record),
       };
     },
+    battle: () => battle?.hook(),
     npcsSent: sim.tellSent,
     clock: sim.clockHook,
     look: (at) => view.look(at),
@@ -133,13 +147,14 @@ export async function startStage2d(box: HTMLElement, ask: SpaceAsk, world: PackW
     taken(paths) {
       taken = new Set(paths);
       items = sceneOf(space, world.prefabs, record, taken);
-      buttons.set(usesHere());
+      showUses();
     },
     npcs: sim.npcs,
     stop() {
       stopped = true;
       cancelAnimationFrame(raf);
       sim.stop();
+      battle?.stop();
       buttons.stop();
       view.stop();
       unhook();

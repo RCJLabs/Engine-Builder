@@ -1,0 +1,84 @@
+/* M7.5: a battle's bar over a 2D space (apps/editor/src/battle2d/bar.ts): the live line, the selected
+   unit, its actions and its targets with their odds, every button 44 px at least, wrapping on a phone. */
+.eb-battle-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--eb-space) / 2);
+  padding: calc(var(--eb-space) / 2);
+  padding-left: max(calc(var(--eb-space) / 2), env(safe-area-inset-left));
+  padding-right: max(calc(var(--eb-space) / 2), env(safe-area-inset-right));
+  background: color-mix(in srgb, var(--eb-surface) 88%, transparent);
+  color: var(--eb-text);
+  max-height: 60%;
+  overflow-y: auto;
+}
+
+.eb-battle-line {
+  margin: 0;
+  min-height: 1.4em;
+}
+
+.eb-battle-who {
+  margin: 0;
+  font-weight: 600;
+}
+
+.eb-battle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--eb-space) / 2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eb-battle-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 calc(var(--eb-space) * 0.75);
+  border: 1px solid var(--eb-muted);
+  border-radius: var(--eb-radius);
+  background: var(--eb-background);
+  color: var(--eb-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.eb-battle-button[aria-pressed="true"] {
+  border-color: var(--eb-accent);
+  box-shadow: inset 0 0 0 2px var(--eb-accent);
+}
+
+.eb-battle-button:focus-visible,
+.eb-game[data-input="pad"] .eb-battle-button:focus {
+  outline: 3px solid var(--eb-accent);
+  outline-offset: 2px;
+}
+
+.eb-battle-button[data-kind="confirm"] {
+  background: var(--eb-accent);
+  color: var(--eb-background);
+}
+
+.eb-battle-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.eb-battle-none {
+  margin: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* Their display would otherwise outweigh the hidden attribute. */
+.eb-battle-bar[hidden],
+.eb-battle-row[hidden],
+.eb-battle-none[hidden] {
+  display: none;
+}

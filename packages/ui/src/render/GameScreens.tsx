@@ -25,6 +25,7 @@ import { drawn, type Opened, type Shown, screenStack, stillOpen } from './stack.
 import './screens.css';
 import './map.css';
 import './spaceMap.css';
+import './battle.css';
 
 export interface GameScreensProps {
   readonly screens: Readonly<Record<string, Screen>>;

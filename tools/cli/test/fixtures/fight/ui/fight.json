@@ -37,5 +37,17 @@
     "widget": "space",
     "space": "deck",
     "label": "The boarding fight"
+  },
+  "bottom": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "Ines on the first pirate: {tactics.hit(unit: c1, target: e1)}% to hit",
+        "shows-when": "tactics.in-battle"
+      }
+    ]
   }
 }
