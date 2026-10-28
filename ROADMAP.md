@@ -1572,6 +1572,22 @@ How to read this file:
     - sight 20 tiles and a clear line, no fog.
 
     The demo is the boarding deck: M7.2's deck drawn by M7.4's battle board, Ines and Oren holding it against boarders from the airlock.
+  - **How it fits** (D87's session calls, [specs/tactics.md](docs/specs/tactics.md), [research/tactics.md](docs/research/tactics.md)):
+    - A battle is the kit's own slice.
+    - Records: battle rules, guns, orders and battles; an actor's gun and order.
+    - Actions with options for bots; the foes' turn is played by the AI inside the step that hands it to them.
+    - Odds are shown from the same function that rolls them.
+    - The AI is scored in whole numbers.
+    - On the page, a controller in the manner of Space-Wrecked's `fight.js`, with a 44 px action bar.
+  - **Gate:**
+    - a unit test for each rule;
+    - Space-Wrecked's golden battle replayed word for word through its own generator;
+    - its AI tests ported;
+    - 200 seeds of the boarding fight kept to the rules' invariants, the crew's wins a reading;
+    - `eb validate` clean and broken once each for E096, E097, W160 and E058;
+    - the fight played by mouse and keys and by touch at 360, 390 and sideways, its odds on screen the sim's, won, and exported as one file played from `file://`;
+    - a battle made with forms alone at 1280 and 390, then fought;
+    - budgets kept.
 - **M7.6 Builder kit.** Buildings placed, moved and taken down in play, with costs, footprints and rules as data, and jobs, production and a daily pass: Space-Wrecked's ship builder and colony, afterglass's rooms. Its calls are put when it begins (research note call 5).
 - **M7.7 Ranked squad kit.** A squad's ranks and progression, and a fight in a line with depth: landnam's reach table and wasteland-protocol's runs. Its calls are put when it begins (call 3).
 - **M7.8 Tower defense kit.** Paths, waves and towers on a fixed tick, from 2060td. Its calls are put when it begins (call 4).

@@ -2702,6 +2702,17 @@ Evan chose on 2026-10-28, from these options ([research/kits-iii.md](research/ki
 - **The demo is the boarding deck,** M7.2's deck drawn by M7.4's ported battle board, Ines and Oren holding it against boarders from the airlock.
 - **The other kits' calls are put when each begins:** the builder's (top-down, side-view or both), the squad's (progression, a line fight or both) and tower defense's (lanes or mazing, building between waves or live), research note calls 3 to 5.
 
+**Also settled, as the session's calls** (2026-10-28, engineering calls that follow from the above and from docs/research/tactics.md; [specs/tactics.md](specs/tactics.md)):
+- **A battle is the tactics kit's own slice,** one at a time: units at tiles, with their own hp, ap and ammo, the doors open and welded, the round and the side. Its units are read from actors when it starts and are not the world's walkers. Door state lives in the battle, as Space-Wrecked's does: walkers outside a battle still pass every door.
+- **Records:** `battle-rules` (the stats it reads and its numbers, each with Space-Wrecked's value when left out), `gun`, `order` (a kind of the seven and the one number it reads), an actor's `gun` and `order`, and `battle` (a space, the crew and foes on its objects, win and lose effects). The stats kit must be on.
+- **Played as actions,** `tactics/move`, `shoot`, `watch`, `reload`, `steady`, `open`, `order` and `end`, each listing its options for bots. The foes' turn is played inside the step that hands it to them, its beats kept for the stage to play back.
+- **Odds as rolled:** `tactics.hit` and `tactics.crit` are facts from the same `shotOdds` the shot rolls, and the stage's battle view calls it as the sim does.
+- **Rolls** come from the kernel's `rng('tactics')` in Space-Wrecked's order, through a small interface the golden test feeds Space-Wrecked's own generator through, so its 33-line battle can be held word for word.
+- **The AI is scored in whole numbers,** harm in millionths. It may part from Space-Wrecked at near ties, which its ported tests show.
+- **Core's tiles gain** door state laid over a grid, Space-Wrecked's budgeted reach, and steps from many tiles at once.
+- **The page's battle controller is Space-Wrecked's `fight.js`:** a tap previews, a second tap or Confirm sends. Its action bar is buttons of 44 px at least, its targets a list with their odds, and the arrow keys move a cursor. A stage drawn in code gets the battle in each frame and returns the tile under a tap.
+- **Not in M7.5:** objectives, the deadline, hazards (rubble among them, which pack format 18 has no room for), difficulty, ranks' numbers for orders (M7.7), and deploy by bridge and hatches.
+
 **Why.**
 - **One kit a milestone** keeps each one's records, checks, forms, fixture and phone gate the size of a milestone so far. The encounters kit alone was about 600 lines of sim.
 - **Proof #3's order:** its boarding fight is the tactics kit played on M7.2's deck, and its ship builder is the builder's top-down placement. The squad and tower defense are not in Proof #3 at all, and tower defense brings the riskiest new piece, a fixed-tick sim, so it goes last.
