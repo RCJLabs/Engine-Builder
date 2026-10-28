@@ -99,6 +99,7 @@ export const DIAGNOSTIC_CODES = {
   E093: "A tilemap that doesn't fit its tileset or its size: a row too long or too many, a character no tile is written as, edges of the wrong shape or with a tileset that has none, or two tilemaps in one space",
   E094: "A building that doesn't fit itself: a room past its last slot or floor, two rooms on one slot or with one id, a stair from its top floor or outside it, stairs with no sprite to draw them, or a second building in a space or one beside a tilemap",
   E095: "A space's stage names no stage file: stages/<id>.ts",
+  E096: "A battle that can't be set out: its space has no tilemap, or a unit stands on no object of it, on a tile that can't be walked, or on another's",
   W101: 'A file under records/ that the compiler ignores',
   W102: 'A condition can never be true',
   W103: 'A condition can never be false',
@@ -158,6 +159,7 @@ export const DIAGNOSTIC_CODES = {
   W157: "A walker placed in a tilemap's space where it can't stand: on a cell that isn't walkable, or off the map",
   W158: "A building's floor no stair reaches from the ground: walkers sent to its rooms can't get there",
   W159: "A stage file no space's stage reaches, by name or by import: it is left out of the pack",
+  W160: "A battle's unit whose actor has no gun: it can't shoot, watch or reload",
 } as const;
 
 export type DiagnosticCode = keyof typeof DIAGNOSTIC_CODES;
