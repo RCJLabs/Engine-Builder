@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 import { compileWithGame, memorySource } from '@eb/compiler';
 import { type Action, canonicalJson } from '@eb/core';
 import type { BattleView } from '@eb/kits';
-import { type Opened, openPack, type Play, startPlay } from '@eb/ui/session';
+import { battleOf, type Opened, openPack, type Play, startPlay, toldAfter } from '@eb/ui/session';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { stageBattleOf } from './forStage.ts';
 import { actionOf, cancel, choicesOf, type Picking, previewsOf, settle, stepCursor, tap } from './pick.ts';
@@ -107,6 +107,7 @@ describe('picking', () => {
     expect(stepCursor(view(), picking, [1, 0], [11, 5]).cursor).toEqual([at[0] + 1, at[1]]);
     const corner = stepCursor(view(), { cursor: [0, 0] }, [-1, -1], [11, 5]);
     expect(corner.cursor).toEqual([0, 0]);
+    expect(stepCursor(view(), { cursor: [10, 4] }, [1, 1], [11, 5]).cursor).toEqual([10, 4]);
   });
 
   it('settles on a new view: a preview no longer offered goes, the selection moves to one with choices', () => {
@@ -144,6 +145,41 @@ describe('playback', () => {
     for (const unit of play.view.world?.battle?.view?.units ?? [])
       if (unit.status === 'active') expect(end.units.get(unit.id)?.at, unit.id).toEqual(unit.at);
     expect(lengthOf(actsOf(told, true))).toBe(0);
+  });
+
+  it('takes a shot’s damage once it has been shown, and lays a unit down as its beat says', () => {
+    const before = new Map([['c1', { at: [2, 1] as const, status: 'active' as const, hp: 10 }]]);
+    const acts = actsOf(
+      [
+        { type: 'tactics/shot', unit: 'e1', target: 'c1', hit: true, damage: 4 },
+        { type: 'tactics/down', unit: 'c1' },
+      ],
+      false,
+    );
+    expect(playAt(acts, before, 0)).toMatchObject({ shot: { from: 'e1', to: 'c1', hit: true } });
+    expect(playAt(acts, before, 0).units.get('c1')?.hp).toBe(10);
+    const end = playAt(acts, before, lengthOf(acts));
+    expect(end.units.get('c1')).toEqual({ at: [2, 1], status: 'down', hp: 6 });
+    expect(end.shot).toBeUndefined();
+  });
+});
+
+describe('the beats a stage plays back', () => {
+  it('are the last step’s that had any, kept through a step with none, and only the battle’s own', () => {
+    const { play } = fight();
+    const { content } = opened.setup.sim;
+    const tiles = opened.setup.tiles ?? {};
+    const before = play.state;
+    expect(play.act({ type: 'tactics/end' }).accepted).toBe(true);
+    const shown = play.view.world?.battle;
+    expect(shown?.told.length).toBeGreaterThan(0);
+    const last = { space: 'deck', battle: 'boarders', beats: shown?.told ?? [], step: shown?.step ?? 0 };
+    // A step with no tactics beats keeps the last ones, so they are played back once and not lost.
+    expect(toldAfter(last, before, play.state, [{ type: 'world/used' }], content)).toBe(last);
+    // Another battle's beats are never shown on this one.
+    const other = battleOf(play.state, content, tiles, { ...last, battle: 'raid', step: 99 });
+    expect([other?.told, other?.step]).toEqual([[], 0]);
+    expect(battleOf(play.state, content, tiles, last)?.told).toEqual(last.beats);
   });
 });
 

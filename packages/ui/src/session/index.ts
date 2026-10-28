@@ -1,3 +1,4 @@
+export { type BattleShown, battleOf, type Told, toldAfter } from './battle.ts';
 export {
   type Loaded,
   type Opened,

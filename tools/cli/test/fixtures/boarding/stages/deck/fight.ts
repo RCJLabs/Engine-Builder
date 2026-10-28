@@ -4,7 +4,7 @@
 // and the boarders in theirs (data/enemies.json), lying once down; the orders as marks on the deck
 // (units.js ordersScene). Over the board go each unit's health, the keyboard's cursor and a shot's tracer,
 // which are this stage's own. A tap is turned back into the tile under it, a unit's figure first.
-import type { StageBattle, StageUnit } from 'eb/stage';
+import type { StageBattle, StageUnit, StageWalker } from 'eb/stage';
 import { ENEMIES, JOBS, WEAPONS } from '../space-wrecked/data/content.ts';
 import type { Figure } from '../space-wrecked/render/figures/sprites.ts';
 import { type Cam, project, unproject } from '../space-wrecked/render/orbit.ts';
@@ -135,6 +135,12 @@ export function createFight(origin: Pair, size: Pair, records: Readonly<Record<s
 }
 
 const xy = ([x, y]: Tile) => ({ x, y });
+
+/** The walkers the board still draws as walkers: none of the actors a battle draws as its units. */
+export function walkersBeside(walkers: readonly StageWalker[], battle: StageBattle | undefined): StageWalker[] {
+  const fighting = new Set(battle?.units.map((u) => u.actor) ?? []);
+  return walkers.filter((w) => !fighting.has(w.actor));
+}
 
 function toward(from: readonly number[], to: readonly number[]): [number, number] {
   const [dx, dy] = [(to[0] as number) - (from[0] as number), (to[1] as number) - (from[1] as number)];

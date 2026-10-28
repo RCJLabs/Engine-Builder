@@ -157,6 +157,15 @@ describe('the battle’s figures and marks', () => {
   });
 });
 
+describe('the walkers beside a battle', () => {
+  it('are those whose actors the battle doesn’t draw as its units, all of them with no battle', () => {
+    const { walkersBeside } = load<{ walkersBeside(w: unknown[], b: unknown): { actor: string }[] }>('deck/fight');
+    const walkers = [{ actor: 'ines' }, { actor: 'oren' }, { actor: 'cook' }];
+    expect(walkersBeside(walkers, battleOf()).map((w) => w.actor)).toEqual(['cook']);
+    expect(walkersBeside(walkers, undefined).map((w) => w.actor)).toEqual(['ines', 'oren', 'cook']);
+  });
+});
+
 describe('the battle on the stage', () => {
   it('draws health over the units, the cursor and a tracer, only with a battle', () => {
     const stage = start();
@@ -210,6 +219,17 @@ describe('the battle on the stage', () => {
     const above = { kind: 'tap', x: ix, y: edge - 3 };
     expect(bare(above.y)).toEqual([9, 0]);
     expect(stage.frame(g, frameOf(battleOf(), [above])).picked).toEqual([9, 1]);
+    // Sideways, where the box's height sets the fit, the whole board still stands above the bar.
+    const side = start();
+    const wide = new Canvas(844, 390).getContext();
+    const found = new Set<string>();
+    for (let y = 4; y < 390 - 150; y += 6)
+      for (let x = 4; x < 844; x += 6) {
+        const tapped = { ...frameOf(battleOf({ units: [], inset: 150 }), [{ kind: 'tap', x, y }]), w: 844, h: 390 };
+        const picked = side.frame(wide, tapped).picked;
+        if (picked) found.add(picked.join());
+      }
+    expect(found.size).toBe(11 * 5);
     // Without a battle a tap is the stage's own and picks nothing.
     expect(stage.frame(g, frameOf(undefined, [{ kind: 'tap', x: ix, y: iy }])).picked).toBeUndefined();
   });

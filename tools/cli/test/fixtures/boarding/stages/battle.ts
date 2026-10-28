@@ -11,7 +11,7 @@ import { deckBoard } from './deck/battle-map.ts';
 import { type BoardCamera, createCamera } from './deck/camera.ts';
 import { type Crew, createCrew } from './deck/crew.ts';
 import { boardPoint, type Deck, findDeck } from './deck/deck.ts';
-import { type BoardFight, createFight, type Drawn } from './deck/fight.ts';
+import { type BoardFight, createFight, type Drawn, walkersBeside } from './deck/fight.ts';
 import { battleBoxes } from './space-wrecked/render/battle-scene.ts';
 import { type BattleBoard, createBattleBoard } from './space-wrecked/render/battle-view.ts';
 import type { Figure } from './space-wrecked/render/figures/sprites.ts';
@@ -71,11 +71,7 @@ export default defineStage({
     const battle = f.battle;
     // The board above the bar while a battle is fought.
     const { cam, rect } = run.camera.frame({ ...f, h: Math.max(1, f.h - (battle?.inset ?? 0)) });
-    const fighting = new Set(battle?.units.map((u) => u.actor) ?? []);
-    const walking = run.crew.frame(
-      f.walkers.filter((w) => !fighting.has(w.actor)),
-      f.still,
-    );
+    const walking = run.crew.frame(walkersBeside(f.walkers, battle), f.still);
     const fought = run.fight.frame(battle, f.still);
     if (walking || fought) {
       run.walking = walking ?? run.walking;
