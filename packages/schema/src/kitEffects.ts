@@ -32,6 +32,7 @@ import { ENCOUNTER_EFFECT_FILES } from './encounterEffects.ts';
 import { EVENT_EFFECT_FILES } from './eventEffects.ts';
 import { MAP_EFFECT_FILES } from './mapEffects.ts';
 import { QUEST_EFFECT_FILES } from './questEffects.ts';
+import { TACTICS_EFFECT_FILES } from './tacticsTypes.ts';
 import { timeEffectFiles, timeEffectSchemas } from './timeEffects.ts';
 import type { Fields } from './typeFile.ts';
 import { fieldShape } from './typeSchema.ts';
@@ -272,6 +273,7 @@ const FILES: EffectFile[] = [
   ...QUEST_EFFECT_FILES,
   ...MAP_EFFECT_FILES,
   ...ENCOUNTER_EFFECT_FILES,
+  ...TACTICS_EFFECT_FILES,
 ];
 
 export const KIT_EFFECT_FILES: readonly EffectFile[] = Object.freeze(FILES);

@@ -3,11 +3,13 @@
  * runs as for any 2D space (walkers, arrivals, clock, uses), and the drawing is the stage's, in its
  * worker on the canvas handed to it. Each animation frame the walk steps; a frame goes to the worker
  * only once it answered the last. The uses are the page's own buttons where the stage says they are.
- * A stage that throws is stopped and said over the box; the space goes on.
+ * A stage that throws is stopped and said over the box; the space goes on. Since M7.5 a battle on the space's
+ * tilemap is played through the page's bar (battle2d/onCode.ts) and drawn by the stage from Frame.battle.
  */
 import { FIT_DEFAULT, type SpaceJson } from '@eb/compiler';
 import type { PackWorld } from '@eb/core';
 import type { SpaceAsk, SpaceDrawn } from '@eb/ui';
+import { battleOnCode } from '../battle2d/onCode.ts';
 import { publishHook } from '../stage2d/hook.ts';
 import type { Rect } from '../stage2d/place.ts';
 import { placesOf, sceneOf } from '../stage2d/scene.ts';
@@ -49,7 +51,10 @@ export async function startCodeStage(
   const inputs = captureInput(canvas);
   const buttons = createUseButtons(box, sim.use, () => {});
   const usesHere = () => sim.usesOf(new Set(items.map((i) => i.path)));
-  buttons.set(usesHere());
+  // While a battle is fought its bar is the only thing to press (M7.5).
+  let fighting = false;
+  const showUses = () => buttons.set(fighting ? [] : usesHere());
+  showUses();
 
   let frames = 0;
   let lastMs = 0;
@@ -65,6 +70,13 @@ export async function startCodeStage(
     buttons.placeAt(boxes);
   };
   buttons.placeAt(boxes);
+  const battle = tiles
+    ? battleOnCode(box, canvas, ask, world, tiles, (on) => {
+        fighting = on;
+        showUses();
+        buttons.placeAt(boxes);
+      })
+    : undefined;
 
   const start: Start = {
     space: ask.space,
@@ -89,10 +101,11 @@ export async function startCodeStage(
   const client = offscreen
     ? startStageWorker(canvas.transferControlToOffscreen(), world.stages ?? {}, entry, start, {
         started: () => {},
-        drew: (uses, ms) => {
+        drew: (uses, ms, picked) => {
           frames++;
           lastMs = ms;
           if (uses) placeUses(uses);
+          if (picked) battle?.picked(picked);
         },
         failed: fail,
       })
@@ -112,6 +125,8 @@ export async function startCodeStage(
     const dt = Math.min(FRAME_CAP_S, (now - last) / 1000);
     last = now;
     sim.step(dt, now);
+    // Every frame, so the playback and the bar keep the page's time whether or not the worker takes this one.
+    const fight = battle?.frame(now);
     // Input waits for a frame the worker will take, so none is lost to a dropped frame.
     if (!client?.idle() || error !== undefined) return;
     const input = inputs.take();
@@ -125,6 +140,7 @@ export async function startCodeStage(
         still,
         walkers: sim.walkers.values(),
         world: { here: ask.here(), fight: ask.fight?.(), markers: ask.markers?.() ?? [] },
+        ...(fight ? { battle: fight } : {}),
         taken,
         input: sim.paused() ? [] : input,
       }),
@@ -161,6 +177,7 @@ export async function startCodeStage(
     clock: sim.clockHook,
     look: () => {},
     boxOf: () => undefined,
+    battle: () => battle?.hook(),
     code: () => ({
       stage: entry,
       frames,
@@ -179,7 +196,7 @@ export async function startCodeStage(
     taken(paths) {
       taken = new Set(paths);
       items = sceneOf(space, world.prefabs, record, taken);
-      buttons.set(usesHere());
+      showUses();
       buttons.placeAt(boxes);
     },
     npcs: sim.npcs,
@@ -189,6 +206,7 @@ export async function startCodeStage(
       sized.disconnect();
       sim.stop();
       client?.stop();
+      battle?.stop();
       inputs.stop();
       buttons.stop();
       hideError();

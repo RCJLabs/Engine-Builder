@@ -259,7 +259,7 @@ const signed = (by: number) => (by < 0 ? `−${-by}` : `+${by}`);
 
 /** The encounters kit's effect (M4.7): "fight raiders", "fight bandits with crixus: hit +15, dodge −15". */
 function fightText(effect: Record<string, unknown>): string | undefined {
-  if (effect.effect !== 'fight') return undefined;
+  if (effect.effect !== 'fight') return battleText(effect);
   const fighters =
     Array.isArray(effect.fighters) && effect.fighters.length > 0 ? ` with ${effect.fighters.join(' and ')}` : '';
   const stance = ['hit', 'dodge', 'damage', 'armour'].flatMap((key) => {
@@ -267,6 +267,14 @@ function fightText(effect: Record<string, unknown>): string | undefined {
     return typeof by === 'number' && by !== 0 ? [`${key} ${signed(by)}`] : [];
   });
   return `fight ${named(effect.encounter, 'an encounter')}${fighters}${stance.length > 0 ? `: ${stance.join(', ')}` : ''}`;
+}
+
+/** The tactics kit's effect (M7.5): "start the battle boarders". */
+function battleText(effect: Record<string, unknown>): string | undefined {
+  if (effect.effect !== 'start-battle') return undefined;
+  return typeof effect.battle === 'string' && effect.battle !== ''
+    ? `start the battle ${effect.battle}`
+    : 'start a battle not yet chosen';
 }
 
 /** "Do: set met-trader to on, then roll 70 / 30", or "Does nothing yet". */

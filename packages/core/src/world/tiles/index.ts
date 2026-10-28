@@ -1,4 +1,7 @@
-/** Tilemaps in the pure core (M7.2, D84, docs/specs/tilemaps.md): the grid, sight, cover, routes and map text. */
+/**
+ * Tilemaps in the pure core (M7.2, D84, docs/specs/tilemaps.md): the grid, sight, cover, routes and map text;
+ * and a battle's doors and reach (M7.5, D87).
+ */
 export { coverFrom, coverOnSide } from './cover.ts';
 export { tileOf } from './facts.ts';
 export {
@@ -32,5 +35,6 @@ export {
   trimLines,
 } from './mapText.ts';
 export { TILES_MOST, tilesProblem } from './pack.ts';
+export { edgeKey, type Holder, reach, type Spot, sideToward, stepsFrom, tileKey, withEdges } from './reach.ts';
 export { canStep, route } from './route.ts';
 export { lineOfSight } from './sight.ts';

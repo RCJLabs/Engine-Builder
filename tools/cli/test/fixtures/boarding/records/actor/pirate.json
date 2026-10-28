@@ -1,0 +1,12 @@
+{
+  "name": "Pirate",
+  "description": "A boarder from the airlock.",
+  "stats": {
+    "health": 7,
+    "aim": 60,
+    "defense": 0,
+    "armor": 0,
+    "mobility": 4
+  },
+  "gun": "carbine"
+}

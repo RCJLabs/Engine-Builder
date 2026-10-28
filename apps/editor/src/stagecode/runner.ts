@@ -83,7 +83,12 @@ export function createStageRunner(post: (message: FromStage) => void, now: () =>
     } finally {
       g.restore();
     }
-    post({ kind: 'drew', ms: now() - began, ...(drew?.uses !== undefined ? { uses: drew.uses } : {}) });
+    post({
+      kind: 'drew',
+      ms: now() - began,
+      ...(drew?.uses !== undefined ? { uses: drew.uses } : {}),
+      ...(drew?.picked !== undefined ? { picked: [drew.picked[0], drew.picked[1]] as const } : {}),
+    });
   };
 
   return {

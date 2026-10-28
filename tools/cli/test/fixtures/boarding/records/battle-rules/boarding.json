@@ -1,0 +1,8 @@
+{
+  "name": "Boarding",
+  "health": "health",
+  "aim": "aim",
+  "defense": "defense",
+  "armor": "armor",
+  "mobility": "mobility"
+}

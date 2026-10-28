@@ -140,7 +140,8 @@ for (const { viewport, touch } of [
         await expect
           .poll(
             async () =>
-              ((await stored(page, FOLDER, 'spaces/hold.json')) as { objects: { at: number[] }[] }).objects[0]?.at,
+              ((await stored(page, FOLDER, 'spaces/hold.json')) as { objects: { at: number[] }[] } | null)?.objects[0]
+                ?.at,
           )
           .toEqual([72, 50, 0]);
         await expectFits(page);
@@ -210,8 +211,8 @@ for (const { viewport, touch } of [
         await expect
           .poll(async () =>
             (
-              (await stored(page, FOLDER, 'spaces/hold.json')) as { objects: { id: string; record?: string }[] }
-            ).objects.find((o) => o.record === 'actor:ines'),
+              (await stored(page, FOLDER, 'spaces/hold.json')) as { objects: { id: string; record?: string }[] } | null
+            )?.objects.find((o) => o.record === 'actor:ines'),
           )
           .toBeDefined();
       });

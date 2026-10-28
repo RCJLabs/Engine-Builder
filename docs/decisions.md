@@ -2682,6 +2682,47 @@ Evan chose on 2026-10-27, from these options:
 - **The port is 3,080 lines,** the types added, each file in Space-Wrecked's own layout. Its camera's input (a drag turns and tilts, a twist turns, the wheel and a pinch zoom, the arrows turn) is the port's own choice, since Space-Wrecked pans with one finger.
 - **A browser with no 2D OffscreenCanvas** (Safari before 16.4) shows why over the box, and the space goes on without its drawing.
 
+### D87. M7.5's four genre kits come one to a milestone, in the order Proof #3 needs them: grid tactics (M7.5), the builder (M7.6), the ranked squad (M7.7) and tower defense (M7.8). Tactics takes Space-Wrecked's boarding rules whole, sides taking turns with no fog, and its demo is the boarding deck held against boarders. LOCKED, 2026-10-28 (Evan's calls, M7.5)
+
+Evan chose on 2026-10-28, from these options ([research/kits-iii.md](research/kits-iii.md)):
+- **The split:** four milestones, in Proof #3's order; tactics and the builder now, the squad and tower defense after Proof #3; or all four kits in one milestone.
+- **Tactics' scope:** Space-Wrecked's boarding rules whole, with no fog of war; the core now and the seven orders and bleed-out later; or the whole rules with the grab and hack objectives and the round deadline.
+- **The demo:** the boarding deck, Ines and Oren holding it against boarders; a fresh small map; or Space-Wrecked's example battle, held to its recorded rolls.
+
+**Decision.**
+- **One kit a milestone:** M7.5 grid tactics, M7.6 the builder, M7.7 the ranked squad, M7.8 tower defense. Templates move to M7.9 and Proof #3 to M7.10. D84 to D86 name M7.5 for the kits and M7.7 for Proof #3 as they stood then: the tactics D84 left over (doors, welds, rubble, units that block) is M7.5's, the builder D85 promised is M7.6's, and Proof #3 is M7.10.
+- **Tactics takes Space-Wrecked's boarding rules whole.**
+  - Sides take turns. Each unit has 2 action points: a move within its mobility costs 1, a dash within twice it costs 2, and a shot or overwatch ends its turn.
+  - A unit on overwatch fires once at each enemy that steps into its sight, partway through that enemy's move.
+  - The seven job orders (suppress, weld, patch, hustle, mark, sedate, kit) come as data.
+  - Downed crew bleed out over 3 turns.
+  - The enemy plays by Space-Wrecked's AI.
+  - A shot's odds are shown exactly as they are rolled.
+  - Sight is 20 tiles and a clear line. There is no fog of war: no repo in the portfolio has one.
+- **The demo is the boarding deck,** M7.2's deck drawn by M7.4's ported battle board, Ines and Oren holding it against boarders from the airlock.
+- **The other kits' calls are put when each begins:** the builder's (top-down, side-view or both), the squad's (progression, a line fight or both) and tower defense's (lanes or mazing, building between waves or live), research note calls 3 to 5.
+
+**Also settled, as the session's calls** (2026-10-28, engineering calls that follow from the above and from docs/research/tactics.md; [specs/tactics.md](specs/tactics.md)):
+- **A battle is the tactics kit's own slice,** one at a time: units at tiles, with their own hp, ap and ammo, the doors open and welded, the round and the side. Its units are read from actors when it starts and are not the world's walkers. Door state lives in the battle, as Space-Wrecked's does: walkers outside a battle still pass every door.
+- **Records:** `battle-rules` (the stats it reads and its numbers, each with Space-Wrecked's value when left out), `gun`, `order` (a kind of the seven and the one number it reads), an actor's `gun` and `order`, and `battle` (a space, the crew and foes on its objects, win and lose effects). The stats kit must be on.
+- **Played as actions,** `tactics/move`, `shoot`, `watch`, `reload`, `steady`, `open`, `order` and `end`, each listing its options for bots. The foes' turn is played inside the step that hands it to them, its beats kept for the stage to play back.
+- **Odds as rolled:** `tactics.hit` and `tactics.crit` are facts from the same `shotOdds` the shot rolls, and the stage's battle view calls it as the sim does.
+- **Rolls** come from the kernel's `rng('battle')` (written `rng('tactics')` here until M7.5 was built) in Space-Wrecked's order, through a small interface the golden test feeds Space-Wrecked's own generator through, so its 33-line battle can be held word for word.
+- **The AI is scored in whole numbers,** harm in millionths. It may part from Space-Wrecked at near ties, which its ported tests show.
+- **Core's tiles gain** door state laid over a grid, Space-Wrecked's budgeted reach, and steps from many tiles at once.
+- **The page's battle controller is Space-Wrecked's `fight.js`:** a tap previews, a second tap or Confirm sends. Its action bar is buttons of 44 px at least, its targets a list with their odds, and the arrow keys move a cursor. A stage drawn in code gets the battle in each frame and returns the tile under a tap.
+- **Not in M7.5:** objectives, the deadline, hazards (rubble among them, which pack format 18 has no room for), difficulty, ranks' numbers for orders (M7.7), and deploy by bridge and hatches.
+
+**Why.**
+- **One kit a milestone** keeps each one's records, checks, forms, fixture and phone gate the size of a milestone so far. The encounters kit alone was about 600 lines of sim.
+- **Proof #3's order:** its boarding fight is the tactics kit played on M7.2's deck, and its ship builder is the builder's top-down placement. The squad and tower defense are not in Proof #3 at all, and tower defense brings the riskiest new piece, a fixed-tick sim, so it goes last.
+- **The whole rules** are what Proof #3 plays, and Space-Wrecked's golden battle records every roll for a port to be held to.
+- **The boarding deck** reuses M7.2's map and M7.4's painter, so the demo is the fight Proof #3 needs.
+
+**Cost.**
+- **Seven milestones** stand between M7.4 and Proof #3, where three did.
+- **The whole rules are a large first kit:** Space-Wrecked's battle sim is about 1,700 lines, its AI scored in fractions that the sim must score in whole numbers.
+
 ---
 
 ## Open

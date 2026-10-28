@@ -18,12 +18,14 @@ import {
   ITEM,
   RESOURCE,
   SIGHT_M,
+  TACTICS,
   TALK,
 } from '@eb/kits';
 import { ANIMATOR } from './animatorTypes.ts';
 import { FALLING_FIELDS } from './fightingTypes.ts';
 import { MODEL } from './modelTypes.ts';
 import { SPRITE } from './spriteTypes.ts';
+import { TACTICS_ACTOR_FIELDS } from './tacticsTypes.ts';
 import type { Fields } from './typeFile.ts';
 
 const LOOK: Fields = {
@@ -151,12 +153,13 @@ const BY_KIT: Readonly<Record<string, Fields>> = {
     },
   },
   [FIGHTING]: FALLING_FIELDS,
+  [TACTICS]: TACTICS_ACTOR_FIELDS,
 };
 
 /** An actor's NPC fields with these kits on: the look first, then each kit's in the kits' order. */
 export function npcFields(on: readonly string[]): Fields {
   const fields: Record<string, Fields[string]> = { ...LOOK };
-  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, ECONOMY, AI, FIGHTING])
+  for (const kit of [DIALOGUE, FACTIONS, INVENTORY, ECONOMY, AI, FIGHTING, TACTICS])
     if (on.includes(kit)) Object.assign(fields, BY_KIT[kit]);
   return fields;
 }

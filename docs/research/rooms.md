@@ -24,7 +24,7 @@ The only side view with floors and stairs in any of them, and the one M7.3 follo
 
 - **Top-down, not a side view** (`src/sim/builder.js:2-4`): modules with a size, a rotation and tags placed on a frame's grid.
 - **Its placement checks** (`builder.js:65-91, 376-474`): an error with its rule, a message and the modules involved, for a bad type, a cap, bounds or overlap; then whole-ship checks, everything connected to the bridge among them. Doorways are worked out, one in the middle of each shared wall.
-- Opinion: a room's checks should read the same way (which rule, which rooms), and M7.5's base builder can take its plan-then-apply and its "connected to a root" check.
+- Opinion: a room's checks should read the same way (which rule, which rooms), and M7.6's builder (D87) can take its plan-then-apply and its "connected to a root" check.
 
 ## What M7.3 takes
 
@@ -34,5 +34,5 @@ The only side view with floors and stairs in any of them, and the one M7.3 follo
 
 ## Open questions
 
-1. Doors between rooms on a floor: afterglass's walkers pass freely; a locked room is M7.5's.
+1. Doors between rooms on a floor: afterglass's walkers pass freely; a locked room is M7.6's builder's (D87).
 2. Routes that avoid a stair (afterglass's wards and light): a per-walker filter belongs with the kit that needs it.

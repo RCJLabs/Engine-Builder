@@ -23,6 +23,7 @@ export type FromStage =
   | {
       readonly kind: 'drew';
       readonly uses?: Drew['uses'];
+      readonly picked?: Drew['picked'];
       /** How long `frame` took, in milliseconds. */
       readonly ms: number;
     }

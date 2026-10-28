@@ -1,6 +1,6 @@
 {
   "title": "The boarding deck",
-  "shows": ["shift"],
+  "shows": ["shift", "battle"],
   "top": {
     "widget": "stack",
     "direction": "row",
@@ -25,7 +25,22 @@
       {
         "widget": "text",
         "text": "The alarm is sounding.",
-        "shows-when": "flag.on(alarm)"
+        "shows-when": "flag.on(alarm) and not tactics.in-battle and not flag.on(won) and not flag.on(lost)"
+      },
+      {
+        "widget": "text",
+        "text": "Round {tactics.round}",
+        "shows-when": "tactics.in-battle"
+      },
+      {
+        "widget": "text",
+        "text": "The boarders are beaten.",
+        "shows-when": "flag.on(won)"
+      },
+      {
+        "widget": "text",
+        "text": "The boarders hold the ship.",
+        "shows-when": "flag.on(lost)"
       }
     ]
   },

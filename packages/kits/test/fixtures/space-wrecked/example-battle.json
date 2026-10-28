@@ -1,0 +1,29 @@
+{
+  "seed": "example battle",
+  "units": [
+    { "kind": "marine", "x": 9, "y": 2 },
+    { "kind": "engineer", "x": 9, "y": 3 },
+    { "kind": "medic", "x": 10, "y": 3 },
+    { "kind": "pirate", "x": 5, "y": 4 },
+    { "kind": "pirate", "x": 6, "y": 4 },
+    { "kind": "brute", "x": 4, "y": 4 }
+  ],
+  "actions": [
+    { "type": "move", "unit": "c1", "to": [6, 3] },
+    { "type": "open", "unit": "c1", "side": "s" },
+    { "type": "move", "unit": "c2", "to": [7, 3] },
+    { "type": "shoot", "unit": "c2", "target": "e1" },
+    { "type": "move", "unit": "c3", "to": [8, 3] },
+    { "type": "shoot", "unit": "c3", "target": "e1" },
+    { "type": "shoot", "unit": "e2", "target": "c1" },
+    { "type": "move", "unit": "e3", "to": [5, 3] },
+    { "type": "open", "unit": "e3", "side": "e" },
+    { "type": "shoot", "unit": "c1", "target": "e2" },
+    { "type": "shoot", "unit": "c2", "target": "e3" },
+    { "type": "shoot", "unit": "c3", "target": "e3" },
+    { "type": "shoot", "unit": "e3", "target": "c1" },
+    { "type": "shoot", "unit": "c1", "target": "e3" },
+    { "type": "shoot", "unit": "c2", "target": "e3" },
+    { "type": "shoot", "unit": "c3", "target": "e3" }
+  ]
+}

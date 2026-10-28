@@ -2,10 +2,12 @@
  * The spaces' and prefabs' problems that need the records (M5.2, D64): components against their
  * kinds, placed records and every override, as compileProject checks them (checkProjectSpaceParts),
  * and every reference they hold, which "used by" lists beside the records'; and project.json's
- * fighting, whose player must stand in no space (M6.4). Read again after every change, once the
- * record index is.
+ * fighting, whose player must stand in no space (M6.4); and each battle's space and posts (E096, M7.5).
+ * Read again after every change, once the record index is.
  */
+
 import {
+  checkBattles,
   checkMapFiles,
   checkNavFiles,
   checkProjectSpaceParts,
@@ -23,6 +25,7 @@ import {
   spaceTagsOf,
   walkersOf,
 } from '@eb/compiler';
+import { TACTICS } from '@eb/kits';
 import { checkFightingNames, compareText, type Diagnostic, type FlagUses, knownFrom, type Walkers } from '@eb/schema';
 import type { Catalog } from '../forms/catalog.ts';
 import { recordLookup } from '../records/lookup.ts';
@@ -115,10 +118,24 @@ export async function spaceProblems(
   for (const use of found.uses) users.set(use.key, [...(users.get(use.key) ?? []), use]);
   for (const list of users.values()) list.sort((a, b) => compareText(a.file, b.file) || compareText(a.path, b.path));
   const fought = fightingProblems(catalog, index, walkers);
+  // Each battle against its space's tilemap (M7.5), as compileProject checks it with the tactics kit on.
+  const battles = catalog.kits.includes(TACTICS)
+    ? checkBattles(
+        [...index.records.values()].map((r) => ({
+          type: r.type,
+          id: r.id,
+          file: r.file,
+          value: r.value,
+          ...(r.unreadable !== undefined ? { unreadable: true } : {}),
+        })),
+        read.files,
+        value,
+      )
+    : [];
   const objects = spaceObjectsOf(read.files, prefabs);
   const tags = spaceTagsOf(read.files, prefabs);
   return {
-    problems: [...found.diagnostics, ...navs, ...maps, ...fought],
+    problems: [...found.diagnostics, ...navs, ...maps, ...fought, ...battles],
     users,
     flags: { ...found.flags, spawns, walkers, objects, tags },
   };

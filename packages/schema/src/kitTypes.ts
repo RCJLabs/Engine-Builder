@@ -39,6 +39,7 @@ import {
   STAT,
   STATS,
   STATUS,
+  TACTICS,
   TALK,
 } from '@eb/kits';
 import { BEHAVIOUR_TYPE_FILE, behaviourData } from './aiTypes.ts';
@@ -52,6 +53,7 @@ import { mapTypeFile, NODE_KIND_TYPE_FILE } from './mapTypes.ts';
 import { QUEST_TYPE_FILE } from './questTypes.ts';
 import { HALL_TYPE_FILE, ROSTER_TYPE_FILE, recruitTypeFile } from './rosterTypes.ts';
 import { actorTypeFile, SLOT_TYPE_FILE, STAT_TYPE_FILE, STATUS_TYPE_FILE, WORN_ITEM_FIELDS } from './statTypes.ts';
+import { TACTICS_TYPE_FILES } from './tacticsTypes.ts';
 import type { FieldDef, Fields, TypeFile } from './typeFile.ts';
 import { type DataType, typeFromFile } from './typeSchema.ts';
 
@@ -284,6 +286,7 @@ const OWN_TYPES: Readonly<Record<string, (on: readonly string[]) => Readonly<Rec
   [MAPS]: (on) => ({ [NODE_KIND]: NODE_KIND_TYPE_FILE, [MAP]: mapTypeFile(on.includes(ECONOMY)) }),
   [ENCOUNTERS]: () => ({ [COMBAT]: COMBAT_TYPE_FILE, [ENCOUNTER]: ENCOUNTER_TYPE_FILE }),
   [AI]: () => ({ [BEHAVIOUR]: BEHAVIOUR_TYPE_FILE }),
+  [TACTICS]: () => TACTICS_TYPE_FILES,
 };
 
 /** The type files of the kits on, by type name, in the kits' order. */

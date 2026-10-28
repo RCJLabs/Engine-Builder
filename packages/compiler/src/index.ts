@@ -4,6 +4,7 @@
  * @eb/schema. The runtime never imports it; it reads packs through @eb/core's readPack.
  */
 
+export { checkBattles, fightersOf } from './battles.ts';
 export {
   BUILDING,
   type BuildingFields,

@@ -1,0 +1,6 @@
+{
+  "name": "Health",
+  "description": "What a boarder's shot takes; at 0 a crew member is down.",
+  "min": 0,
+  "max": 99
+}

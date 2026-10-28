@@ -1,8 +1,9 @@
 // biome-ignore-all format: Space-Wrecked's own layout, so the port reads line for line against its source
 // What the board reads of Space-Wrecked's data files, copied as they stand:
 // the tiles legend (data/modules.json "tiles"), each crew job's look
-// (data/jobs.json) and the held shape of the weapon it carries
-// (data/weapons.json). A stage reads no files, so these are its own.
+// (data/jobs.json), the boarders' looks (data/enemies.json, since M7.5) and
+// the held shape of the weapon it carries (data/weapons.json). A stage reads
+// no files, so these are its own.
 import type { Held, Look } from '../render/figures/looks.ts';
 
 // data/modules.json: a room's interior template's characters.
@@ -24,6 +25,12 @@ export const JOBS: Record<string, { name: string; look: Look; weapon: string }> 
   scout: { name: 'Scout', look: { suit: 'skinsuit', build: 'light', helmet: 'mirror', back: 'spine', marks: 'seams' }, weapon: 'longrifle' },
   xenobiologist: { name: 'Xenobiologist', look: { suit: 'eva', build: 'standard', helmet: 'bar', back: 'tanks', marks: 'plain' }, weapon: 'dartgun' },
   quartermaster: { name: 'Quartermaster', look: { suit: 'skinsuit', build: 'heavy', helmet: 'crest', back: 'spine', marks: 'plates' }, weapon: 'carbine' },
+};
+
+// data/enemies.json: the boarders' looks and weapons.
+export const ENEMIES: Record<string, { name: string; look: Look; weapon: string }> = {
+  pirate: { name: 'Pirate', look: { suit: 'skinsuit', build: 'standard', helmet: 'crest', back: 'none', marks: 'plates' }, weapon: 'carbine' },
+  brute: { name: 'Pirate brute', look: { suit: 'skinsuit', build: 'heavy', helmet: 'egg', back: 'spine', marks: 'plates' }, weapon: 'shotgun' },
 };
 
 // data/weapons.json: each weapon's shape in hand.

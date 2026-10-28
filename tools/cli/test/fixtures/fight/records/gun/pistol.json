@@ -1,0 +1,15 @@
+{
+  "name": "Pistol",
+  "damage": {
+    "least": 2,
+    "most": 4
+  },
+  "accuracy": {
+    "close": 15,
+    "mid": 0,
+    "long": -15
+  },
+  "crit": 10,
+  "crit-damage": 1,
+  "clip": 6
+}

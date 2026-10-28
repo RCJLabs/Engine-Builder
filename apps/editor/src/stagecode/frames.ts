@@ -1,10 +1,10 @@
 /**
  * The frame a stage is given (M7.4, D86, docs/specs/stages.md#the-api), as a plain function of what
  * stage2d's sim side and the page know: the times on the page's clock, the box, the walkers as stage2d
- * walks them (art pixels, facing by their flip), what the Space widget reads, what was taken, and the
- * input since the last frame the worker took.
+ * walks them (art pixels, facing by their flip), what the Space widget reads, a battle as the page shows it
+ * (M7.5), what was taken, and the input since the last frame the worker took.
  */
-import type { Frame, StageInput } from './api.ts';
+import type { Frame, StageBattle, StageInput } from './api.ts';
 
 /** The most a frame moves anything, in seconds, as stage2d's: a hidden tab's long gap isn't a leap. */
 export const FRAME_CAP_S = 0.1;
@@ -26,6 +26,7 @@ export interface FrameFacts {
     readonly moving: boolean;
   }>;
   readonly world: Frame['world'];
+  readonly battle?: StageBattle;
   readonly taken: Iterable<string>;
   readonly input: readonly StageInput[];
 }
@@ -45,6 +46,7 @@ export function frameOf(facts: FrameFacts): Frame {
       moving: w.moving,
     })),
     ...(facts.world !== undefined ? { world: facts.world } : {}),
+    ...(facts.battle !== undefined ? { battle: facts.battle } : {}),
     taken: [...facts.taken].sort(),
     input: facts.input,
   };

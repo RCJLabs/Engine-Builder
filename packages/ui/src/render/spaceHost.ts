@@ -4,6 +4,7 @@
  * the player page and an exported game are hosts. Without one, the box says where it is walked.
  */
 import type { Action } from '@eb/core';
+import type { BattleShown } from '../session/battle.ts';
 import type { FightView } from '../session/fighting.ts';
 import type { QuestMarker } from '../session/markers.ts';
 
@@ -51,6 +52,8 @@ export interface SpaceAsk {
   clocked?(): boolean;
   /** The fights as the sim has them now (M6.4, D76): none in a game without the fighting kit. */
   fight?(): FightView | undefined;
+  /** The battle on this space as the sim has it now (M7.5, D87), and the last step's beats to play back. */
+  battle?(): BattleShown | undefined;
   /**
    * The tracked quest's open targets as the sim has them now (M6.6, D78), read each frame: none when
    * the shell's Quest markers setting is off.

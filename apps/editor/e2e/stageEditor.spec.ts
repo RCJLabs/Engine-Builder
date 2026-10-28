@@ -183,7 +183,16 @@ for (const { viewport, touch } of [
           .toEqual([30, 20]);
 
         await press(alarm, touch);
-        await expect(game(page).getByText('The alarm is sounding.')).toBeVisible();
+        // CI's 390 run once saw no line in 5 s (2026-10-28): what the stage sent says whether the press was
+        // dropped, is waiting on the sim, or was answered with no line.
+        await expect(game(page).getByText('The alarm is sounding.'))
+          .toBeVisible()
+          .catch(async (error: Error) => {
+            const used = await page.evaluate(() =>
+              (window as { __ebStage2d?: { used?: () => unknown } }).__ebStage2d?.used?.(),
+            );
+            throw new Error(`${error.message}\nthe stage's uses: ${JSON.stringify(used)}`);
+          });
         expect((await code(page))?.error).toBeUndefined();
         await expectFits(page);
       });

@@ -19,7 +19,7 @@ export interface StageClient {
 
 export interface StageAnswers {
   started(): void;
-  drew(uses: Drew['uses'] | undefined, ms: number): void;
+  drew(uses: Drew['uses'] | undefined, ms: number, picked?: Drew['picked']): void;
   failed(message: string, file?: string, line?: number): void;
 }
 
@@ -41,7 +41,7 @@ export function startStageWorker(
       answers.started();
     } else if (data.kind === 'drew') {
       busy = false;
-      answers.drew(data.uses, data.ms);
+      answers.drew(data.uses, data.ms, data.picked);
     } else if (data.kind === 'svg') {
       svgBitmap(data.text, data.w, data.h).then(
         (image) => send({ kind: 'svg', id: data.id, image }, [image]),

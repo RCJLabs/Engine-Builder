@@ -30,6 +30,7 @@ import {
   rangeOf,
   SHOP,
   type ShopRecord,
+  TACTICS,
 } from '@eb/kits';
 import type { SoundCondition } from './conditions.ts';
 import { compareText, type DiagnosticCode } from './diagnostics.ts';
@@ -44,6 +45,7 @@ import { QuestChecks } from './questCheck.ts';
 import { slotScope } from './questSlots.ts';
 import { RosterChecks } from './rosterCheck.ts';
 import { StatChecks } from './statCheck.ts';
+import { TacticsChecks } from './tacticsCheck.ts';
 import type { SpaceTags } from './worldSlots.ts';
 
 /** What a behaviour's fields can name as @slot: @self, the actor running it (M6.3). */
@@ -122,6 +124,7 @@ export class KitChecks {
   private readonly quests: QuestChecks | undefined;
   private readonly maps: MapChecks | undefined;
   private readonly encounters: EncounterChecks | undefined;
+  private readonly tactics: TacticsChecks | undefined;
 
   constructor(on: readonly string[], known: Known, records: RecordIndex, tags?: SpaceTags) {
     this.on = on;
@@ -136,6 +139,7 @@ export class KitChecks {
       : undefined;
     this.maps = on.includes(MAPS) ? new MapChecks(on) : undefined;
     this.encounters = on.includes(ENCOUNTERS) ? new EncounterChecks(on) : undefined;
+    this.tactics = on.includes(TACTICS) ? new TacticsChecks() : undefined;
   }
 
   /**
@@ -159,6 +163,7 @@ export class KitChecks {
     this.quests?.record(type, id, value, report);
     this.maps?.record(type, id, value, report);
     this.encounters?.record(type, id, value, report);
+    this.tactics?.record(type, id, value, report);
     if (type === LOOT_TABLE) {
       checkTable(value as LootTableRecord, report);
       this.tables.set(id, { value: value as LootTableRecord, report });
@@ -221,6 +226,7 @@ export class KitChecks {
     this.quests?.finish();
     this.maps?.finish();
     this.encounters?.finish();
+    this.tactics?.finish();
     for (const [, shop] of [...this.shops].sort(([a], [b]) => compareText(a, b))) {
       const table = shop.value.stock?.table;
       const resource = table === undefined ? undefined : this.resourceIn(table, new Set());

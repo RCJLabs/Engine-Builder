@@ -17,6 +17,7 @@ import { MAPS } from './maps/types.ts';
 import { QUESTS } from './quests/types.ts';
 import { ROSTER } from './roster/types.ts';
 import { STATS } from './stats/types.ts';
+import { TACTICS } from './tactics/types.ts';
 import { TIME } from './time/types.ts';
 
 export interface Kit {
@@ -42,6 +43,8 @@ export const KITS: readonly Kit[] = Object.freeze([
   { id: AI, needs: [STATS, TIME] },
   // Health is a pool, weapons are worn and the combat record names the stats a hit reads (M6.4, D76).
   { id: FIGHTING, needs: [STATS, GEAR, ENCOUNTERS] },
+  // A unit's numbers are its actor's stats (M7.5, D87).
+  { id: TACTICS, needs: [STATS] },
 ]);
 
 export const KIT_IDS: readonly string[] = Object.freeze(KITS.map((kit) => kit.id));

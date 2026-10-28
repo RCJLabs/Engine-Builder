@@ -1151,6 +1151,41 @@ describe('the code table', () => {
       'E095 spaces/deck.json /stage There is no stage stages/battle.ts',
       "W159 stages/board.ts  No space's stage imports it, directly or through another, so nothing draws with it",
     ]);
+    // A battle on a space that isn't there, and a boarder with no gun (M7.5).
+    const gun = {
+      damage: { least: 3, most: 5 },
+      accuracy: { close: 0, mid: 10, long: 0 },
+      crit: 10,
+      'crit-damage': 2,
+      clip: 4,
+    };
+    const boarded = await compileProject(
+      memorySource({
+        'project.json': JSON.stringify({
+          format: 1,
+          id: 'fight',
+          name: 'Fight',
+          version: '0.1.0',
+          kits: ['stats', 'tactics'],
+        }),
+        'records/stat/health.json': JSON.stringify({ name: 'Health' }),
+        'records/battle-rules/boarding.json': JSON.stringify({ health: 'health', aim: 'health', mobility: 'health' }),
+        'records/gun/rifle.json': JSON.stringify(gun),
+        'records/actor/ines.json': JSON.stringify({ name: 'Ines', gun: 'rifle' }),
+        'records/actor/pirate.json': JSON.stringify({ name: 'Pirate' }),
+        'records/battle/boarders.json': JSON.stringify({
+          rules: 'boarding',
+          space: 'deck',
+          crew: [{ actor: 'ines', at: 'helm' }],
+          foes: [{ actor: 'pirate', at: 'hatch' }],
+        }),
+      }),
+      [],
+    );
+    expect(brief(boarded.diagnostics).map((d) => `${d.code} ${d.file} ${d.path} ${d.message}`)).toEqual([
+      'W160 records/battle/boarders.json /foes/0/actor pirate has no gun: in this battle it can’t shoot, watch or reload',
+      'E096 records/battle/boarders.json /space No space "deck"',
+    ]);
     const results = [broken, duplicate, newer, invalid, conditions, types, assets, sheets, scripts, kits, needs];
     const late = [
       timed,
@@ -1190,6 +1225,7 @@ describe('the code table', () => {
       tiled,
       built,
       staged,
+      boarded,
     ];
     const seen = new Set([...results, ...late].flatMap((r) => r.diagnostics.map((d) => d.code)));
     // E031 and E032 come from running a game's scripts, which compiling never does; @eb/script's

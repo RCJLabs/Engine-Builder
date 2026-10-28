@@ -1,0 +1,33 @@
+Round 1: the crew's turn.
+Marine c1 opens the door on the west side of (9, 2).
+Marine c1 moves (9, 2) to (8, 2) to (8, 3) to (7, 3) to (6, 3).
+Marine c1 opens the door on the south side of (6, 3).
+Engineer c2 moves (9, 3) to (9, 2) to (8, 2) to (8, 3) to (7, 3).
+Engineer c2 shoots Pirate e1: 45%, rolled 14, hit for 5.
+Medic c3 moves (10, 3) to (9, 3) to (9, 2) to (8, 2) to (8, 3).
+Medic c3 shoots Pirate e1: 20%, rolled 19, hit for 2.
+Pirate e1 is dead.
+End of the crew's turn.
+Round 1: the enemy's turn.
+Pirate e2 shoots Marine c1: 70%, rolled 61, hit for 2.
+Pirate brute e3 opens the door on the east side of (4, 4).
+Pirate brute e3 moves (4, 4) to (5, 4).
+Pirate brute e3 opens the door on the north side of (5, 4).
+Pirate brute e3 moves (5, 4) to (5, 3).
+Pirate brute e3 opens the door on the east side of (5, 3).
+End of the enemy's turn.
+Round 2: the crew's turn.
+Marine c1 shoots Pirate e2: 70%, rolled 7, hit, crit (40%, rolled 6) for 7.
+Pirate e2 is dead.
+Engineer c2 shoots Pirate brute e3: 85%, rolled 93, missed.
+Medic c3 shoots Pirate brute e3: 75%, rolled 57, hit, crit (40%, rolled 14) for 2.
+End of the crew's turn.
+Round 2: the enemy's turn.
+Pirate brute e3 shoots Marine c1: 75%, rolled 58, hit, crit (50%, rolled 28) for 6.
+End of the enemy's turn.
+Round 3: the crew's turn.
+Marine c1 shoots Pirate brute e3: 70%, rolled 90, missed.
+Engineer c2 shoots Pirate brute e3: 85%, rolled 27, hit, crit (50%, rolled 26) for 7.
+Medic c3 shoots Pirate brute e3: 75%, rolled 22, hit, crit (40%, rolled 36) for 3.
+Pirate brute e3 is dead.
+The crew wins.

@@ -1,7 +1,8 @@
 /**
  * The 2D stage's canvas in its box (M7.1, D83, docs/specs/2d-scenes.md#the-view): a canvas of art
  * pixels at the scale rule's whole scale, shown pixelated from the box's top-left, sized again as
- * the box is; and a drag on it pans the camera, the world following the finger.
+ * the box is; and a drag on it pans the camera, the world following the finger. Since M7.5 the foot of the box a
+ * battle's bar covers is kept clear: the view fits what is left.
  */
 import { clampCamera, type Point, panned } from './camera.ts';
 import { fitScale, type Scaled } from './scale.ts';
@@ -14,6 +15,8 @@ export interface View2d {
   camera(): Point;
   /** The camera moved, kept within the space. */
   look(at: Point): void;
+  /** CSS pixels kept clear at the box's foot, for a bar over it (M7.5): the view fits the rest. */
+  inset(px: number): void;
   stop(): void;
 }
 
@@ -38,9 +41,10 @@ export function createView(
   const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
   let now = { ...fitScale(1, 1, 1, fit), dpr: 1 };
   let centre: Point = start;
+  let foot = 0;
   const size2 = () => {
     const dpr = window.devicePixelRatio || 1;
-    now = { ...fitScale(box.clientWidth, box.clientHeight, dpr, fit), dpr };
+    now = { ...fitScale(box.clientWidth, Math.max(1, box.clientHeight - foot), dpr, fit), dpr };
     canvas.width = now.cols;
     canvas.height = now.rows;
     canvas.style.width = `${(now.cols * now.scale) / dpr}px`;
@@ -79,6 +83,11 @@ export function createView(
     look(at) {
       centre = clampCamera(at, [now.cols, now.rows], size);
       changed();
+    },
+    inset(px) {
+      if (px === foot) return;
+      foot = px;
+      size2();
     },
     stop() {
       sized.disconnect();

@@ -34,6 +34,8 @@ import { rosterModule } from './roster/module.ts';
 import { ROSTER } from './roster/types.ts';
 import { statsModule } from './stats/module.ts';
 import { STATS } from './stats/types.ts';
+import { tacticsModule } from './tactics/module.ts';
+import { TACTICS } from './tactics/types.ts';
 import { timeKit } from './time/module.ts';
 import { DEFAULT_CALENDAR, TIME } from './time/types.ts';
 
@@ -60,20 +62,23 @@ const MAPS_WITH_ECONOMY = mapsModule(true);
 // The roster's members fight, and leave when they fall, only with the roster kit on (M4.7).
 const ENCOUNTERS_ALONE = encountersModule(false);
 const ENCOUNTERS_WITH_ROSTER = encountersModule(true);
+// A battle is fought on its space's tilemap, which only a game with spaces has (M7.5).
+const TACTICS_ALONE = tacticsModule();
 
 /**
  * The modules of the kits on, in the engine's order; the time kit's with the project's calendar
  * (M3.5), and its clock when its spaces are walked (M6.3); the fighting kit's with project.json's
  * fighting when it has a world (M6.4), and the ai kit's hearing its hits when it is on; the quests
  * kit's with the world's places, where its slots find spaces and what is in them (M6.7); the inventory
- * kit's with the world's containers, the uses that hold items (M6.8).
+ * kit's with the world's containers, the uses that hold items (M6.8); the tactics kit's with its
+ * tilemaps (M7.5).
  */
 export function kitModules(
   on: readonly string[],
   calendar?: CalendarDef,
   clock?: ClockDef,
   fighting?: FightingDef,
-  world?: Pick<WorldData, 'places' | 'uses'>,
+  world?: Pick<WorldData, 'places' | 'uses' | 'tiles'>,
 ): Module[] {
   const places = world?.places;
   return KITS.filter((kit) => on.includes(kit.id)).map((kit) => {
@@ -91,6 +96,7 @@ export function kitModules(
     if (kit.id === FIGHTING) return fightingModule(fighting);
     if (kit.id === QUESTS) return places === undefined ? QUESTS_ALONE : questsModule(places);
     if (kit.id === INVENTORY) return inventoryOf(world?.uses, on.includes(FIGHTING));
+    if (kit.id === TACTICS) return world?.tiles === undefined ? TACTICS_ALONE : tacticsModule(world.tiles);
     return MODULES.get(kit.id) as Module;
   });
 }
@@ -120,9 +126,10 @@ function inventoryOf(uses: WorldData['uses'] | undefined, bodies: boolean): Modu
  */
 export function kitsInWorld(modules: readonly Module[], world: PackWorld | undefined): readonly Module[] {
   if (world === undefined) return modules;
-  const { places, uses } = worldDataOf(world);
+  const { places, uses, tiles } = worldDataOf(world);
   return modules.map((m) => {
     if (m === QUESTS_ALONE && places !== undefined) return questsModule(places);
+    if (m === TACTICS_ALONE && tiles !== undefined) return tacticsModule(tiles);
     const bodies = INVENTORY_BUILDS.get(m);
     if (bodies !== undefined) return inventoryOf(uses, bodies);
     return m;

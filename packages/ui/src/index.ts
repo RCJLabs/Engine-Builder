@@ -37,5 +37,6 @@ export {
   screenStack,
   stillOpen,
 } from './render/stack.ts';
+export type { BattleShown } from './session/battle.ts';
 export { type FightView, fightOf, type WeaponView, weaponView } from './session/fighting.ts';
 export { markersOf, type QuestMarker } from './session/markers.ts';

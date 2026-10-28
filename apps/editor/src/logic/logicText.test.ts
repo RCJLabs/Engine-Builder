@@ -258,6 +258,17 @@ describe('sheet edits', () => {
     expect(kitEffectFile('fight', ['stats'])).toBeUndefined();
   });
 
+  it('says the tactics kit’s start-battle in a few words (M7.5)', () => {
+    expect(doText([{ effect: 'start-battle', battle: 'boarders' }, { effect: 'start-battle' }])).toBe(
+      'Do: start the battle boarders, then start a battle not yet chosen',
+    );
+    expect(kitEffectFile('start-battle', ['stats', 'tactics'])?.fields.battle).toMatchObject({
+      kind: 'ref',
+      to: 'battle',
+    });
+    expect(kitEffectFile('start-battle', ['stats'])).toBeUndefined();
+  });
+
   it('draws the time kit’s Wait in the calendar’s lengths, and gives schedule no form (M3.5)', () => {
     const lengths = (calendar?: { ticksPerDay: number; units?: Record<string, number> }) =>
       Object.keys(kitEffectFile('wait', ['time'], calendar)?.fields ?? {});

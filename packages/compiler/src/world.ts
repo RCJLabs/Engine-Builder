@@ -61,6 +61,8 @@ export interface WorldSources {
   readonly start: string;
   /** project.json's fighting player (M6.4): the actor the walk draws the player as (M6.5). */
   readonly player?: string;
+  /** The actors the battles set out (M7.5): the stage draws each unit as its actor's sprite. */
+  readonly fighters?: readonly string[];
 }
 
 const TRIGGER = 'trigger';
@@ -171,7 +173,10 @@ export async function packWorld(source: ProjectSource, sources: WorldSources): P
     const bytes = await source.read(terrain.file);
     if (bytes) files[terrain.file] = base64Of(bytes);
   }
-  const drawn = drawnFrom(spaces, prefabs, sources, sources.player);
+  const drawn = drawnFrom(spaces, prefabs, sources, [
+    ...(sources.player === undefined ? [] : [sources.player]),
+    ...(sources.fighters ?? []),
+  ]);
   for (const path of drawn.files) {
     const bytes = await source.read(`${ASSETS_DIR}/${path}`);
     if (!bytes) continue;
@@ -272,13 +277,14 @@ export type DrawnSources = Pick<WorldSources, 'record' | 'types'>;
  * Since M6.5 an actor's animator and the models its clips come from, and the player's actor; since
  * M6.6 a map's hash reads it too (mapInputs.ts); since M7.1 each sprite drawn, a component's or an
  * actor's, and its sheet among the files; since M7.2 each tilemap's tileset and its sheet; since M7.3 each
- * building's rooms, their sprites and the stairs', with their sheets.
+ * building's rooms, their sprites and the stairs', with their sheets; since M7.5 the battles' actors with
+ * the player's, as `standing`: actors drawn wherever they stand rather than where a space places them.
  */
 export function drawnFrom(
   spaces: ReadonlyMap<string, SpaceJson>,
   prefabs: ReadonlyMap<string, SpaceJson>,
   sources: DrawnSources,
-  player?: string,
+  standing: readonly string[] = [],
 ): { files: string[]; records: Record<string, unknown>; fields: Record<string, string> } {
   const fields: Record<string, string> = {};
   const models: ModelSources = {
@@ -292,7 +298,7 @@ export function drawnFrom(
   };
   const keys = new Set<string>();
   const found = new Set<string>();
-  const actors = player === undefined ? [] : [`${ACTOR}:${player}`];
+  const actors = standing.map((actor) => `${ACTOR}:${actor}`);
   for (const space of spaces.values()) {
     const grown = (space.terrain?.foliage ?? []).flatMap((id) => {
       keys.add(`${FOLIAGE}:${id}`);

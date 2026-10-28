@@ -1,0 +1,40 @@
+{
+  "name": "The boarders",
+  "description": "Once Ines and Oren both stand at their posts with the alarm sounding, the boarders come through the airlock.",
+  "rows": [
+    {
+      "id": "ines-at-post",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "ines",
+          "at": "bridge"
+        }
+      },
+      "if": "flag.on(alarm) and world.npc-at(actor: oren) == bridge-door and tactics.fought(battle: boarders) == 0",
+      "do": [
+        {
+          "effect": "start-battle",
+          "battle": "boarders"
+        }
+      ]
+    },
+    {
+      "id": "oren-at-post",
+      "when": {
+        "event": "world/npc-arrived",
+        "args": {
+          "actor": "oren",
+          "at": "bridge-door"
+        }
+      },
+      "if": "flag.on(alarm) and world.npc-at(actor: ines) == bridge and tactics.fought(battle: boarders) == 0",
+      "do": [
+        {
+          "effect": "start-battle",
+          "battle": "boarders"
+        }
+      ]
+    }
+  ]
+}

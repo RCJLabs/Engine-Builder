@@ -1,0 +1,16 @@
+{
+  "lines": [
+    {
+      "on": "tactics/started",
+      "say": "Boarders at the airlock! Every hand to the bridge."
+    },
+    {
+      "on": "tactics/won",
+      "say": "The boarders are beaten back."
+    },
+    {
+      "on": "tactics/lost",
+      "say": "The boarders take the ship."
+    }
+  ]
+}

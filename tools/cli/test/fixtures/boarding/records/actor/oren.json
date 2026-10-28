@@ -3,5 +3,14 @@
   "description": "Walks between the quarters and the hold.",
   "sprite": "figure-guard",
   "speed": 16,
-  "behaviour": "engineer"
+  "behaviour": "engineer",
+  "stats": {
+    "health": 8,
+    "aim": 65,
+    "defense": 5,
+    "armor": 0,
+    "mobility": 4
+  },
+  "gun": "shotgun",
+  "order": "weld"
 }

@@ -3,7 +3,7 @@
   "id": "boarding",
   "name": "The boarding deck",
   "version": "0.1.0",
-  "kits": ["stats", "time", "ai"],
+  "kits": ["stats", "time", "ai", "tactics"],
   "calendar": {
     "ticksPerDay": 1440,
     "units": {
