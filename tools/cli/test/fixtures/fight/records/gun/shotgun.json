@@ -1,0 +1,15 @@
+{
+  "name": "Shotgun",
+  "damage": {
+    "least": 4,
+    "most": 6
+  },
+  "accuracy": {
+    "close": 20,
+    "mid": -5,
+    "long": -30
+  },
+  "crit": 20,
+  "crit-damage": 3,
+  "clip": 3
+}

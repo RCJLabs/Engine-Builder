@@ -1,0 +1,41 @@
+{
+  "title": "The boarding fight",
+  "shows": ["watch", "battle"],
+  "top": {
+    "widget": "stack",
+    "direction": "row",
+    "justify": "between",
+    "children": [
+      {
+        "widget": "text",
+        "text": "The boarding fight",
+        "style": "heading"
+      },
+      {
+        "widget": "text",
+        "text": "All quiet aboard.",
+        "shows-when": "not tactics.in-battle and not flag.on(won) and not flag.on(lost)"
+      },
+      {
+        "widget": "text",
+        "text": "Round {tactics.round}",
+        "shows-when": "tactics.in-battle"
+      },
+      {
+        "widget": "text",
+        "text": "The boarders are beaten.",
+        "shows-when": "flag.on(won)"
+      },
+      {
+        "widget": "text",
+        "text": "The boarders hold the ship.",
+        "shows-when": "flag.on(lost)"
+      }
+    ]
+  },
+  "main": {
+    "widget": "space",
+    "space": "deck",
+    "label": "The boarding fight"
+  }
+}

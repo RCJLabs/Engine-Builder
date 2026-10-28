@@ -1,0 +1,13 @@
+{
+  "name": "Ines, the marine",
+  "sprite": "figure-keeper",
+  "stats": {
+    "health": 10,
+    "aim": 70,
+    "defense": 0,
+    "armor": 1,
+    "mobility": 4
+  },
+  "gun": "rifle",
+  "order": "suppress"
+}

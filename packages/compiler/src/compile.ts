@@ -1,5 +1,5 @@
 import { createPack, type Pack, type RecordIndex } from '@eb/core';
-import { TALK } from '@eb/kits';
+import { TACTICS, TALK } from '@eb/kits';
 import {
   checkFightingNames,
   compareDiagnostics,
@@ -16,6 +16,7 @@ import {
   validateRecords,
 } from '@eb/schema';
 import { audioFiles } from './audioFiles.ts';
+import { checkBattles, fightersOf } from './battles.ts';
 import { readComponentKinds } from './components.ts';
 import { creditsOf } from './credits.ts';
 import { parseJsonFile } from './decode.ts';
@@ -171,6 +172,8 @@ export async function compileProject(
   if (fighting)
     for (const problem of checkFightingNames(fighting, index.has, (actor) => walkers.get(actor)?.space, essential))
       diagnostics.push({ ...problem, severity: 'error', file: MANIFEST_FILE });
+  // A battle against its space's tilemap (M7.5): only with the tactics kit's types are there battles.
+  if (files.kits.includes(TACTICS)) diagnostics.push(...checkBattles(records, spaces.files, recordValues(records)));
   // A model record's file, as far as its glTF JSON (M5.5).
   diagnostics.push(...(await checkModels(source, records, files.assets)));
   // A sprite record's sheet, as far as its PNG header (M7.1).
@@ -225,6 +228,7 @@ export async function compileProject(
         known: kitted,
         start,
         ...(fighting?.player === undefined ? {} : { player: fighting.player }),
+        ...(files.kits.includes(TACTICS) ? { fighters: fightersOf(records) } : {}),
       });
   // The stage files the spaces' stages reach, compiled: the page runs them, the sim never (M7.4).
   const world =

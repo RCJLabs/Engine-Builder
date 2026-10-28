@@ -1,0 +1,13 @@
+{
+  "name": "Sal, the medic",
+  "sprite": "figure-villager",
+  "stats": {
+    "health": 8,
+    "aim": 60,
+    "defense": 10,
+    "armor": 0,
+    "mobility": 5
+  },
+  "gun": "pistol",
+  "order": "patch"
+}

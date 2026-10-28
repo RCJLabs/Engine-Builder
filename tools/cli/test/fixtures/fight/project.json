@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "id": "fight",
+  "name": "The boarding fight",
+  "version": "0.1.0",
+  "kits": ["stats", "tactics"],
+  "start-space": "deck"
+}

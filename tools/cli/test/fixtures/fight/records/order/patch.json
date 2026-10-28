@@ -1,0 +1,6 @@
+{
+  "name": "Patch",
+  "kind": "patch",
+  "uses": 2,
+  "hp": 3
+}

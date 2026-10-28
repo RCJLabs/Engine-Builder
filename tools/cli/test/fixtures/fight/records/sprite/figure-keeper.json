@@ -1,0 +1,15 @@
+{
+  "name": "Figure (keeper)",
+  "sheet": "starter-sprites/figure-keeper.png",
+  "frame": [16, 24],
+  "clips": {
+    "idle": {
+      "frames": [0, 1],
+      "fps": 2
+    },
+    "walk": {
+      "frames": [2, 5],
+      "fps": 8
+    }
+  }
+}
