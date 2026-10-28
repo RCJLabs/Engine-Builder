@@ -21,6 +21,7 @@ import {
   verifySaveFile,
   worldDataOf,
 } from '@eb/core';
+import { TACTICS } from '@eb/kits';
 import { loadProjectGame } from '@eb/script';
 import { audioConditions } from '../audio/mix.ts';
 import type { AudioPack } from '../format/audio.ts';
@@ -105,6 +106,7 @@ export function openPack(value: unknown, options: OpenOptions = {}): OpenResult 
     ...(pack.credits ? { credits: pack.credits } : {}),
     ...(pack.project.fighting && pack.world ? { fighting: pack.project.fighting } : {}),
     ...(holdsAny(pack.world?.uses) ? { containers: containerNames(pack.world) } : {}),
+    ...(kits.includes(TACTICS) && pack.world?.tiles ? { tiles: pack.world.tiles } : {}),
   };
   const theme = pack.ui?.theme as Theme | undefined;
   return { ok: true, opened: { pack, setup, screens, theme, shell, name: pack.project.name, audio, debug } };

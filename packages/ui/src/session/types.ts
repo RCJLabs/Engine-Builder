@@ -5,6 +5,7 @@
  */
 import type { Action } from '@eb/core';
 import type { RecordsWant } from '../format/bindings.ts';
+import type { BattleShown } from './battle.ts';
 import type { FightView } from './fighting.ts';
 import type { QuestMarker } from './markers.ts';
 
@@ -111,6 +112,8 @@ export interface WorldView {
   readonly clock?: true;
   /** The fights (M6.4, D76): with the fighting kit on and project.json's fighting given. */
   readonly fight?: FightView;
+  /** The battle under way, or the last one's last beats (M7.5, D87): with the tactics kit on. */
+  readonly battle?: BattleShown;
   /** The tracked quest's open objectives with a target (M6.6, D78): where the compass and markers point. */
   readonly markers?: readonly QuestMarker[];
 }

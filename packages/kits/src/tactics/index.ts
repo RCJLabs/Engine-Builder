@@ -9,3 +9,12 @@ export { orderTargets } from './orders.ts';
 export { arenaOf, battleRecord, numbersOf, rulesRecord } from './records.ts';
 export { act, createBattle, type Setting } from './turns.ts';
 export * from './types.ts';
+export {
+  type BattleView,
+  battleView,
+  type ChoicesView,
+  type OrderChoice,
+  type ShotView,
+  type StepView,
+  type UnitView,
+} from './view.ts';

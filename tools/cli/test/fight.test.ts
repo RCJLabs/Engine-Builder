@@ -5,7 +5,8 @@
  * is E096 (a battle on a space with no tilemap, a unit on no object, on a crate, on another's tile), E035 (an
  * order without its number) and W160 (a boarder with no gun). Headless, the alarm's use starts the battle and
  * the crew, played by the kit's own AI, fight it to an end on every seed: won or lost, each of the crew's
- * health written back and the fallen hurt. The random bot's runs end with no offer refused.
+ * health written back and the fallen hurt. The random bot's runs end with no offer refused. Through the
+ * session, the stage's view of the battle: its odds the facts', the foes' turn's beats with the crew's end.
  */
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -23,6 +24,7 @@ import {
   withPackWorld,
 } from '@eb/core';
 import { aiAction, arenaOf, kitsInWorld, type TacticsSlice, walkedStage } from '@eb/kits';
+import { openPack, startPlay } from '@eb/ui/session';
 import { describe, expect, it } from 'vitest';
 import { folderSource } from '../src/folderSource.ts';
 
@@ -182,5 +184,42 @@ describe('the boarding fight', () => {
       expect(run.refused).toEqual([]);
       expect(run.beats['tactics/started']).toBe(1);
     }
+  });
+  it('shows the battle to the stage: its choices, odds that are the facts’, and each step’s beats once', async () => {
+    const { compiled, sim, tiles } = await loaded;
+    const open = openPack(JSON.parse(JSON.stringify(compiled.pack)));
+    if (!open.ok) throw new Error(open.message);
+    const play = startPlay(open.opened.setup, '7');
+    expect(play.view.world?.battle).toBeUndefined();
+    expect(play.act({ type: 'world/use', space: 'deck', object: 'alarm' }).accepted).toBe(true);
+    const shown = play.view.world?.battle;
+    expect(shown?.space).toBe('deck');
+    expect(shown?.view?.side).toBe('crew');
+    expect(shown?.view?.choices.map((c) => c.unit)).toEqual(['c1', 'c2', 'c3']);
+    expect(shown?.told.map((b) => b.type)).toEqual(['tactics/started', 'tactics/turn']);
+    const started = shown?.step ?? 0;
+    // Every odds shown is the fact's, which is the roll's (shotOdds).
+    for (const choice of shown?.view?.choices ?? [])
+      for (const shot of choice.shots)
+        expect(shot.hit).toBe(
+          play.state &&
+            open.opened.setup.game.fact(play.state, 'tactics.hit', { unit: choice.unit, target: shot.target }, sim),
+        );
+    // The crew's end hands the foes their turn, played inside it: its beats come back with it.
+    expect(play.act({ type: 'tactics/end' }).accepted).toBe(true);
+    const after = play.view.world?.battle;
+    expect(after?.step).toBeGreaterThan(started);
+    expect(after?.told.some((b) => typeof b.unit === 'string' && b.unit.startsWith('e'))).toBe(true);
+    expect(after?.told.filter((b) => b.type === 'tactics/turn').map((b) => b.side)).toEqual(['foes', 'crew']);
+    // Fought to the end by the AI: the view goes, the last step's beats stay for the stage.
+    for (let i = 0; i < 500 && play.view.world?.battle?.view; i++) {
+      const battle = (play.state.tactics as TacticsSlice).battle;
+      if (!battle) break;
+      const move = aiAction(arenaOf(sim.content, tiles, battle.battle), battle);
+      play.act({ ...move, type: `tactics/${move.type}` });
+    }
+    const over = play.view.world?.battle;
+    expect(over?.view).toBeUndefined();
+    expect(over?.told.some((b) => b.type === 'tactics/won' || b.type === 'tactics/lost')).toBe(true);
   });
 });

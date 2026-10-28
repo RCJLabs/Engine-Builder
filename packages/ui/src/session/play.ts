@@ -17,6 +17,7 @@ import {
   type GameState,
   type PackCredit,
   type PackFighting,
+  type PackTiles,
   type RecordStore,
   type Session,
   type SimContext,
@@ -26,6 +27,7 @@ import {
 import { FALLEN } from '@eb/kits';
 import type { Cue } from '../format/audio.ts';
 import type { Feedback, Said } from '../format/feedback.ts';
+import { type BattleShown, type Told as BattleTold, battleOf, toldAfter } from './battle.ts';
 import { heldShows, openedOf } from './containers.ts';
 import { type FightView, fightOf } from './fighting.ts';
 import { mapShows } from './mapView.ts';
@@ -99,6 +101,8 @@ export interface PlaySetup {
   readonly fighting?: PackFighting;
   /** Each container's name by `space/object` (M6.8), for the Container screen's heading. */
   readonly containers?: Readonly<Record<string, string>>;
+  /** The pack's tilemaps (M7.5), in a game with the tactics kit: a battle's arena reads them. */
+  readonly tiles?: Readonly<Record<string, PackTiles>>;
 }
 
 interface Read {
@@ -130,6 +134,8 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
   const session: Session = createSession(game, sim, start);
   const say = setup.feedback ? feedbackSayer(setup.feedback, game.events()) : undefined;
   const credits = setup.credits && setup.credits.length > 0 ? creditEntries(setup.credits) : undefined;
+  // The last step's battle beats (M7.5): a step's beats reach the stage only through the view.
+  let told: BattleTold | undefined;
 
   function viewOf(state: GameState, wants = parsed): View {
     const offered = game.options(state, sim);
@@ -159,7 +165,12 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
       enabled: true,
     }));
     const fight = fightOf(state, content, reading.fact, setup.fighting);
-    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE), fight, markersOf(reading, kits));
+    const battle = setup.tiles ? battleOf(state, content, setup.tiles, told) : undefined;
+    const world = worldOf(state, game.allowedActions(state).includes(ELAPSE), {
+      fight,
+      battle,
+      markers: markersOf(reading, kits),
+    });
     return {
       modes: state.kernel.modes.map((frame) => frame.id),
       offered,
@@ -177,9 +188,11 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
 
   let view = viewOf(session.state);
   const take = (action: Action): Taken => {
+    const before = session.state;
     const step = session.dispatch(action);
-    view = viewOf(session.state);
     const beats = session.drain();
+    if (setup.tiles) told = toldAfter(told, before, session.state, beats, game.content(session.state, sim));
+    view = viewOf(session.state);
     // The step's records name what its beats carry, those it made among them.
     const felt = say ? say(beats, game.content(session.state, sim)) : { said: [], cues: [] };
     return { view, beats, said: felt.said, cues: felt.cues, accepted: step.accepted };
@@ -214,8 +227,7 @@ function playFrom(setup: PlaySetup, start: GameState): Play {
 function worldOf(
   state: GameState,
   clocked: boolean,
-  fight: FightView | undefined,
-  markers: readonly QuestMarker[],
+  { fight, battle, markers }: { fight?: FightView; battle?: BattleShown; markers: readonly QuestMarker[] },
 ): WorldView | undefined {
   const slice = state[WORLD] as WorldSlice | undefined;
   if (!slice) return undefined;
@@ -229,6 +241,7 @@ function worldOf(
     ...walking,
     ...(clocked ? { clock: true as const } : {}),
     ...(fight ? { fight } : {}),
+    ...(battle ? { battle } : {}),
     ...(markers.length > 0 ? { markers } : {}),
   };
 }
