@@ -98,7 +98,9 @@ test.describe('the boarding deck’s battle board by touch, 390×844 at 3×', ()
       .poll(async () => (await battle(page))?.preview)
       .toEqual({ type: 'tactics/move', unit: 'c1', to: step.to });
     await pressBoard(page, step.to, true);
-    expect((await crewTurn(page)).sent.at(-1)?.sent).toBe('accepted');
+    // A tap reaches the battle only once the stage's next frame tells its tile, so the move is waited for.
+    await expect.poll(async () => (await battle(page))?.sent.at(-1)?.sent).toBe('accepted');
+    await crewTurn(page);
     await barButton(page, 'end').tap();
     await barButton(page, 'confirm').tap();
     expect((await crewTurn(page)).view?.round).toBe(2);

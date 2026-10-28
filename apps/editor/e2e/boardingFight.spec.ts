@@ -46,8 +46,11 @@ test('the boarders fought on the battle board by mouse and keys, to the end', as
       .poll(async () => (await battle(page))?.preview)
       .toEqual({ type: 'tactics/move', unit: 'c1', to: step.to });
     await pressBoard(page, step.to);
-    const after = await crewTurn(page);
-    expect(after.sent.at(-1)).toEqual({ action: { type: 'tactics/move', unit: 'c1', to: step.to }, sent: 'accepted' });
+    // A tap reaches the battle only once the stage's next frame tells its tile, so the move is waited for.
+    await expect
+      .poll(async () => (await battle(page))?.sent.at(-1))
+      .toEqual({ action: { type: 'tactics/move', unit: 'c1', to: step.to }, sent: 'accepted' });
+    await crewTurn(page);
   });
 
   await test.step('the arrows move the cursor and Enter sends; Shift and the arrows turn the board instead', async () => {
