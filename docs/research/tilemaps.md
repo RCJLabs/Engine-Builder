@@ -9,7 +9,7 @@ How space-wrecked, 2060td and landnam lay out grids, read on 2026-10-27 to desig
 
 ## space-wrecked: the battle maps
 
-The fullest grid rules, and the map M7.7 rebuilds.
+The fullest grid rules, and the map Proof #3 rebuilds (M7.10, D87).
 
 - **The text format** (`src/sim/mapText.js:1-40`): two characters a tile each way. Even lines are edge rows: a tile's north edge at odd columns (`-` a wall, `=` the hull, `/` a door, `o` a hatch), `+` where edges meet. Odd lines hold a tile's west edge at even columns (`|` a wall, `I` the hull, `/`, `o`) and the tile itself at odd columns. Trailing spaces may be left off; a map is 2 × height + 1 lines, its width the widest line's half.
 - **Tiles by character.** The ship's interiors (`data/modules.json`, `tiles`: `.` floor, `h` half cover, `H` full cover, `#` machinery, `c` console, `a` airlock) and the planet sites (`src/sim/gen/site.js:21-34`, adding `%` rock and marks for entries, spawns and loot). A blank tile is space.

@@ -136,7 +136,7 @@ All in the pure core, in whole numbers: the same in Node, a worker and every bro
 
 ## Open questions
 
-1. Building in play, with costs and placement rules as data (M7.5's base builder).
+1. Building in play, with costs and placement rules as data (M7.6's builder, D87).
 2. Doors between rooms on a floor, and a room a walker may not enter.
 3. Routes that avoid a stair for some walkers (afterglass's wards and light).
 4. Lifts and stairs with a run, rather than straight ladders.
