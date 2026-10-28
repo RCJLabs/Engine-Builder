@@ -45,7 +45,7 @@ describe('the boarders', () => {
   it('is fought to an end by the kit’s AI on every seed, the crew winning some, and never comes again', () => {
     const { content } = boarding.opened.setup.sim;
     let won = 0;
-    const SEEDS = 20;
+    const SEEDS = 50;
     for (let n = 1; n <= SEEDS; n++) {
       const walked = toBattle(boarding, String(n));
       const { play } = walked;

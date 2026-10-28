@@ -83,7 +83,8 @@ apps/editor/           the editor PWA
                        ids.ts (useUniqueId: ids unique across the dock's render roots, never Preact's useId),
                        ProjectKits.tsx (the Project panel's kit boxes, M3.3), ProjectCalendar.tsx and
                        calendarFile.ts (project.json's calendar as a form, M3.5, and its clock, M6.3), loaded by CalendarSlot.tsx;
-                       ProjectFighting.tsx and fightingFile.ts (project.json's fighting as a form, M6.4), loaded by FightingSlot.tsx
+                       ProjectFighting.tsx and fightingFile.ts (project.json's fighting as a form, M6.4), loaded by FightingSlot.tsx;
+                       kitWords.ts, the words beside each kit's box (M7.5)
   src/app/dock/        desktop's dock (M2.2): dockview, loaded only on desktop, and its saved layout (savedLayout.ts)
   src/pwa/             service worker registration and the update gate
   src/projects/        project storage (M2.1): the OPFS library, its writer worker, opened folders, zips, the session;
@@ -325,7 +326,8 @@ apps/editor/           the editor PWA
                        building2d.test.ts and drawBuilding.test.ts), walkers.ts's Ground (the tilemap or the building);
                        tower.test.ts walks the tower's folk through a night headless and rings its bell; M7.4 (D86):
                        simSide.ts (the walkers, arrivals, clock and uses, shared with a stage's drawing), stage.ts
-                       handing a space with a stage to stagecode/
+                       handing a space with a stage to stagecode/; M7.5 (D87): stage.ts hands a battle on its tilemap to
+                       battle2d/onStage.ts, the uses' buttons hidden while one is fought
   src/stagecode/       a 2D space drawn by its own stage (M7.4, D86), inside stage2d.js: api.ts (what "eb/stage" gives
                        and a stage is handed), protocol.ts, runner.ts (a stage run on its canvas: start, each frame at
                        its pixel ratio, a throw stopped at its file and line) and stage.worker.ts, inlined by
@@ -333,7 +335,16 @@ apps/editor/           the editor PWA
                        drawn, svg() decoded by svgImage.ts), input.ts and gestures.ts (drags, twists, the wheel, the
                        stage's keys, taps), frames.ts (the frame from stage2d's walkers), sheets.ts, alert.ts and
                        codeStage.ts (the loop, the uses' buttons where the stage boxed them, the hook's code());
-                       stagecode.test.ts
+                       stagecode.test.ts; M7.5 (D87): Frame.battle and Drew.picked, a battle's bar on a stage in code
+                       (battle2d/onCode.ts)
+  src/battle2d/        a battle on a 2D space (M7.5, D87): pick.ts (taps, keys and the bar's buttons into previews and
+                       actions, as plain functions), playback.ts (a step's beats played back a tile at a time), words.ts (units'
+                       names, odds and lines), bar.ts (the action bar: 44 px buttons and an aria-live line), controller.ts,
+                       draw.ts and onStage.ts (stage2d's own drawing, the view kept clear of the bar), onCode.ts and
+                       forStage.ts (what a stage in code is handed and tells back); battle2d.test.ts, and boarding.test.ts,
+                       the boarding deck walked headless to its battle and fought by the kit's AI
+  src/battles/         a battle's form (M7.5): battleChoices.ts (its Space, and each unit's At from that space's objects)
+                       and battleChecks.test.ts (E096 in the editor, as eb validate gives it)
   src/spaces2d/        the Scene panel's 2D view (M7.1, D83): view2d.ts (the zoom, screen to world and back, a pan, a zoom
                        about a point, Frame) and pick2d.ts (the pick by a frame's box, moves in whole pixels, the arrows)
                        as plain functions with tests (view2d.test.ts); state2d.ts (where Add puts things, the zoom asked),
@@ -413,7 +424,8 @@ apps/editor/           the editor PWA
                        the index with kits; scenes-bench.ts, with ink scenes; debug-bench.ts, the debug tools, M4.9;
                        terrain-bench.ts, dabs, the files, chunks and the ray at 257 and 513, M5.3; environment-bench.ts,
                        a look worked out and a frame of weather placed, M5.4); anim.bench.ts, a frame of the walk's
-                       animation for the square's thirteen, run by bench.config.ts (M6.5)
+                       animation for the square's thirteen, run by bench.config.ts (M6.5); boardingWalk.ts, the boarding
+                       deck walked headless to its battle as the page walks it (M7.5)
   e2e/                 Playwright specs; checks.ts holds the checks every page gets (errors, overflow either way,
                        44 px targets, axe at every impact, no id twice); ludus.ts brings the ludus fixture into the
                        editor and opens its tables and records; kitHelpers.ts is what the kits' specs share;
@@ -534,7 +546,14 @@ apps/editor/           the editor PWA
                        a drag, a twist, the arrows and the wheel, the alarm by a click, a tap and the keyboard, the HUD's
                        SVG, at 1280, 360, 390 and sideways, and exported as one file played offline; stageEditor.spec.ts,
                        a stage made with New stage on the deck at 1280 and 390, a problem at its line, an SVG badge, the
-                       Stage field, then played
+                       Stage field, then played; fightHelpers.ts, fight.spec.ts, fightPhone.spec.ts and fightExport.spec.ts
+                       are M7.5's, the boarding fight played through window.__ebStage2d.battle(): a move by two clicks or taps
+                       on the deck, a shot at the HUD's odds, overwatch, the foes' turn played back, the arrows' cursor, and
+                       the kit AI's winning line replayed to the end by mouse and by touch at 360, 390 and sideways, each
+                       shot's odds in the bar the view's; and exported as one file, a turn fought offline; battleEditor.spec.ts,
+                       the boarders' battle made with forms alone at 1280 and 390, then fought; boardingFightHelpers.ts and
+                       boardingFight.spec.ts, the boarding deck's battle on its battle board, a tile's place worked out from the
+                       stage's own camera, Shift and the arrows turning the board
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
 packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 20)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
@@ -573,7 +592,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        (D85): rooms/, a building as the sim reads it: building.ts (format 19's building, a place's floor
                        and x, the room it is in), route.ts (afterglass's Dijkstra over the stairs' ends, in whole numbers),
                        facts.ts (world.room), pack.ts (format 19's buildings checked); M7.4 (D86): format 20's stages
-                       (packWorld.ts's stagesProblem and hasStage; stagesPack.test.ts) and pack.ts's ui.images
+                       (packWorld.ts's stagesProblem and hasStage; stagesPack.test.ts) and pack.ts's ui.images; M7.5 (D87): tiles/reach.ts (the doors a
+                       battle leaves open or welded laid over the grid, a unit's reach and its paths)
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts; tileMaps.ts, Space-Wrecked's example
                        ship and a packed tilemap from rows and map text (M7.2); towers.ts, the tower the room tests
@@ -636,7 +656,8 @@ packages/schema/       record types (strict zod), condition(), asset(), validati
                        and speed (npcFields.ts); M7.2: tilesetTypes.ts (tileset, an engine type: its sheet, tile, tiles
                        with their characters and rules, edge frames; legendOf; E092's record rules), the tilemap component
                        kind, a type file's lists of `lines` (a text box a line); M7.3: roomTypes.ts (room, an engine
-                       type: a name and a sprite), the building component kind, E094 and W158; not pure
+                       type: a name and a sprite), the building component kind, E094 and W158; M7.5: tacticsTypes.ts (battle-rules, gun, order and battle, an actor's gun and
+                       order, start-battle) and tacticsCheck.ts (E035, W160); not pure
   test/                samples.ts and events.ts: sample record types and facts the tests share
 packages/compiler/     project sources (memory, directory handle, zip), zips out (projectFiles, zipProject), compileProject, packs,
                        readTypes (types/ beside the code types), readProjectFiles (projectCheck.ts: what compileProject
@@ -691,7 +712,8 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        rooms, their sprites and the stairs' with their sheets; M7.4: stages.ts (stages/ read and
                        checked: E095, W159, what each space's stage reaches compiled for format 20; readStageProblems,
                        the editor's), uiImages.ts (the images screens show, as data URLs), PROJECT_FOLDERS with stages/
-                       and components/; not pure
+                       and components/; M7.5: battles.ts (E096, and fightersOf: the actors a battle sets out, packed
+                       with their sprites); not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -737,7 +759,11 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        v2) and shop.ts's merchants (a shop's actor's bag and purse); M6.9 (D81): fighting/stage.ts (the
                        blows and searches a bot may send), stages.ts (walkedStage: walk, or walk+fight), and
                        quests/start.ts's canStart (quests.can-start); M6.10 (D82): fighting/falls.ts's knockDown and the
-                       kit's rise (an essential actor down, not fallen, and up again; slice v2)
+                       kit's rise (an essential actor down, not fallen, and up again; slice v2); M7.5 (D87): tactics/
+                       (types.ts; records.ts; field.ts, sight, cover and walking; odds.ts, the odds exactly; fire.ts, a shot
+                       rolled; walk.ts, moves with overwatch firing partway; orders.ts and orderAi.ts; turns.ts, actions and
+                       turns; ai.ts and press.ts, the foes' player in whole numbers; foes.ts, their turn inside the crew's
+                       step; options.ts; view.ts, battleView for the page; lines.ts; fight.ts and module.ts)
   test/                market.ts, barracks.ts, embassy.ts, muster.ts, caravan.ts, crag.ts, dock.ts and board.ts (the
                        dock with a crew for slots, M3.10), sector.ts (a sector and a valley, M4.6), brawl.ts (a crew,
                        a ship, raiders and a brute, M4.7), village.ts (a smith, a guard and a dog, M6.3),
@@ -747,7 +773,9 @@ packages/kits/         the kits (eb.pure, M3.3, D41), each a module with its typ
                        and dock-quests-v2.json, by its version 2 (M6.6);
                        fixtures/saves/market-inventory-v1.json, a save by the inventory kit's version 1 (M6.1), and
                        market-inventory-v2.json, by its version 2 and the economy kit's version 1 (M6.8);
-                       fixtures/saves/camp-fighting-v1.json, by the fighting kit's version 1 (M6.10)
+                       fixtures/saves/camp-fighting-v1.json, by the fighting kit's version 1 (M6.10); deckFight.ts and
+                       tactics.ts, the tactics kit's test game and shared parts, by Space-Wrecked's numbers, and
+                       fixtures/space-wrecked/ (its NOTICE and example-battle.txt, the golden battle) (M7.5)
 packages/ink/          ink scenes (eb.pure, M3.11, D49): compileScene, chooser's subset into a talk and a map of
                        its lines: source.ts (comments out), text.ts and parse.ts (lines into items), expr.ts and
                        conditions.ts (ink conditions as the engine's, through EXTERNALs), tags.ts and fx.ts,
@@ -781,7 +809,8 @@ packages/ui/           a game's screens (M4.1, D51), not pure: format/ (screen.t
                        the stage's steps and the player's presses on one line to the worker, M6.3; Fallen.tsx, the fallen
                        player's screen and its checkpoint, M6.4); session/fighting.ts, the fight as the stage reads it (M6.4,
                        and the bodies emptied, M6.8); session/containers.ts, each container's name (M6.8),
-                       and fighting.ts's down (M6.10)
+                       and fighting.ts's down (M6.10); session/battle.ts, the battle the stage reads and the last step's beats,
+                       and render/battle.css, the battle's bar (M7.5)
 packages/models/       3D models (M5.5, D67), not pure, in the browser and in Node: io.ts (gltf-transform's reader and
                        writer with every extension, Meshopt's coders, a Draco decoder the caller brings), pack.ts
                        (a .glb, or a .gltf with its files, written as one GLB: reorder.ts for the vertex cache,
@@ -822,7 +851,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        fixtures/space-wrecked-captain.golden.json with every act 1–2 stage reached, and every
                        action on offer as the captain plays a button its screens draw); test/kaldvik.test.ts is
                        M6.10's (no problems, 50 seeds through the stage to fixtures/kaldvik-stranger.golden.json, every
-                       stage of every quest reached, Halvard down with no talk and up)
+                       stage of every quest reached, Halvard down with no talk and up); test/fight.test.ts is M7.5's
+                       (the fight clean, broken once each for E096, E035 and W160, 50 seeds by the kit's AI, random runs held to
+                       the rules, the session's battle), and test/boarding-fight.test.ts, the boarding stage's battle drawn and
+                       picked on a stand-in canvas
   test/fixtures/       salvage-game.ts (salvage run for eb sim), sloppy-game.ts, salvage-steady.golden.json; hold/,
                        a game written as scripts (M3.2); hangar/, a slice of Space-Wrecked's act 1 made with the
                        kits, and hangar-worker.golden.json; stall/ and stall-game.ts, a --game module the kits
@@ -904,7 +936,10 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        engine and stages/space-wrecked/ ported under its NOTICE (D86), the HUD's alarm.svg, which
                        boarding.test.ts validates clean, builds as format 20 and breaks once each for E095, E058, E029
                        and W159, and boarding-stage.test.ts holds to Space-Wrecked's map text and a golden hash, run on
-                       standInCanvas.ts's canvas
+                       standInCanvas.ts's canvas; since M7.5 its alarm sends Ines and Oren to their posts on the bridge and
+                       a sheet starts the boarders' battle once both are there; fight/, M7.5's gate: the boarding fight on the
+                       same deck drawn by stage2d's own drawer, three crew on the bridge against two pirates and the brute at
+                       the airlock, the alarm starting it
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json;
