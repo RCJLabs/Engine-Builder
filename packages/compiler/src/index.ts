@@ -169,6 +169,7 @@ export {
 } from './spaces.ts';
 export { FIT_DEFAULT, is2d, is2dValue } from './spaceView.ts';
 export { checkSprites, framesOf, sheetReader, spriteDiagnostics, spriteSheetOf } from './sprites.ts';
+export { checkStages, readStageProblems, readStages, type StagesRead } from './stages.ts';
 export { fromTemplate, idFromName, shortNameOf, type TemplateEntry } from './template.ts';
 export { checkTerrains, type PngHeader, pngHeader, type TerrainFileRead } from './terrains.ts';
 export {
@@ -190,5 +191,6 @@ export { checkTilesets, tilesetDiagnostics } from './tilesets.ts';
 export { type ProjectTypes, readTypes, type TypeReport } from './types.ts';
 export { checkProjectUi, packUi, readUi, type UiRead } from './ui.ts';
 export { classifyUi, FEEDBACK_FILE, SHELL_FILE, screenPath, THEME_FILE, UI_DIR, type UiFileRole } from './uiFiles.ts';
+export { imageAssetsOf } from './uiImages.ts';
 export { type DrawnSources, spaceSpawns } from './world.ts';
 export { type ZipLimits, zipSource } from './zipSource.ts';

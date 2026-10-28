@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { checkPureSource, scan } from '@eb/purity';
+import { checkPureSource, scan, stageViolations } from '@eb/purity';
 import { describe, expect, it } from 'vitest';
 import { sourceFiles, workspacePackages } from '../src/workspace.ts';
 
@@ -47,6 +47,21 @@ describe('pure rules', () => {
     expect(lines("import 'side-effect';\nconst m = await import('node:fs');\nimport type { T } from 'three';")).toEqual(
       [1, 2, 2, 3],
     );
+  });
+});
+
+describe('stage rules (M7.4)', () => {
+  const stage = (source: string) => stageViolations('x.ts', scan(source).code).map((v) => v.line);
+
+  it('let a picture use transcendental Math and **, but nothing nondeterministic or host-bound', () => {
+    expect(stage('const a = Math.sin(1) + Math.atan2(1, 2) + 2 ** 3;')).toEqual([]);
+    const source = ['const a = Math.random();', 'const b = Date.now();', 'document.body;', 'fetch(x);'].join('\n');
+    expect(stage(source)).toEqual([1, 2, 3, 4]);
+  });
+
+  it('refuse self and postMessage, so a stage answers only through what frame returns', () => {
+    expect(stage('self.close();\npostMessage(1);\nonmessage = f;\nimportScripts(x);')).toEqual([1, 2, 3, 4]);
+    expect(stage('const o = { self: 1 };\nworker.postMessage(1);')).toEqual([]);
   });
 });
 

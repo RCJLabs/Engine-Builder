@@ -2,10 +2,12 @@
  * The uses of a 2D space as the page's own buttons (M7.1, D83, docs/specs/2d-scenes.md#play), one
  * over each used sprite, 44 px at least: a tap or a click uses it, Tab and Shift+Tab move among them
  * (the shell's spatial focus and a pad's too), and Enter, Space or E uses the one focused. Focusing
- * one brings it into view, so every use is in reach without a pointer.
+ * one brings it into view, so every use is in reach without a pointer. A stage drawn in code (M7.4)
+ * says where each goes itself, in CSS pixels (placeAt).
  */
 import type { Point } from './camera.ts';
 import type { Drawn } from './draw.ts';
+import type { Rect } from './place.ts';
 import { centreOf, targetOf } from './uses.ts';
 
 export interface UseShown {
@@ -16,6 +18,8 @@ export interface UseShown {
 export interface UseButtons {
   /** After each frame: each button over its sprite as drawn. */
   place(drawn: ReadonlyMap<string, Drawn>, scale: number, dpr: number, corner: Point, rows: number): void;
+  /** Each button over the box a stage gave it, in CSS pixels; one it gave none is hidden (M7.4). */
+  placeAt(boxes: ReadonlyMap<string, Rect>): void;
   /** The uses there are now: a taken one goes. */
   set(uses: readonly UseShown[]): void;
   /** The hook's: each button, its label and its box in CSS pixels. */
@@ -33,6 +37,9 @@ export function createUseButtons(
   Object.assign(layer.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
   box.append(layer);
   const buttons = new Map<string, { button: HTMLButtonElement; label: string; world?: Point }>();
+
+  const put = (button: HTMLButtonElement, css: Rect) =>
+    Object.assign(button.style, { left: `${css.x}px`, top: `${css.y}px`, width: `${css.w}px`, height: `${css.h}px` });
 
   const make = ({ path, label }: UseShown) => {
     const button = document.createElement('button');
@@ -70,13 +77,7 @@ export function createUseButtons(
         const seen = drawn.get(path);
         entry.button.hidden = !seen;
         if (!seen) continue;
-        const css = targetOf(seen.box, scale, dpr);
-        Object.assign(entry.button.style, {
-          left: `${css.x}px`,
-          top: `${css.y}px`,
-          width: `${css.w}px`,
-          height: `${css.h}px`,
-        });
+        put(entry.button, targetOf(seen.box, scale, dpr));
         // Its place in the world, for focus: the box back from the canvas.
         entry.world = centreOf({
           x: seen.box.x + corner[0],
@@ -84,6 +85,13 @@ export function createUseButtons(
           w: seen.box.w,
           h: seen.box.h,
         });
+      }
+    },
+    placeAt(boxes) {
+      for (const [path, entry] of buttons) {
+        const box = boxes.get(path);
+        entry.button.hidden = !box;
+        if (box) put(entry.button, targetOf(box, 1, 1));
       }
     },
     shown: () =>

@@ -33,7 +33,14 @@ const brief = (diagnostics: readonly { code: string; file?: string; line?: numbe
 describe('checking scripts in the worker', () => {
   it('reads them as the compiler does, and runs game.ts only when asked', async () => {
     const unrun = await checkJob(scripts(hold()), false);
-    expect(unrun).toEqual({ ids: ['game', 'hold'], hasGame: true, diagnostics: [], ran: false, game: null });
+    expect(unrun).toEqual({
+      ids: ['game', 'hold'],
+      hasGame: true,
+      diagnostics: [],
+      ran: false,
+      game: null,
+      stages: [],
+    });
     const run = await checkJob(scripts(hold()), true);
     expect(run.ran).toBe(true);
     expect(run.game?.modules).toEqual(['logic', 'flag', 'sheet', 'hold']);
@@ -96,5 +103,24 @@ describe('Run in the worker', () => {
 
   it('names the bots there are when asked for another', async () => {
     await expect(playJob(hold(), 5, 'lazy')).rejects.toThrow('No bot "lazy": this game has random, greedy');
+  });
+});
+
+describe('checking stages in the worker (M7.4)', () => {
+  it('lists the stage files and says their problems, and a space’s stage that names none', async () => {
+    const encode = (text: string) => new TextEncoder().encode(text);
+    const space = { name: 'Deck', view: '2d', stage: 'board', objects: [] };
+    const files: SentFile[] = [
+      ...scripts(hold()),
+      ['stages/battle.ts', encode("import { defineStage } from 'eb/stage';\nexport const w = window;")],
+      ['spaces/deck.json', encode(JSON.stringify(space))],
+    ];
+    const checked = await checkJob(files, false);
+    expect(checked.stages).toEqual(['battle']);
+    expect(brief(checked.diagnostics)).toEqual([
+      'E095 spaces/deck.json:1',
+      'W159 stages/battle.ts',
+      'E029 stages/battle.ts:2',
+    ]);
   });
 });

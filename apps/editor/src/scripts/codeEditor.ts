@@ -14,7 +14,7 @@ import { Annotation, Compartment, EditorState, type Extension, type Text } from 
 import { drawSelection, EditorView, highlightActiveLine, keymap, lineNumbers } from '@codemirror/view';
 import type { Diagnostic } from '@eb/schema';
 import { tags } from '@lezer/highlight';
-import { type ProjectNames, scriptCompletions } from './completions.ts';
+import { type ProjectNames, scriptCompletions, stageCompletions } from './completions.ts';
 import { typedAhead } from './typedAhead.ts';
 
 /** Marks a change that comes from the file, which isn't typing to send back. */
@@ -82,6 +82,12 @@ const NO_NAMES = (): ProjectNames => ({ facts: [], events: [], effects: [], reco
 const scriptLanguage = (names: () => ProjectNames): Extension => [
   javascript({ typescript: true }),
   autocompletion({ override: [scriptCompletions(names), localCompletionSource] }),
+];
+
+/** TypeScript, with `"eb/stage"`'s names offered as you type (M7.4). */
+export const stageLanguage = (): Extension => [
+  javascript({ typescript: true }),
+  autocompletion({ override: [stageCompletions(), localCompletionSource] }),
 ];
 
 export function codeEditor(parent: HTMLElement, options: CodeOptions): CodeEditor {

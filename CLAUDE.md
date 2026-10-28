@@ -41,7 +41,7 @@ pnpm typecheck    # every package, plus tests via tsconfig.tests.json
 pnpm lint         # Biome + tools/lint-boundaries
 pnpm test         # Vitest
 pnpm build        # an exported game's runtime into apps/editor/dist-game, walk.js, nav.js and stage2d.js beside it (M5.8, M6.2,
-                  # M7.1), then apps/editor/dist
+                  # M7.1; a stage's worker inside stage2d.js, M7.4), then apps/editor/dist
                   # (the player page at play/ and the runtime at runtime/ with it), then the 3D spike into
                   # apps/editor/dist/spikes/3d, then pnpm build:games: Space-Wrecked's web export into
                   # apps/editor/dist/games/space-wrecked (M4.12), the trail's into apps/editor/dist/games/trail (M5.8)
@@ -109,7 +109,8 @@ apps/editor/           the editor PWA
                        changes, as plain functions), LogicPanel and its lazy LogicBrowser, the sheet editor's parts
                        (SheetRows, WhenField, EffectsField, choices.tsx, JsonField, WalkToFields since M6.2, with follow and stand since M6.3) in the record form; M3.2's
                        ScriptsSection (scripts, Start a game, trust) and RunGame (Run's 20 games); KitEffect.tsx
-                       (a kit's effect, its form drawn from its fields, M3.3); ScenesSection (M3.11)
+                       (a kit's effect, its form drawn from its fields, M3.3); ScenesSection (M3.11); StagesList.tsx
+                       (M7.4, D86: the stages under stages/, New stage)
   src/dialogue/        the talk map (M3.8, D46): talkMap.ts (rows by steps from a start, where each line leads, as
                        a plain function of the talk's value; branches and lines that pass, M3.11) and TalkMap.tsx,
                        above a talk's form or beside a scene; its styles, styles/kitMap.css, the quest map's too
@@ -130,7 +131,9 @@ apps/editor/           the editor PWA
                        gameState.ts (the open project's game); known.ts (what forms offer from it); templates.ts,
                        scriptEdits.ts (text files' steps, a scene's too), playFiles.ts; the lazy ScriptEditor with
                        CodeMirror (codeEditor.ts, completions.ts, typedAhead.ts; codeFile.tsx, the parts the scene
-                       editor shares); open.ts
+                       editor shares); open.ts; M7.4 (D86): stage files in the same editor (open.ts's openStage,
+                       completions.ts's stageCompletions, templates.ts's stageTemplate, the stage's problems from the
+                       worker's check), playFiles.ts sending the images screens show whole
   src/assets/          the asset browser (M2.7): assetLog.ts (the provenance log's JSON), assetPaths.ts (names and
                        free paths), assetEdits.ts (steps over the working copy), assetList.ts (rows and the
                        compiler's problems per asset), entries.ts, importPlan.ts and replacing.ts (what the forms
@@ -224,7 +227,8 @@ apps/editor/           the editor PWA
                        (D78): fromAbove.ts (a space drawn from straight above for Bake map; leftOut, what it hides),
                        build.ts's OFF_MAP (marks, zones, spawn points and characters left off a map); M6.7 (D79):
                        tags.ts (a typed tag tidied, whether it can be added, the project's tags) and TagsField.tsx (a
-                       space's, an object's and, as an override, an object's inside a placement)
+                       space's, an object's and, as an override, an object's inside a placement); M7.4 (D86):
+                       StageField.tsx (a 2D space's Stage, with nothing chosen) and spaceEdits.ts's withSpaceStage
   src/nav/             navmeshes in the editor (M6.2, D74): geometry.ts (the solids and the terrain as Recast's soup of
                        triangles), lib.ts (Recast and Detour: a soup baked, a navmesh opened, paths, closest points, the
                        crowd), entry.ts (nav.js's, built by vite.nav.config.ts beside walk.js); bake.worker.ts,
@@ -319,7 +323,17 @@ apps/editor/           the editor PWA
                        (D85): building2d.ts (a building's pieces, each room's sprite across it and the ladders up their
                        floors; a walker's way through it by core's route, from its own floor's foot; tested in
                        building2d.test.ts and drawBuilding.test.ts), walkers.ts's Ground (the tilemap or the building);
-                       tower.test.ts walks the tower's folk through a night headless and rings its bell
+                       tower.test.ts walks the tower's folk through a night headless and rings its bell; M7.4 (D86):
+                       simSide.ts (the walkers, arrivals, clock and uses, shared with a stage's drawing), stage.ts
+                       handing a space with a stage to stagecode/
+  src/stagecode/       a 2D space drawn by its own stage (M7.4, D86), inside stage2d.js: api.ts (what "eb/stage" gives
+                       and a stage is handed), protocol.ts, runner.ts (a stage run on its canvas: start, each frame at
+                       its pixel ratio, a throw stopped at its file and line) and stage.worker.ts, inlined by
+                       vite.stage2d.config.ts; on the page, client.ts (the worker, a frame only once the last is
+                       drawn, svg() decoded by svgImage.ts), input.ts and gestures.ts (drags, twists, the wheel, the
+                       stage's keys, taps), frames.ts (the frame from stage2d's walkers), sheets.ts, alert.ts and
+                       codeStage.ts (the loop, the uses' buttons where the stage boxed them, the hook's code());
+                       stagecode.test.ts
   src/spaces2d/        the Scene panel's 2D view (M7.1, D83): view2d.ts (the zoom, screen to world and back, a pan, a zoom
                        about a point, Frame) and pick2d.ts (the pick by a frame's box, moves in whole pixels, the arrows)
                        as plain functions with tests (view2d.test.ts); state2d.ts (where Add puts things, the zoom asked),
@@ -513,9 +527,16 @@ apps/editor/           the editor PWA
                        played through window.__ebStage2d: each room's sprite across its slots and the ladders up their
                        floors, the folk climbing only at the stairs, the bell by a click, the keys and a tap at 360, 390
                        and sideways, the camera dragged, and exported as one file played offline; towerEditor.spec.ts, a
-                       tower raised from the starter rooms in the Scene panel alone at 1280 and 390, then played
+                       tower raised from the starter rooms in the Scene panel alone at 1280 and 390, then played;
+                       boardingHelpers.ts, boarding.spec.ts, boardingPhone.spec.ts and boardingExport.spec.ts are M7.4's,
+                       the boarding deck drawn by Space-Wrecked's battle board as a stage, read through
+                       window.__ebStage2d.code(): its frames, the board's colours, the crew walking, the board turned by
+                       a drag, a twist, the arrows and the wheel, the alarm by a click, a tap and the keyboard, the HUD's
+                       SVG, at 1280, 360, 390 and sideways, and exported as one file played offline; stageEditor.spec.ts,
+                       a stage made with New stage on the deck at 1280 and 390, a problem at its line, an SVG badge, the
+                       Stage field, then played
 apps/spike-3d/         M1.10's throwaway 3D spike, served at /spikes/3d/ (D27): three.js, Rapier, tiers, a reading
-packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 18)
+packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, record store, readPack (pack formats 1 to 20)
   src/sim/             the sim kernel: defineModule, createGame (reduce, check, preview, migrate, content), attempts,
                        sessions, events and listeners (events.ts, M3.1); made.ts, records modules make in play, and
                        a module's start (M3.6); debug.ts, the editor's debug step and debugStepsOf (M4.9)
@@ -551,7 +572,8 @@ packages/core/         pure kernel (eb.pure): rng, hashes, state fingerprints, r
                        whole numbers), facts.ts (world.sees and world.cover), pack.ts (format 18's tiles checked); M7.3
                        (D85): rooms/, a building as the sim reads it: building.ts (format 19's building, a place's floor
                        and x, the room it is in), route.ts (afterglass's Dijkstra over the stairs' ends, in whole numbers),
-                       facts.ts (world.room), pack.ts (format 19's buildings checked)
+                       facts.ts (world.room), pack.ts (format 19's buildings checked); M7.4 (D86): format 20's stages
+                       (packWorld.ts's stagesProblem and hasStage; stagesPack.test.ts) and pack.ts's ui.images
   test/                salvage.ts (the test-only text game, with flags and a trigger sheet since M3.1);
                        salvage-, sat-, time-, save-, sweep- and trigger-bench.ts; tileMaps.ts, Space-Wrecked's example
                        ship and a packed tilemap from rows and map text (M7.2); towers.ts, the tower the room tests
@@ -666,7 +688,10 @@ packages/compiler/     project sources (memory, directory handle, zip), zips out
                        pixels, through prefabs), tilesets.ts (each tileset's sheet read to its PNG header: E092), world.ts
                        packs a tileset and its sheet; M7.3: buildings.ts (a space's building through prefabs, E094, W158,
                        floorsReached, format 19's buildings), space2d.ts's E058 for a building in 3D, world.ts packs the
-                       rooms, their sprites and the stairs' with their sheets; not pure
+                       rooms, their sprites and the stairs' with their sheets; M7.4: stages.ts (stages/ read and
+                       checked: E095, W159, what each space's stage reaches compiled for format 20; readStageProblems,
+                       the editor's), uiImages.ts (the images screens show, as data URLs), PROJECT_FOLDERS with stages/
+                       and components/; not pure
   test/fixtures/v1/    the format-1 fixture project: must keep compiling to its golden hash
   test/fixtures/ludus/ a project made only of data (types/, records, an asset and its provenance log): compiles
                        with no --types module
@@ -776,10 +801,13 @@ packages/export/       a game's exports (M4.10, D60), not pure: targets.ts (the 
                        stage2d.js the same for a game with a 2D space (M7.1, stage2d.test.ts)
   test/                hut.ts (the hut with a map of the summit and a taster), export-bench.ts
 packages/purity/       the purity rules (eb.pure): scan.ts (tokenizer), rules.ts; tools/lint-boundaries holds the
-                       engine to them, the compiler a project's scripts (M3.2)
+                       engine to them, the compiler a project's scripts (M3.2) and its stages (stageViolations: the
+                       rules less transcendental Math and **, and no self or postMessage, M7.4)
 packages/script/       project scripts (M3.2, D38): files.ts (scripts/<id>.ts), check.ts (E028–E030, no running),
                        transpile.ts (sucrase), load.ts (the CommonJS loader), api.ts ("eb") and apiDocs.ts (the lists
-                       completion offers), game.ts and project.ts (game.ts read, E031/E032), catalog.ts; not pure
+                       completion offers), game.ts and project.ts (game.ts read, E031/E032), catalog.ts; M7.4 (D86):
+                       stages.ts (checkStage: E028–E030 by the stage rules) and stageLoad.ts (EB_STAGE, loadStage, the
+                       "./stage-load" export the stage's worker runs); modules.ts shared with the loader; not pure
 packages/platform/     the browser's side of saves; not pure: stores (IndexedDB, localStorage, memory), openStore,
                        createSaves (slots, backups, quarantine; loadWith, a save read where the game runs, raw and
                        forget, M4.3; the arrival checkpoint kept beside each slot, M6.4), save codes, requestPersistence
@@ -871,7 +899,12 @@ tools/cli/             eb validate | build | schemas | sim | export | publish; f
                        four floors of two slots with a hall and the watch room across a floor each and ladders on
                        alternate sides, a warden and two of the watch on their rounds, a bell that brings them to the
                        hall and the HUD's line on the warden by world.room, which tower.test.ts validates clean, builds as
-                       format 19 and breaks once each for E094, E058 and W158
+                       format 19 and breaks once each for E094, E058 and W158; boarding/, M7.4's gate: the deck drawn
+                       by Space-Wrecked's battle board as its stage, stages/battle.ts and stages/deck/ written for the
+                       engine and stages/space-wrecked/ ported under its NOTICE (D86), the HUD's alarm.svg, which
+                       boarding.test.ts validates clean, builds as format 20 and breaks once each for E095, E058, E029
+                       and W159, and boarding-stage.test.ts holds to Space-Wrecked's map text and a golden hash, run on
+                       standInCanvas.ts's canvas
 templates/             the templates New project and eb new start from (M4.11, D61), listed by templates.json:
                        salvage-coast/ (the Expedition run: a harbour, a seeded coast, a debt) and last-ferry/ (Story
                        and choices: ink scenes, flags, three endings), each a project folder with its guide.json;

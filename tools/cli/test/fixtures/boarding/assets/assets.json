@@ -1,0 +1,38 @@
+{
+  "files": {
+    "alarm.svg": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn by hand for the boarding deck's HUD, dedicated to the public domain",
+      "date": "2026-10-27"
+    },
+    "starter-sprites/figure-guard.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/figure-keeper.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/sky-stars.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    },
+    "starter-sprites/deck-tiles.png": {
+      "licence": "CC0-1.0",
+      "author": "RCJLabs",
+      "source": "Drawn in code by RCJLabs for Engine-Builder, dedicated to the public domain",
+      "date": "2026-10-27",
+      "tool": "tools/starter-kit (sprites)"
+    }
+  }
+}

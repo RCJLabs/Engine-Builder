@@ -91,6 +91,7 @@ my-game/
   components/<kind>.json   the project's own component kinds, as type files (M5.2)
   ui/<screen>.json         screens: widget trees, bindings, actions
   scripts/<id>.ts          the game's code: modules, bots; scripts/game.ts is the game (M3.2)
+  stages/<id>.ts           a 2D space's own drawing, in code, named by the space's stage (M7.4)
   scenes/<id>.ink          ink scenes, compiled into talks (M3.11)
   assets/…                 images, audio, models (one packed GLB each, M5.5), fonts, plus assets.json (provenance)
   locales/<lang>.json      string tables (Phase 8)
@@ -214,7 +215,7 @@ Fights are the encounters kit's (M4.7, [D57](decisions.md), [specs/encounters.md
 | Node-graph maps | 4 | Sector, valley, coast and county maps. The maps kit (M4.6, D56, [specs/maps.md](specs/maps.md)): layered maps made from a seed by rules written as data (counts, weights and layer windows, such as "a camp within 2 of the boss"), checked over 300 seeds; maps drawn by hand with roads; travel as an action whose cost, time and effects show by the sim's own preview; and the map widget, up a phone and across anything wider. |
 | 3D worldspaces | 5–6 | Exterior worldspaces in chunks, streamed by distance; interiors as separate scenes joined by load doors; persistent references. |
 | 2D scenes | 7 | Sprites, clips and parallax in whole art pixels (M7.1, D83, [specs/2d-scenes.md](specs/2d-scenes.md)). Side-view rooms (M7.3, D85, [specs/rooms.md](specs/rooms.md)): a room record and a building component of floors of equal slots, rooms spanning one or more, stairs between floors, walkers routed through them in the pure core from pack format 19, and `world.room`. Tilemaps (M7.2, D84, [specs/tilemaps.md](specs/tilemaps.md)): a tileset record, a tilemap component of layers of characters with walls, the hull, doors and hatches on the edges in Space-Wrecked's map text, a 4-bit autotile, and walk, cover and sight per tile worked out by the compiler into pack format 18; sight and cover are the facts `world.sees` and `world.cover`, and walkers route four ways round the walls by the pure core's routes. Side-view floors and rooms later. |
-| Custom stages | 7 | Renderers drawn in code (Canvas2D, SVG) behind a small API, so code-drawn art keeps working. |
+| Custom stages | 7 | A 2D space drawn by the project's own code (`stages/`, D86): Canvas 2D in a locked worker, the engine keeping the walkers, clock and uses; SVG drawn as images ([specs/stages.md](specs/stages.md)). |
 
 **3D stack**
 

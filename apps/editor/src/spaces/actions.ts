@@ -18,6 +18,7 @@ import {
   placeObjects,
   renameObject,
   setAxis,
+  withSpaceStage,
   withSpaceTags,
 } from './spaceEdits.ts';
 import { type SpaceJson, type SpaceObject, transformOf, withTransform } from './spaceFile.ts';
@@ -116,6 +117,10 @@ export const setObject = (id: string, patch: Partial<SpaceObject>, label: string
 /** The open space's own tags (M6.7), as one step. */
 export const setSpaceTags = (tags: readonly string[]): Promise<void> =>
   editOpen(`Tags of ${openSpace.value?.id}`, (space) => withSpaceTags(space, tags));
+
+/** The 2D space's stage (M7.4), or none: one step. */
+export const setSpaceStage = (stage: string | undefined): Promise<void> =>
+  editOpen(`Stage of ${openSpace.value?.id}`, (space) => withSpaceStage(space, stage));
 
 /** The chosen objects made into prefabs/<id>.json, and one placement of it where they were: one step. */
 export async function groupChosen(id: string, typed: string): Promise<void> {

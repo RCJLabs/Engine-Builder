@@ -24,6 +24,10 @@ export const PROJECT_FOLDERS: readonly string[] = [
   // A 3D world's places and their reusable parts (M5.1, D63).
   'spaces',
   'prefabs',
+  // The project's own component kinds (M5.2, D64) and its stages (M7.4, D86): left out until M7.4,
+  // so Play, Export and a project's zip dropped them.
+  'components',
+  'stages',
 ];
 
 export type TypeFileRole =

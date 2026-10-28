@@ -22,8 +22,10 @@ import {
   gameChecks,
   hasSpaces,
   isScriptPath,
+  isStagePath,
   NO_SCRIPTS,
   readGameState,
+  stagesNamed,
 } from '../scripts/gameState.ts';
 import { type ScriptWorker, scriptWorker } from '../scripts/scriptWorker.ts';
 import { folderKey, libraryKey, pageKey, type TrustKey, trust } from '../scripts/trust.ts';
@@ -103,6 +105,7 @@ let checker: ScriptWorker | null = null;
 /** Whether each working copy had a space when its game was last checked. */
 const hadSpaces = new WeakMap<WorkingCopy, boolean>();
 const hadHolds = new WeakMap<WorkingCopy, boolean>();
+const hadStaging = new WeakMap<WorkingCopy, string>();
 
 /**
  * Reads the summary, the catalog and the record index again after changes to `copy`, one read
@@ -125,10 +128,14 @@ function refresher(copy: WorkingCopy): Refresh {
       const placed = (path: string) => path.startsWith(`${SPACES_DIR}/`) || path.startsWith(`${PREFABS_DIR}/`);
       const reread = paths === null || !hadHolds.has(copy) || paths.some((p) => p === MANIFEST_FILE || placed(p));
       const holds = spaces && (reread ? (await readKitSettings(copy)).holds === true : hadHolds.get(copy) === true);
-      const turned = hadSpaces.get(copy) !== spaces || hadHolds.get(copy) !== holds;
+      // And a space's stage set, changed or taken away (M7.4): its E095, and W159 for the files.
+      const staging = reread ? await stagesNamed(copy) : (hadStaging.get(copy) ?? '');
+      const turned = hadSpaces.get(copy) !== spaces || hadHolds.get(copy) !== holds || hadStaging.get(copy) !== staging;
       hadSpaces.set(copy, spaces);
       hadHolds.set(copy, holds);
-      if (paths === null || turned || paths.some((path) => isScriptPath(path) || path === MANIFEST_FILE)) {
+      hadStaging.set(copy, staging);
+      const coded = (path: string) => isScriptPath(path) || isStagePath(path) || path === MANIFEST_FILE;
+      if (paths === null || turned || paths.some(coded)) {
         checker ??= scriptWorker();
         game = await readGameState(copy, checker, trust.trusted(open.trustKey));
         open = current.value;

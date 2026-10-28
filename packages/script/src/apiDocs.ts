@@ -116,3 +116,49 @@ export const RNG_API: readonly ApiEntry[] = [
   fn('shuffle', '<T>(items: T[]) => T[]', 'The items in a new order.'),
   fn('fork', '(label: string | number) => Rng', 'A stream of its own that never shifts this one.'),
 ];
+
+/** What `import { … } from 'eb/stage'` gives a stage (M7.4, D86). */
+export const STAGE_API: readonly ApiEntry[] = [
+  fn(
+    'defineStage',
+    '({ start?, frame }) => Stage',
+    'A stage: start runs once, frame draws each frame on the canvas and may return the uses’ boxes.',
+  ),
+  fn(
+    'svg',
+    '(text: string, w: number, h: number) => Promise<ImageBitmap>',
+    'SVG text drawn by the page at w by h device pixels, for g.drawImage.',
+  ),
+];
+
+/** The parts of the definition defineStage takes, for completion inside its braces. */
+export const STAGE_DEF_API: readonly ApiEntry[] = [
+  fn('start', '(s: Start) => void', 'Once, before the first frame: s.space, s.size, s.world, s.places, s.sheets.'),
+  fn(
+    'frame',
+    '(g: CanvasRenderingContext2D, f: Frame) => { uses? } | void',
+    'Each frame: draw in CSS pixels; return { uses: [{ object, box: [x, y, w, h] }] } for the use buttons.',
+  ),
+];
+
+/** What a frame holds, for completion after `f.`. */
+export const FRAME_API: readonly ApiEntry[] = [
+  value('t', 'number', 'Seconds since the stage started, on the page’s clock.'),
+  value('dt', 'number', 'Seconds since the last frame the stage drew, at most 0.1.'),
+  value('w', 'number', 'The box’s width in CSS pixels.'),
+  value('h', 'number', 'The box’s height in CSS pixels.'),
+  value('dpr', 'number', 'Device pixels to a CSS pixel, at most 2: the context is already scaled by it.'),
+  value('still', 'boolean', 'The player asked for reduced motion: animate nothing that isn’t theirs.'),
+  value('walkers', '{ actor, at: [x, y], facing: 1 | -1, moving }[]', 'The walkers, at in art pixels, y up.'),
+  value(
+    'world',
+    '{ here, fight?, markers? }',
+    'What the Space widget reads: the player here, the fights, the markers.',
+  ),
+  value('taken', 'string[]', 'The objects taken from the space, by path.'),
+  value(
+    'input',
+    '({ kind: "drag" | "twist" | "wheel" | "key" | "tap", … })[]',
+    'What the player did since the last frame, in order.',
+  ),
+];

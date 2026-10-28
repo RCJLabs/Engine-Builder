@@ -1,7 +1,7 @@
 /**
  * What a space's view draws (M7.1, D83, docs/specs/2d-scenes.md#a-2d-space): E058 for what a 2D
  * space has no use for (terrain, an environment, a cylinder or a plane, a scale that isn't whole, a
- * turn, water, a placed model) and for what only a 2D space draws (a fit, a size, a backdrop, a
+ * turn, water, a placed model) and for what only a 2D space draws (a fit, a size, a backdrop, a stage since M7.4, a
  * sprite, a parallax layer, a tilemap since M7.2, a building since M7.3). Each object is held to its space's view as placed, through prefabs and
  * overrides: a prefab has no view of its own, so what one places is its space's to answer for.
  */
@@ -11,7 +11,7 @@ import type { SpaceKind } from './spaceFiles.ts';
 import type { SpaceJson, SpaceObject } from './spaceShape.ts';
 import { is2d } from './spaceView.ts';
 
-const ONLY_2D = ['fit', 'size', 'backdrop'] as const;
+const ONLY_2D = ['fit', 'size', 'backdrop', 'stage'] as const;
 const FLAT_SHAPES = new Set(['box', 'sphere']);
 
 /** What one object, as placed, can't be in a space of this view: a field and why, each. */

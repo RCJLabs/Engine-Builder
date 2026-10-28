@@ -9,31 +9,26 @@ import { useUniqueId } from '../app/ids.ts';
 import { editing } from '../editing/current.ts';
 import { type OpenProject, runScripts } from '../projects/opened.ts';
 import { NameRecord } from '../records/NameRecord.tsx';
-import type { GameState } from '../scripts/gameState.ts';
+import { type GameState, trustFirst } from '../scripts/gameState.ts';
 import { openScript } from '../scripts/open.ts';
 import { createTextFiles } from '../scripts/scriptEdits.ts';
 import { moduleTemplate, startFiles } from '../scripts/templates.ts';
-import { trust } from '../scripts/trust.ts';
 import { RunGame } from './RunGame.tsx';
+import { StagesList } from './StagesList.tsx';
 
 const count = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
-/** A project's first script is its author's own: from then on its scripts run here (D38). */
-function trustFirst(project: OpenProject): void {
-  if (project.game.ids.length === 0) trust.trust(project.trustKey);
-}
-
 function startGame(project: OpenProject): void {
-  trustFirst(project);
-  void editing
-    .edit('Start the game’s scripts', (copy) => createTextFiles(copy, startFiles(project.game.ids)))
+  void trustFirst(project.source, project.trustKey)
+    .then(() => editing.edit('Start the game’s scripts', (copy) => createTextFiles(copy, startFiles(project.game.ids))))
     .then(() => openScript(GAME_SCRIPT));
 }
 
 function newScript(project: OpenProject, id: string): void {
-  trustFirst(project);
-  void editing
-    .edit(`New script ${id}`, (copy) => createTextFiles(copy, [[scriptPath(id), moduleTemplate(id)]]))
+  void trustFirst(project.source, project.trustKey)
+    .then(() =>
+      editing.edit(`New script ${id}`, (copy) => createTextFiles(copy, [[scriptPath(id), moduleTemplate(id)]])),
+    )
     .then(() => openScript(id));
 }
 
@@ -93,6 +88,7 @@ export function ScriptsSection({ project }: { project: OpenProject }) {
         </div>
       ) : null}
       {game.status === 'loaded' && game.catalog ? <RunGame project={project} catalog={game.catalog} /> : null}
+      <StagesList project={project} />
     </section>
   );
 }

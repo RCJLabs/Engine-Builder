@@ -24,7 +24,7 @@ import {
 } from '@eb/compiler';
 import { pointerKeys } from '@eb/core';
 import type { Diagnostic } from '@eb/schema';
-import { classifyScript, SCRIPTS_DIR } from '@eb/script';
+import { classifyScript, classifyStage, SCRIPTS_DIR, STAGES_DIR } from '@eb/script';
 import type { Catalog } from '../forms/catalog.ts';
 import { nameIn } from '../records/names.ts';
 import { describePath } from '../records/paths.ts';
@@ -41,6 +41,7 @@ export type Place =
   | { readonly kind: 'component'; readonly id: string }
   | { readonly kind: 'asset'; readonly path: string }
   | { readonly kind: 'script'; readonly id: string; readonly line?: number; readonly column?: number }
+  | { readonly kind: 'stage'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'scene'; readonly id: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'ui'; readonly path: string; readonly line?: number; readonly column?: number }
   | { readonly kind: 'space'; readonly path: string; readonly object?: number }
@@ -94,6 +95,8 @@ export function placeOf(problem: Diagnostic, catalog: Catalog): Place | null {
   const at = { ...(line !== undefined ? { line } : {}), ...(column !== undefined ? { column } : {}) };
   const script = scriptOf(file);
   if (script !== undefined) return { kind: 'script', id: script, ...at };
+  const stage = file.startsWith(`${STAGES_DIR}/`) ? classifyStage(file) : undefined;
+  if (stage?.kind === 'stage') return { kind: 'stage', id: stage.file, ...at };
   const scene = file.startsWith(`${SCENES_DIR}/`) ? classifyScene(file) : undefined;
   if (scene?.kind === 'scene') return { kind: 'scene', id: scene.id, ...at };
   const ui = uiOf(file);

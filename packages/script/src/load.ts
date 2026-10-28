@@ -6,6 +6,7 @@
 import { EB_MODULE } from './api.ts';
 import { EB, importedScript } from './check.ts';
 import { SCRIPTS_DIR, scriptPath } from './files.ts';
+import { headerLines, runModules } from './modules.ts';
 
 /** Something a script did wrong while running, at its script and line when the engine says. */
 export class ScriptError extends Error {
@@ -21,25 +22,6 @@ export class ScriptError extends Error {
 }
 
 const FRAME = new RegExp(`\\b${SCRIPTS_DIR}/([a-z0-9-]+)\\.ts:(\\d+):\\d+`);
-
-let header: number | undefined;
-
-/**
- * How many lines an engine's new Function puts above a body: two in V8 ("function
- * anonymous(require,exports,module" and ") {"). Measured once rather than assumed, as Firefox's
- * and Safari's engines need not agree.
- */
-function headerLines(): number {
-  if (header !== undefined) return header;
-  header = 2;
-  try {
-    new Function(`throw new Error('probe');\n//# sourceURL=${SCRIPTS_DIR}/header-probe.ts`)();
-  } catch (error) {
-    const line = Number(/header-probe\.ts:(\d+)/.exec(error instanceof Error ? (error.stack ?? '') : '')?.[1]);
-    if (Number.isSafeInteger(line) && line >= 1) header = line - 1;
-  }
-  return header;
-}
 
 /** The script and line an error was thrown at, from its stack, when it came from a script. */
 export function scriptLocation(error: unknown): { script: string; line?: number } | undefined {
@@ -61,35 +43,23 @@ export function asScriptError(error: unknown): ScriptError {
   return new ScriptError(message, at?.script, at?.line);
 }
 
-/**
- * The exports of `entry`, running it and every script it imports, each once. A script imported
- * while it is still running gets what it has exported so far, as Node's require gives.
- */
+/** The exports of script `entry`, running it and every script it imports, each once. */
 export function loadScripts(compiled: ReadonlyMap<string, string>, entry: string): Readonly<Record<string, unknown>> {
-  const loaded = new Map<string, { exports: Record<string, unknown> }>();
-  const load = (id: string): Record<string, unknown> => {
-    const known = loaded.get(id);
-    if (known) return known.exports;
-    const js = compiled.get(id);
-    if (js === undefined) throw new ScriptError(`There is no script ${scriptPath(id)}`, id);
-    const module = { exports: {} as Record<string, unknown> };
-    loaded.set(id, module);
-    const require = (spec: string): unknown => {
-      if (spec === EB) return EB_MODULE;
-      const script = importedScript(spec);
-      if (script === undefined) throw new ScriptError(`A script may import "eb" and other scripts, not "${spec}"`, id);
-      return load(script);
-    };
-    try {
-      new Function('require', 'exports', 'module', `${js}\n//# sourceURL=${scriptPath(id)}`)(
-        require,
-        module.exports,
-        module,
-      );
-    } catch (error) {
-      throw asScriptError(error);
-    }
-    return module.exports;
-  };
-  return load(entry);
+  return runModules(
+    {
+      compiled,
+      resolve(_from, spec) {
+        if (spec === EB) return { builtin: EB_MODULE };
+        const script = importedScript(spec);
+        return script === undefined
+          ? { error: `A script may import "eb" and other scripts, not "${spec}"` }
+          : { id: script };
+      },
+      pathOf: scriptPath,
+      missing: (id) => new ScriptError(`There is no script ${scriptPath(id)}`, id),
+      refused: (message, from) => new ScriptError(message, from),
+      thrown: asScriptError,
+    },
+    entry,
+  );
 }

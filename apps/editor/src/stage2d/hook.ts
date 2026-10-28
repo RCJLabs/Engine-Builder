@@ -5,7 +5,8 @@
  * flip), a frame count, the uses' buttons, the walkers and what was sent. Read only; `look` moves
  * the camera as a drag would. Since M7.2 each walker's route as tiles, and the space's tilemap: its
  * size, tile, corner and each layer's frame at each cell as drawn. Since M7.3 each walker's route through a
- * building as floors and x, and the building's pieces as drawn.
+ * building as floors and x, and the building's pieces as drawn. Since M7.4, for a space drawn by its
+ * stage, code(): what the stage drew.
  */
 
 import type { BuildingPiece } from './building2d.ts';
@@ -49,6 +50,18 @@ export interface Stage2dHook {
   look(at: Point): void;
   /** An item's world box, as placed in the file, for a test to aim at. */
   boxOf(path: string): Rect | undefined;
+  /**
+   * A space drawn by its stage (M7.4): its entry, the frames it drew and the last one's milliseconds,
+   * the uses it gave a box and those it didn't, and the error that stopped it, if one did.
+   */
+  code?(): {
+    readonly stage: string;
+    readonly frames: number;
+    readonly ms: number;
+    readonly boxed: readonly string[];
+    readonly unboxed: readonly string[];
+    readonly error?: string;
+  };
 }
 
 declare global {

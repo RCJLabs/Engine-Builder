@@ -27,6 +27,7 @@ import {
   type Widget,
 } from '@eb/ui/format';
 import { z } from 'zod';
+import { asset } from './assets.ts';
 
 const steps = z.int().min(0).max(8);
 const layout = {
@@ -69,7 +70,7 @@ const widgetSchema: z.ZodType<Widget> = z.lazy(() =>
     z.strictObject({ widget: z.literal('panel'), children, direction: layout.direction, gap: layout.gap, ...base }),
     z.strictObject({ widget: z.literal('grid'), children, columns: z.int().min(1).max(6), gap: layout.gap, ...base }),
     z.strictObject({ widget: z.literal('text'), text, style: z.enum(TEXT_STYLES).optional(), ...base }),
-    z.strictObject({ widget: z.literal('image'), asset: z.string().min(1), alt: z.string(), ...base }),
+    z.strictObject({ widget: z.literal('image'), asset: asset('image'), alt: z.string(), ...base }),
     z.strictObject({
       widget: z.literal('button'),
       label: z.string().min(1),

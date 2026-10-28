@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { CheckResult, ScriptReply, ScriptRequest } from './protocol.ts';
 import { CHECK_MS, PLAY_MS, ScriptTimeout, scriptWorker, type WorkerLike } from './scriptWorker.ts';
 
-const CHECKED: CheckResult = { ids: ['game'], hasGame: true, diagnostics: [], ran: true, game: null };
+const CHECKED: CheckResult = { ids: ['game'], hasGame: true, diagnostics: [], ran: true, game: null, stages: [] };
 
 /** Workers that hold what they are sent until a test answers, and timers a test fires. */
 function harness() {

@@ -13,9 +13,10 @@ import {
   SPACES_DIR,
 } from '@eb/compiler';
 import { type Diagnostic, severityOf, type ValidateOptions } from '@eb/schema';
-import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, scriptPath } from '@eb/script';
+import { classifyScript, GAME_SCRIPT, type GameCatalog, SCRIPTS_DIR, STAGES_DIR, scriptPath } from '@eb/script';
 import type { CheckResult, SentFile } from './protocol.ts';
 import { CHECK_MS, ScriptTimeout, type ScriptWorker } from './scriptWorker.ts';
+import { type TrustKey, type TrustStore, trust } from './trust.ts';
 
 export type GameStatus =
   /** No scripts at all. */
@@ -34,15 +35,30 @@ export interface GameState {
   /** Every script by id, sorted. */
   readonly ids: readonly string[];
   readonly status: GameStatus;
-  /** E028 to E032, W111 and W112, sorted as the compiler sorts. */
+  /** E028 to E032, W111 and W112, sorted as the compiler sorts; the stages' too, E095 and W159 (M7.4). */
   readonly problems: readonly Diagnostic[];
+  /** Every stage file by its path under stages/ without `.ts`, sorted (M7.4). */
+  readonly stages: readonly string[];
   /** What the game declares, once it has run and loaded. */
   readonly catalog: GameCatalog | null;
 }
 
-export const NO_SCRIPTS: GameState = { ids: [], status: 'none', problems: [], catalog: null };
+export const NO_SCRIPTS: GameState = { ids: [], status: 'none', problems: [], catalog: null, stages: [] };
+
+/**
+ * Before the first script or stage is written: a project with none is its author's own from then on,
+ * so its scripts run here (D38). Read from its files, never from the game's state, which a project
+ * just opened hasn't read yet: New stage on a zip just imported trusted its scripts unasked (M7.4).
+ */
+export async function trustFirst(source: ProjectSource, key: TrustKey, store: TrustStore = trust): Promise<void> {
+  const [scripts, stages] = await Promise.all([source.files(SCRIPTS_DIR), source.files(STAGES_DIR)]);
+  if (scripts.length === 0 && stages.length === 0) store.trust(key);
+}
 
 export const isScriptPath = (path: string): boolean => path === SCRIPTS_DIR || path.startsWith(`${SCRIPTS_DIR}/`);
+
+/** A file under stages/ (M7.4), which the script worker checks with the scripts. */
+export const isStagePath = (path: string): boolean => path === STAGES_DIR || path.startsWith(`${STAGES_DIR}/`);
 
 /** The project's space files (M5.8): with any, the world module joins its game. */
 const spaceFiles = async (source: ProjectSource): Promise<string[]> =>
@@ -50,10 +66,31 @@ const spaceFiles = async (source: ProjectSource): Promise<string[]> =>
 
 export const hasSpaces = async (source: ProjectSource): Promise<boolean> => (await spaceFiles(source)).length > 0;
 
-/** A space's or a prefab's bytes when an interact in it holds items (M6.8), else none. */
+/** Which stage each space names (M7.4), in a line, so a change to one checks the stages again. */
+export async function stagesNamed(source: ProjectSource): Promise<string> {
+  const named: string[] = [];
+  for (const path of await spaceFiles(source)) {
+    const bytes = await source.read(path);
+    const text = bytes === undefined ? '' : new TextDecoder().decode(bytes);
+    if (!text.includes('"stage"')) continue;
+    try {
+      const stage = (JSON.parse(text) as { stage?: unknown }).stage;
+      if (typeof stage === 'string') named.push(`${path}=${stage}`);
+    } catch {
+      // A space that isn't JSON is E007's, and names no stage.
+    }
+  }
+  return named.join('\n');
+}
+
+/**
+ * A space's or a prefab's bytes when an interact in it holds items (M6.8), or a space names a stage
+ * (M7.4), else none.
+ */
 async function holding(source: ProjectSource, path: string): Promise<Uint8Array> {
   const bytes = await source.read(path);
-  return bytes !== undefined && new TextDecoder().decode(bytes).includes('"holds"') ? bytes : new Uint8Array();
+  const text = bytes === undefined ? '' : new TextDecoder().decode(bytes);
+  return bytes !== undefined && (text.includes('"holds"') || text.includes('"stage"')) ? bytes : new Uint8Array();
 }
 
 /**
@@ -63,7 +100,11 @@ async function holding(source: ProjectSource, path: string): Promise<Uint8Array>
  * has the container mode (M6.8).
  */
 export async function scriptFiles(source: ProjectSource): Promise<SentFile[]> {
-  const read = await readFiles(source, [MANIFEST_FILE, ...(await source.files(SCRIPTS_DIR))]);
+  const read = await readFiles(source, [
+    MANIFEST_FILE,
+    ...(await source.files(SCRIPTS_DIR)),
+    ...(await source.files(STAGES_DIR)),
+  ]);
   const spaces = await Promise.all(
     (await spaceFiles(source)).map(async (path): Promise<SentFile> => [path, await holding(source, path)]),
   );
@@ -73,7 +114,7 @@ export async function scriptFiles(source: ProjectSource): Promise<SentFile[]> {
 }
 
 export function stateOf(result: CheckResult, run: boolean): GameState {
-  const { ids, hasGame, diagnostics: problems, ran, game } = result;
+  const { ids, hasGame, diagnostics: problems, ran, game, stages } = result;
   const status: GameStatus =
     ids.length === 0
       ? 'none'
@@ -86,13 +127,13 @@ export function stateOf(result: CheckResult, run: boolean): GameState {
             : game
               ? 'loaded'
               : 'failed';
-  return { ids, status, problems, catalog: game };
+  return { ids, status, problems, catalog: game, stages };
 }
 
 /** The game's state as the scripts are now; `run` when the project is trusted. */
 export async function readGameState(source: ProjectSource, worker: ScriptWorker, run: boolean): Promise<GameState> {
   const files = await scriptFiles(source);
-  if (!files.some(([path]) => isScriptPath(path))) return NO_SCRIPTS;
+  if (!files.some(([path]) => isScriptPath(path) || isStagePath(path))) return NO_SCRIPTS;
   try {
     return stateOf(await worker.check(files, run), run);
   } catch (error) {
@@ -109,7 +150,7 @@ export async function readGameState(source: ProjectSource, worker: ScriptWorker,
       file: scriptPath(GAME_SCRIPT),
       path: '',
     };
-    return { ids, status: 'failed', problems: [problem], catalog: null };
+    return { ids, status: 'failed', problems: [problem], catalog: null, stages: [] };
   }
 }
 

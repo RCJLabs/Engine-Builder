@@ -17,15 +17,18 @@ interface PatternRule {
   pattern: RegExp;
 }
 
+const TRANSCENDENTAL: PatternRule = {
+  rule: 'no transcendental Math (results differ between JS engines)',
+  pattern:
+    /\bMath\.(sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|asinh|acosh|atanh|exp|expm1|log|log1p|log2|log10|pow|cbrt|hypot)\b/,
+};
+const POWER: PatternRule = { rule: 'no ** operator (floating-point pow)', pattern: /\*\*/ };
+
 // `(?<![.\w$])` and `(?!\s*\??:)` let property names through: `a.window`, `{ performance: 1 }`.
 const PURE_PATTERNS: readonly PatternRule[] = [
   { rule: 'no Math.random (use a seeded rng stream)', pattern: /\bMath\.random\b/ },
-  {
-    rule: 'no transcendental Math (results differ between JS engines)',
-    pattern:
-      /\bMath\.(sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|asinh|acosh|atanh|exp|expm1|log|log1p|log2|log10|pow|cbrt|hypot)\b/,
-  },
-  { rule: 'no ** operator (floating-point pow)', pattern: /\*\*/ },
+  TRANSCENDENTAL,
+  POWER,
   { rule: 'no Date (time arrives as actions)', pattern: /\bDate\b/ },
   { rule: 'no Intl or localeCompare (locale-dependent)', pattern: /\bIntl\b|\.localeCompare\s*\(/ },
   {
@@ -44,16 +47,34 @@ const PURE_PATTERNS: readonly PatternRule[] = [
   },
 ];
 
-/** The pattern rules' findings in code already scanned (scan's `code`), one per rule and line. */
-export function patternViolations(file: string, code: string): Violation[] {
+/**
+ * A stage's rules (M7.4, D86): the pure rules less transcendental Math and `**`, since a picture
+ * needn't agree to the last bit between engines and the sim never reads one; and no `self` or
+ * `postMessage`, so a stage speaks to the page only by what its frame returns.
+ */
+const STAGE_PATTERNS: readonly PatternRule[] = [
+  ...PURE_PATTERNS.filter((p) => p !== TRANSCENDENTAL && p !== POWER),
+  {
+    rule: 'no self or postMessage (a stage answers through what frame returns)',
+    pattern: /(?<![.\w$])(self|postMessage|onmessage|importScripts)\b(?!\s*\??:)/,
+  },
+];
+
+function violations(rules: readonly PatternRule[], file: string, code: string): Violation[] {
   const out: Violation[] = [];
   code.split('\n').forEach((text, i) => {
-    for (const { rule, pattern } of PURE_PATTERNS) {
+    for (const { rule, pattern } of rules) {
       if (pattern.test(text)) out.push({ file, line: i + 1, rule });
     }
   });
   return out;
 }
+
+/** The pattern rules' findings in code already scanned (scan's `code`), one per rule and line. */
+export const patternViolations = (file: string, code: string): Violation[] => violations(PURE_PATTERNS, file, code);
+
+/** A stage's rules' findings in code already scanned, one per rule and line (M7.4). */
+export const stageViolations = (file: string, code: string): Violation[] => violations(STAGE_PATTERNS, file, code);
 
 /**
  * Checks one source file of a pure package. `pureNames` lists the workspace packages that are

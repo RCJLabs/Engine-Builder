@@ -7,7 +7,8 @@
   "//sideEffects": "Nothing runs on import, so a bundle that leaves scripts out leaves sucrase out too.",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./stage-load": "./src/stageLoad.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

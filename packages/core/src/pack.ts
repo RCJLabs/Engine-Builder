@@ -7,7 +7,7 @@ import { stateHash } from './stateHash.ts';
 import { type CalendarDef, calendarOf } from './time/calendar.ts';
 import { type ClockDef, MAX_RATE, msPerTickAt } from './time/clock.ts';
 import { holdsAny } from './world/containers.ts';
-import { asFormat9, asFormat10, hasFlatSpace, type PackWorld, worldProblem } from './world/packWorld.ts';
+import { asFormat9, asFormat10, hasFlatSpace, hasStage, type PackWorld, worldProblem } from './world/packWorld.ts';
 import { hasTags } from './world/places.ts';
 
 export type { PackMap } from './world/packMaps.ts';
@@ -26,12 +26,12 @@ export type { PackWorld } from './world/packWorld.ts';
  * and the combat record a walked space's fights read, clock or none; format 14 (M6.6) the spaces' maps;
  * format 15 (M6.7) the tags of the spaces and their objects, maps or none; format 16 (M6.8) what a use holds;
  * format 17 (M7.1) a 2D space, holding or none; format 18 (M7.2) a tilemap; format 19 (M7.3) a building,
- * tilemap or none.
+ * tilemap or none; format 20 (M7.4) a stage drawn in code or a screen's image, either, world or none.
  * A pack is written in the lowest format that holds it,
  * so one without scripts or kits is still format 1, an older engine reads it and its hash stays
  * what it was.
  */
-export const PACK_FORMAT = 19;
+export const PACK_FORMAT = 20;
 
 export interface PackProject {
   readonly id: string;
@@ -65,6 +65,8 @@ export interface PackUi {
   readonly feedback?: unknown;
   /** Format 6: ui/shell.json as written (M4.3, D53). */
   readonly shell?: unknown;
+  /** Format 20: the assets the screens' image widgets show, as data URLs by their path inside assets/ (M7.4, D86). */
+  readonly images?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -82,7 +84,7 @@ export interface PackCredit {
 }
 
 export interface Pack {
-  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19;
+  readonly format: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;
   readonly project: PackProject;
   readonly records: RecordPack;
   /** Format 2, and 3 and 4 when there are any: each script's JavaScript by id, scripts/game.ts's among them (M3.2, D38). */
@@ -118,7 +120,8 @@ export const packHash = (pack: Omit<Pack, 'hash'>): string =>
  * when there are any (format 7), the music's files (format 8) and the spaces (format 9), with
  * their uses, spawn points and start (format 10), their navmeshes (format 11), the clock (format 12),
  * the fighting (format 13), the maps (format 14), the tags (format 15), what uses hold (format 16)
- * a 2D space (format 17), a tilemap (format 18) and a building (format 19).
+ * a 2D space (format 17), a tilemap (format 18), a building (format 19), and a stage or a screen's
+ * image (format 20).
  */
 export function createPack(
   project: PackProject,
@@ -143,6 +146,9 @@ export function createPack(
   const flat = walked && hasFlatSpace(world.spaces);
   const tiled = walked && world.tiles !== undefined && Object.keys(world.tiles).length > 0;
   const built = walked && world.buildings !== undefined && Object.keys(world.buildings).length > 0;
+  // Format 20 is a stage's or an image's, whichever the game has: a game of screens alone may show one.
+  const staged = walked && hasStage(world);
+  const imaged = ui?.images !== undefined && Object.keys(ui.images).length > 0;
   const kitted = hasKits
     ? {
         ...plain,
@@ -156,47 +162,50 @@ export function createPack(
   const hasUi = screened || ui?.feedback !== undefined || ui?.shell !== undefined;
   const credited = credits !== undefined && credits.length > 0;
   const sounded = audio !== undefined && Object.keys(audio).length > 0;
-  const later = clocked || fought || mapped || tagged || held || flat || tiled || built;
+  const later = clocked || fought || mapped || tagged || held || flat || tiled || built || staged || imaged;
   const ten = walked && !later ? asFormat10(withoutMaps(world)) : undefined;
   const nine = ten !== undefined ? asFormat9(ten) : undefined;
   // The lowest format that holds it: each format adds one thing to the one before.
-  const format = walked
-    ? built
-      ? 19
-      : tiled
-        ? 18
-        : flat
-          ? 17
-          : held
-            ? 16
-            : tagged
-              ? 15
-              : mapped
-                ? 14
-                : fought
-                  ? 13
-                  : clocked
-                    ? 12
-                    : ten === undefined
-                      ? 11
-                      : nine === undefined
-                        ? 10
-                        : 9
-    : sounded
-      ? 8
-      : credited
-        ? 7
-        : ui?.shell !== undefined
-          ? 6
-          : ui?.feedback !== undefined
-            ? 5
-            : screened
-              ? 4
-              : hasKits
-                ? 3
-                : scripted
-                  ? 2
-                  : 1;
+  const format =
+    staged || imaged
+      ? 20
+      : walked
+        ? built
+          ? 19
+          : tiled
+            ? 18
+            : flat
+              ? 17
+              : held
+                ? 16
+                : tagged
+                  ? 15
+                  : mapped
+                    ? 14
+                    : fought
+                      ? 13
+                      : clocked
+                        ? 12
+                        : ten === undefined
+                          ? 11
+                          : nine === undefined
+                            ? 10
+                            : 9
+        : sounded
+          ? 8
+          : credited
+            ? 7
+            : ui?.shell !== undefined
+              ? 6
+              : ui?.feedback !== undefined
+                ? 5
+                : screened
+                  ? 4
+                  : hasKits
+                    ? 3
+                    : scripted
+                      ? 2
+                      : 1;
   const content = {
     format,
     project: kitted,
@@ -214,7 +223,11 @@ export function createPack(
 // tagged or holding pack has one world shape; format 14 and up keep the maps, and 15 and up the places,
 // every space untagged for a world given none.
 function worldIn(format: number, world: PackWorld): PackWorld {
-  // Format 19 keeps the buildings, and 18 and up the tilemaps; an older format, which can't hold one, has none.
+  // Format 20 keeps the stages, 19 the buildings and 18 and up the tilemaps; an older format, which can't hold one, has none.
+  if (format < 20 && world.stages !== undefined) {
+    const { stages, ...unstaged } = world;
+    return worldIn(format, unstaged);
+  }
   if (format < 19 && world.buildings !== undefined) {
     const { buildings, ...unbuilt } = world;
     return worldIn(format, unbuilt);
@@ -243,11 +256,12 @@ function withoutMaps(world: PackWorld): PackWorld {
   return rest;
 }
 
-const uiOf = ({ screens, theme, feedback, shell }: PackUi): PackUi => ({
+const uiOf = ({ screens, theme, feedback, shell, images }: PackUi): PackUi => ({
   screens,
   ...(theme !== undefined ? { theme } : {}),
   ...(feedback !== undefined ? { feedback } : {}),
   ...(shell !== undefined ? { shell } : {}),
+  ...(images !== undefined && Object.keys(images).length > 0 ? { images } : {}),
 });
 
 export class PackError extends Error {
@@ -266,7 +280,7 @@ const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>
  */
 export function readPack(value: unknown): Pack {
   if (!isObject(value)) throw new PackError('A pack must be a JSON object');
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(value.format as number)) {
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].includes(value.format as number)) {
     throw new PackError(
       typeof value.format === 'number' && value.format > PACK_FORMAT
         ? `This pack is format ${value.format}; this engine reads formats 1 to ${PACK_FORMAT}. Update the engine.`
@@ -294,8 +308,11 @@ export function readPack(value: unknown): Pack {
   if (format === 7 || (format >= 8 && value.credits !== undefined)) checkCredits(value.credits);
   // Format 9 is the format for spaces, which a game without music may carry.
   if (format === 8 || (format >= 9 && value.audio !== undefined)) checkAudio(value.audio);
-  const world = format >= 9 ? worldProblem(value.world, format) : undefined;
+  // Format 20 is the format for a stage or an image, which a game without spaces may show.
+  const world =
+    format >= 9 && (format < 20 || value.world !== undefined) ? worldProblem(value.world, format) : undefined;
   if (world !== undefined) throw new PackError(world);
+  if (format === 20 && !hasStageOrImage(value)) throw new PackError('A format 20 pack has no stage and no image');
   if (typeof value.hash !== 'string') throw new PackError('The pack has no hash');
   const pack = value as unknown as Pack;
   const actual = packHash(pack);
@@ -383,10 +400,16 @@ function checkUi(ui: unknown, format: number): void {
   if (!isObject(ui)) throw new PackError(`A format ${format} pack has no ${MISSING[format]}`);
   checkKeys(
     ui,
-    ['screens', 'theme', ...(format >= 5 ? ['feedback'] : []), ...(format >= 6 ? ['shell'] : [])],
+    [
+      'screens',
+      'theme',
+      ...(format >= 5 ? ['feedback'] : []),
+      ...(format >= 6 ? ['shell'] : []),
+      ...(format >= 20 ? ['images'] : []),
+    ],
     'pack ui',
   );
-  const { screens, theme, feedback, shell } = ui;
+  const { screens, theme, feedback, shell, images } = ui;
   // Formats 5 and 6 are the formats for feedback and the shell, which play with the fallback where there are no screens.
   if (!isObject(screens) || (format === 4 && Object.keys(screens).length === 0)) {
     throw new PackError(`A format ${format} pack has no screens`);
@@ -403,6 +426,25 @@ function checkUi(ui: unknown, format: number): void {
     if (!isObject(screen)) throw new PackError(`The pack's screen "${id}" is not an object`);
   }
   if (theme !== undefined && !isObject(theme)) throw new PackError("The pack's theme is not an object");
+  if (images !== undefined) checkImages(images);
+}
+
+// A data URL of an image type, base64: the page shows it as it is, with no file to fetch.
+const IMAGE_URL = /^data:image\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/]*={0,2}$/;
+
+/** Format 20's images: data URLs of image types by a path inside assets/, at least one. */
+function checkImages(images: unknown): void {
+  if (!isObject(images) || Object.keys(images).length === 0) throw new PackError("The pack's images are none");
+  for (const [path, url] of Object.entries(images)) {
+    if (typeof url !== 'string' || !IMAGE_URL.test(url))
+      throw new PackError(`The pack's image "${path}" is not an image's data URL`);
+  }
+}
+
+/** Whether a format 20 pack has what format 20 is for: a space's stage or a screen's image. */
+function hasStageOrImage(value: Readonly<Record<string, unknown>>): boolean {
+  const imaged = isObject(value.ui) && isObject(value.ui.images);
+  return imaged || (isObject(value.world) && hasStage(value.world as unknown as PackWorld));
 }
 
 const BASE64 = /^[A-Za-z0-9+/]*={0,2}$/;

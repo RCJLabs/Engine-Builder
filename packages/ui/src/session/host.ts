@@ -87,7 +87,20 @@ export function createHost(options: HostOptions = {}): Host {
 export function openedReply(id: number, opened: Opened): Extract<PlayReply, { kind: 'opened' }> {
   const { pack, screens, theme, shell, name, audio } = opened;
   const world = pack.world ? { world: pack.world } : {};
-  return { id, kind: 'opened', name, game: pack.project.id, build: pack.hash, screens, theme, shell, audio, ...world };
+  const images = pack.ui?.images ? { images: pack.ui.images } : {};
+  return {
+    id,
+    kind: 'opened',
+    name,
+    game: pack.project.id,
+    build: pack.hash,
+    screens,
+    theme,
+    shell,
+    audio,
+    ...world,
+    ...images,
+  };
 }
 
 /** The player page's host: its requests answered, nothing more. */

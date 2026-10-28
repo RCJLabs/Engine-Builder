@@ -46,7 +46,7 @@ export function InspectorPanel() {
   useEffect(() => {
     if (pick?.kind === 'record') forms.load();
     else if (pick?.kind === 'asset') assets.load();
-    else if (pick?.kind === 'script') scripts.load();
+    else if (pick?.kind === 'script' || pick?.kind === 'stage') scripts.load();
     else if (pick?.kind === 'scene') scenes.load();
     else if (pick?.kind === 'ui') screens.load();
     else if (pick?.kind === 'space') loadSpaces();
@@ -95,6 +95,14 @@ function Chosen() {
       <ScriptEditor key={pick.id} project={project} id={pick.id} />
     ) : (
       <p class="muted">Opening scripts/{pick.id}.ts…</p>
+    );
+  }
+  if (pick.kind === 'stage') {
+    const ScriptEditor = scripts.module.value?.ScriptEditor;
+    return ScriptEditor ? (
+      <ScriptEditor key={`stage:${pick.id}`} project={project} id={pick.id} stage />
+    ) : (
+      <p class="muted">Opening stages/{pick.id}.ts…</p>
     );
   }
   if (pick.kind === 'scene') {

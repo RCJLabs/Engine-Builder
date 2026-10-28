@@ -2638,6 +2638,50 @@ Evan chose on 2026-10-27, from these options:
 - **No doors between rooms:** walkers cross any room on a floor.
 - **Untested for feel** until the keep is seen on a phone.
 
+### D86. A 2D space can be drawn by the project's own code: a stage under stages/, run off the page in a locked worker on a canvas the page hands it, drawing with Canvas 2D while the engine keeps the space's walkers, clock and uses; Space-Wrecked's boarding deck drawn by its own battle painter is the demo. LOCKED, 2026-10-27 (Evan's calls, M7.4)
+
+Evan chose on 2026-10-27, from these options:
+- **Demo:** M7.2's boarding deck drawn by Space-Wrecked's own battle painter, ported as the project's stage code; a fresh small stage written for the API; or a Dirtbag crag scene ported from its painters.
+- **Where drawing code runs:** off the page, in a worker; or on the page, with a trust prompt on the player page.
+- **SVG:** Canvas 2D, with SVG drawn as images and shown in screens; or SVG stages too.
+- **Editor:** the script editor and Play; or a live view in the Scene panel too.
+
+**Decision.**
+- **The demo is the boarding deck drawn by Space-Wrecked's battle painter,** about 2,500 of its lines ported into the project's stages/ with the changes a worker needs. It tests the API against code-drawn art that already ships, and it is the first piece of Proof #3 (M7.7).
+- **Drawing code runs off the page,** in a worker locked down as the game's own is, on a canvas the page hands it. A game file opened at /play/ can't reach the editor's projects or another game's saves, so the player page needs no trust prompt.
+- **A stage draws with Canvas 2D.** SVG is drawn as images: SVG text the stage makes is turned into a picture by the page, and a screen's image widget shows an SVG asset as it shows a PNG. There are no SVG stages.
+- **Stages are edited in the script editor and seen in Play.** The Scene panel goes on editing the space's data and drawing it with the built-in 2D view.
+
+**Also settled, as the session's calls** (2026-10-27, engineering calls that follow from the above and from docs/research/stages.md):
+- **A stage replaces only the drawing.** A 2D space's `stage` names `stages/<id>.ts`. The sim, the pack's world, and the stage2d loop that walks the space's figures along their routes, tells their arrivals, runs the clock and sends uses all go on as they do for any 2D space. Each frame the stage is handed what stage2d would have drawn, and paints it.
+- **Stage code is TypeScript under stages/,** a stage file and the files it imports there, importing `defineStage` and `svg` from `"eb/stage"`. It is checked by the purity rules without the rule on transcendental Math and `**`: drawing needn't agree to the last bit between engines, and the sim never reads it. `Math.random`, `Date`, timers and the DOM stay out, so a frame drawn twice is drawn the same and noise is seeded, as Space-Wrecked's is. E028 to E030 report a stage file's problems at their lines, as they do a script's.
+- **Packed as format 20:** each stage a space names, as its files compiled to JavaScript, and the assets the screens' image widgets name. A stage no space names is W159 and left out.
+- **stagework.js** is a runtime file beside stage2d.js, started as a worker from a blob so it runs from `file://`. The page hands it the canvas and the space's sheets as bitmaps, then sends a frame only once the last one is drawn: a slow painter drops frames and never queues them.
+- **What a stage gets:**
+  - At its start: the space as packed (each object's place in art pixels, the tilemap's rows and edges, the building), the records its objects name, and its sheets.
+  - Each frame: the time, the box's size and pixel ratio, reduced motion, and each walker (its actor, place in art pixels, facing and whether it is moving). It also gets what the Space widget reads of the world (here, the fight, the markers) and the input since the last frame: drags, two fingers' twist and pinch, the wheel and the arrow keys.
+- **Uses stay buttons.** A stage returns each use's box on screen, and the page puts its own button there, at least 44 px, which a screen reader and the keyboard reach. A use the stage gives no box has no button, and the stage's hook says which.
+- **A stage that throws** stops drawing, says its error and where over the box and in the editor's console, and the space goes on.
+- **Fonts are the device's** until Phase 10 ships the engine's OFL fonts.
+- **Checks:** E058 for a stage on a 3D space; E095 for a `stage` that names no stage file; E028 to E030 in a stage's files; W159 for a stage no space names.
+
+**Why.**
+- **The deck in its own painter** proves the API carries a real code-drawn style unchanged in spirit, and the port is work M7.7 needs anyway.
+- **A locked worker** keeps a game's code away from the page that holds every project and save on the engine's domain, at the cost of a few changed lines in each painter.
+- **Canvas 2D only** keeps one renderer to test. Space-Wrecked's SVG is portraits and icons, which are pictures.
+- **Script editor and Play** add no new view to keep in step with the Scene panel's.
+
+**Cost.**
+- **The port is about 2,500 lines** of Space-Wrecked's code in the fixture, under its own notice, held only by the tests the engine writes for it: its own code can't be run here to compare.
+- **A frame crosses to a worker and back,** so a stage's picture is a frame behind the walkers at worst.
+- **No custom fonts** until Phase 10.
+- **Untested for feel** until the deck is seen on a phone.
+
+**As built** (M7.4, 2026-10-27; [specs/stages.md](specs/stages.md#as-built-m74)):
+- **No stagework.js.** The stage's worker is built into stage2d.js, so a stage runs from `file://` and from every export with nothing beside it. It also takes away `postMessage` and the event listeners from stage code, which can speak to the page only through what `frame` returns.
+- **The port is 3,080 lines,** the types added, each file in Space-Wrecked's own layout. Its camera's input (a drag turns and tilts, a twist turns, the wheel and a pinch zoom, the arrows turn) is the port's own choice, since Space-Wrecked pans with one finger.
+- **A browser with no 2D OffscreenCanvas** (Safari before 16.4) shows why over the box, and the space goes on without its drawing.
+
 ---
 
 ## Open

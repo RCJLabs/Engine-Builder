@@ -48,6 +48,11 @@ export interface PackWorld {
   readonly tiles?: Readonly<Record<string, PackTiles>>;
   /** Format 19 (M7.3): each space's building, its rooms, its stairs and where its objects stand. */
   readonly buildings?: Readonly<Record<string, PackBuilding>>;
+  /**
+   * Format 20 (M7.4, D86): the stage files the spaces' stages reach, as JavaScript by their path
+   * under stages/ without `.ts`. A space's `stage` names its entry; the page runs them, never the sim.
+   */
+  readonly stages?: Readonly<Record<string, string>>;
 }
 
 /** What the world module is built from. A format 9 pack has no uses, and starts in its first space. */
@@ -118,6 +123,7 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
     ...(format >= 15 ? ['places'] : []),
     ...(format >= 18 ? ['tiles'] : []),
     ...(format >= 19 ? ['buildings'] : []),
+    ...(format >= 20 ? ['stages'] : []),
   ];
   const unknown = extra(world, ['spaces', 'prefabs', 'triggers', 'files', 'records', 'fields', ...placed]);
   if (unknown !== undefined) return `Unknown pack world fields: ${unknown}`;
@@ -151,9 +157,32 @@ export function worldProblem(world: unknown, format = 9): string | undefined {
     // Format 18 is the format for tilemaps, so it has one.
     (format >= 18 ? tilesIn(spaces, world.tiles, format) : undefined) ??
     // Format 19 is the format for buildings, so it has one.
-    (format >= 19 ? buildingsIn(spaces, world, format) : undefined)
+    (format >= 19 ? buildingsIn(spaces, world, format) : undefined) ??
+    (format >= 20 ? stagesProblem(spaces, world.stages) : undefined)
   );
 }
+
+/**
+ * Format 20's stages: JavaScript by a path under stages/, and each space's stage among them. A
+ * format 20 pack may have none, as it may be one for a screen's image (pack.ts checks one or other).
+ */
+function stagesProblem(spaces: Readonly<Record<string, unknown>>, stages: unknown): string | undefined {
+  if (stages === undefined) return undefined;
+  if (!allOf(stages, (js) => typeof js === 'string')) return "The pack's stages are not JavaScript by path";
+  const named = Object.keys(stages).find((path) => !isPath(path));
+  if (named !== undefined) return `"${named}" is not a stage file's path`;
+  for (const [id, space] of Object.entries(spaces)) {
+    const stage = isObject(space) ? space.stage : undefined;
+    if (stage !== undefined && (typeof stage !== 'string' || !Object.hasOwn(stages, stage)))
+      return `The space "${id}" names a stage the pack lacks`;
+  }
+  return undefined;
+}
+
+/** Whether any space names a stage (M7.4): format 20's, which an older engine must refuse. */
+export const hasStage = (world: PackWorld): boolean =>
+  world.stages !== undefined &&
+  Object.values(world.spaces).some((space) => isObject(space) && space.stage !== undefined);
 
 /**
  * Format 11's navmeshes, each of a space the pack has and base64, and the actors' places. Format 11

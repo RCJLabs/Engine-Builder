@@ -16,3 +16,13 @@ export function openScript(id: string, at?: { readonly line: number; readonly co
   chosen.value = { kind: 'script', id };
   showPanel('inspector');
 }
+
+/** The script editor's key for a stage file (M7.4): apart from a script of the same name. */
+export const stageKey = (id: string) => `stage:${id}`;
+
+/** A stage file in the inspector (M7.4), in the script editor, at a line when a problem names one. */
+export function openStage(id: string, at?: { readonly line: number; readonly column?: number }): void {
+  lineToFocus.value = at ? { id: stageKey(id), ...at } : null;
+  chosen.value = { kind: 'stage', id };
+  showPanel('inspector');
+}

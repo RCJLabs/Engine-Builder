@@ -1,0 +1,17 @@
+{
+  "name": "Stars",
+  "sheet": "starter-sprites/sky-stars.png",
+  "frame": [
+    128,
+    96
+  ],
+  "clips": {
+    "twinkle": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 1
+    }
+  }
+}

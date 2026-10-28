@@ -64,4 +64,19 @@ describe('what Run sends the worker', () => {
     expect(files.get('assets/sprites/deck-tiles.png')).toEqual(sheet);
     expect(files.get('assets/sprites/unused.png')).toEqual(new Uint8Array());
   });
+
+  it('sends the images screens show whole, which the pack carries as data URLs (M7.4)', async () => {
+    const svg = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>');
+    const hud = { title: 'Shift', layout: { widget: 'panel', children: [{ widget: 'image', asset: 'alarm.svg' }] } };
+    const project = {
+      'project.json': '{}',
+      'ui/shift.json': JSON.stringify(hud),
+      'ui/broken.json': '{ not json',
+      'assets/alarm.svg': svg,
+      'assets/other.svg': svg,
+    };
+    const files = new Map(await playFiles(memorySource(project)));
+    expect(files.get('assets/alarm.svg')).toEqual(svg);
+    expect(files.get('assets/other.svg')).toEqual(new Uint8Array());
+  });
 });

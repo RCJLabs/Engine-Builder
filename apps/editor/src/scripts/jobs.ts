@@ -4,7 +4,15 @@
  * when asked, runs game.ts as `eb validate` runs it; play compiles the project with its game and
  * plays it as `eb sim --seeds <n> --policy <name>` plays it, so the report says the same.
  */
-import { compileWithGame, gameOf, memorySource, projectGame, readKitSettings, readScripts } from '@eb/compiler';
+import {
+  compileWithGame,
+  gameOf,
+  memorySource,
+  projectGame,
+  readKitSettings,
+  readScripts,
+  readStageProblems,
+} from '@eb/compiler';
 import {
   createGame,
   createRecordStore,
@@ -25,7 +33,9 @@ const sourceOf = (files: readonly SentFile[]) => memorySource(Object.fromEntries
 export async function checkJob(files: readonly SentFile[], run: boolean): Promise<CheckResult> {
   const source = sourceOf(files);
   const read = await readScripts(source);
-  const diagnostics: Diagnostic[] = [...read.diagnostics];
+  // The stages are checked here too (M7.4), as eb validate checks them, keeping sucrase off the page.
+  const stages = await readStageProblems(source);
+  const diagnostics: Diagnostic[] = [...read.diagnostics, ...stages.diagnostics];
   let game: GameCatalog | null = null;
   const ran = run && read.hasGame && read.compiled.size > 0;
   if (ran) {
@@ -33,7 +43,14 @@ export async function checkJob(files: readonly SentFile[], run: boolean): Promis
     if (scripted.kind === 'loaded') game = scripted.catalog;
     if (scripted.kind === 'failed') diagnostics.push(scripted.diagnostic);
   }
-  return { ids: read.ids, hasGame: read.hasGame, diagnostics: diagnostics.sort(compareDiagnostics), ran, game };
+  return {
+    ids: read.ids,
+    hasGame: read.hasGame,
+    diagnostics: diagnostics.sort(compareDiagnostics),
+    ran,
+    game,
+    stages: stages.files,
+  };
 }
 
 /** The bots Run offers: the random one first, then the game's own, as eb sim's --policy takes them. */
