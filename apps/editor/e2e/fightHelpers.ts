@@ -18,7 +18,7 @@ import { openProject, showProject } from './ludus.ts';
 
 export const FIGHT = join(import.meta.dirname, '../../../tools/cli/test/fixtures/fight');
 
-type Tile = readonly [number, number];
+export type Tile = readonly [number, number];
 
 interface Step {
   readonly to: Tile;
@@ -195,11 +195,19 @@ export async function winningLine(): Promise<{ seed: string; actions: Action[]; 
   throw new Error('The crew won none of 20 seeds');
 }
 
+/** How a spec presses a tile: stage2d's own deck by default, a stage in code's board by its own reckoning. */
+export type PressTile = (page: Page, tile: Tile, touch: boolean) => Promise<void>;
+
 /**
  * One action played as a player would: its unit chosen in the bar; a move by its tile pressed twice on the deck,
  * anything else by its button pressed and then Confirm, or pressed twice; then the crew's turn waited for.
  */
-export async function playAction(page: Page, action: Action, touch = false): Promise<void> {
+export async function playAction(
+  page: Page,
+  action: Action,
+  touch = false,
+  press: PressTile = pressTile,
+): Promise<void> {
   const how = (target: Locator) => (touch ? target.tap() : target.click());
   const unit = typeof action.unit === 'string' ? action.unit : undefined;
   if (unit !== undefined) {
@@ -209,7 +217,7 @@ export async function playAction(page: Page, action: Action, touch = false): Pro
   const verb = action.type.replace('tactics/', '');
   if (verb === 'move') {
     for (let i = 0; i < 2; i++) {
-      await pressTile(page, action.to as Tile, touch);
+      await press(page, action.to as Tile, touch);
       if (i === 0) await expect.poll(async () => (await battle(page))?.preview).toEqual(action);
     }
   } else {
